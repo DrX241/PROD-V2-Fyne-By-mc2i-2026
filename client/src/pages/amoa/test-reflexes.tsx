@@ -483,7 +483,6 @@ const TestDeReflexes: React.FC = () => {
     setShowExplanation(false);
     setSelectedOptionId(null);
     setUsedQuestionIds(new Set());
-    setQuestionCount(0);
     
     // Réinitialiser les états de gamification
     setCollectedAnswers([]);
@@ -493,9 +492,16 @@ const TestDeReflexes: React.FC = () => {
     setDifficulty("facile");
     setLoading(false);
     
-    // Sélectionner la première question aléatoirement parmi les questions de difficulté "facile"
-    const easyQuestions = testQuestions.filter(q => q.difficulty === "facile");
-    const firstQuestion = easyQuestions[Math.floor(Math.random() * easyQuestions.length)];
+    // Mélanger toutes les questions disponibles
+    const shuffledQuestions = [...testQuestions].sort(() => Math.random() - 0.5);
+    
+    // Filtrer les questions faciles parmi le tableau mélangé
+    const easyQuestions = shuffledQuestions.filter(q => q.difficulty === "facile");
+    
+    // Prendre la première question facile, ou n'importe quelle question si aucune facile n'est disponible
+    const firstQuestion = easyQuestions.length > 0 
+      ? easyQuestions[0] 
+      : shuffledQuestions[0];
     
     // Marquer cette question comme utilisée
     setUsedQuestionIds(new Set([firstQuestion.id]));
@@ -636,7 +642,7 @@ const TestDeReflexes: React.FC = () => {
       setTimer(null);
     }
     
-    // Enregistrer une non-réponse
+    // Enregistrer une non-réponse (sans sélectionner automatiquement la première option)
     setAnswers((prev) => ({
       ...prev,
       [currentQuestion?.id || ""]: {
@@ -665,6 +671,9 @@ const TestDeReflexes: React.FC = () => {
           timeToAnswer: currentQuestion.timeLimit
         }
       ]);
+      
+      // Afficher brièvement la bonne réponse
+      setShowExplanation(true);
     }
     
     // Message d'encouragement pour timeout
@@ -676,19 +685,23 @@ const TestDeReflexes: React.FC = () => {
     }
     
     // Afficher un message
-    toast({
-      title: "Temps écoulé !",
-      description: "Vous n'avez pas répondu à temps.",
-      variant: "destructive"
-    });
+    setTimeout(() => {
+      toast({
+        title: "Temps écoulé !",
+        description: "Vous n'avez pas répondu à temps.",
+        variant: "destructive"
+      });
+    }, 0);
     
-    // Passer à la question suivante
-    goToNextQuestion();
+    // Attendre 1.5 secondes avant de passer à la question suivante
+    setTimeout(() => {
+      goToNextQuestion();
+    }, 1500);
   };
 
   // Passer à la question suivante
   const goToNextQuestion = () => {
-    // Vérifier si nous avons atteint le nombre maximal de questions
+    // Vérifier si nous avons atteint le nombre maximal de questions (15 maximum)
     if (questionCount >= maxQuestions) {
       finishTest();
       return;
@@ -704,16 +717,20 @@ const TestDeReflexes: React.FC = () => {
     setSelectedOptionId(null);
     setFeedbackMessage(null);
     
-    // Si toutes les questions ont été utilisées, réinitialiser l'ensemble des questions utilisées
-    if (usedQuestionIds.size >= testQuestions.length - 3) {
-      setUsedQuestionIds(new Set());
-    }
-    
     // Incrémenter l'index de question et le compteur de questions
     setCurrentQuestionIndex((prev) => prev + 1);
     setQuestionCount((prev) => prev + 1);
     
-    // Filtrer les questions non utilisées et correspondant à la difficulté actuelle
+    // Filtrer les questions non utilisées 
+    const unusedQuestions = testQuestions.filter(q => !usedQuestionIds.has(q.id));
+    
+    // Si nous manquons de questions non utilisées, tout réinitialiser sauf la question courante
+    if (unusedQuestions.length <= 3) {
+      const currentQuestionId = currentQuestion?.id || "";
+      setUsedQuestionIds(new Set([currentQuestionId]));
+    }
+    
+    // Filtrer d'abord par difficulté parmi les questions non utilisées
     const filteredByDifficulty = testQuestions.filter(
       q => !usedQuestionIds.has(q.id) && q.difficulty === difficulty
     );
@@ -723,14 +740,18 @@ const TestDeReflexes: React.FC = () => {
       ? filteredByDifficulty 
       : testQuestions.filter(q => !usedQuestionIds.has(q.id));
     
-    // S'il n'y a plus de questions non utilisées, prendre n'importe quelle question
+    // Vérifier qu'il y a des questions disponibles
     if (nextQuestions.length === 0) {
+      // Si on est à court de questions, réinitialiser completement les questions utilisées
+      setUsedQuestionIds(new Set());
       nextQuestions = testQuestions;
     }
     
-    // Sélectionner une question aléatoire parmi les questions disponibles
-    const nextQuestionIndex = Math.floor(Math.random() * nextQuestions.length);
-    const nextQuestion = nextQuestions[nextQuestionIndex];
+    // Mélanger les questions pour plus d'aléatoire
+    const shuffledQuestions = [...nextQuestions].sort(() => Math.random() - 0.5);
+    
+    // Prendre la première question du tableau mélangé
+    const nextQuestion = shuffledQuestions[0];
     
     // Marquer cette question comme utilisée
     setUsedQuestionIds(prev => {
@@ -743,24 +764,27 @@ const TestDeReflexes: React.FC = () => {
     const nextQuestionBaseTime = nextQuestion.timeLimit;
     setTimeLeft(nextQuestionBaseTime);
     
-    // Redémarrer le timer pour la nouvelle question
-    const newTimer = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        if (prevTime <= 1) {
-          handleTimeout();
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
-    
-    setTimer(newTimer);
+    // Redémarrer le timer pour la nouvelle question avec un délai de sécurité
+    setTimeout(() => {
+      const newTimer = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 1) {
+            handleTimeout();
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+      
+      setTimer(newTimer);
+    }, 100);
   };
 
   // Calculer les résultats
   const calculateResults = (): TestResults => {
-    const totalQuestions = testQuestions.length;
-    const answeredQuestions = Object.keys(answers).length;
+    // On utilise le nombre de questions réellement posées plutôt que le total disponible
+    const totalQuestions = Object.keys(answers).length;
+    const answeredQuestions = totalQuestions;
     const correctAnswers = Object.values(answers).filter(a => a.isCorrect).length;
     const totalResponseTime = Object.values(answers).reduce((total, a) => total + a.responseTime, 0);
     const averageResponseTime = answeredQuestions > 0 ? totalResponseTime / answeredQuestions : 0;
@@ -773,15 +797,19 @@ const TestDeReflexes: React.FC = () => {
       };
     } = {};
     
-    testQuestions.forEach((q) => {
-      if (!categoryScores[q.category]) {
-        categoryScores[q.category] = { score: 0, total: 0 };
-      }
-      
-      categoryScores[q.category].total += 1;
-      
-      if (answers[q.id]?.isCorrect) {
-        categoryScores[q.category].score += 1;
+    // Ne prendre en compte que les questions qui ont été posées
+    Object.keys(answers).forEach((questionId) => {
+      const question = testQuestions.find(q => q.id === questionId);
+      if (question) {
+        if (!categoryScores[question.category]) {
+          categoryScores[question.category] = { score: 0, total: 0 };
+        }
+        
+        categoryScores[question.category].total += 1;
+        
+        if (answers[questionId]?.isCorrect) {
+          categoryScores[question.category].score += 1;
+        }
       }
     });
     
@@ -824,57 +852,94 @@ const TestDeReflexes: React.FC = () => {
       setTimer(null);
     }
     
+    // S'assurer que le test est bien terminé
+    setIsStarted(false);
     setIsFinished(true);
+    setActiveTab("results");
+    
+    // Vérifier que nous avons bien des réponses collectées
+    if (collectedAnswers.length === 0) {
+      setTimeout(() => {
+        toast({
+          title: "Erreur de collecte de données",
+          description: "Aucune réponse n'a été enregistrée pendant le test.",
+          variant: "destructive"
+        });
+      }, 0);
+      return;
+    }
     
     // Calculer les résultats de base
     const calculatedResults = calculateResults();
+    
+    // Mettre à jour les résultats initiaux
+    setResults(calculatedResults);
     
     // Indiquer le chargement pendant l'analyse IA
     setLoading(true);
     
     try {
-      // Envoyer les données collectées pour l'analyse IA
+      // Limiter à maximum 15 questions pour l'analyse
+      const limitedAnswers = collectedAnswers.slice(0, maxQuestions);
+      
+      // Envoyer les données collectées pour l'analyse IA en utilisant l'API client
+      const payload = {
+        answers: limitedAnswers,
+        score: calculatedResults.score,
+        totalQuestions: limitedAnswers.length,
+        correctAnswers: limitedAnswers.filter(a => a.isCorrect).length,
+        averageResponseTime: calculatedResults.averageResponseTime,
+        categoryScores: calculatedResults.categoryScores
+      };
+      
       const response = await fetch('/api/amoa/reflex-test/evaluate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          answers: collectedAnswers,
-          baseResults: calculatedResults
-        }),
+        body: JSON.stringify(payload),
       });
       
-      if (!response.ok) {
-        throw new Error('Erreur lors de l\'analyse IA');
+      const data = await response.json();
+      
+      if (data.success && data.analysis) {
+        // Mettre à jour les résultats avec l'analyse IA
+        setTimeout(() => {
+          setResults(prev => ({
+            ...prev!,
+            aiEvaluation: data.analysis
+          }));
+        }, 0);
+      } else {
+        setTimeout(() => {
+          toast({
+            title: "Analyse IA indisponible",
+            description: "L'analyse détaillée n'a pas pu être générée. Les résultats basiques sont affichés.",
+            variant: "destructive"
+          });
+        }, 0);
       }
-      
-      // Récupérer l'analyse IA
-      const aiAnalysis = await response.json();
-      
-      // Intégrer l'analyse IA aux résultats
-      calculatedResults.aiEvaluation = aiAnalysis.analysis;
     } catch (error) {
       console.error('Erreur lors de l\'analyse IA:', error);
-      toast({
-        title: "Analyse IA indisponible",
-        description: "L'analyse détaillée n'a pas pu être générée. Les résultats basiques sont affichés.",
-        variant: "destructive"
-      });
+      setTimeout(() => {
+        toast({
+          title: "Analyse IA indisponible",
+          description: "L'analyse détaillée n'a pas pu être générée. Les résultats basiques sont affichés.",
+          variant: "destructive"
+        });
+      }, 0);
     } finally {
       setLoading(false);
     }
     
-    // Mettre à jour les résultats et l'interface
-    setResults(calculatedResults);
-    setIsFinished(true);
-    setActiveTab("results");
-    
-    toast({
-      title: "Test terminé !",
-      description: `Votre score : ${calculatedResults.score}% (${calculatedResults.correctAnswers}/${calculatedResults.totalQuestions})`,
-      variant: "default"
-    });
+    // Afficher une notification pour le score
+    setTimeout(() => {
+      toast({
+        title: "Test terminé !",
+        description: `Votre score : ${calculatedResults.score}% (${calculatedResults.correctAnswers}/${calculatedResults.totalQuestions})`,
+        variant: "default"
+      });
+    }, 100);
   };
 
   // Nettoyer tous les timers à la fermeture du composant
