@@ -984,7 +984,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
           <Button 
             variant="ghost" 
             className="text-white hover:text-white hover:bg-gray-700/80"
-            onClick={() => window.location.href = "/i-am-mc2i"}
+            onClick={() => window.location.href = "/amoa-mode-selection-fixed"}
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Retour vers I AM mc2i
@@ -996,7 +996,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
             Simulation d'audition - mc2i exclusif
           </h1>
           <p className="text-gray-300 max-w-3xl mx-auto">
-            Cette simulation vous aide à préparer les consultants mc2i pour des auditions auprès de clients, avec des conseils sur la tenue, l'attitude professionnelle et les bonnes pratiques avant, pendant et après l'entretien.
+            Par simulation d'audition : consultez les bonnes pratiques sur la tenue, l'attitude professionnelle et le comportement avant, pendant et après l'entretien, puis lancez une simulation interactive pour vous entraîner en conditions réelles.
           </p>
         </div>
         
@@ -1026,13 +1026,19 @@ const Mc2iInterviewPreparation: React.FC = () => {
               <CardContent className="pt-6">
                 <BestPracticesContent setActiveTab={setActiveTab} setSimulationPhase={setSimulationPhase} />
               </CardContent>
-              <CardFooter className="flex justify-center border-t border-gray-700/50 pt-4">
+              <CardFooter className="flex justify-between border-t border-gray-700/50 pt-4">
                 <Button
                   onClick={() => window.print()}
                   variant="outline"
                   className="border-gray-600 text-gray-300 hover:bg-gray-700"
                 >
                   Imprimer ce guide
+                </Button>
+                <Button
+                  onClick={() => window.location.href = "/amoa/interview-simulation"}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                >
+                  Démarrer une simulation d'audition
                 </Button>
               </CardFooter>
             </Card>
