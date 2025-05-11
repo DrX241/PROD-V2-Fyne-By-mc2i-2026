@@ -200,16 +200,22 @@ const TestDeReflexes: React.FC = () => {
     setDifficulty("facile");
     setLoading(false);
     
-    // Mélanger toutes les questions disponibles
-    const shuffledQuestions = [...testQuestions].sort(() => Math.random() - 0.5);
+    // Utiliser les questions générées - elles sont déjà mélangées par l'API
+    const shuffledQuestions = [...generatedQuestions];
     
-    // Filtrer les questions faciles parmi le tableau mélangé
-    const easyQuestions = shuffledQuestions.filter(q => q.difficulty === "facile");
-    
-    // Prendre la première question facile, ou n'importe quelle question si aucune facile n'est disponible
-    const firstQuestion = easyQuestions.length > 0 
-      ? easyQuestions[0] 
-      : shuffledQuestions[0];
+    // Prendre la première question de nos 5 questions générées
+    const firstQuestion = shuffledQuestions.length > 0 
+      ? shuffledQuestions[0] 
+      : null;
+      
+    if (!firstQuestion) {
+      toast({
+        title: "Erreur",
+        description: "Aucune question n'a pu être générée. Veuillez réessayer.",
+        variant: "destructive",
+      });
+      return; // Ne pas démarrer le test s'il n'y a pas de questions
+    }
     
     // Marquer cette question comme utilisée
     setUsedQuestionIds(new Set([firstQuestion.id]));
@@ -739,9 +745,19 @@ const TestDeReflexes: React.FC = () => {
                       className="bg-green-700 hover:bg-green-600 text-white w-full sm:w-64"
                       size="lg"
                       onClick={handleStartTest}
+                      disabled={isLoading}
                     >
-                      Commencer le test
-                      <Clock className="ml-2 h-4 w-4" />
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Génération des questions...
+                        </>
+                      ) : (
+                        <>
+                          Commencer le test
+                          <Clock className="ml-2 h-4 w-4" />
+                        </>
+                      )}
                     </Button>
                   </CardFooter>
                 </Card>
