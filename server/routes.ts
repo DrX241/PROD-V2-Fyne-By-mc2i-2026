@@ -2920,19 +2920,17 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
       
       console.log("Création du prompt personnalisé pour NPC interaction...");
       
-      // Utiliser le service OpenAI amélioré pour éviter les problèmes de types
-      const response = await enhancedOpenAIService.getChatCompletionWithCache(
-        [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message }
-        ],
-        {
-          domain: "cyberchaos_npc",
-          temperature: 0.7,
-          maxTokens: 150,
-          disableCache: false
-        }
-      );
+      // Utiliser directement le service OpenAI standard
+      const messages = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: message }
+      ];
+      
+      console.log("Envoi du prompt pour NPC interaction à Azure OpenAI...");
+      
+      // Utiliser le service OpenAI (préférence pour GPT-4o-mini qui est plus rapide)
+      openAIService.switchApiKey('secondary'); // Utiliser GPT-4o-mini
+      const response = await openAIService.getChatCompletion(messages, 0.7, 150);
       
       // Renvoyer la réponse
       return res.json({
