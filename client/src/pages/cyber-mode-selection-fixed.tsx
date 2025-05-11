@@ -462,16 +462,14 @@ export default function CyberModeSelectionRedesign() {
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center">
               <Link href="/">
-                <Button variant="ghost" className="text-white text-lg px-5 py-2 h-auto">
-                  <Home className="mr-2 h-6 w-6" />
+                <Button 
+                  className="bg-gradient-to-r from-blue-600 to-blue-800 text-white hover:from-blue-700 hover:to-blue-900 text-lg px-6 py-2 h-auto rounded-xl shadow-lg hover:shadow-blue-800/30 transition-all"
+                >
+                  <Home className="mr-3 h-6 w-6" />
                   Accueil
                 </Button>
               </Link>
-              <PageTitle title="I AM CYBER" />
-              <div className="ml-4">
-                <h2 className="text-xl font-bold">I AM CYBER</h2>
-                <p className="text-sm text-gray-300">Explorez les ressources et modules de formation</p>
-              </div>
+              <PageTitle title="Cyber Académie" />
             </div>
             
             <div className="flex items-center gap-3">
@@ -578,7 +576,7 @@ export default function CyberModeSelectionRedesign() {
             data-id="main-title"
           >
             <h1 className="text-4xl font-bold mb-3">
-              Bienvenue dans I AM CYBER
+              Centre de Formation Cybersécurité
             </h1>
             <p className={`max-w-3xl mx-auto ${
               highContrastMode ? 'text-gray-300' : 'text-blue-200' 
