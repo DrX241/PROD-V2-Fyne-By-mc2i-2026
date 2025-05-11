@@ -59,19 +59,68 @@ const contactFormSchema = z.object({
   candidateName: z.string().min(3, "Nom trop court"),
 });
 
-const BestPracticesContent = () => (
-  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-    {/* Colonne 1 */}
-    <div className="flex flex-col gap-4">
-      <section className="bg-blue-800/50 rounded-md p-4 h-full">
-        <h3 className="text-lg font-semibold mb-2 flex items-center">
-          <User className="w-5 h-5 mr-2 text-blue-300" />
-          Préparation avant l'audition
-        </h3>
-        <div className="space-y-3 text-blue-100">
-          <p>Préparez-vous soigneusement pour donner la meilleure impression possible lors de votre audition chez un client.</p>
-          
-          <Accordion type="multiple" className="w-full">
+const BestPracticesContent = () => {
+  const [progressTracker, setProgressTracker] = useState({
+    preparation: { completed: 0, total: 2 },
+    during: { completed: 0, total: 5 },
+    after: { completed: 0, total: 3 }
+  });
+  
+  const incrementProgress = (section, amount = 1) => {
+    setProgressTracker(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        completed: Math.min(prev[section].completed + amount, prev[section].total)
+      }
+    }));
+  };
+  
+  return (
+  <div className="px-6 py-4">
+    {/* Section title with progress bar */}
+    <div className="mb-8 text-center">
+      <h2 className="text-2xl font-bold text-white mb-2">Parcours du consultant mc2i</h2>
+      <div className="w-full bg-gray-700 h-2 rounded-full overflow-hidden mb-2">
+        <div 
+          className="bg-gradient-to-r from-green-400 to-blue-500 h-full transition-all duration-500 ease-out"
+          style={{ 
+            width: `${Math.round(((progressTracker.preparation.completed + progressTracker.during.completed + progressTracker.after.completed) / 
+            (progressTracker.preparation.total + progressTracker.during.total + progressTracker.after.total)) * 100)}%` 
+          }}
+        ></div>
+      </div>
+      <p className="text-blue-100 text-sm">
+        Accomplissez les étapes pour maîtriser le processus d'audition
+      </p>
+    </div>
+    
+    {/* Main content using grid with different colored sections */}
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      {/* SECTION 1: AVANT L'AUDITION */}
+      <div className="flex flex-col space-y-4">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-xl font-bold flex items-center">
+            <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center mr-3 text-white">1</div>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
+              Avant l'audition
+            </span>
+          </h3>
+          <Badge variant="outline" className="bg-purple-900/40 text-purple-200 border-purple-500">
+            {progressTracker.preparation.completed}/{progressTracker.preparation.total} étapes
+          </Badge>
+        </div>
+        
+        <Card className="bg-gradient-to-br from-purple-900/50 to-indigo-900/30 border-purple-500/50 shadow-lg overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-blue-400"></div>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center text-lg">
+              <User className="w-5 h-5 mr-2 text-purple-300" />
+              Préparation personnelle
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Accordion type="multiple" className="w-full">
             <AccordionItem value="appearance">
               <AccordionTrigger className="text-white hover:text-blue-200">Apparence professionnelle</AccordionTrigger>
               <AccordionContent className="text-blue-100">
