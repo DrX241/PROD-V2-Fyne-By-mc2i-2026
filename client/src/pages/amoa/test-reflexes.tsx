@@ -686,6 +686,12 @@ const TestDeReflexes: React.FC = () => {
 
   // Passer à la question suivante
   const goToNextQuestion = () => {
+    // Vérifier si nous avons atteint le nombre maximal de questions
+    if (questionCount >= maxQuestions) {
+      finishTest();
+      return;
+    }
+    
     // Arrêter le timer de la question précédente
     if (timer) {
       clearInterval(timer);
@@ -695,20 +701,15 @@ const TestDeReflexes: React.FC = () => {
     setShowExplanation(false);
     setSelectedOptionId(null);
     setFeedbackMessage(null);
-
-    // Si le temps global est écoulé, terminer le test
-    if (remainingTestTime <= 1) {
-      finishTest();
-      return;
-    }
     
     // Si toutes les questions ont été utilisées, réinitialiser l'ensemble des questions utilisées
     if (usedQuestionIds.size >= testQuestions.length - 3) {
       setUsedQuestionIds(new Set());
     }
     
-    // Incrémenter l'index de question
+    // Incrémenter l'index de question et le compteur de questions
     setCurrentQuestionIndex((prev) => prev + 1);
+    setQuestionCount((prev) => prev + 1);
     
     // Filtrer les questions non utilisées et correspondant à la difficulté actuelle
     const filteredByDifficulty = testQuestions.filter(
