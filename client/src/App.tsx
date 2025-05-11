@@ -64,7 +64,7 @@ import AmoaModeSelectionFixed from "@/pages/amoa-mode-selection-fixed";
 import CyberInterviewSimulation from "@/pages/cyber/interview-simulation";
 import AmoaInterviewSimulation from "@/pages/amoa/interview-simulation";
 import ProjetImposteur from "@/pages/amoa/projet-imposteur";
-import Mc2iInterviewPreparation from "@/pages/amoa/mc2i-interview-preparation-fixed";
+import Mc2iInterviewPreparation from "@/pages/amoa/mc2i-interview-preparation";
 // Module Apprendre en échangeant
 import ExpertLearningPage from "@/pages/cyber/expert-learning";
 // Ancien jeu Cyber Snake (supprimé)

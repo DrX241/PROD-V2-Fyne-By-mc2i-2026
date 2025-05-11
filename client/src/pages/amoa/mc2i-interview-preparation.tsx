@@ -59,377 +59,483 @@ const contactFormSchema = z.object({
   candidateName: z.string().min(3, "Nom trop court"),
 });
 
-const BestPracticesContent = () => {
-  const [progressTracker, setProgressTracker] = useState({
-    preparation: { completed: 0, total: 2 },
-    during: { completed: 0, total: 5 },
-    after: { completed: 0, total: 3 }
-  });
-  
-  const incrementProgress = (section, amount = 1) => {
-    setProgressTracker(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        completed: Math.min(prev[section].completed + amount, prev[section].total)
-      }
-    }));
-  };
-  
-  return (
-  <div className="px-6 py-4">
-    {/* Section title with progress bar */}
-    <div className="mb-8 text-center">
-      <h2 className="text-2xl font-bold text-white mb-2">Parcours du consultant mc2i</h2>
-      <div className="w-full bg-gray-700 h-2 rounded-full overflow-hidden mb-2">
-        <div 
-          className="bg-gradient-to-r from-green-400 to-blue-500 h-full transition-all duration-500 ease-out"
-          style={{ 
-            width: `${Math.round(((progressTracker.preparation.completed + progressTracker.during.completed + progressTracker.after.completed) / 
-            (progressTracker.preparation.total + progressTracker.during.total + progressTracker.after.total)) * 100)}%` 
-          }}
-        ></div>
+const BestPracticesContent = () => (
+  <div className="space-y-4">
+    <section className="bg-blue-800/50 rounded-md p-4">
+      <h3 className="text-lg font-semibold mb-2 flex items-center">
+        <User className="w-5 h-5 mr-2 text-blue-300" />
+        Préparation avant l'audition
+      </h3>
+      <div className="space-y-3 text-blue-100">
+        <p>Préparez-vous soigneusement pour donner la meilleure impression possible lors de votre audition chez un client.</p>
+        
+        <Accordion type="multiple" className="w-full">
+          <AccordionItem value="appearance">
+            <AccordionTrigger className="text-white hover:text-blue-200">Apparence professionnelle</AccordionTrigger>
+            <AccordionContent className="text-blue-100">
+              <ul className="list-disc ml-5 space-y-1">
+                <li>Tenue professionnelle adaptée au client (costume pour les environnements formels, tenue business casual pour les environnements plus détendus)</li>
+                <li>Évitez les tenues trop décontractées même en cas d'environnement startup</li>
+                <li>Assurez-vous que vos vêtements sont propres, repassés et en bon état</li>
+                <li>Pour les auditions à distance, portez une tenue professionnelle complète (pas seulement visible à l'écran)</li>
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="research">
+            <AccordionTrigger className="text-white hover:text-blue-200">Recherches préalables</AccordionTrigger>
+            <AccordionContent className="text-blue-100">
+              <ul className="list-disc ml-5 space-y-1">
+                <li>Renseignez-vous sur l'entreprise cliente (secteur, activités, actualités récentes)</li>
+                <li>Comprenez les enjeux business spécifiques au secteur</li>
+                <li>Identifiez les concurrents principaux et les tendances du marché</li>
+                <li>Consultez le site web et les réseaux sociaux de l'entreprise</li>
+                <li>Préparez des notes sur les spécificités du métier et du projet</li>
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="pitch">
+            <AccordionTrigger className="text-white hover:text-blue-200">Préparez votre pitch personnel</AccordionTrigger>
+            <AccordionContent className="text-blue-100">
+              <div className="space-y-2">
+                <p className="font-semibold text-white">Votre pitch doit inclure :</p>
+                <ul className="list-disc ml-5 space-y-1">
+                  <li>Votre nom</li>
+                  <li>Votre fonction chez mc2i</li>
+                  <li>Votre formation académique</li>
+                  <li>Vos compétences clés et votre expérience</li>
+                </ul>
+                <div className="bg-blue-700/50 p-3 rounded-md mt-2">
+                  <p className="text-white font-medium">Exemple :</p>
+                  <p className="italic">« Je suis Jean-Louis DUPONT, consultant confirmé AMOA SI chez mc2i Groupe, je suis ingénieur diplômé de l'INSA et j'évolue depuis 3 ans dans les problématiques métier RH et Décisionnelles dans le secteur Privé »</p>
+                  <Button variant="outline" size="sm" className="mt-2 text-xs border-blue-400 text-blue-300 hover:bg-blue-700 hover:text-white" onClick={() => {
+                    try {
+                      navigator.clipboard?.writeText("Je suis [PRÉNOM NOM], consultant [NIVEAU] [SPÉCIALITÉ] chez mc2i Groupe, je suis [FORMATION] et j'évolue depuis [X] ans dans les problématiques [DOMAINES D'EXPERTISE] dans le secteur [SECTEUR]");
+                      alert("Modèle de pitch copié dans le presse-papier");
+                    } catch (error) {
+                      console.error("Erreur lors de la copie:", error);
+                    }
+                  }}>
+                    <Copy className="w-3 h-3 mr-1" /> Copier le modèle
+                  </Button>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="materials">
+            <AccordionTrigger className="text-white hover:text-blue-200">Documents et matériel</AccordionTrigger>
+            <AccordionContent className="text-blue-100">
+              <ul className="list-disc ml-5 space-y-1">
+                <li>Apportez plusieurs exemplaires de votre CV imprimé</li>
+                <li>Préparez des notes sur le contexte mission et l'attendu (ce n'est pas un exercice de mémorisation)</li>
+                <li>Ayez à portée de main le document de l'offre technique et ses annexes</li>
+                <li>Pour les auditions à distance, préparez votre environnement (fond professionnel, bonne connexion, éclairage adéquat)</li>
+                <li>Préparez une liste de questions pertinentes à poser au client</li>
+                <li>Stylo et carnet pour prendre des notes pendant l'entretien</li>
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
-      <p className="text-blue-100 text-sm">
-        Accomplissez les étapes pour maîtriser le processus d'audition
-      </p>
-    </div>
+    </section>
     
-    {/* Main content using grid with different colored sections */}
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-      {/* SECTION 1: AVANT L'AUDITION */}
-      <div className="flex flex-col space-y-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-xl font-bold flex items-center">
-            <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center mr-3 text-white">1</div>
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
-              Avant l'audition
-            </span>
-          </h3>
-          <Badge variant="outline" className="bg-purple-900/40 text-purple-200 border-purple-500">
-            {progressTracker.preparation.completed}/{progressTracker.preparation.total} étapes
-          </Badge>
+    <section className="bg-blue-800/50 rounded-md p-4">
+      <h3 className="text-lg font-semibold mb-2 flex items-center">
+        <Users className="w-5 h-5 mr-2 text-blue-300" />
+        Pendant l'audition
+      </h3>
+      <div className="space-y-3 text-blue-100">
+        <p>Adoptez les comportements adéquats pendant l'entretien pour transmettre votre professionnalisme et votre expertise.</p>
+        
+        <Accordion type="multiple" className="w-full">
+          <AccordionItem value="first-contact">
+            <AccordionTrigger className="text-white hover:text-blue-200">Premier contact</AccordionTrigger>
+            <AccordionContent className="text-blue-100">
+              <ul className="list-disc ml-5 space-y-1">
+                <li>La première impression est déterminante - soyez ponctuel (arrivez 10-15 minutes en avance)</li>
+                <li>En présentiel : poignée de main franche et assurée, contact visuel</li>
+                <li>À distance : assurez-vous que votre équipement fonctionne correctement avant le début de l'entretien</li>
+                <li>Laissez au manager le soin de "briser la glace" (souvent avec un sujet annexe)</li>
+                <li>Remerciez pour l'opportunité de cette audition</li>
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="context">
+            <AccordionTrigger className="text-white hover:text-blue-200">Restitution du contexte</AccordionTrigger>
+            <AccordionContent className="text-blue-100">
+              <div className="space-y-2">
+                <p>Démontrez votre compréhension du métier et des enjeux de la mission en suivant la <span className="font-medium text-white">technique de l'entonnoir</span> : partez du général pour aller vers le spécifique.</p>
+                
+                <div className="space-y-4 mt-3">
+                  <div className="bg-blue-700/40 p-3 rounded-md">
+                    <h4 className="font-medium text-white">LE DÉPARTEMENT/LA DIRECTION</h4>
+                    <ul className="list-disc ml-5 space-y-1">
+                      <li>Quelle fonction métier il assure dans l'entreprise</li>
+                      <li>Combien de personnes interviennent</li>
+                      <li>Comment définir ce 'métier' (en quoi il consiste)</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-blue-700/40 p-3 rounded-md">
+                    <h4 className="font-medium text-white">LE PROJET</h4>
+                    <ul className="list-disc ml-5 space-y-1">
+                      <li>L'existant et les problèmes rencontrés (techniques, organisationnels, fonctionnels)</li>
+                      <li>La cible envisagée, les délais, l'organisation mise en place</li>
+                      <li>L'état actuel du projet (quelle phase)</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-blue-700/40 p-3 rounded-md">
+                    <h4 className="font-medium text-white">LA MISSION</h4>
+                    <ul className="list-disc ml-5 space-y-1">
+                      <li>Objectif de la prestation et délais</li>
+                      <li>Activités attendues et votre responsabilité</li>
+                      <li>Votre rôle au sein de l'équipe</li>
+                      <li>Livrables à réaliser</li>
+                      <li>Facteurs de réussite et points d'attention</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="behavior">
+            <AccordionTrigger className="text-white hover:text-blue-200">Savoir-être en entretien</AccordionTrigger>
+            <AccordionContent className="text-blue-100">
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium text-white">Posture</h4>
+                  <ul className="list-disc ml-5 space-y-1">
+                    <li>Dos droit, mains sur la table pour assurer une bonne respiration</li>
+                    <li>Regardez votre auditoire dans les yeux et balayez du regard s'ils sont plusieurs</li>
+                    <li>Contrôlez votre gestuelle (évitez de jouer avec votre stylo)</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="font-medium text-white">Attitude</h4>
+                  <ul className="list-disc ml-5 space-y-1">
+                    <li>Poli, courtois, souriant et enthousiaste</li>
+                    <li>Déterminé, serein et motivé</li>
+                    <li>Instaurez un dialogue sincère et authentique</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="font-medium text-white">Communication</h4>
+                  <ul className="list-disc ml-5 space-y-1">
+                    <li>Bannissez les tics de langage ('donc', 'euh', 'en fait'…)</li>
+                    <li>Contrôlez le débit de votre présentation avec des pauses pour respirer et ponctuer</li>
+                    <li>Adaptez votre volume sonore à l'environnement</li>
+                    <li>Ne coupez jamais la parole</li>
+                  </ul>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="questions">
+            <AccordionTrigger className="text-white hover:text-blue-200">Questions au client</AccordionTrigger>
+            <AccordionContent className="text-blue-100">
+              <div className="space-y-3">
+                <p>Lorsque le client vous demande si vous avez des questions, la réponse est toujours <span className="font-medium text-white">OUI</span>. Préparez des questions qui montrent votre intérêt pour :</p>
+                
+                <ul className="list-disc ml-5 space-y-1">
+                  <li>Créer un dialogue et instaurer la confiance</li>
+                  <li>Cerner les vrais enjeux au-delà de ce qui est écrit dans l'appel d'offres</li>
+                  <li>Démontrer votre professionnalisme et votre motivation</li>
+                </ul>
+                
+                <div className="bg-blue-700/50 p-3 rounded-md mt-2">
+                  <p className="text-white font-medium">Exemples de questions pertinentes :</p>
+                  <ul className="list-disc ml-5 space-y-1">
+                    <li>Quels sont selon vous les facteurs clés de réussite de cette mission ?</li>
+                    <li>Quelles sont les principales difficultés que vous anticipez pour ce projet ?</li>
+                    <li>Comment s'intègre ce projet dans la stratégie globale de l'entreprise ?</li>
+                    <li>Quelles sont vos attentes concernant la communication durant le projet ?</li>
+                    <li>Pouvez-vous me parler des équipes avec lesquelles je serais amené à travailler ?</li>
+                  </ul>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="profile">
+            <AccordionTrigger className="text-white hover:text-blue-200">Valoriser votre profil</AccordionTrigger>
+            <AccordionContent className="text-blue-100">
+              <div className="space-y-3">
+                <p>Pour convaincre le client de votre adéquation avec le poste :</p>
+                
+                <ol className="list-decimal ml-5 space-y-1">
+                  <li>Identifiez les compétences, savoir-être et expériences clés pour la mission</li>
+                  <li>Faites la synthèse des attendus clés (ex: animation de réunions, connaissances AGILE, gestion de conflits)</li>
+                  <li>Pour chaque attendu, identifiez une expérience pertinente de votre parcours</li>
+                </ol>
+                
+                <div className="bg-blue-700/50 p-3 rounded-md mt-2">
+                  <p className="text-white font-medium">Présentation efficace d'une expérience :</p>
+                  <ul className="list-disc ml-5 space-y-1">
+                    <li><span className="text-white">Contextualisez</span> : présentez l'entreprise, son métier et le contexte de votre mission</li>
+                    <li><span className="text-white">Détaillez</span> : activités réalisées, méthodes et outils utilisés</li>
+                    <li><span className="text-white">Valorisez</span> : contribution à la réussite, défis surmontés</li>
+                    <li><span className="text-white">Reliez</span> : établissez un lien clair avec la mission proposée</li>
+                  </ul>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
+    </section>
+    
+    <section className="bg-blue-800/50 rounded-md p-4">
+      <h3 className="text-lg font-semibold mb-2 flex items-center">
+        <FileCheck className="w-5 h-5 mr-2 text-blue-300" />
+        Après l'audition
+      </h3>
+      <div className="space-y-3 text-blue-100">
+        <p>Les actions post-entretien sont souvent négligées mais peuvent faire la différence :</p>
+        
+        <Accordion type="multiple" className="w-full">
+          <AccordionItem value="immediate-actions">
+            <AccordionTrigger className="text-white hover:text-blue-200">Actions immédiates</AccordionTrigger>
+            <AccordionContent className="text-blue-100">
+              <ul className="list-disc ml-5 space-y-1">
+                <li>Remerciez sincèrement les interlocuteurs pour le temps accordé</li>
+                <li>Exprimez clairement votre motivation à intégrer le projet</li>
+                <li>Échangez des cartes de visite si ce n'est pas déjà fait</li>
+                <li>Demandez quelles sont les prochaines étapes du processus</li>
+                <li>Précisez votre disponibilité pour démarrer la mission</li>
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="follow-up">
+            <AccordionTrigger className="text-white hover:text-blue-200">Suivi professionnel</AccordionTrigger>
+            <AccordionContent className="text-blue-100">
+              <div className="space-y-3">
+                <p>Envoyez un email de remerciement dans les 24h suivant l'entretien :</p>
+                
+                <div className="bg-blue-700/50 p-3 rounded-md mt-2">
+                  <p className="text-white font-medium">Exemple d'email de remerciement :</p>
+                  <div className="italic border-l-2 border-blue-500 pl-3 mt-1">
+                    <p>Objet : Remerciement suite à notre entretien du [DATE]</p>
+                    <p className="mt-2">Bonjour [PRÉNOM],</p>
+                    <p className="mt-1">Je tenais à vous remercier pour notre échange d'aujourd'hui concernant la mission [NOM DU PROJET].</p>
+                    <p className="mt-1">Cet entretien a renforcé mon intérêt pour cette opportunité et je suis convaincu(e) que mon expérience en [COMPÉTENCE CLÉ] sera un atout pour la réussite de ce projet.</p>
+                    <p className="mt-1">Je reste à votre disposition pour toute information complémentaire dont vous pourriez avoir besoin.</p>
+                    <p className="mt-1">Bien cordialement,</p>
+                    <p>[VOTRE NOM]</p>
+                    <p>Consultant(e) mc2i</p>
+                  </div>
+                  <Button variant="outline" size="sm" className="mt-2 text-xs border-blue-400 text-blue-300 hover:bg-blue-700 hover:text-white" onClick={() => {
+                    try {
+                      navigator.clipboard?.writeText("Objet : Remerciement suite à notre entretien du [DATE]\n\nBonjour [PRÉNOM],\n\nJe tenais à vous remercier pour notre échange d'aujourd'hui concernant la mission [NOM DU PROJET].\n\nCet entretien a renforcé mon intérêt pour cette opportunité et je suis convaincu(e) que mon expérience en [COMPÉTENCE CLÉ] sera un atout pour la réussite de ce projet.\n\nJe reste à votre disposition pour toute information complémentaire dont vous pourriez avoir besoin.\n\nBien cordialement,\n[VOTRE NOM]\nConsultant(e) mc2i");
+                      alert("Modèle d'email copié dans le presse-papier");
+                    } catch (error) {
+                      console.error("Erreur lors de la copie:", error);
+                    }
+                  }}>
+                    <Copy className="w-3 h-3 mr-1" /> Copier le modèle
+                  </Button>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="internal-debrief">
+            <AccordionTrigger className="text-white hover:text-blue-200">Débriefing interne mc2i</AccordionTrigger>
+            <AccordionContent className="text-blue-100">
+              <ul className="list-disc ml-5 space-y-1">
+                <li>Faites un débriefing avec votre manager mc2i pour partager vos impressions</li>
+                <li>Préparez une analyse structurée de l'entretien (points forts, points d'amélioration)</li>
+                <li>Discutez des prochaines étapes et de la stratégie à adopter</li>
+                <li>Déterminez si des actions complémentaires sont nécessaires (envoi de références, etc.)</li>
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="self-improvement">
+            <AccordionTrigger className="text-white hover:text-blue-200">Autoévaluation et progression</AccordionTrigger>
+            <AccordionContent className="text-blue-100">
+              <ul className="list-disc ml-5 space-y-1">
+                <li>Notez les questions pour lesquelles vous n'étiez pas totalement préparé(e)</li>
+                <li>Identifiez les points techniques ou métier à approfondir</li>
+                <li>Analysez votre performance (communication, clarté des réponses, posture)</li>
+                <li>Préparez un plan d'action pour améliorer votre préparation aux futures auditions</li>
+                <li>Créez un document personnel de "leçons apprises" pour progresser</li>
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+        
+        <div className="bg-blue-700/50 p-3 rounded-md mt-2">
+          <p className="text-white font-medium">Savoir conclure :</p>
+          <p className="italic">Ne pas oublier de remercier votre auditoire pour le temps qu'il vous a consacré et témoigner de votre motivation à pouvoir intervenir sur le projet.</p>
+        </div>
+      </div>
+    </section>
+    
+    <section className="bg-blue-800/50 rounded-md p-4">
+      <h3 className="text-lg font-semibold mb-2 flex items-center">
+        <Lightbulb className="w-5 h-5 mr-2 text-yellow-300" />
+        Questions fréquentes en audition
+      </h3>
+      <div className="space-y-3 text-blue-100">
+        <p>Préparez-vous à répondre à ces questions typiques que les clients posent souvent :</p>
+        
+        <Accordion type="multiple" className="w-full">
+          <AccordionItem value="methodology">
+            <AccordionTrigger className="text-white hover:text-blue-200">Questions sur la méthodologie</AccordionTrigger>
+            <AccordionContent className="text-blue-100">
+              <ul className="list-disc ml-5 space-y-1">
+                <li>Pour vous, une conduite du changement réussie se mesure comment ?</li>
+                <li>Décrivez-moi le contenu d'une User Story utilisé dans la méthode SCRUM ?</li>
+                <li>Comment animez-vous un atelier avec la méthode MOSCOW ?</li>
+                <li>Comment définissez-vous un processus métier et comment le modélisez-vous ?</li>
+                <li>Comment déroulez-vous un entretien ?</li>
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="technical">
+            <AccordionTrigger className="text-white hover:text-blue-200">Questions techniques</AccordionTrigger>
+            <AccordionContent className="text-blue-100">
+              <ul className="list-disc ml-5 space-y-1">
+                <li>Quelles contraintes faut-il prendre en compte lorsque l'on conçoit une IHM avec les utilisateurs ?</li>
+                <li>Quels sont les principes techniques d'une application Web ?</li>
+                <li>Qu'est-ce qu'un Web Service ?</li>
+                <li>Comment gérez-vous les exigences contradictoires entre différentes parties prenantes ?</li>
+                <li>Quelle est votre approche pour documenter les spécifications fonctionnelles ?</li>
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="soft-skills">
+            <AccordionTrigger className="text-white hover:text-blue-200">Questions sur le savoir-être</AccordionTrigger>
+            <AccordionContent className="text-blue-100">
+              <ul className="list-disc ml-5 space-y-1">
+                <li>Quelle est la dernière chose qui vous a passionné ?</li>
+                <li>Qu'est-ce qui vous intéresse dans la mission ?</li>
+                <li>Comment réagissez-vous dans un conflit ?</li>
+                <li>Les utilisateurs récalcitrants, vous les abordez comment ?</li>
+                <li>Qu'est-ce qui vous paraît le plus difficile dans votre activité de conseil ?</li>
+                <li>Que pouvez-vous nous apporter de spécifique sur le projet ?</li>
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
+    </section>
+
+    <section className="bg-gradient-to-r from-blue-800/70 to-blue-700/50 rounded-md p-4 border border-blue-600/30">
+      <div className="flex items-center mb-3">
+        <div className="p-2 rounded-full bg-blue-600/30 mr-3">
+          <Star className="w-5 h-5 text-yellow-300" />
+        </div>
+        <h3 className="text-lg font-semibold text-white">Points clés pour réussir votre audition</h3>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-blue-100">
+        <div className="bg-blue-800/40 p-3 rounded-md">
+          <h4 className="font-medium text-white flex items-center">
+            <span className="w-5 h-5 rounded-full bg-blue-700 flex items-center justify-center text-xs mr-2">1</span>
+            Capter l'attention
+          </h4>
+          <p className="mt-1">Soignez votre présentation et votre introduction pour créer une première impression positive.</p>
         </div>
         
-        <Card className="bg-gradient-to-br from-purple-900/50 to-indigo-900/30 border-purple-500/50 shadow-lg overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-blue-400"></div>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center text-lg">
-              <User className="w-5 h-5 mr-2 text-purple-300" />
-              Préparation personnelle
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Accordion type="multiple" className="w-full">
-            <AccordionItem value="appearance">
-              <AccordionTrigger className="text-white hover:text-blue-200">Apparence professionnelle</AccordionTrigger>
-              <AccordionContent className="text-blue-100">
-                <ul className="list-disc ml-5 space-y-1">
-                  <li>Tenue professionnelle adaptée au client (costume pour les environnements formels, tenue business casual pour les environnements plus détendus)</li>
-                  <li>Évitez les tenues trop décontractées même en cas d'environnement startup</li>
-                  <li>Assurez-vous que vos vêtements sont propres, repassés et en bon état</li>
-                  <li>Pour les auditions à distance, portez une tenue professionnelle complète (pas seulement visible à l'écran)</li>
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="research">
-              <AccordionTrigger className="text-white hover:text-blue-200">Recherches préalables</AccordionTrigger>
-              <AccordionContent className="text-blue-100">
-                <ul className="list-disc ml-5 space-y-1">
-                  <li>Renseignez-vous sur l'entreprise cliente (secteur, activités, actualités récentes)</li>
-                  <li>Comprenez les enjeux business spécifiques au secteur</li>
-                  <li>Identifiez les concurrents principaux et les tendances du marché</li>
-                  <li>Consultez le site web et les réseaux sociaux de l'entreprise</li>
-                  <li>Préparez des notes sur les spécificités du métier et du projet</li>
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+        <div className="bg-blue-800/40 p-3 rounded-md">
+          <h4 className="font-medium text-white flex items-center">
+            <span className="w-5 h-5 rounded-full bg-blue-700 flex items-center justify-center text-xs mr-2">2</span>
+            Maîtriser son sujet
+          </h4>
+          <p className="mt-1">Démontrez votre expertise technique et votre compréhension des enjeux du projet.</p>
         </div>
-      </section>
-
-      <section className="bg-blue-800/50 rounded-md p-4 h-full">
-        <h3 className="text-lg font-semibold mb-2 flex items-center">
-          <Lightbulb className="w-5 h-5 mr-2 text-blue-300" />
-          Votre pitch personnel
-        </h3>
-        <div className="space-y-3 text-blue-100">
-          <div className="space-y-2">
-            <p className="font-semibold text-white">Votre pitch doit inclure :</p>
-            <ul className="list-disc ml-5 space-y-1">
-              <li>Votre nom</li>
-              <li>Votre fonction chez mc2i</li>
-              <li>Votre formation académique</li>
-              <li>Vos compétences clés et votre expérience</li>
-            </ul>
-            <div className="bg-blue-700/50 p-3 rounded-md mt-2">
-              <p className="text-white font-medium">Exemple :</p>
-              <p className="italic">« Je suis Jean-Louis DUPONT, consultant confirmé AMOA SI chez mc2i Groupe, je suis ingénieur diplômé de l'INSA et j'évolue depuis 3 ans dans les problématiques métier RH et Décisionnelles dans le secteur Privé »</p>
-              <Button variant="outline" size="sm" className="mt-2 text-xs border-blue-400 text-blue-300 hover:bg-blue-700 hover:text-white" onClick={() => {
-                try {
-                  navigator.clipboard?.writeText("Je suis [PRÉNOM NOM], consultant [NIVEAU] [SPÉCIALITÉ] chez mc2i Groupe, je suis [FORMATION] et j'évolue depuis [X] ans dans les problématiques [DOMAINES D'EXPERTISE] dans le secteur [SECTEUR]");
-                  alert("Modèle de pitch copié dans le presse-papier");
-                } catch (error) {
-                  console.error("Erreur lors de la copie:", error);
-                }
-              }}>
-                <Copy className="w-3 h-3 mr-1" /> Copier le modèle
-              </Button>
-            </div>
-          </div>
+        
+        <div className="bg-blue-800/40 p-3 rounded-md">
+          <h4 className="font-medium text-white flex items-center">
+            <span className="w-5 h-5 rounded-full bg-blue-700 flex items-center justify-center text-xs mr-2">3</span>
+            S'intéresser au sujet
+          </h4>
+          <p className="mt-1">Posez des questions pertinentes qui montrent votre intérêt et votre motivation.</p>
         </div>
-      </section>
-    </div>
-    
-    {/* Colonne 2 */}
-    <div className="flex flex-col gap-4">
-      <section className="bg-blue-800/50 rounded-md p-4 h-full">
-        <h3 className="text-lg font-semibold mb-2 flex items-center">
-          <Users className="w-5 h-5 mr-2 text-blue-300" />
-          Pendant l'audition
-        </h3>
-        <div className="space-y-3 text-blue-100">
-          <p>Adoptez les comportements adéquats pendant l'entretien pour transmettre votre professionnalisme.</p>
-          
-          <Accordion type="multiple" className="w-full">
-            <AccordionItem value="first-contact">
-              <AccordionTrigger className="text-white hover:text-blue-200">Premier contact</AccordionTrigger>
-              <AccordionContent className="text-blue-100">
-                <ul className="list-disc ml-5 space-y-1">
-                  <li>La première impression est déterminante - soyez ponctuel (arrivez 10-15 minutes en avance)</li>
-                  <li>En présentiel : poignée de main franche et assurée, contact visuel</li>
-                  <li>À distance : assurez-vous que votre équipement fonctionne correctement avant le début de l'entretien</li>
-                  <li>Laissez au manager le soin de "briser la glace" (souvent avec un sujet annexe)</li>
-                  <li>Remerciez pour l'opportunité de cette audition</li>
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="context">
-              <AccordionTrigger className="text-white hover:text-blue-200">Technique de l'entonnoir</AccordionTrigger>
-              <AccordionContent className="text-blue-100">
-                <div className="space-y-2">
-                  <p>Démontrez votre compréhension du métier et des enjeux de la mission en suivant la <span className="font-medium text-white">technique de l'entonnoir</span> : partez du général pour aller vers le spécifique.</p>
-                  
-                  <div className="space-y-2 mt-2">
-                    <div className="bg-blue-700/40 p-2 rounded-md">
-                      <h4 className="font-medium text-white text-sm">LE DÉPARTEMENT</h4>
-                      <ul className="list-disc ml-5 text-sm">
-                        <li>Quelle fonction métier il assure dans l'entreprise</li>
-                        <li>Combien de personnes interviennent</li>
-                      </ul>
-                    </div>
-                    
-                    <div className="bg-blue-700/40 p-2 rounded-md">
-                      <h4 className="font-medium text-white text-sm">LE PROJET</h4>
-                      <ul className="list-disc ml-5 text-sm">
-                        <li>L'existant et les problèmes rencontrés</li>
-                        <li>La cible envisagée, les délais</li>
-                      </ul>
-                    </div>
-                    
-                    <div className="bg-blue-700/40 p-2 rounded-md">
-                      <h4 className="font-medium text-white text-sm">LA MISSION</h4>
-                      <ul className="list-disc ml-5 text-sm">
-                        <li>Objectif de la prestation et délais</li>
-                        <li>Activités attendues et responsabilités</li>
-                        <li>Votre rôle au sein de l'équipe</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+        
+        <div className="bg-blue-800/40 p-3 rounded-md">
+          <h4 className="font-medium text-white flex items-center">
+            <span className="w-5 h-5 rounded-full bg-blue-700 flex items-center justify-center text-xs mr-2">4</span>
+            Rassurer sur ses compétences
+          </h4>
+          <p className="mt-1">Illustrez vos réponses par des exemples concrets de réalisations passées.</p>
         </div>
-      </section>
-
-      <section className="bg-blue-800/50 rounded-md p-4 h-full">
-        <h3 className="text-lg font-semibold mb-2 flex items-center">
-          <BriefcaseBusiness className="w-5 h-5 mr-2 text-blue-300" />
-          Savoir-être en entretien
-        </h3>
-        <div className="space-y-3 text-blue-100">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="bg-blue-700/40 p-2 rounded-md">
-              <h4 className="font-medium text-white">Posture</h4>
-              <ul className="list-disc ml-5 space-y-1 text-sm">
-                <li>Dos droit, mains sur la table pour assurer une bonne respiration</li>
-                <li>Regardez votre auditoire dans les yeux</li>
-                <li>Contrôlez votre gestuelle</li>
-              </ul>
-            </div>
-            
-            <div className="bg-blue-700/40 p-2 rounded-md">
-              <h4 className="font-medium text-white">Attitude</h4>
-              <ul className="list-disc ml-5 space-y-1 text-sm">
-                <li>Poli, courtois, souriant</li>
-                <li>Déterminé, serein et motivé</li>
-                <li>Dialogue sincère et authentique</li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="bg-blue-700/40 p-2 rounded-md">
-            <h4 className="font-medium text-white">Communication</h4>
-            <ul className="list-disc ml-5 space-y-1 text-sm">
-              <li>Bannissez les tics de langage ('donc', 'euh', 'en fait'…)</li>
-              <li>Contrôlez le débit avec des pauses pour respirer</li>
-              <li>Adaptez votre volume sonore à l'environnement</li>
-              <li>Ne coupez jamais la parole</li>
-            </ul>
-          </div>
+        
+        <div className="bg-blue-800/40 p-3 rounded-md">
+          <h4 className="font-medium text-white flex items-center">
+            <span className="w-5 h-5 rounded-full bg-blue-700 flex items-center justify-center text-xs mr-2">5</span>
+            Faire preuve d'assurance
+          </h4>
+          <p className="mt-1">Montrez votre confiance sans arrogance et votre capacité à gérer l'incertitude.</p>
         </div>
-      </section>
-    </div>
-    
-    {/* Colonne 3 */}
-    <div className="flex flex-col gap-4">
-      <section className="bg-blue-800/50 rounded-md p-4 h-full">
-        <h3 className="text-lg font-semibold mb-2 flex items-center">
-          <Star className="w-5 h-5 mr-2 text-blue-300" />
-          Questions et valorisation
-        </h3>
-        <div className="space-y-3 text-blue-100">
-          <Accordion type="multiple" className="w-full">
-            <AccordionItem value="questions">
-              <AccordionTrigger className="text-white hover:text-blue-200">Questions au client</AccordionTrigger>
-              <AccordionContent className="text-blue-100">
-                <div className="space-y-2">
-                  <p>Lorsque le client vous demande si vous avez des questions, la réponse est toujours <span className="font-medium text-white">OUI</span>.</p>
-                  
-                  <div className="bg-blue-700/50 p-2 rounded-md mt-2">
-                    <p className="text-white font-medium text-sm">Exemples de questions pertinentes :</p>
-                    <ul className="list-disc ml-5 space-y-1 text-sm">
-                      <li>Quels sont selon vous les facteurs clés de réussite de cette mission ?</li>
-                      <li>Quelles sont les principales difficultés anticipées ?</li>
-                      <li>Comment s'intègre ce projet dans la stratégie globale ?</li>
-                      <li>Quelles sont vos attentes concernant la communication ?</li>
-                    </ul>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="profile">
-              <AccordionTrigger className="text-white hover:text-blue-200">Valoriser votre profil</AccordionTrigger>
-              <AccordionContent className="text-blue-100">
-                <div className="space-y-2">
-                  <p>Pour convaincre le client de votre adéquation avec le poste :</p>
-                  
-                  <ol className="list-decimal ml-5 space-y-1 text-sm">
-                    <li>Identifiez les compétences et expériences clés pour la mission</li>
-                    <li>Faites la synthèse des attendus clés</li>
-                    <li>Pour chaque attendu, identifiez une expérience pertinente</li>
-                  </ol>
-                  
-                  <div className="bg-blue-700/50 p-2 rounded-md mt-2">
-                    <p className="text-white font-medium text-sm">Présentation efficace :</p>
-                    <ul className="list-disc ml-5 space-y-1 text-sm">
-                      <li><span className="text-white">Contextualisez</span> : entreprise, métier et contexte</li>
-                      <li><span className="text-white">Détaillez</span> : activités, méthodes et outils</li>
-                      <li><span className="text-white">Valorisez</span> : contribution, défis surmontés</li>
-                      <li><span className="text-white">Reliez</span> : lien avec la mission actuelle</li>
-                    </ul>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+        
+        <div className="bg-blue-800/40 p-3 rounded-md">
+          <h4 className="font-medium text-white flex items-center">
+            <span className="w-5 h-5 rounded-full bg-blue-700 flex items-center justify-center text-xs mr-2">6</span>
+            Soigner sa présentation
+          </h4>
+          <p className="mt-1">Surveillez votre langage corporel, votre élocution et votre tenue professionnelle.</p>
         </div>
-      </section>
-  
-      <section className="bg-blue-800/50 rounded-md p-4 h-full">
-        <h3 className="text-lg font-semibold mb-2 flex items-center">
-          <FileCheck className="w-5 h-5 mr-2 text-blue-300" />
-          Après l'audition
-        </h3>
-        <div className="space-y-3 text-blue-100">
-          <p>Les actions post-entretien sont souvent négligées mais peuvent faire la différence :</p>
-          
-          <Accordion type="multiple" className="w-full">
-            <AccordionItem value="immediate-actions">
-              <AccordionTrigger className="text-white hover:text-blue-200">Actions immédiates</AccordionTrigger>
-              <AccordionContent className="text-blue-100">
-                <ul className="list-disc ml-5 space-y-1 text-sm">
-                  <li>Remerciez sincèrement les interlocuteurs</li>
-                  <li>Exprimez clairement votre motivation</li>
-                  <li>Échangez des cartes de visite</li>
-                  <li>Demandez les prochaines étapes</li>
-                  <li>Précisez votre disponibilité</li>
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="follow-up">
-              <AccordionTrigger className="text-white hover:text-blue-200">Email de remerciement</AccordionTrigger>
-              <AccordionContent className="text-blue-100">
-                <div className="space-y-2">
-                  <p className="text-sm">Envoyez un email de remerciement dans les 24h suivant l'entretien :</p>
-                  
-                  <div className="bg-blue-700/50 p-2 rounded-md mt-2">
-                    <p className="text-white font-medium text-sm">Exemple de mail :</p>
-                    <div className="italic border-l-2 border-blue-500 pl-3 mt-1 text-xs">
-                      <p>Objet : Remerciement suite à notre entretien du [DATE]</p>
-                      <p className="mt-1">Bonjour [PRÉNOM],</p>
-                      <p className="mt-1">Je tenais à vous remercier pour notre échange concernant la mission [PROJET].</p>
-                      <p className="mt-1">Cet entretien a renforcé mon intérêt pour cette opportunité et je suis convaincu(e) que mon expérience en [COMPÉTENCE] sera un atout.</p>
-                      <p className="mt-1">Je reste à votre disposition pour toute information complémentaire.</p>
-                      <p className="mt-1">Bien cordialement,</p>
-                      <p>[VOTRE NOM]</p>
-                      <p>Consultant(e) mc2i</p>
-                    </div>
-                    <Button variant="outline" size="sm" className="mt-2 text-xs border-blue-400 text-blue-300 hover:bg-blue-700 hover:text-white" onClick={() => {
-                      try {
-                        navigator.clipboard?.writeText("Objet : Remerciement suite à notre entretien du [DATE]\n\nBonjour [PRÉNOM],\n\nJe tenais à vous remercier pour notre échange d'aujourd'hui concernant la mission [NOM DU PROJET].\n\nCet entretien a renforcé mon intérêt pour cette opportunité et je suis convaincu(e) que mon expérience en [COMPÉTENCE CLÉ] sera un atout pour la réussite de ce projet.\n\nJe reste à votre disposition pour toute information complémentaire dont vous pourriez avoir besoin.\n\nBien cordialement,\n[VOTRE NOM]\nConsultant(e) mc2i");
-                        alert("Modèle d'email copié dans le presse-papier");
-                      } catch (error) {
-                        console.error("Erreur lors de la copie:", error);
-                      }
-                    }}>
-                      <Copy className="w-3 h-3 mr-1" /> Copier le modèle
-                    </Button>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="internal-debrief">
-              <AccordionTrigger className="text-white hover:text-blue-200">Débriefing interne</AccordionTrigger>
-              <AccordionContent className="text-blue-100">
-                <ul className="list-disc ml-5 space-y-1 text-sm">
-                  <li>Débriefez avec votre manager mc2i</li>
-                  <li>Préparez une analyse structurée de l'entretien</li>
-                  <li>Discutez des prochaines étapes</li>
-                  <li>Déterminez si des actions complémentaires sont nécessaires</li>
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
-      </section>
-    </div>
+      </div>
+      
+      <div className="mt-4 p-3 bg-blue-700/40 rounded-md border-l-4 border-yellow-400">
+        <p className="italic text-yellow-200 font-medium">Savoir conclure : ne pas oublier de remercier votre auditoire pour le temps qu'il vous a consacré et témoigner de votre motivation à pouvoir intervenir sur le projet.</p>
+      </div>
+    </section>
   </div>
 );
 
-const Mc2iInterviewPreparation: React.FC = () => {
+const Mc2iInterviewPreparation: React.FC<{}> = () => {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('best-practices');
   
-  // État des simulations et configurations
+  // États pour la simulation
   const [isSimulationActive, setIsSimulationActive] = useState(false);
-  const [simulationComplete, setSimulationComplete] = useState(false);
-  const [showContactForm, setShowContactForm] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  
-  // Chat
+  const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes en secondes
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [userInput, setUserInput] = useState('');
+  const [simulationComplete, setSimulationComplete] = useState(false);
+  const [evaluationResult, setEvaluationResult] = useState<any>(null);
+  const [isSkippedInfo, setIsSkippedInfo] = useState(false);
+  const [showContactForm, setShowContactForm] = useState(false);
+  
+  // États pour les notes et la synthèse
+  const [notesText, setNotesText] = useState('');
+  const [isAnalyzingNotes, setIsAnalyzingNotes] = useState(false);
+  const [synthesisResult, setSynthesisResult] = useState<any>(null);
+  
+  // Référence pour le défilement
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Formulaires
+  // Effet pour faire défiler vers le bas à chaque nouveau message
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+  
+  // Formatage du temps restant
+  const formatTime = (timeInSeconds: number) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+  
+  // Configuration du formulaire principal
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -441,6 +547,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
     },
   });
   
+  // Configuration du formulaire de contact
   const contactForm = useForm<z.infer<typeof contactFormSchema>>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
@@ -449,110 +556,180 @@ const Mc2iInterviewPreparation: React.FC = () => {
     },
   });
   
-  // Timer
-  const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes
-  const [timerId, setTimerId] = useState<NodeJS.Timeout | null>(null);
-  
-  // Résultats
-  const [evaluationResult, setEvaluationResult] = useState<any>(null);
-  
-  // Défilement auto pour la conversation
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-  
-  // Mise à jour du timer
-  useEffect(() => {
-    if (timeRemaining === 0 && !simulationComplete) {
-      completeSimulation();
-    }
-  }, [timeRemaining]);
-  
-  // Formatage du temps
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-  };
-  
-  // Démarrage de la simulation
+  // Démarrer la simulation
   const startSimulation = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     
     try {
-      setTimeout(() => {
-        const systemMessage: Message = {
-          id: 'system-1',
-          role: 'system',
-          content: 'Cette simulation vous permet de pratiquer un entretien avec un client potentiel. Soyez authentique et apportez des réponses précises et concises.',
-          timestamp: new Date(),
-        };
-        
-        const welcomeMessage: Message = {
-          id: 'assistant-1',
+      const response = await fetch('/api/amoa/interview-simulation/start', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          domain: 'mc2i',
+          recruiterEmail: values.recruiterEmail,
+          candidateName: values.candidateName,
+          profileType: values.profileType,
+          experienceLevel: values.experienceLevel,
+          sectorFocus: values.sectorFocus
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors du démarrage de la simulation');
+      }
+      
+      const data = await response.json();
+      
+      setMessages([
+        {
+          id: Date.now().toString(),
           role: 'assistant',
-          content: `Bonjour, je suis Thierry Dubois, responsable des projets digitaux chez ${values.sectorFocus === 'Banque & Assurance' ? 'Crédit Mutuel' : 
-                   values.sectorFocus === 'Secteur Public' ? 'le Ministère de la Transformation Numérique' :
-                   values.sectorFocus === 'Énergie' ? 'EDF' : 'notre entreprise'}. Nous recherchons un consultant ${values.profileType.toLowerCase()} pour nous accompagner sur un projet de ${
-                   values.sectorFocus === 'Banque & Assurance' ? 'refonte de notre application mobile bancaire' : 
-                   values.sectorFocus === 'Secteur Public' ? 'dématérialisation des procédures administratives' :
-                   values.sectorFocus === 'Énergie' ? 'pilotage de la consommation énergétique' : 'transformation digitale'
-                   }. Pouvez-vous vous présenter et me parler de votre expérience pertinente pour ce poste ?`,
-          timestamp: new Date(),
-        };
-        
-        setMessages([systemMessage, welcomeMessage]);
-        setIsSimulationActive(true);
-        setActiveTab('simulation');
-        
-        const timer = setInterval(() => {
-          setTimeRemaining(prevTime => {
-            if (prevTime <= 1) {
-              clearInterval(timer);
-              return 0;
-            }
-            return prevTime - 1;
-          });
-        }, 1000);
-        
-        setTimerId(timer);
-        
-      }, 1500);
+          content: data.initialMessage,
+          timestamp: new Date()
+        }
+      ]);
+      
+      setIsSimulationActive(true);
+      setActiveTab('simulation');
     } catch (error) {
-      console.error('Erreur lors du démarrage de la simulation:', error);
+      console.error('Erreur:', error);
       toast({
+        variant: "destructive",
         title: "Erreur",
         description: "Impossible de démarrer la simulation. Veuillez réessayer.",
-        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
   
-  // Fonction pour contourner l'étape d'information
-  const skipInfoAndStart = () => {
-    const values = {
-      recruiterEmail: "",
-      candidateName: "",
-      profileType: "Profil confirmé",
-      experienceLevel: "2-5 ans",
-      sectorFocus: "Banque & Assurance",
-    };
+  // Finaliser la simulation
+  const finalizeSimulation = async (
+    recruiterEmail: string,
+    candidateName: string,
+    profileType: string,
+    experienceLevel: string,
+    sectorFocus: string
+  ) => {
+    setIsLoading(true);
     
-    form.reset(values);
-    startSimulation(values);
+    try {
+      const response = await fetch('/api/amoa/interview-simulation/complete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          domain: 'mc2i',
+          trainerEmail: recruiterEmail,
+          candidateName,
+          profileType,
+          experienceLevel,
+          sectorFocus,
+          messages: messages.map(m => ({ role: m.role, content: m.content })),
+          duration: 600 - timeRemaining,
+        })
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Erreur API (finalisation):", errorText);
+        throw new Error('Erreur lors de la finalisation de la simulation');
+      }
+      
+      // Récupérer le texte de la réponse d'abord
+      const responseText = await response.text();
+      
+      let data;
+      try {
+        // Tenter de parser la réponse en JSON
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("Erreur de parsing JSON (finalisation):", parseError);
+        data = { 
+          evaluation: {
+            summary: "Impossible de générer une évaluation complète en raison d'une erreur technique.",
+            strengths: ["Communication claire"],
+            improvements: ["Préparation technique plus approfondie"],
+            detailedNotes: "Une évaluation détaillée n'a pas pu être générée. Veuillez contacter le support technique.",
+            recommendations: ["Revoir la documentation technique du projet"],
+            sectorFitEvaluation: "Évaluation non disponible",
+            conclusion: "L'évaluation a rencontré une erreur technique. Veuillez réessayer ultérieurement."
+          } 
+        };
+      }
+      
+      setEvaluationResult(data.evaluation);
+      setActiveTab('evaluation');
+      setSimulationComplete(true);
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de compléter l'évaluation. Veuillez réessayer.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
-  // Fonction pour envoyer un message
+  // Compléter la simulation
+  const completeSimulation = async () => {
+    // Vérifier si les informations de contact sont disponibles
+    const recruiterEmail = form.getValues('recruiterEmail');
+    const candidateName = form.getValues('candidateName');
+    
+    if ((!recruiterEmail || !candidateName) && !isSkippedInfo) {
+      setShowContactForm(true);
+      return;
+    }
+    
+    // Finaliser avec les informations disponibles
+    await finalizeSimulation(
+      recruiterEmail || "",
+      candidateName || "",
+      form.getValues('profileType') || "",
+      form.getValues('experienceLevel') || "",
+      form.getValues('sectorFocus') || ""
+    );
+  };
+  
+  // Soumission du formulaire de contact
+  const onContactFormSubmit = async (values: z.infer<typeof contactFormSchema>) => {
+    setShowContactForm(false);
+    
+    // Mettre à jour le formulaire principal pour la consistance
+    form.setValue('recruiterEmail', values.recruiterEmail);
+    form.setValue('candidateName', values.candidateName);
+    
+    // Finaliser la simulation avec les informations complètes
+    await finalizeSimulation(
+      values.recruiterEmail,
+      values.candidateName,
+      form.getValues('profileType'),
+      form.getValues('experienceLevel'),
+      form.getValues('sectorFocus')
+    );
+  };
+  
+  // Ignorer les informations de contact et démarrer
+  const skipInfoAndStart = () => {
+    setIsSkippedInfo(true);
+    form.handleSubmit(startSimulation)();
+  };
+  
+  // Envoi d'un message
   const sendMessage = async () => {
     if (!userInput.trim() || isLoading) return;
     
-    const userMessage: Message = {
-      id: `user-${messages.length + 1}`,
-      role: 'user',
+    const userMessage = {
+      id: Date.now().toString(),
+      role: 'user' as const,
       content: userInput,
-      timestamp: new Date(),
+      timestamp: new Date()
     };
     
     setMessages(prev => [...prev, userMessage]);
@@ -560,122 +737,57 @@ const Mc2iInterviewPreparation: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Simuler une réponse de l'IA (à remplacer par l'appel API réel)
-      setTimeout(() => {
-        const aiResponses = [
-          "Pourriez-vous me parler d'une expérience où vous avez dû gérer des parties prenantes ayant des intérêts divergents ?",
-          "Quelles méthodologies de gestion de projet avez-vous l'habitude d'utiliser ? Quelle est votre approche préférée et pourquoi ?",
-          "Comment abordez-vous la gestion des risques dans vos projets ?",
-          "Quelles sont vos compétences techniques qui seraient pertinentes pour ce projet ?",
-          "Comment vous adaptez-vous aux changements de priorités en cours de projet ?",
-          "Merci pour votre candidature, nous allons examiner votre profil et vous recontacterons très prochainement. Avez-vous des questions avant que nous ne terminions cet entretien ?"
-        ];
-        
-        const aiMessage: Message = {
-          id: `assistant-${messages.length + 2}`,
-          role: 'assistant',
-          content: messages.length >= 10 ? aiResponses[5] : aiResponses[Math.floor((messages.length - 1) / 2) % 5],
-          timestamp: new Date(),
-        };
-        
-        setMessages(prev => [...prev, aiMessage]);
-        setIsLoading(false);
-        
-        if (messages.length >= 10) {
-          setTimeout(() => {
-            setSimulationComplete(true);
-          }, 3000);
-        }
-      }, 1500);
+      const response = await fetch('/api/amoa/interview-simulation/message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          domain: 'mc2i',
+          message: userInput,
+          history: messages.map(m => ({ role: m.role, content: m.content })),
+          profileType: form.getValues('profileType'),
+          experienceLevel: form.getValues('experienceLevel'),
+          sectorFocus: form.getValues('sectorFocus')
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'envoi du message');
+      }
+      
+      const data = await response.json();
+      
+      const assistantMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant' as const,
+        content: data.reply,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
-      console.error('Erreur lors de l\'envoi du message:', error);
+      console.error('Erreur:', error);
       toast({
+        variant: "destructive",
         title: "Erreur",
         description: "Impossible d'envoyer le message. Veuillez réessayer.",
-        variant: "destructive",
       });
+    } finally {
       setIsLoading(false);
     }
   };
   
-  // Compléter la simulation
-  const completeSimulation = () => {
-    if (timerId) clearInterval(timerId);
-    
-    if (form.getValues().recruiterEmail && form.getValues().candidateName) {
-      performEvaluation();
-    } else {
-      setShowContactForm(true);
-    }
-  };
-  
-  // Réinitialiser la simulation
+  // Réinitialisation de la simulation
   const resetSimulation = () => {
-    setMessages([]);
-    setTimeRemaining(600);
-    if (timerId) clearInterval(timerId);
     setIsSimulationActive(false);
     setSimulationComplete(false);
-    setEvaluationResult(null);
+    setMessages([]);
+    setTimeRemaining(600);
     setActiveTab('best-practices');
-  };
-  
-  // Formulaire de contact après simulation
-  const onContactFormSubmit = (values: z.infer<typeof contactFormSchema>) => {
-    const formData = form.getValues();
-    form.setValue('recruiterEmail', values.recruiterEmail);
-    form.setValue('candidateName', values.candidateName);
-    
-    setShowContactForm(false);
-    performEvaluation();
-  };
-  
-  // Évaluation de la performance
-  const performEvaluation = async () => {
-    setIsLoading(true);
-    
-    try {
-      // Simuler un appel API d'évaluation (à remplacer par l'appel réel)
-      setTimeout(() => {
-        const mockEvaluation = {
-          summary: "Votre performance pendant cette audition a démontré une bonne préparation technique mais pourrait être améliorée au niveau des compétences de communication et de la concision des réponses.",
-          strengths: [
-            "Bonnes connaissances techniques dans le domaine demandé",
-            "Structure claire dans la présentation de vos expériences",
-            "Posture professionnelle tout au long de l'entretien",
-            "Questions pertinentes posées au client"
-          ],
-          improvements: [
-            "Réponses parfois trop longues et détaillées",
-            "Tendance à utiliser un vocabulaire trop technique",
-            "Communication non verbale à améliorer (contact visuel, gestuelle)",
-            "Manque d'exemples concrets pour illustrer certaines compétences"
-          ],
-          detailedNotes: "Vous avez bien réussi à présenter vos compétences techniques et expériences pertinentes. Le discours était structuré mais parfois trop détaillé, ce qui peut perdre l'attention de l'interlocuteur. Travaillez sur la concision de vos réponses tout en conservant les éléments essentiels. Votre posture était professionnelle, mais la communication non verbale mérite d'être améliorée pour projeter plus de confiance.",
-          recommendations: [
-            "Pratiquez des présentations de 30 secondes à 2 minutes pour vos expériences",
-            "Enregistrez-vous pour analyser votre communication non verbale",
-            "Adaptez votre vocabulaire à votre interlocuteur",
-            "Préparez des exemples concrets pour chaque compétence clé"
-          ],
-          sectorFitEvaluation: "Votre compréhension des enjeux spécifiques du secteur est bonne, mais pourrait être approfondie en ce qui concerne les tendances actuelles et les défis réglementaires.",
-          conclusion: "Votre profil correspond globalement aux attentes pour ce type de mission. Avec quelques ajustements dans votre communication et une préparation plus ciblée sur le secteur, vous augmenterez significativement vos chances de succès lors des prochaines auditions."
-        };
-        
-        setEvaluationResult(mockEvaluation);
-        setActiveTab('evaluation');
-        setSimulationComplete(true);
-        setIsLoading(false);
-      }, 2000);
-    } catch (error) {
-      console.error('Erreur lors de l\'évaluation:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible d'obtenir l'évaluation. Veuillez réessayer.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-    }
+    setEvaluationResult(null);
+    setIsSkippedInfo(false);
+    form.reset();
   };
   
   return (
@@ -685,7 +797,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
           <Button 
             variant="ghost" 
             className="text-white hover:text-white hover:bg-blue-800"
-            onClick={() => navigate("/amoa-mode-selection-fixed")}
+            onClick={() => navigate("/amoa-mode-selection-fixed" as string)}
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Retour
@@ -703,7 +815,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
           defaultValue="best-practices" 
           value={activeTab}
           onValueChange={setActiveTab}
-          className="w-full max-w-5xl mx-auto"
+          className="w-full max-w-4xl mx-auto"
         >
           <TabsList className="grid grid-cols-3 mb-8">
             <TabsTrigger value="best-practices">
@@ -1175,13 +1287,20 @@ const Mc2iInterviewPreparation: React.FC = () => {
                   </FormItem>
                 )}
               />
-              <DialogFooter>
-                <Button 
-                  type="submit" 
-                  className="bg-green-600 hover:bg-green-700"
-                  disabled={isLoading}
+              <DialogFooter className="flex justify-end gap-2 mt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowContactForm(false)}
+                  className="border-blue-600 text-blue-100 hover:bg-blue-700"
                 >
-                  {isLoading ? "Chargement..." : "Continuer"}
+                  Annuler
+                </Button>
+                <Button 
+                  type="submit"
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Valider et terminer
                 </Button>
               </DialogFooter>
             </form>
