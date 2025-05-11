@@ -10,7 +10,7 @@ import { BsShieldCheck, BsBarChartFill, BsEye, BsCpu, BsCodeSlash, BsCloud, BsPe
          BsLightningCharge, BsExclamationCircleFill } from 'react-icons/bs';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
-import { RiLockFill } from 'react-icons/ri';
+import { RiLockFill, RiFilterLine } from 'react-icons/ri';
 import { TbLayoutGrid, TbList, TbCheckbox } from 'react-icons/tb';
 import { FaGraduationCap, FaRobot } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
@@ -113,7 +113,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'profil-pro',
       title: 'DANS LA PEAU DE TON MÉTIER',
       description: "Explorez votre métier avec l'IA : rôles, compétences, évolution et défis. Testez vos connaissances avec un quiz personnalisé.",
-      icon: <Briefcase className="h-5 w-5" />,
+      icon: <BsBriefcase className="h-5 w-5" />,
       destination: 'cyber/profil-pro',
       difficulty: 'tous niveaux',
       duration: '20-30 min',
@@ -123,7 +123,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'agent-ia',
       title: 'AGENT IA',
       description: "Discutez avec un expert en cybersécurité IA qui répond à toutes vos questions",
-      icon: <Shield className="h-5 w-5" />,
+      icon: <BsShieldCheck className="h-5 w-5" />,
       destination: '/cyber/expert-learning',
       difficulty: 'débutant',
       duration: '15-30 min'
@@ -134,7 +134,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'cyber-arcade',
       title: 'CYBERARCADE',
       description: "Apprenez les fondamentaux de la cybersécurité à travers des jeux interactifs",
-      icon: <Monitor className="h-5 w-5" />,
+      icon: <IoDesktopOutline className="h-5 w-5" />,
       destination: '/cyber/arcade',
       difficulty: 'débutant',
       duration: '10-20 min'
@@ -144,7 +144,7 @@ export default function CyberModeSelectionRedesign() {
       id: 'preparation-audition',
       title: 'PRÉPARATION AUDITION CLIENT',
       description: "Simulez des entretiens avec des clients pour des missions de cybersécurité",
-      icon: <Users className="h-5 w-5" />,
+      icon: <BsPeopleFill className="h-5 w-5" />,
       destination: '/cyber/interview-simulation',
       difficulty: 'intermédiaire',
       duration: '30-45 min'
