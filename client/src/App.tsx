@@ -722,7 +722,7 @@ function App() {
             {/* Route AMOA Quest supprimée */}
             <Route path="/amoa/projet-imposteur" component={ProjetImposteur} />
             <Route path="/amoa/test-reflexes" component={() => {
-              const TestReflexesComponent = lazy(() => import('./pages/amoa/test-reflexes'));
+              const TestReflexesComponent = lazy(() => import('./pages/amoa/test-reflexes-fixed'));
               return (
                 <Suspense fallback={<GlobalLoader />}>
                   <TestReflexesComponent />
