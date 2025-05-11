@@ -500,13 +500,53 @@ class OpenAIService {
     return isConnected;
   }
 
-  // Méthode principale pour obtenir une complétion avec gestion du cache
+  // Méthode principale pour obtenir une complétion avec gestion du cache - surcharge avec paramètres individuels
   async getChatCompletionWithCache(
     messages: ChatCompletionRequestMessage[],
+    temperature: number,
+    maxTokens: number,
+    useSecondaryKey: boolean
+  ): Promise<string>;
+
+  // Méthode principale pour obtenir une complétion avec gestion du cache - surcharge avec objet d'options
+  async getChatCompletionWithCache(
+    options: {
+      messages: ChatCompletionRequestMessage[],
+      temperature?: number,
+      maxTokens?: number,
+      useSecondaryKey?: boolean
+    }
+  ): Promise<string>;
+  
+  // Implémentation de la méthode
+  async getChatCompletionWithCache(
+    messagesOrOptions: ChatCompletionRequestMessage[] | {
+      messages: ChatCompletionRequestMessage[],
+      temperature?: number,
+      maxTokens?: number,
+      useSecondaryKey?: boolean
+    },
     temperature: number = 0.7,
-    maxTokens: number = 2000
+    maxTokens: number = 2000,
+    useSecondaryKey: boolean = false
   ): Promise<string> {
-    const cacheKey = this.getCacheKey(messages, temperature, maxTokens);
+    // Déterminer les paramètres en fonction de la signature utilisée
+    let messages: ChatCompletionRequestMessage[];
+    let actualTemperature = temperature;
+    let actualMaxTokens = maxTokens;
+    let actualUseSecondaryKey = useSecondaryKey;
+    
+    if (!Array.isArray(messagesOrOptions)) {
+      // Si c'est un objet d'options
+      messages = messagesOrOptions.messages;
+      actualTemperature = messagesOrOptions.temperature ?? 0.7;
+      actualMaxTokens = messagesOrOptions.maxTokens ?? 2000;
+      actualUseSecondaryKey = messagesOrOptions.useSecondaryKey ?? false;
+    } else {
+      // Si c'est un tableau de messages
+      messages = messagesOrOptions;
+    }
+    const cacheKey = this.getCacheKey(messages, actualTemperature, actualMaxTokens);
 
     // Vérifier si la réponse est dans le cache et toujours valide
     const cachedResponse = this.responseCache.get(cacheKey);
@@ -516,12 +556,11 @@ class OpenAIService {
     }
 
     // Toujours appeler l'API réelle - nous n'utilisons plus de réponses simulées
-    // Nous passons false pour useSecondaryKey (utiliser le modèle primaire par défaut)
     const content = await this.getChatCompletion(
-      messages,
-      false,
-      temperature,
-      maxTokens
+      messages, 
+      actualUseSecondaryKey,
+      actualTemperature, 
+      actualMaxTokens
     );
 
     // Mettre en cache la réponse
