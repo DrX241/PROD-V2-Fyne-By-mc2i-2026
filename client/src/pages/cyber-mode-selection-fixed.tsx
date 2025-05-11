@@ -149,6 +149,7 @@ export default function CyberModeSelectionRedesign() {
       destination: '/cyber/plan-continuité',
       difficulty: 'intermédiaire',
       duration: '30-45 min',
+      isNew: true,
       comingSoon: true
     },
     {
@@ -159,17 +160,6 @@ export default function CyberModeSelectionRedesign() {
       destination: '/cyber/crisis-management',
       difficulty: 'avancé',
       duration: '45-60 min',
-      isNew: true,
-      comingSoon: true
-    },
-    {
-      id: 'plan-continuité',
-      title: 'PLAN DE CONTINUITÉ D\'ACTIVITÉ (PCA)',
-      description: "Apprenez à concevoir et mettre en œuvre un PCA efficace pour maintenir vos opérations critiques",
-      icon: <BsShieldCheck className="h-5 w-5" />,
-      destination: '/cyber/plan-continuité',
-      difficulty: 'intermédiaire',
-      duration: '30-45 min',
       isNew: true,
       comingSoon: true
     },
