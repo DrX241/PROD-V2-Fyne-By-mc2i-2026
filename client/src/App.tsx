@@ -62,7 +62,7 @@ import AmoaModeSelection from "@/pages/amoa-mode-selection";
 import AmoaModeSelectionFixed from "@/pages/amoa-mode-selection-fixed";
 // Modules Simulation d'Entretien
 import CyberInterviewSimulation from "@/pages/cyber/interview-simulation";
-
+import CyberInterviewPreparation from "@/pages/cyber/interview-preparation";
 import AmoaInterviewSimulation from "@/pages/amoa/interview-simulation";
 import ProjetImposteur from "@/pages/amoa/projet-imposteur";
 import Mc2iInterviewPreparation from "@/pages/amoa/mc2i-interview-preparation-fixed";
@@ -119,7 +119,7 @@ function App() {
               <Switch>
             
             {/* Toutes les routes sont maintenant publiques */}
-
+            <Route path="/cyber/interview-preparation" component={CyberInterviewPreparation} />
             <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
             <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
             
