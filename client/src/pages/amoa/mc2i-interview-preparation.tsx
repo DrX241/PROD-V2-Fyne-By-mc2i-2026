@@ -110,11 +110,13 @@ const BestPracticesContent = () => (
                   <p className="text-white font-medium">Exemple :</p>
                   <p className="italic">« Je suis Jean-Louis DUPONT, consultant confirmé AMOA SI chez mc2i Groupe, je suis ingénieur diplômé de l'INSA et j'évolue depuis 3 ans dans les problématiques métier RH et Décisionnelles dans le secteur Privé »</p>
                   <Button variant="outline" size="sm" className="mt-2 text-xs border-blue-400 text-blue-300 hover:bg-blue-700 hover:text-white" onClick={() => {
-                    try {
-                      navigator.clipboard?.writeText("Je suis [PRÉNOM NOM], consultant [NIVEAU] [SPÉCIALITÉ] chez mc2i Groupe, je suis [FORMATION] et j'évolue depuis [X] ans dans les problématiques [DOMAINES D'EXPERTISE] dans le secteur [SECTEUR]");
-                      alert("Modèle de pitch copié dans le presse-papier");
-                    } catch (error) {
-                      console.error("Erreur lors de la copie:", error);
+                    if (navigator.clipboard) {
+                      navigator.clipboard.writeText("Je suis [PRÉNOM NOM], consultant [NIVEAU] [SPÉCIALITÉ] chez mc2i Groupe, je suis [FORMATION] et j'évolue depuis [X] ans dans les problématiques [DOMAINES D'EXPERTISE] dans le secteur [SECTEUR]");
+                      toast({
+                        title: "Copié !",
+                        description: "Le modèle de pitch a été copié dans le presse-papier.",
+                        duration: 3000,
+                      });
                     }
                   }}>
                     <Copy className="w-3 h-3 mr-1" /> Copier le modèle
@@ -300,78 +302,13 @@ const BestPracticesContent = () => (
       <div className="space-y-3 text-blue-100">
         <p>Les actions post-entretien sont souvent négligées mais peuvent faire la différence :</p>
         
-        <Accordion type="multiple" className="w-full">
-          <AccordionItem value="immediate-actions">
-            <AccordionTrigger className="text-white hover:text-blue-200">Actions immédiates</AccordionTrigger>
-            <AccordionContent className="text-blue-100">
-              <ul className="list-disc ml-5 space-y-1">
-                <li>Remerciez sincèrement les interlocuteurs pour le temps accordé</li>
-                <li>Exprimez clairement votre motivation à intégrer le projet</li>
-                <li>Échangez des cartes de visite si ce n'est pas déjà fait</li>
-                <li>Demandez quelles sont les prochaines étapes du processus</li>
-                <li>Précisez votre disponibilité pour démarrer la mission</li>
-              </ul>
-            </AccordionContent>
-          </AccordionItem>
-          
-          <AccordionItem value="follow-up">
-            <AccordionTrigger className="text-white hover:text-blue-200">Suivi professionnel</AccordionTrigger>
-            <AccordionContent className="text-blue-100">
-              <div className="space-y-3">
-                <p>Envoyez un email de remerciement dans les 24h suivant l'entretien :</p>
-                
-                <div className="bg-blue-700/50 p-3 rounded-md mt-2">
-                  <p className="text-white font-medium">Exemple d'email de remerciement :</p>
-                  <div className="italic border-l-2 border-blue-500 pl-3 mt-1">
-                    <p>Objet : Remerciement suite à notre entretien du [DATE]</p>
-                    <p className="mt-2">Bonjour [PRÉNOM],</p>
-                    <p className="mt-1">Je tenais à vous remercier pour notre échange d'aujourd'hui concernant la mission [NOM DU PROJET].</p>
-                    <p className="mt-1">Cet entretien a renforcé mon intérêt pour cette opportunité et je suis convaincu(e) que mon expérience en [COMPÉTENCE CLÉ] sera un atout pour la réussite de ce projet.</p>
-                    <p className="mt-1">Je reste à votre disposition pour toute information complémentaire dont vous pourriez avoir besoin.</p>
-                    <p className="mt-1">Bien cordialement,</p>
-                    <p>[VOTRE NOM]</p>
-                    <p>Consultant(e) mc2i</p>
-                  </div>
-                  <Button variant="outline" size="sm" className="mt-2 text-xs border-blue-400 text-blue-300 hover:bg-blue-700 hover:text-white" onClick={() => {
-                    try {
-                      navigator.clipboard?.writeText("Objet : Remerciement suite à notre entretien du [DATE]\n\nBonjour [PRÉNOM],\n\nJe tenais à vous remercier pour notre échange d'aujourd'hui concernant la mission [NOM DU PROJET].\n\nCet entretien a renforcé mon intérêt pour cette opportunité et je suis convaincu(e) que mon expérience en [COMPÉTENCE CLÉ] sera un atout pour la réussite de ce projet.\n\nJe reste à votre disposition pour toute information complémentaire dont vous pourriez avoir besoin.\n\nBien cordialement,\n[VOTRE NOM]\nConsultant(e) mc2i");
-                      alert("Modèle d'email copié dans le presse-papier");
-                    } catch (error) {
-                      console.error("Erreur lors de la copie:", error);
-                    }
-                  }}>
-                    <Copy className="w-3 h-3 mr-1" /> Copier le modèle
-                  </Button>
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-          
-          <AccordionItem value="internal-debrief">
-            <AccordionTrigger className="text-white hover:text-blue-200">Débriefing interne mc2i</AccordionTrigger>
-            <AccordionContent className="text-blue-100">
-              <ul className="list-disc ml-5 space-y-1">
-                <li>Faites un débriefing avec votre manager mc2i pour partager vos impressions</li>
-                <li>Préparez une analyse structurée de l'entretien (points forts, points d'amélioration)</li>
-                <li>Discutez des prochaines étapes et de la stratégie à adopter</li>
-                <li>Déterminez si des actions complémentaires sont nécessaires (envoi de références, etc.)</li>
-              </ul>
-            </AccordionContent>
-          </AccordionItem>
-          
-          <AccordionItem value="self-improvement">
-            <AccordionTrigger className="text-white hover:text-blue-200">Autoévaluation et progression</AccordionTrigger>
-            <AccordionContent className="text-blue-100">
-              <ul className="list-disc ml-5 space-y-1">
-                <li>Notez les questions pour lesquelles vous n'étiez pas totalement préparé(e)</li>
-                <li>Identifiez les points techniques ou métier à approfondir</li>
-                <li>Analysez votre performance (communication, clarté des réponses, posture)</li>
-                <li>Préparez un plan d'action pour améliorer votre préparation aux futures auditions</li>
-                <li>Créez un document personnel de "leçons apprises" pour progresser</li>
-              </ul>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        <ul className="list-disc ml-5 space-y-2">
+          <li>Remerciez sincèrement les interlocuteurs pour le temps accordé</li>
+          <li>Exprimez clairement votre motivation à intégrer le projet</li>
+          <li>Envoyez un email de remerciement dans les 24h suivant l'entretien</li>
+          <li>Faites un débriefing avec votre manager mc2i pour partager vos impressions</li>
+          <li>Notez les questions pour lesquelles vous n'étiez pas totalement préparé afin d'améliorer vos futures auditions</li>
+        </ul>
         
         <div className="bg-blue-700/50 p-3 rounded-md mt-2">
           <p className="text-white font-medium">Savoir conclure :</p>
@@ -689,11 +626,11 @@ const Mc2iInterviewPreparation: React.FC<{}> = () => {
     
     // Finaliser avec les informations disponibles
     await finalizeSimulation(
-      recruiterEmail || "",
-      candidateName || "",
-      form.getValues('profileType') || "",
-      form.getValues('experienceLevel') || "",
-      form.getValues('sectorFocus') || ""
+      recruiterEmail,
+      candidateName,
+      form.getValues('profileType'),
+      form.getValues('experienceLevel'),
+      form.getValues('sectorFocus')
     );
   };
   
@@ -797,7 +734,7 @@ const Mc2iInterviewPreparation: React.FC<{}> = () => {
           <Button 
             variant="ghost" 
             className="text-white hover:text-white hover:bg-blue-800"
-            onClick={() => navigate("/amoa-mode-selection-fixed" as string)}
+            onClick={() => navigate("/amoa-mode-selection-fixed")}
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Retour
@@ -1203,7 +1140,7 @@ const Mc2iInterviewPreparation: React.FC<{}> = () => {
                     </div>
                     
                     <div className="bg-blue-700 p-4 rounded-md">
-                      <h3 className="text-lg font-semibold mb-2">Adéquation avec le secteur {form.getValues('sectorFocus') || ""}</h3>
+                      <h3 className="text-lg font-semibold mb-2">Adéquation avec le secteur {form.getValues('sectorFocus')}</h3>
                       <p className="text-blue-100 mb-2">
                         {evaluationResult.sectorFitEvaluation || "Aucune évaluation d'adéquation sectorielle disponible."}
                       </p>
