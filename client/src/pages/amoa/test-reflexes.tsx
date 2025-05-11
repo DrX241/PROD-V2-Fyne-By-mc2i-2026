@@ -508,6 +508,88 @@ const TestDeReflexes: React.FC = () => {
       setTimer(null);
     }
     
+    // Système de gamification - Traitement des séquences correctes et encouragements
+    if (isCorrect) {
+      setConsecutiveCorrect(prev => prev + 1);
+      setConsecutiveWrong(0);
+      
+      // Collecte d'information pour l'analyse IA
+      if (currentQuestion) {
+        const correctOption = currentQuestion.options.find(opt => opt.isCorrect);
+        setCollectedAnswers(prev => [
+          ...prev, 
+          {
+            question: currentQuestion.text,
+            userAnswer: currentQuestion.options.find(opt => opt.id === optionId)?.text || "",
+            correctAnswer: correctOption?.text || "",
+            isCorrect: true,
+            category: currentQuestion.category,
+            difficulty: currentQuestion.difficulty,
+            timeToAnswer: responseTime
+          }
+        ]);
+      }
+      
+      // Bonus de temps pour les prochaines questions basé sur la rapidité
+      const speedPercentage = responseTime / (currentQuestion?.timeLimit || 1);
+      let bonusTime = 0;
+      
+      if (speedPercentage < 0.3) {
+        // Très rapide - gros bonus
+        bonusTime = 5;
+        setFeedbackMessage("Excellent! +5s de bonus pour votre rapidité! 🚀");
+      } else if (speedPercentage < 0.6) {
+        // Rapide - bonus moyen
+        bonusTime = 3;
+        setFeedbackMessage("Bien joué! +3s de bonus! ⏱️");
+      } else {
+        // Correct mais plus lent
+        bonusTime = 1;
+        setFeedbackMessage("Correct! +1s de bonus");
+      }
+      
+      setBonusTimeEarned(prev => prev + bonusTime);
+      
+      // Encouragements supplémentaires basés sur les séquences
+      if (consecutiveCorrect + 1 >= 3) {
+        setFeedbackMessage("Impressionnant! " + (consecutiveCorrect + 1) + " bonnes réponses d'affilée! 🔥");
+      }
+    } else {
+      // Réponse incorrecte
+      setConsecutiveCorrect(0);
+      setConsecutiveWrong(prev => prev + 1);
+      
+      if (currentQuestion) {
+        const correctOption = currentQuestion.options.find(opt => opt.isCorrect);
+        setCollectedAnswers(prev => [
+          ...prev, 
+          {
+            question: currentQuestion.text,
+            userAnswer: currentQuestion.options.find(opt => opt.id === optionId)?.text || "",
+            correctAnswer: correctOption?.text || "",
+            isCorrect: false,
+            category: currentQuestion.category,
+            difficulty: currentQuestion.difficulty,
+            timeToAnswer: responseTime
+          }
+        ]);
+      }
+      
+      // Messages d'encouragement pour réponses incorrectes
+      if (consecutiveWrong + 1 >= 2) {
+        setFeedbackMessage("Ne vous découragez pas, concentrez-vous sur le prochain défi! 💪");
+      } else {
+        setFeedbackMessage("Ce n'est pas grave, continuez!");
+      }
+    }
+    
+    // Ajustement de la difficulté basé sur les performances
+    if (consecutiveCorrect >= 3) {
+      setDifficulty(prev => prev === "facile" ? "moyen" : prev === "moyen" ? "difficile" : prev);
+    } else if (consecutiveWrong >= 3) {
+      setDifficulty(prev => prev === "difficile" ? "moyen" : prev === "moyen" ? "facile" : prev);
+    }
+    
     // Afficher l'explication
     setShowExplanation(true);
     
@@ -534,6 +616,35 @@ const TestDeReflexes: React.FC = () => {
       }
     }));
     
+    // Réinitialiser les séquences positives, incrémenter les séquences négatives
+    setConsecutiveCorrect(0);
+    setConsecutiveWrong(prev => prev + 1);
+    
+    // Collecter la donnée pour l'analyse IA 
+    if (currentQuestion) {
+      const correctOption = currentQuestion.options.find(opt => opt.isCorrect);
+      setCollectedAnswers(prev => [
+        ...prev, 
+        {
+          question: currentQuestion.text,
+          userAnswer: "Pas de réponse (temps écoulé)",
+          correctAnswer: correctOption?.text || "",
+          isCorrect: false,
+          category: currentQuestion.category, 
+          difficulty: currentQuestion.difficulty,
+          timeToAnswer: currentQuestion.timeLimit
+        }
+      ]);
+    }
+    
+    // Message d'encouragement pour timeout
+    setFeedbackMessage("Le temps est écoulé. Restez concentré pour la prochaine question! ⏰");
+    
+    // Ajuster la difficulté si trop de timeouts consécutifs
+    if (consecutiveWrong >= 2) {
+      setDifficulty(prev => prev === "difficile" ? "moyen" : prev === "moyen" ? "facile" : prev);
+    }
+    
     // Afficher un message
     toast({
       title: "Temps écoulé !",
@@ -549,10 +660,18 @@ const TestDeReflexes: React.FC = () => {
   const goToNextQuestion = () => {
     setShowExplanation(false);
     setSelectedOptionId(null);
+    setFeedbackMessage(null);
     
     if (currentQuestionIndex < testQuestions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
-      setTimeLeft(testQuestions[currentQuestionIndex + 1].timeLimit);
+      
+      // Appliquer le bonus de temps à la prochaine question si disponible
+      const nextQuestionBaseTime = testQuestions[currentQuestionIndex + 1].timeLimit;
+      const finalTimeWithBonus = nextQuestionBaseTime + bonusTimeEarned;
+      setTimeLeft(finalTimeWithBonus);
+      
+      // Réinitialiser le bonus pour qu'il ne s'applique qu'une fois
+      setBonusTimeEarned(0);
       
       // Redémarrer le timer
       const newTimer = setInterval(() => {
