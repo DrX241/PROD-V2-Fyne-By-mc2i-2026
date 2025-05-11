@@ -440,45 +440,49 @@ export default function AmoaModeSelectionFixed() {
                     transition={{ duration: 0.3 }}
                     className="relative"
                   >
-                    <Card className="h-full shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
-                      <CardHeader className={`p-4 pb-3 bg-gradient-to-br ${objective.gradient}`}>
-                        <div className="flex items-center space-x-4">
-                          <div className="bg-white/20 p-2 rounded-lg">
+                    <div className={`rounded-xl p-6 h-full bg-gradient-to-br ${objective.gradient}`} data-id={`objective-${objective.id}`}>
+                      <div className="flex flex-col h-full">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="p-2 rounded-full bg-white/10">
                             {objective.icon}
                           </div>
-                          <CardTitle className="text-xl text-white">
+                          <h2 className="text-xl font-bold text-white">
                             {objective.title}
-                          </CardTitle>
+                          </h2>
                         </div>
-                      </CardHeader>
-                      <CardContent className={`p-4 pt-2 bg-gradient-to-br ${objective.gradient}`}>
-                        <p className="text-blue-100 mb-4">
+                        
+                        <p className="mb-4 text-blue-100">
                           {objective.description}
                         </p>
                         
-                        <div className="space-y-2">
-                          <h4 className="font-medium text-white text-sm mb-2">Modules recommandés:</h4>
-                          {objective.modules.map((moduleId) => {
-                            const moduleInfo = modules.find(m => m.id === moduleId);
-                            return moduleInfo ? (
-                              <Link key={moduleId} href={moduleInfo.comingSoon ? "#" : moduleInfo.destination}>
-                                <div className="flex items-center p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                                  <div className="bg-blue-700/40 p-1 rounded-lg mr-2">
-                                    {moduleInfo.icon}
-                                  </div>
-                                  <span className="text-sm text-white line-clamp-1">{moduleInfo.title}</span>
-                                  {moduleInfo.comingSoon && (
-                                    <Badge variant="outline" className="ml-auto border-amber-500 text-amber-400 text-xs shrink-0">
-                                      Bientôt
-                                    </Badge>
-                                  )}
-                                </div>
-                              </Link>
-                            ) : null;
-                          })}
+                        <div className="mt-auto">
+                          <h3 className="text-white font-medium mb-2">Modules recommandés:</h3>
+                          <ul className="space-y-2">
+                            {objective.modules.map((moduleId) => {
+                              const moduleInfo = modules.find(m => m.id === moduleId);
+                              return moduleInfo ? (
+                                <li key={moduleId}>
+                                  <Link 
+                                    href={moduleInfo.comingSoon ? "#" : moduleInfo.destination}
+                                    className="block p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                                  >
+                                    <div className="flex justify-between items-center">
+                                      <span className="font-medium text-white">{moduleInfo.title}</span>
+                                      <IoMdArrowForward className="h-4 w-4 text-white" />
+                                      {moduleInfo.comingSoon && (
+                                        <Badge variant="outline" className="ml-2 border-amber-500 text-amber-400 text-xs shrink-0">
+                                          Bientôt
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </Link>
+                                </li>
+                              ) : null;
+                            })}
+                          </ul>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   </motion.div>
                 ))}
               </div>
@@ -495,19 +499,18 @@ export default function AmoaModeSelectionFixed() {
                     transition={{ duration: 0.3 }}
                     className="relative"
                   >
-                    <Card className="h-full shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
-                      <CardHeader className={`p-4 pb-3 bg-gradient-to-br ${career.gradient}`}>
-                        <div className="flex items-center space-x-4">
-                          <div className="bg-white/20 p-2 rounded-lg">
+                    <div className={`rounded-xl p-6 h-full bg-gradient-to-br ${career.gradient}`} data-id={`career-${career.id}`}>
+                      <div className="flex flex-col h-full">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="p-2 rounded-full bg-white/10">
                             {career.icon}
                           </div>
-                          <CardTitle className="text-xl text-white">
+                          <h2 className="text-xl font-bold text-white">
                             {career.title}
-                          </CardTitle>
+                          </h2>
                         </div>
-                      </CardHeader>
-                      <CardContent className={`p-4 pt-2 bg-gradient-to-br ${career.gradient}`}>
-                        <p className="text-blue-100 mb-4">
+                        
+                        <p className="mb-4 text-blue-100">
                           {career.description}
                         </p>
                         
@@ -522,29 +525,34 @@ export default function AmoaModeSelectionFixed() {
                           </div>
                         </div>
                         
-                        <div className="space-y-2">
-                          <h4 className="font-medium text-white text-sm mb-2">Parcours recommandé:</h4>
-                          {career.modules.map((moduleId) => {
-                            const moduleInfo = modules.find(m => m.id === moduleId);
-                            return moduleInfo ? (
-                              <Link key={moduleId} href={moduleInfo.comingSoon ? "#" : moduleInfo.destination}>
-                                <div className="flex items-center p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                                  <div className="bg-blue-700/40 p-1 rounded-lg mr-2">
-                                    {moduleInfo.icon}
-                                  </div>
-                                  <span className="text-sm text-white line-clamp-1">{moduleInfo.title}</span>
-                                  {moduleInfo.comingSoon && (
-                                    <Badge variant="outline" className="ml-auto border-amber-500 text-amber-400 text-xs shrink-0">
-                                      Bientôt
-                                    </Badge>
-                                  )}
-                                </div>
-                              </Link>
-                            ) : null;
-                          })}
+                        <div className="mt-auto">
+                          <h3 className="text-white font-medium mb-2">Parcours recommandé:</h3>
+                          <ul className="space-y-2">
+                            {career.modules.map((moduleId) => {
+                              const moduleInfo = modules.find(m => m.id === moduleId);
+                              return moduleInfo ? (
+                                <li key={moduleId}>
+                                  <Link 
+                                    href={moduleInfo.comingSoon ? "#" : moduleInfo.destination}
+                                    className="block p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                                  >
+                                    <div className="flex justify-between items-center">
+                                      <span className="font-medium text-white">{moduleInfo.title}</span>
+                                      <IoMdArrowForward className="h-4 w-4 text-white" />
+                                      {moduleInfo.comingSoon && (
+                                        <Badge variant="outline" className="ml-2 border-amber-500 text-amber-400 text-xs shrink-0">
+                                          Bientôt
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </Link>
+                                </li>
+                              ) : null;
+                            })}
+                          </ul>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   </motion.div>
                 ))}
               </div>
