@@ -705,6 +705,14 @@ function App() {
                 </Suspense>
               );
             }} />
+            <Route path="/cyber/crisis-management" component={() => {
+              const CrisisManagementComponent = lazy(() => import('./pages/cyber/crisis-management'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <CrisisManagementComponent />
+                </Suspense>
+              );
+            }} />
             <Route path="/custom" component={() => {
               window.location.href = '/playground/module-generator';
               return null;
