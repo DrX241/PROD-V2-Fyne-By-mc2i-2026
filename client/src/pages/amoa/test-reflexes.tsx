@@ -449,13 +449,11 @@ const TestDeReflexes: React.FC = () => {
   const [consecutiveCorrect, setConsecutiveCorrect] = useState<number>(0);
   const [consecutiveWrong, setConsecutiveWrong] = useState<number>(0);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
-  const [bonusTimeEarned, setBonusTimeEarned] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [difficulty, setDifficulty] = useState<"facile" | "moyen" | "difficile">("facile");
-  const [totalTestTime, setTotalTestTime] = useState<number>(120); // 2 minutes de test par défaut
-  const [remainingTestTime, setRemainingTestTime] = useState<number>(120);
   const [usedQuestionIds, setUsedQuestionIds] = useState<Set<string>>(new Set());
-  const [globalTimer, setGlobalTimer] = useState<NodeJS.Timeout | null>(null);
+  const [questionCount, setQuestionCount] = useState<number>(0);
+  const [maxQuestions] = useState<number>(15); // Maximum de 15 questions
 
   // Filtrer les questions qui n'ont pas encore été utilisées
   const availableQuestions = testQuestions.filter(q => !usedQuestionIds.has(q.id));
@@ -477,39 +475,15 @@ const TestDeReflexes: React.FC = () => {
     setShowExplanation(false);
     setSelectedOptionId(null);
     setUsedQuestionIds(new Set());
+    setQuestionCount(0);
     
     // Réinitialiser les états de gamification
     setCollectedAnswers([]);
     setConsecutiveCorrect(0);
     setConsecutiveWrong(0);
     setFeedbackMessage(null);
-    setBonusTimeEarned(0);
     setDifficulty("facile");
     setLoading(false);
-    
-    // Initialiser le timer global (2 minutes = 120 secondes)
-    const totalTime = 120;
-    setTotalTestTime(totalTime);
-    setRemainingTestTime(totalTime);
-    
-    // Démarrer le timer global du test
-    if (globalTimer) {
-      clearInterval(globalTimer);
-    }
-    
-    const newGlobalTimer = setInterval(() => {
-      setRemainingTestTime((prevTime) => {
-        if (prevTime <= 1) {
-          // Le temps total du test est écoulé
-          clearInterval(newGlobalTimer);
-          finishTest();
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
-    
-    setGlobalTimer(newGlobalTimer);
     
     // Sélectionner la première question aléatoirement parmi les questions de difficulté "facile"
     const easyQuestions = testQuestions.filter(q => q.difficulty === "facile");
@@ -517,6 +491,9 @@ const TestDeReflexes: React.FC = () => {
     
     // Marquer cette question comme utilisée
     setUsedQuestionIds(new Set([firstQuestion.id]));
+    
+    // Initialiser le compteur de questions
+    setQuestionCount(1);
     
     // Initialiser le timer pour la première question
     setTimeLeft(firstQuestion.timeLimit);
