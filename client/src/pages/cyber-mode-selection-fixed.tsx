@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { HelpCircle, Search, Circle } from 'lucide-react';
+import { HelpCircle, Search, Circle, Shield } from 'lucide-react';
 // Remplacer les icônes Lucide par des icônes modernes
 import { IoHome, IoSearchOutline, IoBookOutline, IoDesktopOutline, IoTrophyOutline, IoConstructOutline } from 'react-icons/io5';
 import { IoMdArrowForward } from 'react-icons/io';
@@ -11,6 +11,7 @@ import { BsShieldCheck, BsBarChartFill, BsEye, BsCpu, BsCodeSlash, BsCloud, BsPe
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
 import { RiLockFill, RiFilterLine } from 'react-icons/ri';
+import { FaLinkedin } from 'react-icons/fa';
 import { TbLayoutGrid, TbList, TbCheckbox } from 'react-icons/tb';
 import { FaGraduationCap, FaRobot } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
