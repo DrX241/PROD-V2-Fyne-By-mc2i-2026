@@ -52,6 +52,57 @@ import { useToast } from "@/hooks/use-toast";
 import { useChatContext } from "@/contexts/ChatContext";
 import "@/components/cyber/cyber-academie.css";
 
+// Styles pour les animations d'impact
+const impactStyles = `
+  .impact-animation {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: bold;
+    border-radius: 4px;
+    padding: 2px 6px;
+    opacity: 0;
+    font-size: 14px;
+    z-index: 10;
+  }
+  
+  .impact-positive {
+    color: #10b981;
+    background-color: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+  
+  .impact-negative {
+    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+  
+  .animate-impact {
+    animation: impact-animation 1.5s ease-out forwards;
+  }
+  
+  @keyframes impact-animation {
+    0% {
+      opacity: 0;
+      transform: translateY(-50%) translateX(0);
+    }
+    20% {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+    80% {
+      opacity: 1;
+      transform: translateY(-50%) translateX(-10px);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-50%) translateX(-20px);
+    }
+  }
+`;
+
 // Types pour le module CYBERCHAOS
 interface Decision {
   id: string;
@@ -188,6 +239,43 @@ const CyberChaos: React.FC = () => {
     'Direction': []
   });
   
+  // Animation pour montrer l'impact visuel sur le tableau de bord
+  const animateImpact = (scoreType: 'operational' | 'financial' | 'reputation' | 'legal' | 'stress', changeAmount: number): void => {
+    if (changeAmount === 0) return;
+    
+    // Créer un élément d'animation pour montrer le changement
+    const impactDiv = document.createElement('div');
+    impactDiv.className = `impact-animation ${changeAmount > 0 ? 'impact-positive' : 'impact-negative'}`;
+    impactDiv.textContent = `${changeAmount > 0 ? '+' : ''}${changeAmount}`;
+    
+    // Trouver l'élément cible à animer
+    let targetElement;
+    if (scoreType === 'operational') {
+      targetElement = document.querySelector('[data-score="operational"]');
+    } else if (scoreType === 'financial') {
+      targetElement = document.querySelector('[data-score="financial"]');
+    } else if (scoreType === 'reputation') {
+      targetElement = document.querySelector('[data-score="reputation"]');
+    } else if (scoreType === 'legal') {
+      targetElement = document.querySelector('[data-score="legal"]');
+    } else if (scoreType === 'stress') {
+      targetElement = document.querySelector('[data-score="stress"]');
+    }
+    
+    if (targetElement) {
+      // Ajouter au DOM
+      targetElement.appendChild(impactDiv);
+      
+      // Animation puis suppression
+      setTimeout(() => {
+        impactDiv.classList.add('animate-impact');
+        setTimeout(() => {
+          targetElement.removeChild(impactDiv);
+        }, 1000);
+      }, 100);
+    }
+  };
+
   // Configurer les événements de crise pour le scénario
   useEffect(() => {
     if (isGameStarted && !gameState.events.length) {
@@ -709,159 +797,402 @@ const CyberChaos: React.FC = () => {
       // Plus le joueur répond vite, meilleur est l'impact
       if (requestTimers[selectedContact] > 120) {
         impactFacteur = 1.0; // Réponse rapide
+        toast({
+          title: "Réponse rapide",
+          description: "Vous avez répondu rapidement, ce qui maximise l'impact positif de votre décision.",
+          variant: "default",
+        });
       } else if (requestTimers[selectedContact] > 60) {
         impactFacteur = 0.7; // Réponse moyenne
       } else {
         impactFacteur = 0.5; // Réponse tardive
+        toast({
+          title: "Réponse tardive",
+          description: "Votre réponse est arrivée tardivement, ce qui réduit l'efficacité de votre décision.",
+          variant: "default",
+        });
       }
       
       // Différents impacts selon le contact
-      setGameState(prev => {
-        let reputationImpact = 0;
-        let operationalImpact = 0;
-        let legalImpact = 0;
-        let stressImpact = -5 * impactFacteur; // Moins de stress pour tous
-        
-        if (selectedContact === 'Presse') {
-          reputationImpact = 5 * impactFacteur;
-        } else if (selectedContact === 'Équipe technique') {
-          operationalImpact = 5 * impactFacteur;
-        } else if (selectedContact === 'Autorités') {
-          legalImpact = -5 * impactFacteur;
-        } else if (selectedContact === 'Direction') {
-          stressImpact = -10 * impactFacteur;
+      let reputationImpact = 0;
+      let operationalImpact = 0;
+      let legalImpact = 0;
+      let stressImpact = -5 * impactFacteur; // Moins de stress pour tous
+      let financialImpact = 0;
+      
+      if (selectedContact === 'Presse') {
+        reputationImpact = 5 * impactFacteur;
+      } else if (selectedContact === 'Équipe technique') {
+        operationalImpact = 5 * impactFacteur;
+      } else if (selectedContact === 'Autorités') {
+        legalImpact = -5 * impactFacteur;
+      } else if (selectedContact === 'Direction') {
+        stressImpact = -10 * impactFacteur;
+      }
+      
+      // Analyse intelligente du contenu du message
+      const messageLower = messageCopy.toLowerCase();
+      
+      // Mots-clés positifs et négatifs généraux
+      const positiveKeywords = ['immédiatement', 'urgent', 'prioritaire', 'action', 'sécurité', 'protection', 'transparence'];
+      const negativeKeywords = ['attendre', 'retarder', 'reporter', 'plus tard', 'incertain', 'peut-être', 'ignorer'];
+      
+      // Compter les mots positifs et négatifs présents
+      const positiveCount = positiveKeywords.filter(word => messageLower.includes(word)).length;
+      const negativeCount = negativeKeywords.filter(word => messageLower.includes(word)).length;
+      
+      // Appliquer des modificateurs supplémentaires basés sur l'analyse du message
+      if (positiveCount > negativeCount) {
+        operationalImpact += 2;
+        stressImpact -= 3;
+      } else if (negativeCount > positiveCount) {
+        operationalImpact -= 2;
+        stressImpact += 3;
+      }
+      
+      // Analyse spécifique par type de contact
+      if (selectedContact === 'Presse') {
+        if (messageLower.includes('data') || messageLower.includes('données')) {
+          reputationImpact -= 5; // Mentionner les données est risqué avec la presse
+          legalImpact += 3;
         }
+        if (messageLower.includes('transparence') || messageLower.includes('honnête')) {
+          reputationImpact += 3;
+        }
+      } else if (selectedContact === 'Équipe technique') {
+        if (messageLower.includes('isoler') || messageLower.includes('isolation')) {
+          operationalImpact -= 5;
+          legalImpact -= 5;
+        }
+        if (messageLower.includes('forensique') || messageLower.includes('analyse')) {
+          operationalImpact -= 3;
+          legalImpact -= 8;
+        }
+        if (messageLower.includes('restauration') || messageLower.includes('backup')) {
+          operationalImpact += 8;
+          legalImpact += 3;
+        }
+      } else if (selectedContact === 'Autorités') {
+        if (messageLower.includes('collabor') || messageLower.includes('coopér')) {
+          legalImpact -= 8;
+        }
+        if (messageLower.includes('limit') || messageLower.includes('minimum')) {
+          legalImpact += 5;
+          reputationImpact -= 3;
+        }
+      } else if (selectedContact === 'Communication') {
+        if (messageLower.includes('interne')) {
+          stressImpact -= 5;
+        }
+        if (messageLower.includes('externe') || messageLower.includes('public')) {
+          reputationImpact += 5;
+          stressImpact += 3;
+        }
+      } else if (selectedContact === 'Direction') {
+        if (messageLower.includes('budget') || messageLower.includes('coût') || messageLower.includes('ressource')) {
+          financialImpact += 20;
+          operationalImpact += 5;
+        }
+        if (messageLower.includes('expert') || messageLower.includes('externe')) {
+          financialImpact += 50;
+          operationalImpact += 10;
+          stressImpact -= 5;
+        }
+      }
+      
+      // Appliquer les changements au state du jeu
+      setGameState(prev => {
+        // Calculer les nouvelles valeurs
+        const newReputationScore = Math.max(0, Math.min(100, prev.reputationScore + reputationImpact));
+        const newOperationalScore = Math.max(0, Math.min(100, prev.operationalScore + operationalImpact));
+        const newLegalRisk = Math.max(0, Math.min(100, prev.legalRisk + legalImpact));
+        const newStressLevel = Math.max(0, Math.min(100, prev.stressLevel + stressImpact));
+        const newFinancialImpact = prev.financialImpact + financialImpact;
+        
+        // Animer les changements de valeurs
+        setTimeout(() => {
+          animateImpact('operational', operationalImpact);
+          animateImpact('reputation', reputationImpact);
+          animateImpact('legal', legalImpact);
+          animateImpact('stress', stressImpact);
+          if (financialImpact !== 0) {
+            animateImpact('financial', financialImpact);
+          }
+        }, 500);
         
         return {
           ...prev,
-          reputationScore: Math.max(0, Math.min(100, prev.reputationScore + reputationImpact)),
-          operationalScore: Math.max(0, Math.min(100, prev.operationalScore + operationalImpact)),
-          legalRisk: Math.max(0, Math.min(100, prev.legalRisk + legalImpact)),
-          stressLevel: Math.max(0, Math.min(100, prev.stressLevel + stressImpact)),
+          reputationScore: newReputationScore,
+          operationalScore: newOperationalScore,
+          legalRisk: newLegalRisk,
+          stressLevel: newStressLevel,
+          financialImpact: newFinancialImpact
         };
       });
       
-      // Si l'utilisateur a choisi parmi les options proposées, créer une réponse contextuelle immédiate
-      if (wasChoiceSelected) {
-        setTimeout(() => {
-          let npcResponse = "";
-          
+      // Si l'utilisateur a choisi parmi les options proposées ou envoyé un message personnalisé
+      setTimeout(() => {
+        let npcResponse = "";
+        
+        // Réponses pour des choix prédéfinis
+        if (wasChoiceSelected) {
           if (selectedContact === 'Presse') {
             if (messageCopy.includes("Nier tout incident")) {
               npcResponse = "Je comprends votre position officielle d'absence d'incident. Néanmoins, j'ai des sources qui confirment des perturbations dans vos services. Je serai obligé de le mentionner dans mon article. Je vous recontacterai si j'ai d'autres questions.";
-              // Impact négatif sur la réputation
-              setGameState(prev => ({...prev, reputationScore: Math.max(0, prev.reputationScore - 10)}));
+              // Impact négatif supplémentaire sur la réputation
+              setGameState(prev => {
+                const impact = -10;
+                setTimeout(() => animateImpact('reputation', impact), 300);
+                return {...prev, reputationScore: Math.max(0, prev.reputationScore + impact)};
+              });
             } else if (messageCopy.includes("incident technique")) {
               npcResponse = "Merci pour cette confirmation. Pourriez-vous préciser quand vos services seront pleinement rétablis et si des données clients ont pu être affectées? Nos lecteurs s'inquiètent pour leurs informations personnelles.";
             } else if (messageCopy.includes("transparente")) {
               npcResponse = "J'apprécie votre transparence. C'est rare dans ce type de situation. J'aimerais vous citer directement dans l'article. Pouvez-vous me confirmer les mesures prises pour éviter que cela ne se reproduise?";
-              // Impact positif sur la réputation
-              setGameState(prev => ({...prev, reputationScore: Math.min(100, prev.reputationScore + 5)}));
+              // Impact positif supplémentaire sur la réputation
+              setGameState(prev => {
+                const impact = 5;
+                setTimeout(() => animateImpact('reputation', impact), 300);
+                return {...prev, reputationScore: Math.min(100, prev.reputationScore + impact)};
+              });
             } else {
               npcResponse = "Je comprends votre besoin de préparer une réponse. Je peux vous accorder jusqu'à demain matin 8h, mais pas au-delà car nous bouclons notre édition. Merci de me contacter dès que possible.";
             }
           } else if (selectedContact === 'Équipe technique') {
             if (messageCopy.includes("forensique complète")) {
               npcResponse = "Compris. L'équipe forensique est mobilisée et commence l'analyse approfondie. Nous allons isoler et préserver toutes les preuves. Premier rapport préliminaire dans 2 heures, mais l'analyse complète prendra bien 6 heures comme prévu.";
-              // Impact positif sur le score légal
-              setGameState(prev => ({...prev, legalRisk: Math.max(0, prev.legalRisk - 10)}));
+              // Impact positif supplémentaire sur le score légal
+              setGameState(prev => {
+                const impact = -10;
+                setTimeout(() => animateImpact('legal', impact), 300);
+                return {...prev, legalRisk: Math.max(0, prev.legalRisk + impact)};
+              });
             } else if (messageCopy.includes("immédiatement")) {
               npcResponse = "Restauration des sauvegardes lancée immédiatement. Les services critiques seront en ligne dans environ 90 minutes. Note: cette approche nous fait perdre des preuves forensiques et la possibilité d'identifier précisément le vecteur d'attaque.";
               // Impact positif sur l'opérationnel mais négatif sur le légal
-              setGameState(prev => ({
-                ...prev, 
-                operationalScore: Math.min(100, prev.operationalScore + 10),
-                legalRisk: Math.min(100, prev.legalRisk + 5)
-              }));
+              setGameState(prev => {
+                const opImpact = 10;
+                const legalImpact = 5;
+                setTimeout(() => {
+                  animateImpact('operational', opImpact);
+                  animateImpact('legal', legalImpact);
+                }, 300);
+                return {
+                  ...prev, 
+                  operationalScore: Math.min(100, prev.operationalScore + opImpact),
+                  legalRisk: Math.min(100, prev.legalRisk + legalImpact)
+                };
+              });
             } else if (messageCopy.includes("analyse rapide")) {
               npcResponse = "L'analyse rapide est en cours. Nous aurons une idée des principaux IOCs et du vecteur d'entrée dans 2 heures, puis nous lancerons la restauration des systèmes prioritaires.";
             } else {
               npcResponse = "Excellente décision. Nous allons cloner les systèmes affectés pour analyse forensique tout en lançant la restauration en parallèle. C'est plus complexe mais ça optimise le délai de reprise tout en préservant les preuves.";
               // Bon équilibre des impacts
-              setGameState(prev => ({
-                ...prev, 
-                operationalScore: Math.min(100, prev.operationalScore + 5),
-                legalRisk: Math.max(0, prev.legalRisk - 5)
-              }));
+              setGameState(prev => {
+                const opImpact = 5;
+                const legalImpact = -5;
+                setTimeout(() => {
+                  animateImpact('operational', opImpact);
+                  animateImpact('legal', legalImpact);
+                }, 300);
+                return {
+                  ...prev, 
+                  operationalScore: Math.min(100, prev.operationalScore + opImpact),
+                  legalRisk: Math.max(0, prev.legalRisk + legalImpact)
+                };
+              });
             }
           } else if (selectedContact === 'Autorités') {
             if (messageCopy.includes("toutes les informations")) {
               npcResponse = "Nous apprécions votre coopération totale. Un analyste de l'ANSSI va vous contacter dans l'heure pour accéder à vos systèmes. Nous vous fournirons également des IOCs complémentaires provenant d'incidents similaires récents.";
-              // Impact très positif sur le légal
-              setGameState(prev => ({...prev, legalRisk: Math.max(0, prev.legalRisk - 15)}));
+              // Impact très positif supplémentaire sur le légal
+              setGameState(prev => {
+                const impact = -15;
+                setTimeout(() => animateImpact('legal', impact), 300);
+                return {...prev, legalRisk: Math.max(0, prev.legalRisk + impact)};
+              });
             } else if (messageCopy.includes("minimales légalement")) {
               npcResponse = "Nous prenons note de votre approche. Sachez que le cadre légal nous permet de demander des informations complémentaires si nécessaire. Nous attendons votre rapport dans les délais impartis.";
             } else if (messageCopy.includes("assistance technique")) {
               npcResponse = "Nous mettons à votre disposition un expert technique qui pourra vous accompagner dès demain matin. Veuillez préparer un accès sécurisé à vos logs et systèmes affectés pour faciliter son intervention.";
-              // Impact positif sur l'opérationnel
-              setGameState(prev => ({...prev, operationalScore: Math.min(100, prev.operationalScore + 10)}));
+              // Impact positif supplémentaire sur l'opérationnel
+              setGameState(prev => {
+                const impact = 10;
+                setTimeout(() => animateImpact('operational', impact), 300);
+                return {...prev, operationalScore: Math.min(100, prev.operationalScore + impact)};
+              });
             } else {
               npcResponse = "Nous comprenons la sensibilité de la situation, mais nous vous rappelons l'obligation légale de notifier rapidement. Vous disposez de 72h maximum pour fournir un rapport complet, mais un rapport préliminaire reste attendu sous 24h.";
-              // Impact légèrement négatif sur le légal
-              setGameState(prev => ({...prev, legalRisk: Math.min(100, prev.legalRisk + 5)}));
+              // Impact légèrement négatif supplémentaire sur le légal
+              setGameState(prev => {
+                const impact = 5;
+                setTimeout(() => animateImpact('legal', impact), 300);
+                return {...prev, legalRisk: Math.min(100, prev.legalRisk + impact)};
+              });
             }
           } else if (selectedContact === 'Communication') {
             if (messageCopy.includes("minimale")) {
               npcResponse = "Message de communication minimaliste préparé et diffusé en interne. Les responsables de département ont été briefés pour rassurer leurs équipes. Pour l'externe, nous suivons strictement la ligne 'incident technique en cours'.";
             } else if (messageCopy.includes("Transparence totale")) {
               npcResponse = "Stratégie de transparence mise en place. Communication interne détaillée envoyée à tous les employés. Communiqué externe publié sur notre site et réseaux sociaux, informant de la cyberattaque et des mesures prises.";
-              // Impact mitigé: positif sur réputation, négatif sur stress
-              setGameState(prev => ({
-                ...prev, 
-                reputationScore: Math.min(100, prev.reputationScore + 10),
-                stressLevel: Math.min(100, prev.stressLevel + 10)
-              }));
+              // Impact mitigé supplémentaire: positif sur réputation, négatif sur stress
+              setGameState(prev => {
+                const repImpact = 10;
+                const stressImpact = 10;
+                setTimeout(() => {
+                  animateImpact('reputation', repImpact);
+                  animateImpact('stress', stressImpact);
+                }, 300);
+                return {
+                  ...prev, 
+                  reputationScore: Math.min(100, prev.reputationScore + repImpact),
+                  stressLevel: Math.min(100, prev.stressLevel + stressImpact)
+                };
+              });
             } else if (messageCopy.includes("interne complète")) {
               npcResponse = "Communication interne détaillée envoyée à tous les employés avec consignes précises. Communication externe minimaliste préparée pour les clients et partenaires. Les équipes sont rassurées mais restent vigilantes.";
-              // Bon équilibre
-              setGameState(prev => ({...prev, stressLevel: Math.max(0, prev.stressLevel - 5)}));
+              // Bon équilibre supplémentaire
+              setGameState(prev => {
+                const impact = -5;
+                setTimeout(() => animateImpact('stress', impact), 300);
+                return {...prev, stressLevel: Math.max(0, prev.stressLevel + impact)};
+              });
             } else {
               npcResponse = "Réunion de crise organisée dans 30 minutes avec tous les responsables d'équipe. Nous préparerons une stratégie de communication coordonnée suite à cette réunion. Entre-temps, consigne de discrétion maintenue.";
             }
           } else if (selectedContact === 'Direction') {
             if (messageCopy.includes("faits confirmés")) {
               npcResponse = "Le PDG apprécie votre prudence et la fiabilité des informations communiquées. Il demande à être informé en temps réel de toute évolution significative avant la réunion du conseil demain.";
-              // Impact positif sur le stress
-              setGameState(prev => ({...prev, stressLevel: Math.max(0, prev.stressLevel - 10)}));
+              // Impact positif supplémentaire sur le stress
+              setGameState(prev => {
+                const impact = -10;
+                setTimeout(() => animateImpact('stress', impact), 300);
+                return {...prev, stressLevel: Math.max(0, prev.stressLevel + impact)};
+              });
             } else if (messageCopy.includes("pire scénario")) {
               npcResponse = "Le PDG est très préoccupé par l'ampleur potentielle que vous décrivez. Il a demandé une session de crise immédiate avec le comité exécutif et attend une évaluation plus précise des risques réels d'ici deux heures.";
-              // Impact négatif sur le stress
-              setGameState(prev => ({...prev, stressLevel: Math.min(100, prev.stressLevel + 15)}));
+              // Impact négatif supplémentaire sur le stress
+              setGameState(prev => {
+                const impact = 15;
+                setTimeout(() => animateImpact('stress', impact), 300);
+                return {...prev, stressLevel: Math.min(100, prev.stressLevel + impact)};
+              });
             } else if (messageCopy.includes("plan de remédiation")) {
               npcResponse = "Votre plan a été bien reçu par la direction. Le PDG vous demande de superviser personnellement sa mise en œuvre et de faire un point d'avancement toutes les 2 heures. Des ressources supplémentaires seront débloquées si nécessaire.";
-              // Impact financier mais positif sur l'opérationnel
-              setGameState(prev => ({
-                ...prev, 
-                financialImpact: prev.financialImpact + 30,
-                operationalScore: Math.min(100, prev.operationalScore + 10)
-              }));
+              // Impact financier supplémentaire mais positif sur l'opérationnel
+              setGameState(prev => {
+                const finImpact = 30;
+                const opImpact = 10;
+                setTimeout(() => {
+                  animateImpact('financial', finImpact);
+                  animateImpact('operational', opImpact);
+                }, 300);
+                return {
+                  ...prev, 
+                  financialImpact: prev.financialImpact + finImpact,
+                  operationalScore: Math.min(100, prev.operationalScore + opImpact)
+                };
+              });
             } else {
               npcResponse = "Le PDG a approuvé le recours à des experts externes. Le contrat avec CyberDefense+ a été signé en urgence et leur équipe sera sur site dans 90 minutes. Ils assisteront l'équipe interne et reporteront directement à vous.";
-              // Fort impact financier mais très positif sur l'opérationnel
-              setGameState(prev => ({
-                ...prev, 
-                financialImpact: prev.financialImpact + 80,
-                operationalScore: Math.min(100, prev.operationalScore + 20),
-                stressLevel: Math.max(0, prev.stressLevel - 15)
-              }));
+              // Fort impact financier supplémentaire mais très positif sur l'opérationnel
+              setGameState(prev => {
+                const finImpact = 80;
+                const opImpact = 20;
+                const stressImpact = -15;
+                setTimeout(() => {
+                  animateImpact('financial', finImpact);
+                  animateImpact('operational', opImpact);
+                  animateImpact('stress', stressImpact);
+                }, 300);
+                return {
+                  ...prev, 
+                  financialImpact: prev.financialImpact + finImpact,
+                  operationalScore: Math.min(100, prev.operationalScore + opImpact),
+                  stressLevel: Math.max(0, prev.stressLevel + stressImpact)
+                };
+              });
             }
           }
+        }
+        // Pour les réponses personnalisées qui ne sont pas des choix prédéfinis
+        else {
+          // Analyser les mots clés dans le message pour générer une réponse contextuelle
+          const messageAnalysis = {
+            urgent: messageLower.includes('urgent') || messageLower.includes('immédiat'),
+            details: messageLower.includes('détail') || messageLower.includes('précis'),
+            question: messageLower.includes('?'),
+            positive: positiveCount > negativeCount,
+            negative: negativeCount > positiveCount
+          };
           
-          if (npcResponse) {
-            setCommunicationHistory(prev => ({
-              ...prev,
-              [selectedContact]: [
-                ...prev[selectedContact],
-                { sender: 'npc', message: npcResponse }
-              ]
-            }));
+          if (selectedContact === 'Presse') {
+            if (messageAnalysis.urgent) {
+              npcResponse = "Je comprends l'urgence. Je vais inclure vos commentaires dans l'article qui sera publié demain matin. Je vous enverrai une copie préalable par email pour validation des citations directes.";
+            } else if (messageAnalysis.details) {
+              npcResponse = "Merci pour ces précisions. Elles aideront nos lecteurs à comprendre la situation avec plus de clarté. Puis-je vous citer directement sur ces points dans l'article ?";
+            } else if (messageAnalysis.question) {
+              npcResponse = "C'est une question pertinente. Je vais vérifier cette information auprès de mes sources et vous reviendrai si j'ai besoin de clarifications supplémentaires avant publication.";
+            } else {
+              npcResponse = "J'ai bien pris note de votre réponse. Notre article sera publié demain avec les informations dont nous disposons. N'hésitez pas à me contacter si vous souhaitez ajouter des éléments.";
+            }
+          } else if (selectedContact === 'Équipe technique') {
+            if (messageAnalysis.urgent) {
+              npcResponse = "Exécution immédiate de votre directive. L'équipe technique est mobilisée et vous tiendra informé de l'avancement toutes les 30 minutes avec des points de situation précis.";
+            } else if (messageAnalysis.details) {
+              npcResponse = "Analyse détaillée en cours selon vos instructions. Premier rapport technique préliminaire disponible d'ici 45 minutes, avec IOCs et cartographie des systèmes compromis.";
+            } else if (messageAnalysis.question) {
+              npcResponse = "Pour répondre à votre question technique : d'après nos premières analyses, le vecteur d'entrée semble être une vulnérabilité zero-day dans notre service d'authentification externe. Nous continuons l'investigation.";
+            } else {
+              npcResponse = "Nous mettons en œuvre votre stratégie. Sachez que le délai estimé est de 3 heures pour application complète, mais nous pouvons accélérer si vous le jugez nécessaire.";
+            }
+          } else if (selectedContact === 'Autorités') {
+            if (messageAnalysis.urgent) {
+              npcResponse = "Nous accusons réception de votre demande urgente. Un officier de liaison ANSSI prendra contact avec vous dans les 30 prochaines minutes pour coordonner les actions immédiates.";
+            } else if (messageAnalysis.details) {
+              npcResponse = "Nous vous remercions pour ces informations détaillées. Elles seront intégrées au dossier d'investigation. Un formulaire de déclaration officiel vous sera transmis dans l'heure.";
+            } else if (messageAnalysis.question) {
+              npcResponse = "Pour répondre à votre question sur le cadre légal : selon l'article 33 du RGPD, vous disposez de 72h pour notifier la CNIL si des données personnelles sont concernées. Nous vous recommandons également de préparer une notification aux personnes concernées.";
+            } else {
+              npcResponse = "Votre coopération est notée. Nous restons disponibles via notre hotline dédiée aux incidents majeurs. N'hésitez pas à nous contacter pour tout besoin d'assistance complémentaire.";
+            }
+          } else if (selectedContact === 'Communication') {
+            if (messageAnalysis.urgent) {
+              npcResponse = "Message d'urgence préparé selon vos directives. Il sera diffusé dans les 15 minutes à l'ensemble des managers et relayé aux équipes. Une version externe est également prête pour approbation.";
+            } else if (messageAnalysis.details) {
+              npcResponse = "Plan de communication détaillé élaboré selon vos instructions. Il inclut messages clés, Q&A anticipées, et script pour le standard. Le document vous attend pour validation finale.";
+            } else if (messageAnalysis.question) {
+              npcResponse = "Concernant votre question sur la stratégie médias : nous recommandons un communiqué de presse sobrement factuel, combiné à une mise à jour visible sur notre site web et nos réseaux sociaux. Cela permettrait de contrôler le narratif.";
+            } else {
+              npcResponse = "Votre message est clair. L'équipe de communication mettra en œuvre cette approche dès maintenant. Un premier retour des parties prenantes est attendu d'ici 2 heures.";
+            }
+          } else if (selectedContact === 'Direction') {
+            if (messageAnalysis.urgent) {
+              npcResponse = "Message urgent transmis au PDG et au comité exécutif. Une réunion extraordinaire du COMEX a été convoquée dans 30 minutes. Votre présence est requise pour présenter la situation.";
+            } else if (messageAnalysis.details) {
+              npcResponse = "Rapport détaillé transmis à la direction. Le PDG vous remercie pour cette analyse approfondie et souhaite discuter personnellement des implications financières lors d'un appel à 16h.";
+            } else if (messageAnalysis.question) {
+              npcResponse = "En réponse à votre question sur les priorités de la direction : le PDG insiste sur trois points - protection immédiate des données clients, maintien des services critiques, et préparation d'une communication transparente mais rassurante.";
+            } else {
+              npcResponse = "Votre message a été reçu par la direction. Le conseil d'administration a été informé de la situation. Des ressources supplémentaires ont été débloquées et sont à votre disposition.";
+            }
           }
-        }, 1500);
+        }
         
-        // Sortir tôt de la fonction si c'était une sélection de choix
-        setIsSendingMessage(false);
-        return;
-      }
+        if (npcResponse) {
+          setCommunicationHistory(prev => ({
+            ...prev,
+            [selectedContact]: [
+              ...prev[selectedContact],
+              { sender: 'npc', message: npcResponse }
+            ]
+          }));
+        }
+      }, 1500);
+      
+      // Sortir tôt de la fonction si c'était une réponse à une demande urgente
+      setIsSendingMessage(false);
+      return;
     }
     
     try {
