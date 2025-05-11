@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { HelpCircle, Search, Circle, Shield } from 'lucide-react';
+import { HelpCircle, Search, Circle } from 'lucide-react';
 // Remplacer les icônes Lucide par des icônes modernes
 import { IoHome, IoSearchOutline, IoBookOutline, IoDesktopOutline, IoTrophyOutline, IoConstructOutline } from 'react-icons/io5';
 import { IoMdArrowForward } from 'react-icons/io';
@@ -11,7 +11,6 @@ import { BsShieldCheck, BsBarChartFill, BsEye, BsCpu, BsCodeSlash, BsCloud, BsPe
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
 import { RiLockFill, RiFilterLine } from 'react-icons/ri';
-import { FaLinkedin } from 'react-icons/fa';
 import { TbLayoutGrid, TbList, TbCheckbox } from 'react-icons/tb';
 import { FaGraduationCap, FaRobot } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
@@ -1122,106 +1121,6 @@ export default function CyberModeSelectionRedesign() {
               )}
             </TabsContent>
           </Tabs>
-        </div>
-      </div>
-      
-      {/* Section expertise mc2i en bas de page */}
-      <div className={`pt-6 pb-10 mt-10 border-t ${
-        highContrastMode ? 'border-gray-700' : 'border-blue-800/30'
-      }`}>
-        <div className="container mx-auto">
-          <div className="flex flex-col justify-center items-center text-center mb-8">
-            <h2 className="text-2xl font-bold mb-2">Notre expertise en cybersécurité</h2>
-            <p className={`max-w-3xl mx-auto ${
-              highContrastMode ? 'text-gray-300' : 'text-blue-200'
-            }`}>
-              Découvrez notre offre complète de services pour sécuriser votre entreprise
-            </p>
-            <Link 
-              href="https://experts.mc2i.fr/expertises/cybersecurite" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="mt-3"
-            >
-              <Button 
-                variant="outline"
-                className="bg-transparent border-blue-600 hover:bg-blue-900/20 text-blue-300"
-              >
-                En savoir plus
-                <IoMdArrowForward className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            {/* Expert 1 */}
-            <div className={`p-4 rounded-lg ${
-              highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-blue-900/20 border border-blue-800/30'
-            }`}>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                  <img
-                    src="/attached_assets/image_1746977241164.png"
-                    alt="Julien GRIMAULT"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div>
-                  <h4 className="font-semibold">Julien GRIMAULT</h4>
-                  <p className="text-sm text-gray-300">Senior Partner - Directeur de l'Offre Cybersécurité</p>
-                  <a 
-                    href="https://www.linkedin.com/in/juliengrimault/" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="text-sm text-blue-400 flex items-center mt-1"
-                  >
-                    <FaLinkedin className="mr-1 h-3 w-3" /> @juliengrimault
-                  </a>
-                </div>
-              </div>
-              <blockquote className={`p-4 border-l-4 border-blue-700 ${
-                highContrastMode ? 'bg-gray-700/50' : 'bg-white/5'
-              }`}>
-                <p className="text-sm italic">
-                  "La cybersécurité est devenue incontournable dans le monde numérique. Les entreprises sont confrontées à des risques croissants liés aux cyberattaques et aux intrusions malveillantes. Chez mc2i, nous comprenons ces défis et nous sommes déterminés à aider nos clients à se protéger efficacement contre ces menaces."
-                </p>
-              </blockquote>
-            </div>
-            
-            {/* Expert 2 */}
-            <div className={`p-4 rounded-lg ${
-              highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-blue-900/20 border border-blue-800/30'
-            }`}>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                  <img
-                    src="/attached_assets/image_1746977246841.png"
-                    alt="Nosing DOEUK"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div>
-                  <h4 className="font-semibold">Nosing DOEUK</h4>
-                  <p className="text-sm text-gray-300">Senior Partner - Directeur de l'Offre Innovation et Technologies</p>
-                  <a 
-                    href="https://www.linkedin.com/in/nosingdoeuk/" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="text-sm text-blue-400 flex items-center mt-1"
-                  >
-                    <FaLinkedin className="mr-1 h-3 w-3" /> @nosingdoeuk
-                  </a>
-                </div>
-              </div>
-              <blockquote className={`p-4 border-l-4 border-blue-700 ${
-                highContrastMode ? 'bg-gray-700/50' : 'bg-white/5'
-              }`}>
-                <p className="text-sm italic">
-                  "La cybersécurité faisant partie de tout SI, mc2i accompagne ses clients pour leur permettre de l'intégrer au mieux dans toutes solutions mises en place."
-                </p>
-              </blockquote>
-            </div>
-          </div>
         </div>
       </div>
     </HomeLayout>
