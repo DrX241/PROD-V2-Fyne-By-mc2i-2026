@@ -561,7 +561,7 @@ export default function CyberModeSelectionRedesign() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-center mb-10"
+            className="text-center mb-6"
             data-id="main-title"
           >
             <h1 className="text-4xl font-bold mb-3">
@@ -572,6 +572,112 @@ export default function CyberModeSelectionRedesign() {
             }`}>
               Trouvez votre parcours d'apprentissage personnalisé en cybersécurité
             </p>
+          </motion.div>
+
+          {/* Section expertise mc2i */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className={`mb-10 rounded-xl overflow-hidden ${
+              highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-blue-900/30 border border-blue-800/50'
+            }`}
+          >
+            <div className="flex flex-col md:flex-row">
+              {/* En-tête */}
+              <div className={`p-6 md:w-1/3 flex flex-col justify-center items-center text-center ${
+                highContrastMode ? 'bg-gray-700' : 'bg-gradient-to-br from-blue-800 to-blue-900'
+              }`}>
+                <h2 className="text-2xl font-bold mb-2">Vous souhaitez aller plus loin ?</h2>
+                <p className="text-blue-100 mb-4">Découvrez notre offre d'expertise en cybersécurité</p>
+                <Link 
+                  href="https://experts.mc2i.fr/expertises/cybersecurite" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
+                  <Button 
+                    className="bg-white text-blue-900 hover:bg-blue-50 font-medium px-4"
+                  >
+                    Consulter notre expertise
+                    <IoMdArrowForward className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+              
+              {/* Contenu des experts */}
+              <div className="p-6 md:w-2/3">
+                <h3 className="text-xl font-semibold mb-4 flex items-center">
+                  <Shield className="w-5 h-5 mr-2 text-blue-400" />
+                  Nos experts vous répondent
+                </h3>
+                
+                <div className="space-y-4">
+                  {/* Expert 1 */}
+                  <div className={`p-4 rounded-lg ${
+                    highContrastMode ? 'bg-gray-700/70' : 'bg-white/5'
+                  }`}>
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
+                        <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200">
+                          <img
+                            src="/attached_assets/image_1746977241164.png"
+                            alt="Julien GRIMAULT"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold">Julien GRIMAULT</h4>
+                        <p className="text-sm text-gray-300">Senior Partner - Directeur de l'Offre Cybersécurité</p>
+                        <a 
+                          href="https://www.linkedin.com/in/juliengrimault/" 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="text-sm text-blue-400 flex items-center mt-1"
+                        >
+                          <FaLinkedin className="mr-1" /> @juliengrimault
+                        </a>
+                        <p className="mt-2 text-sm text-blue-100">
+                          "La cybersécurité est devenue incontournable dans le monde numérique. Les entreprises sont confrontées à des risques croissants liés aux cyberattaques et aux intrusions malveillantes. Chez mc2i, nous comprenons ces défis et nous sommes déterminés à aider nos clients à se protéger efficacement contre ces menaces."
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Expert 2 */}
+                  <div className={`p-4 rounded-lg ${
+                    highContrastMode ? 'bg-gray-700/70' : 'bg-white/5'
+                  }`}>
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
+                        <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200">
+                          <img
+                            src="/attached_assets/image_1746977246841.png"
+                            alt="Nosing DOEUK"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold">Nosing DOEUK</h4>
+                        <p className="text-sm text-gray-300">Senior Partner - Directeur de l'Offre Innovation et Technologies</p>
+                        <a 
+                          href="https://www.linkedin.com/in/nosingdoeuk/" 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="text-sm text-blue-400 flex items-center mt-1"
+                        >
+                          <FaLinkedin className="mr-1" /> @nosingdoeuk
+                        </a>
+                        <p className="mt-2 text-sm text-blue-100">
+                          "La cybersécurité faisant partie de tout SI, mc2i accompagne ses clients pour leur permettre de l'intégrer au mieux dans toutes solutions mises en place."
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </motion.div>
 
           {/* Onglets principaux */}
