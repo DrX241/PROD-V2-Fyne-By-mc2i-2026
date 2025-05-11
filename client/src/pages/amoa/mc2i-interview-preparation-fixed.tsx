@@ -984,7 +984,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
           <Button 
             variant="ghost" 
             className="text-white hover:text-white hover:bg-gray-700/80"
-            onClick={() => window.location.href = "/amoa-mode-selection-fixed"}
+            onClick={() => window.location.href = "/i-am-mc2i"}
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Retour vers I AM mc2i
@@ -993,7 +993,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
         
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-indigo-500">
-            Préparation d'audition client - mc2i exclusif
+            Simulation d'audition - mc2i exclusif
           </h1>
           <p className="text-gray-300 max-w-3xl mx-auto">
             Cette simulation vous aide à préparer les consultants mc2i pour des auditions auprès de clients, avec des conseils sur la tenue, l'attitude professionnelle et les bonnes pratiques avant, pendant et après l'entretien.
@@ -1006,19 +1006,12 @@ const Mc2iInterviewPreparation: React.FC = () => {
           onValueChange={setActiveTab}
           className="w-full max-w-6xl mx-auto"
         >
-          <TabsList className="grid grid-cols-2 mb-8 bg-gray-800/60">
+          <TabsList className="grid grid-cols-1 mb-8 bg-gray-800/60">
             <TabsTrigger 
               value="best-practices"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-700/80 data-[state=active]:to-blue-700/80"
             >
               Bonnes pratiques
-            </TabsTrigger>
-            <TabsTrigger 
-              value="simulation"
-              disabled={simulationPhase !== 'interview'}
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-700/80 data-[state=active]:to-cyan-700/80"
-            >
-              Simulation
             </TabsTrigger>
           </TabsList>
           
@@ -1033,7 +1026,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
               <CardContent className="pt-6">
                 <BestPracticesContent setActiveTab={setActiveTab} setSimulationPhase={setSimulationPhase} />
               </CardContent>
-              <CardFooter className="flex justify-between border-t border-gray-700/50 pt-4">
+              <CardFooter className="flex justify-center border-t border-gray-700/50 pt-4">
                 <Button
                   onClick={() => window.print()}
                   variant="outline"
@@ -1041,292 +1034,13 @@ const Mc2iInterviewPreparation: React.FC = () => {
                 >
                   Imprimer ce guide
                 </Button>
-                <Button
-                  onClick={() => {
-                    setSimulationPhase('preparation');
-                    setActiveTab('simulation');
-                  }}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                >
-                  Démarrer une simulation
-                </Button>
               </CardFooter>
             </Card>
           </TabsContent>
           
-          <TabsContent value="configuration">
-            <Card className="bg-gray-800/30 border-gray-700/50 shadow-lg">
-              <CardHeader className="border-b border-gray-700/50">
-                <CardTitle className="text-xl">Configuration de l'audition</CardTitle>
-                <CardDescription className="text-gray-300">
-                  Configurez les paramètres pour la simulation d'audition
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(startScenarioCreation)} className="space-y-6">
-                    <div className="bg-gray-800/60 p-5 rounded-md mb-6 border border-gray-700/50">
-                      <h3 className="text-lg font-semibold mb-4">Informations optionnelles pour recevoir l'évaluation par email</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="recruiterEmail"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-gray-300">Votre email (envoi du rapport)</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  placeholder="votre.email@mc2i.fr" 
-                                  className="bg-gray-900/60 border-gray-700 text-white"
-                                  {...field} 
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="candidateName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-gray-300">Nom du consultant</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  placeholder="Prénom Nom" 
-                                  className="bg-gray-900/60 border-gray-700 text-white"
-                                  {...field} 
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="bg-gray-800/60 p-5 rounded-md border border-gray-700/50">
-                      <h3 className="text-lg font-semibold mb-4">Paramètres de simulation (requis)</h3>
-                      <div className="grid grid-cols-1 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="profileType"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-gray-300">Type de profil</FormLabel>
-                              <Select 
-                                onValueChange={field.onChange} 
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="bg-gray-900/60 border-gray-700 text-white">
-                                    <SelectValue placeholder="Sélectionnez un type de profil" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                                  <SelectItem value="Profil junior">Profil junior</SelectItem>
-                                  <SelectItem value="Profil confirmé">Profil confirmé</SelectItem>
-                                  <SelectItem value="Profil senior">Profil senior</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="experienceLevel"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-gray-300">Niveau d'expérience</FormLabel>
-                              <Select 
-                                onValueChange={field.onChange} 
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="bg-gray-900/60 border-gray-700 text-white">
-                                    <SelectValue placeholder="Sélectionnez un niveau d'expérience" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                                  <SelectItem value="Stage/Alternance">Stage ou Alternance</SelectItem>
-                                  <SelectItem value="0-2 ans">0-2 ans</SelectItem>
-                                  <SelectItem value="2-5 ans">2-5 ans</SelectItem>
-                                  <SelectItem value="5-8 ans">5-8 ans</SelectItem>
-                                  <SelectItem value="8-12 ans">8-12 ans</SelectItem>
-                                  <SelectItem value="12+ ans">12+ ans</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="sectorFocus"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-gray-300">Secteur d'activité</FormLabel>
-                              <Select 
-                                onValueChange={field.onChange} 
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="bg-gray-900/60 border-gray-700 text-white">
-                                    <SelectValue placeholder="Sélectionnez un secteur d'activité" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                                  <SelectItem value="Banque & Assurance">Banque & Assurance</SelectItem>
-                                  <SelectItem value="Industrie">Industrie</SelectItem>
-                                  <SelectItem value="Énergie">Énergie</SelectItem>
-                                  <SelectItem value="Secteur Public">Secteur Public</SelectItem>
-                                  <SelectItem value="Retail">Retail</SelectItem>
-                                  <SelectItem value="Santé">Santé</SelectItem>
-                                  <SelectItem value="Luxe">Luxe</SelectItem>
-                                  <SelectItem value="Transport & Logistique">Transport & Logistique</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-col sm:flex-row justify-between gap-4">
-                      <Button
-                        type="submit"
-                        className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? (
-                          <>Chargement...</>
-                        ) : (
-                          <>Démarrer la simulation</>
-                        )}
-                      </Button>
-                      
-                      <Button
-                        type="button"
-                        className="flex-1 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800"
-                        onClick={skipInfoAndStart}
-                        disabled={isLoading}
-                      >
-                        Ignorer les informations de contact
-                      </Button>
-                    </div>
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
-          </TabsContent>
+
           
-          <TabsContent value="simulation">
-            <Card className="bg-gray-800/30 border-gray-700/50 shadow-lg">
-              <CardHeader className="border-b border-gray-700/50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <UserCircle className="w-6 h-6 mr-2 text-yellow-500" />
-                    <CardTitle className="text-xl">Simulation d'audition client</CardTitle>
-                  </div>
-                  <Badge 
-                    variant="outline" 
-                    className={`${timeRemaining > 300 ? 'border-green-500 text-green-500' : timeRemaining > 60 ? 'border-yellow-500 text-yellow-500' : 'border-red-500 text-red-500'}`}
-                  >
-                    <Clock className="w-4 h-4 mr-1" />
-                    {formatTime(timeRemaining)}
-                  </Badge>
-                </div>
-                <CardDescription className="text-gray-300">
-                  Conversation avec le client potentiel
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                {/* Conversation */}
-                <div className="bg-gray-900/60 rounded-md p-4 mb-4 h-[400px] overflow-y-auto border border-gray-700/50">
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`mb-4 p-3 rounded-lg ${
-                        message.role === 'assistant'
-                          ? 'bg-gray-800/80 mr-12'
-                          : message.role === 'user' 
-                            ? 'bg-gradient-to-r from-blue-700/50 to-blue-800/50 ml-12'
-                            : 'hidden'
-                      }`}
-                    >
-                      <div className="flex items-center mb-1">
-                        {message.role === 'assistant' ? (
-                          <>
-                            <UserCircle className="w-5 h-5 mr-2 text-gray-300" />
-                            <span className="text-sm font-bold text-gray-300">
-                              Client
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <UserCircle className="w-5 h-5 mr-2 text-blue-300" />
-                            <span className="text-sm font-bold text-blue-300">
-                              Vous
-                            </span>
-                          </>
-                        )}
-                        <span className="text-xs ml-auto text-gray-400 opacity-70">
-                          {message.timestamp.toLocaleTimeString()}
-                        </span>
-                      </div>
-                      <p className="text-white whitespace-pre-wrap">{message.content}</p>
-                    </div>
-                  ))}
-                  <div ref={messagesEndRef} />
-                </div>
-                
-                {/* Input */}
-                <div className="flex items-center">
-                  <Input
-                    type="text"
-                    placeholder="Saisissez votre message..."
-                    className="flex-1 bg-gray-900/60 border-gray-700 text-white"
-                    value={userInput}
-                    onChange={(e) => setUserInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        sendMessage();
-                      }
-                    }}
-                    disabled={isLoading || simulationComplete}
-                  />
-                  <Button
-                    className="ml-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
-                    onClick={sendMessage}
-                    disabled={isLoading || simulationComplete || !userInput.trim()}
-                  >
-                    <Send className="w-5 h-5" />
-                  </Button>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between border-t border-gray-700/50 pt-4">
-                <Button
-                  onClick={resetSimulation}
-                  variant="outline"
-                  className="border-gray-600 text-gray-300 hover:bg-gray-700"
-                >
-                  Nouvelle simulation
-                </Button>
-                <Button
-                  onClick={completeSimulation}
-                  className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
-                  disabled={messages.length < 2 || simulationComplete || isLoading}
-                >
-                  {isLoading ? "Chargement..." : "Terminer la simulation"}
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
+
           
 
         </Tabs>

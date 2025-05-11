@@ -140,7 +140,7 @@ export default function AmoaModeSelectionFixed() {
     },
     {
       id: 'mc2i-interview-preparation',
-      title: 'PRÉPARATION AUDITION mc2i',
+      title: 'SIMULATION D\'AUDITION',
       description: "Guide complet pour consultants mc2i sur l'attitude professionnelle avant, pendant et après les auditions",
       icon: <BsClipboardCheck className="h-5 w-5" />,
       destination: '/amoa/mc2i-interview-preparation',
