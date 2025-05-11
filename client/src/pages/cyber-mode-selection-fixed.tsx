@@ -142,6 +142,16 @@ export default function CyberModeSelectionRedesign() {
 
 
     {
+      id: 'plan-continuité',
+      title: 'PLAN DE CONTINUITÉ D\'ACTIVITÉ (PCA)',
+      description: "Apprenez à concevoir, déployer et tester un Plan de Continuité d'Activité efficace pour garantir la résilience de votre organisation",
+      icon: <BsShieldCheck className="h-5 w-5" />,
+      destination: '/cyber/plan-continuité',
+      difficulty: 'intermédiaire',
+      duration: '30-45 min',
+      comingSoon: true
+    },
+    {
       id: 'gestion-crise',
       title: 'GESTION DE CRISE',
       description: "Entraînez-vous à gérer des situations de crise cybersécurité en temps réel",
@@ -149,6 +159,17 @@ export default function CyberModeSelectionRedesign() {
       destination: '/cyber/crisis-management',
       difficulty: 'avancé',
       duration: '45-60 min',
+      isNew: true,
+      comingSoon: true
+    },
+    {
+      id: 'plan-continuité',
+      title: 'PLAN DE CONTINUITÉ D\'ACTIVITÉ (PCA)',
+      description: "Apprenez à concevoir et mettre en œuvre un PCA efficace pour maintenir vos opérations critiques",
+      icon: <BsShieldCheck className="h-5 w-5" />,
+      destination: '/cyber/plan-continuité',
+      difficulty: 'intermédiaire',
+      duration: '30-45 min',
       isNew: true,
       comingSoon: true
     },
@@ -250,7 +271,8 @@ export default function CyberModeSelectionRedesign() {
       icon: <IoDesktopOutline className="h-6 w-6 text-indigo-100" />,
       modules: [
         'cyber-arcade',            // Jeux interactifs d'apprentissage
-        'gestion-crise'            // Gestion de crise en temps réel
+        'gestion-crise',           // Gestion de crise en temps réel
+        'plan-continuité'          // Plan de Continuité d'Activité
       ],
       gradient: 'from-indigo-700 to-indigo-900'
     },

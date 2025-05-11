@@ -741,6 +741,14 @@ function App() {
                 </Suspense>
               );
             }} />
+            <Route path="/cyber/plan-continuité" component={() => {
+              const PlanContinuiteComponent = lazy(() => import('./pages/cyber/plan-continuité'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <PlanContinuiteComponent />
+                </Suspense>
+              );
+            }} />
             <Route path="/custom" component={() => {
               window.location.href = '/playground/module-generator';
               return null;
