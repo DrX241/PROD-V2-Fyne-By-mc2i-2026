@@ -940,7 +940,7 @@ export default function CyberModeSelectionRedesign() {
                       onClick={() => setActiveView('grid')}
                       data-id="grid-view-button"
                     >
-                      <LayoutGrid className="h-5 w-5" />
+                      <TbLayoutGrid className="h-5 w-5" />
                     </Button>
                     <Button 
                       size="sm" 
@@ -949,7 +949,7 @@ export default function CyberModeSelectionRedesign() {
                       onClick={() => setActiveView('list')}
                       data-id="list-view-button"
                     >
-                      <List className="h-5 w-5" />
+                      <TbList className="h-5 w-5" />
                     </Button>
                   </div>
                 </div>
@@ -1030,7 +1030,7 @@ export default function CyberModeSelectionRedesign() {
                                 variant={highContrastMode ? "outline" : "secondary"}
                               >
                                 Accéder au module
-                                <ArrowRight className="ml-2 h-4 w-4" />
+                                <IoMdArrowForward className="ml-2 h-4 w-4" />
                               </Button>
                             </Link>
                           )}
@@ -1097,7 +1097,7 @@ export default function CyberModeSelectionRedesign() {
                                 variant={highContrastMode ? "outline" : "secondary"}
                               >
                                 Accéder
-                                <ArrowRight className="ml-1 h-4 w-4" />
+                                <IoMdArrowForward className="ml-1 h-4 w-4" />
                               </Button>
                             </Link>
                           )}
