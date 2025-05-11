@@ -1014,12 +1014,18 @@ const Mc2iInterviewPreparation: React.FC = () => {
           onValueChange={setActiveTab}
           className="w-full max-w-6xl mx-auto"
         >
-          <TabsList className="grid grid-cols-1 mb-8 bg-gray-800/60">
+          <TabsList className="grid grid-cols-2 mb-8 bg-gray-800/60">
             <TabsTrigger 
               value="best-practices"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-700/80 data-[state=active]:to-blue-700/80"
             >
               Bonnes pratiques
+            </TabsTrigger>
+            <TabsTrigger 
+              value="simulation"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-700/80 data-[state=active]:to-indigo-700/80"
+            >
+              Simulation d'audition
             </TabsTrigger>
           </TabsList>
           
@@ -1043,12 +1049,136 @@ const Mc2iInterviewPreparation: React.FC = () => {
                   Imprimer ce guide
                 </Button>
                 <Button
-                  onClick={() => window.location.href = "/amoa/interview-simulation"}
+                  onClick={() => setActiveTab('simulation')}
                   className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                 >
                   Démarrer une simulation d'audition
                 </Button>
               </CardFooter>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="simulation">
+            <Card className="bg-gray-800/30 border-gray-700/50 shadow-lg overflow-hidden">
+              <CardHeader className="border-b border-gray-700/50">
+                <CardTitle className="text-xl text-center">Simulation d'audition interactive</CardTitle>
+                <CardDescription className="text-gray-300 text-center">
+                  Préparez-vous aux auditions client avec cette simulation en conditions réelles
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="p-4">
+                  <Tabs defaultValue="description" className="w-full">
+                    <TabsList className="grid grid-cols-3 bg-blue-900/30 w-full mb-6">
+                      <TabsTrigger value="description">Description</TabsTrigger>
+                      <TabsTrigger value="form">Formulaire</TabsTrigger>
+                      <TabsTrigger value="simulation">Simulation complète</TabsTrigger>
+                    </TabsList>
+
+                    {/* Onglet Description */}
+                    <TabsContent value="description">
+                      <div className="text-center">
+                        <h3 className="text-lg font-semibold text-white mb-4">Entraînez-vous à l'audition client en conditions réelles</h3>
+                        <p className="text-gray-300 mb-4">Cette simulation vous permet de vous confronter à un scénario d'audition adapté à votre profil et au secteur de votre choix.</p>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 text-left">
+                          <div className="bg-blue-900/30 p-4 rounded-lg">
+                            <h4 className="font-medium text-white mb-2">Étape 1: Configuration</h4>
+                            <p className="text-sm text-gray-300">Configurez votre simulation en spécifiant votre profil, niveau d'expérience et secteur d'activité cible.</p>
+                          </div>
+                          <div className="bg-blue-900/30 p-4 rounded-lg">
+                            <h4 className="font-medium text-white mb-2">Étape 2: Entretien</h4>
+                            <p className="text-sm text-gray-300">Dialoguez avec un client virtuel qui vous posera des questions adaptées au contexte de mission.</p>
+                          </div>
+                          <div className="bg-blue-900/30 p-4 rounded-lg">
+                            <h4 className="font-medium text-white mb-2">Étape 3: Évaluation</h4>
+                            <p className="text-sm text-gray-300">Recevez une analyse détaillée de votre performance avec des recommandations d'amélioration.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </TabsContent>
+
+                    {/* Onglet Formulaire */}
+                    <TabsContent value="form">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white mb-4 text-center">Configuration de votre simulation</h3>
+                        <p className="text-gray-300 mb-6 text-center">Complétez ce formulaire pour personnaliser votre simulation d'audition</p>
+                        
+                        <div className="bg-blue-900/30 p-6 rounded-lg">
+                          <div className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                  <div>
+                                    <label className="block text-sm font-medium text-white mb-1">Type de profil</label>
+                                    <select className="w-full p-2 rounded bg-blue-800 text-white border border-blue-700">
+                                      <option value="">Sélectionnez...</option>
+                                      <option value="amoa_si">AMOA SI</option>
+                                      <option value="amoa_digital">AMOA Digital</option>
+                                      <option value="amoa_metier">AMOA Métier</option>
+                                      <option value="amoa_technique">AMOA Technique</option>
+                                    </select>
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-white mb-1">Niveau d'expérience</label>
+                                    <select className="w-full p-2 rounded bg-blue-800 text-white border border-blue-700">
+                                      <option value="">Sélectionnez...</option>
+                                      <option value="junior">Junior (0-2 ans)</option>
+                                      <option value="confirme">Confirmé (3-5 ans)</option>
+                                      <option value="senior">Senior (6-10 ans)</option>
+                                      <option value="expert">Expert (10+ ans)</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                
+                                <div className="mb-4">
+                                  <label className="block text-sm font-medium text-white mb-1">Secteur d'activité</label>
+                                  <select className="w-full p-2 rounded bg-blue-800 text-white border border-blue-700">
+                                    <option value="">Sélectionnez...</option>
+                                    <option value="banque">Banque & Assurance</option>
+                                    <option value="energie">Énergie & Utilities</option>
+                                    <option value="public">Secteur Public</option>
+                                    <option value="sante">Santé</option>
+                                    <option value="transport">Transport & Logistique</option>
+                                    <option value="telecom">Télécommunications</option>
+                                    <option value="industrie">Industrie</option>
+                                  </select>
+                                </div>
+                                
+                                <div className="text-center mt-6">
+                                  <Button 
+                                    onClick={() => window.location.href = "/amoa/interview-simulation"}
+                                    className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700"
+                                  >
+                                    Lancer la simulation
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                        </div>
+                      </div>
+                    </TabsContent>
+
+                    {/* Onglet Simulation complète */}
+                    <TabsContent value="simulation">
+                      <div className="text-center">
+                        <h3 className="text-lg font-semibold text-white mb-4">Simulation complète en environnement dédié</h3>
+                        <p className="text-gray-300 mb-6">Accédez à une version plus immersive de la simulation dans un environnement dédié</p>
+                        
+                        <div className="flex justify-center">
+                          <Button
+                            onClick={() => window.location.href = "/amoa/interview-simulation"}
+                            className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 py-6 px-8 text-lg"
+                          >
+                            Lancer la simulation complète
+                          </Button>
+                        </div>
+                        
+                        <p className="mt-6 text-gray-400 italic">Cette option vous redirige vers un module spécialisé offrant une expérience plus immersive avec une interface dédiée.</p>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              </CardContent>
             </Card>
           </TabsContent>
           
