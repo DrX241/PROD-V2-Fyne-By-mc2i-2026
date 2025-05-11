@@ -258,7 +258,7 @@ export default function AmoaModeSelectionFixed() {
       description: "Accompagner les projets informatiques depuis l'expression de besoin jusqu'au déploiement",
       icon: <BsClipboardData className="h-6 w-6 text-blue-100" />,
       skills: ['Analyse de besoins', 'Rédaction spécifications', 'Test', 'Conduite du changement'],
-      modules: ['mc2i-ai-learning', 'modules-express', 'interview-simulation', 'projet-imposteur'],
+      modules: ['mc2i-ai-learning', 'modules-express', 'interview-simulation', 'mc2i-interview-preparation', 'projet-imposteur'],
       gradient: 'from-blue-600 to-blue-800'
     },
     {
