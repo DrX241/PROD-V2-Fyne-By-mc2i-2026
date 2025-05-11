@@ -48,9 +48,12 @@ interface CareerPath {
 }
 
 export default function DataIAModeSelectionFixed() {
+  // États
   const [hoveredModule, setHoveredModule] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [highContrastMode, setHighContrastMode] = useState(false);
+  const [textSize, setTextSize] = useState(1); // 1 = normal, >1 = larger, <1 = smaller
   const [, setLocation] = useLocation();
 
   // Liste complète des modules Data & IA
