@@ -201,12 +201,13 @@ const CyberChaos: React.FC = () => {
     }
   }, [isGameStarted, toast, gameState.events.length]);
   
-  // Game timer
+  // Game timer et gestion des communications avec les PNJ
   useEffect(() => {
     let timer: NodeJS.Timeout;
     
     if (isGameStarted && !isPaused && !gameState.gameOver) {
       timer = setInterval(() => {
+        // Mettre à jour le temps de jeu
         setGameState(prevState => {
           const newTime = prevState.currentTime + 1 * prevState.timeScale;
           
@@ -216,7 +217,10 @@ const CyberChaos: React.FC = () => {
           );
           
           if (triggerEvent) {
-            // Plus de notification toast pour les nouveaux événements
+            // Déclencher des communications proactives des PNJ en fonction de l'événement
+            setTimeout(() => {
+              triggerPNJCommunications(triggerEvent);
+            }, 1000);
             
             return {
               ...prevState,
@@ -229,17 +233,216 @@ const CyberChaos: React.FC = () => {
             };
           }
           
-          // Mise à jour du temps sans nouvel événement
           return {
             ...prevState,
             currentTime: newTime
           };
         });
-      }, 1000); // Chaque seconde en temps réel = 1 minute en jeu
+        
+        // Mettre à jour les timers des demandes en attente
+        setRequestTimers(prev => {
+          const newTimers = {...prev};
+          let updated = false;
+          
+          Object.keys(newTimers).forEach(contact => {
+            if (pendingRequests[contact] && newTimers[contact] > 0) {
+              newTimers[contact] -= 1;
+              updated = true;
+              
+              // Si le timer arrive à zéro, créer des conséquences négatives
+              if (newTimers[contact] === 0) {
+                handleExpiredRequest(contact);
+              }
+            }
+          });
+          
+          return updated ? newTimers : prev;
+        });
+        
+        // Générer aléatoirement de nouvelles demandes des PNJ en fonction de l'état du jeu
+        const randomPNJInteraction = () => {
+          // Une chance sur 60 pour chaque cycle (environ une demande par minute en moyenne)
+          if (Math.random() < 0.0167) {
+            const availableContacts = Object.keys(pendingRequests).filter(
+              contact => !pendingRequests[contact]
+            );
+            
+            if (availableContacts.length > 0) {
+              // Sélectionner un contact aléatoire qui n'a pas déjà une demande en attente
+              const randomContact = availableContacts[Math.floor(Math.random() * availableContacts.length)];
+              
+              // Déclencher une communication proactive de ce PNJ
+              generatePNJRequest(randomContact);
+            }
+          }
+        };
+        
+        // Seulement si la partie est en cours depuis un moment (pour éviter trop de demandes au début)
+        if (gameState.currentTime > 30) {
+          randomPNJInteraction();
+        }
+        
+      }, 1000); // toutes les secondes
     }
     
-    return () => clearInterval(timer);
-  }, [isGameStarted, isPaused, gameState.gameOver, gameState.timeScale, toast]);
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isGameStarted, isPaused, gameState.gameOver, pendingRequests]);
+  
+  // Fonctions pour gérer les demandes proactives des PNJ
+  const triggerPNJCommunications = (event: CrisisEvent) => {
+    // Selon le type d'événement, faire réagir différents PNJ
+    if (event.source === 'external') {
+      generatePNJRequest('Presse');
+    } else if (event.source === 'technical') {
+      generatePNJRequest('Équipe technique');
+    } else if (event.severity === 'high' || event.severity === 'critical') {
+      generatePNJRequest('Direction');
+    }
+  };
+  
+  const generatePNJRequest = async (contact: string) => {
+    // Définir le PNJ comme ayant une demande en attente
+    setPendingRequests(prev => ({
+      ...prev,
+      [contact]: true
+    }));
+    
+    // Définir un délai pour répondre (entre 3 et 5 minutes selon le contact)
+    const responseTime = 
+      contact === 'Presse' ? 180 : 
+      contact === 'Équipe technique' ? 120 :
+      contact === 'Autorités' ? 240 :
+      contact === 'Direction' ? 120 : 180;
+      
+    setRequestTimers(prev => ({
+      ...prev,
+      [contact]: responseTime
+    }));
+    
+    // Créer un message contextuel en fonction de la phase et du contact
+    let message = "";
+    let choices: string[] = [];
+    
+    // Chaque type de contact génère un différent type de demande
+    if (contact === 'Presse') {
+      message = "Un journaliste de CyberInfos vient de nous contacter. Il a entendu parler d'un 'incident' dans votre organisation et prépare un article. Il demande une déclaration officielle pour son édition de demain matin. Comment souhaitez-vous procéder?";
+      choices = [
+        "Nier tout incident et refuser tout commentaire",
+        "Confirmer un 'incident technique' sans donner de détails",
+        "Communiquer de façon transparente sur la cyberattaque",
+        "Demander un délai pour préparer une réponse officielle"
+      ];
+    } else if (contact === 'Équipe technique') {
+      message = "L'analyse préliminaire montre que les attaquants ont peut-être accédé à la base de données clients. Nous ne sommes pas encore certains de l'étendue de la compromission. Devons-nous lancer une analyse forensique approfondie (6h) ou restaurer immédiatement depuis les sauvegardes (3h)?";
+      choices = [
+        "Lancer l'analyse forensique complète avant toute action",
+        "Restaurer immédiatement depuis les sauvegardes",
+        "Effectuer une analyse rapide (2h) puis restaurer",
+        "Cloner les systèmes pour analyse tout en restaurant en parallèle"
+      ];
+    } else if (contact === 'Autorités') {
+      message = "L'ANSSI nous a contactés suite à des signalements d'activités suspectes provenant de notre réseau. Ils demandent un rapport détaillé dans les 24h et souhaitent savoir si nous avons déjà pris des mesures de remédiation. Quelle information leur communiquer?";
+      choices = [
+        "Partager toutes les informations techniques dont nous disposons",
+        "Fournir uniquement les informations minimales légalement requises",
+        "Demander l'assistance technique de l'ANSSI",
+        "Reporter la communication en invoquant l'enquête interne en cours"
+      ];
+    } else if (contact === 'Communication') {
+      message = "Les équipes sont inquiètes et les rumeurs circulent. Plusieurs clients importants ont appelé notre service client. Quelle stratégie de communication interne et externe adopter pour les prochaines 48h?";
+      choices = [
+        "Communication minimale: 'incident technique en cours d'investigation'",
+        "Transparence totale sur la situation avec toutes les parties prenantes",
+        "Communication interne complète mais externe limitée",
+        "Organiser une réunion de crise avec tous les responsables d'équipe"
+      ];
+    } else if (contact === 'Direction') {
+      message = "Le PDG demande un point de situation immédiat et veut connaître l'impact financier estimé et le délai de retour à la normale. Le conseil d'administration se réunit demain matin. Quelles informations communiquer à la direction?";
+      choices = [
+        "Présenter uniquement les faits confirmés avec une estimation prudente",
+        "Fournir tous les détails techniques et le pire scénario possible",
+        "Présenter un plan de remédiation avec calendrier et coûts estimés",
+        "Proposer l'intervention d'un prestataire externe spécialisé"
+      ];
+    }
+    
+    // Ajouter le message au chat
+    setCommunicationHistory(prev => ({
+      ...prev,
+      [contact]: [
+        ...prev[contact],
+        { 
+          sender: 'npc', 
+          message, 
+          needsResponse: true,
+          choices
+        }
+      ]
+    }));
+  };
+  
+  const handleExpiredRequest = (contact: string) => {
+    // Quand un timer expire, créer des conséquences négatives
+    setGameState(prev => {
+      let reputationImpact = -10;
+      let operationalImpact = 0;
+      let legalImpact = 5;
+      let stressImpact = 10;
+      
+      // Différentes conséquences selon le contact
+      if (contact === 'Presse') {
+        reputationImpact = -20;
+      } else if (contact === 'Équipe technique') {
+        operationalImpact = -15;
+      } else if (contact === 'Autorités') {
+        legalImpact = 15;
+      } else if (contact === 'Direction') {
+        stressImpact = 20;
+      }
+      
+      // Ajouter un événement au journal
+      const updatedEventLog = [...prev.eventLog, {
+        time: prev.currentTime,
+        event: `Absence de réponse à ${contact}: conséquences négatives`
+      }];
+      
+      // Envoyer un message du PNJ indiquant les conséquences
+      setCommunicationHistory(prevChat => ({
+        ...prevChat,
+        [contact]: [
+          ...prevChat[contact],
+          { 
+            sender: 'npc', 
+            message: `Votre manque de réponse a eu des conséquences négatives. ${
+              contact === 'Presse' ? 'Un article négatif a été publié, impactant votre réputation.' :
+              contact === 'Équipe technique' ? 'L\'équipe a pris une décision sans directive claire, compromettant l\'efficacité des opérations.' :
+              contact === 'Autorités' ? 'Les autorités ont noté votre manque de coopération, augmentant votre exposition légale.' :
+              contact === 'Direction' ? 'La direction est mécontente de votre gestion de crise, augmentant la pression interne.' :
+              'Votre silence a été interprété négativement.'
+            }`
+          }
+        ]
+      }));
+      
+      // Réinitialiser la demande
+      setPendingRequests(prevReq => ({
+        ...prevReq,
+        [contact]: false
+      }));
+      
+      // Mettre à jour l'état du jeu avec les impacts
+      return {
+        ...prev,
+        reputationScore: Math.max(0, Math.min(100, prev.reputationScore + reputationImpact)),
+        operationalScore: Math.max(0, Math.min(100, prev.operationalScore + operationalImpact)),
+        legalRisk: Math.max(0, Math.min(100, prev.legalRisk + legalImpact)),
+        stressLevel: Math.max(0, Math.min(100, prev.stressLevel + stressImpact)),
+        eventLog: updatedEventLog
+      };
+    });
+  };
   
   // Fonction pour obtenir l'icône selon la sévérité
   const getEventIcon = (severity: string) => {
@@ -1022,10 +1225,166 @@ const CyberChaos: React.FC = () => {
               </Card>
             </div>
             
-            {/* Panneau événements et décisions */}
+            {/* Panneau de communication avec les PNJ */}
             <div className="lg:col-span-1 space-y-4">
-              {/* Événement en cours */}
-              {gameState.currentEvent ? (
+              <Card className="bg-gray-900/80 border-blue-800">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-medium flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <MessageSquare className="h-5 w-5 text-blue-300" />
+                      Centre de Communication
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="overflow-hidden">
+                    <div className="grid grid-cols-1 divide-y divide-blue-800/50">
+                      {/* Carte de contact pour chaque PNJ */}
+                      {Object.keys(pendingRequests).map((contact) => (
+                        <div 
+                          key={contact}
+                          onClick={() => handleContactSelect(contact)}
+                          className={`cursor-pointer p-3 hover:bg-blue-800/20 transition-colors ${
+                            selectedContact === contact ? 'bg-blue-800/30' : ''
+                          } ${
+                            pendingRequests[contact] ? 'border-l-4 border-l-red-500' : ''
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              {contact === 'Presse' && <Newspaper className="h-5 w-5 text-cyan-300" />}
+                              {contact === 'Autorités' && <Shield className="h-5 w-5 text-amber-300" />}
+                              {contact === 'Communication' && <MessageCircle className="h-5 w-5 text-green-300" />}
+                              {contact === 'Équipe technique' && <Laptop className="h-5 w-5 text-blue-300" />}
+                              {contact === 'Direction' && <Building className="h-5 w-5 text-purple-300" />}
+                              <span className="font-medium">{contact}</span>
+                            </div>
+                            {pendingRequests[contact] && (
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="bg-red-900/40 text-red-200 border-red-500 animate-pulse">
+                                  <AlarmClock className="h-3 w-3 mr-1" /> 
+                                  {Math.floor(requestTimers[contact] / 60)}:{(requestTimers[contact] % 60).toString().padStart(2, '0')}
+                                </Badge>
+                              </div>
+                            )}
+                          </div>
+                          {pendingRequests[contact] && (
+                            <p className="text-sm text-red-300 mt-1">Demande une décision urgente!</p>
+                          )}
+                          {!pendingRequests[contact] && communicationHistory[contact].length > 0 && (
+                            <p className="text-xs text-gray-400 mt-1 line-clamp-1">
+                              {communicationHistory[contact][communicationHistory[contact].length - 1].sender === 'npc' 
+                                ? communicationHistory[contact][communicationHistory[contact].length - 1].message
+                                : "Vous: " + communicationHistory[contact][communicationHistory[contact].length - 1].message
+                              }
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Panneau de conversation avec le PNJ sélectionné */}
+              {selectedContact && (
+                <Card className="bg-gray-900/80 border-blue-800 max-h-[500px] flex flex-col">
+                  <CardHeader className="pb-2 flex flex-row items-center justify-between border-b border-blue-800/50">
+                    <CardTitle className="text-lg font-medium flex items-center gap-2">
+                      {selectedContact === 'Presse' && <Newspaper className="h-5 w-5 text-cyan-300" />}
+                      {selectedContact === 'Autorités' && <Shield className="h-5 w-5 text-amber-300" />}
+                      {selectedContact === 'Communication' && <MessageCircle className="h-5 w-5 text-green-300" />}
+                      {selectedContact === 'Équipe technique' && <Laptop className="h-5 w-5 text-blue-300" />}
+                      {selectedContact === 'Direction' && <Building className="h-5 w-5 text-purple-300" />}
+                      {selectedContact}
+                    </CardTitle>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setSelectedContact(null)}
+                      className="h-7 w-7 p-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </CardHeader>
+                  <CardContent className="flex-grow overflow-y-auto p-3">
+                    <div className="space-y-4">
+                      {/* Messages */}
+                      {communicationHistory[selectedContact].map((msg, index) => (
+                        <div 
+                          key={index} 
+                          className={`flex ${msg.sender === 'player' ? 'justify-end' : 'justify-start'}`}
+                        >
+                          <div 
+                            className={`max-w-[80%] rounded-lg p-3 ${
+                              msg.sender === 'player' 
+                              ? 'bg-blue-700 text-white' 
+                              : 'bg-gray-800 text-white'
+                            }`}
+                          >
+                            <p className="break-words whitespace-pre-wrap">{msg.message}</p>
+                            
+                            {/* Boutons de choix pour les messages qui nécessitent une réponse */}
+                            {msg.sender === 'npc' && msg.needsResponse && msg.choices && (
+                              <div className="mt-3 space-y-2">
+                                {msg.choices.map((choice, choiceIndex) => (
+                                  <Button
+                                    key={choiceIndex}
+                                    variant="outline"
+                                    className="w-full justify-start text-left border-blue-500 hover:bg-blue-900/50 text-sm"
+                                    onClick={() => {
+                                      // Répondre avec le choix sélectionné
+                                      setNewMessage(choice);
+                                      setTimeout(() => {
+                                        // Fournir un délai pour permettre à l'état de se mettre à jour
+                                        sendMessageToPNJ();
+                                      }, 100);
+                                    }}
+                                  >
+                                    {choice}
+                                  </Button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                  <CardFooter className="p-3 pt-0 border-t border-blue-800/50">
+                    <div className="flex w-full gap-2">
+                      <Textarea 
+                        placeholder="Tapez votre message..."
+                        className="flex-1 min-h-10 resize-none bg-gray-800/50"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            sendMessageToPNJ();
+                          }
+                        }}
+                        disabled={isSendingMessage}
+                      />
+                      <Button 
+                        variant="outline" 
+                        onClick={sendMessageToPNJ}
+                        disabled={isSendingMessage || !newMessage.trim()}
+                        className="h-auto border-blue-500 hover:bg-blue-800/50"
+                      >
+                        {isSendingMessage ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <Send className="h-5 w-5" />
+                        )}
+                      </Button>
+                    </div>
+                  </CardFooter>
+                </Card>
+              )}
+              
+              {/* Événement en cours - affiché en plus des PNJ */}
+              {gameState.currentEvent && (
                 <Card className="bg-gray-900/80 border-blue-800 border-l-4 border-l-amber-500">
                   <CardHeader className="pb-2">
                     <Badge variant="outline" className="w-fit mb-2 border-amber-400 text-amber-300">
@@ -1044,59 +1403,6 @@ const CyberChaos: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm mb-4 break-words whitespace-pre-wrap overflow-auto max-h-24 hover:max-h-full transition-all duration-200">{gameState.currentEvent.description}</p>
-                    <div className="space-y-3">
-                      <h4 className="text-md font-medium">Options disponibles:</h4>
-                      {gameState.currentEvent.decisions.map(decision => (
-                        <Button 
-                          key={decision.id}
-                          onClick={() => handleDecisionSelect(decision)}
-                          variant="outline" 
-                          className="w-full justify-start text-left h-auto py-3 border-blue-800 overflow-hidden"
-                        >
-                          <div className="flex items-start w-full max-w-full">
-                            <div className="flex-shrink-0 mr-3 mt-0.5">
-                              {decision.icon}
-                            </div>
-                            <div className="min-w-0 flex-1 overflow-hidden">
-                              <p className="font-medium break-words truncate">{decision.title}</p>
-                              <p className="text-sm text-gray-300 break-words line-clamp-2 hover:line-clamp-none whitespace-normal overflow-hidden">{decision.description}</p>
-                              <div className="flex flex-wrap gap-2 mt-2">
-                                <Badge variant="outline" className={
-                                  decision.risk === 'high' ? 'border-red-500 text-red-300' :
-                                  decision.risk === 'medium' ? 'border-amber-500 text-amber-300' :
-                                  'border-green-500 text-green-300'
-                                }>
-                                  Risque {
-                                    decision.risk === 'high' ? 'élevé' :
-                                    decision.risk === 'medium' ? 'moyen' : 'faible'
-                                  }
-                                </Badge>
-                                <Badge variant="outline" className="border-blue-500 text-blue-300">
-                                  {decision.duration} min
-                                </Badge>
-                              </div>
-                            </div>
-                          </div>
-                        </Button>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card className="bg-gray-900/80 border-blue-800">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg font-medium flex items-center gap-2">
-                      <Clock className="h-5 w-5" />
-                      Situation en cours
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-4">
-                      En attente du prochain événement. Profitez de ce moment pour évaluer votre stratégie et préparer votre équipe.
-                    </p>
-                    <div className="flex items-center justify-center py-8">
-                      <AlarmClock className="h-12 w-12 animate-pulse text-blue-400" />
-                    </div>
                   </CardContent>
                 </Card>
               )}
