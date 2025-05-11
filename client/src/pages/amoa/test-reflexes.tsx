@@ -452,8 +452,18 @@ const TestDeReflexes: React.FC = () => {
   const [bonusTimeEarned, setBonusTimeEarned] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [difficulty, setDifficulty] = useState<"facile" | "moyen" | "difficile">("facile");
+  const [totalTestTime, setTotalTestTime] = useState<number>(120); // 2 minutes de test par défaut
+  const [remainingTestTime, setRemainingTestTime] = useState<number>(120);
+  const [usedQuestionIds, setUsedQuestionIds] = useState<Set<string>>(new Set());
+  const [globalTimer, setGlobalTimer] = useState<NodeJS.Timeout | null>(null);
 
-  const currentQuestion = isStarted && !isFinished ? testQuestions[currentQuestionIndex] : null;
+  // Filtrer les questions qui n'ont pas encore été utilisées
+  const availableQuestions = testQuestions.filter(q => !usedQuestionIds.has(q.id));
+  const currentQuestion = isStarted && !isFinished ? 
+    (availableQuestions.length > 0 ? 
+      availableQuestions.find(q => q.difficulty === difficulty) || availableQuestions[0] 
+      : testQuestions[Math.floor(Math.random() * testQuestions.length)]) 
+    : null;
 
   // Démarrer le test
   const handleStartTest = () => {
@@ -888,7 +898,7 @@ const TestDeReflexes: React.FC = () => {
                     <div className="space-y-4">
                       <p className="text-gray-200">
                         Ce test évalue vos réflexes et connaissances dans différents aspects de l'assistance à maîtrise d'ouvrage.
-                        Vous serez confronté à 10 questions avec un temps limité pour répondre à chacune.
+                        Vous serez confronté à une série de questions avec un temps limité pour répondre à chacune. Le test se poursuit jusqu'à épuisement du temps.
                       </p>
                       
                       <div className="bg-white/10 p-4 rounded-lg space-y-2">
@@ -948,7 +958,7 @@ const TestDeReflexes: React.FC = () => {
                           variant="outline" 
                           className="bg-white/10 text-white border-green-500/30"
                         >
-                          Question {currentQuestionIndex + 1}/{testQuestions.length}
+                          Question {currentQuestionIndex + 1}
                         </Badge>
                         <Badge 
                           variant="outline" 
