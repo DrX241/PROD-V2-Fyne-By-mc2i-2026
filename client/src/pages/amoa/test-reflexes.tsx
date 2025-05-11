@@ -38,6 +38,37 @@ interface Question {
   difficulty: "facile" | "moyen" | "difficile";
 }
 
+// Interface pour les réponses collectées
+interface CollectedAnswer {
+  question: string;
+  userAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+  category: string;
+  difficulty: string;
+  timeToAnswer: number;
+}
+
+// Interface pour l'IA d'évaluation
+interface AIEvaluation {
+  score: number;
+  feedback: string;
+  strengths: string[];
+  weaknesses: string[];
+  badge: {
+    name: string;
+    description: string;
+    icon: string;
+  };
+  ranking?: {
+    position: number;
+    totalParticipants: number;
+    percentile: number;
+  };
+  improvementSuggestions: string[];
+  professionalInsight: string;
+}
+
 interface TestResults {
   score: number;
   totalQuestions: number;
@@ -51,6 +82,7 @@ interface TestResults {
   };
   strongestCategory?: string;
   weakestCategory?: string;
+  aiEvaluation?: AIEvaluation;  // Nouvelle propriété pour l'évaluation IA
 }
 
 // Questions de test sur le métier d'AMOA

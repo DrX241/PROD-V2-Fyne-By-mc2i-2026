@@ -3724,6 +3724,10 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
     }
   });
 
+  // Routes pour le Test de Réflexes AMOA gamifié avec IA
+  app.post('/api/amoa/reflex-test/evaluate', evaluateUserPerformance);
+  app.post('/api/amoa/reflex-test/feedback', generateFeedbackMessage);
+
   // Routes pour les fonctionnalités d'apprentissage
   app.post('/api/cyber/debriefing', generateDebriefing);
   
