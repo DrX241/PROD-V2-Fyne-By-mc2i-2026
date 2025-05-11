@@ -65,7 +65,6 @@ import { generateCustomTool } from "./toolGeneratorController";
 import { getOrCreateUser, getUserById } from "./userController";
 import { evaluateUserPerformance, generateFeedbackMessage } from "./amoaReflexTestController";
 import { generateAmoaQuestions } from "./amoaQuestionGenerator";
-import { generateMissionScenario, simulateInterview, evaluatePerformance as evaluateInterviewPerformance } from "./amoaInterviewSimulationController";
 
 
 import {
@@ -3660,25 +3659,6 @@ Réponds directement à la première personne comme si tu étais ${supervisor.na
       console.error('Erreur lors de la génération du fichier de synthèse:', error);
       res.status(500).json({ error: 'Erreur lors de la génération du fichier de synthèse' });
     }
-  });
-
-  // Routes pour la simulation d'entretien d'audition client (mc2i)
-  app.post('/api/amoa/interview-simulation/start', (req: Request, res: Response) => {
-    // Importer et utiliser le contrôleur pour la génération de scénario
-    const { generateMissionScenario } = require('./amoaInterviewSimulationController');
-    generateMissionScenario(req, res);
-  });
-  
-  app.post('/api/amoa/interview-simulation/message', (req: Request, res: Response) => {
-    // Importer et utiliser le contrôleur pour la simulation d'entretien
-    const { simulateInterview } = require('./amoaInterviewSimulationController');
-    simulateInterview(req, res);
-  });
-  
-  app.post('/api/amoa/interview-simulation/evaluate', (req: Request, res: Response) => {
-    // Importer et utiliser le contrôleur pour l'évaluation de performance
-    const { evaluatePerformance } = require('./amoaInterviewSimulationController');
-    evaluatePerformance(req, res);
   });
 
   // Routes pour les scénarios préconçus de "Qui est l'imposteur"

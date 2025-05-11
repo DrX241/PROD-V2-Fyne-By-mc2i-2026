@@ -62,12 +62,7 @@ const contactFormSchema = z.object({
 // Types pour le suivi de progression
 type ProgressSection = 'preparation' | 'during' | 'after';
 
-interface BestPracticesContentProps {
-  setActiveTab: (tab: string) => void;
-  setSimulationPhase: React.Dispatch<React.SetStateAction<'preparation' | 'briefing' | 'interview' | 'evaluation' | null>>;
-}
-
-const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTab, setSimulationPhase }) => {
+const BestPracticesContent: React.FC = () => {
   const [progressTracker, setProgressTracker] = useState({
     preparation: { completed: 0, total: 2 },
     during: { completed: 0, total: 5 },
@@ -98,17 +93,9 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
             }}
           ></div>
         </div>
-        <p className="text-blue-100 text-sm mb-4">
+        <p className="text-blue-100 text-sm">
           Accomplissez les étapes pour maîtriser le processus d'audition
         </p>
-        <div className="flex justify-center">
-          <Button 
-            onClick={() => window.location.href = "/amoa/interview-simulation"}
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-2 rounded-md font-medium mb-2"
-          >
-            Passer directement à la simulation d'audition
-          </Button>
-        </div>
       </div>
     
       {/* Main content using grid with different colored sections */}
@@ -634,10 +621,7 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
       <div className="mt-8 text-center">
         <Button
           className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-2 px-6 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105"
-          onClick={() => {
-            setSimulationPhase('preparation');
-            setActiveTab('simulation');
-          }}
+          onClick={() => setActiveTab?.('configuration')}
         >
           <Sparkles className="w-5 h-5 mr-2" />
           Démarrer une simulation d'audition
@@ -655,33 +639,15 @@ const Mc2iInterviewPreparation: React.FC = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('best-practices');
   
-  // États des phases de simulation
-  const [simulationPhase, setSimulationPhase] = useState<'preparation' | 'briefing' | 'interview' | 'evaluation' | null>(null);
+  // État des simulations et configurations
+  const [isSimulationActive, setIsSimulationActive] = useState(false);
   const [simulationComplete, setSimulationComplete] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  // État du scénario de mission
-  const [missionScenario, setMissionScenario] = useState<{
-    title: string;
-    clientName: string;
-    clientCompany: string;
-    clientPosition: string;
-    sector: string;
-    projectContext: string;
-    projectObjectives: string[];
-    expectedSkills: string[];
-    challengesAndConstraints: string[];
-    teamSize: number;
-    duration: string;
-  } | null>(null);
-  
   // Chat
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState('');
-  
-  // Nouvelle état pour indiquer si le scénario est en cours de génération
-  const [isGeneratingScenario, setIsGeneratingScenario] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Formulaires
@@ -730,83 +696,34 @@ const Mc2iInterviewPreparation: React.FC = () => {
     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
   };
   
-  // Génération d'un scénario de mission
-  const generateMissionScenario = async (sector: string) => {
-    setIsGeneratingScenario(true);
-    
-    try {
-      // Utilisation de l'API pour générer le scénario
-      const response = await fetch('/api/amoa/interview-simulation/start', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ sector }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (!data.success) {
-        throw new Error(data.error || 'Erreur lors de la génération du scénario');
-      }
-      
-      setMissionScenario(data.scenario);
-      setIsGeneratingScenario(false);
-      // Passer à la phase de briefing
-      setSimulationPhase('briefing');
-      setActiveTab('configuration');
-    } catch (error) {
-      console.error('Erreur lors de la génération du scénario:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de générer le scénario de mission. Veuillez réessayer.",
-        variant: "destructive",
-      });
-      setIsGeneratingScenario(false);
-    }
-  };
-  
-  // Fonction helper pour générer des noms réalistes
-  const generateRandomName = () => {
-    const firstNames = ["Thomas", "Sophie", "Laurent", "Marie", "Philippe", "Isabelle", "Nicolas", "Céline", "Patrick", "Caroline"];
-    const lastNames = ["Martin", "Bernard", "Dubois", "Petit", "Richard", "Moreau", "Simon", "Laurent", "Leroy", "Roux"];
-    
-    return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;
-  };
-  
-  // Démarrage de la simulation d'audition après le briefing
-  const startInterview = async () => {
+  // Démarrage de la simulation
+  const startSimulation = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     
     try {
-      if (!missionScenario) {
-        throw new Error("Aucun scénario de mission n'a été généré");
-      }
-      
       setTimeout(() => {
-        // Réinitialiser le timer pour 15 minutes (900 secondes)
-        setTimeRemaining(900);
-        
         const systemMessage: Message = {
           id: 'system-1',
           role: 'system',
-          content: `Cette simulation vous permet de pratiquer un entretien avec un client potentiel. Le contexte de la mission est : ${missionScenario.title}. Soyez authentique et apportez des réponses précises et concises.`,
+          content: 'Cette simulation vous permet de pratiquer un entretien avec un client potentiel. Soyez authentique et apportez des réponses précises et concises.',
           timestamp: new Date(),
         };
         
         const welcomeMessage: Message = {
           id: 'assistant-1',
           role: 'assistant',
-          content: `Bonjour, je suis ${missionScenario.clientName}, ${missionScenario.clientPosition} chez ${missionScenario.clientCompany}. Merci de vous être rendu disponible pour cet entretien concernant notre projet de ${missionScenario.title.toLowerCase()}. Avant tout, pourriez-vous vous présenter brièvement et me parler de votre parcours chez mc2i ?`,
+          content: `Bonjour, je suis Thierry Dubois, responsable des projets digitaux chez ${values.sectorFocus === 'Banque & Assurance' ? 'Crédit Mutuel' : 
+                   values.sectorFocus === 'Secteur Public' ? 'le Ministère de la Transformation Numérique' :
+                   values.sectorFocus === 'Énergie' ? 'EDF' : 'notre entreprise'}. Nous recherchons un consultant ${values.profileType.toLowerCase()} pour nous accompagner sur un projet de ${
+                   values.sectorFocus === 'Banque & Assurance' ? 'refonte de notre application mobile bancaire' : 
+                   values.sectorFocus === 'Secteur Public' ? 'dématérialisation des procédures administratives' :
+                   values.sectorFocus === 'Énergie' ? 'pilotage de la consommation énergétique' : 'transformation digitale'
+                   }. Pouvez-vous vous présenter et me parler de votre expérience pertinente pour ce poste ?`,
           timestamp: new Date(),
         };
         
         setMessages([systemMessage, welcomeMessage]);
-        setSimulationPhase('interview');
+        setIsSimulationActive(true);
         setActiveTab('simulation');
         
         const timer = setInterval(() => {
@@ -834,19 +751,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
     }
   };
   
-  // Initialisation de la création du scénario (depuis le formulaire)
-  const startScenarioCreation = async (values: z.infer<typeof formSchema>) => {
-    // Sauvegarder les informations du formulaire
-    if (values.recruiterEmail || values.candidateName) {
-      form.setValue('recruiterEmail', values.recruiterEmail);
-      form.setValue('candidateName', values.candidateName);
-    }
-    
-    // Démarrer la génération du scénario
-    generateMissionScenario(values.sectorFocus);
-  };
-  
-  // Fonction pour contourner l'étape d'information et générer un scénario rapidement
+  // Fonction pour contourner l'étape d'information
   const skipInfoAndStart = () => {
     const values = {
       recruiterEmail: "",
@@ -857,7 +762,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
     };
     
     form.reset(values);
-    startScenarioCreation(values);
+    startSimulation(values);
   };
   
   // Fonction pour envoyer un message
@@ -876,47 +781,33 @@ const Mc2iInterviewPreparation: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Envoi du message à l'API
-      const response = await fetch('/api/amoa/interview-simulation/message', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: userInput,
-          context: missionScenario, // Contexte du scénario pour l'IA
-          messageHistory: messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-          }))
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (!data.success) {
-        throw new Error(data.error || 'Erreur lors de la génération de la réponse');
-      }
-      
-      const aiMessage: Message = {
-        id: `assistant-${messages.length + 2}`,
-        role: 'assistant',
-        content: data.message,
-        timestamp: new Date(),
-      };
-      
-      setMessages(prev => [...prev, aiMessage]);
-      
-      // Si l'IA indique que l'entretien est terminé
-      if (data.complete) {
-        setTimeout(() => {
-          setSimulationComplete(true);
-        }, 3000);
-      }
+      // Simuler une réponse de l'IA (à remplacer par l'appel API réel)
+      setTimeout(() => {
+        const aiResponses = [
+          "Pourriez-vous me parler d'une expérience où vous avez dû gérer des parties prenantes ayant des intérêts divergents ?",
+          "Quelles méthodologies de gestion de projet avez-vous l'habitude d'utiliser ? Quelle est votre approche préférée et pourquoi ?",
+          "Comment abordez-vous la gestion des risques dans vos projets ?",
+          "Quelles sont vos compétences techniques qui seraient pertinentes pour ce projet ?",
+          "Comment vous adaptez-vous aux changements de priorités en cours de projet ?",
+          "Merci pour votre candidature, nous allons examiner votre profil et vous recontacterons très prochainement. Avez-vous des questions avant que nous ne terminions cet entretien ?"
+        ];
+        
+        const aiMessage: Message = {
+          id: `assistant-${messages.length + 2}`,
+          role: 'assistant',
+          content: messages.length >= 10 ? aiResponses[5] : aiResponses[Math.floor((messages.length - 1) / 2) % 5],
+          timestamp: new Date(),
+        };
+        
+        setMessages(prev => [...prev, aiMessage]);
+        setIsLoading(false);
+        
+        if (messages.length >= 10) {
+          setTimeout(() => {
+            setSimulationComplete(true);
+          }, 3000);
+        }
+      }, 1500);
     } catch (error) {
       console.error('Erreur lors de l\'envoi du message:', error);
       toast({
@@ -924,7 +815,6 @@ const Mc2iInterviewPreparation: React.FC = () => {
         description: "Impossible d'envoyer le message. Veuillez réessayer.",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -933,19 +823,21 @@ const Mc2iInterviewPreparation: React.FC = () => {
   const completeSimulation = () => {
     if (timerId) clearInterval(timerId);
     
-    // Terminer la simulation directement
-    performEvaluation();
+    if (form.getValues().recruiterEmail && form.getValues().candidateName) {
+      performEvaluation();
+    } else {
+      setShowContactForm(true);
+    }
   };
   
   // Réinitialiser la simulation
   const resetSimulation = () => {
     setMessages([]);
-    setTimeRemaining(900); // 15 minutes
+    setTimeRemaining(600);
     if (timerId) clearInterval(timerId);
-    setSimulationPhase(null);
+    setIsSimulationActive(false);
     setSimulationComplete(false);
     setEvaluationResult(null);
-    setMissionScenario(null);
     setActiveTab('best-practices');
   };
   
@@ -959,28 +851,50 @@ const Mc2iInterviewPreparation: React.FC = () => {
     performEvaluation();
   };
   
-  // Fonction pour terminer la simulation
+  // Évaluation de la performance
   const performEvaluation = async () => {
     setIsLoading(true);
     
     try {
-      // Informer l'utilisateur que la simulation est terminée
-      toast({
-        title: "Simulation terminée",
-        description: "La simulation d'audition est terminée. La fonctionnalité d'évaluation sera bientôt disponible.",
-        variant: "default",
-      });
-      
-      resetSimulation();
-      setActiveTab('best-practices');
+      // Simuler un appel API d'évaluation (à remplacer par l'appel réel)
+      setTimeout(() => {
+        const mockEvaluation = {
+          summary: "Votre performance pendant cette audition a démontré une bonne préparation technique mais pourrait être améliorée au niveau des compétences de communication et de la concision des réponses.",
+          strengths: [
+            "Bonnes connaissances techniques dans le domaine demandé",
+            "Structure claire dans la présentation de vos expériences",
+            "Posture professionnelle tout au long de l'entretien",
+            "Questions pertinentes posées au client"
+          ],
+          improvements: [
+            "Réponses parfois trop longues et détaillées",
+            "Tendance à utiliser un vocabulaire trop technique",
+            "Communication non verbale à améliorer (contact visuel, gestuelle)",
+            "Manque d'exemples concrets pour illustrer certaines compétences"
+          ],
+          detailedNotes: "Vous avez bien réussi à présenter vos compétences techniques et expériences pertinentes. Le discours était structuré mais parfois trop détaillé, ce qui peut perdre l'attention de l'interlocuteur. Travaillez sur la concision de vos réponses tout en conservant les éléments essentiels. Votre posture était professionnelle, mais la communication non verbale mérite d'être améliorée pour projeter plus de confiance.",
+          recommendations: [
+            "Pratiquez des présentations de 30 secondes à 2 minutes pour vos expériences",
+            "Enregistrez-vous pour analyser votre communication non verbale",
+            "Adaptez votre vocabulaire à votre interlocuteur",
+            "Préparez des exemples concrets pour chaque compétence clé"
+          ],
+          sectorFitEvaluation: "Votre compréhension des enjeux spécifiques du secteur est bonne, mais pourrait être approfondie en ce qui concerne les tendances actuelles et les défis réglementaires.",
+          conclusion: "Votre profil correspond globalement aux attentes pour ce type de mission. Avec quelques ajustements dans votre communication et une préparation plus ciblée sur le secteur, vous augmenterez significativement vos chances de succès lors des prochaines auditions."
+        };
+        
+        setEvaluationResult(mockEvaluation);
+        setActiveTab('evaluation');
+        setSimulationComplete(true);
+        setIsLoading(false);
+      }, 2000);
     } catch (error) {
-      console.error('Erreur:', error);
+      console.error('Erreur lors de l\'évaluation:', error);
       toast({
         title: "Erreur",
-        description: "Une erreur s'est produite. Veuillez réessayer.",
+        description: "Impossible d'obtenir l'évaluation. Veuillez réessayer.",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -992,19 +906,19 @@ const Mc2iInterviewPreparation: React.FC = () => {
           <Button 
             variant="ghost" 
             className="text-white hover:text-white hover:bg-gray-700/80"
-            onClick={() => window.location.href = "/amoa-mode-selection-fixed"}
+            onClick={() => navigate("/amoa-mode-selection-fixed")}
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Retour vers I AM mc2i
+            Retour
           </Button>
         </div>
         
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-indigo-500">
-            Préparation d'audition - mc2i exclusif
+            Préparation d'audition client - mc2i exclusif
           </h1>
           <p className="text-gray-300 max-w-3xl mx-auto">
-            Préparez vos auditions client : consultez les bonnes pratiques sur la tenue, l'attitude professionnelle et le comportement avant, pendant et après l'entretien, puis démarrez une simulation interactive pour vous entraîner en conditions réelles.
+            Cette simulation vous aide à préparer les consultants mc2i pour des auditions auprès de clients, avec des conseils sur la tenue, l'attitude professionnelle et les bonnes pratiques avant, pendant et après l'entretien.
           </p>
         </div>
         
@@ -1014,7 +928,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
           onValueChange={setActiveTab}
           className="w-full max-w-6xl mx-auto"
         >
-          <TabsList className="grid grid-cols-2 mb-8 bg-gray-800/60">
+          <TabsList className="grid grid-cols-3 mb-8 bg-gray-800/60">
             <TabsTrigger 
               value="best-practices"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-700/80 data-[state=active]:to-blue-700/80"
@@ -1023,22 +937,30 @@ const Mc2iInterviewPreparation: React.FC = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="simulation"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-700/80 data-[state=active]:to-indigo-700/80"
+              disabled={!isSimulationActive}
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-700/80 data-[state=active]:to-cyan-700/80"
             >
-              Simulation d'audition
+              Simulation
+            </TabsTrigger>
+            <TabsTrigger 
+              value="evaluation"
+              disabled={!simulationComplete}
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-700/80 data-[state=active]:to-teal-700/80"
+            >
+              Évaluation
             </TabsTrigger>
           </TabsList>
           
           <TabsContent value="best-practices">
             <Card className="bg-gray-800/30 border-gray-700/50 shadow-lg">
               <CardHeader className="border-b border-gray-700/50">
-                <CardTitle className="text-xl text-center">Guide complet de préparation d'audition pour les consultants mc2i</CardTitle>
+                <CardTitle className="text-xl text-center">Guide de préparation d'audition pour les consultants mc2i</CardTitle>
                 <CardDescription className="text-gray-300 text-center">
                   Conseils pour optimiser votre présentation et votre comportement lors des auditions client
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
-                <BestPracticesContent setActiveTab={setActiveTab} setSimulationPhase={setSimulationPhase} />
+                <BestPracticesContent />
               </CardContent>
               <CardFooter className="flex justify-between border-t border-gray-700/50 pt-4">
                 <Button
@@ -1049,148 +971,462 @@ const Mc2iInterviewPreparation: React.FC = () => {
                   Imprimer ce guide
                 </Button>
                 <Button
-                  onClick={() => setActiveTab('simulation')}
+                  onClick={() => setActiveTab('configuration')}
                   className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                 >
-                  Démarrer une simulation d'audition
+                  Démarrer une simulation
                 </Button>
               </CardFooter>
             </Card>
           </TabsContent>
-
-          <TabsContent value="simulation">
-            <Card className="bg-gray-800/30 border-gray-700/50 shadow-lg overflow-hidden">
+          
+          <TabsContent value="configuration">
+            <Card className="bg-gray-800/30 border-gray-700/50 shadow-lg">
               <CardHeader className="border-b border-gray-700/50">
-                <CardTitle className="text-xl text-center">Simulation d'audition interactive</CardTitle>
-                <CardDescription className="text-gray-300 text-center">
-                  Préparez-vous aux auditions client avec cette simulation en conditions réelles
+                <CardTitle className="text-xl">Configuration de l'audition</CardTitle>
+                <CardDescription className="text-gray-300">
+                  Configurez les paramètres pour la simulation d'audition
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="p-4">
-                  <Tabs defaultValue="description" className="w-full">
-                    <TabsList className="grid grid-cols-3 bg-blue-900/30 w-full mb-6">
-                      <TabsTrigger value="description">Description</TabsTrigger>
-                      <TabsTrigger value="form">Formulaire</TabsTrigger>
-                      <TabsTrigger value="simulation">Simulation complète</TabsTrigger>
-                    </TabsList>
-
-                    {/* Onglet Description */}
-                    <TabsContent value="description">
-                      <div className="text-center">
-                        <h3 className="text-lg font-semibold text-white mb-4">Entraînez-vous à l'audition client en conditions réelles</h3>
-                        <p className="text-gray-300 mb-4">Cette simulation vous permet de vous confronter à un scénario d'audition adapté à votre profil et au secteur de votre choix.</p>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 text-left">
-                          <div className="bg-blue-900/30 p-4 rounded-lg">
-                            <h4 className="font-medium text-white mb-2">Étape 1: Configuration</h4>
-                            <p className="text-sm text-gray-300">Configurez votre simulation en spécifiant votre profil, niveau d'expérience et secteur d'activité cible.</p>
-                          </div>
-                          <div className="bg-blue-900/30 p-4 rounded-lg">
-                            <h4 className="font-medium text-white mb-2">Étape 2: Entretien</h4>
-                            <p className="text-sm text-gray-300">Dialoguez avec un client virtuel qui vous posera des questions adaptées au contexte de mission.</p>
-                          </div>
-                          <div className="bg-blue-900/30 p-4 rounded-lg">
-                            <h4 className="font-medium text-white mb-2">Étape 3: Évaluation</h4>
-                            <p className="text-sm text-gray-300">Recevez une analyse détaillée de votre performance avec des recommandations d'amélioration.</p>
-                          </div>
-                        </div>
+              <CardContent className="pt-6">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(startSimulation)} className="space-y-6">
+                    <div className="bg-gray-800/60 p-5 rounded-md mb-6 border border-gray-700/50">
+                      <h3 className="text-lg font-semibold mb-4">Informations optionnelles pour recevoir l'évaluation par email</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="recruiterEmail"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-gray-300">Votre email (envoi du rapport)</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="votre.email@mc2i.fr" 
+                                  className="bg-gray-900/60 border-gray-700 text-white"
+                                  {...field} 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="candidateName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-gray-300">Nom du consultant</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Prénom Nom" 
+                                  className="bg-gray-900/60 border-gray-700 text-white"
+                                  {...field} 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
-                    </TabsContent>
-
-                    {/* Onglet Formulaire */}
-                    <TabsContent value="form">
-                      <div>
-                        <h3 className="text-lg font-semibold text-white mb-4 text-center">Configuration de votre simulation</h3>
-                        <p className="text-gray-300 mb-6 text-center">Complétez ce formulaire pour personnaliser votre simulation d'audition</p>
+                    </div>
+                    
+                    <div className="bg-gray-800/60 p-5 rounded-md border border-gray-700/50">
+                      <h3 className="text-lg font-semibold mb-4">Paramètres de simulation (requis)</h3>
+                      <div className="grid grid-cols-1 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="profileType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-gray-300">Type de profil</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="bg-gray-900/60 border-gray-700 text-white">
+                                    <SelectValue placeholder="Sélectionnez un type de profil" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                                  <SelectItem value="Profil junior">Profil junior</SelectItem>
+                                  <SelectItem value="Profil confirmé">Profil confirmé</SelectItem>
+                                  <SelectItem value="Profil senior">Profil senior</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                         
-                        <div className="bg-blue-900/30 p-6 rounded-lg">
-                          <div className="space-y-4">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                  <div>
-                                    <label className="block text-sm font-medium text-white mb-1">Type de profil</label>
-                                    <select className="w-full p-2 rounded bg-blue-800 text-white border border-blue-700">
-                                      <option value="">Sélectionnez...</option>
-                                      <option value="amoa_si">AMOA SI</option>
-                                      <option value="amoa_digital">AMOA Digital</option>
-                                      <option value="amoa_metier">AMOA Métier</option>
-                                      <option value="amoa_technique">AMOA Technique</option>
-                                    </select>
-                                  </div>
-                                  <div>
-                                    <label className="block text-sm font-medium text-white mb-1">Niveau d'expérience</label>
-                                    <select className="w-full p-2 rounded bg-blue-800 text-white border border-blue-700">
-                                      <option value="">Sélectionnez...</option>
-                                      <option value="junior">Junior (0-2 ans)</option>
-                                      <option value="confirme">Confirmé (3-5 ans)</option>
-                                      <option value="senior">Senior (6-10 ans)</option>
-                                      <option value="expert">Expert (10+ ans)</option>
-                                    </select>
-                                  </div>
-                                </div>
-                                
-                                <div className="mb-4">
-                                  <label className="block text-sm font-medium text-white mb-1">Secteur d'activité</label>
-                                  <select className="w-full p-2 rounded bg-blue-800 text-white border border-blue-700">
-                                    <option value="">Sélectionnez...</option>
-                                    <option value="banque">Banque & Assurance</option>
-                                    <option value="energie">Énergie & Utilities</option>
-                                    <option value="public">Secteur Public</option>
-                                    <option value="sante">Santé</option>
-                                    <option value="transport">Transport & Logistique</option>
-                                    <option value="telecom">Télécommunications</option>
-                                    <option value="industrie">Industrie</option>
-                                  </select>
-                                </div>
-                                
-                                <div className="text-center mt-6">
-                                  <Button 
-                                    onClick={() => window.location.href = "/amoa/interview-simulation"}
-                                    className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700"
-                                  >
-                                    Lancer la simulation
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                        </div>
+                        <FormField
+                          control={form.control}
+                          name="experienceLevel"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-gray-300">Niveau d'expérience</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="bg-gray-900/60 border-gray-700 text-white">
+                                    <SelectValue placeholder="Sélectionnez un niveau d'expérience" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                                  <SelectItem value="Stage/Alternance">Stage ou Alternance</SelectItem>
+                                  <SelectItem value="0-2 ans">0-2 ans</SelectItem>
+                                  <SelectItem value="2-5 ans">2-5 ans</SelectItem>
+                                  <SelectItem value="5-8 ans">5-8 ans</SelectItem>
+                                  <SelectItem value="8-12 ans">8-12 ans</SelectItem>
+                                  <SelectItem value="12+ ans">12+ ans</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="sectorFocus"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-gray-300">Secteur d'activité</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="bg-gray-900/60 border-gray-700 text-white">
+                                    <SelectValue placeholder="Sélectionnez un secteur d'activité" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                                  <SelectItem value="Banque & Assurance">Banque & Assurance</SelectItem>
+                                  <SelectItem value="Industrie">Industrie</SelectItem>
+                                  <SelectItem value="Énergie">Énergie</SelectItem>
+                                  <SelectItem value="Secteur Public">Secteur Public</SelectItem>
+                                  <SelectItem value="Retail">Retail</SelectItem>
+                                  <SelectItem value="Santé">Santé</SelectItem>
+                                  <SelectItem value="Luxe">Luxe</SelectItem>
+                                  <SelectItem value="Transport & Logistique">Transport & Logistique</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
-                    </TabsContent>
-
-                    {/* Onglet Simulation complète */}
-                    <TabsContent value="simulation">
-                      <div className="text-center">
-                        <h3 className="text-lg font-semibold text-white mb-4">Simulation complète en environnement dédié</h3>
-                        <p className="text-gray-300 mb-6">Accédez à une version plus immersive de la simulation dans un environnement dédié</p>
-                        
-                        <div className="flex justify-center">
-                          <Button
-                            onClick={() => window.location.href = "/amoa/interview-simulation"}
-                            className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 py-6 px-8 text-lg"
-                          >
-                            Lancer la simulation complète
-                          </Button>
-                        </div>
-                        
-                        <p className="mt-6 text-gray-400 italic">Cette option vous redirige vers un module spécialisé offrant une expérience plus immersive avec une interface dédiée.</p>
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                </div>
+                    </div>
+                    
+                    <div className="flex flex-col sm:flex-row justify-between gap-4">
+                      <Button
+                        type="submit"
+                        className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <>Chargement...</>
+                        ) : (
+                          <>Démarrer la simulation</>
+                        )}
+                      </Button>
+                      
+                      <Button
+                        type="button"
+                        className="flex-1 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800"
+                        onClick={skipInfoAndStart}
+                        disabled={isLoading}
+                      >
+                        Ignorer les informations de contact
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
               </CardContent>
             </Card>
           </TabsContent>
           
-
+          <TabsContent value="simulation">
+            <Card className="bg-gray-800/30 border-gray-700/50 shadow-lg">
+              <CardHeader className="border-b border-gray-700/50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <UserCircle className="w-6 h-6 mr-2 text-yellow-500" />
+                    <CardTitle className="text-xl">Simulation d'audition client</CardTitle>
+                  </div>
+                  <Badge 
+                    variant="outline" 
+                    className={`${timeRemaining > 300 ? 'border-green-500 text-green-500' : timeRemaining > 60 ? 'border-yellow-500 text-yellow-500' : 'border-red-500 text-red-500'}`}
+                  >
+                    <Clock className="w-4 h-4 mr-1" />
+                    {formatTime(timeRemaining)}
+                  </Badge>
+                </div>
+                <CardDescription className="text-gray-300">
+                  Conversation avec le client potentiel
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6">
+                {/* Conversation */}
+                <div className="bg-gray-900/60 rounded-md p-4 mb-4 h-[400px] overflow-y-auto border border-gray-700/50">
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`mb-4 p-3 rounded-lg ${
+                        message.role === 'assistant'
+                          ? 'bg-gray-800/80 mr-12'
+                          : message.role === 'user' 
+                            ? 'bg-gradient-to-r from-blue-700/50 to-blue-800/50 ml-12'
+                            : 'hidden'
+                      }`}
+                    >
+                      <div className="flex items-center mb-1">
+                        {message.role === 'assistant' ? (
+                          <>
+                            <UserCircle className="w-5 h-5 mr-2 text-gray-300" />
+                            <span className="text-sm font-bold text-gray-300">
+                              Client
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <UserCircle className="w-5 h-5 mr-2 text-blue-300" />
+                            <span className="text-sm font-bold text-blue-300">
+                              Vous
+                            </span>
+                          </>
+                        )}
+                        <span className="text-xs ml-auto text-gray-400 opacity-70">
+                          {message.timestamp.toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <p className="text-white whitespace-pre-wrap">{message.content}</p>
+                    </div>
+                  ))}
+                  <div ref={messagesEndRef} />
+                </div>
+                
+                {/* Input */}
+                <div className="flex items-center">
+                  <Input
+                    type="text"
+                    placeholder="Saisissez votre message..."
+                    className="flex-1 bg-gray-900/60 border-gray-700 text-white"
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                      }
+                    }}
+                    disabled={isLoading || simulationComplete}
+                  />
+                  <Button
+                    className="ml-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                    onClick={sendMessage}
+                    disabled={isLoading || simulationComplete || !userInput.trim()}
+                  >
+                    <Send className="w-5 h-5" />
+                  </Button>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between border-t border-gray-700/50 pt-4">
+                <Button
+                  onClick={resetSimulation}
+                  variant="outline"
+                  className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                >
+                  Nouvelle simulation
+                </Button>
+                <Button
+                  onClick={completeSimulation}
+                  className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+                  disabled={messages.length < 2 || simulationComplete || isLoading}
+                >
+                  {isLoading ? "Chargement..." : "Terminer la simulation"}
+                </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
           
-
-          
-
+          <TabsContent value="evaluation">
+            <Card className="bg-gray-800/30 border-gray-700/50 shadow-lg">
+              <CardHeader className="border-b border-gray-700/50">
+                <div className="flex items-center">
+                  <CheckCircle className="w-6 h-6 mr-2 text-green-500" />
+                  <CardTitle className="text-xl">Évaluation de l'audition</CardTitle>
+                </div>
+                <CardDescription className="text-gray-300">
+                  Analyse de la performance du consultant pendant l'audition
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6">
+                {evaluationResult ? (
+                  <div className="space-y-6">
+                    <div className="bg-gradient-to-r from-gray-800/60 to-gray-700/60 p-5 rounded-md border border-gray-600/50">
+                      <h3 className="text-lg font-semibold mb-2">Résumé de l'audition</h3>
+                      <p className="text-gray-300 mb-4">
+                        {evaluationResult.summary || "Aucun résumé disponible."}
+                      </p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="bg-gradient-to-r from-green-900/30 to-green-800/30 p-5 rounded-md border border-green-700/30">
+                        <h3 className="text-lg font-semibold mb-3 text-green-300">Forces identifiées</h3>
+                        <ul className="list-disc ml-5 space-y-2 text-gray-300">
+                          {evaluationResult.strengths && evaluationResult.strengths.map((strength: string, index: number) => (
+                            <li key={`strength-${index}`} className="flex items-start">
+                              <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-1 flex-shrink-0" />
+                              <span>{strength}</span>
+                            </li>
+                          ))}
+                          {(!evaluationResult.strengths || evaluationResult.strengths.length === 0) && (
+                            <li>Aucune force identifiée</li>
+                          )}
+                        </ul>
+                      </div>
+                      
+                      <div className="bg-gradient-to-r from-amber-900/30 to-amber-800/30 p-5 rounded-md border border-amber-700/30">
+                        <h3 className="text-lg font-semibold mb-3 text-amber-300">Axes d'amélioration</h3>
+                        <ul className="list-disc ml-5 space-y-2 text-gray-300">
+                          {evaluationResult.improvements && evaluationResult.improvements.map((improvement: string, index: number) => (
+                            <li key={`improvement-${index}`} className="flex items-start">
+                              <AlertCircle className="w-4 h-4 text-amber-500 mr-2 mt-1 flex-shrink-0" />
+                              <span>{improvement}</span>
+                            </li>
+                          ))}
+                          {(!evaluationResult.improvements || evaluationResult.improvements.length === 0) && (
+                            <li>Aucun axe d'amélioration identifié</li>
+                          )}
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-gray-800/60 to-gray-700/60 p-5 rounded-md border border-gray-600/50">
+                      <h3 className="text-lg font-semibold mb-2">Notes détaillées</h3>
+                      <p className="text-gray-300 whitespace-pre-wrap">
+                        {evaluationResult.detailedNotes || "Aucune note détaillée disponible."}
+                      </p>
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-blue-900/30 to-blue-800/30 p-5 rounded-md border border-blue-700/30">
+                      <h3 className="text-lg font-semibold mb-3 text-blue-300">Recommandations</h3>
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-gray-300">
+                        {evaluationResult.recommendations && evaluationResult.recommendations.map((recommendation: string, index: number) => (
+                          <li key={`recommendation-${index}`} className="flex items-start bg-blue-900/20 p-3 rounded-md">
+                            <Sparkles className="w-4 h-4 text-blue-400 mr-2 mt-1 flex-shrink-0" />
+                            <span>{recommendation}</span>
+                          </li>
+                        ))}
+                        {(!evaluationResult.recommendations || evaluationResult.recommendations.length === 0) && (
+                          <li>Aucune recommandation disponible</li>
+                        )}
+                      </ul>
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-purple-900/30 to-purple-800/30 p-5 rounded-md border border-purple-700/30">
+                      <h3 className="text-lg font-semibold mb-2 text-purple-300">Adéquation avec le secteur {form.getValues('sectorFocus') || ""}</h3>
+                      <p className="text-gray-300 mb-2">
+                        {evaluationResult.sectorFitEvaluation || "Aucune évaluation d'adéquation sectorielle disponible."}
+                      </p>
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-indigo-900/30 to-indigo-800/30 p-5 rounded-md border border-indigo-700/30">
+                      <h3 className="text-lg font-semibold mb-2 text-indigo-300">Conclusion</h3>
+                      <p className="text-gray-300 mb-2">
+                        {evaluationResult.conclusion || "Aucune conclusion disponible."}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center p-8">
+                    <AlertCircle className="w-16 h-16 text-gray-400 mb-4" />
+                    <h3 className="text-xl font-bold mb-2">Aucune évaluation disponible</h3>
+                    <p className="text-gray-300 text-center mb-4">
+                      Vous n'avez pas encore terminé la simulation ou une erreur s'est produite lors de l'évaluation.
+                    </p>
+                    <Button onClick={resetSimulation} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                      Démarrer une nouvelle simulation
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter className="flex justify-between border-t border-gray-700/50 pt-4">
+                <Button
+                  onClick={resetSimulation}
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                >
+                  Nouvelle simulation
+                </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
       
-
+      {/* Formulaire de contact final */}
+      <Dialog open={showContactForm} onOpenChange={setShowContactForm}>
+        <DialogContent className="bg-gray-800 text-white border-gray-700">
+          <DialogHeader>
+            <DialogTitle>Informations nécessaires pour l'évaluation finale</DialogTitle>
+            <DialogDescription className="text-gray-300">
+              Pour recevoir l'évaluation et terminer la simulation, veuillez compléter les informations suivantes.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...contactForm}>
+            <form onSubmit={contactForm.handleSubmit(onContactFormSubmit)} className="space-y-4">
+              <FormField
+                control={contactForm.control}
+                name="recruiterEmail"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Votre email</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="votre.email@mc2i.fr" 
+                        className="bg-gray-700/60 border-gray-600 text-white"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={contactForm.control}
+                name="candidateName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Nom du consultant</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Prénom Nom" 
+                        className="bg-gray-700/60 border-gray-600 text-white"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <Button 
+                  type="submit" 
+                  className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Chargement..." : "Continuer"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </HomeLayout>
   );
 };

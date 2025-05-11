@@ -64,7 +64,7 @@ import AmoaModeSelectionFixed from "@/pages/amoa-mode-selection-fixed";
 import CyberInterviewSimulation from "@/pages/cyber/interview-simulation";
 import AmoaInterviewSimulation from "@/pages/amoa/interview-simulation";
 import ProjetImposteur from "@/pages/amoa/projet-imposteur";
-import Mc2iInterviewPreparation from "@/pages/amoa/mc2i-interview-preparation-clean";
+import Mc2iInterviewPreparation from "@/pages/amoa/mc2i-interview-preparation-fixed";
 // Module Apprendre en échangeant
 import ExpertLearningPage from "@/pages/cyber/expert-learning";
 // Ancien jeu Cyber Snake (supprimé)
@@ -119,11 +119,7 @@ function App() {
             
             {/* Toutes les routes sont maintenant publiques */}
             <Route path="/cyber/interview-simulation" component={CyberInterviewSimulation} />
-            {/* Redirection vers la page de préparation d'audition (fusion des modules) */}
-            <Route path="/amoa/interview-simulation" component={() => {
-              window.location.href = '/amoa/mc2i-interview-preparation';
-              return null;
-            }} />
+            <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
             
             {/* Routes publiques */}
             <Route path="/" component={Home} />
