@@ -993,10 +993,10 @@ const Mc2iInterviewPreparation: React.FC = () => {
         
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-indigo-500">
-            Simulation d'audition - mc2i exclusif
+            Préparation d'audition - mc2i exclusif
           </h1>
           <p className="text-gray-300 max-w-3xl mx-auto">
-            Par simulation d'audition : consultez les bonnes pratiques sur la tenue, l'attitude professionnelle et le comportement avant, pendant et après l'entretien, puis lancez une simulation interactive pour vous entraîner en conditions réelles.
+            Préparez vos auditions client : consultez les bonnes pratiques sur la tenue, l'attitude professionnelle et le comportement avant, pendant et après l'entretien, puis démarrez une simulation interactive pour vous entraîner en conditions réelles.
           </p>
         </div>
         
@@ -1018,7 +1018,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
           <TabsContent value="best-practices">
             <Card className="bg-gray-800/30 border-gray-700/50 shadow-lg">
               <CardHeader className="border-b border-gray-700/50">
-                <CardTitle className="text-xl text-center">Guide de préparation d'audition pour les consultants mc2i</CardTitle>
+                <CardTitle className="text-xl text-center">Guide complet de préparation d'audition pour les consultants mc2i</CardTitle>
                 <CardDescription className="text-gray-300 text-center">
                   Conseils pour optimiser votre présentation et votre comportement lors des auditions client
                 </CardDescription>

@@ -131,8 +131,8 @@ export default function AmoaModeSelectionFixed() {
     // S'ÉVALUER
     {
       id: 'interview-simulation',
-      title: 'AUDITION CLIENT',
-      description: "Préparez-vous aux auditions client avec des scénarios réalistes",
+      title: 'SIMULATION D\'AUDITION (IA)',
+      description: "Passez une audition client en conditions réelles avec un évaluateur IA",
       icon: <BsClipboardCheck className="h-5 w-5" />,
       destination: '/amoa/interview-simulation',
       difficulty: 'avancé',
@@ -140,7 +140,7 @@ export default function AmoaModeSelectionFixed() {
     },
     {
       id: 'mc2i-interview-preparation',
-      title: 'SIMULATION D\'AUDITION',
+      title: 'PRÉPARATION D\'AUDITION',
       description: "Guide complet pour consultants mc2i sur l'attitude professionnelle avant, pendant et après les auditions",
       icon: <BsClipboardCheck className="h-5 w-5" />,
       destination: '/amoa/mc2i-interview-preparation',
@@ -230,8 +230,8 @@ export default function AmoaModeSelectionFixed() {
       description: "Tester vos compétences dans des conditions réelles d'examen ou d'entretien",
       icon: <IoTrophyOutline className="h-6 w-6 text-purple-100" />,
       modules: [
-        'interview-simulation',     // Préparation d'audition client
-        'mc2i-interview-preparation', // Préparation audition mc2i
+        'interview-simulation',     // Simulation d'audition IA
+        'mc2i-interview-preparation', // Guide de préparation d'audition mc2i
         'test-reflexes',            // Test de réflexes AMOA
         'certification-interne'     // Parcours de certification
       ],
