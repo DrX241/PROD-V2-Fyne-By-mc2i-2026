@@ -442,7 +442,7 @@ export default function CyberModeSelectionRedesign() {
                 <Button 
                   className="bg-gradient-to-r from-blue-600 to-blue-800 text-white hover:from-blue-700 hover:to-blue-900 text-lg px-6 py-2 h-auto rounded-xl shadow-lg hover:shadow-blue-800/30 transition-all"
                 >
-                  <Home className="mr-3 h-6 w-6" />
+                  <IoHome className="mr-3 h-6 w-6" />
                   Accueil
                 </Button>
               </Link>
@@ -489,9 +489,9 @@ export default function CyberModeSelectionRedesign() {
                       data-id="contrast-button"
                     >
                       {highContrastMode ? (
-                        <Sun className="h-5 w-5" />
+                        <FiSun className="h-5 w-5" />
                       ) : (
-                        <Moon className="h-5 w-5" />
+                        <FiMoon className="h-5 w-5" />
                       )}
                     </Button>
                   </TooltipTrigger>
@@ -513,7 +513,7 @@ export default function CyberModeSelectionRedesign() {
                         onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
                         data-id="text-smaller-button"
                       >
-                        <ZoomOut className="h-4 w-4" />
+                        <AiOutlineZoomOut className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -532,7 +532,7 @@ export default function CyberModeSelectionRedesign() {
                         onClick={() => setTextSize(Math.min(1.2, textSize + 0.1))}
                         data-id="text-larger-button"
                       >
-                        <ZoomIn className="h-4 w-4" />
+                        <AiOutlineZoomIn className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -584,7 +584,7 @@ export default function CyberModeSelectionRedesign() {
                 }`}
                 data-id="careers-tab"
               >
-                <Briefcase className="h-5 w-5 mr-2" />
+                <BsBriefcase className="h-5 w-5 mr-2" />
                 <div className="flex flex-col items-center">
                   <span>Par métier</span>
                   <span className="text-xs font-light italic mt-0.5 opacity-90">Refonte complète bientôt disponible</span>
@@ -597,7 +597,7 @@ export default function CyberModeSelectionRedesign() {
                 }`}
                 data-id="all-modules-tab"
               >
-                <Settings className="h-5 w-5 mr-2" />
+                <BsGearFill className="h-5 w-5 mr-2" />
                 Tous les modules
               </TabsTrigger>
             </TabsList>
@@ -651,7 +651,7 @@ export default function CyberModeSelectionRedesign() {
                               >
                                 <div className="flex justify-between items-center">
                                   <span className="font-medium">{module.title}</span>
-                                  <ArrowRight className="h-4 w-4" />
+                                  <IoMdArrowForward className="h-4 w-4" />
                                 </div>
                               </Link>
                             </li>
@@ -805,7 +805,7 @@ export default function CyberModeSelectionRedesign() {
                                           className="w-full"
                                         >
                                           Accéder au module
-                                          <ArrowRight className="ml-2 h-4 w-4" />
+                                          <IoMdArrowForward className="ml-2 h-4 w-4" />
                                         </Button>
                                       </Link>
                                     </CardFooter>
@@ -875,7 +875,7 @@ export default function CyberModeSelectionRedesign() {
                   </div>
                   
                   <div className="flex items-center gap-2">
-                    <Filter className="h-4 w-4 text-gray-400" />
+                    <RiFilterLine className="h-4 w-4 text-gray-400" />
                     <span className="text-sm font-medium">Difficulté:</span>
                     <div className="flex gap-1">
                       <Button
