@@ -144,11 +144,47 @@ const CyberChaos: React.FC = () => {
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [isSendingMessage, setIsSendingMessage] = useState(false);
-  const [communicationHistory, setCommunicationHistory] = useState<Record<string, Array<{sender: 'player' | 'npc', message: string}>>>({
+  const [pendingRequests, setPendingRequests] = useState<Record<string, boolean>>({
+    'Presse': false,
+    'Autorités': false,
+    'Communication': true, // Une demande initiale pour créer de la tension
+    'Équipe technique': true, // Une demande initiale pour créer de la tension
+    'Direction': false
+  });
+  const [requestTimers, setRequestTimers] = useState<Record<string, number>>({
+    'Presse': 0,
+    'Autorités': 0,
+    'Communication': 180, // 3 minutes pour répondre
+    'Équipe technique': 300, // 5 minutes pour répondre
+    'Direction': 0
+  });
+  const [communicationHistory, setCommunicationHistory] = useState<Record<string, Array<{sender: 'player' | 'npc', message: string, needsResponse?: boolean, choices?: string[]}>>>({
     'Presse': [],
     'Autorités': [],
-    'Communication': [],
-    'Équipe technique': [],
+    'Communication': [
+      { 
+        sender: 'npc', 
+        message: "Nous avons besoin de votre décision rapide concernant la communication externe. Devons-nous préparer une déclaration préliminaire pour les clients ou attendre plus d'informations? Le service juridique préfère attendre, mais les clients commencent à nous contacter.", 
+        needsResponse: true,
+        choices: [
+          "Préparer une déclaration préliminaire immédiatement",
+          "Attendre plus d'informations techniques avant de communiquer",
+          "Informer uniquement les clients directement concernés"
+        ]
+      }
+    ],
+    'Équipe technique': [
+      { 
+        sender: 'npc', 
+        message: "Nous avons détecté des activités suspectes sur les serveurs de production. Je vous recommande d'isoler immédiatement ces systèmes du réseau, mais cela entraînera une interruption de service pour environ 2 heures. Faut-il procéder?", 
+        needsResponse: true,
+        choices: [
+          "Isoler immédiatement les systèmes concernés",
+          "Surveiller d'abord pour collecter plus d'informations",
+          "Isoler progressivement pour minimiser l'impact"
+        ]
+      }
+    ],
     'Direction': []
   });
   
