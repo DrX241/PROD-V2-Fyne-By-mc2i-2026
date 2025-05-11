@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { IoSearchOutline, IoBookOutline, IoDesktopOutline, IoTrophyOutline, IoConstructOutline } from 'react-icons/io5';
-import { IoMdArrowForward } from 'react-icons/io';
+import { IoMdArrowForward, IoMdHome } from 'react-icons/io';
 import { RiTeamLine, RiFilterLine } from 'react-icons/ri';
 import { TbLayoutGrid, TbList, TbChartDots } from 'react-icons/tb';
 import { BsBarChartFill, BsLightbulb, BsDatabaseFill, BsCpu, BsGraphUp, BsBarChartLine, BsBriefcase, BsGearFill } from 'react-icons/bs';
@@ -256,7 +256,7 @@ export default function DataIAModeSelectionFixed() {
             className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-md border-0 hover:from-blue-700 hover:to-blue-800"
             onClick={() => setLocation('/')}
           >
-            <IoBookOutline className="h-4 w-4 mr-2" />
+            <IoMdHome className="h-4 w-4 mr-2" />
             Accueil
           </Button>
         </div>
@@ -491,40 +491,6 @@ export default function DataIAModeSelectionFixed() {
             
             {/* Vue par objectifs d'apprentissage */}
             <TabsContent value="objectifs" className="mt-0">
-              {/* Catégories de modules */}
-              <div className="mb-8">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <Button 
-                    variant="outline" 
-                    className={`p-3 h-auto flex flex-col items-center justify-center gap-2 text-center rounded-xl bg-blue-900/30 hover:bg-blue-800/50 border-blue-800 text-white`}
-                  >
-                    <IoBookOutline className="h-6 w-6" />
-                    <span className="text-sm font-medium">SE FORMER</span>
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className={`p-3 h-auto flex flex-col items-center justify-center gap-2 text-center rounded-xl bg-blue-900/30 hover:bg-blue-800/50 border-blue-800 text-white`}
-                  >
-                    <IoTrophyOutline className="h-6 w-6" />
-                    <span className="text-sm font-medium">S'ENTRAÎNER</span>
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className={`p-3 h-auto flex flex-col items-center justify-center gap-2 text-center rounded-xl bg-blue-900/30 hover:bg-blue-800/50 border-blue-800 text-white`}
-                  >
-                    <TbChartDots className="h-6 w-6" />
-                    <span className="text-sm font-medium">S'ÉVALUER</span>
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className={`p-3 h-auto flex flex-col items-center justify-center gap-2 text-center rounded-xl bg-blue-900/30 hover:bg-blue-800/50 border-blue-800 text-white`}
-                  >
-                    <IoConstructOutline className="h-6 w-6" />
-                    <span className="text-sm font-medium">CRÉER / AUTOMATISER</span>
-                  </Button>
-                </div>
-              </div>
-              
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {learningObjectives.map((objective) => (
                   <motion.div
