@@ -18,6 +18,7 @@ import PageTitle from '@/components/utils/PageTitle';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 
 // Types pour l'organisation des modules
 interface Module {
@@ -363,43 +364,52 @@ export default function AmoaModeSelectionFixed() {
                     onMouseEnter={() => setHoveredModule(module.id)}
                     onMouseLeave={() => setHoveredModule(null)}
                   >
-                    <Link href={module.comingSoon ? "#" : module.destination}>
-                      <div className={`bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl overflow-hidden h-full transition-all duration-200 ${hoveredModule === module.id ? 'bg-white/20 border-white/30 shadow-lg' : 'shadow'}`}>
-                        <div className="p-5">
-                          <div className="flex items-center mb-3">
-                            <div className="bg-blue-700/50 p-2 rounded-lg mr-3">
-                              {module.icon}
+                    <Card className={`h-full shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden ${module.comingSoon ? 'opacity-70' : ''}`}>
+                      <CardHeader className="p-4 pb-2 bg-gradient-to-br from-blue-900 to-slate-900">
+                        <div className="flex justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-start space-x-4 mb-2">
+                              <div className="bg-blue-700/50 p-2 rounded-lg">
+                                {module.icon}
+                              </div>
+                              <CardTitle className="text-lg line-clamp-2 text-left">
+                                {module.title}
+                              </CardTitle>
+                              {module.isNew && (
+                                <Badge className="ml-auto bg-blue-600 text-white shrink-0">NOUVEAU</Badge>
+                              )}
                             </div>
-                            <h3 className="font-bold text-white">{module.title}</h3>
-                            {module.isNew && (
-                              <Badge className="ml-2 bg-blue-600 text-white">NOUVEAU</Badge>
-                            )}
-                          </div>
-                          <p className="text-blue-100 text-sm mb-4 min-h-[60px]">
-                            {module.description}
-                          </p>
-                          <div className="flex justify-between items-center">
-                            <div className="flex space-x-2">
-                              <Badge variant="outline" className="text-xs">
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              <Badge variant="outline" className="text-xs text-white border-white/30">
                                 {module.difficulty}
                               </Badge>
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant="outline" className="text-xs text-white border-white/30">
                                 {module.duration}
                               </Badge>
                             </div>
-                            {module.comingSoon ? (
-                              <Badge variant="outline" className="border-amber-500 text-amber-400">
-                                Bientôt
-                              </Badge>
-                            ) : (
-                              <div className="bg-blue-600/50 rounded-full p-1">
-                                <IoMdArrowForward className="h-4 w-4 text-white" />
-                              </div>
-                            )}
                           </div>
                         </div>
-                      </div>
-                    </Link>
+                      </CardHeader>
+                      <CardContent className="p-4 pt-2 bg-gradient-to-br from-blue-900 to-slate-900">
+                        <p className="text-blue-100 line-clamp-2 min-h-[48px]">
+                          {module.description}
+                        </p>
+                      </CardContent>
+                      <CardFooter className="p-4 pt-2 mt-auto bg-gradient-to-br from-blue-900 to-slate-900">
+                        {module.comingSoon ? (
+                          <Badge variant="outline" className="bg-gray-700 text-gray-100 w-full flex justify-center py-2">
+                            Bientôt disponible
+                          </Badge>
+                        ) : (
+                          <Link href={module.destination} className="w-full">
+                            <Button variant="secondary" className="w-full">
+                              Accéder au module
+                              <IoMdArrowForward className="ml-2 h-4 w-4" />
+                            </Button>
+                          </Link>
+                        )}
+                      </CardFooter>
+                    </Card>
                   </motion.div>
                 ))}
               </div>
@@ -416,15 +426,18 @@ export default function AmoaModeSelectionFixed() {
                     transition={{ duration: 0.3 }}
                     className="relative"
                   >
-                    <div className={`bg-gradient-to-br ${objective.gradient} rounded-xl overflow-hidden shadow-lg border border-white/20`}>
-                      <div className="p-5">
-                        <div className="flex items-center mb-4">
-                          <div className="mr-3">
+                    <Card className="h-full shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
+                      <CardHeader className={`p-4 pb-3 bg-gradient-to-br ${objective.gradient}`}>
+                        <div className="flex items-center space-x-4">
+                          <div className="bg-white/20 p-2 rounded-lg">
                             {objective.icon}
                           </div>
-                          <h3 className="font-bold text-xl text-white">{objective.title}</h3>
+                          <CardTitle className="text-xl text-white">
+                            {objective.title}
+                          </CardTitle>
                         </div>
-                        
+                      </CardHeader>
+                      <CardContent className={`p-4 pt-2 bg-gradient-to-br ${objective.gradient}`}>
                         <p className="text-blue-100 mb-4">
                           {objective.description}
                         </p>
@@ -436,12 +449,12 @@ export default function AmoaModeSelectionFixed() {
                             return moduleInfo ? (
                               <Link key={moduleId} href={moduleInfo.comingSoon ? "#" : moduleInfo.destination}>
                                 <div className="flex items-center p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                                  <div className="mr-2">
+                                  <div className="bg-blue-700/40 p-1 rounded-lg mr-2">
                                     {moduleInfo.icon}
                                   </div>
-                                  <span className="text-sm text-white">{moduleInfo.title}</span>
+                                  <span className="text-sm text-white line-clamp-1">{moduleInfo.title}</span>
                                   {moduleInfo.comingSoon && (
-                                    <Badge variant="outline" className="ml-auto border-amber-500 text-amber-400 text-xs">
+                                    <Badge variant="outline" className="ml-auto border-amber-500 text-amber-400 text-xs shrink-0">
                                       Bientôt
                                     </Badge>
                                   )}
@@ -450,8 +463,8 @@ export default function AmoaModeSelectionFixed() {
                             ) : null;
                           })}
                         </div>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   </motion.div>
                 ))}
               </div>
@@ -468,15 +481,18 @@ export default function AmoaModeSelectionFixed() {
                     transition={{ duration: 0.3 }}
                     className="relative"
                   >
-                    <div className={`bg-gradient-to-br ${career.gradient} rounded-xl overflow-hidden shadow-lg border border-white/20`}>
-                      <div className="p-5">
-                        <div className="flex items-center mb-4">
-                          <div className="mr-3">
+                    <Card className="h-full shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
+                      <CardHeader className={`p-4 pb-3 bg-gradient-to-br ${career.gradient}`}>
+                        <div className="flex items-center space-x-4">
+                          <div className="bg-white/20 p-2 rounded-lg">
                             {career.icon}
                           </div>
-                          <h3 className="font-bold text-xl text-white">{career.title}</h3>
+                          <CardTitle className="text-xl text-white">
+                            {career.title}
+                          </CardTitle>
                         </div>
-                        
+                      </CardHeader>
+                      <CardContent className={`p-4 pt-2 bg-gradient-to-br ${career.gradient}`}>
                         <p className="text-blue-100 mb-4">
                           {career.description}
                         </p>
@@ -485,7 +501,7 @@ export default function AmoaModeSelectionFixed() {
                           <h4 className="font-medium text-white text-sm mb-2">Compétences clés:</h4>
                           <div className="flex flex-wrap gap-2">
                             {career.skills.map((skill, index) => (
-                              <Badge key={index} variant="outline" className="bg-white/10">
+                              <Badge key={index} variant="outline" className="bg-white/10 text-white border-white/30">
                                 {skill}
                               </Badge>
                             ))}
@@ -499,12 +515,12 @@ export default function AmoaModeSelectionFixed() {
                             return moduleInfo ? (
                               <Link key={moduleId} href={moduleInfo.comingSoon ? "#" : moduleInfo.destination}>
                                 <div className="flex items-center p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                                  <div className="mr-2">
+                                  <div className="bg-blue-700/40 p-1 rounded-lg mr-2">
                                     {moduleInfo.icon}
                                   </div>
-                                  <span className="text-sm text-white">{moduleInfo.title}</span>
+                                  <span className="text-sm text-white line-clamp-1">{moduleInfo.title}</span>
                                   {moduleInfo.comingSoon && (
-                                    <Badge variant="outline" className="ml-auto border-amber-500 text-amber-400 text-xs">
+                                    <Badge variant="outline" className="ml-auto border-amber-500 text-amber-400 text-xs shrink-0">
                                       Bientôt
                                     </Badge>
                                   )}
@@ -513,8 +529,8 @@ export default function AmoaModeSelectionFixed() {
                             ) : null;
                           })}
                         </div>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   </motion.div>
                 ))}
               </div>
