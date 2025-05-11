@@ -16,7 +16,15 @@ import {
   FileText,
   Zap,
   Lightbulb,
-  Briefcase
+  Briefcase,
+  Sparkles,
+  MessageSquare,
+  Check,
+  CheckCircle,
+  AlertTriangle,
+  ArrowRight,
+  BookOpen,
+  Trophy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -845,7 +853,7 @@ const TestDeReflexes: React.FC = () => {
       const aiAnalysis = await response.json();
       
       // Intégrer l'analyse IA aux résultats
-      calculatedResults.aiEvaluation = aiAnalysis;
+      calculatedResults.aiEvaluation = aiAnalysis.analysis;
     } catch (error) {
       console.error('Erreur lors de l\'analyse IA:', error);
       toast({
