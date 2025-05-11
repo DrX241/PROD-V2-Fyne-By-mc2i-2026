@@ -959,6 +959,9 @@ const TestDeReflexes: React.FC = () => {
                         >
                           <Clock className="mr-1 h-3 w-3" />
                           {timeLeft} secondes
+                          {bonusTimeEarned > 0 && (
+                            <span className="ml-1 text-green-300">(+{bonusTimeEarned}s bonus)</span>
+                          )}
                         </Badge>
                         <Badge 
                           variant="outline" 
@@ -971,10 +974,22 @@ const TestDeReflexes: React.FC = () => {
                         >
                           {currentQuestion.category}
                         </Badge>
+                        
+                        <Badge 
+                          variant="outline" 
+                          className={cn(
+                            "bg-white/10 text-white",
+                            difficulty === "facile" ? "border-green-500/30" :
+                            difficulty === "moyen" ? "border-amber-500/30" :
+                            "border-red-500/30"
+                          )}
+                        >
+                          <span className="capitalize">Difficulté: {difficulty}</span>
+                        </Badge>
                       </div>
                       <CardTitle className="text-xl mt-2">{currentQuestion.text}</CardTitle>
                       <Progress 
-                        value={(timeLeft / currentQuestion.timeLimit) * 100} 
+                        value={(timeLeft / (currentQuestion.timeLimit + bonusTimeEarned)) * 100} 
                         className="h-1 bg-white/20"
                         indicatorClassName={cn(
                           "bg-gradient-to-r",
@@ -1016,6 +1031,18 @@ const TestDeReflexes: React.FC = () => {
                           </Button>
                         ))}
                       </div>
+
+                      {/* Message de feedback gamifié */}
+                      {feedbackMessage && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="mb-6 p-3 bg-blue-800/30 rounded-lg border border-blue-500/40 text-center"
+                        >
+                          <p className="text-blue-100 font-medium">{feedbackMessage}</p>
+                        </motion.div>
+                      )}
 
                       {/* Explication */}
                       {showExplanation && selectedOptionId && (
