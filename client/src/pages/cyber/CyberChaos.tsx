@@ -1647,7 +1647,7 @@ const CyberChaos: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center">
+                  <div className="flex items-center relative" data-score="operational">
                     <Progress value={gameState.operationalScore} className="flex-1 mr-2" />
                     <span className="text-xl font-bold">{gameState.operationalScore}%</span>
                   </div>
@@ -1670,7 +1670,7 @@ const CyberChaos: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold mb-2">{gameState.financialImpact.toLocaleString()} k€</div>
+                  <div className="text-2xl font-bold mb-2 relative" data-score="financial">{gameState.financialImpact.toLocaleString()} k€</div>
                   <p className="text-sm text-blue-200">
                     {gameState.financialImpact < 50 ? 'Coûts limités' :
                      gameState.financialImpact < 200 ? 'Impact modéré sur le budget' :
@@ -1690,7 +1690,7 @@ const CyberChaos: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center">
+                  <div className="flex items-center relative" data-score="reputation">
                     <Progress value={gameState.reputationScore} className="flex-1 mr-2" />
                     <span className="text-xl font-bold">{gameState.reputationScore}%</span>
                   </div>
