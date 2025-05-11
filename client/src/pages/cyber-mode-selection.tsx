@@ -92,13 +92,6 @@ export default function CyberModeSelection() {
           icon: null,
           destination: '/cyber-defense-new',
           comingSoon: false
-        },
-        {
-          id: 'preparation-audition',
-          title: 'PRÉPARATION AUDITION CLIENT',
-          icon: null,
-          destination: '/cyber/interview-simulation',
-          comingSoon: false
         }
       ]
     },

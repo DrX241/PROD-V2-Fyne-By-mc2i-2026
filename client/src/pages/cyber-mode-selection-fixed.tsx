@@ -140,15 +140,7 @@ export default function CyberModeSelectionRedesign() {
       duration: '10-20 min'
     },
 
-    {
-      id: 'preparation-audition',
-      title: 'PRÉPARATION AUDITION CLIENT',
-      description: "Simulez des entretiens avec des clients pour des missions de cybersécurité",
-      icon: <BsPeopleFill className="h-5 w-5" />,
-      destination: '/cyber/interview-simulation',
-      difficulty: 'intermédiaire',
-      duration: '30-45 min'
-    },
+
     {
       id: 'gestion-crise',
       title: 'GESTION DE CRISE',
@@ -258,7 +250,6 @@ export default function CyberModeSelectionRedesign() {
       icon: <IoDesktopOutline className="h-6 w-6 text-indigo-100" />,
       modules: [
         'cyber-arcade',            // Jeux interactifs d'apprentissage
-        'preparation-audition',    // Simulation d'entretien client
         'gestion-crise'            // Gestion de crise en temps réel
       ],
       gradient: 'from-indigo-700 to-indigo-900'
@@ -297,7 +288,7 @@ export default function CyberModeSelectionRedesign() {
       description: "Pour les métiers orientés pilotage et stratégie (RSSI, Consultant GRC, Auditeur SSI)",
       icon: <RiLockFill className="h-6 w-6 text-blue-100" />,
       skills: ['Gestion des risques', 'Conformité réglementaire', 'Politique de sécurité', 'Audit'],
-      modules: ['agent-ia', 'preparation-audition', 'policy-converter', 'ascension-progression'],
+      modules: ['agent-ia', 'policy-converter', 'ascension-progression'],
       gradient: 'from-blue-700 to-blue-900'
     },
     {
