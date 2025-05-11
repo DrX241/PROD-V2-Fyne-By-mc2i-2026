@@ -150,6 +150,17 @@ export default function CyberModeSelectionRedesign() {
       duration: '30-45 min'
     },
     {
+      id: 'gestion-crise',
+      title: 'GESTION DE CRISE',
+      description: "Entraînez-vous à gérer des situations de crise cybersécurité en temps réel",
+      icon: <BsExclamationCircleFill className="h-5 w-5" />,
+      destination: '/cyber/crisis-management',
+      difficulty: 'avancé',
+      duration: '45-60 min',
+      isNew: true,
+      comingSoon: true
+    },
+    {
       id: 'mode-entretien',
       title: 'MODE ENTRETIEN',
       description: "Testez vos connaissances comme lors d'un entretien d'embauche en cybersécurité",
@@ -247,7 +258,8 @@ export default function CyberModeSelectionRedesign() {
       icon: <IoDesktopOutline className="h-6 w-6 text-indigo-100" />,
       modules: [
         'cyber-arcade',            // Jeux interactifs d'apprentissage
-        'preparation-audition'     // Simulation d'entretien client
+        'preparation-audition',    // Simulation d'entretien client
+        'gestion-crise'            // Gestion de crise en temps réel
       ],
       gradient: 'from-indigo-700 to-indigo-900'
     },
