@@ -1021,9 +1021,6 @@ const TestDeReflexes: React.FC = () => {
                           >
                             <Clock className="mr-1 h-3 w-3" />
                             {timeLeft} secondes
-                            {bonusTimeEarned > 0 && (
-                              <span className="ml-1 text-green-300">(+{bonusTimeEarned}s bonus)</span>
-                            )}
                           </Badge>
                         </div>
                         
@@ -1066,7 +1063,7 @@ const TestDeReflexes: React.FC = () => {
                       </div>
                       <CardTitle className="text-xl mt-2">{currentQuestion.text}</CardTitle>
                       <Progress 
-                        value={(timeLeft / (currentQuestion.timeLimit + bonusTimeEarned)) * 100} 
+                        value={(timeLeft / currentQuestion.timeLimit) * 100} 
                         className="h-1 bg-white/20"
                         indicatorClassName={cn(
                           "bg-gradient-to-r",
