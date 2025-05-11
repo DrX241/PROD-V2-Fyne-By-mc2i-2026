@@ -925,11 +925,8 @@ const Mc2iInterviewPreparation: React.FC = () => {
   const completeSimulation = () => {
     if (timerId) clearInterval(timerId);
     
-    if (form.getValues().recruiterEmail && form.getValues().candidateName) {
-      performEvaluation();
-    } else {
-      setShowContactForm(true);
-    }
+    // Terminer la simulation directement
+    performEvaluation();
   };
   
   // Réinitialiser la simulation
@@ -954,58 +951,26 @@ const Mc2iInterviewPreparation: React.FC = () => {
     performEvaluation();
   };
   
-  // Évaluation de la performance
+  // Fonction pour terminer la simulation
   const performEvaluation = async () => {
     setIsLoading(true);
     
     try {
-      // Appel à l'API d'évaluation
-      const response = await fetch('/api/amoa/interview-simulation/evaluate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          context: missionScenario,
-          conversation: messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-          })),
-          candidateName: form.getValues().candidateName,
-          recruiterEmail: form.getValues().recruiterEmail
-        }),
+      // Informer l'utilisateur que la simulation est terminée
+      toast({
+        title: "Simulation terminée",
+        description: "La simulation d'audition est terminée. La fonctionnalité d'évaluation sera bientôt disponible.",
+        variant: "default",
       });
       
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (!data.success) {
-        throw new Error(data.error || "Erreur lors de l'évaluation de l'entretien");
-      }
-      
-      setEvaluationResult(data.evaluation);
-      setActiveTab('evaluation');
-      setSimulationComplete(true);
+      resetSimulation();
+      setActiveTab('best-practices');
     } catch (error) {
-      console.error('Erreur lors de l\'évaluation:', error);
+      console.error('Erreur:', error);
       toast({
         title: "Erreur",
-        description: "Impossible d'obtenir l'évaluation. Veuillez réessayer.",
+        description: "Une erreur s'est produite. Veuillez réessayer.",
         variant: "destructive",
-      });
-      
-      // Fallback avec une évaluation basique en cas d'erreur
-      setEvaluationResult({
-        summary: "Une évaluation complète n'a pas pu être générée en raison d'une erreur technique.",
-        strengths: ["Veuillez réessayer ultérieurement"],
-        improvements: ["Veuillez réessayer ultérieurement"],
-        detailedNotes: "Service temporairement indisponible.",
-        recommendations: ["Réessayer l'évaluation"],
-        sectorFitEvaluation: "Évaluation indisponible",
-        conclusion: "Veuillez réessayer plus tard ou contacter le support."
       });
     } finally {
       setIsLoading(false);
@@ -1019,7 +984,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
           <Button 
             variant="ghost" 
             className="text-white hover:text-white hover:bg-gray-700/80"
-            onClick={() => navigate("/i-am-mc2i")}
+            onClick={() => window.location.href = "/amoa-mode-selection-fixed"}
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Retour vers I AM mc2i
@@ -1041,7 +1006,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
           onValueChange={setActiveTab}
           className="w-full max-w-6xl mx-auto"
         >
-          <TabsList className="grid grid-cols-3 mb-8 bg-gray-800/60">
+          <TabsList className="grid grid-cols-2 mb-8 bg-gray-800/60">
             <TabsTrigger 
               value="best-practices"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-700/80 data-[state=active]:to-blue-700/80"
@@ -1054,13 +1019,6 @@ const Mc2iInterviewPreparation: React.FC = () => {
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-700/80 data-[state=active]:to-cyan-700/80"
             >
               Simulation
-            </TabsTrigger>
-            <TabsTrigger 
-              value="evaluation"
-              disabled={!simulationComplete}
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-700/80 data-[state=active]:to-teal-700/80"
-            >
-              Évaluation
             </TabsTrigger>
           </TabsList>
           
@@ -1370,179 +1328,11 @@ const Mc2iInterviewPreparation: React.FC = () => {
             </Card>
           </TabsContent>
           
-          <TabsContent value="evaluation">
-            <Card className="bg-gray-800/30 border-gray-700/50 shadow-lg">
-              <CardHeader className="border-b border-gray-700/50">
-                <div className="flex items-center">
-                  <CheckCircle className="w-6 h-6 mr-2 text-green-500" />
-                  <CardTitle className="text-xl">Évaluation de l'audition</CardTitle>
-                </div>
-                <CardDescription className="text-gray-300">
-                  Analyse de la performance du consultant pendant l'audition
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                {evaluationResult ? (
-                  <div className="space-y-6">
-                    <div className="bg-gradient-to-r from-gray-800/60 to-gray-700/60 p-5 rounded-md border border-gray-600/50">
-                      <h3 className="text-lg font-semibold mb-2">Résumé de l'audition</h3>
-                      <p className="text-gray-300 mb-4">
-                        {evaluationResult.summary || "Aucun résumé disponible."}
-                      </p>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="bg-gradient-to-r from-green-900/30 to-green-800/30 p-5 rounded-md border border-green-700/30">
-                        <h3 className="text-lg font-semibold mb-3 text-green-300">Forces identifiées</h3>
-                        <ul className="list-disc ml-5 space-y-2 text-gray-300">
-                          {evaluationResult.strengths && evaluationResult.strengths.map((strength: string, index: number) => (
-                            <li key={`strength-${index}`} className="flex items-start">
-                              <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-1 flex-shrink-0" />
-                              <span>{strength}</span>
-                            </li>
-                          ))}
-                          {(!evaluationResult.strengths || evaluationResult.strengths.length === 0) && (
-                            <li>Aucune force identifiée</li>
-                          )}
-                        </ul>
-                      </div>
-                      
-                      <div className="bg-gradient-to-r from-amber-900/30 to-amber-800/30 p-5 rounded-md border border-amber-700/30">
-                        <h3 className="text-lg font-semibold mb-3 text-amber-300">Axes d'amélioration</h3>
-                        <ul className="list-disc ml-5 space-y-2 text-gray-300">
-                          {evaluationResult.improvements && evaluationResult.improvements.map((improvement: string, index: number) => (
-                            <li key={`improvement-${index}`} className="flex items-start">
-                              <AlertCircle className="w-4 h-4 text-amber-500 mr-2 mt-1 flex-shrink-0" />
-                              <span>{improvement}</span>
-                            </li>
-                          ))}
-                          {(!evaluationResult.improvements || evaluationResult.improvements.length === 0) && (
-                            <li>Aucun axe d'amélioration identifié</li>
-                          )}
-                        </ul>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-gradient-to-r from-gray-800/60 to-gray-700/60 p-5 rounded-md border border-gray-600/50">
-                      <h3 className="text-lg font-semibold mb-2">Notes détaillées</h3>
-                      <p className="text-gray-300 whitespace-pre-wrap">
-                        {evaluationResult.detailedNotes || "Aucune note détaillée disponible."}
-                      </p>
-                    </div>
-                    
-                    <div className="bg-gradient-to-r from-blue-900/30 to-blue-800/30 p-5 rounded-md border border-blue-700/30">
-                      <h3 className="text-lg font-semibold mb-3 text-blue-300">Recommandations</h3>
-                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-gray-300">
-                        {evaluationResult.recommendations && evaluationResult.recommendations.map((recommendation: string, index: number) => (
-                          <li key={`recommendation-${index}`} className="flex items-start bg-blue-900/20 p-3 rounded-md">
-                            <Sparkles className="w-4 h-4 text-blue-400 mr-2 mt-1 flex-shrink-0" />
-                            <span>{recommendation}</span>
-                          </li>
-                        ))}
-                        {(!evaluationResult.recommendations || evaluationResult.recommendations.length === 0) && (
-                          <li>Aucune recommandation disponible</li>
-                        )}
-                      </ul>
-                    </div>
-                    
-                    <div className="bg-gradient-to-r from-purple-900/30 to-purple-800/30 p-5 rounded-md border border-purple-700/30">
-                      <h3 className="text-lg font-semibold mb-2 text-purple-300">Adéquation avec le secteur {form.getValues('sectorFocus') || ""}</h3>
-                      <p className="text-gray-300 mb-2">
-                        {evaluationResult.sectorFitEvaluation || "Aucune évaluation d'adéquation sectorielle disponible."}
-                      </p>
-                    </div>
-                    
-                    <div className="bg-gradient-to-r from-indigo-900/30 to-indigo-800/30 p-5 rounded-md border border-indigo-700/30">
-                      <h3 className="text-lg font-semibold mb-2 text-indigo-300">Conclusion</h3>
-                      <p className="text-gray-300 mb-2">
-                        {evaluationResult.conclusion || "Aucune conclusion disponible."}
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center p-8">
-                    <AlertCircle className="w-16 h-16 text-gray-400 mb-4" />
-                    <h3 className="text-xl font-bold mb-2">Aucune évaluation disponible</h3>
-                    <p className="text-gray-300 text-center mb-4">
-                      Vous n'avez pas encore terminé la simulation ou une erreur s'est produite lors de l'évaluation.
-                    </p>
-                    <Button onClick={resetSimulation} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                      Démarrer une nouvelle simulation
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-              <CardFooter className="flex justify-between border-t border-gray-700/50 pt-4">
-                <Button
-                  onClick={resetSimulation}
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                >
-                  Nouvelle simulation
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
+
         </Tabs>
       </div>
       
-      {/* Formulaire de contact final */}
-      <Dialog open={showContactForm} onOpenChange={setShowContactForm}>
-        <DialogContent className="bg-gray-800 text-white border-gray-700">
-          <DialogHeader>
-            <DialogTitle>Informations nécessaires pour l'évaluation finale</DialogTitle>
-            <DialogDescription className="text-gray-300">
-              Pour recevoir l'évaluation et terminer la simulation, veuillez compléter les informations suivantes.
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...contactForm}>
-            <form onSubmit={contactForm.handleSubmit(onContactFormSubmit)} className="space-y-4">
-              <FormField
-                control={contactForm.control}
-                name="recruiterEmail"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-white">Votre email</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="votre.email@mc2i.fr" 
-                        className="bg-gray-700/60 border-gray-600 text-white"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={contactForm.control}
-                name="candidateName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-white">Nom du consultant</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Prénom Nom" 
-                        className="bg-gray-700/60 border-gray-600 text-white"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
-                <Button 
-                  type="submit" 
-                  className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Chargement..." : "Continuer"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+
     </HomeLayout>
   );
 };
