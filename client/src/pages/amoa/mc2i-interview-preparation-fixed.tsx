@@ -758,14 +758,18 @@ formData.experienceLevel === "2-5 ans" ?
   "Pour un consultant confirmé, évalue la capacité à appliquer des méthodologies et à gérer des situations complexes." :
   "Pour un consultant expérimenté, évalue la vision stratégique, l'expertise sectorielle et la capacité à apporter une réelle valeur ajoutée."}
 
-IMPORTANT: Tu dois produire une analyse détaillée et constructive au format JSON avec les champs suivants:
-- summary: résumé global de la performance (150-200 mots)
-- strengths: tableau de 3-5 forces identifiées (phrases courtes et précises)
-- improvements: tableau de 3-5 axes d'amélioration (phrases courtes et précises)
-- detailedNotes: analyse détaillée de la performance (300-350 mots)
-- recommendations: tableau de 3-5 recommandations concrètes d'amélioration
-- sectorFitEvaluation: évaluation approfondie de la compréhension du secteur ${formData.sectorFocus} et des spécificités métier (100-150 mots)
-- conclusion: conclusion et perspective d'évolution professionnelle adaptée au profil ${formData.profileType} (100-150 mots)
+IMPORTANT: Tu dois produire UNIQUEMENT un objet JSON valide sans aucun texte avant ou après. N'utilise pas les délimiteurs de bloc de code \`\`\`json ou \`\`\`. Ton JSON doit être directement parsable par JSON.parse().
+
+L'objet JSON doit contenir obligatoirement ces champs:
+{
+  "summary": "résumé global de la performance (150-200 mots)",
+  "strengths": ["force 1", "force 2", "force 3", ...],
+  "improvements": ["amélioration 1", "amélioration 2", "amélioration 3", ...],
+  "detailedNotes": "analyse détaillée de la performance (300-350 mots)",
+  "recommendations": ["recommandation 1", "recommandation 2", "recommandation 3", ...],
+  "sectorFitEvaluation": "évaluation approfondie de la compréhension du secteur et spécificités métier (100-150 mots)",
+  "conclusion": "conclusion et perspective d'évolution professionnelle (100-150 mots)"
+}
 
 Ton analyse doit:
 - Être rigoureuse et utile pour le développement professionnel
@@ -811,14 +815,18 @@ Ton analyse doit:
           // L'API renvoit du texte qu'il faut parser en JSON
           let contentText = data.choices[0].message.content;
           
+          // Si la réponse commence par du texte explicatif avant le JSON
+          if (!contentText.trim().startsWith('{') && contentText.includes('{')) {
+            // Trouver l'index du premier { qui indique le début du JSON
+            const jsonStartIndex = contentText.indexOf('{');
+            contentText = contentText.substring(jsonStartIndex);
+          }
+          
           // Nettoyer la réponse des délimiteurs de code Markdown si présents
           if (contentText.includes('```json')) {
             contentText = contentText.replace(/```json\n/g, '');
             contentText = contentText.replace(/```/g, '');
           }
-          
-          // Analyser la réponse JSON
-          let evaluationData = JSON.parse(contentText);
           
           // Vérifier que tous les champs sont présents, sinon ajouter des valeurs par défaut
           const defaultEvaluation = {
@@ -830,6 +838,46 @@ Ton analyse doit:
             sectorFitEvaluation: "Évaluation non disponible.",
             conclusion: "Conclusion non disponible."
           };
+          
+          let evaluationData;
+          
+          // Tenter de trouver un objet JSON valide dans la réponse
+          try {
+            // Essayer d'analyser le texte complet d'abord
+            evaluationData = JSON.parse(contentText);
+          } catch (e) {
+            // Si échec, essayer d'extraire un objet JSON valide en trouvant les accolades correspondantes
+            const regex = /\{(?:[^{}]|(\{(?:[^{}]|(\{(?:[^{}]|(\{[^{}]*\}))*\}))*\}))*\}/g;
+            const match = contentText.match(regex);
+            
+            if (match && match.length > 0) {
+              try {
+                evaluationData = JSON.parse(match[0]);
+              } catch (e) {
+                // Si toujours pas de JSON valide, créer un objet manuellement à partir du texte
+                evaluationData = {
+                  summary: "L'analyse n'a pas pu être formatée en JSON",
+                  strengths: ["Points forts non disponibles en format structuré"],
+                  improvements: ["Améliorations non disponibles en format structuré"],
+                  detailedNotes: contentText.substring(0, 500) + "...",
+                  recommendations: ["Recommandations non disponibles en format structuré"],
+                  sectorFitEvaluation: "Évaluation sectorielle non disponible en format structuré",
+                  conclusion: "Conclusion non disponible en format structuré"
+                };
+              }
+            } else {
+              // Aucun JSON trouvé, utiliser le texte brut comme analyse
+              evaluationData = {
+                summary: "L'analyse n'a pas pu être formatée en JSON",
+                strengths: ["Points forts non disponibles en format structuré"],
+                improvements: ["Améliorations non disponibles en format structuré"],
+                detailedNotes: contentText.substring(0, 500) + "...",
+                recommendations: ["Recommandations non disponibles en format structuré"],
+                sectorFitEvaluation: "Évaluation sectorielle non disponible en format structuré",
+                conclusion: "Conclusion non disponible en format structuré"
+              };
+            }
+          }
           
           // Fusionner avec les valeurs par défaut pour s'assurer que tous les champs sont présents
           evaluationData = { ...defaultEvaluation, ...evaluationData };
@@ -1185,9 +1233,22 @@ Ton analyse doit:
               </CardContent>
               <CardFooter className="flex justify-between border-t border-gray-700/50 pt-4">
                 <Button
-                  onClick={resetSimulation}
+                  onClick={() => { 
+                    resetSimulation();
+                    setActiveTab('best-practices');
+                  }}
                   variant="outline"
                   className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                >
+                  Retour aux bonnes pratiques
+                </Button>
+                <Button
+                  onClick={() => {
+                    resetSimulation();
+                    setActiveTab('preparation');
+                  }}
+                  variant="outline"
+                  className="border-gray-600 text-gray-300 hover:bg-gray-700 mx-2"
                 >
                   Nouvelle simulation
                 </Button>
@@ -1306,8 +1367,21 @@ Ton analyse doit:
               </CardContent>
               <CardFooter className="flex justify-between border-t border-gray-700/50 pt-4">
                 <Button
-                  onClick={resetSimulation}
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  onClick={() => {
+                    resetSimulation();
+                    setActiveTab('best-practices');
+                  }}
+                  variant="outline"
+                  className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                >
+                  Retour aux bonnes pratiques
+                </Button>
+                <Button
+                  onClick={() => {
+                    resetSimulation();
+                    setActiveTab('preparation');
+                  }}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                 >
                   Nouvelle simulation
                 </Button>
