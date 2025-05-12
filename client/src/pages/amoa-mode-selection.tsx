@@ -270,7 +270,7 @@ export default function AmoaModeSelection() {
         'Business Intelligence',
         'Transformation digitale'
       ],
-      modules: ['agent-ia', 'mc2i-ai-learning', 'analyse-besoins', 'test-reflexes']
+      modules: ['agent-ia', 'analyse-besoins', 'test-reflexes']
     },
     {
       id: 'chef-projet',
@@ -285,7 +285,7 @@ export default function AmoaModeSelection() {
         'Reporting',
         'Pilotage budgétaire'
       ],
-      modules: ['agent-ia', 'modules-express', 'test-reflexes', 'simulation-reunion', 'certification-interne']
+      modules: ['agent-ia', 'test-reflexes', 'simulation-reunion', 'certification-interne']
     }
   ];
 
