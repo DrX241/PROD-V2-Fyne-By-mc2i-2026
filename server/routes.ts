@@ -65,6 +65,14 @@ import { generateCustomTool } from "./toolGeneratorController";
 import { getOrCreateUser, getUserById } from "./userController";
 import { evaluateUserPerformance, generateFeedbackMessage } from "./amoaReflexTestController";
 import { generateAmoaQuestions } from "./amoaQuestionGenerator";
+import { 
+  initializeAmoaExpertSession, 
+  processAmoaExpertMessage, 
+  endAmoaExpertSession,
+  generateAmoaDecisionScenario,
+  processAmoaDecision,
+  checkDecisionModeStatus
+} from "./amoaExpertController";
 
 
 import {
@@ -708,9 +716,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     await generateLearningRecommendations(req, res);
   });
   
-  // Routes pour mc2i AI Learning
-  app.post('/api/mcai-learning/init', initMcaiLearningSession);
-  app.post('/api/mcai-learning/message', processMcaiLearningMessage);
+  // Routes pour Cyber Expert
+  app.post('/api/cyber-expert/init', initCyberExpertSession);
+  app.post('/api/cyber-expert/message', processCyberExpertMessage);
+  app.post('/api/cyber-expert/end', terminateCyberExpertSession);
+  app.post('/api/cyber-expert/decisions/start', startDecisionFlow);
+  app.post('/api/cyber-expert/decisions/submit', submitDecision);
+  app.post('/api/cyber-expert/decisions/status', checkDecisionStatus);
+  
+  // Routes pour AMOA Expert
+  app.post('/api/amoa-expert/init', initializeAmoaExpertSession);
+  app.post('/api/amoa-expert/message', processAmoaExpertMessage);
+  app.post('/api/amoa-expert/end', endAmoaExpertSession);
+  app.post('/api/amoa-expert/decisions/generate', generateAmoaDecisionScenario);
+  app.post('/api/amoa-expert/decisions/submit', processAmoaDecision);
+  app.post('/api/amoa-expert/decisions/status', checkDecisionModeStatus);
   
   // Routes pour les assistants personnalisés
   // Routes utilisateur
