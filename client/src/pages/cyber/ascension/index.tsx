@@ -533,6 +533,31 @@ const CyberAscension: React.FC = () => {
               >
                 CYBERASCENSION: La Montée des Gardiens
               </motion.h1>
+              {/* Bannière d'information pour le module en cours de déploiement */}
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="bg-amber-900/30 border-l-4 border-amber-500 rounded-lg p-4 shadow-md mb-6"
+              >
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <AlertTriangle className="h-6 w-6 text-amber-500" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-lg font-medium text-amber-300">
+                      Module en cours de déploiement
+                    </h3>
+                    <div className="mt-2 text-amber-200">
+                      <p>
+                        Le module CYBERASCENSION est actuellement en phase finale de préparation et sera disponible prochainement. 
+                        Les niveaux et parcours sont en cours de finalisation pour vous offrir la meilleure expérience d'apprentissage.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+              
               <motion.p 
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -692,11 +717,11 @@ const CyberAscension: React.FC = () => {
                       </div>
                       
                       <Button 
-                        className={`px-6 ${selectedLevel.unlocked ? 'bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700' : 'bg-gray-700'}`}
+                        className="px-6 bg-gray-700"
                         onClick={() => startLevel(selectedLevel)}
-                        disabled={!selectedLevel.unlocked}
+                        disabled={true}
                       >
-                        {selectedLevel.unlocked ? "Commencer le niveau" : "Niveau verrouillé"}
+                        {"Bientôt disponible"}
                       </Button>
                     </div>
                   </div>
@@ -741,11 +766,11 @@ const CyberAscension: React.FC = () => {
                   
                   <div className="flex justify-center">
                     <Button 
-                      className={`px-6 ${selectedLevel.unlocked ? 'bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700' : 'bg-gray-700'}`}
+                      className="px-6 bg-gray-700"
                       onClick={() => startLevel(selectedLevel)}
-                      disabled={!selectedLevel.unlocked}
+                      disabled={true}
                     >
-                      {selectedLevel.unlocked ? "Commencer le niveau" : "Niveau verrouillé"}
+                      {"Bientôt disponible"}
                     </Button>
                   </div>
                 </TabsContent>
