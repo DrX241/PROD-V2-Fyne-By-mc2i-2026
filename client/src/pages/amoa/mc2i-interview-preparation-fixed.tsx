@@ -709,7 +709,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
         const systemMessage: Message = {
           id: 'system-1',
           role: 'system',
-          content: 'Cette simulation vous permet de pratiquer un entretien avec un client potentiel. Soyez authentique et apportez des réponses précises et concises.',
+          content: 'Cette simulation vous permet de pratiquer un entretien avec un recruteur mc2i. Soyez authentique et apportez des réponses précises et concises en montrant comment vos compétences répondent aux besoins en AMOA.',
           timestamp: new Date(),
         };
         
@@ -919,10 +919,10 @@ const Mc2iInterviewPreparation: React.FC = () => {
         
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-indigo-500">
-            Préparation d'audition client - mc2i exclusif
+            Préparation d'audition mc2i - Simulation d'entretien
           </h1>
           <p className="text-gray-300 max-w-3xl mx-auto">
-            Cette simulation vous aide à préparer les consultants mc2i pour des auditions auprès de clients, avec des conseils sur la tenue, l'attitude professionnelle et les bonnes pratiques avant, pendant et après l'entretien.
+            Cette simulation vous aide à préparer votre entretien avec mc2i, avec des conseils sur la tenue, l'attitude professionnelle et les bonnes pratiques à mettre en œuvre avant, pendant et après l'entretien avec le recruteur.
           </p>
         </div>
         
@@ -1160,7 +1160,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <UserCircle className="w-6 h-6 mr-2 text-yellow-500" />
-                    <CardTitle className="text-xl">Simulation d'audition client</CardTitle>
+                    <CardTitle className="text-xl">Simulation d'audition mc2i</CardTitle>
                   </div>
                   <Badge 
                     variant="outline" 
@@ -1171,7 +1171,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
                   </Badge>
                 </div>
                 <CardDescription className="text-gray-300">
-                  Conversation avec le client potentiel
+                  Entretien avec un recruteur mc2i - Durée : 10 minutes
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
@@ -1193,7 +1193,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
                           <>
                             <UserCircle className="w-5 h-5 mr-2 text-gray-300" />
                             <span className="text-sm font-bold text-gray-300">
-                              Client
+                              Recruteur mc2i
                             </span>
                           </>
                         ) : (
