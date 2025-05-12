@@ -531,7 +531,7 @@ async function demarrerScenarioImmersif(session: LearningBotSession): Promise<st
       ...contextMessages
     ];
     
-    const generatedResponse = await openAIService.getChatCompletion(messages, 0.7, 1500, false);
+    const generatedResponse = await openAIService.getChatCompletion(messages, false, 0.7, 1500);
     return generatedResponse;
   } catch (error) {
     console.error("Erreur lors de la génération de la réponse:", error);
