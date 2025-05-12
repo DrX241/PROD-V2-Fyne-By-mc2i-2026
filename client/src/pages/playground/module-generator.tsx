@@ -381,7 +381,7 @@ export default function ModuleGenerator() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="flex items-center justify-between p-3 rounded-md bg-gray-50 dark:bg-gray-800">
                       <div className="flex items-center">
-                        <BookOpen className="h-5 w-5 mr-2 text-black" />
+                        <BookOpen className="h-5 w-5 mr-2 text-blue-600" />
                         <div>
                           <Label htmlFor="trainer-module">Module Trainer</Label>
                           <p className="text-xs text-gray-500 dark:text-gray-400">Apprentissage théorique</p>
@@ -396,7 +396,7 @@ export default function ModuleGenerator() {
 
                     <div className="flex items-center justify-between p-3 rounded-md bg-gray-50 dark:bg-gray-800">
                       <div className="flex items-center">
-                        <SettingsIcon className="h-5 w-5 mr-2 text-black" />
+                        <SettingsIcon className="h-5 w-5 mr-2 text-green-600" />
                         <div>
                           <Label htmlFor="ops-module">Module OPS</Label>
                           <p className="text-xs text-gray-500 dark:text-gray-400">Application pratique</p>
@@ -411,7 +411,7 @@ export default function ModuleGenerator() {
 
                     <div className="flex items-center justify-between p-3 rounded-md bg-gray-50 dark:bg-gray-800">
                       <div className="flex items-center">
-                        <Layers className="h-5 w-5 mr-2 text-black" />
+                        <Layers className="h-5 w-5 mr-2 text-amber-600" />
                         <div>
                           <Label htmlFor="test-module">Module Test</Label>
                           <p className="text-xs text-gray-500 dark:text-gray-400">Évaluation des connaissances</p>
@@ -426,7 +426,7 @@ export default function ModuleGenerator() {
 
                     <div className="flex items-center justify-between p-3 rounded-md bg-gray-50 dark:bg-gray-800">
                       <div className="flex items-center">
-                        <Trophy className="h-5 w-5 mr-2 text-black" />
+                        <Trophy className="h-5 w-5 mr-2 text-purple-600" />
                         <div>
                           <Label htmlFor="ascension-module">Module Ascension</Label>
                           <p className="text-xs text-gray-500 dark:text-gray-400">Progression avancée</p>
@@ -551,7 +551,7 @@ export default function ModuleGenerator() {
                           {moduleConfig.includeTrainerModule && generatedModules.trainerModule && (
                             <div className="border rounded-md overflow-hidden">
                               <div className="bg-blue-100 dark:bg-blue-900 px-4 py-2 font-medium flex items-center">
-                                <BookOpen className="h-5 w-5 mr-2 text-black dark:text-blue-400" />
+                                <BookOpen className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
                                 {moduleConfig.domain}TRAINER
                               </div>
                               <div className="p-4 space-y-2">
@@ -572,7 +572,7 @@ export default function ModuleGenerator() {
                           {moduleConfig.includeOpsModule && generatedModules.opsModule && (
                             <div className="border rounded-md overflow-hidden">
                               <div className="bg-green-100 dark:bg-green-900 px-4 py-2 font-medium flex items-center">
-                                <SettingsIcon className="h-5 w-5 mr-2 text-black dark:text-green-400" />
+                                <SettingsIcon className="h-5 w-5 mr-2 text-green-600 dark:text-green-400" />
                                 {moduleConfig.domain}OPS
                               </div>
                               <div className="p-4 space-y-2">
@@ -593,7 +593,7 @@ export default function ModuleGenerator() {
                           {moduleConfig.includeTestModule && generatedModules.testModule && (
                             <div className="border rounded-md overflow-hidden">
                               <div className="bg-amber-100 dark:bg-amber-900 px-4 py-2 font-medium flex items-center">
-                                <Layers className="h-5 w-5 mr-2 text-black dark:text-amber-400" />
+                                <Layers className="h-5 w-5 mr-2 text-amber-600 dark:text-amber-400" />
                                 {moduleConfig.domain}TEST
                               </div>
                               <div className="p-4 space-y-2">
