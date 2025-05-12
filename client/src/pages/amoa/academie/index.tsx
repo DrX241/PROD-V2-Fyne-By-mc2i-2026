@@ -427,9 +427,9 @@ export default function AmoaAcademie() {
               </SelectTrigger>
               <SelectContent className="bg-indigo-900 border-indigo-700 text-white">
                 <SelectItem value="">Toutes les durées</SelectItem>
-                <SelectItem value="court">Court (< 3h)</SelectItem>
+                <SelectItem value="court">Court (moins de 3h)</SelectItem>
                 <SelectItem value="moyen">Moyen (3-5h)</SelectItem>
-                <SelectItem value="long">Long (> 5h)</SelectItem>
+                <SelectItem value="long">Long (plus de 5h)</SelectItem>
               </SelectContent>
             </Select>
           </div>
