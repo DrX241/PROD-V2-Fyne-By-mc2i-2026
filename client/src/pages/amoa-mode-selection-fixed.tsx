@@ -221,9 +221,11 @@ export default function AmoaModeSelectionFixed() {
       description: "Développer vos connaissances fondamentales en AMOA et gestion de projet",
       icon: <IoBookOutline className="h-6 w-6 text-blue-100" />,
       modules: [
-        'mc2i-ai-learning',      // Assistant IA pour répondre aux questions
-        'modules-express',       // Modules courts de formation
-        'referentiel-amoa'       // Référentiel documentaire
+        'mc2i-ai-learning',      // Coach IA Évolutif
+        'amoa-academy',          // AMOA Academy avec parcours progressif
+        'projet-simulation',     // Simulation de projet
+        'methodes-agiles',       // Atelier méthodes agiles
+        'analyse-business'       // Laboratoire d'analyse
       ],
       gradient: 'from-blue-700 to-blue-900',
       categories: [
