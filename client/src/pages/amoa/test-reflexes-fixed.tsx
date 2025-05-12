@@ -693,7 +693,7 @@ const TestDeReflexes = () => {
                         {currentQuestion.options.map((option) => (
                           <Button
                             key={option.id}
-                            variant={selectedOptionId === option.id ? (option.isCorrect ? "success" : "destructive") : "outline"}
+                            variant={selectedOptionId === option.id ? (option.isCorrect ? "secondary" : "destructive") : "outline"}
                             className={cn(
                               "justify-start h-auto py-3 px-4 text-left bg-gray-800/50 hover:bg-gray-800/80 border-gray-700/50",
                               selectedOptionId === option.id && option.isCorrect && "bg-green-900/30 hover:bg-green-900/40 border-green-500/30",
@@ -814,6 +814,7 @@ const TestDeReflexes = () => {
                                 {results.aiEvaluation.badge.icon === "star" && <Award className="w-12 h-12 text-amber-400 mb-2" />}
                                 {results.aiEvaluation.badge.icon === "lightbulb" && <Lightbulb className="w-12 h-12 text-amber-400 mb-2" />}
                                 {results.aiEvaluation.badge.icon === "brain" && <Brain className="w-12 h-12 text-amber-400 mb-2" />}
+                                {results.aiEvaluation.badge.icon === "medal" && <Award className="w-12 h-12 text-amber-400 mb-2" />}
                                 <h4 className="text-lg font-bold text-white">{results.aiEvaluation.badge.name}</h4>
                                 <p className="text-gray-300 text-center text-sm">{results.aiEvaluation.badge.description}</p>
                               </div>
