@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Bot, ChevronDown, RefreshCw, Send, X } from "lucide-react";
 import HomeLayout from '@/components/layout/HomeLayout';
 import { DecisionProvider, useDecision } from '@/contexts/DecisionContext';
-import { AmoaDecisionFlow } from '@/components/modules/amoa/AmoaDecisionFlow';
 
 interface Message {
   id: string;
@@ -544,7 +543,7 @@ function ExpertLearningPageContent() {
             {/* Résumé de session (modal) */}
             {sessionSummary && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
-                <Card className="w-full max-w-2xl bg-violet-950 border-violet-400/30 text-white shadow-[0_0_20px_rgba(167,139,250,0.2)]">
+                <Card className="w-full max-w-3xl bg-violet-950 border-violet-400/30 text-white shadow-[0_0_20px_rgba(167,139,250,0.2)]">
                   <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="text-violet-400">Résumé de votre session</CardTitle>
                     <Button
@@ -556,7 +555,7 @@ function ExpertLearningPageContent() {
                       <X className="h-5 w-5" />
                     </Button>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="max-h-[60vh] overflow-y-auto">
                     <div 
                       className="prose prose-invert max-w-none text-violet-100" 
                       dangerouslySetInnerHTML={{ 
