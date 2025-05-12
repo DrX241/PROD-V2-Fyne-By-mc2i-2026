@@ -599,6 +599,34 @@ function App() {
                   );
                 }} />
                 
+                {/* Routes pour les modules fondamentaux de cybersécurité */}
+                <Route path="/cyber/learning-center/modules/modele-menaces" component={() => {
+                  const ModulePage = lazy(() => import('./components/cyber/learning/ModuleComingSoon'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <ModulePage title="Modélisation des menaces" />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/analyse-risques" component={() => {
+                  const ModulePage = lazy(() => import('./components/cyber/learning/ModuleComingSoon'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <ModulePage title="Analyse et gestion des risques" />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/normes-standards" component={() => {
+                  const ModulePage = lazy(() => import('./components/cyber/learning/ModuleComingSoon'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <ModulePage title="Normes et standards de sécurité" />
+                    </Suspense>
+                  );
+                }} />
+                
                 {/* Route générique pour les autres modules non implémentés explicitement */}
                 <Route path="/cyber/learning-center/modules/:moduleId" component={NotFound} />
                 
