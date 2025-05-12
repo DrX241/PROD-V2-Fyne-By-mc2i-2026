@@ -67,39 +67,54 @@ interface BestPracticesContentProps {
 }
 
 const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTab }) => {
-  const [progressTracker, setProgressTracker] = useState({
-    preparation: { completed: 0, total: 2 },
-    during: { completed: 0, total: 5 },
-    after: { completed: 0, total: 3 }
-  });
-  
-  const incrementProgress = (section: ProgressSection, amount: number = 1) => {
-    setProgressTracker(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        completed: Math.min(prev[section].completed + amount, prev[section].total)
-      }
-    }));
-  };
+  const [activeSection, setActiveSection] = useState<string>("before");
   
   return (
     <div className="px-8 py-6 bg-gradient-to-b from-gray-900 to-gray-950 rounded-lg">
-      {/* Section title with progress bar */}
+      {/* Section title */}
       <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold text-white mb-2">Préparation à l'entretien client</h2>
-        <div className="w-full bg-gray-700 h-2 rounded-full overflow-hidden mb-2">
-          <div 
-            className="bg-gradient-to-r from-green-400 to-blue-500 h-full transition-all duration-500 ease-out"
-            style={{ 
-              width: `${Math.round(((progressTracker.preparation.completed + progressTracker.during.completed + progressTracker.after.completed) / 
-              (progressTracker.preparation.total + progressTracker.during.total + progressTracker.after.total)) * 100)}%` 
-            }}
-          ></div>
-        </div>
-        <p className="text-blue-100 text-sm">
-          {progressTracker.preparation.completed + progressTracker.during.completed + progressTracker.after.completed} sur {progressTracker.preparation.total + progressTracker.during.total + progressTracker.after.total} étapes complétées
+        <h2 className="text-2xl font-bold text-white mb-2">Guide complet pour réussir vos entretiens client</h2>
+        <p className="text-blue-100 max-w-3xl mx-auto">
+          Ce guide structuré vous aidera à naviguer avec assurance à travers les différentes phases d'un entretien client, 
+          en fournissant des conseils pratiques et des exemples concrets à chaque étape.
         </p>
+      </div>
+      
+      {/* Navigation tabs */}
+      <div className="flex justify-center mb-8 border-b border-gray-700/50">
+        <button 
+          onClick={() => setActiveSection("before")}
+          className={`px-4 py-3 font-medium text-lg transition-colors ${activeSection === "before" 
+            ? "text-blue-400 border-b-2 border-blue-400" 
+            : "text-gray-400 hover:text-blue-300"}`}
+        >
+          <div className="flex items-center">
+            <ClipboardCheck className="w-5 h-5 mr-2" />
+            Avant l'entretien
+          </div>
+        </button>
+        <button 
+          onClick={() => setActiveSection("during")}
+          className={`px-4 py-3 font-medium text-lg transition-colors ${activeSection === "during" 
+            ? "text-purple-400 border-b-2 border-purple-400" 
+            : "text-gray-400 hover:text-purple-300"}`}
+        >
+          <div className="flex items-center">
+            <MessageCircle className="w-5 h-5 mr-2" />
+            Pendant l'entretien
+          </div>
+        </button>
+        <button 
+          onClick={() => setActiveSection("after")}
+          className={`px-4 py-3 font-medium text-lg transition-colors ${activeSection === "after" 
+            ? "text-green-400 border-b-2 border-green-400" 
+            : "text-gray-400 hover:text-green-300"}`}
+        >
+          <div className="flex items-center">
+            <ClipboardList className="w-5 h-5 mr-2" />
+            Après l'entretien
+          </div>
+        </button>
       </div>
       
       {/* Before section */}
@@ -993,15 +1008,17 @@ Ton analyse doit:
               <span className="hidden sm:inline">Bonnes pratiques</span>
               <span className="sm:hidden">Pratiques</span>
             </TabsTrigger>
-            <TabsTrigger value="preparation" className="data-[state=active]:bg-purple-600/50">
+            <TabsTrigger value="preparation" className="data-[state=active]:bg-purple-600/50" disabled={true}>
               <BriefcaseBusiness className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">Préparation</span>
               <span className="sm:hidden">Préparer</span>
+              <Badge variant="outline" className="ml-2 text-xs border-amber-500 text-amber-400">Bientôt disponible</Badge>
             </TabsTrigger>
-            <TabsTrigger value="simulation" className="data-[state=active]:bg-green-600/50" disabled={!isSimulationActive && activeTab !== 'simulation'}>
+            <TabsTrigger value="simulation" className="data-[state=active]:bg-green-600/50" disabled={true}>
               <User className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">Simulation</span>
               <span className="sm:hidden">Simuler</span>
+              <Badge variant="outline" className="ml-2 text-xs border-amber-500 text-amber-400">Bientôt disponible</Badge>
             </TabsTrigger>
           </TabsList>
           
