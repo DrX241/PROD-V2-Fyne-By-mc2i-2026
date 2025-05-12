@@ -134,6 +134,15 @@ export default function AmoaModeSelection() {
       comingSoon: false
     },
     {
+      id: 'interview-simulation',
+      title: 'AUDITION CLIENT',
+      description: 'Entraînez-vous à l\'entretien client avec notre simulateur intelligent.',
+      icon: <BsClipboardCheck className="h-5 w-5 text-blue-200" />,
+      destination: '/amoa/interview-simulation',
+      difficulty: 'avancé',
+      comingSoon: false
+    },
+    {
       id: 'test-reflexes',
       title: 'TEST DE RÉFLEXES',
       description: 'Testez vos réflexes AMOA face à des situations complexes en temps limité.',
@@ -177,7 +186,7 @@ export default function AmoaModeSelection() {
       description: "Testez vos compétences dans des conditions réelles d'examen ou d'entretien",
       icon: <IoTrophyOutline className="h-6 w-6 text-purple-100" />,
       gradient: 'from-purple-700 to-purple-900',
-      modules: ['test-reflexes']
+      modules: ['interview-simulation', 'test-reflexes']
     },
     {
       id: 'creer',
@@ -204,7 +213,7 @@ export default function AmoaModeSelection() {
         'Conduite du changement',
         'Recette fonctionnelle'
       ],
-      modules: ['agent-ia', 'projet-imposteur', 'amoa-academie', 'generateur-livrables']
+      modules: ['agent-ia', 'interview-simulation', 'projet-imposteur', 'amoa-academie', 'generateur-livrables']
     },
     {
       id: 'product-owner',
