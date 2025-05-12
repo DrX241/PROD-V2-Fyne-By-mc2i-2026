@@ -343,6 +343,15 @@ function App() {
                   );
                 }} />
                 
+                <Route path="/cyber/crisis-management" component={() => {
+                  const CrisisManagementComponent = lazy(() => import('./pages/cyber/crisis-management'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CrisisManagementComponent />
+                    </Suspense>
+                  );
+                }} />
+                
                 <Route path="/cyber/arcade/code-shield" component={() => {
                   const CodeShieldComponent = lazy(() => import('./pages/cyber/arcade/code-shield'));
                   return (
