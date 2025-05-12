@@ -550,8 +550,8 @@ export default function ModuleGenerator() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {moduleConfig.includeTrainerModule && generatedModules.trainerModule && (
                             <div className="border rounded-md overflow-hidden">
-                              <div className="bg-blue-100 dark:bg-blue-900 px-4 py-2 font-medium flex items-center">
-                                <BookOpen className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
+                              <div className="bg-gray-100 dark:bg-gray-900 px-4 py-2 font-medium flex items-center">
+                                <BookOpen className="h-5 w-5 mr-2 text-gray-600 dark:text-gray-400" />
                                 {moduleConfig.domain}TRAINER
                               </div>
                               <div className="p-4 space-y-2">
@@ -560,7 +560,7 @@ export default function ModuleGenerator() {
                                 </p>
                                 <div className="flex flex-wrap gap-1 mt-2">
                                   {generatedModules.trainerModule.features?.map((feature: string, index: number) => (
-                                    <Badge key={index} className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                                    <Badge key={index} className="bg-gray-50 text-gray-700 dark:bg-gray-950 dark:text-gray-300">
                                       {feature}
                                     </Badge>
                                   ))}
