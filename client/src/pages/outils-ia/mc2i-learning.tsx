@@ -31,6 +31,7 @@ export default function Mc2iLearningOutils() {
   const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState('');
   const [isInitialized, setIsInitialized] = useState(false);
+  const [initializationAttempted, setInitializationAttempted] = useState(false);
   
   // Références pour le défilement automatique
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -42,34 +43,59 @@ export default function Mc2iLearningOutils() {
     localStorage.setItem('mcai_user_id', generatedUserId);
     setUserId(generatedUserId);
 
-    // Initialiser la session avec le backend
-    initializeSession(generatedUserId);
-  }, []);
+    // Initialiser la session avec le backend seulement si ce n'est pas déjà fait
+    if (!initializationAttempted) {
+      initializeSession(generatedUserId);
+      setInitializationAttempted(true);
+    }
+  }, [initializationAttempted]);
 
   // Fonction pour initialiser la session avec le backend
   const initializeSession = async (userId: string) => {
-    // Ne pas afficher le loader pour l'initialisation car cela peut entraîner des doublons de messages
+    // Empêcher les initialisations multiples
+    if (isInitialized) return;
+    
     try {
+      // Ne pas modifier l'état des messages directement ici pour éviter les doublons
       const response = await axios.post('/api/mcai-learning/init', { userId });
       
       if (response.data.success) {
-        // Ajouter le message de bienvenue seulement s'il n'y a pas de messages
+        // Ajouter le message de bienvenue uniquement si la liste est vide
+        // et si c'est la première initialisation
         if (messages.length === 0) {
-          addMessage('assistant', response.data.message);
+          const welcomeMessage: ChatMessage = {
+            id: uuidv4(),
+            role: 'assistant',
+            content: response.data.message,
+            timestamp: new Date()
+          };
+          
+          // Mettre à jour l'état une seule fois
+          setMessages([welcomeMessage]);
         }
         setIsInitialized(true);
       } else {
         console.error('Erreur lors de l\'initialisation:', response.data.error);
-        // N'ajouter un message d'erreur que s'il n'y a pas déjà de messages
         if (messages.length === 0) {
-          addMessage('assistant', 'Désolé, une erreur est survenue lors de l\'initialisation de la session. Veuillez réessayer.');
+          const errorMessage: ChatMessage = {
+            id: uuidv4(),
+            role: 'assistant',
+            content: 'Désolé, une erreur est survenue lors de l\'initialisation de la session. Veuillez réessayer.',
+            timestamp: new Date()
+          };
+          setMessages([errorMessage]);
         }
       }
     } catch (error) {
       console.error('Erreur lors de l\'initialisation:', error);
-      // N'ajouter un message d'erreur que s'il n'y a pas déjà de messages
       if (messages.length === 0) {
-        addMessage('assistant', 'Désolé, une erreur est survenue lors de l\'initialisation de la session. Veuillez réessayer.');
+        const errorMessage: ChatMessage = {
+          id: uuidv4(),
+          role: 'assistant',
+          content: 'Désolé, une erreur est survenue lors de l\'initialisation de la session. Veuillez réessayer.',
+          timestamp: new Date()
+        };
+        setMessages([errorMessage]);
       }
     }
   };
