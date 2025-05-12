@@ -246,7 +246,7 @@ export default function ModuleGenerator() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-blue-800 dark:text-white">Générateur de Modules</h1>
+            <h1 className="text-2xl font-bold text-black dark:text-white">Générateur de Modules</h1>
             <p className="text-gray-600 dark:text-gray-300">
               Créez vos propres modules d'apprentissage personnalisés
             </p>
@@ -262,7 +262,7 @@ export default function ModuleGenerator() {
           <TabsContent value="config">
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl font-bold text-blue-800 dark:text-white">
+                <CardTitle className="text-xl font-bold text-black dark:text-white">
                   Configuration de votre module
                 </CardTitle>
                 <CardDescription>
@@ -272,7 +272,7 @@ export default function ModuleGenerator() {
               <CardContent className="space-y-6">
                 {/* Informations de base */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-blue-800 dark:text-white">Informations de base</h3>
+                  <h3 className="text-lg font-semibold text-black dark:text-white">Informations de base</h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -330,7 +330,7 @@ export default function ModuleGenerator() {
 
                 {/* Liste des sujets */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-blue-800 dark:text-white">Sujets à couvrir *</h3>
+                  <h3 className="text-lg font-semibold text-black dark:text-white">Sujets à couvrir *</h3>
                   
                   <div className="flex space-x-2">
                     <Input 
@@ -353,13 +353,13 @@ export default function ModuleGenerator() {
                     {moduleConfig.topics.map((topic, index) => (
                       <Badge 
                         key={index} 
-                        className="flex items-center bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                        className="flex items-center bg-gray-100 text-black dark:bg-gray-900 dark:text-gray-200"
                       >
                         {topic}
                         <button 
                           type="button" 
                           onClick={() => removeTopic(topic)}
-                          className="ml-1 text-blue-800 dark:text-blue-200"
+                          className="ml-1 text-black dark:text-gray-200"
                         >
                           <span className="sr-only">Supprimer</span>
                           ×
@@ -381,7 +381,7 @@ export default function ModuleGenerator() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="flex items-center justify-between p-3 rounded-md bg-gray-50 dark:bg-gray-800">
                       <div className="flex items-center">
-                        <BookOpen className="h-5 w-5 mr-2 text-blue-600" />
+                        <BookOpen className="h-5 w-5 mr-2 text-gray-600" />
                         <div>
                           <Label htmlFor="trainer-module">Module Trainer</Label>
                           <p className="text-xs text-gray-500 dark:text-gray-400">Apprentissage théorique</p>
