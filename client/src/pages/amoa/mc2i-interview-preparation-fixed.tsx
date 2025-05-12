@@ -501,17 +501,19 @@ Ton message doit être professionnel, concis (maximum 10 lignes) mais très spé
     }
   };
   
-  // Fonction pour contourner l'étape d'information
+  // Fonction pour démarrer avec les paramètres actuellement sélectionnés
   const skipInfoAndStart = () => {
+    // Utiliser les valeurs actuelles du formulaire plutôt que des valeurs codées en dur
+    const currentValues = form.getValues();
     const values = {
       recruiterEmail: "",
       candidateName: "",
-      profileType: "Profil consultant",
-      experienceLevel: "3-5 ans",
-      sectorFocus: "Énergie & Environnement",
+      profileType: currentValues.profileType,
+      experienceLevel: currentValues.experienceLevel,
+      sectorFocus: currentValues.sectorFocus,
     };
     
-    form.reset(values);
+    // Démarrer la simulation avec les valeurs actuelles
     startSimulation(values);
   };
   
@@ -1075,6 +1077,8 @@ Ton analyse doit:
                         variant="ghost" 
                         className="text-gray-300 hover:text-white hover:bg-gray-700"
                         onClick={skipInfoAndStart}
+                        disabled={!form.getValues().profileType || !form.getValues().experienceLevel || !form.getValues().sectorFocus}
+                        title="Utilisera le profil, le niveau d'expérience et le secteur sélectionnés"
                       >
                         <TimerReset className="w-4 h-4 mr-2" />
                         Démarrer rapidement
