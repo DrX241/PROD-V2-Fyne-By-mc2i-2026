@@ -118,22 +118,55 @@ export default function CyberTestTechnique() {
     retry: 1,
   });
 
+  // État pour suivre la progression de la génération
+  const [generationProgress, setGenerationProgress] = useState(0);
+  
   // Generate questions mutation
   const generateQuestionsMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('/api/cyber/test-technique/generate', {
-        method: 'POST',
-        body: JSON.stringify({
-          category: selectedCategory,
-          difficulty: selectedDifficulty,
-          exerciseType: selectedExerciseType,
-          count: 10
-        })
-      });
-      return response;
+      // Réinitialiser la progression au début
+      setGenerationProgress(0);
+      
+      // Simulation de progression pendant l'attente de la réponse
+      const progressInterval = setInterval(() => {
+        setGenerationProgress(prev => {
+          // Augmenter progressivement jusqu'à 90% (les 10% restants seront ajoutés une fois les données reçues)
+          const newProgress = prev + (Math.random() * 10);
+          return newProgress > 90 ? 90 : newProgress;
+        });
+      }, 300);
+      
+      try {
+        const response = await apiRequest('/api/cyber/test-technique/generate', {
+          method: 'POST',
+          body: JSON.stringify({
+            category: selectedCategory,
+            difficulty: selectedDifficulty,
+            exerciseType: selectedExerciseType,
+            count: 10
+          })
+        });
+        
+        // Mettre à jour la progression à 100% pour indiquer que c'est terminé
+        setGenerationProgress(100);
+        
+        // Arrêter l'intervalle de progression
+        clearInterval(progressInterval);
+        
+        return response;
+      } catch (error) {
+        // En cas d'erreur, arrêter également l'intervalle
+        clearInterval(progressInterval);
+        throw error;
+      }
     },
     onSuccess: (data) => {
       if (data.success && data.questions && data.questions.length > 0) {
+        // Réinitialiser la progression après un court délai pour permettre l'affichage à 100%
+        setTimeout(() => {
+          setGenerationProgress(0);
+        }, 500);
+        
         setQuestions(data.questions);
         
         // Initialiser les réponses selon le type de question
@@ -175,6 +208,9 @@ export default function CyberTestTechnique() {
       }
     },
     onError: () => {
+      // Réinitialiser la progression en cas d'erreur
+      setGenerationProgress(0);
+      
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la génération des questions.",
@@ -575,6 +611,22 @@ export default function CyberTestTechnique() {
           </>
         )}
       </div>
+      
+      {/* Barre de progression de génération des questions */}
+      {generateQuestionsMutation.isPending && generationProgress > 0 && (
+        <div className="px-6 pt-4">
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs text-blue-300">
+              <span>Génération des questions en cours...</span>
+              <span>{Math.round(generationProgress)}%</span>
+            </div>
+            <Progress 
+              value={generationProgress} 
+              className="h-2 bg-blue-950"
+            />
+          </div>
+        </div>
+      )}
       
       <div className="p-6 border-t border-blue-800 flex justify-between">
         <Button 
