@@ -804,21 +804,25 @@ const TestDeReflexes = () => {
                               <Brain className="w-6 h-6 text-blue-400 mr-2" />
                               <h3 className="text-xl font-bold text-white">Analyse IA</h3>
                             </div>
-                            <p className="text-gray-300 mb-4">{results.aiEvaluation.feedback}</p>
+                            <p className="text-gray-300 mb-4">{results.aiEvaluation?.feedback}</p>
                             
                             {/* Badge */}
-                            <div className="flex justify-center mb-6">
-                              <div className="flex flex-col items-center p-3 rounded-lg bg-gradient-to-br from-blue-900/40 to-indigo-900/40 border border-blue-700/30 max-w-xs">
-                                {results.aiEvaluation.badge.icon === "trophy" && <Trophy className="w-12 h-12 text-amber-400 mb-2" />}
-                                {results.aiEvaluation.badge.icon === "zap" && <Zap className="w-12 h-12 text-amber-400 mb-2" />}
-                                {results.aiEvaluation.badge.icon === "star" && <Award className="w-12 h-12 text-amber-400 mb-2" />}
-                                {results.aiEvaluation.badge.icon === "lightbulb" && <Lightbulb className="w-12 h-12 text-amber-400 mb-2" />}
-                                {results.aiEvaluation.badge.icon === "brain" && <Brain className="w-12 h-12 text-amber-400 mb-2" />}
-                                {results.aiEvaluation.badge.icon === "medal" && <Award className="w-12 h-12 text-amber-400 mb-2" />}
-                                <h4 className="text-lg font-bold text-white">{results.aiEvaluation.badge.name}</h4>
-                                <p className="text-gray-300 text-center text-sm">{results.aiEvaluation.badge.description}</p>
+                            {results.aiEvaluation?.badge && (
+                              <div className="flex justify-center mb-6">
+                                <div className="flex flex-col items-center p-3 rounded-lg bg-gradient-to-br from-blue-900/40 to-indigo-900/40 border border-blue-700/30 max-w-xs">
+                                  {results.aiEvaluation?.badge?.icon === "trophy" && <Trophy className="w-12 h-12 text-amber-400 mb-2" />}
+                                  {results.aiEvaluation?.badge?.icon === "zap" && <Zap className="w-12 h-12 text-amber-400 mb-2" />}
+                                  {results.aiEvaluation?.badge?.icon === "star" && <Award className="w-12 h-12 text-amber-400 mb-2" />}
+                                  {results.aiEvaluation?.badge?.icon === "lightbulb" && <Lightbulb className="w-12 h-12 text-amber-400 mb-2" />}
+                                  {results.aiEvaluation?.badge?.icon === "brain" && <Brain className="w-12 h-12 text-amber-400 mb-2" />}
+                                  {results.aiEvaluation?.badge?.icon === "medal" && <Award className="w-12 h-12 text-amber-400 mb-2" />}
+                                  {!["trophy", "zap", "star", "lightbulb", "brain", "medal"].includes(results.aiEvaluation?.badge?.icon || "") && 
+                                    <Award className="w-12 h-12 text-amber-400 mb-2" />}
+                                  <h4 className="text-lg font-bold text-white">{results.aiEvaluation?.badge?.name}</h4>
+                                  <p className="text-gray-300 text-center text-sm">{results.aiEvaluation?.badge?.description}</p>
+                                </div>
                               </div>
-                            </div>
+                            )}
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                               <div className="rounded-md bg-green-900/20 p-3 border border-green-700/30">
