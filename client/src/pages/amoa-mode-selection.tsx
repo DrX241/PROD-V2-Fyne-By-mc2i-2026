@@ -104,13 +104,23 @@ export default function AmoaModeSelection() {
   // Modules AMOA disponibles
   const modules: Module[] = [
     {
+      id: 'agent-ia',
+      title: 'AGENT IA',
+      description: 'Explorez le métier d\'AMOA avec notre expert IA. Dialoguez pour apprendre les concepts et répondez à des scénarios de décision réels.',
+      icon: <BsLightbulb className="h-5 w-5 text-indigo-200" />,
+      destination: '/amoa/expert-learning',
+      difficulty: 'tous niveaux',
+      isNew: true,
+      comingSoon: false
+    },
+    {
       id: 'mc2i-ai-learning',
       title: 'mc2i AI LEARNING',
       description: 'Formation personnalisée avec des experts mc2i. Apprenez à votre rythme avec notre plateforme d\'IA conversationnelle.',
       icon: <RiUserSettingsLine className="h-5 w-5 text-blue-200" />,
       destination: '/outils-ia/mc2i-learning',
       difficulty: 'tous niveaux',
-      isNew: true,
+      isNew: false,
       comingSoon: false
     },
     {
@@ -214,7 +224,7 @@ export default function AmoaModeSelection() {
       description: "Développez vos connaissances fondamentales en AMOA et gestion de projet",
       icon: <IoBookOutline className="h-6 w-6 text-blue-100" />,
       gradient: 'from-blue-700 to-blue-900',
-      modules: ['mc2i-ai-learning', 'modules-express', 'referentiel-amoa']
+      modules: ['agent-ia', 'mc2i-ai-learning', 'modules-express', 'referentiel-amoa']
     },
     {
       id: 'sentrainer',
