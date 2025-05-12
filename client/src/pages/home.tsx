@@ -422,23 +422,28 @@ export default function Home() {
   // État pour stocker les modules personnalisés chargés depuis l'API
   const [customModules, setCustomModules] = useState<any[]>([]);
   
-  // États pour la modalité de protection par mot de passe pour I AM CYBER
+  // États pour la modalité de protection par mot de passe pour tous les modules
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [passwordAttempts, setPasswordAttempts] = useState(0);
+  const [selectedModule, setSelectedModule] = useState<string | null>(null);
   
-  // Fonction pour vérifier le mot de passe pour accéder à I AM CYBER
-  const handleCyberPasswordCheck = () => {
-    const correctPassword = "Bienvenuechezmc2i,enfin,sur,fyne:)";
+  // Fonction pour vérifier le mot de passe pour accéder aux modules
+  const handlePasswordCheck = () => {
+    const correctPassword = "Hey!Bienvenuechezmc2i,enfin,sur,fyne:)2025@";
     
     if (password === correctPassword) {
-      // Mot de passe correct, rediriger vers I AM CYBER
+      // Mot de passe correct, rediriger vers le module sélectionné
       setIsPasswordModalOpen(false);
       setPassword('');
       setPasswordError('');
       setPasswordAttempts(0);
-      window.location.href = '/cyber';
+      
+      // Redirection vers le module correspondant
+      if (selectedModule) {
+        window.location.href = selectedModule;
+      }
     } else {
       // Mot de passe incorrect
       setPasswordError('Mot de passe incorrect. Veuillez réessayer.');
@@ -450,9 +455,10 @@ export default function Home() {
     }
   };
   
-  // Fonction pour ouvrir directement la modale de mot de passe
-  const openCyberPasswordModal = (e: React.MouseEvent) => {
+  // Fonction pour ouvrir la modale de mot de passe avec le module sélectionné
+  const openPasswordModal = (e: React.MouseEvent, moduleRoute: string) => {
     e.preventDefault();
+    setSelectedModule(moduleRoute);
     setIsPasswordModalOpen(true);
   };
   
@@ -908,7 +914,7 @@ export default function Home() {
                       {/* Le module */}
                       <ModuleCard 
                         {...module} 
-                        onCustomClick={module.title === "I AM CYBER" ? openCyberPasswordModal : null}
+                        onCustomClick={(e) => openPasswordModal(e, module.linkTo)}
                       />
                       
                       {/* Accent line galactique */}
@@ -945,22 +951,13 @@ export default function Home() {
                         
                         {/* Bouton en bas */}
                         <div className="mt-auto">
-                          {module.title === "I AM CYBER" ? (
-                            <button 
-                              onClick={openCyberPasswordModal}
-                              className={`${module.color} text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center transition-all hover:shadow-md`}
-                            >
-                              Explorer
-                              <ArrowRight className="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300"/>
-                            </button>
-                          ) : (
-                            <Link href={module.linkTo}>
-                              <button className={`${module.color} text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center transition-all hover:shadow-md`}>
-                                Explorer
-                                <ArrowRight className="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300"/>
-                              </button>
-                            </Link>
-                          )}
+                          <button 
+                            onClick={(e) => openPasswordModal(e, module.linkTo)}
+                            className={`${module.color} text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center transition-all hover:shadow-md`}
+                          >
+                            Explorer
+                            <ArrowRight className="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300"/>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -1055,12 +1052,13 @@ export default function Home() {
                         
                         {/* Bouton en bas */}
                         <div className="mt-auto">
-                          <Link href={`/custom-module/${customModule.id}`}>
-                            <button className="bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center transition-all hover:shadow-md">
-                              Explorer
-                              <ArrowRight className="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300"/>
-                            </button>
-                          </Link>
+                          <button 
+                            onClick={(e) => openPasswordModal(e, `/custom-module/${customModule.id}`)}
+                            className="bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center transition-all hover:shadow-md"
+                          >
+                            Explorer
+                            <ArrowRight className="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300"/>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -1361,7 +1359,7 @@ export default function Home() {
       
       {/* Suppression de la bannière flottante */}
       
-      {/* Modale de mot de passe pour I AM CYBER */}
+      {/* Modale de mot de passe pour tous les modules */}
       <Dialog open={isPasswordModalOpen} onOpenChange={setIsPasswordModalOpen}>
         <DialogContent className={`sm:max-w-md ${isFuturistic ? 'bg-gradient-to-b from-blue-950 to-indigo-950 text-white border border-blue-500/30 backdrop-blur-sm' : 'bg-white text-gray-800'}`}>
           <DialogHeader>
@@ -1370,7 +1368,7 @@ export default function Home() {
               Accès Sécurisé
             </DialogTitle>
             <DialogDescription className={isFuturistic ? 'text-gray-300' : 'text-gray-600'}>
-              Pour accéder à I AM CYBER, veuillez saisir le mot de passe.
+              Veuillez saisir le mot de passe pour accéder aux modules.
             </DialogDescription>
           </DialogHeader>
           
@@ -1388,7 +1386,7 @@ export default function Home() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className={`${isFuturistic ? 'bg-blue-900/30 border-blue-700/50 text-white placeholder-blue-300/40' : 'bg-white border-gray-300'}`}
-              onKeyDown={(e) => e.key === 'Enter' && handleCyberPasswordCheck()}
+              onKeyDown={(e) => e.key === 'Enter' && handlePasswordCheck()}
             />
             
             {passwordError && (
@@ -1414,7 +1412,7 @@ export default function Home() {
             </Button>
             <Button
               type="button"
-              onClick={handleCyberPasswordCheck}
+              onClick={handlePasswordCheck}
               className={`${isFuturistic ? 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 border border-blue-500/30' : 'bg-blue-600 hover:bg-blue-700'}`}
             >
               Accéder
