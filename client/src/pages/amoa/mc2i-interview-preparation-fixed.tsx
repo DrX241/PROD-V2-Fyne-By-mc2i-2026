@@ -986,10 +986,10 @@ Pouvez-vous commencer par vous présenter en quelques mots, m'expliquer votre pa
         
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-indigo-500">
-            Préparation d'audition mc2i - Simulation d'entretien
+            Entretien de recrutement mc2i
           </h1>
           <p className="text-gray-300 max-w-3xl mx-auto">
-            Cette simulation vous aide à préparer votre entretien avec mc2i, avec des conseils sur la tenue, l'attitude professionnelle et les bonnes pratiques à mettre en œuvre avant, pendant et après l'entretien avec le recruteur.
+            Cette simulation vous met dans la peau d'un candidat lors d'un entretien d'embauche chez mc2i. Elle vous permet de vous entraîner à répondre aux questions spécifiques d'un recruteur mc2i et d'évaluer vos compétences AMOA.
           </p>
         </div>
         
@@ -1025,9 +1025,9 @@ Pouvez-vous commencer par vous présenter en quelques mots, m'expliquer votre pa
           <TabsContent value="best-practices">
             <Card className="bg-gray-800/30 border-gray-700/50 shadow-lg">
               <CardHeader className="border-b border-gray-700/50">
-                <CardTitle className="text-xl text-center">Guide de préparation d'audition pour les consultants mc2i</CardTitle>
+                <CardTitle className="text-xl text-center">Guide de préparation d'entretien pour candidats chez mc2i</CardTitle>
                 <CardDescription className="text-gray-300 text-center">
-                  Conseils pour optimiser votre présentation et votre comportement lors des auditions client
+                  Conseils pour optimiser votre présentation et vos réponses lors d'un entretien avec un recruteur mc2i
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
@@ -1054,9 +1054,9 @@ Pouvez-vous commencer par vous présenter en quelques mots, m'expliquer votre pa
           <TabsContent value="configuration">
             <Card className="bg-gray-800/30 border-gray-700/50 shadow-lg">
               <CardHeader className="border-b border-gray-700/50">
-                <CardTitle className="text-xl">Configuration de l'audition</CardTitle>
+                <CardTitle className="text-xl">Configuration de l'entretien</CardTitle>
                 <CardDescription className="text-gray-300">
-                  Configurez les paramètres pour la simulation d'audition
+                  Configurez les paramètres pour la simulation d'entretien de recrutement
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
@@ -1227,7 +1227,7 @@ Pouvez-vous commencer par vous présenter en quelques mots, m'expliquer votre pa
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <UserCircle className="w-6 h-6 mr-2 text-yellow-500" />
-                    <CardTitle className="text-xl">Simulation d'audition mc2i</CardTitle>
+                    <CardTitle className="text-xl">Simulation d'entretien mc2i</CardTitle>
                   </div>
                   <Badge 
                     variant="outline" 
@@ -1330,17 +1330,17 @@ Pouvez-vous commencer par vous présenter en quelques mots, m'expliquer votre pa
               <CardHeader className="border-b border-gray-700/50">
                 <div className="flex items-center">
                   <CheckCircle className="w-6 h-6 mr-2 text-green-500" />
-                  <CardTitle className="text-xl">Évaluation de l'audition</CardTitle>
+                  <CardTitle className="text-xl">Évaluation de l'entretien</CardTitle>
                 </div>
                 <CardDescription className="text-gray-300">
-                  Analyse de la performance du consultant pendant l'audition
+                  Analyse de votre performance durant l'entretien de recrutement
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
                 {evaluationResult ? (
                   <div className="space-y-6">
                     <div className="bg-gradient-to-r from-gray-800/60 to-gray-700/60 p-5 rounded-md border border-gray-600/50">
-                      <h3 className="text-lg font-semibold mb-2">Résumé de l'audition</h3>
+                      <h3 className="text-lg font-semibold mb-2">Résumé de l'entretien</h3>
                       <p className="text-gray-300 mb-4">
                         {evaluationResult.summary || "Aucun résumé disponible."}
                       </p>
