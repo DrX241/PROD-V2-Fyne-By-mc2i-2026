@@ -375,7 +375,7 @@ export default function AmoaModeSelection() {
   return (
     <HomeLayout>
       <div id="amoa-mode-selection" className={`min-h-screen pb-20 ${
-        highContrastMode ? 'bg-black text-white' : 'bg-gradient-to-b from-blue-950 to-black text-white'
+        highContrastMode ? 'bg-black text-white' : 'bg-gradient-to-b from-teal-900 via-green-950 to-black text-white'
       }`} style={{ fontSize: `${textSize}rem` }}>
         {/* Navigation et contrôles */}
         <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">
@@ -499,7 +499,7 @@ export default function AmoaModeSelection() {
               Centre de Transformation Numérique - I AM mc2i
             </h1>
             <p className={`max-w-3xl mx-auto text-xl ${
-              highContrastMode ? 'text-gray-300' : 'text-blue-200' 
+              highContrastMode ? 'text-gray-300' : 'text-teal-200' 
             }`}>
               Trouvez votre parcours d'apprentissage personnalisé en transformation numérique
             </p>
