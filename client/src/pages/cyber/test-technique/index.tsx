@@ -367,6 +367,19 @@ export default function CyberTestTechnique() {
   };
 
   const goToNextQuestion = () => {
+    // Vérification si une réponse a été sélectionnée pour la question courante
+    if (questions && 
+        questions[currentQuestion].type === 'mcq' && 
+        responses && 
+        responses[currentQuestion].answer === -1) {
+      toast({
+        title: "Réponse requise",
+        description: "Vous devez sélectionner une réponse avant de passer à la question suivante.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (questions && Array.isArray(questions) && currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     }
@@ -444,6 +457,19 @@ export default function CyberTestTechnique() {
     setEvaluationResults(null);
     setCertificateHtml('');
     setShowCertificate(false);
+  };
+  
+  // Fonction pour abandonner le test en cours
+  const abandonTest = () => {
+    // Afficher une confirmation avant d'abandonner
+    if (window.confirm("Êtes-vous sûr de vouloir abandonner ce test ? Votre progression sera perdue.")) {
+      toast({
+        title: "Test abandonné",
+        description: "Vous avez abandonné le test en cours.",
+        variant: "default"
+      });
+      resetQuiz();
+    }
   };
 
   const formatTime = (seconds: number): string => {
