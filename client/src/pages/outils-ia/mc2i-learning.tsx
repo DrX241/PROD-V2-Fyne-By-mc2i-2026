@@ -48,23 +48,29 @@ export default function Mc2iLearningOutils() {
 
   // Fonction pour initialiser la session avec le backend
   const initializeSession = async (userId: string) => {
-    setIsLoading(true);
+    // Ne pas afficher le loader pour l'initialisation car cela peut entraîner des doublons de messages
     try {
       const response = await axios.post('/api/mcai-learning/init', { userId });
       
       if (response.data.success) {
-        // Ajouter le message de bienvenue
-        addMessage('assistant', response.data.message);
+        // Ajouter le message de bienvenue seulement s'il n'y a pas de messages
+        if (messages.length === 0) {
+          addMessage('assistant', response.data.message);
+        }
         setIsInitialized(true);
       } else {
         console.error('Erreur lors de l\'initialisation:', response.data.error);
-        addMessage('assistant', 'Désolé, une erreur est survenue lors de l\'initialisation de la session. Veuillez réessayer.');
+        // N'ajouter un message d'erreur que s'il n'y a pas déjà de messages
+        if (messages.length === 0) {
+          addMessage('assistant', 'Désolé, une erreur est survenue lors de l\'initialisation de la session. Veuillez réessayer.');
+        }
       }
     } catch (error) {
       console.error('Erreur lors de l\'initialisation:', error);
-      addMessage('assistant', 'Désolé, une erreur est survenue lors de l\'initialisation de la session. Veuillez réessayer.');
-    } finally {
-      setIsLoading(false);
+      // N'ajouter un message d'erreur que s'il n'y a pas déjà de messages
+      if (messages.length === 0) {
+        addMessage('assistant', 'Désolé, une erreur est survenue lors de l\'initialisation de la session. Veuillez réessayer.');
+      }
     }
   };
 
