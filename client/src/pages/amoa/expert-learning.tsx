@@ -54,6 +54,67 @@ function ExpertLearningPageContent() {
   const [isLoadingScenario, setIsLoadingScenario] = useState(false);
   const [scenarioSummary, setScenarioSummary] = useState<string | null>(null);
   
+  // Fonction pour démarrer un scénario de décision
+  const startDecisionScenario = async () => {
+    if (!sessionId) return;
+    
+    setIsLoadingScenario(true);
+    
+    try {
+      const response = await axios.post('/api/amoa-expert/generate-scenario', {
+        userId: sessionId
+      });
+      
+      if (response.data.success) {
+        setCurrentScenario(response.data.scenario);
+        setScenarioNumber(response.data.currentNumber);
+        setTotalScenarios(response.data.totalScenarios);
+        setIsDecisionMode(true);
+      } else {
+        throw new Error(response.data.error || "Erreur lors du démarrage du mode décision");
+      }
+    } catch (error) {
+      console.error("Erreur lors du démarrage du mode décision:", error);
+    } finally {
+      setIsLoadingScenario(false);
+    }
+  };
+  
+  // Fonction pour gérer une décision prise
+  const handleDecisionMade = async (scenarioId: string, optionId: string) => {
+    if (!sessionId) return;
+    
+    setIsLoadingScenario(true);
+    
+    try {
+      const response = await axios.post('/api/amoa-expert/decision', {
+        userId: sessionId,
+        scenarioId,
+        optionId
+      });
+      
+      if (response.data.success) {
+        if (response.data.isComplete) {
+          // Session terminée
+          setScenarioSummary(response.data.summary);
+          setIsDecisionMode(false);
+          setCurrentScenario(null);
+        } else {
+          // Passer au scénario suivant
+          setCurrentScenario(response.data.nextScenario);
+          setScenarioNumber(response.data.currentNumber);
+          setTotalScenarios(response.data.totalScenarios);
+        }
+      } else {
+        throw new Error(response.data.error || "Erreur lors du traitement de la décision");
+      }
+    } catch (error) {
+      console.error("Erreur lors du traitement de la décision:", error);
+    } finally {
+      setIsLoadingScenario(false);
+    }
+  };
+  
   // États du chat
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -208,9 +269,7 @@ function ExpertLearningPageContent() {
         
         // Si l'IA recommande de passer en mode décision, l'activer
         if (response.data.activateDecisionMode) {
-          startDecisionMode({
-            totalScenarios: response.data.totalScenarios || 3
-          });
+          startDecisionScenario();
         }
       }
     } catch (error) {
@@ -326,15 +385,43 @@ function ExpertLearningPageContent() {
             ) : (
               <div className="flex flex-col w-full max-w-4xl mx-auto">
                 {/* Mode décision ou chat standard */}
-                {decision.isInDecisionMode && decision.currentScenario ? (
-                  <AmoaDecisionFlow 
-                    scenario={decision.currentScenario}
-                    onDecisionMade={handleDecisionMade}
-                    isLoading={decision.isLoading}
-                    currentNumber={decision.currentScenarioNumber}
-                    totalScenarios={decision.totalScenarios}
-                    summary={decision.summary}
-                  />
+                {isDecisionMode && currentScenario ? (
+                  <div className="w-full">
+                    {/* Affichage du mode décision quand on a un scénario */}
+                    <div className="bg-indigo-950 p-4 rounded-lg mb-4 shadow-lg border border-indigo-400/30">
+                      <h2 className="text-indigo-200 text-xl font-bold mb-2">Mode Décision AMOA</h2>
+                      <p className="text-indigo-100">Scénario {scenarioNumber} sur {totalScenarios}</p>
+                    </div>
+                    {/* Interface de scénario */}
+                    <div className="bg-indigo-950 p-6 rounded-lg border border-indigo-400/30 shadow-lg">
+                      <div className="mb-6">
+                        <h3 className="text-xl font-bold text-indigo-200 mb-3">{currentScenario.title}</h3>
+                        <p className="text-indigo-100 mb-4">{currentScenario.description}</p>
+                        <div className="bg-indigo-900/40 p-4 rounded-md border border-indigo-700/50 mb-4">
+                          <h4 className="text-indigo-300 font-medium mb-2">Contexte</h4>
+                          <p className="text-indigo-100">{currentScenario.context}</p>
+                        </div>
+                      </div>
+                      <div className="space-y-4 mb-6">
+                        <h4 className="text-indigo-300 font-medium">Options</h4>
+                        {currentScenario.options.map((option: any) => (
+                          <div 
+                            key={option.id}
+                            className="p-4 rounded-md bg-indigo-900/40 border border-indigo-700/50 hover:bg-indigo-800/50 cursor-pointer"
+                            onClick={() => handleDecisionMade(currentScenario.id, option.id)}
+                          >
+                            <h5 className="font-medium text-indigo-200 mb-1">{option.text}</h5>
+                            <p className="text-indigo-100 text-sm">{option.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                      {isLoadingScenario && (
+                        <div className="flex justify-center p-4">
+                          <span className="text-indigo-300">Traitement en cours...</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex flex-col w-full">
                     {/* Zone de chat avec messages */}
