@@ -489,9 +489,9 @@ const CyberAscension: React.FC = () => {
   const startLevel = (level: Level) => {
     // Tous les niveaux sont verrouillés - Module en cours de déploiement
     toast({
-      title: "Module en cours de déploiement",
-      description: "CYBERASCENSION sera bientôt disponible. Les niveaux sont actuellement en cours de finalisation.",
-      variant: "destructive",
+      title: "Module en cours de développement",
+      description: "CYBERASCENSION sera bientôt disponible. Les niveaux sont actuellement en cours de finalisation pour vous offrir la meilleure expérience d'apprentissage.",
+      variant: "default",
     });
     return;
     
@@ -807,11 +807,11 @@ const CyberAscension: React.FC = () => {
                     
                     <div className="flex justify-center">
                       <Button 
-                        className={`px-6 ${selectedLevel.unlocked ? 'bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700' : 'bg-gray-700'}`}
+                        className="px-6 bg-gray-700"
                         onClick={() => startLevel(selectedLevel)}
-                        disabled={!selectedLevel.unlocked}
+                        disabled={true}
                       >
-                        {selectedLevel.unlocked ? "Relever le défi" : "Niveau verrouillé"}
+                        {"Bientôt disponible"}
                       </Button>
                     </div>
                   </div>
