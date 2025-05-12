@@ -140,13 +140,13 @@ export default function AmoaModeSelectionFixed() {
       duration: '30-45 min'
     },
     {
-      id: 'mc2i-interview-preparation',
-      title: 'PRÉPARATION AUDITION mc2i',
-      description: "Guide complet pour consultants mc2i sur l'attitude professionnelle avant, pendant et après les auditions",
+      id: 'mc2i-interview-preparation-fixed',
+      title: 'ENTRETIEN mc2i',
+      description: "Simulation d'entretien de recrutement avec un consultant mc2i pour évaluer vos compétences AMOA",
       icon: <BsClipboardCheck className="h-5 w-5" />,
-      destination: '/amoa/mc2i-interview-preparation',
+      destination: '/amoa/mc2i-interview-preparation-fixed',
       difficulty: 'tous niveaux',
-      duration: '15-20 min',
+      duration: '10 min',
       isNew: true
     },
     {
