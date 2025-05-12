@@ -98,571 +98,224 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
           ></div>
         </div>
         <p className="text-blue-100 text-sm">
-          Accomplissez les étapes pour réussir votre entretien de recrutement chez mc2i
+          {progressTracker.preparation.completed + progressTracker.during.completed + progressTracker.after.completed} sur {progressTracker.preparation.total + progressTracker.during.total + progressTracker.after.total} étapes complétées
         </p>
       </div>
-    
-      {/* Main content using grid with different colored sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* SECTION 1: AVANT L'AUDITION */}
-        <div className="flex flex-col space-y-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xl font-bold flex items-center">
-              <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center mr-3 text-white">1</div>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
-                Avant l'entretien
-              </span>
-            </h3>
-            <Badge variant="outline" className="bg-purple-900/40 text-purple-200 border-purple-500">
-              {progressTracker.preparation.completed}/{progressTracker.preparation.total} étapes
-            </Badge>
-          </div>
-          
-          <Card className="bg-gradient-to-br from-purple-900/50 to-indigo-900/30 border-purple-500/50 shadow-lg overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-blue-400"></div>
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center text-lg">
-                <User className="w-5 h-5 mr-2 text-purple-300" />
-                Préparation personnelle
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Accordion type="multiple" className="w-full">
-                <AccordionItem value="appearance" className="border-purple-700/50">
-                  <AccordionTrigger 
-                    className="hover:bg-purple-800/30 px-2 rounded text-white hover:text-purple-200"
-                    onClick={() => incrementProgress('preparation')}
-                  >
-                    <div className="flex items-center">
-                      <div className="w-6 h-6 rounded-full border-2 border-purple-400 flex items-center justify-center mr-2 bg-purple-900/50">
-                        <span className="text-xs text-purple-200">1</span>
-                      </div>
-                      Apparence professionnelle
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="text-blue-100 bg-purple-950/30 rounded-md p-2 mt-1">
-                    <ul className="list-disc ml-5 space-y-1">
-                      <li>Tenue professionnelle adaptée au client (costume pour environnements formels)</li>
-                      <li>Évitez les tenues trop décontractées même en cas d'environnement startup</li>
-                      <li>Assurez-vous que vos vêtements sont propres, repassés et en bon état</li>
-                      <li>Pour les entretiens à distance, portez une tenue professionnelle complète</li>
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-                
-                <AccordionItem value="research" className="border-purple-700/50">
-                  <AccordionTrigger 
-                    className="hover:bg-purple-800/30 px-2 rounded text-white hover:text-purple-200"
-                    onClick={() => incrementProgress('preparation')}
-                  >
-                    <div className="flex items-center">
-                      <div className="w-6 h-6 rounded-full border-2 border-purple-400 flex items-center justify-center mr-2 bg-purple-900/50">
-                        <span className="text-xs text-purple-200">2</span>
-                      </div>
-                      Recherches préalables
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="text-blue-100 bg-purple-950/30 rounded-md p-2 mt-1">
-                    <ul className="list-disc ml-5 space-y-1">
-                      <li>Renseignez-vous sur l'entreprise cliente (secteur, activités récentes)</li>
-                      <li>Comprenez les enjeux business spécifiques au secteur</li>
-                      <li>Identifiez les concurrents principaux et les tendances du marché</li>
-                      <li>Consultez le site web et les réseaux sociaux de l'entreprise</li>
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </CardContent>
-            
-            {/* Pitch section */}
-            <div className="p-5 border-t border-purple-700/30 bg-gradient-to-br from-indigo-900/40 to-purple-900/20">
-              <div className="flex items-center mb-3">
-                <Lightbulb className="w-5 h-5 mr-2 text-yellow-300" />
-                <h4 className="text-lg font-semibold text-white">Votre pitch personnel</h4>
-              </div>
-              
-              <div className="space-y-2 text-blue-100">
-                <p className="font-semibold text-yellow-100 flex items-center">
-                  <Sparkles className="w-4 h-4 mr-1 text-yellow-300" /> Formule gagnante
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-indigo-900/40 p-2 rounded-md border border-indigo-600/30">
-                    <span className="text-xs font-medium text-indigo-300">Éléments essentiels</span>
-                    <ul className="list-disc ml-4 text-sm mt-1 space-y-0.5">
-                      <li>Votre nom</li>
-                      <li>Fonction chez mc2i</li>
-                      <li>Formation académique</li>
-                      <li>Compétences clés</li>
-                    </ul>
-                  </div>
-                  <div className="bg-purple-900/40 p-2 rounded-md border border-purple-600/30">
-                    <span className="text-xs font-medium text-purple-300">À éviter</span>
-                    <ul className="list-disc ml-4 text-sm mt-1 space-y-0.5">
-                      <li>Détails non pertinents</li>
-                      <li>Historique complet</li>
-                      <li>Informations personnelles</li>
-                      <li>Expériences négatives</li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="mt-3 bg-gradient-to-br from-indigo-900/60 to-purple-900/60 p-3 rounded-md border border-indigo-500/40">
-                  <p className="text-white font-medium text-sm">Exemple de pitch :</p>
-                  <p className="italic text-sm text-blue-100 mt-1">« Je suis Jean-Louis DUPONT, consultant confirmé AMOA SI chez mc2i Groupe, je suis ingénieur diplômé de l'INSA et j'évolue depuis 3 ans dans les problématiques métier RH et Décisionnelles dans le secteur Privé »</p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="mt-2 text-xs border-blue-400 text-blue-300 hover:bg-indigo-700 hover:text-white"
-                    onClick={() => {
-                      try {
-                        navigator.clipboard?.writeText("Je suis [PRÉNOM NOM], consultant [NIVEAU] [SPÉCIALITÉ] chez mc2i Groupe, je suis [FORMATION] et j'évolue depuis [X] ans dans les problématiques [DOMAINES D'EXPERTISE] dans le secteur [SECTEUR]");
-                        alert("Modèle de pitch copié dans le presse-papier");
-                      } catch (error) {
-                        console.error("Erreur lors de la copie:", error);
-                      }
-                    }}
-                  >
-                    <Copy className="w-3 h-3 mr-1" /> Copier le modèle
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
+      
+      {/* Before section */}
+      <div className="mb-10">
+        <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+          <span className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">1</span>
+          Avant l'entretien
+        </h3>
         
-        {/* SECTION 2: PENDANT L'AUDITION */}
-        <div className="flex flex-col space-y-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xl font-bold flex items-center">
-              <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center mr-3 text-white">2</div>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400">
-                Pendant l'entretien
-              </span>
-            </h3>
-            <Badge variant="outline" className="bg-blue-900/40 text-blue-200 border-blue-500">
-              {progressTracker.during.completed}/{progressTracker.during.total} étapes
-            </Badge>
+        <div className="ml-12 space-y-6">
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-blue-200 mb-2">Comprendre le contexte client</h4>
+            <p className="text-gray-300 mb-4">Prenez le temps d'analyser le contexte de l'entreprise cliente, son secteur d'activité, et ses enjeux stratégiques. Une compréhension approfondie de son environnement vous permettra de mieux appréhender ses besoins et d'adapter votre discours.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Analyse préalable</Badge>
+              <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Recherche sectorielle</Badge>
+              <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Veille stratégique</Badge>
+            </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('preparation')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
           </div>
           
-          <Card className="bg-gradient-to-br from-blue-900/50 to-cyan-900/30 border-blue-500/50 shadow-lg overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-cyan-400"></div>
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center text-lg">
-                <Users className="w-5 h-5 mr-2 text-blue-300" />
-                Conduite de l'entretien
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Accordion type="multiple" className="w-full">
-                <AccordionItem value="first-contact" className="border-blue-700/50">
-                  <AccordionTrigger 
-                    className="hover:bg-blue-800/30 px-2 rounded text-white hover:text-blue-200"
-                    onClick={() => incrementProgress('during')}
-                  >
-                    <div className="flex items-center">
-                      <div className="w-6 h-6 rounded-full border-2 border-blue-400 flex items-center justify-center mr-2 bg-blue-900/50">
-                        <span className="text-xs text-blue-200">1</span>
-                      </div>
-                      Premier contact
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="text-blue-100 bg-blue-950/30 rounded-md p-2 mt-1">
-                    <ul className="list-disc ml-5 space-y-1 text-sm">
-                      <li>Soyez ponctuel (arrivez 10-15 minutes en avance)</li>
-                      <li>En présentiel : poignée de main franche, contact visuel</li>
-                      <li>À distance : vérifiez votre équipement technique avant</li>
-                      <li>Laissez au manager le soin de "briser la glace"</li>
-                      <li>Remerciez pour l'opportunité de cet entretien</li>
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-                
-                <AccordionItem value="context" className="border-blue-700/50">
-                  <AccordionTrigger 
-                    className="hover:bg-blue-800/30 px-2 rounded text-white hover:text-blue-200"
-                    onClick={() => incrementProgress('during')}
-                  >
-                    <div className="flex items-center">
-                      <div className="w-6 h-6 rounded-full border-2 border-blue-400 flex items-center justify-center mr-2 bg-blue-900/50">
-                        <span className="text-xs text-blue-200">2</span>
-                      </div>
-                      L'entonnoir d'information
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="text-blue-100 bg-blue-950/30 rounded-md p-2 mt-1">
-                    <p className="mb-2 text-sm">Démontrez votre compréhension en partant du <span className="text-white font-semibold">général</span> vers le <span className="text-white font-semibold">spécifique</span>.</p>
-                    
-                    <div className="space-y-1">
-                      <div className="flex items-center bg-blue-800/30 p-2 rounded-t-md border-l-4 border-blue-500">
-                        <span className="text-sm font-medium text-white flex-1">LE DÉPARTEMENT</span>
-                        <span className="text-xs px-2 py-0.5 bg-blue-700/50 rounded-full">Général</span>
-                      </div>
-                      <div className="flex items-center bg-blue-800/40 p-2 border-l-4 border-blue-500">
-                        <span className="text-sm font-medium text-white flex-1">LE PROJET</span>
-                        <span className="text-xs px-2 py-0.5 bg-blue-700/60 rounded-full">Intermédiaire</span>
-                      </div>
-                      <div className="flex items-center bg-blue-800/50 p-2 rounded-b-md border-l-4 border-blue-500">
-                        <span className="text-sm font-medium text-white flex-1">LA MISSION</span>
-                        <span className="text-xs px-2 py-0.5 bg-blue-700/70 rounded-full">Spécifique</span>
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-                
-                <AccordionItem value="questions" className="border-blue-700/50">
-                  <AccordionTrigger 
-                    className="hover:bg-blue-800/30 px-2 rounded text-white hover:text-blue-200"
-                    onClick={() => incrementProgress('during')}
-                  >
-                    <div className="flex items-center">
-                      <div className="w-6 h-6 rounded-full border-2 border-blue-400 flex items-center justify-center mr-2 bg-blue-900/50">
-                        <span className="text-xs text-blue-200">3</span>
-                      </div>
-                      Questions intelligentes
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="text-blue-100 bg-blue-950/30 rounded-md p-2 mt-1">
-                    <div className="space-y-2 text-sm">
-                      <p>Quand on vous demande si vous avez des questions, répondez toujours <span className="font-bold text-white">OUI</span>.</p>
-                      
-                      <div className="bg-gradient-to-br from-blue-800/60 to-blue-900/60 p-2 rounded-md border border-blue-500/40">
-                        <div className="flex items-center mb-1">
-                          <Star className="w-4 h-4 mr-1 text-yellow-300" />
-                          <p className="text-white font-medium text-sm">Questions stratégiques :</p>
-                        </div>
-                        <ul className="list-disc ml-5 space-y-0.5 text-xs">
-                          <li>Quels sont les facteurs clés de réussite de cette mission ?</li>
-                          <li>Quelles sont les principales difficultés anticipées ?</li>
-                          <li>Comment s'intègre ce projet dans la stratégie globale ?</li>
-                          <li>Quelles sont vos attentes concernant la communication ?</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </CardContent>
-            
-            {/* Savoir-être section */}
-            <div className="p-5 border-t border-blue-700/30 bg-gradient-to-br from-cyan-900/40 to-blue-900/20">
-              <div className="flex justify-between items-center mb-3">
-                <div className="flex items-center">
-                  <BriefcaseBusiness className="w-5 h-5 mr-2 text-cyan-300" />
-                  <h4 className="text-lg font-semibold text-white">Savoir-être professionnel</h4>
-                </div>
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  className="text-xs text-cyan-300 hover:bg-blue-800/50 hover:text-white"
-                  onClick={() => incrementProgress('during', 2)}
-                >
-                  Marquer comme lu
-                </Button>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3 mb-3">
-                <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/20 rounded-md p-3 border border-cyan-700/30">
-                  <h5 className="font-medium text-cyan-200 text-sm mb-1 flex items-center">
-                    <div className="w-5 h-5 rounded-full bg-cyan-800 flex items-center justify-center mr-1.5 text-white text-xs">P</div>
-                    Posture
-                  </h5>
-                  <ul className="list-disc ml-4 text-xs space-y-1 text-blue-100">
-                    <li>Dos droit, mains sur la table</li>
-                    <li>Contact visuel avec l'auditoire</li>
-                    <li>Gestuelle maîtrisée</li>
-                  </ul>
-                </div>
-                
-                <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/20 rounded-md p-3 border border-cyan-700/30">
-                  <h5 className="font-medium text-cyan-200 text-sm mb-1 flex items-center">
-                    <div className="w-5 h-5 rounded-full bg-cyan-800 flex items-center justify-center mr-1.5 text-white text-xs">A</div>
-                    Attitude
-                  </h5>
-                  <ul className="list-disc ml-4 text-xs space-y-1 text-blue-100">
-                    <li>Poli, courtois et enthousiaste</li>
-                    <li>Déterminé et serein</li>
-                    <li>Dialogue authentique</li>
-                  </ul>
-                </div>
-              </div>
-              
-              <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/20 rounded-md p-3 border border-cyan-700/30">
-                <h5 className="font-medium text-cyan-200 text-sm mb-1 flex items-center">
-                  <div className="w-5 h-5 rounded-full bg-cyan-800 flex items-center justify-center mr-1.5 text-white text-xs">C</div>
-                  Communication
-                </h5>
-                <ul className="list-disc ml-4 text-xs space-y-1 text-blue-100">
-                  <li>Évitez les tics de langage ('donc', 'euh', 'en fait')</li>
-                  <li>Contrôlez votre débit avec des pauses pour respirer</li>
-                  <li>Adaptez votre volume à l'environnement</li>
-                  <li>Ne coupez jamais la parole à votre interlocuteur</li>
-                </ul>
-              </div>
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-blue-200 mb-2">Préparer vos questions</h4>
+            <p className="text-gray-300 mb-4">Avant l'entretien, préparez une liste de questions pertinentes qui vous permettront d'identifier précisément les besoins et contraintes du client. Ces questions doivent couvrir les aspects techniques, organisationnels, et stratégiques du projet.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Questions stratégiques</Badge>
+              <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Questions opérationnelles</Badge>
+              <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Questions techniques</Badge>
             </div>
-          </Card>
-        </div>
-        
-        {/* SECTION 3: APRÈS L'AUDITION */}
-        <div className="flex flex-col space-y-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xl font-bold flex items-center">
-              <div className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center mr-3 text-white">3</div>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-teal-400">
-                Après l'entretien
-              </span>
-            </h3>
-            <Badge variant="outline" className="bg-green-900/40 text-green-200 border-green-500">
-              {progressTracker.after.completed}/{progressTracker.after.total} étapes
-            </Badge>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('preparation')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
           </div>
-          
-          <Card className="bg-gradient-to-br from-green-900/50 to-teal-900/30 border-green-500/50 shadow-lg overflow-hidden h-full">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-teal-400"></div>
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center text-lg">
-                <FileCheck className="w-5 h-5 mr-2 text-green-300" />
-                Suivi post-entretien
-              </CardTitle>
-              <CardDescription className="text-green-100">
-                Les actions post-entretien sont souvent négligées mais peuvent faire la différence.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Accordion type="multiple" className="w-full">
-                <AccordionItem value="immediate-actions" className="border-green-700/50">
-                  <AccordionTrigger 
-                    className="hover:bg-green-800/30 px-2 rounded text-white hover:text-green-200"
-                    onClick={() => incrementProgress('after')}
-                  >
-                    <div className="flex items-center">
-                      <div className="w-6 h-6 rounded-full border-2 border-green-400 flex items-center justify-center mr-2 bg-green-900/50">
-                        <span className="text-xs text-green-200">1</span>
-                      </div>
-                      Actions immédiates
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="text-blue-100 bg-green-950/30 rounded-md p-2 mt-1">
-                    <div className="flex flex-col space-y-1">
-                      <div className="flex items-center">
-                        <div className="w-5 h-5 rounded-full bg-green-800/70 flex items-center justify-center mr-2">
-                          <CheckCircle className="w-3 h-3 text-green-200" />
-                        </div>
-                        <span className="text-sm">Remerciez sincèrement les interlocuteurs</span>
-                      </div>
-                      <div className="flex items-center">
-                        <div className="w-5 h-5 rounded-full bg-green-800/70 flex items-center justify-center mr-2">
-                          <CheckCircle className="w-3 h-3 text-green-200" />
-                        </div>
-                        <span className="text-sm">Exprimez clairement votre motivation</span>
-                      </div>
-                      <div className="flex items-center">
-                        <div className="w-5 h-5 rounded-full bg-green-800/70 flex items-center justify-center mr-2">
-                          <CheckCircle className="w-3 h-3 text-green-200" />
-                        </div>
-                        <span className="text-sm">Échangez des cartes de visite si possible</span>
-                      </div>
-                      <div className="flex items-center">
-                        <div className="w-5 h-5 rounded-full bg-green-800/70 flex items-center justify-center mr-2">
-                          <CheckCircle className="w-3 h-3 text-green-200" />
-                        </div>
-                        <span className="text-sm">Demandez les prochaines étapes du processus</span>
-                      </div>
-                      <div className="flex items-center">
-                        <div className="w-5 h-5 rounded-full bg-green-800/70 flex items-center justify-center mr-2">
-                          <CheckCircle className="w-3 h-3 text-green-200" />
-                        </div>
-                        <span className="text-sm">Précisez votre disponibilité pour démarrer</span>
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-                
-                <AccordionItem value="follow-up" className="border-green-700/50">
-                  <AccordionTrigger 
-                    className="hover:bg-green-800/30 px-2 rounded text-white hover:text-green-200"
-                    onClick={() => incrementProgress('after')}
-                  >
-                    <div className="flex items-center">
-                      <div className="w-6 h-6 rounded-full border-2 border-green-400 flex items-center justify-center mr-2 bg-green-900/50">
-                        <span className="text-xs text-green-200">2</span>
-                      </div>
-                      Email de remerciement
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="text-blue-100 bg-green-950/30 rounded-md p-2 mt-1">
-                    <div className="space-y-2">
-                      <div className="flex items-center bg-green-800/30 rounded p-1.5 text-xs text-green-200">
-                        <Clock className="w-3 h-3 mr-1" />
-                        Envoyez un email dans les 24h suivant l'entretien
-                      </div>
-                      
-                      <div className="bg-gradient-to-br from-green-800/60 to-teal-900/60 p-3 rounded-md border border-green-500/40">
-                        <div className="flex justify-between items-center mb-1">
-                          <p className="text-white font-medium text-sm">Modèle d'email :</p>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="h-6 text-xs border-green-500 text-green-300 hover:bg-green-700 hover:text-white"
-                            onClick={() => {
-                              try {
-                                navigator.clipboard?.writeText("Objet : Remerciement suite à notre entretien du [DATE]\n\nBonjour [PRÉNOM],\n\nJe tenais à vous remercier pour notre échange d'aujourd'hui concernant la mission [NOM DU PROJET].\n\nCet entretien a renforcé mon intérêt pour cette opportunité et je suis convaincu(e) que mon expérience en [COMPÉTENCE CLÉ] sera un atout pour la réussite de ce projet.\n\nJe reste à votre disposition pour toute information complémentaire dont vous pourriez avoir besoin.\n\nBien cordialement,\n[VOTRE NOM]\nConsultant(e) mc2i");
-                                alert("Modèle d'email copié dans le presse-papier");
-                              } catch (error) {
-                                console.error("Erreur lors de la copie:", error);
-                              }
-                            }}
-                          >
-                            <Copy className="w-3 h-3 mr-1" /> Copier
-                          </Button>
-                        </div>
-                        <div className="border-l-2 border-green-500 pl-2 mt-1 text-xs space-y-1 italic">
-                          <p>Objet : Remerciement suite à notre entretien du [DATE]</p>
-                          <p>Bonjour [PRÉNOM],</p>
-                          <p>Je tenais à vous remercier pour notre échange concernant la mission [PROJET].</p>
-                          <p>Cet entretien a renforcé mon intérêt pour cette opportunité et je suis convaincu(e) que mon expérience en [COMPÉTENCE] sera un atout.</p>
-                          <p>Je reste à votre disposition pour toute information complémentaire.</p>
-                          <p>Bien cordialement,</p>
-                          <p>[VOTRE NOM]</p>
-                          <p>Consultant(e) mc2i</p>
-                        </div>
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-                
-                <AccordionItem value="internal-debrief" className="border-green-700/50">
-                  <AccordionTrigger 
-                    className="hover:bg-green-800/30 px-2 rounded text-white hover:text-green-200"
-                    onClick={() => incrementProgress('after')}
-                  >
-                    <div className="flex items-center">
-                      <div className="w-6 h-6 rounded-full border-2 border-green-400 flex items-center justify-center mr-2 bg-green-900/50">
-                        <span className="text-xs text-green-200">3</span>
-                      </div>
-                      Débriefing interne
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="text-blue-100 bg-green-950/30 rounded-md p-2 mt-1">
-                    <div className="space-y-2">
-                      <p className="text-sm">Organisez rapidement un débriefing avec votre manager mc2i :</p>
-                      
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="bg-green-900/40 p-2 rounded-md border border-green-600/30">
-                          <span className="text-xs font-medium text-green-300">À partager</span>
-                          <ul className="list-disc ml-4 text-xs mt-1 space-y-0.5">
-                            <li>Impressions générales</li>
-                            <li>Questions techniques posées</li>
-                            <li>Réception par le client</li>
-                            <li>Prochaines étapes évoquées</li>
-                          </ul>
-                        </div>
-                        <div className="bg-teal-900/40 p-2 rounded-md border border-teal-600/30">
-                          <span className="text-xs font-medium text-teal-300">À analyser</span>
-                          <ul className="list-disc ml-4 text-xs mt-1 space-y-0.5">
-                            <li>Points forts de votre prestation</li>
-                            <li>Points d'amélioration</li>
-                            <li>Degré d'adéquation au poste</li>
-                            <li>Probabilité de succès</li>
-                          </ul>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-gradient-to-br from-green-900/40 to-teal-900/40 rounded-md p-3 border border-green-600/30 mt-1 flex items-center">
-                        <TimerReset className="w-4 h-4 text-green-400 mr-2 flex-shrink-0" />
-                        <p className="text-xs">Créez un document personnel de "leçons apprises" pour progresser lors de vos futurs entretiens</p>
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </CardContent>
-            
-            {/* Final advice */}
-            <div className="p-5 border-t border-green-700/30 bg-gradient-to-b from-teal-900/40 to-green-900/20 mt-auto">
-              <div className="bg-gradient-to-br from-teal-800/30 to-green-900/30 rounded-md p-3 border border-teal-500/50">
-                <div className="flex items-center justify-between mb-2">
-                  <h5 className="text-teal-300 font-medium flex items-center">
-                    <FileCheck className="w-4 h-4 mr-1.5" />
-                    Votre checklist finale
-                  </h5>
-                  <Badge className="bg-teal-700/50 text-teal-100">
-                    Impact élevé
-                  </Badge>
-                </div>
-                <ul className="space-y-1">
-                  <li className="flex items-center text-sm text-teal-100">
-                    <div className="w-4 h-4 rounded border border-teal-400 mr-2 flex items-center justify-center">
-                      <CheckCircle className="w-3 h-3 text-teal-400" />
-                    </div>
-                    Remercier tous les participants
-                  </li>
-                  <li className="flex items-center text-sm text-teal-100">
-                    <div className="w-4 h-4 rounded border border-teal-400 mr-2 flex items-center justify-center">
-                      <CheckCircle className="w-3 h-3 text-teal-400" />
-                    </div>
-                    Envoyer un email personnalisé dans les 24h
-                  </li>
-                  <li className="flex items-center text-sm text-teal-100">
-                    <div className="w-4 h-4 rounded border border-teal-400 mr-2 flex items-center justify-center">
-                      <CheckCircle className="w-3 h-3 text-teal-400" />
-                    </div>
-                    Faire un débriefing avec votre manager
-                  </li>
-                  <li className="flex items-center text-sm text-teal-100">
-                    <div className="w-4 h-4 rounded border border-teal-400 mr-2 flex items-center justify-center">
-                      <CheckCircle className="w-3 h-3 text-teal-400" />
-                    </div>
-                    Noter vos points d'amélioration
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </Card>
         </div>
       </div>
       
-      {/* Next steps button at the bottom */}
-      <div className="mt-8 text-center">
-        <Button
-          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-2 px-6 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105"
-          onClick={() => setActiveTab && setActiveTab('configuration')}
-        >
-          <Sparkles className="w-5 h-5 mr-2" />
-          Démarrer une simulation d'entretien
-        </Button>
-        <p className="text-blue-200 text-sm mt-2">
-          Mettez en pratique ces conseils dans notre environnement de simulation
-        </p>
+      {/* During section */}
+      <div className="mb-10">
+        <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+          <span className="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">2</span>
+          Pendant l'entretien
+        </h3>
+        
+        <div className="ml-12 space-y-6">
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-purple-200 mb-2">Écoute active et reformulation</h4>
+            <p className="text-gray-300 mb-4">Pratiquez l'écoute active en montrant votre intérêt pour les problématiques du client. Reformulez régulièrement ses propos pour confirmer votre compréhension et approfondir les points importants.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Validation de compréhension</Badge>
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Questions d'approfondissement</Badge>
+            </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('during')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-purple-200 mb-2">Posture consultative</h4>
+            <p className="text-gray-300 mb-4">Adoptez une posture de conseil plutôt que de simple prestataire. Montrez comment votre expertise peut apporter une réelle valeur ajoutée au projet, en étant force de proposition tout en restant à l'écoute.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Conseil stratégique</Badge>
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Apport d'expertise</Badge>
+            </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('during')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-purple-200 mb-2">Structuration de votre discours</h4>
+            <p className="text-gray-300 mb-4">Présentez vos idées de façon structurée et cohérente. Utilisez des exemples concrets de projets similaires pour illustrer vos propos, en veillant à ne pas divulguer d'informations confidentielles sur d'autres clients.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Clarté</Badge>
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Exemples concrets</Badge>
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Approche méthodique</Badge>
+            </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('during')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-purple-200 mb-2">Démonstration de vos compétences</h4>
+            <p className="text-gray-300 mb-4">Mettez en avant vos compétences techniques et méthodologiques en AMOA, en les reliant directement aux besoins exprimés par le client. Montrez comment votre expertise peut s'appliquer concrètement à son contexte spécifique.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Expertise AMOA</Badge>
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Méthodologies projet</Badge>
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Outils et techniques</Badge>
+            </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('during')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-purple-200 mb-2">Gestion des objections</h4>
+            <p className="text-gray-300 mb-4">Soyez préparé à répondre aux objections ou aux préoccupations du client. Abordez-les avec professionnalisme et apportez des réponses concrètes qui démontrent votre capacité à anticiper et surmonter les obstacles potentiels.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Anticipation des risques</Badge>
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Solutions alternatives</Badge>
+            </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('during')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      {/* After section */}
+      <div>
+        <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+          <span className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">3</span>
+          Après l'entretien
+        </h3>
+        
+        <div className="ml-12 space-y-6">
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-green-200 mb-2">Analyse de votre performance</h4>
+            <p className="text-gray-300 mb-4">Après l'entretien, prenez le temps d'analyser votre performance. Identifiez vos points forts et les aspects à améliorer pour continuer à progresser dans vos compétences d'entretien client.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Auto-évaluation</Badge>
+              <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Points forts</Badge>
+              <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Axes d'amélioration</Badge>
+            </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('after')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-green-200 mb-2">Suivi et documentation</h4>
+            <p className="text-gray-300 mb-4">Documentez les points clés abordés pendant l'entretien et préparez une proposition ou un compte-rendu synthétique pour le client, démontrant votre compréhension de ses besoins et votre capacité à y répondre.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Synthèse</Badge>
+              <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Proposition de valeur</Badge>
+            </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('after')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-green-200 mb-2">Application concrète</h4>
+            <p className="text-gray-300 mb-4">Testez vos compétences dans une simulation d'entretien client réaliste. Cette pratique vous permettra d'affiner votre approche et de renforcer votre confiance pour vos futurs entretiens professionnels.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Simulation</Badge>
+              <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Feedback</Badge>
+              <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Apprentissage continu</Badge>
+            </div>
+            <button 
+              className="absolute top-4 right-4 bg-blue-500 hover:bg-blue-600 rounded-full p-1"
+              onClick={() => setActiveTab && setActiveTab('preparation')}
+            >
+              <Sparkles className="w-5 h-5 text-white" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
+// Composant principal
 const Mc2iInterviewPreparation: React.FC = () => {
-  const [, navigate] = useLocation();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('best-practices');
-  
-  // État des simulations et configurations
-  const [isSimulationActive, setIsSimulationActive] = useState(false);
-  const [simulationComplete, setSimulationComplete] = useState(false);
-  const [showContactForm, setShowContactForm] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  
-  // Chat
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [userInput, setUserInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // États
+  const [activeTab, setActiveTab] = useState<string>('best-practices');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [userInput, setUserInput] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSimulationActive, setIsSimulationActive] = useState<boolean>(false);
+  const [simulationComplete, setSimulationComplete] = useState<boolean>(false);
+  const [timeRemaining, setTimeRemaining] = useState<number>(600); // 10 minutes
+  const [timerId, setTimerId] = useState<NodeJS.Timeout | null>(null);
+  const [showContactForm, setShowContactForm] = useState<boolean>(false);
+  const [evaluationResult, setEvaluationResult] = useState<any>(null);
   
   // Formulaires
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      recruiterEmail: "",
-      candidateName: "",
-      profileType: "",
-      experienceLevel: "",
-      sectorFocus: "",
+      profileType: "Profil consultant",
+      experienceLevel: "3-5 ans",
+      sectorFocus: "Énergie & Environnement",
     },
   });
   
@@ -674,38 +327,73 @@ const Mc2iInterviewPreparation: React.FC = () => {
     },
   });
   
-  // Timer
-  const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes
-  const [timerId, setTimerId] = useState<NodeJS.Timeout | null>(null);
-  
-  // Résultats
-  const [evaluationResult, setEvaluationResult] = useState<any>(null);
-  
-  // Défilement auto pour la conversation
+  // Scroll automatique vers le bas de la conversation
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
   
-  // Mise à jour du timer
+  // Vérifier si le temps est écoulé
   useEffect(() => {
-    if (timeRemaining === 0 && !simulationComplete) {
+    if (timeRemaining === 0 && isSimulationActive) {
       completeSimulation();
     }
   }, [timeRemaining]);
   
-  // Formatage du temps
+  // Formatter le temps
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
   };
   
-  // Démarrage de la simulation
+  // Démarrage de la simulation avec génération IA du premier message
   const startSimulation = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     
     try {
-      setTimeout(() => {
+      // Création du prompt système pour le premier message
+      const systemPrompt = {
+        role: "system",
+        content: `Tu es Sophie Martin, Directrice des Systèmes d'Information de l'entreprise EnerGreen, spécialisée dans le secteur ${values.sectorFocus}.
+
+Tu dois générer un message d'introduction pour un entretien avec un consultant AMOA qui viendra t'aider sur un projet de transformation numérique.
+
+Dans ton message d'introduction, tu dois:
+1. Te présenter (nom, poste, entreprise)
+2. Expliquer brièvement le contexte de ton entreprise
+3. Présenter la problématique principale (optimisation des processus métiers, mise en place d'un nouveau système de gestion)
+4. Mentionner que tes équipes manquent d'expertise en conduite du changement
+5. Demander au consultant de se présenter et d'expliquer comment son expérience pourrait aider dans ce contexte
+
+Ton message doit être professionnel, concis (maximum 10 lignes) et inciter le consultant à démontrer ses compétences AMOA.`
+      };
+      
+      // Message utilisateur pour générer l'introduction
+      const userPrompt = {
+        role: "user",
+        content: `Génère un message d'introduction pour un entretien client dans le secteur ${values.sectorFocus}.`
+      };
+      
+      // Appel à l'API Azure OpenAI pour générer le message d'introduction
+      const response = await fetch('/api/openai/completion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [systemPrompt, userPrompt],
+          model: "gpt-4o-mini", // Utiliser le modèle disponible
+          temperature: 0.7
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Erreur lors de la requête à l'API OpenAI");
+      }
+      
+      const data = await response.json();
+      
+      if (data && data.choices && data.choices[0] && data.choices[0].message) {
         const systemMessage: Message = {
           id: 'system-1',
           role: 'system',
@@ -716,13 +404,7 @@ const Mc2iInterviewPreparation: React.FC = () => {
         const welcomeMessage: Message = {
           id: 'assistant-1',
           role: 'assistant',
-          content: `Bonjour, je suis Sophie Martin, Directrice des Systèmes d'Information de l'entreprise EnerGreen, spécialisée dans le secteur ${values.sectorFocus}. Ravie de vous rencontrer aujourd'hui.
-
-Notre entreprise fait face à des défis importants de transformation numérique, et nous avons besoin d'un accompagnement AMOA pour nous aider à structurer et mener à bien plusieurs projets stratégiques.
-
-Notre principal problème actuellement concerne l'optimisation de nos processus métiers et la mise en place d'un nouveau système de gestion qui permettrait une meilleure intégration entre nos différents départements. Nos équipes internes manquent d'expertise en conduite du changement et en cadrage de projets complexes.
-
-Je souhaiterais que vous vous présentiez brièvement, que vous m'expliquiez votre compréhension de notre contexte avec vos propres mots, et que vous me parliez de vos expériences précédentes qui pourraient être pertinentes pour notre situation.`,
+          content: data.choices[0].message.content,
           timestamp: new Date(),
         };
         
@@ -741,8 +423,9 @@ Je souhaiterais que vous vous présentiez brièvement, que vous m'expliquiez vot
         }, 1000);
         
         setTimerId(timer);
-        
-      }, 1500);
+      } else {
+        throw new Error("Format de réponse inattendu");
+      }
     } catch (error) {
       console.error('Erreur lors du démarrage de la simulation:', error);
       toast({
@@ -769,8 +452,8 @@ Je souhaiterais que vous vous présentiez brièvement, que vous m'expliquiez vot
     startSimulation(values);
   };
   
-  // Fonction pour envoyer un message
-  const sendMessage = () => {
+  // Fonction pour envoyer un message et recevoir une réponse générée par IA
+  const sendMessage = async () => {
     if (!userInput.trim() || isLoading) return;
     
     // Créer le message utilisateur
@@ -786,107 +469,97 @@ Je souhaiterais que vous vous présentiez brièvement, que vous m'expliquiez vot
     setUserInput('');
     setIsLoading(true);
     
-    // Simuler un délai pour une expérience plus réaliste
-    setTimeout(() => {
-      try {
-        // Questions spécifiques pour le recruteur mc2i selon l'étape de l'entretien
-        const questionIndex = Math.floor(messages.length / 2);
-        
-        // Liste de questions de recrutement pour différentes étapes de l'entretien
-        const recruiterQuestions = [
-          // Phase 1: Questions sur l'expérience et le parcours
-          "Je vous remercie pour cette présentation. Pouvez-vous me décrire un projet AMOA significatif sur lequel vous avez travaillé et votre contribution spécifique ?",
-          
-          // Phase 2: Questions techniques sur l'AMOA
-          "Très intéressant. Dans le cadre de vos missions AMOA, comment procédez-vous pour analyser et formaliser les besoins des utilisateurs ? Quelles méthodes et outils utilisez-vous ?",
-          
-          // Phase 3: Questions sur la gestion de projet
-          "Je vois. Et comment gérez-vous les situations où les exigences sont floues ou contradictoires ? Pouvez-vous me donner un exemple concret où vous avez dû faire face à ce type de situation ?",
-          
-          // Phase 4: Questions sur la relation client
-          "Lorsque vous êtes confronté à des parties prenantes ayant des visions différentes sur un projet, comment parvenez-vous à établir un consensus ? Quelle approche adoptez-vous ?",
-          
-          // Phase 5: Questions sur la résolution de problèmes
-          "Racontez-moi une situation difficile que vous avez rencontrée sur un projet et comment vous l'avez surmontée. Qu'avez-vous appris de cette expérience ?",
-          
-          // Phase 6: Questions sur les méthodologies
-          "Quelles méthodologies de gestion de projet connaissez-vous et avez-vous expérimentées ? Comment choisissez-vous la plus adaptée selon le contexte ?",
-          
-          // Phase 7: Questions sur les outils
-          "Quels outils et logiciels maîtrisez-vous pour la gestion de projet et la modélisation des processus ? Comment les utilisez-vous au quotidien ?",
-          
-          // Phase 8: Questions sur la vision du poste
-          "Selon vous, quelles sont les qualités essentielles d'un bon consultant AMOA chez mc2i ? Comment incarnez-vous ces qualités ?",
-          
-          // Phase 9: Questions sur les motivations
-          "Qu'est-ce qui vous intéresse particulièrement dans ce secteur ? Avez-vous des connaissances ou expériences spécifiques à ce domaine ?",
-          
-          // Phase finale: Conclusion
-          "Nous arrivons à la fin de cet entretien. Avez-vous des questions sur mc2i, nos méthodes de travail ou le poste que vous souhaiteriez me poser ?"
-        ];
-        
-        // Message personnalisé selon l'étape de l'entretien
-        let aiResponse = "";
-        
-        // Si l'entretien a déjà duré assez longtemps, utiliser le dernier message (conclusion)
-        if (questionIndex >= recruiterQuestions.length - 1 || messages.length >= 12) {
-          aiResponse = recruiterQuestions[recruiterQuestions.length - 1];
-        } else {
-          // Sinon, utiliser la question correspondante à l'étape actuelle
-          aiResponse = recruiterQuestions[questionIndex];
-        }
-        
-        // Créer le message du recruteur
-        const aiMessage: Message = {
-          id: `assistant-${messages.length + 2}`,
-          role: 'assistant',
-          content: aiResponse,
-          timestamp: new Date(),
-        };
-        
-        // Ajouter le message du recruteur à la conversation
-        setMessages(prev => [...prev, aiMessage]);
-        
-        // Terminer automatiquement l'entretien après un certain nombre d'échanges
-        if (messages.length >= 10) {
-          setTimeout(() => {
-            setSimulationComplete(true);
-          }, 3000);
-        }
-      } catch (error) {
-        console.error('Erreur lors de la génération de réponse:', error);
-        
-        // Questions de repli en cas d'erreur
-        const fallbackResponses = [
-          "Je trouve votre réponse intéressante. Pouvez-vous approfondir sur votre approche méthodologique en AMOA ?",
-          "Merci pour ces précisions. Comment géreriez-vous les parties prenantes dans un projet complexe ?",
-          "Pourriez-vous me donner un exemple concret où vous avez dû faire face à un changement de périmètre en cours de projet ?",
-          "Quels outils utilisez-vous habituellement pour formaliser les besoins ?",
-          "Comment vous assurez-vous de la bonne compréhension des exigences par toutes les parties prenantes ?"
-        ];
-        
-        // Créer un message de repli
-        const fallbackMessage: Message = {
-          id: `assistant-${messages.length + 2}`,
-          role: 'assistant',
-          content: fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)],
-          timestamp: new Date(),
-        };
-        
-        // Ajouter le message de repli à la conversation
-        setMessages(prev => [...prev, fallbackMessage]);
-        
-        // Notification discrète
-        toast({
-          title: "Note",
-          description: "Utilisation de questions prédéfinies.",
-          variant: "default",
-        });
-      } finally {
-        // Toujours désactiver l'indicateur de chargement
-        setIsLoading(false);
+    try {
+      // Préparation des données pour l'IA
+      const conversationHistory = messages
+        .filter(msg => msg.role !== 'system')
+        .map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
+      
+      // Ajout du nouveau message de l'utilisateur
+      conversationHistory.push({
+        role: 'user',
+        content: userInput
+      });
+      
+      // Création du prompt système pour guider la réponse du client IA
+      const systemPrompt = {
+        role: "system",
+        content: `Tu es Sophie Martin, Directrice des Systèmes d'Information de l'entreprise EnerGreen, spécialisée dans le secteur de l'énergie et l'environnement.
+
+Tu es en entretien avec un consultant AMOA que tu évalues pour un projet de transformation numérique dans ton entreprise.
+
+Voici le contexte que tu as déjà présenté:
+- Ton entreprise fait face à des défis de transformation numérique
+- Vous avez besoin d'aide pour structurer et mener à bien plusieurs projets stratégiques
+- Le principal problème concerne l'optimisation des processus métiers et la mise en place d'un nouveau système de gestion intégré
+- Vos équipes manquent d'expertise en conduite du changement et en cadrage de projets complexes
+
+Dans cet entretien:
+1. Tu dois évaluer rigoureusement les compétences AMOA du consultant
+2. Pose des questions PRÉCISES et CHALLENGEANTES sur les concepts AMOA, la méthodologie projet, et l'analyse des besoins
+3. Réagis de manière réaliste aux réponses du consultant, en creusant les points flous ou incomplets
+4. Si le consultant propose une méthode ou solution, demande des détails concrets sur sa mise en œuvre
+5. Concentre-toi sur des problématiques concrètes liées au contexte présenté
+6. Sois professionnelle mais exigeante sur la justesse technique des réponses
+
+Ta réponse doit:
+- Être concise (max 4-5 phrases)
+- Réagir spécifiquement au dernier message du consultant
+- Poser une nouvelle question pour approfondir un aspect AMOA ou challenger le consultant
+- Rester dans le contexte du projet de transformation numérique présenté
+
+Ne termine pas l'entretien avant que le consultant ne l'ait demandé ou que vous ayez échangé au moins 5 fois.`
+      };
+      
+      // Appel à l'API Azure OpenAI pour générer la réponse
+      const response = await fetch('/api/openai/completion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [
+            systemPrompt,
+            ...conversationHistory,
+          ],
+          model: "gpt-4o-mini", // Utiliser le modèle disponible dans Azure
+          temperature: 0.7
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Erreur lors de la requête à l'API OpenAI");
       }
-    }, 1500);
+      
+      const data = await response.json();
+      
+      if (data && data.choices && data.choices[0] && data.choices[0].message) {
+        // Créer le message du client avec la réponse générée par IA
+        const aiMessage: Message = {
+          id: `assistant-${messages.length + 1}`,
+          role: 'assistant',
+          content: data.choices[0].message.content,
+          timestamp: new Date(),
+        };
+        
+        // Ajouter le message du client à la conversation
+        setMessages(prev => [...prev, aiMessage]);
+      } else {
+        throw new Error("Format de réponse inattendu");
+      }
+    } catch (error) {
+      console.error('Erreur lors de la génération de la réponse:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer une réponse IA. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   // Compléter la simulation
@@ -921,53 +594,117 @@ Je souhaiterais que vous vous présentiez brièvement, que vous m'expliquiez vot
     performEvaluation();
   };
   
-  // Évaluation de la performance
+  // Évaluation de la performance par IA
   const performEvaluation = async () => {
     setIsLoading(true);
     
     try {
-      // Simuler un appel API d'évaluation (à remplacer par l'appel réel)
-      setTimeout(() => {
-        const mockEvaluation = {
-          summary: "Votre performance durant cet entretien client démontre une bonne compréhension des enjeux business et une capacité à dialoguer avec les parties prenantes. Vous avez montré des compétences en analyse de besoins, mais certains aspects techniques et méthodologiques pourraient être approfondis pour maximiser l'impact de votre accompagnement AMOA.",
-          strengths: [
-            "Bonne écoute et compréhension des problématiques client",
-            "Communication claire et professionnelle",
-            "Capacité à reformuler les besoins et à poser des questions pertinentes",
-            "Adaptabilité face aux enjeux complexes présentés par le client",
-            "Posture consultative appropriée et synthèse efficace des priorités"
-          ],
-          improvements: [
-            "Approfondissement des propositions de solutions concrètes",
-            "Structure de l'entretien parfois insuffisamment maîtrisée",
-            "Questionnement sur les contraintes organisationnelles à renforcer",
-            "Articulation entre besoins exprimés et solutions à proposer",
-            "Analyse des risques projet à développer davantage"
-          ],
-          detailedNotes: "Votre entretien avec le client révèle une bonne capacité d'analyse et d'écoute. Vous avez su créer un climat de confiance et identifier plusieurs points importants de la problématique. Cependant, votre approche gagnerait en impact avec une méthodologie plus structurée pour l'identification des besoins et une capacité à projeter le client vers des solutions concrètes. Les clients accordent une importance particulière à la valeur ajoutée immédiate que peut apporter un consultant, notamment sa capacité à naviguer dans leur contexte organisationnel tout en apportant une expertise externe. Votre approche des questions montre un bon potentiel, mais nécessite un renforcement des techniques d'entretien et de cadrage.",
-          recommendations: [
-            "Développez une méthodologie d'entretien plus structurée (QQOQCCP, 5W, etc.)",
-            "Préparez un questionnaire type pour chaque phase de cadrage projet",
-            "Renforcez votre connaissance des principes de transformation numérique spécifiques au secteur du client",
-            "Améliorez votre technique de reformulation pour valider votre compréhension",
-            "Développez votre capacité à projeter le client vers une vision solution concrète"
-          ],
-          sectorFitEvaluation: "Votre compréhension de la problématique client montre une bonne analyse des enjeux métier, mais manque parfois de profondeur sur les spécificités sectorielles et les tendances d'innovation actuelles. Vous avez perçu certains défis organisationnels mais pourriez approfondir l'analyse des impacts potentiels du projet sur l'ensemble de la chaîne de valeur.",
-          conclusion: "Votre approche montre un potentiel réel pour accompagner efficacement ce type de client. Vous avez établi une relation de confiance et démontré une bonne compréhension des enjeux principaux. En travaillant sur les axes d'amélioration identifiés, particulièrement sur la structuration des entretiens et l'approfondissement des solutions concrètes, vous renforcerez significativement votre impact en tant que consultant AMOA. Nous vous recommandons également de développer une connaissance plus approfondie des problématiques spécifiques au secteur d'activité du client."
-        };
+      // Préparation des données pour l'analyse IA
+      const conversationHistory = messages
+        .filter(msg => msg.role !== 'system')
+        .map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
+      
+      // Création du prompt système pour l'analyse
+      const systemPrompt = {
+        role: "system",
+        content: `Tu es un expert en évaluation d'entretiens clients dans le contexte AMOA (Assistance à Maîtrise d'Ouvrage).
         
-        setEvaluationResult(mockEvaluation);
-        setActiveTab('evaluation');
-        setSimulationComplete(true);
-        setIsLoading(false);
-      }, 2000);
+Tu dois analyser méticuleusement cette conversation entre un client et un consultant AMOA.
+Le client a présenté une problématique business réelle, et le consultant (utilisateur) a tenté d'y répondre.
+
+Ton rôle est d'évaluer la performance du consultant selon ces critères:
+1. Qualité de l'écoute et compréhension des besoins
+2. Pertinence des questions posées et capacité à approfondir
+3. Maîtrise des concepts AMOA et méthodologies projet
+4. Capacité à proposer des solutions adaptées
+5. Professionnalisme et posture consultative
+
+IMPORTANT: Tu dois produire une analyse détaillée et constructive au format JSON avec les champs suivants:
+- summary: résumé global de la performance (150-200 mots)
+- strengths: tableau de 3-5 forces identifiées (phrases courtes et précises)
+- improvements: tableau de 3-5 axes d'amélioration (phrases courtes et précises)
+- detailedNotes: analyse détaillée de la performance (300-350 mots)
+- recommendations: tableau de 3-5 recommandations concrètes d'amélioration
+- sectorFitEvaluation: évaluation de la compréhension du secteur et des spécificités métier (100-150 mots)
+- conclusion: conclusion et perspective d'évolution (100-150 mots)
+
+Ton analyse doit être rigoureuse, utile pour le développement professionnel, et basée uniquement sur les échanges réels de la conversation.`
+      };
+      
+      // Ajout d'un message utilisateur pour préciser la demande
+      const userPrompt = {
+        role: "user",
+        content: `Voici l'historique complet d'un entretien entre un client et un consultant AMOA. Analyse la performance du consultant et fournis une évaluation structurée au format JSON comme demandé dans tes instructions. Assure-toi que ton analyse soit précise, équilibrée et constructive.`
+      };
+      
+      // Appel à l'API pour générer l'évaluation
+      const response = await fetch('/api/openai/completion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [
+            systemPrompt,
+            ...conversationHistory,
+            userPrompt
+          ],
+          model: "gpt-4o-mini", // Utiliser le modèle disponible
+          temperature: 0.7,
+          response_format: { type: "json_object" }
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Erreur lors de la requête à l'API OpenAI");
+      }
+      
+      const data = await response.json();
+      
+      if (data && data.choices && data.choices[0] && data.choices[0].message) {
+        try {
+          // Analyser la réponse JSON
+          let evaluationData = JSON.parse(data.choices[0].message.content);
+          
+          // Vérifier que tous les champs sont présents, sinon ajouter des valeurs par défaut
+          const defaultEvaluation = {
+            summary: "Analyse de performance non disponible.",
+            strengths: [],
+            improvements: [],
+            detailedNotes: "Détails non disponibles.",
+            recommendations: [],
+            sectorFitEvaluation: "Évaluation non disponible.",
+            conclusion: "Conclusion non disponible."
+          };
+          
+          // Fusionner avec les valeurs par défaut pour s'assurer que tous les champs sont présents
+          evaluationData = { ...defaultEvaluation, ...evaluationData };
+          
+          setEvaluationResult(evaluationData);
+          setActiveTab('evaluation');
+          setSimulationComplete(true);
+        } catch (parseError) {
+          console.error('Erreur lors du parsing de la réponse JSON:', parseError);
+          toast({
+            title: "Erreur de format",
+            description: "L'analyse n'a pas pu être correctement formatée. Veuillez réessayer.",
+            variant: "destructive",
+          });
+        }
+      } else {
+        throw new Error("Format de réponse inattendu");
+      }
     } catch (error) {
       console.error('Erreur lors de l\'évaluation:', error);
       toast({
         title: "Erreur",
-        description: "Impossible d'obtenir l'évaluation. Veuillez réessayer.",
+        description: "Impossible d'obtenir l'évaluation IA. Veuillez réessayer.",
         variant: "destructive",
       });
+    } finally {
       setIsLoading(false);
     }
   };
@@ -978,243 +715,183 @@ Je souhaiterais que vous vous présentiez brièvement, que vous m'expliquiez vot
         <div className="flex justify-between items-center mb-4">
           <Button 
             variant="ghost" 
-            className="text-white hover:text-white hover:bg-gray-700/80"
-            onClick={() => window.history.back()}
+            className="flex items-center text-gray-300 hover:text-white hover:bg-gray-700/50" 
+            onClick={() => setLocation('/amoa-mode-selection-fixed')}
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Retour
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Retour aux modules AMOA
           </Button>
+          
+          <div className="flex items-center">
+            <Users className="w-5 h-5 mr-2 text-blue-400" />
+            <span className="text-gray-300 text-sm">
+              <span className="font-bold text-blue-400">4.9</span>
+              <span className="mx-1">/</span>
+              <span>5</span>
+              <span className="ml-1">({Math.floor(Math.random() * 500) + 1500} utilisateurs)</span>
+            </span>
+          </div>
         </div>
         
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-indigo-500">
-            Entretien de recrutement mc2i
+          <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
+            Simulation d'entretien client
           </h1>
-          <p className="text-gray-300 max-w-3xl mx-auto">
-            Cette simulation vous met dans la peau d'un candidat lors d'un entretien d'embauche chez mc2i. Elle vous permet de vous entraîner à répondre aux questions spécifiques d'un recruteur mc2i et d'évaluer vos compétences AMOA.
+          <p className="text-gray-300 mt-2 max-w-3xl mx-auto">
+            Perfectionnez vos compétences en entretien client avec cette simulation interactive qui vous permet de pratiquer dans un environnement réaliste. Recevez un feedback détaillé pour améliorer votre approche.
           </p>
         </div>
         
-        <Tabs 
-          defaultValue="best-practices" 
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="w-full max-w-6xl mx-auto"
-        >
-          <TabsList className="grid grid-cols-3 mb-8 bg-gray-800/60">
-            <TabsTrigger 
-              value="best-practices"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-700/80 data-[state=active]:to-blue-700/80"
-            >
-              Bonnes pratiques
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
+          <TabsList className="grid grid-cols-3 bg-gray-800/50 border border-gray-700/50">
+            <TabsTrigger value="best-practices" className="data-[state=active]:bg-blue-600/50">
+              <FileCheck className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Bonnes pratiques</span>
+              <span className="sm:hidden">Pratiques</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="simulation"
-              disabled={!isSimulationActive}
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-700/80 data-[state=active]:to-cyan-700/80"
-            >
-              Simulation
+            <TabsTrigger value="preparation" className="data-[state=active]:bg-purple-600/50">
+              <BriefcaseBusiness className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Préparation</span>
+              <span className="sm:hidden">Préparer</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="evaluation"
-              disabled={!simulationComplete}
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-700/80 data-[state=active]:to-teal-700/80"
-            >
-              Évaluation
+            <TabsTrigger value="simulation" className="data-[state=active]:bg-green-600/50" disabled={!isSimulationActive && activeTab !== 'simulation'}>
+              <User className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Simulation</span>
+              <span className="sm:hidden">Simuler</span>
             </TabsTrigger>
           </TabsList>
           
           <TabsContent value="best-practices">
-            <Card className="bg-gray-800/30 border-gray-700/50 shadow-lg">
-              <CardHeader className="border-b border-gray-700/50">
-                <CardTitle className="text-xl text-center">Guide de préparation d'entretien pour candidats chez mc2i</CardTitle>
-                <CardDescription className="text-gray-300 text-center">
-                  Conseils pour optimiser votre présentation et vos réponses lors d'un entretien avec un recruteur mc2i
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <BestPracticesContent setActiveTab={setActiveTab} />
-              </CardContent>
-              <CardFooter className="flex justify-between border-t border-gray-700/50 pt-4">
-                <Button
-                  onClick={() => window.print()}
-                  variant="outline"
-                  className="border-gray-600 text-gray-300 hover:bg-gray-700"
-                >
-                  Imprimer ce guide
-                </Button>
-                <Button
-                  onClick={() => setActiveTab('configuration')}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                >
-                  Démarrer une simulation
-                </Button>
-              </CardFooter>
-            </Card>
+            <BestPracticesContent setActiveTab={setActiveTab} />
           </TabsContent>
           
-          <TabsContent value="configuration">
+          <TabsContent value="preparation">
             <Card className="bg-gray-800/30 border-gray-700/50 shadow-lg">
               <CardHeader className="border-b border-gray-700/50">
-                <CardTitle className="text-xl">Configuration de l'entretien</CardTitle>
+                <div className="flex items-center">
+                  <BriefcaseBusiness className="w-6 h-6 mr-2 text-purple-500" />
+                  <CardTitle className="text-xl">Préparation de l'entretien</CardTitle>
+                </div>
                 <CardDescription className="text-gray-300">
-                  Configurez les paramètres pour la simulation d'entretien de recrutement
+                  Définissez les paramètres de la simulation pour un entretien adapté à votre profil
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
+                <div className="mb-4 bg-blue-900/20 p-4 rounded-md border border-blue-700/30">
+                  <div className="flex items-center mb-2">
+                    <Lightbulb className="w-5 h-5 text-yellow-500 mr-2" />
+                    <h3 className="text-md font-semibold text-blue-200">Conseil de simulation</h3>
+                  </div>
+                  <p className="text-gray-300 text-sm">
+                    Pour une expérience plus immersive, configurez la simulation avec des paramètres proches de votre profil réel ou de celui que vous souhaitez développer. Cela vous permettra de pratiquer des réponses authentiques et pertinentes.
+                  </p>
+                </div>
+                
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(startSimulation)} className="space-y-6">
-                    <div className="bg-gray-800/60 p-5 rounded-md mb-6 border border-gray-700/50">
-                      <h3 className="text-lg font-semibold mb-4">Informations optionnelles pour recevoir l'évaluation par email</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="recruiterEmail"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-gray-300">Votre email (envoi du rapport)</FormLabel>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="profileType"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white">Type de profil</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
-                                <Input 
-                                  placeholder="votre.email@mc2i.fr" 
-                                  className="bg-gray-900/60 border-gray-700 text-white"
-                                  {...field} 
-                                />
+                                <SelectTrigger className="bg-gray-700/60 border-gray-600 text-white">
+                                  <SelectValue placeholder="Sélectionnez un type de profil" />
+                                </SelectTrigger>
                               </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="candidateName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-gray-300">Nom du consultant</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  placeholder="Prénom Nom" 
-                                  className="bg-gray-900/60 border-gray-700 text-white"
-                                  {...field} 
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="bg-gray-800/60 p-5 rounded-md border border-gray-700/50">
-                      <h3 className="text-lg font-semibold mb-4">Paramètres de simulation (requis)</h3>
-                      <div className="grid grid-cols-1 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="profileType"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-gray-300">Type de profil</FormLabel>
-                              <Select 
-                                onValueChange={field.onChange} 
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="bg-gray-900/60 border-gray-700 text-white">
-                                    <SelectValue placeholder="Sélectionnez un type de profil" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                                  <SelectItem value="Profil junior">Profil junior</SelectItem>
-                                  <SelectItem value="Profil confirmé">Profil confirmé</SelectItem>
-                                  <SelectItem value="Profil senior">Profil senior</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="experienceLevel"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-gray-300">Niveau d'expérience</FormLabel>
-                              <Select 
-                                onValueChange={field.onChange} 
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="bg-gray-900/60 border-gray-700 text-white">
-                                    <SelectValue placeholder="Sélectionnez un niveau d'expérience" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                                  <SelectItem value="Stage/Alternance">Stage ou Alternance</SelectItem>
-                                  <SelectItem value="0-2 ans">0-2 ans</SelectItem>
-                                  <SelectItem value="2-5 ans">2-5 ans</SelectItem>
-                                  <SelectItem value="5-8 ans">5-8 ans</SelectItem>
-                                  <SelectItem value="8-12 ans">8-12 ans</SelectItem>
-                                  <SelectItem value="12+ ans">12+ ans</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="sectorFocus"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-gray-300">Secteur d'activité</FormLabel>
-                              <Select 
-                                onValueChange={field.onChange} 
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="bg-gray-900/60 border-gray-700 text-white">
-                                    <SelectValue placeholder="Sélectionnez un secteur d'activité" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                                  <SelectItem value="Banque & Assurance">Banque & Assurance</SelectItem>
-                                  <SelectItem value="Industrie">Industrie</SelectItem>
-                                  <SelectItem value="Énergie">Énergie</SelectItem>
-                                  <SelectItem value="Secteur Public">Secteur Public</SelectItem>
-                                  <SelectItem value="Retail">Retail</SelectItem>
-                                  <SelectItem value="Santé">Santé</SelectItem>
-                                  <SelectItem value="Luxe">Luxe</SelectItem>
-                                  <SelectItem value="Transport & Logistique">Transport & Logistique</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-col sm:flex-row justify-between gap-4">
-                      <Button
-                        type="submit"
-                        className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? (
-                          <>Chargement...</>
-                        ) : (
-                          <>Démarrer la simulation</>
+                              <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                                <SelectItem value="Profil junior">Consultant junior</SelectItem>
+                                <SelectItem value="Profil confirmé">Consultant confirmé</SelectItem>
+                                <SelectItem value="Profil senior">Consultant senior</SelectItem>
+                                <SelectItem value="Profil expert">Consultant expert/manager</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormDescription className="text-gray-400">
+                              Le type de profil influence la complexité des questions posées
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
                         )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="experienceLevel"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white">Niveau d'expérience</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger className="bg-gray-700/60 border-gray-600 text-white">
+                                  <SelectValue placeholder="Sélectionnez un niveau d'expérience" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                                <SelectItem value="0-2 ans">0-2 ans</SelectItem>
+                                <SelectItem value="2-5 ans">2-5 ans</SelectItem>
+                                <SelectItem value="5-10 ans">5-10 ans</SelectItem>
+                                <SelectItem value="10+ ans">10+ ans</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormDescription className="text-gray-400">
+                              L'expérience influence les attentes du client sur vos réponses
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <FormField
+                      control={form.control}
+                      name="sectorFocus"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-white">Secteur d'activité du client</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="bg-gray-700/60 border-gray-600 text-white">
+                                <SelectValue placeholder="Sélectionnez un secteur d'activité" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                              <SelectItem value="Banque & Assurance">Banque & Assurance</SelectItem>
+                              <SelectItem value="Énergie & Environnement">Énergie & Environnement</SelectItem>
+                              <SelectItem value="Santé & Protection sociale">Santé & Protection sociale</SelectItem>
+                              <SelectItem value="Secteur public">Secteur public</SelectItem>
+                              <SelectItem value="Télécoms & Médias">Télécoms & Médias</SelectItem>
+                              <SelectItem value="Transport & Logistique">Transport & Logistique</SelectItem>
+                              <SelectItem value="Industrie & Distribution">Industrie & Distribution</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormDescription className="text-gray-400">
+                            Le secteur détermine le contexte métier de l'entretien
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div className="pt-4 border-t border-gray-700/50 flex justify-between">
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        className="text-gray-300 hover:text-white hover:bg-gray-700"
+                        onClick={skipInfoAndStart}
+                      >
+                        <TimerReset className="w-4 h-4 mr-2" />
+                        Démarrer rapidement
                       </Button>
                       
-                      <Button
-                        type="button"
-                        className="flex-1 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800"
-                        onClick={skipInfoAndStart}
+                      <Button 
+                        type="submit" 
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                         disabled={isLoading}
                       >
-                        Ignorer les informations de contact
+                        {isLoading ? "Chargement..." : "Lancer l'entretien simulé"}
                       </Button>
                     </div>
                   </form>
