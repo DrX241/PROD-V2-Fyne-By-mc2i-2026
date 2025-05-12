@@ -98,7 +98,7 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
           ></div>
         </div>
         <p className="text-blue-100 text-sm">
-          Accomplissez les étapes pour maîtriser le processus d'audition
+          Accomplissez les étapes pour réussir votre entretien de recrutement chez mc2i
         </p>
       </div>
     
@@ -110,7 +110,7 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
             <h3 className="text-xl font-bold flex items-center">
               <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center mr-3 text-white">1</div>
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
-                Avant l'audition
+                Avant l'entretien
               </span>
             </h3>
             <Badge variant="outline" className="bg-purple-900/40 text-purple-200 border-purple-500">
@@ -145,7 +145,7 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
                       <li>Tenue professionnelle adaptée au client (costume pour environnements formels)</li>
                       <li>Évitez les tenues trop décontractées même en cas d'environnement startup</li>
                       <li>Assurez-vous que vos vêtements sont propres, repassés et en bon état</li>
-                      <li>Pour les auditions à distance, portez une tenue professionnelle complète</li>
+                      <li>Pour les entretiens à distance, portez une tenue professionnelle complète</li>
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
@@ -236,7 +236,7 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
             <h3 className="text-xl font-bold flex items-center">
               <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center mr-3 text-white">2</div>
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400">
-                Pendant l'audition
+                Pendant l'entretien
               </span>
             </h3>
             <Badge variant="outline" className="bg-blue-900/40 text-blue-200 border-blue-500">
@@ -272,7 +272,7 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
                       <li>En présentiel : poignée de main franche, contact visuel</li>
                       <li>À distance : vérifiez votre équipement technique avant</li>
                       <li>Laissez au manager le soin de "briser la glace"</li>
-                      <li>Remerciez pour l'opportunité de cette audition</li>
+                      <li>Remerciez pour l'opportunité de cet entretien</li>
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
@@ -408,7 +408,7 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
             <h3 className="text-xl font-bold flex items-center">
               <div className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center mr-3 text-white">3</div>
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-teal-400">
-                Après l'audition
+                Après l'entretien
               </span>
             </h3>
             <Badge variant="outline" className="bg-green-900/40 text-green-200 border-green-500">
@@ -569,7 +569,7 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
                       
                       <div className="bg-gradient-to-br from-green-900/40 to-teal-900/40 rounded-md p-3 border border-green-600/30 mt-1 flex items-center">
                         <TimerReset className="w-4 h-4 text-green-400 mr-2 flex-shrink-0" />
-                        <p className="text-xs">Créez un document personnel de "leçons apprises" pour progresser lors de vos futures auditions</p>
+                        <p className="text-xs">Créez un document personnel de "leçons apprises" pour progresser lors de vos futurs entretiens</p>
                       </div>
                     </div>
                   </AccordionContent>
@@ -628,7 +628,7 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
           onClick={() => setActiveTab && setActiveTab('configuration')}
         >
           <Sparkles className="w-5 h-5 mr-2" />
-          Démarrer une simulation d'audition
+          Démarrer une simulation d'entretien
         </Button>
         <p className="text-blue-200 text-sm mt-2">
           Mettez en pratique ces conseils dans notre environnement de simulation
