@@ -538,6 +538,18 @@ export async function endAmoaExpertSession(req: Request, res: Response) {
     }
     
     // Filtrer uniquement les messages utilisateur et assistant (pas les prompts système)
+    const userMessages = session.messages.filter(msg => msg.role === "user");
+    
+    // Vérifier s'il y a eu des interactions utilisateur
+    if (userMessages.length === 0) {
+      // Aucune interaction utilisateur, ne pas générer de résumé inventé
+      userSessions.delete(userId);
+      return res.json({
+        success: true,
+        summary: "Aucune interaction n'a été enregistrée pendant cette session."
+      });
+    }
+    
     const conversationHistory = session.messages
       .filter(msg => msg.role === "user" || msg.role === "assistant")
       .map(msg => `${msg.role === "user" ? "Utilisateur" : "Expert AMOA"}: ${msg.content}`)

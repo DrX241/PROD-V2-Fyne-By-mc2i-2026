@@ -556,12 +556,19 @@ function ExpertLearningPageContent() {
                     </Button>
                   </CardHeader>
                   <CardContent className="max-h-[60vh] overflow-y-auto">
-                    <div 
-                      className="prose prose-invert max-w-none text-violet-100" 
-                      dangerouslySetInnerHTML={{ 
-                        __html: DOMPurify.sanitize(formatTextWithStructure(sessionSummary)) 
-                      }}
-                    />
+                    {sessionSummary === "Aucune interaction n'a été enregistrée pendant cette session." ? (
+                      <div className="flex flex-col items-center justify-center py-6 text-center">
+                        <p className="text-violet-100 mb-2">{sessionSummary}</p>
+                        <p className="text-violet-300/70 text-sm">Pour obtenir un résumé détaillé, échangez des messages avec l'assistant pendant la session.</p>
+                      </div>
+                    ) : (
+                      <div 
+                        className="prose prose-invert max-w-none text-violet-100" 
+                        dangerouslySetInnerHTML={{ 
+                          __html: DOMPurify.sanitize(formatTextWithStructure(sessionSummary)) 
+                        }}
+                      />
+                    )}
                   </CardContent>
                   <CardFooter className="flex justify-center gap-4">
                     <Button
