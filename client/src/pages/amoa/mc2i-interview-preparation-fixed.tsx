@@ -961,10 +961,10 @@ Ton analyse doit:
           <Button 
             variant="ghost" 
             className="flex items-center text-gray-300 hover:text-white hover:bg-gray-700/50" 
-            onClick={() => setLocation('/amoa-mode-selection-fixed')}
+            onClick={() => setLocation('/amoa/mc2i')}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour aux modules AMOA
+            Retour à I AM mc2i
           </Button>
           
           <div className="flex items-center">
