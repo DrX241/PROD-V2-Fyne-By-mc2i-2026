@@ -42,7 +42,7 @@ export async function initMcaiLearningSession(req: Request, res: Response) {
       messages: []
     };
     
-    // Créer le message d'accueil avec le prompt système
+    // Créer le message d'accueil
     const welcomeMessage: ChatCompletionRequestMessage = {
       role: "assistant",
       content: "Bonjour et bienvenue chez mc2i AI Learning, votre plateforme d'apprentissage professionnel personnalisé. Je suis ici pour vous aider à développer vos compétences à travers des scénarios immersifs adaptés à votre profil.\n\nPour commencer, pourriez-vous me communiquer :\n\n1. Votre trigramme (3 lettres)\n2. Votre niveau chez mc2i (Consultant, Consultant Confirmé, Consultant Senior, Chef de Projet, Manager, Senior Manager ou Directeur)\n\nCes informations me permettront de vous proposer une expérience sur mesure."
