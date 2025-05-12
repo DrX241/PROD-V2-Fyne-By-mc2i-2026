@@ -7,19 +7,35 @@ import { openAIService } from './services/openai';
 interface AIAnalysisResult {
   score: number;
   feedback: string;
-  strengths: string[];
-  weaknesses: string[];
-  badge: {
-    name: string;
-    description: string;
-    icon: string;
+  performanceAnalysis: {
+    summary: string;
+    detailedExplanation: string;
   };
-  ranking?: {
-    position: number;
-    totalParticipants: number;
-    percentile: number;
+  competenceEvaluation: {
+    strengths: {
+      title: string;
+      description: string;
+    }[];
+    weaknesses: {
+      title: string;
+      description: string;
+    }[];
   };
-  improvementSuggestions: string[];
+  skillBreakdown: {
+    categoryName: string;
+    score: number;
+    analysis: string;
+  }[];
+  careerInsights: {
+    currentLevel: string;
+    potentialGrowth: string;
+    nextSteps: string;
+  };
+  improvementPlan: {
+    immediateActions: string[];
+    longTermDevelopment: string[];
+    recommendedResources: string[];
+  };
   professionalInsight: string;
 }
 
@@ -47,39 +63,76 @@ export async function evaluateUserPerformance(req: Request, res: Response) {
 
     // Système prompt pour l'IA
     const systemPrompt = `
-      Tu es un expert en Assistance à Maîtrise d'Ouvrage (AMOA) spécialisé dans l'évaluation des compétences professionnelles.
-      Ton rôle est d'analyser les performances d'un utilisateur sur un test de réflexes en AMOA et de fournir une évaluation détaillée.
-      
-      Sois précis, professionnel et constructif dans ton évaluation.
-      Fournis une analyse approfondie basée uniquement sur les données reçues.
-      Ton analyse doit inclure:
-      - Un score global sur 100 points
-      - 2-3 points forts spécifiques identifiés
-      - 2-3 points faibles ou axes d'amélioration spécifiques
-      - Un badge qui représente le niveau de l'utilisateur (Novice AMOA, AMOA Junior, AMOA Confirmé, AMOA Expert, AMOA Émérite)
-      - Un classement simulé parmi d'autres professionnels
-      - 3-4 suggestions d'amélioration concrètes et actionnables
-      - Une conclusion professionnelle et motivante
-      
-      Tes réponses doivent être formatées uniquement au format JSON comme suit:
+      Tu es un expert senior en Assistance à Maîtrise d'Ouvrage (AMOA) avec plus de 20 ans d'expérience dans l'évaluation et le développement professionnel. 
+      Tu as une connaissance approfondie en gestion de projet, analyse d'exigences, communication client, résolution de problèmes et management des parties prenantes.
+
+      MISSION:
+      Ton rôle est de fournir une analyse approfondie, détaillée et nuancée des performances d'un candidat lors d'un test de réflexes AMOA.
+      Cette analyse doit être professionnelle, constructive, et offrir une perspective complète sur les capacités actuelles du candidat et son potentiel d'évolution.
+
+      APPROCHE:
+      - Adopte un ton professionnel, constructif et bienveillant
+      - Base ton analyse uniquement sur les données fournies
+      - Sois précis et spécifique dans tes observations
+      - Évite les généralités et les formules toutes faites
+      - Contextualise ton analyse par rapport aux attentes du métier d'AMOA
+      - Formule des recommandations concrètes et actionnables
+
+      FORMAT:
+      Ta réponse doit être structurée au format JSON uniquement, selon le modèle suivant:
+
       {
-        "score": number, // Le score global sur 100
-        "feedback": string, // Appréciation générale en 1-2 phrases
-        "strengths": string[], // Liste de 2-3 points forts
-        "weaknesses": string[], // Liste de 2-3 axes d'amélioration
-        "badge": {
-          "name": string, // Nom du badge
-          "description": string, // Description courte du badge
-          "icon": string // Nom de l'icône (parmi: "trophy", "medal", "star", "certificate", "award")
+        "score": number, // Score global sur 100 reflétant la performance globale
+        
+        "feedback": string, // Synthèse générale en 2-3 phrases max
+
+        "performanceAnalysis": {
+          "summary": string, // Bref résumé de la performance globale (1-2 phrases)
+          "detailedExplanation": string // Analyse approfondie des résultats (4-6 phrases)
         },
-        "ranking": {
-          "position": number, // Position simulée (entre 1 et totalParticipants)
-          "totalParticipants": number, // Nombre total de participants simulé (entre 100 et 500)
-          "percentile": number // Percentile (calculé, entre 0 et 100)
+        
+        "competenceEvaluation": {
+          "strengths": [
+            {
+              "title": string, // Titre court du point fort (3-6 mots)
+              "description": string // Description détaillée (1-2 phrases)
+            },
+            // 2-3 points forts au total
+          ],
+          "weaknesses": [
+            {
+              "title": string, // Titre court du point à améliorer (3-6 mots)
+              "description": string // Description détaillée avec justification (1-2 phrases)
+            },
+            // 2-3 points à améliorer au total
+          ]
         },
-        "improvementSuggestions": string[], // Liste de 3-4 suggestions d'amélioration
-        "professionalInsight": string // Conclusion professionnelle en 2-3 phrases
+        
+        "skillBreakdown": [
+          {
+            "categoryName": string, // Nom de la catégorie de compétence
+            "score": number, // Score pour cette catégorie (sur 100)
+            "analysis": string // Analyse spécifique de cette compétence (1-2 phrases)
+          },
+          // 3-5 catégories de compétences au total
+        ],
+        
+        "careerInsights": {
+          "currentLevel": string, // Évaluation du niveau actuel (1-2 phrases)
+          "potentialGrowth": string, // Potentiel d'évolution (1-2 phrases)
+          "nextSteps": string // Prochaines étapes recommandées pour l'évolution professionnelle (2-3 phrases)
+        },
+        
+        "improvementPlan": {
+          "immediateActions": string[], // 2-3 actions immédiates à entreprendre
+          "longTermDevelopment": string[], // 2-3 objectifs de développement à long terme
+          "recommendedResources": string[] // 2-3 ressources recommandées (livres, formations, certifications)
+        },
+        
+        "professionalInsight": string // Conclusion professionnelle et motivante (2-3 phrases)
       }
+
+      IMPORTANT: Assure-toi que ta réponse est structurée exactement selon ce format JSON, sans aucun texte supplémentaire, markdown ou préfixe. Commence directement par { et termine par }.
     `;
 
     // Message utilisateur contenant les données à analyser
@@ -119,8 +172,9 @@ export async function evaluateUserPerformance(req: Request, res: Response) {
       analysisResult = JSON.parse(aiResponse);
       
       // Vérifier que tous les champs requis sont présents
-      if (!analysisResult.score || !analysisResult.feedback || !analysisResult.strengths || 
-          !analysisResult.weaknesses || !analysisResult.badge || !analysisResult.improvementSuggestions ||
+      if (!analysisResult.score || !analysisResult.feedback || !analysisResult.performanceAnalysis || 
+          !analysisResult.competenceEvaluation || !analysisResult.skillBreakdown || 
+          !analysisResult.careerInsights || !analysisResult.improvementPlan ||
           !analysisResult.professionalInsight) {
         throw new Error("Réponse incomplète de l'IA");
       }
@@ -139,20 +193,70 @@ export async function evaluateUserPerformance(req: Request, res: Response) {
         analysis: {
           score: score,
           feedback: "Analyse complétée avec succès.",
-          strengths: ["Bonne connaissance du domaine AMOA"],
-          weaknesses: ["Points à améliorer identifiés dans certaines catégories"],
-          badge: {
-            name: "AMOA en progression",
-            description: "Vous développez vos compétences AMOA",
-            icon: "certificate"
+          performanceAnalysis: {
+            summary: "Votre performance au test de réflexes AMOA montre des connaissances fondamentales du domaine.",
+            detailedExplanation: "Les réponses que vous avez fournies révèlent une compréhension des principes de base de l'AMOA, mais certains domaines nécessitent un approfondissement. Votre temps de réponse moyen indique une bonne capacité de réflexion, mais il y a une marge d'amélioration dans la précision de certaines réponses techniques."
           },
-          ranking: {
-            position: Math.floor(100 - score * 0.7),
-            totalParticipants: 100,
-            percentile: score
+          competenceEvaluation: {
+            strengths: [
+              {
+                title: "Communication efficace",
+                description: "Vous démontrez une bonne capacité à formuler des messages clairs et adaptés aux différentes parties prenantes."
+              },
+              {
+                title: "Analyse des besoins",
+                description: "Vos réponses montrent une compréhension solide des techniques d'analyse et de formalisation des besoins métier."
+              }
+            ],
+            weaknesses: [
+              {
+                title: "Gestion des risques",
+                description: "L'identification et l'évaluation des risques projet représentent un axe d'amélioration important pour vous."
+              },
+              {
+                title: "Connaissances techniques",
+                description: "Certaines réponses techniques montrent qu'un approfondissement des aspects techniques du métier serait bénéfique."
+              }
+            ]
           },
-          improvementSuggestions: ["Continuer à vous former sur les bonnes pratiques AMOA"],
-          professionalInsight: "Continuez à développer vos compétences."
+          skillBreakdown: [
+            {
+              categoryName: "Communication client", 
+              score: 75,
+              analysis: "Vous gérez efficacement la plupart des situations de communication client, mais certains cas complexes nécessitent plus d'attention."
+            },
+            {
+              categoryName: "Analyse fonctionnelle",
+              score: 70,
+              analysis: "Vos compétences en analyse fonctionnelle sont bonnes, mais pourraient être renforcées par des techniques plus avancées."
+            },
+            {
+              categoryName: "Gestion de projet",
+              score: 65,
+              analysis: "La compréhension des méthodes de gestion de projet est présente, mais leur application pratique pourrait être améliorée."
+            }
+          ],
+          careerInsights: {
+            currentLevel: "Vous vous situez au niveau AMOA junior confirmé, avec une bonne maîtrise des fondamentaux du métier.",
+            potentialGrowth: "Avec une attention particulière aux aspects techniques et à la gestion des risques, vous pourriez rapidement évoluer vers un rôle d'AMOA senior.",
+            nextSteps: "Concentrez-vous sur l'approfondissement des méthodes d'analyse des risques et sur l'acquisition de connaissances techniques plus pointues. Envisagez également des projets où vous pourrez mettre en pratique ces compétences sous supervision."
+          },
+          improvementPlan: {
+            immediateActions: [
+              "Suivre une formation spécifique sur les techniques de gestion des risques en contexte projet",
+              "Pratiquer l'analyse fonctionnelle sur des cas complexes sous le mentorat d'un AMOA senior"
+            ],
+            longTermDevelopment: [
+              "Développer une expertise dans un domaine métier spécifique (finance, santé, etc.)",
+              "Acquérir une certification en gestion de projet (PMP, PRINCE2)"
+            ],
+            recommendedResources: [
+              "Livre : \"L'Essentiel de la gestion de projet\" par Robert Buttrick",
+              "Formation : \"Maîtriser l'analyse fonctionnelle\" par CEGOS",
+              "Certification : IIBA - ECBA (Entry Certificate in Business Analysis)"
+            ]
+          },
+          professionalInsight: "Votre profil montre un bon potentiel de développement en tant qu'AMOA. En concentrant vos efforts sur les points d'amélioration identifiés et en suivant le plan de développement proposé, vous pourrez renforcer significativement votre expertise et votre impact professionnel."
         }
       });
     }

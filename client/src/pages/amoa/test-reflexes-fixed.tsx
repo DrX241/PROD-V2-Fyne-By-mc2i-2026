@@ -889,77 +889,198 @@ const TestDeReflexes: React.FC = () => {
                         </div>
                       </div>
                       
-                      {/* Analyse IA du test */}
+                      {/* Analyse IA du test - Version améliorée */}
                       {results.aiEvaluation && (
-                        <div className="bg-gradient-to-br from-blue-900/20 to-indigo-900/20 border border-blue-800/30 rounded-lg p-5">
+                        <div className="space-y-6">
+                          {/* En-tête et résumé */}
+                          <div className="bg-gradient-to-br from-blue-900/20 to-indigo-900/20 border border-blue-800/30 rounded-lg p-5">
                             <div className="flex items-center mb-3">
                               <Brain className="w-6 h-6 text-blue-400 mr-2" />
-                              <h3 className="text-xl font-bold text-white">Analyse IA</h3>
+                              <h3 className="text-xl font-bold text-white">Analyse Professionnelle</h3>
                             </div>
-                            <p className="text-gray-300 mb-4">{results.aiEvaluation?.feedback}</p>
                             
-                            {/* Plus de badge - Supprimé comme demandé */}
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                              <div className="rounded-md bg-green-900/20 p-3 border border-green-700/30">
-                                <h4 className="text-md font-semibold text-green-300 mb-2 flex items-center">
-                                  <CheckCircle className="w-4 h-4 mr-2" />
-                                  Points forts
-                                </h4>
-                                <ul className="space-y-1">
-                                  {results.aiEvaluation?.strengths.map((strength, index) => (
-                                    <li key={index} className="text-gray-300 text-sm flex items-start">
-                                      <CheckCircle2 className="w-3 h-3 text-green-500 mr-2 mt-1 shrink-0" />
-                                      <span>{strength}</span>
-                                    </li>
-                                  ))}
-                                </ul>
+                            <div className="mb-4">
+                              <p className="text-gray-200 text-md mb-3 italic">{results.aiEvaluation?.feedback}</p>
+                              <div className="bg-gray-800/30 p-3 rounded-md border border-gray-700/30">
+                                <h4 className="text-md font-semibold text-white mb-2">Analyse de performance</h4>
+                                <p className="text-gray-300 font-medium mb-2">{results.aiEvaluation?.performanceAnalysis?.summary}</p>
+                                <p className="text-gray-400 text-sm">{results.aiEvaluation?.performanceAnalysis?.detailedExplanation}</p>
                               </div>
+                            </div>
+                          </div>
+                          
+                          {/* Compétences - Forces et faiblesses */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            {/* Points forts */}
+                            <div className="bg-gradient-to-br from-green-900/10 to-green-900/5 rounded-lg p-4 border border-green-800/20">
+                              <h4 className="text-lg font-semibold text-green-300 mb-3 flex items-center">
+                                <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
+                                Points forts
+                              </h4>
                               
-                              <div className="rounded-md bg-red-900/20 p-3 border border-red-700/30">
-                                <h4 className="text-md font-semibold text-red-300 mb-2 flex items-center">
-                                  <AlertTriangle className="w-4 h-4 mr-2" />
-                                  Points à améliorer
-                                </h4>
-                                <ul className="space-y-1">
-                                  {results.aiEvaluation?.weaknesses.map((weakness, index) => (
-                                    <li key={index} className="text-gray-300 text-sm flex items-start">
-                                      <XCircle className="w-3 h-3 text-red-500 mr-2 mt-1 shrink-0" />
-                                      <span>{weakness}</span>
-                                    </li>
-                                  ))}
-                                </ul>
+                              <div className="space-y-3">
+                                {results.aiEvaluation?.competenceEvaluation?.strengths.map((strength, index) => (
+                                  <div key={index} className="bg-green-900/20 rounded-md p-3 border border-green-800/30">
+                                    <h5 className="font-medium text-green-200 mb-1 flex items-center">
+                                      <CheckCircle2 className="w-4 h-4 text-green-500 mr-2 shrink-0" />
+                                      {strength.title}
+                                    </h5>
+                                    <p className="text-gray-300 text-sm">{strength.description}</p>
+                                  </div>
+                                ))}
                               </div>
                             </div>
                             
-                            {/* Section des suggestions d'amélioration */}
-                            {results.aiEvaluation?.improvementSuggestions && results.aiEvaluation.improvementSuggestions.length > 0 && (
-                              <div className="mb-4">
-                                <h4 className="text-md font-semibold text-blue-300 mb-2 flex items-center">
-                                  <Lightbulb className="w-4 h-4 mr-2" />
-                                  Suggestions d'amélioration
-                                </h4>
-                                <ul className="space-y-1">
-                                  {results.aiEvaluation.improvementSuggestions.map((suggestion, index) => (
-                                    <li key={index} className="text-gray-300 text-sm flex items-start">
-                                      <Sparkles className="w-3 h-3 text-amber-500 mr-2 mt-1 shrink-0" />
-                                      <span>{suggestion}</span>
-                                    </li>
-                                  ))}
-                                </ul>
+                            {/* Points à améliorer */}
+                            <div className="bg-gradient-to-br from-red-900/10 to-red-900/5 rounded-lg p-4 border border-red-800/20">
+                              <h4 className="text-lg font-semibold text-red-300 mb-3 flex items-center">
+                                <AlertTriangle className="w-5 h-5 mr-2 text-red-500" />
+                                Points à améliorer
+                              </h4>
+                              
+                              <div className="space-y-3">
+                                {results.aiEvaluation?.competenceEvaluation?.weaknesses.map((weakness, index) => (
+                                  <div key={index} className="bg-red-900/20 rounded-md p-3 border border-red-800/30">
+                                    <h5 className="font-medium text-red-200 mb-1 flex items-center">
+                                      <XCircle className="w-4 h-4 text-red-500 mr-2 shrink-0" />
+                                      {weakness.title}
+                                    </h5>
+                                    <p className="text-gray-300 text-sm">{weakness.description}</p>
+                                  </div>
+                                ))}
                               </div>
-                            )}
+                            </div>
+                          </div>
+                          
+                          {/* Analyse par compétence */}
+                          <div className="bg-gradient-to-br from-blue-900/20 to-indigo-900/20 border border-blue-800/30 rounded-lg p-5">
+                            <h4 className="text-lg font-semibold text-blue-300 mb-3 flex items-center">
+                              <BarChart3 className="w-5 h-5 mr-2 text-blue-400" />
+                              Analyse par compétence
+                            </h4>
                             
-                            {/* Analyse professionnelle */}
-                            {results.aiEvaluation?.professionalInsight && (
-                              <div className="rounded-md bg-gray-800/40 p-3 border border-gray-700/30">
-                                <h4 className="text-md font-semibold text-gray-200 mb-2 flex items-center">
-                                  <Users className="w-4 h-4 mr-2" />
-                                  Analyse professionnelle
-                                </h4>
-                                <p className="text-gray-300 text-sm">{results.aiEvaluation.professionalInsight}</p>
+                            <div className="space-y-4">
+                              {results.aiEvaluation?.skillBreakdown.map((skill, index) => (
+                                <div key={index} className="bg-gray-800/30 rounded-md p-3 border border-gray-700/50">
+                                  <div className="flex justify-between items-center mb-1">
+                                    <h5 className="font-medium text-gray-200">{skill.categoryName}</h5>
+                                    <span className={cn(
+                                      "text-sm font-medium px-2 py-0.5 rounded",
+                                      skill.score >= 75 ? "bg-green-900/50 text-green-200" :
+                                      skill.score >= 50 ? "bg-amber-900/50 text-amber-200" :
+                                      "bg-red-900/50 text-red-200"
+                                    )}>
+                                      {skill.score}%
+                                    </span>
+                                  </div>
+                                  
+                                  <Progress 
+                                    value={skill.score} 
+                                    className={cn(
+                                      "h-1.5 mb-2",
+                                      skill.score >= 75 ? "bg-green-900/30" : 
+                                      skill.score >= 50 ? "bg-amber-900/30" : 
+                                      "bg-red-900/30"
+                                    )}
+                                  />
+                                  
+                                  <p className="text-gray-400 text-sm">{skill.analysis}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          {/* Perspectives professionnelles */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            {/* Profil actuel et évolution */}
+                            <div className="bg-gradient-to-br from-indigo-900/20 to-purple-900/10 rounded-lg p-4 border border-indigo-800/30">
+                              <h4 className="text-lg font-semibold text-indigo-300 mb-3 flex items-center">
+                                <Users className="w-5 h-5 mr-2 text-indigo-400" />
+                                Perspectives professionnelles
+                              </h4>
+                              
+                              <div className="space-y-3">
+                                <div className="bg-indigo-900/20 rounded-md p-3 border border-indigo-800/30">
+                                  <h5 className="font-medium text-indigo-200 mb-1 flex items-center">
+                                    <Briefcase className="w-4 h-4 text-indigo-400 mr-2 shrink-0" />
+                                    Niveau actuel
+                                  </h5>
+                                  <p className="text-gray-300 text-sm">{results.aiEvaluation?.careerInsights?.currentLevel}</p>
+                                </div>
+                                
+                                <div className="bg-purple-900/20 rounded-md p-3 border border-purple-800/30">
+                                  <h5 className="font-medium text-purple-200 mb-1 flex items-center">
+                                    <Sparkles className="w-4 h-4 text-purple-400 mr-2 shrink-0" />
+                                    Potentiel d'évolution
+                                  </h5>
+                                  <p className="text-gray-300 text-sm">{results.aiEvaluation?.careerInsights?.potentialGrowth}</p>
+                                </div>
+                                
+                                <div className="bg-blue-900/20 rounded-md p-3 border border-blue-800/30">
+                                  <h5 className="font-medium text-blue-200 mb-1 flex items-center">
+                                    <ArrowRight className="w-4 h-4 text-blue-400 mr-2 shrink-0" />
+                                    Prochaines étapes
+                                  </h5>
+                                  <p className="text-gray-300 text-sm">{results.aiEvaluation?.careerInsights?.nextSteps}</p>
+                                </div>
                               </div>
-                            )}
+                            </div>
+                            
+                            {/* Plan d'amélioration */}
+                            <div className="bg-gradient-to-br from-amber-900/10 to-amber-900/5 rounded-lg p-4 border border-amber-800/20">
+                              <h4 className="text-lg font-semibold text-amber-300 mb-3 flex items-center">
+                                <Lightbulb className="w-5 h-5 mr-2 text-amber-400" />
+                                Plan d'amélioration
+                              </h4>
+                              
+                              <div className="space-y-3">
+                                <div>
+                                  <h5 className="font-medium text-amber-200 mb-2 flex items-center">
+                                    <Zap className="w-4 h-4 text-amber-400 mr-2" />
+                                    Actions immédiates
+                                  </h5>
+                                  <ul className="space-y-1 pl-6 list-disc text-gray-300 text-sm">
+                                    {results.aiEvaluation?.improvementPlan?.immediateActions.map((action, index) => (
+                                      <li key={index}>{action}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                                
+                                <div>
+                                  <h5 className="font-medium text-amber-200 mb-2 flex items-center">
+                                    <Trophy className="w-4 h-4 text-amber-400 mr-2" />
+                                    Développement à long terme
+                                  </h5>
+                                  <ul className="space-y-1 pl-6 list-disc text-gray-300 text-sm">
+                                    {results.aiEvaluation?.improvementPlan?.longTermDevelopment.map((dev, index) => (
+                                      <li key={index}>{dev}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                                
+                                <div>
+                                  <h5 className="font-medium text-amber-200 mb-2 flex items-center">
+                                    <BookOpen className="w-4 h-4 text-amber-400 mr-2" />
+                                    Ressources recommandées
+                                  </h5>
+                                  <ul className="space-y-1 pl-6 list-disc text-gray-300 text-sm">
+                                    {results.aiEvaluation?.improvementPlan?.recommendedResources.map((resource, index) => (
+                                      <li key={index}>{resource}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Conclusion professionnelle */}
+                          <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 border border-blue-800/50 rounded-lg p-5">
+                            <div className="flex items-center mb-3">
+                              <MessageSquare className="w-5 h-5 text-blue-400 mr-2" />
+                              <h4 className="text-lg font-semibold text-white">Conclusion professionnelle</h4>
+                            </div>
+                            <p className="text-gray-200 italic">{results.aiEvaluation?.professionalInsight}</p>
+                          </div>
                         </div>
                       )}
                     </div>
