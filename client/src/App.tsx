@@ -61,6 +61,8 @@ import AmoaPage from "@/pages/amoa";
 import AmoaModeSelection from "@/pages/amoa-mode-selection";
 // Import la nouvelle version optimisée du mode de sélection AMOA (comme pour Cyber)
 import AmoaModeSelectionFixed from "@/pages/amoa-mode-selection-fixed";
+// Import de la page Data & IA
+import DataIaModeSelection from "@/pages/data-ia-mode-selection";
 // Modules Simulation d'Entretien
 import CyberInterviewSimulation from "@/pages/cyber/interview-simulation";
 import CyberInterviewPreparation from "@/pages/cyber/interview-preparation";
@@ -693,7 +695,7 @@ function App() {
                 <Route path="/amoa" component={AmoaPage} />
                 <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
                 <Route path="/amoa-mode-selection-fixed" component={AmoaModeSelectionFixed} />
-                <Route path="/data-ia" component={NotYetImplemented} />
+                <Route path="/data-ia" component={DataIaModeSelection} />
                 
                 <Route path="/amoa/academie" component={() => {
                   const AmoaAcademie = lazy(() => import('./pages/amoa/academie'));
