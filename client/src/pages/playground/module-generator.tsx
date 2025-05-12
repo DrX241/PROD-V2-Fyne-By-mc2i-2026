@@ -376,7 +376,7 @@ export default function ModuleGenerator() {
 
                 {/* Structure des modules */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-blue-800 dark:text-white">Structure des modules</h3>
+                  <h3 className="text-lg font-semibold text-black dark:text-white">Structure des modules</h3>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="flex items-center justify-between p-3 rounded-md bg-gray-50 dark:bg-gray-800">
@@ -443,7 +443,7 @@ export default function ModuleGenerator() {
 
                 {/* Paramètres d'apprentissage */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-blue-800 dark:text-white">Paramètres d'apprentissage</h3>
+                  <h3 className="text-lg font-semibold text-black dark:text-white">Paramètres d'apprentissage</h3>
                   
                   <div className="space-y-3">
                     <div className="space-y-1">
@@ -527,7 +527,7 @@ export default function ModuleGenerator() {
               <div className="space-y-8">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-xl font-bold text-blue-800 dark:text-white">
+                    <CardTitle className="text-xl font-bold text-black dark:text-white">
                       {generatedModules.iamName || `I AM ${moduleConfig.domain.toUpperCase()}`}
                     </CardTitle>
                     <CardDescription>
@@ -537,7 +537,7 @@ export default function ModuleGenerator() {
                   <CardContent>
                     <div className="space-y-6">
                       <div className="space-y-2">
-                        <h3 className="text-lg font-semibold text-blue-800 dark:text-white">Description générale</h3>
+                        <h3 className="text-lg font-semibold text-black dark:text-white">Description générale</h3>
                         <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
                           {generatedModules.description || "Description non disponible"}
                         </p>
@@ -545,7 +545,7 @@ export default function ModuleGenerator() {
 
                       {/* Affichage des sous-modules générés */}
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-blue-800 dark:text-white">Sous-modules générés</h3>
+                        <h3 className="text-lg font-semibold text-black dark:text-white">Sous-modules générés</h3>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {moduleConfig.includeTrainerModule && generatedModules.trainerModule && (
@@ -636,7 +636,7 @@ export default function ModuleGenerator() {
 
                       {/* Contenu proposé */}
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-blue-800 dark:text-white">Structure de contenu proposée</h3>
+                        <h3 className="text-lg font-semibold text-black dark:text-white">Structure de contenu proposée</h3>
                         <div className="border rounded-md p-4 whitespace-pre-line text-sm text-gray-700 dark:text-gray-300">
                           {generatedModules.contentStructure || "Structure de contenu non disponible"}
                         </div>
