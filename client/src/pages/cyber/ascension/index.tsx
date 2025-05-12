@@ -72,7 +72,7 @@ const CyberAscension: React.FC = () => {
       theme: "Formation et sensibilisation",
       difficulty: "Facile",
       durationMinutes: 30,
-      unlocked: true,
+      unlocked: false,
       completed: false,
       description: "En tant que nouveau responsable sécurité chez CyberShield, votre première mission est d'élever le niveau de conscience cyber des employés. Identifiez les menaces majeures et construisez un programme efficace de sensibilisation aux bonnes pratiques de sécurité.",
       objectives: [
@@ -487,17 +487,26 @@ const CyberAscension: React.FC = () => {
 
   // Fonction pour commencer un niveau
   const startLevel = (level: Level) => {
-    if (!level.unlocked) {
-      toast({
-        title: "Niveau verrouillé",
-        description: "Vous devez compléter les niveaux précédents pour débloquer ce niveau.",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Tous les niveaux sont verrouillés - Module en cours de déploiement
+    toast({
+      title: "Module en cours de déploiement",
+      description: "CYBERASCENSION sera bientôt disponible. Les niveaux sont actuellement en cours de finalisation.",
+      variant: "destructive",
+    });
+    return;
     
-    // Naviguer vers la page du niveau spécifique
-    window.location.href = `/cyber/ascension/level/${level.id}`;
+    // Code commenté pour future utilisation
+    // if (!level.unlocked) {
+    //   toast({
+    //     title: "Niveau verrouillé",
+    //     description: "Vous devez compléter les niveaux précédents pour débloquer ce niveau.",
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
+    
+    // // Naviguer vers la page du niveau spécifique
+    // window.location.href = `/cyber/ascension/level/${level.id}`;
   };
 
   return (
