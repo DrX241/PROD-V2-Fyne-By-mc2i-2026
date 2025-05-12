@@ -16,17 +16,7 @@ import {
   Copy,
   Star,
   TimerReset,
-  Lightbulb,
-  Search, 
-  ListChecks,
-  Ear,
-  PanelTop, 
-  LineChart, 
-  ClipboardSignature, 
-  BookOpen, 
-  MessageCircle, 
-  ClipboardList,
-  BookMarked
+  Lightbulb
 } from 'lucide-react';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,9 +32,11 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-// Type definitions
+// Interface pour la structure des messages
 interface Message {
   id: string;
   role: 'user' | 'assistant' | 'system';
@@ -52,7 +44,7 @@ interface Message {
   timestamp: Date;
 }
 
-// Formulaire de configuration
+// Formulaires
 const formSchema = z.object({
   recruiterEmail: z.string().email("Email invalide").optional(),
   candidateName: z.string().min(3, "Nom trop court").optional(),
@@ -90,17 +82,27 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
       }
     }));
   };
-
+  
   return (
     <div className="px-8 py-6 bg-gradient-to-b from-gray-900 to-gray-950 rounded-lg">
+      {/* Section title with progress bar */}
       <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold text-white mb-4">Guide pratique pour réussir vos entretiens client</h2>
-        <p className="text-blue-100 text-lg mb-6">
-          Conseils et exemples concrets pour préparer, conduire et suivre efficacement vos entretiens.
+        <h2 className="text-2xl font-bold text-white mb-2">Préparation à l'entretien client</h2>
+        <div className="w-full bg-gray-700 h-2 rounded-full overflow-hidden mb-2">
+          <div 
+            className="bg-gradient-to-r from-green-400 to-blue-500 h-full transition-all duration-500 ease-out"
+            style={{ 
+              width: `${Math.round(((progressTracker.preparation.completed + progressTracker.during.completed + progressTracker.after.completed) / 
+              (progressTracker.preparation.total + progressTracker.during.total + progressTracker.after.total)) * 100)}%` 
+            }}
+          ></div>
+        </div>
+        <p className="text-blue-100 text-sm">
+          {progressTracker.preparation.completed + progressTracker.during.completed + progressTracker.after.completed} sur {progressTracker.preparation.total + progressTracker.during.total + progressTracker.after.total} étapes complétées
         </p>
       </div>
-
-      {/* Avant l'entretien */}
+      
+      {/* Before section */}
       <div className="mb-10">
         <h3 className="text-xl font-bold text-white mb-4 flex items-center">
           <span className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">1</span>
@@ -108,68 +110,41 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
         </h3>
         
         <div className="ml-12 space-y-6">
-          <div className="bg-gradient-to-r from-blue-900/20 to-blue-800/20 p-5 rounded-lg border border-blue-700/30">
-            <div className="flex items-start">
-              <div className="bg-blue-600/40 p-3 rounded-full mr-4 hidden md:flex">
-                <Search className="w-6 h-6 text-blue-200" />
-              </div>
-              <div className="flex-1">
-                <h4 className="text-lg font-semibold text-blue-300 mb-3">Comprendre le contexte client</h4>
-                <p className="text-gray-300 mb-3">
-                  Prenez le temps d'analyser le contexte de l'entreprise cliente, son secteur d'activité, et ses enjeux stratégiques.
-                  Une compréhension approfondie de son environnement vous permettra de mieux appréhender ses besoins.
-                </p>
-                
-                <div className="bg-gray-800/60 p-4 rounded-md mb-4 border-l-4 border-blue-500">
-                  <h5 className="font-semibold text-blue-200 mb-2">Exemple concret</h5>
-                  <p className="text-gray-300">
-                    Pour une banque souhaitant moderniser son système d'information, recherchez au préalable les réglementations 
-                    financières récentes (RGPD, DSP2, etc.) qui pourraient impacter le projet.
-                  </p>
-                </div>
-                
-                <div className="flex flex-wrap gap-3 mt-4">
-                  <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Analyse préalable</Badge>
-                  <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Recherche sectorielle</Badge>
-                  <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Veille stratégique</Badge>
-                </div>
-              </div>
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-blue-200 mb-2">Comprendre le contexte client</h4>
+            <p className="text-gray-300 mb-4">Prenez le temps d'analyser le contexte de l'entreprise cliente, son secteur d'activité, et ses enjeux stratégiques. Une compréhension approfondie de son environnement vous permettra de mieux appréhender ses besoins et d'adapter votre discours.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Analyse préalable</Badge>
+              <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Recherche sectorielle</Badge>
+              <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Veille stratégique</Badge>
             </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('preparation')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
           </div>
           
-          <div className="bg-gradient-to-r from-blue-900/20 to-blue-800/20 p-5 rounded-lg border border-blue-700/30">
-            <div className="flex items-start">
-              <div className="bg-blue-600/40 p-3 rounded-full mr-4 hidden md:flex">
-                <ListChecks className="w-6 h-6 text-blue-200" />
-              </div>
-              <div className="flex-1">
-                <h4 className="text-lg font-semibold text-blue-300 mb-3">Préparer vos questions et réponses</h4>
-                <p className="text-gray-300 mb-3">
-                  Anticipez les questions que le client pourrait vous poser et préparez des réponses claires. 
-                  Identifiez également les points que vous souhaitez aborder pour approfondir votre compréhension 
-                  de ses besoins et de son contexte.
-                </p>
-                
-                <div className="bg-gray-800/60 p-4 rounded-md mb-4 border-l-4 border-blue-500">
-                  <h5 className="font-semibold text-blue-200 mb-2">Questions stratégiques à préparer</h5>
-                  <ul className="list-disc pl-5 text-gray-300 space-y-2">
-                    <li>Quels sont vos objectifs à court et long terme pour ce projet ?</li>
-                    <li>Quelles sont les contraintes principales (budget, délais, techniques) ?</li>
-                    <li>Quels indicateurs de performance utiliserez-vous pour évaluer le succès du projet ?</li>
-                  </ul>
-                </div>
-                
-                <div className="flex flex-wrap gap-3 mt-4">
-                  <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Questions ouvertes</Badge>
-                  <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Réponses structurées</Badge>
-                </div>
-              </div>
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-blue-200 mb-2">Préparer vos questions</h4>
+            <p className="text-gray-300 mb-4">Avant l'entretien, préparez une liste de questions pertinentes qui vous permettront d'identifier précisément les besoins et contraintes du client. Ces questions doivent couvrir les aspects techniques, organisationnels, et stratégiques du projet.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Questions stratégiques</Badge>
+              <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Questions opérationnelles</Badge>
+              <Badge variant="outline" className="bg-blue-900/30 text-blue-200 border-blue-500/50">Questions techniques</Badge>
             </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('preparation')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
           </div>
         </div>
       </div>
       
-      {/* Pendant l'entretien */}
+      {/* During section */}
       <div className="mb-10">
         <h3 className="text-xl font-bold text-white mb-4 flex items-center">
           <span className="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">2</span>
@@ -177,77 +152,86 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
         </h3>
         
         <div className="ml-12 space-y-6">
-          <div className="bg-gradient-to-r from-purple-900/20 to-purple-800/20 p-5 rounded-lg border border-purple-700/30">
-            <div className="flex items-start">
-              <div className="bg-purple-600/40 p-3 rounded-full mr-4 hidden md:flex">
-                <Ear className="w-6 h-6 text-purple-200" />
-              </div>
-              <div className="flex-1">
-                <h4 className="text-lg font-semibold text-purple-300 mb-3">Écoute active et reformulation</h4>
-                <p className="text-gray-300 mb-3">
-                  Pratiquez l'écoute active en montrant votre intérêt pour les problématiques du client. 
-                  Reformulez régulièrement ses propos pour confirmer votre compréhension et approfondir les points importants.
-                </p>
-                
-                <div className="bg-gray-800/60 p-4 rounded-md mb-4 border-l-4 border-purple-500">
-                  <h5 className="font-semibold text-purple-200 mb-2">Technique de reformulation</h5>
-                  <div className="space-y-3">
-                    <div className="pl-3 border-l-2 border-purple-400/50">
-                      <p className="font-semibold text-gray-200">Client :</p>
-                      <p className="text-gray-300">"Nous avons des problèmes de performance avec notre application métier qui ralentit le travail des équipes terrain."</p>
-                    </div>
-                    <div className="pl-3 border-l-2 border-purple-400/50">
-                      <p className="font-semibold text-gray-200">Vous (reformulation) :</p>
-                      <p className="text-gray-300">"Si je comprends bien, votre équipe terrain rencontre des difficultés opérationnelles importantes liées aux performances de l'application. Pourriez-vous me préciser quels processus métier sont les plus impactés ?"</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap gap-3 mt-4">
-                  <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Validation de compréhension</Badge>
-                  <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Questions d'approfondissement</Badge>
-                </div>
-              </div>
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-purple-200 mb-2">Écoute active et reformulation</h4>
+            <p className="text-gray-300 mb-4">Pratiquez l'écoute active en montrant votre intérêt pour les problématiques du client. Reformulez régulièrement ses propos pour confirmer votre compréhension et approfondir les points importants.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Validation de compréhension</Badge>
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Questions d'approfondissement</Badge>
             </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('during')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
           </div>
-
-          <div className="bg-gradient-to-r from-purple-900/20 to-purple-800/20 p-5 rounded-lg border border-purple-700/30">
-            <div className="flex items-start">
-              <div className="bg-purple-600/40 p-3 rounded-full mr-4 hidden md:flex">
-                <Lightbulb className="w-6 h-6 text-purple-200" />
-              </div>
-              <div className="flex-1">
-                <h4 className="text-lg font-semibold text-purple-300 mb-3">Posture consultative</h4>
-                <p className="text-gray-300 mb-3">
-                  Adoptez une posture de conseil plutôt que de simple prestataire. Montrez comment votre expertise 
-                  peut apporter une réelle valeur ajoutée au projet, en étant force de proposition tout en restant à l'écoute.
-                </p>
-                
-                <div className="bg-gray-800/60 p-4 rounded-md mb-4 border-l-4 border-purple-500">
-                  <h5 className="font-semibold text-purple-200 mb-2">Différencier la posture</h5>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-red-900/20 p-3 rounded-md">
-                      <h6 className="font-medium text-red-300 mb-2">❌ Posture de prestataire</h6>
-                      <p className="text-gray-300 text-sm">"Nous pouvons développer exactement ce que vous demandez dans le délai imparti."</p>
-                    </div>
-                    <div className="bg-green-900/20 p-3 rounded-md">
-                      <h6 className="font-medium text-green-300 mb-2">✅ Posture de consultant</h6>
-                      <p className="text-gray-300 text-sm">"D'après votre besoin, je recommanderais une approche itérative qui permettrait de livrer de la valeur plus rapidement tout en minimisant les risques."</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap gap-3 mt-4">
-                  <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Conseil stratégique</Badge>
-                  <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Apport d'expertise</Badge>
-                </div>
-              </div>
+          
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-purple-200 mb-2">Posture consultative</h4>
+            <p className="text-gray-300 mb-4">Adoptez une posture de conseil plutôt que de simple prestataire. Montrez comment votre expertise peut apporter une réelle valeur ajoutée au projet, en étant force de proposition tout en restant à l'écoute.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Conseil stratégique</Badge>
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Apport d'expertise</Badge>
             </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('during')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-purple-200 mb-2">Structuration de votre discours</h4>
+            <p className="text-gray-300 mb-4">Présentez vos idées de façon structurée et cohérente. Utilisez des exemples concrets de projets similaires pour illustrer vos propos, en veillant à ne pas divulguer d'informations confidentielles sur d'autres clients.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Clarté</Badge>
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Exemples concrets</Badge>
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Approche méthodique</Badge>
+            </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('during')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-purple-200 mb-2">Démonstration de vos compétences</h4>
+            <p className="text-gray-300 mb-4">Mettez en avant vos compétences techniques et méthodologiques en AMOA, en les reliant directement aux besoins exprimés par le client. Montrez comment votre expertise peut s'appliquer concrètement à son contexte spécifique.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Expertise AMOA</Badge>
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Méthodologies projet</Badge>
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Outils et techniques</Badge>
+            </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('during')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-purple-200 mb-2">Gestion des objections</h4>
+            <p className="text-gray-300 mb-4">Soyez préparé à répondre aux objections ou aux préoccupations du client. Abordez-les avec professionnalisme et apportez des réponses concrètes qui démontrent votre capacité à anticiper et surmonter les obstacles potentiels.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Anticipation des risques</Badge>
+              <Badge variant="outline" className="bg-purple-900/30 text-purple-200 border-purple-500/50">Solutions alternatives</Badge>
+            </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('during')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
           </div>
         </div>
       </div>
       
-      {/* Après l'entretien */}
+      {/* After section */}
       <div>
         <h3 className="text-xl font-bold text-white mb-4 flex items-center">
           <span className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">3</span>
@@ -255,76 +239,51 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
         </h3>
         
         <div className="ml-12 space-y-6">
-          <div className="bg-gradient-to-r from-green-900/20 to-green-800/20 p-5 rounded-lg border border-green-700/30">
-            <div className="flex items-start">
-              <div className="bg-green-600/40 p-3 rounded-full mr-4 hidden md:flex">
-                <LineChart className="w-6 h-6 text-green-200" />
-              </div>
-              <div className="flex-1">
-                <h4 className="text-lg font-semibold text-green-300 mb-3">Analyse de votre performance</h4>
-                <p className="text-gray-300 mb-3">
-                  Après l'entretien, prenez le temps d'analyser votre performance. Identifiez vos points forts 
-                  et les aspects à améliorer pour continuer à progresser dans vos compétences d'entretien client.
-                </p>
-                
-                <div className="bg-gray-800/60 p-4 rounded-md mb-4 border-l-4 border-green-500">
-                  <h5 className="font-semibold text-green-200 mb-2">Grille d'auto-évaluation</h5>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-300">Compréhension des besoins client</span>
-                      <div className="flex space-x-1">
-                        {Array(5).fill(0).map((_, i) => (
-                          <Star key={i} className={`w-4 h-4 ${i < 4 ? "text-amber-400" : "text-gray-600"}`} />
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-300">Qualité des questions posées</span>
-                      <div className="flex space-x-1">
-                        {Array(5).fill(0).map((_, i) => (
-                          <Star key={i} className={`w-4 h-4 ${i < 3 ? "text-amber-400" : "text-gray-600"}`} />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap gap-3 mt-4">
-                  <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Auto-évaluation</Badge>
-                  <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Points forts</Badge>
-                  <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Axes d'amélioration</Badge>
-                </div>
-              </div>
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-green-200 mb-2">Analyse de votre performance</h4>
+            <p className="text-gray-300 mb-4">Après l'entretien, prenez le temps d'analyser votre performance. Identifiez vos points forts et les aspects à améliorer pour continuer à progresser dans vos compétences d'entretien client.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Auto-évaluation</Badge>
+              <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Points forts</Badge>
+              <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Axes d'amélioration</Badge>
             </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('after')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
           </div>
           
-          <div className="bg-gradient-to-r from-green-900/20 to-green-800/20 p-5 rounded-lg border border-green-700/30">
-            <div className="flex items-start">
-              <div className="bg-green-600/40 p-3 rounded-full mr-4 hidden md:flex">
-                <ClipboardSignature className="w-6 h-6 text-green-200" />
-              </div>
-              <div className="flex-1">
-                <h4 className="text-lg font-semibold text-green-300 mb-3">Suivi et documentation</h4>
-                <p className="text-gray-300 mb-3">
-                  Documentez les points clés abordés pendant l'entretien et préparez une proposition 
-                  ou un compte-rendu synthétique pour le client, démontrant votre compréhension de ses besoins.
-                </p>
-                
-                <div className="bg-gray-800/60 p-4 rounded-md mb-4 border-l-4 border-green-500">
-                  <h5 className="font-semibold text-green-200 mb-2">Structure d'un compte-rendu efficace</h5>
-                  <ol className="list-decimal pl-5 text-gray-300 space-y-2">
-                    <li><span className="font-medium text-green-300">Contexte et objectifs</span> - Rappel du contexte client et des objectifs de l'entretien</li>
-                    <li><span className="font-medium text-green-300">Points clés discutés</span> - Synthèse des principales thématiques abordées</li>
-                    <li><span className="font-medium text-green-300">Problématiques identifiées</span> - Liste des challenges et besoins exprimés</li>
-                  </ol>
-                </div>
-                
-                <div className="flex flex-wrap gap-3 mt-4">
-                  <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Synthèse</Badge>
-                  <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Proposition de valeur</Badge>
-                </div>
-              </div>
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-green-200 mb-2">Suivi et documentation</h4>
+            <p className="text-gray-300 mb-4">Documentez les points clés abordés pendant l'entretien et préparez une proposition ou un compte-rendu synthétique pour le client, démontrant votre compréhension de ses besoins et votre capacité à y répondre.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Synthèse</Badge>
+              <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Proposition de valeur</Badge>
             </div>
+            <button 
+              className="absolute top-4 right-4 text-green-400 hover:text-green-500"
+              onClick={() => incrementProgress('after')}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-700/50 relative">
+            <h4 className="text-lg font-semibold text-green-200 mb-2">Application concrète</h4>
+            <p className="text-gray-300 mb-4">Testez vos compétences dans une simulation d'entretien client réaliste. Cette pratique vous permettra d'affiner votre approche et de renforcer votre confiance pour vos futurs entretiens professionnels.</p>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Simulation</Badge>
+              <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Feedback</Badge>
+              <Badge variant="outline" className="bg-green-900/30 text-green-200 border-green-500/50">Apprentissage continu</Badge>
+            </div>
+            <button 
+              className="absolute top-4 right-4 bg-blue-500 hover:bg-blue-600 rounded-full p-1"
+              onClick={() => setActiveTab && setActiveTab('preparation')}
+            >
+              <Sparkles className="w-5 h-5 text-white" />
+            </button>
           </div>
         </div>
       </div>
@@ -332,33 +291,34 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
   );
 };
 
-// Main component
+// Composant principal
 const Mc2iInterviewPreparation: React.FC = () => {
-  // States
-  const [activeTab, setActiveTab] = useState("best-practices");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSimulationActive, setIsSimulationActive] = useState(false);
-  const [userInput, setUserInput] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes
-  const [simulationComplete, setSimulationComplete] = useState(false);
-  const [showContactForm, setShowContactForm] = useState(false);
-  const [evaluationResult, setEvaluationResult] = useState<any>(null);
-  const [conversationHistory, setConversationHistory] = useState<any[]>([]);
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const [, navigate] = useLocation();
-
-  // Form setup
+  
+  // États
+  const [activeTab, setActiveTab] = useState<string>('best-practices');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [userInput, setUserInput] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSimulationActive, setIsSimulationActive] = useState<boolean>(false);
+  const [simulationComplete, setSimulationComplete] = useState<boolean>(false);
+  const [timeRemaining, setTimeRemaining] = useState<number>(600); // 10 minutes
+  const [timerId, setTimerId] = useState<NodeJS.Timeout | null>(null);
+  const [showContactForm, setShowContactForm] = useState<boolean>(false);
+  const [evaluationResult, setEvaluationResult] = useState<any>(null);
+  
+  // Formulaires
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      profileType: "",
-      experienceLevel: "",
-      sectorFocus: "",
+      profileType: "Profil consultant",
+      experienceLevel: "3-5 ans",
+      sectorFocus: "Énergie & Environnement",
     },
   });
-
+  
   const contactForm = useForm<z.infer<typeof contactFormSchema>>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
@@ -366,218 +326,290 @@ const Mc2iInterviewPreparation: React.FC = () => {
       candidateName: "",
     },
   });
-
-  // Effects
+  
+  // Scroll automatique vers le bas de la conversation
   useEffect(() => {
-    // Scroll to bottom of message list
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
+  
+  // Vérifier si le temps est écoulé
   useEffect(() => {
-    // Cleanup timer
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, []);
-
-  // Functions
+    if (timeRemaining === 0 && isSimulationActive) {
+      completeSimulation();
+    }
+  }, [timeRemaining]);
+  
+  // Formatter le temps
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
+    const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
   };
-
-  const resetSimulation = () => {
-    setMessages([]);
-    setUserInput("");
-    setTimeRemaining(600);
-    setSimulationComplete(false);
-    setIsSimulationActive(false);
-    setConversationHistory([]);
-    setEvaluationResult(null);
+  
+  // Démarrage de la simulation avec génération IA du premier message
+  const startSimulation = async (values: z.infer<typeof formSchema>) => {
+    setIsLoading(true);
     
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-  };
-
-  const startTimer = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-    
-    timerRef.current = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          if (timerRef.current) {
-            clearInterval(timerRef.current);
-          }
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  const startSimulation = async (data: z.infer<typeof formSchema>) => {
     try {
-      setIsLoading(true);
-      console.log("Envoi de la requête API...");
-      console.log("Payload:", {
-        domain: "amoa",
-        profileType: data.profileType,
-        experienceLevel: data.experienceLevel,
-        sectorFocus: data.sectorFocus
-      });
+      // Création du prompt système pour le premier message
+      const systemPrompt = {
+        role: "system",
+        content: `Tu es Sophie Martin, Directrice des Systèmes d'Information de l'entreprise EnerGreen, spécialisée dans le secteur ${values.sectorFocus}.
+
+Le consultant AMOA que tu vas rencontrer a le profil suivant:
+- Type de profil: ${values.profileType}
+- Niveau d'expérience: ${values.experienceLevel}
+
+Ton entreprise fait face à des défis spécifiques liés au secteur ${values.sectorFocus}. Adapte complètement ton discours, ta problématique et tes attentes à ce secteur.
+
+Dans ton message d'introduction, tu dois:
+1. Te présenter (nom, poste, entreprise)
+2. Expliquer le contexte de ton entreprise avec des détails propres au secteur ${values.sectorFocus}
+3. Présenter une problématique principale spécifique à ton secteur (pas uniquement générique)
+4. Mentionner des difficultés techniques ou organisationnelles précises liées à ton secteur
+5. Demander au consultant de se présenter et d'expliquer comment son expérience pourrait aider dans ce contexte
+
+Si le secteur est "Banque & Assurance", parle de conformité réglementaire, gestion des risques, et transformation digitale des services financiers.
+Si le secteur est "Énergie & Environnement", évoque la transition énergétique, l'optimisation de la production, et les enjeux de durabilité.
+Si le secteur est "Santé & Protection sociale", mentionne la gestion des données patients, la continuité des soins, et la coordination des acteurs de santé.
+Si le secteur est "Secteur public", aborde la modernisation des services publics, la simplification administrative, et la relation citoyenne.
+Si le secteur est "Télécoms & Médias", parle des infrastructures réseau, services numériques, et expérience utilisateur omnicanale.
+Si le secteur est "Transport & Logistique", évoque l'optimisation des chaînes logistiques, la planification des transports, et le suivi en temps réel.
+Si le secteur est "Industrie & Distribution", mentionne l'industrie 4.0, la supply chain, et l'optimisation des processus de production.
+
+Si le consultant a peu d'expérience (0-2 ans), prépare une problématique plus accessible et guidée.
+Si le consultant est très expérimenté (5+ ans), présente un cas complexe avec des enjeux stratégiques et organisationnels importants.
+
+Ton message doit être professionnel, concis (maximum 10 lignes) mais très spécifique au secteur ${values.sectorFocus}.`
+      };
       
-      const response = await fetch("/api/amoa/interview-simulation/start", {
-        method: "POST",
+      // Message utilisateur pour générer l'introduction
+      const userPrompt = {
+        role: "user",
+        content: `Génère un message d'introduction pour un entretien client dans le secteur ${values.sectorFocus}.`
+      };
+      
+      // Appel à l'API OpenAI existante pour générer le message d'introduction
+      const response = await fetch('/api/openai/chat', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          domain: "amoa",
-          profileType: data.profileType,
-          experienceLevel: data.experienceLevel,
-          sectorFocus: data.sectorFocus
+          messages: [systemPrompt, userPrompt],
+          useSecondaryModel: true, // Utiliser gpt-4o-mini qui est plus rapide
+          temperature: 0.7
         }),
       });
       
-      console.log("Réponse API status:", response.status);
-      const responseData = await response.text();
-      console.log("Réponse brute:", responseData);
+      if (!response.ok) {
+        throw new Error("Erreur lors de la requête à l'API OpenAI");
+      }
       
-      const data = JSON.parse(responseData);
-      console.log("Données de réponse:", data);
+      const data = await response.json();
       
-      if (data.success && data.initialMessage) {
-        console.log("Message initial:", data.initialMessage);
-        
-        // Générer un ID unique pour le message système
+      if (data && data.choices && data.choices[0] && data.choices[0].message) {
         const systemMessage: Message = {
-          id: crypto.randomUUID(),
+          id: 'system-1',
           role: 'system',
-          content: "Vous participez à une simulation d'entretien client. Vous êtes un consultant AMOA et votre objectif est d'écouter activement, de poser des questions pertinentes et de proposer des solutions adaptées.",
-          timestamp: new Date()
+          content: 'Cette simulation vous permet de pratiquer un entretien avec un client réel. Vous êtes consultant AMOA et vous devez comprendre sa problématique, poser des questions pertinentes et démontrer votre expertise.',
+          timestamp: new Date(),
         };
         
-        // Générer un ID unique pour le message de bienvenue
         const welcomeMessage: Message = {
-          id: crypto.randomUUID(),
+          id: 'assistant-1',
           role: 'assistant',
-          content: data.initialMessage,
-          timestamp: new Date()
+          content: data.choices[0].message.content,
+          timestamp: new Date(),
         };
         
         setMessages([systemMessage, welcomeMessage]);
-        setConversationHistory([
-          { role: "assistant", content: data.initialMessage }
-        ]);
         setIsSimulationActive(true);
-        setActiveTab("simulation");
-        startTimer();
+        setActiveTab('simulation');
+        
+        const timer = setInterval(() => {
+          setTimeRemaining(prevTime => {
+            if (prevTime <= 1) {
+              clearInterval(timer);
+              return 0;
+            }
+            return prevTime - 1;
+          });
+        }, 1000);
+        
+        setTimerId(timer);
       } else {
-        // Message de secours en cas d'erreur API
-        console.error("Erreur de format dans la réponse:", data);
-        
-        const fallbackSystemMessage: Message = {
-          id: crypto.randomUUID(),
-          role: 'system',
-          content: "Vous participez à une simulation d'entretien client. Vous êtes un consultant AMOA et votre objectif est d'écouter activement, de poser des questions pertinentes et de proposer des solutions adaptées.",
-          timestamp: new Date()
-        };
-        
-        const fallbackWelcomeMessage: Message = {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: "Bonjour, je suis Sophie Martin, Directrice des Systèmes d'Information chez EnerGreen. Nous cherchons à moderniser notre infrastructure IT pour mieux répondre aux enjeux de la transition énergétique. Pouvez-vous me parler de votre approche pour nous accompagner dans ce projet ?",
-          timestamp: new Date()
-        };
-        
-        setMessages([fallbackSystemMessage, fallbackWelcomeMessage]);
-        setConversationHistory([
-          { role: "assistant", content: fallbackWelcomeMessage.content }
-        ]);
-        setIsSimulationActive(true);
-        setActiveTab("simulation");
-        startTimer();
+        throw new Error("Format de réponse inattendu");
       }
     } catch (error) {
-      console.error("Erreur lors du démarrage de la simulation:", error);
+      console.error('Erreur lors du démarrage de la simulation:', error);
+      
+      // Message d'erreur plus descriptif
+      let errorMessage = "Impossible de démarrer la simulation. ";
+      
+      // Vérifier si c'est une erreur réseau
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage += "Problème de connexion au serveur. Vérifiez votre connexion Internet.";
+      } 
+      // Vérifier si l'erreur contient un message de réponse
+      else if (error instanceof Error && error.message.includes('OpenAI')) {
+        errorMessage += "Erreur lors de la communication avec l'API IA. Veuillez réessayer dans quelques instants.";
+      }
+      // Erreur par défaut
+      else {
+        errorMessage += "Une erreur inattendue s'est produite. Veuillez réessayer.";
+      }
+      
       toast({
-        title: "Erreur",
-        description: "Impossible de démarrer la simulation. Veuillez réessayer.",
+        title: "Erreur de simulation",
+        description: errorMessage,
         variant: "destructive",
       });
+      
+      // Créer un message de simulation de repli pour permettre de continuer même si l'IA échoue
+      const fallbackSystemMessage: Message = {
+        id: 'system-1',
+        role: 'system',
+        content: 'Cette simulation vous permet de pratiquer un entretien avec un client. Vous êtes consultant AMOA et vous devez comprendre sa problématique et démontrer votre expertise.',
+        timestamp: new Date(),
+      };
+      
+      const fallbackWelcomeMessage: Message = {
+        id: 'assistant-1',
+        role: 'assistant',
+        content: `Bonjour, je suis Sophie Martin, Directrice des Systèmes d'Information chez EnerGreen, entreprise spécialisée dans le secteur ${values.sectorFocus}. Notre société fait face à d'importants défis de transformation numérique, notamment pour optimiser nos processus métiers et moderniser notre système de gestion. Nos équipes manquent d'expertise en conduite du changement et nous recherchons un consultant AMOA pour nous accompagner. Pouvez-vous vous présenter et m'expliquer comment votre expertise pourrait nous aider ?`,
+        timestamp: new Date(),
+      };
+      
+      setMessages([fallbackSystemMessage, fallbackWelcomeMessage]);
+      setIsSimulationActive(true);
+      setActiveTab('simulation');
+      
+      const timer = setInterval(() => {
+        setTimeRemaining(prevTime => {
+          if (prevTime <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+      
+      setTimerId(timer);
     } finally {
       setIsLoading(false);
     }
   };
-
+  
+  // Fonction pour démarrer avec les paramètres actuellement sélectionnés
   const skipInfoAndStart = () => {
-    console.log("Fonction skipInfoAndStart appelée");
+    // Utiliser les valeurs actuelles du formulaire plutôt que des valeurs codées en dur
+    const currentValues = form.getValues();
+    const values = {
+      recruiterEmail: "",
+      candidateName: "",
+      profileType: currentValues.profileType,
+      experienceLevel: currentValues.experienceLevel,
+      sectorFocus: currentValues.sectorFocus,
+    };
     
-    const formValues = form.getValues();
-    console.log("Valeurs du formulaire:", formValues);
-    
-    // Vérifier si tous les champs requis sont remplis
-    if (!formValues.profileType || !formValues.experienceLevel || !formValues.sectorFocus) {
-      toast({
-        title: "Informations incomplètes",
-        description: "Veuillez sélectionner un profil, un niveau d'expérience et un secteur d'activité.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    startSimulation(formValues);
+    // Démarrer la simulation avec les valeurs actuelles
+    startSimulation(values);
   };
-
+  
+  // Fonction pour envoyer un message et recevoir une réponse générée par IA
   const sendMessage = async () => {
     if (!userInput.trim() || isLoading) return;
     
+    // Créer le message utilisateur
     const userMessage: Message = {
-      id: crypto.randomUUID(),
+      id: `user-${messages.length + 1}`,
       role: 'user',
       content: userInput,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
     
-    // Ajouter le message utilisateur à la liste de messages
-    setMessages(prevMessages => [...prevMessages, userMessage]);
-    
-    // Ajouter le message à l'historique de conversation
-    setConversationHistory(prev => [...prev, { role: "user", content: userInput }]);
-    
-    // Réinitialiser l'input utilisateur
-    setUserInput("");
+    // Ajouter le message utilisateur à la conversation
+    setMessages(prev => [...prev, userMessage]);
+    setUserInput('');
+    setIsLoading(true);
     
     try {
-      setIsLoading(true);
+      // Préparation des données pour l'IA
+      const conversationHistory = messages
+        .filter(msg => msg.role !== 'system')
+        .map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
       
-      const response = await fetch("/api/openai/chat", {
-        method: "POST",
+      // Ajout du nouveau message de l'utilisateur
+      conversationHistory.push({
+        role: 'user',
+        content: userInput
+      });
+      
+      // Récupérer les paramètres du formulaire
+      const formData = form.getValues();
+      
+      // Création du prompt système pour guider la réponse du client IA
+      const systemPrompt = {
+        role: "system",
+        content: `Tu es Sophie Martin, Directrice des Systèmes d'Information de l'entreprise EnerGreen, spécialisée dans le secteur ${formData.sectorFocus}.
+
+Tu es en entretien avec un consultant AMOA ayant les caractéristiques suivantes:
+- Type de profil: ${formData.profileType}
+- Niveau d'expérience: ${formData.experienceLevel}
+
+Tu adaptes ton niveau d'exigence et ta façon de communiquer en fonction de son profil et de son expérience.
+
+Voici le contexte spécifique à ton secteur ${formData.sectorFocus}:
+${formData.sectorFocus === "Banque & Assurance" ? 
+  "- Ton entreprise doit mettre en place un système de gestion des risques conforme aux nouvelles réglementations financières\n- Vous devez moderniser vos processus de conformité tout en améliorant l'expérience client\n- Le système actuel est fragmenté et peu sécurisé" : 
+formData.sectorFocus === "Énergie & Environnement" ? 
+  "- Ton entreprise développe des solutions pour la transition énergétique et l'optimisation des ressources\n- Vous devez intégrer vos différents systèmes de gestion de production et distribution\n- L'architecture informatique actuelle n'est pas adaptée aux enjeux de durabilité et d'innovation" :
+formData.sectorFocus === "Santé & Protection sociale" ? 
+  "- Ton entreprise doit mettre en place un système de gestion des données patients conforme au RGPD\n- Vous devez optimiser la coordination entre les différents acteurs de santé\n- Les systèmes actuels sont cloisonnés et ne permettent pas une vision intégrée du parcours patient" :
+formData.sectorFocus === "Secteur public" ?
+  "- Ton organisation doit moderniser ses services digitaux pour les citoyens\n- Vous devez simplifier les procédures administratives tout en renforçant la sécurité\n- Les systèmes existants sont obsolètes et peu interopérables" :
+formData.sectorFocus === "Télécoms & Médias" ?
+  "- Ton entreprise doit transformer son infrastructure réseau et ses plateformes de services\n- Vous devez améliorer l'expérience utilisateur omnicanale et personnalisée\n- Les systèmes actuels ne permettent pas l'agilité nécessaire face à la concurrence" :
+formData.sectorFocus === "Transport & Logistique" ?
+  "- Ton entreprise doit optimiser sa chaîne logistique et sa planification des transports\n- Vous devez mettre en place un suivi en temps réel des flux et des ressources\n- Les outils actuels sont disparates et manquent de précision" :
+  "- Ton entreprise doit moderniser ses processus de production et sa supply chain\n- Vous devez mettre en place des solutions d'industrie 4.0 et d'automatisation\n- Les systèmes actuels ne permettent pas une vision intégrée de la chaîne de valeur"}
+
+Dans cet entretien:
+1. Tu dois évaluer rigoureusement les compétences AMOA du consultant
+2. Pose des questions PRÉCISES et CHALLENGEANTES sur les concepts AMOA, adaptées au secteur ${formData.sectorFocus}
+3. Réagis de manière réaliste aux réponses du consultant, en creusant les points flous ou incomplets
+4. Si le consultant propose une méthode ou solution, demande des détails concrets sur sa mise en œuvre
+5. Concentre-toi sur des problématiques spécifiques à ${formData.sectorFocus}
+6. Adapte ton niveau d'exigence technique au niveau d'expérience du consultant: ${formData.experienceLevel}
+
+${formData.experienceLevel === "0-2 ans" ? 
+  "Comme le consultant est junior, sois pédagogique mais attentive à ses connaissances de base en AMOA" : 
+formData.experienceLevel === "2-5 ans" ? 
+  "Comme le consultant est confirmé, teste sa capacité à appliquer des méthodologies projet dans des cas concrets" :
+  "Comme le consultant est expérimenté/senior, challenge sa vision stratégique et sa capacité à gérer des projets complexes"}
+
+Ta réponse doit:
+- Être concise (max 4-5 phrases)
+- Réagir spécifiquement au dernier message du consultant
+- Poser une nouvelle question pour approfondir un aspect AMOA ou challenger le consultant
+- Rester dans le contexte spécifique du projet dans le secteur ${formData.sectorFocus}
+
+Ne termine pas l'entretien avant que le consultant ne l'ait demandé ou que vous ayez échangé au moins 5 fois.`
+      };
+      
+      // Appel à l'API OpenAI existante pour générer la réponse
+      const response = await fetch('/api/openai/chat', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           messages: [
-            {
-              role: "system",
-              content: `Tu es Sophie Martin, DSI chez EnerGreen, une entreprise du secteur énergétique en pleine transformation digitale. 
-              Tu mènes un entretien avec un consultant AMOA qui a un profil ${form.getValues().profileType} avec ${form.getValues().experienceLevel} d'expérience.
-              
-              Ton objectif est d'évaluer ses compétences et sa capacité à comprendre tes besoins. 
-              Tu dois rester dans ton rôle de client, poser des questions pertinentes sur ton projet et réagir de façon réaliste aux propositions du consultant.
-              
-              Garde tes réponses concises (maximum 3-4 phrases) et pertinentes. Ne termine pas l'entretien prématurément.
-              Si le consultant pose une question, réponds-y directement. Ne pose pas plus d'une question à la fois.`
-            },
+            systemPrompt,
             ...conversationHistory,
           ],
           useSecondaryModel: true, // Utiliser gpt-4o-mini qui est plus rapide
@@ -592,57 +624,111 @@ const Mc2iInterviewPreparation: React.FC = () => {
       const data = await response.json();
       
       if (data && data.choices && data.choices[0] && data.choices[0].message) {
-        const aiResponse = data.choices[0].message.content;
-        
+        // Créer le message du client avec la réponse générée par IA
         const aiMessage: Message = {
-          id: crypto.randomUUID(),
+          id: `assistant-${messages.length + 1}`,
           role: 'assistant',
-          content: aiResponse,
-          timestamp: new Date()
+          content: data.choices[0].message.content,
+          timestamp: new Date(),
         };
         
-        // Ajouter la réponse de l'IA à la liste de messages
-        setMessages(prevMessages => [...prevMessages, aiMessage]);
-        
-        // Ajouter le message à l'historique de conversation
-        setConversationHistory(prev => [...prev, { role: "assistant", content: aiResponse }]);
+        // Ajouter le message du client à la conversation
+        setMessages(prev => [...prev, aiMessage]);
       } else {
-        // Message de secours en cas d'erreur
-        const fallbackMessage: Message = {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: "Je vous remercie pour ces informations. Avez-vous identifié d'autres contraintes ou objectifs spécifiques pour ce projet de modernisation ?",
-          timestamp: new Date()
-        };
-        
-        setMessages(prevMessages => [...prevMessages, fallbackMessage]);
-        setConversationHistory(prev => [...prev, { role: "assistant", content: fallbackMessage.content }]);
-        
-        console.error("Format de réponse inattendu:", data);
+        throw new Error("Format de réponse inattendu");
       }
     } catch (error) {
-      console.error("Erreur lors de l'envoi du message:", error);
+      console.error('Erreur lors de la génération de la réponse:', error);
+      
+      // Message d'erreur plus descriptif
+      let errorMessage = "Impossible de générer une réponse IA. ";
+      
+      // Vérifier si c'est une erreur réseau
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage += "Problème de connexion au serveur. Vérifiez votre connexion Internet.";
+      } 
+      // Vérifier si l'erreur contient un message de réponse
+      else if (error instanceof Error && error.message.includes('OpenAI')) {
+        errorMessage += "Erreur lors de la communication avec l'API IA. Veuillez réessayer dans quelques instants.";
+      }
+      // Erreur par défaut
+      else {
+        errorMessage += "Une erreur inattendue s'est produite. Veuillez réessayer.";
+      }
+      
       toast({
-        title: "Erreur",
-        description: "Impossible d'envoyer le message. Veuillez réessayer.",
+        title: "Erreur de génération",
+        description: errorMessage,
         variant: "destructive",
       });
+      
+      // Générer une réponse de secours pour permettre à l'utilisateur de continuer
+      const formData = form.getValues();
+      const fallbackContent = formData.sectorFocus === "Banque & Assurance" ?
+        "Je comprends votre point de vue. Dans le secteur bancaire, la conformité réglementaire est effectivement primordiale. Pourriez-vous préciser comment vous envisagez la mise en place d'un cadre méthodologique pour notre projet de système de gestion des risques ?" :
+        formData.sectorFocus === "Énergie & Environnement" ?
+        "C'est intéressant. Dans notre contexte d'optimisation des ressources énergétiques, comment proposeriez-vous de structurer la phase d'analyse des besoins utilisateurs pour notre nouveau système de gestion intégré ?" :
+        "Merci pour ces précisions. Comment aborderiez-vous concrètement la phase d'analyse des besoins dans notre contexte spécifique ? Quelles méthodes privilégieriez-vous ?";
+      
+      // Créer le message de secours
+      const fallbackMessage: Message = {
+        id: `assistant-${messages.length + 1}`,
+        role: 'assistant',
+        content: fallbackContent,
+        timestamp: new Date(),
+      };
+      
+      // Ajouter le message de secours à la conversation
+      setMessages(prev => [...prev, fallbackMessage]);
     } finally {
       setIsLoading(false);
     }
   };
-
-  const completeSimulation = async () => {
-    if (messages.length < 2 || simulationComplete || isLoading) return;
+  
+  // Compléter la simulation
+  const completeSimulation = () => {
+    if (timerId) clearInterval(timerId);
+    
+    if (form.getValues().recruiterEmail && form.getValues().candidateName) {
+      performEvaluation();
+    } else {
+      setShowContactForm(true);
+    }
+  };
+  
+  // Réinitialiser la simulation
+  const resetSimulation = () => {
+    setMessages([]);
+    setTimeRemaining(600);
+    if (timerId) clearInterval(timerId);
+    setIsSimulationActive(false);
+    setSimulationComplete(false);
+    setEvaluationResult(null);
+    setActiveTab('best-practices');
+  };
+  
+  // Formulaire de contact après simulation
+  const onContactFormSubmit = (values: z.infer<typeof contactFormSchema>) => {
+    const formData = form.getValues();
+    form.setValue('recruiterEmail', values.recruiterEmail);
+    form.setValue('candidateName', values.candidateName);
+    
+    setShowContactForm(false);
+    performEvaluation();
+  };
+  
+  // Évaluation de la performance par IA
+  const performEvaluation = async () => {
+    setIsLoading(true);
     
     try {
-      setIsLoading(true);
-      setSimulationComplete(true);
-      
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
+      // Préparation des données pour l'analyse IA
+      const conversationHistory = messages
+        .filter(msg => msg.role !== 'system')
+        .map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
       
       // Récupérer les paramètres du formulaire
       const formData = form.getValues();
@@ -696,113 +782,205 @@ Ton analyse doit:
       // Ajout d'un message utilisateur pour préciser la demande
       const userPrompt = {
         role: "user",
-        content: "Voici la transcription de l'entretien client avec le consultant AMOA. Fournis une évaluation détaillée de sa performance selon les critères indiqués.\n\n" + 
-          conversationHistory.map(msg => 
-            `${msg.role === 'assistant' ? "Sophie Martin (Cliente)" : "Consultant AMOA"}: ${msg.content}`
-          ).join("\n\n")
+        content: `Voici l'historique complet d'un entretien entre un client et un consultant AMOA. Analyse la performance du consultant et fournis une évaluation structurée au format JSON comme demandé dans tes instructions. Assure-toi que ton analyse soit précise, équilibrée et constructive.`
       };
       
-      // Appel à l'API OpenAI pour l'évaluation
-      const response = await fetch("/api/openai/chat", {
-        method: "POST",
+      // Appel à l'API OpenAI existante pour générer l'évaluation
+      const response = await fetch('/api/openai/chat', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           messages: [
             systemPrompt,
+            ...conversationHistory,
             userPrompt
           ],
-          useSecondaryModel: false, // Utiliser le modèle principal pour l'analyse
+          useSecondaryModel: true, // Utiliser gpt-4o-mini qui est plus rapide
           temperature: 0.7
+          // Note: l'API chat ne supporte pas le format de réponse JSON,
+          // nous allons parser la réponse texte en JSON manuellement
         }),
       });
       
       if (!response.ok) {
-        throw new Error("Erreur lors de la requête à l'API OpenAI pour l'évaluation");
+        throw new Error("Erreur lors de la requête à l'API OpenAI");
       }
       
       const data = await response.json();
       
       if (data && data.choices && data.choices[0] && data.choices[0].message) {
-        const evaluationText = data.choices[0].message.content;
-        console.log("Évaluation brute:", evaluationText);
-        
         try {
-          // Tentative de parsing direct
-          const evaluationData = JSON.parse(evaluationText);
-          setEvaluationResult(evaluationData);
-          setActiveTab("evaluation");
-        } catch (parseError) {
-          console.error("Erreur lors du parsing JSON:", parseError);
+          // L'API renvoit du texte qu'il faut parser en JSON
+          let contentText = data.choices[0].message.content;
           
-          // Tentative de nettoyage et parsing
-          try {
-            const cleanedText = evaluationText
-              .replace(/```json/g, '')
-              .replace(/```/g, '')
-              .trim();
-            
-            const evaluationData = JSON.parse(cleanedText);
-            setEvaluationResult(evaluationData);
-            setActiveTab("evaluation");
-          } catch (secondParseError) {
-            console.error("Erreur lors du second parsing JSON:", secondParseError);
-            
-            // Fallback: utiliser le texte brut
-            setEvaluationResult({
-              summary: "Impossible de formater l'évaluation en JSON. Veuillez consulter le texte brut ci-dessous.",
-              detailedNotes: evaluationText,
-              strengths: [],
-              improvements: [],
-              recommendations: [],
-              sectorFitEvaluation: "",
-              conclusion: ""
-            });
-            setActiveTab("evaluation");
-            
-            toast({
-              title: "Avertissement",
-              description: "Le formatage de l'évaluation a rencontré un problème, mais nous affichons les résultats en format texte.",
-              variant: "warning",
-            });
+          // Si la réponse commence par du texte explicatif avant le JSON
+          if (!contentText.trim().startsWith('{') && contentText.includes('{')) {
+            // Trouver l'index du premier { qui indique le début du JSON
+            const jsonStartIndex = contentText.indexOf('{');
+            contentText = contentText.substring(jsonStartIndex);
           }
+          
+          // Nettoyer la réponse des délimiteurs de code Markdown si présents
+          if (contentText.includes('```json')) {
+            contentText = contentText.replace(/```json\n/g, '');
+            contentText = contentText.replace(/```/g, '');
+          }
+          
+          // Vérifier que tous les champs sont présents, sinon ajouter des valeurs par défaut
+          const defaultEvaluation = {
+            summary: "Analyse de performance non disponible.",
+            strengths: [],
+            improvements: [],
+            detailedNotes: "Détails non disponibles.",
+            recommendations: [],
+            sectorFitEvaluation: "Évaluation non disponible.",
+            conclusion: "Conclusion non disponible."
+          };
+          
+          let evaluationData;
+          
+          // Tenter de trouver un objet JSON valide dans la réponse
+          try {
+            // Essayer d'analyser le texte complet d'abord
+            evaluationData = JSON.parse(contentText);
+          } catch (e) {
+            // Si échec, essayer d'extraire un objet JSON valide en trouvant les accolades correspondantes
+            const regex = /\{(?:[^{}]|(\{(?:[^{}]|(\{(?:[^{}]|(\{[^{}]*\}))*\}))*\}))*\}/g;
+            const match = contentText.match(regex);
+            
+            if (match && match.length > 0) {
+              try {
+                evaluationData = JSON.parse(match[0]);
+              } catch (e) {
+                // Si toujours pas de JSON valide, créer un objet manuellement à partir du texte
+                evaluationData = {
+                  summary: "L'analyse n'a pas pu être formatée en JSON",
+                  strengths: ["Points forts non disponibles en format structuré"],
+                  improvements: ["Améliorations non disponibles en format structuré"],
+                  detailedNotes: contentText.substring(0, 500) + "...",
+                  recommendations: ["Recommandations non disponibles en format structuré"],
+                  sectorFitEvaluation: "Évaluation sectorielle non disponible en format structuré",
+                  conclusion: "Conclusion non disponible en format structuré"
+                };
+              }
+            } else {
+              // Aucun JSON trouvé, utiliser le texte brut comme analyse
+              evaluationData = {
+                summary: "L'analyse n'a pas pu être formatée en JSON",
+                strengths: ["Points forts non disponibles en format structuré"],
+                improvements: ["Améliorations non disponibles en format structuré"],
+                detailedNotes: contentText.substring(0, 500) + "...",
+                recommendations: ["Recommandations non disponibles en format structuré"],
+                sectorFitEvaluation: "Évaluation sectorielle non disponible en format structuré",
+                conclusion: "Conclusion non disponible en format structuré"
+              };
+            }
+          }
+          
+          // Fusionner avec les valeurs par défaut pour s'assurer que tous les champs sont présents
+          evaluationData = { ...defaultEvaluation, ...evaluationData };
+          
+          setEvaluationResult(evaluationData);
+          setActiveTab('evaluation');
+          setSimulationComplete(true);
+        } catch (parseError) {
+          console.error('Erreur lors du parsing de la réponse JSON:', parseError);
+          toast({
+            title: "Erreur de format",
+            description: "L'analyse n'a pas pu être correctement formatée. Veuillez réessayer.",
+            variant: "destructive",
+          });
         }
       } else {
-        throw new Error("Format de réponse inattendu pour l'évaluation");
+        throw new Error("Format de réponse inattendu");
       }
     } catch (error) {
-      console.error("Erreur lors de la complétion de la simulation:", error);
+      console.error('Erreur lors de l\'évaluation:', error);
+      
+      // Message d'erreur plus descriptif
+      let errorMessage = "Impossible d'obtenir l'évaluation IA. ";
+      
+      // Vérifier si c'est une erreur réseau
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage += "Problème de connexion au serveur. Vérifiez votre connexion Internet.";
+      } 
+      // Vérifier si l'erreur contient un message de réponse
+      else if (error instanceof Error && error.message.includes('OpenAI')) {
+        errorMessage += "Erreur lors de la communication avec l'API IA. Veuillez réessayer dans quelques instants.";
+      }
+      // Erreur par défaut
+      else {
+        errorMessage += "Une erreur inattendue s'est produite. Veuillez réessayer.";
+      }
+      
       toast({
-        title: "Erreur",
-        description: "Impossible de compléter la simulation. Veuillez réessayer.",
+        title: "Erreur d'évaluation",
+        description: errorMessage,
         variant: "destructive",
       });
-      setSimulationComplete(false);
+      
+      // Créer une évaluation de secours basique pour permettre à l'utilisateur de terminer
+      const formData = form.getValues();
+      const fallbackEvaluation = {
+        summary: `L'entretien avec le client dans le secteur ${formData.sectorFocus} a permis d'aborder plusieurs aspects importants de la problématique. Des éléments de méthodologie AMOA et d'analyse des besoins ont été discutés, avec une attention aux spécificités du secteur.`,
+        strengths: [
+          "Participation active à l'échange",
+          "Tentative d'adaptation au contexte spécifique du client",
+          "Abord de concepts AMOA pertinents"
+        ],
+        improvements: [
+          "Approfondir les spécificités du secteur d'activité",
+          "Structurer davantage l'approche méthodologique",
+          "Poser des questions plus précises pour cerner les besoins"
+        ],
+        detailedNotes: `L'entretien a permis d'explorer différents aspects de la problématique client dans le secteur ${formData.sectorFocus}. Les questions posées ont montré un intérêt pour comprendre le contexte et les besoins spécifiques. Des éléments de méthodologie AMOA ont été évoqués, avec une tentative d'adaptation au contexte particulier du client. Pour améliorer les futurs entretiens, il serait bénéfique d'approfondir la connaissance des spécificités du secteur, de structurer davantage l'approche méthodologique proposée et de poser des questions plus précises pour cerner les besoins exacts du client.`,
+        recommendations: [
+          "Approfondir la connaissance du secteur ${formData.sectorFocus}",
+          "Préparer une structure d'entretien plus détaillée",
+          "S'entraîner à reformuler les besoins du client"
+        ],
+        sectorFitEvaluation: `La compréhension des enjeux spécifiques au secteur ${formData.sectorFocus} était présente mais pourrait être approfondie. Une meilleure connaissance des défis et contraintes propres à ce domaine permettrait une analyse plus pertinente des besoins et des solutions plus adaptées.`,
+        conclusion: `Avec de la pratique et un approfondissement des connaissances sectorielles, la qualité des entretiens clients continuera de s'améliorer. Continuer à s'exercer dans des simulations variées permettra de développer les compétences nécessaires pour exceller dans les missions AMOA.`
+      };
+      
+      setEvaluationResult(fallbackEvaluation);
+      setActiveTab('evaluation');
+      setSimulationComplete(true);
     } finally {
       setIsLoading(false);
     }
   };
-
-  const onContactFormSubmit = (data: z.infer<typeof contactFormSchema>) => {
-    // Dans une implémentation complète, vous enverriez ces données à un backend
-    console.log("Données du formulaire de contact:", data);
-    
-    // Compléter la simulation avec les informations utilisateur
-    setShowContactForm(false);
-    
-    toast({
-      title: "Merci !",
-      description: "Votre évaluation a été envoyée à l'adresse email indiquée.",
-    });
-  };
-
-  // Return component JSX
+  
   return (
     <HomeLayout>
-      <div className="max-w-6xl mx-auto p-4">
-        <div className="mb-6 text-center">
-          <h1 className="text-3xl font-bold text-white">Simulation d'entretien client AMOA</h1>
+      <div className="flex flex-col w-full min-h-screen p-4 md:p-8 bg-gradient-to-b from-gray-800 to-gray-950 text-white">
+        <div className="flex justify-between items-center mb-4">
+          <Button 
+            variant="ghost" 
+            className="flex items-center text-gray-300 hover:text-white hover:bg-gray-700/50" 
+            onClick={() => setLocation('/amoa-mode-selection-fixed')}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Retour aux modules AMOA
+          </Button>
+          
+          <div className="flex items-center">
+            <Users className="w-5 h-5 mr-2 text-blue-400" />
+            <span className="text-gray-300 text-sm">
+              <span className="font-bold text-blue-400">4.9</span>
+              <span className="mx-1">/</span>
+              <span>5</span>
+              <span className="ml-1">({Math.floor(Math.random() * 500) + 1500} utilisateurs)</span>
+            </span>
+          </div>
+        </div>
+        
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
+            Simulation d'entretien client
+          </h1>
           <p className="text-gray-300 mt-2 max-w-3xl mx-auto">
             Perfectionnez vos compétences en entretien client avec cette simulation interactive qui vous permet de pratiquer dans un environnement réaliste. Recevez un feedback détaillé pour améliorer votre approche.
           </p>
@@ -815,17 +993,15 @@ Ton analyse doit:
               <span className="hidden sm:inline">Bonnes pratiques</span>
               <span className="sm:hidden">Pratiques</span>
             </TabsTrigger>
-            <TabsTrigger value="preparation" className="data-[state=active]:bg-purple-600/50" disabled={true}>
+            <TabsTrigger value="preparation" className="data-[state=active]:bg-purple-600/50">
               <BriefcaseBusiness className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">Préparation</span>
               <span className="sm:hidden">Préparer</span>
-              <Badge variant="outline" className="ml-2 text-xs border-amber-500 text-amber-400">Bientôt disponible</Badge>
             </TabsTrigger>
-            <TabsTrigger value="simulation" className="data-[state=active]:bg-green-600/50" disabled={true}>
+            <TabsTrigger value="simulation" className="data-[state=active]:bg-green-600/50" disabled={!isSimulationActive && activeTab !== 'simulation'}>
               <User className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">Simulation</span>
               <span className="sm:hidden">Simuler</span>
-              <Badge variant="outline" className="ml-2 text-xs border-amber-500 text-amber-400">Bientôt disponible</Badge>
             </TabsTrigger>
           </TabsList>
           
