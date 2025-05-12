@@ -16,7 +16,8 @@ import {
   Copy,
   Star,
   TimerReset,
-  Lightbulb
+  Lightbulb,
+  Info
 } from 'lucide-react';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -1123,22 +1124,35 @@ Ton analyse doit:
                       <Button 
                         type="button" 
                         variant="ghost" 
-                        className="text-gray-300 hover:text-white hover:bg-gray-700"
-                        onClick={skipInfoAndStart}
-                        disabled={!form.getValues().profileType || !form.getValues().experienceLevel || !form.getValues().sectorFocus}
-                        title="Utilisera le profil, le niveau d'expérience et le secteur sélectionnés"
+                        className="text-gray-300 hover:text-white hover:bg-gray-700 opacity-50 cursor-not-allowed"
+                        disabled={true}
+                        title="Cette fonctionnalité sera disponible prochainement"
                       >
                         <TimerReset className="w-4 h-4 mr-2" />
-                        Démarrer rapidement
+                        Bientôt disponible
                       </Button>
                       
                       <Button 
-                        type="submit" 
-                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                        disabled={isLoading}
+                        type="button" 
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 opacity-50 cursor-not-allowed"
+                        disabled={true}
+                        title="Cette fonctionnalité sera disponible prochainement"
                       >
-                        {isLoading ? "Chargement..." : "Lancer l'entretien simulé"}
+                        Bientôt disponible
                       </Button>
+                    </div>
+                    
+                    {/* Bandeau informatif */}
+                    <div className="mt-6 p-4 bg-blue-900/30 border border-blue-700/50 rounded-md">
+                      <div className="flex items-start">
+                        <Info className="w-5 h-5 text-blue-400 mr-3 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <h4 className="text-blue-200 font-medium mb-1">Fonctionnalité en développement</h4>
+                          <p className="text-gray-300 text-sm">
+                            La simulation d'entretien client sera disponible prochainement. Cette fonctionnalité permettra de pratiquer vos compétences AMOA dans un environnement réaliste avec un client virtuel.
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </form>
                 </Form>
