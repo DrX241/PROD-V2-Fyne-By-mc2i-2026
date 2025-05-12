@@ -50,7 +50,7 @@ export async function initMcaiLearningSession(req: Request, res: Response) {
     // Générer le message d'accueil
     const welcomeMessage: ChatCompletionRequestMessage = {
       role: "assistant",
-      content: "Bonjour et bienvenue sur mc2i AI Learning 👋\nJe suis votre assistant dédié pour évaluer vos compétences à travers des scénarios immersifs et personnalisés.\n\nAvant de commencer, pouvez-vous me donner votre prénom ? :)"
+      content: "Bonjour et bienvenue sur mc2i AI Learning 👋\n\nJe suis un agent conversationnel expert conçu pour simuler des situations professionnelles et évaluer vos compétences de manière immersive, interactive et personnalisée.\n\nAvant de commencer, veuillez me fournir deux informations obligatoires :\n\n1. Votre trigramme (3 lettres, alphabet uniquement)\n2. Votre métier chez mc2i : Consultant, Consultant Confirmé, Consultant Senior, Chef de Projet, Manager, Senior Manager, ou Directeur"
     };
 
     session.messages.push(welcomeMessage);
@@ -567,7 +567,7 @@ async function generateGenericResponse(session: LearningBotSession, message: str
       ...contextMessages
     ];
     
-    const generatedResponse = await openAIService.getChatCompletionWithCache(messages, 0.7);
+    const generatedResponse = await openAIService.getChatCompletion(messages, 0.7, 1500);
     return generatedResponse;
   } catch (error) {
     console.error("Erreur lors de la génération de la réponse:", error);
