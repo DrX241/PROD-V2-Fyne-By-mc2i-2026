@@ -479,17 +479,7 @@ export default function Home() {
   
   // Modules avec animations interactives
   const modules = [
-      // Module Outils IA (nouvelle catégorie)
-      {
-        title: "OUTILS IA",
-        description: "Collection d'outils d'intelligence artificielle pour améliorer votre productivité et faciliter votre apprentissage dans différents domaines.",
-        icon: <GraduationCap size={36} />,
-        color: "bg-violet-600",
-        bgColor: "bg-gradient-to-br from-violet-50 to-violet-100",
-        accentColor: "bg-violet-500",
-        linkTo: "/outils-ia",
-        isNew: true
-      },
+      // Le module Outils IA a été supprimé à la demande du client
       // Le module CyberForge Academy a été supprimé pour reconstruction
     {
       title: "I AM CYBER",
