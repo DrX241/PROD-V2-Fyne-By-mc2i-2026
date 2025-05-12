@@ -3,10 +3,11 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
-import { Suspense, lazy, startTransition } from "react";
+import { Suspense, lazy, startTransition, useState, useEffect } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { TutorialProvider } from "./contexts/TutorialContext";
+import AuthScreen from "@/components/auth/AuthScreen";
 
 // Importation des composants directement car le lazy loading provoque des problèmes
 // avec wouter dans cette implémentation
@@ -110,6 +111,44 @@ const GlobalLoader = () => (
 );
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Vérifier l'authentification au chargement
+  useEffect(() => {
+    const checkAuth = () => {
+      const authenticated = localStorage.getItem('appAuthenticated') === 'true';
+      const timestamp = Number(localStorage.getItem('authTimestamp') || '0');
+      const currentTime = Date.now();
+      
+      // Session expire après 24 heures
+      const isExpired = currentTime - timestamp > 24 * 60 * 60 * 1000;
+      
+      if (authenticated && !isExpired) {
+        setIsAuthenticated(true);
+      } else {
+        // Nettoyer si expiré
+        localStorage.removeItem('appAuthenticated');
+        localStorage.removeItem('authTimestamp');
+        setIsAuthenticated(false);
+      }
+    };
+    
+    checkAuth();
+  }, []);
+  
+  // Si l'utilisateur n'est pas authentifié, afficher l'écran d'authentification
+  if (!isAuthenticated) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <AuthScreen setIsAuthenticated={setIsAuthenticated} />
+          <Toaster />
+        </ThemeProvider>
+      </QueryClientProvider>
+    );
+  }
+  
+  // Si authentifié, afficher l'application complète
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
@@ -117,678 +156,299 @@ function App() {
           <TutorialProvider>
             <div>
               <Switch>
-            
-            {/* Toutes les routes sont maintenant publiques */}
-            <Route path="/cyber/interview-preparation" component={CyberInterviewPreparation} />
-            <Route path="/cyber/interview-simulation" component={NotYetImplemented} />
-            <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
-            
-            {/* Routes publiques */}
-            <Route path="/" component={Home} />
-            <Route path="/modules" component={ModulesPage} />
-            <Route path="/cyber" component={() => {
-              const CyberModeSelectionFixed = lazy(() => import('./pages/cyber-mode-selection-fixed'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberModeSelectionFixed />
-                </Suspense>
-              );
-            }} />
-            <Route path="/cyber-mode-selection" component={() => {
-              const CyberModeSelectionFixed = lazy(() => import('./pages/cyber-mode-selection-fixed'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberModeSelectionFixed />
-                </Suspense>
-              );
-            }} />
-            <Route path="/cyber-mode-selection-old" component={CyberModeSelection} /> {/* Ancienne interface accessible via -old */}
-            <Route path="/cyber/agent" component={CyberAgentPage} />
-            <Route path="/cyber/cyber-agent" component={CyberAgentRedirectPage} /> {/* Redirection vers la nouvelle version */}
-            <Route path="/cyber/cyber-agent-old" component={CyberAgentRedirectPage} /> {/* Ancienne version (redirection) */}
-            <Route path="/cyber/cyber-agent-new" component={CyberAgentNewPage} /> {/* Nouvelle version du module Cyber Agent */}
-            <Route path="/cyber/expert-learning" component={ExpertLearningPage} /> {/* Module Apprendre en échangeant */}
-            <Route path="/cyber/learning/cyber-mastery" component={() => {
-              // Import dynamique de la nouvelle page Cyber Mastery
-              const CyberMasteryPage = lazy(() => import('./pages/cyber/learning/cyber-mastery'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberMasteryPage />
-                </Suspense>
-              );
-            }} />
-            <Route path="/cyber/learning/cyber-mastery/sensibilisation" component={() => {
-              // Import dynamique du module de sensibilisation cybersécurité (version gamifiée)
-              const SensibilisationCyberGame = lazy(() => import('./pages/cyber/learning/modules/sensibilisation-cyber-game'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <SensibilisationCyberGame />
-                </Suspense>
-              );
-            }} />
-            <Route path="/cyber/learning/cyber-mastery/:themeId" component={NotYetImplemented} />
-            {/* CyberQuest a été supprimé */}
-            
-            {/* Module d'arcade cyber et jeux d'enquête */}
-            <Route path="/cyber/arcade" component={CyberArcade} />
-            <Route path="/cyber/arcade/cyber-investigator" component={CyberInvestigator} />
-            <Route path="/cyber/arcade/cyber-investigator/data-leak" component={DataLeakInvestigation} />
-            <Route path="/cyber/arcade/cyber-investigator/ransomware-attack" component={RansomwareAttack} />
-            <Route path="/cyber/arcade/cyber-investigator/insider-threat" component={InsiderThreat} />
-            <Route path="/cyber/arcade/digital-forensics" component={DigitalForensics} />
-            <Route path="/cyber/arcade/threat-intelligence" component={ThreatIntelligence} />
-            <Route path="/cyber/arcade/firewall-tactique" component={() => {
-              const FirewallTactiqueComponent = lazy(() => import('./pages/cyber/arcade/firewall-tactique'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <FirewallTactiqueComponent />
-                </Suspense>
-              );
-            }} />
-
-            <Route path="/cyber/arcade/cyber-escape-v2" component={() => {
-              const CyberEscapeV2Component = lazy(() => import('./pages/cyber/arcade/cyber-escape-v2'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberEscapeV2Component />
-                </Suspense>
-              );
-            }} />
-            <Route path="/cyber/arcade/brain-hacker" component={() => {
-              const BrainHackerComponent = lazy(() => import('./pages/cyber/arcade/brain-hacker'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <BrainHackerComponent />
-                </Suspense>
-              );
-            }} />
-            
-            {/* Module Bug Hunter */}
-            <Route path="/cyber/arcade/bug-hunter" component={() => {
-              const BugHunterComponent = lazy(() => import('./pages/cyber/arcade/bug-hunter'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <BugHunterComponent />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/arcade/bug-hunter/challenge/:id" component={() => {
-              const BugHunterChallengeComponent = lazy(() => import('./pages/cyber/arcade/bug-hunter/challenge/[id]'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <BugHunterChallengeComponent />
-                </Suspense>
-              );
-            }} />
-            
-            {/* Module Escape the Breach - Supprimé */}
-            
-            {/* Module Cyber Snake - Supprimé */}
-            <Route path="/cyber/cyber-snake" component={NotYetImplemented} />
-            <Route path="/cyber/test-technique" component={() => {
-              const CyberTestTechnique = lazy(() => import('./pages/cyber/test-technique'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberTestTechnique />
-                </Suspense>
-              );
-            }} />
-            
-            {/* Page de démonstration du style CYBER ACADÉMIE */}
-            <Route path="/cyber/test-cyber-academie" component={() => {
-              const TestCyberAcademie = lazy(() => import('./pages/cyber/test-cyber-academie'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <TestCyberAcademie />
-                </Suspense>
-              );
-            }} />
-            
-            {/* Section Outils Cyber */}
-            <Route path="/cyber/tools" component={() => {
-              const ToolsPageComponent = lazy(() => import('./pages/cyber/tools'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <ToolsPageComponent />
-                </Suspense>
-              );
-            }} />
-            <Route path="/cyber/tools/policy-converter" component={() => {
-              const PolicyConverterComponent = lazy(() => import('./pages/cyber/tools/policy-converter'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <PolicyConverterComponent />
-                </Suspense>
-              );
-            }} />
-
-            
-            <Route path="/cyber/tools/phishing-simulator" component={() => {
-              const PhishingSimulatorComponent = lazy(() => import('./pages/cyber/tools/phishing-simulator'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <PhishingSimulatorComponent />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/tools/assistant-cyber" component={() => {
-              const AssistantCyberComponent = lazy(() => import('./pages/cyber/tools/assistant-cyber'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <AssistantCyberComponent />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/interview-test" component={() => {
-              const CyberInterviewTest = lazy(() => import('./pages/cyber/interview-test'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberInterviewTest />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/profil-pro" component={() => {
-              const ProfilProComponent = lazy(() => import('./pages/cyber/profil-pro'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <ProfilProComponent />
-                </Suspense>
-              );
-            }} />
-<Route path="/cyber/arcade/code-shield" component={() => {
-              const CodeShieldComponent = lazy(() => import('./pages/cyber/arcade/code-shield'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CodeShieldComponent />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/arcade/code-shield/levels/signatures" component={() => {
-              const SignaturesComponent = lazy(() => import('./pages/cyber/arcade/code-shield/levels/signatures'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <SignaturesComponent />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/arcade/code-shield/levels/static-analysis" component={() => {
-              const StaticAnalysisComponent = lazy(() => import('./pages/cyber/arcade/code-shield/levels/static-analysis'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <StaticAnalysisComponent />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/arcade/code-shield/lab" component={() => {
-              const LabComponent = lazy(() => import('./pages/cyber/arcade/code-shield/lab'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <LabComponent />
-                </Suspense>
-              );
-            }} />
-            
-            {/* Nouveau module CYBER ACADÉMIE */}
-            <Route path="/cyber/learning-center" component={() => {
-              const CyberLearningCenter = lazy(() => import('./pages/cyber/learning-center'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberLearningCenter />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/learning-center/modules/intro-cybersecurite" component={() => {
-              const IntroCybersecurite = lazy(() => import('./pages/cyber/learning-center/modules/intro-cybersecurite'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <IntroCybersecurite />
-                </Suspense>
-              );
-            }} />
-            
-            {/* Routes pour les modules du parcours rapide */}
-            <Route path="/cyber/learning-center/modules/fiches-cyber-express" component={() => {
-              const FichesCyberExpress = lazy(() => import('./pages/cyber/learning-center/modules/fiches-cyber-express'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <FichesCyberExpress />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/learning-center/modules/quiz-adaptatif-ia" component={() => {
-              const QuizAdaptatifIA = lazy(() => import('./pages/cyber/learning-center/modules/quiz-adaptatif-ia'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <QuizAdaptatifIA />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/learning-center/modules/glossaire-visuel" component={() => {
-              const GlossaireVisuel = lazy(() => import('./pages/cyber/learning-center/modules/glossaire-visuel'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <GlossaireVisuel />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/learning-center/modules/memo-ia-personnalise" component={() => {
-              const MemoIAPersonnalise = lazy(() => import('./pages/cyber/learning-center/modules/memo-ia-personnalise'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <MemoIAPersonnalise />
-                </Suspense>
-              );
-            }} />
-            
-            {/* Routes spécifiques pour les modules Micro-Learning */}
-            <Route path="/cyber/learning-center/modules/phishing-detection" component={() => {
-              const PhishingDetection = lazy(() => import('./pages/cyber/learning-center/modules/phishing-detection'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <PhishingDetection />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/learning-center/modules/mot-de-passe" component={() => {
-              const MotDePasse = lazy(() => import('./pages/cyber/learning-center/modules/mot-de-passe'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <MotDePasse />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/learning-center/modules/ransomware" component={() => {
-              const Ransomware = lazy(() => import('./pages/cyber/learning-center/modules/ransomware'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <Ransomware />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/learning-center/modules/byod-securite" component={() => {
-              const BYODSecurite = lazy(() => import('./pages/cyber/learning-center/modules/byod-securite'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <BYODSecurite />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/learning-center/modules/zero-trust" component={() => {
-              const ZeroTrust = lazy(() => import('./pages/cyber/learning-center/modules/zero-trust'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <ZeroTrust />
-                </Suspense>
-              );
-            }} />
-            
-            {/* Routes pour les modules spécialisés */}
-            <Route path="/cyber/learning-center/modules/securite-reseaux" component={() => {
-              const SecuriteReseaux = lazy(() => import('./pages/cyber/learning-center/modules/securite-reseaux'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <SecuriteReseaux />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/learning-center/modules/securite-cloud" component={() => {
-              const SecuriteCloud = lazy(() => import('./pages/cyber/learning-center/modules/securite-cloud'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <SecuriteCloud />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/learning-center/modules/devsecops" component={() => {
-              const DevSecOps = lazy(() => import('./pages/cyber/learning-center/modules/devsecops'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <DevSecOps />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/learning-center/modules/securite-donnees" component={() => {
-              const SecuriteDonnees = lazy(() => import('./pages/cyber/learning-center/modules/securite-donnees'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <SecuriteDonnees />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/learning-center/modules/gestion-identites" component={() => {
-              const GestionIdentites = lazy(() => import('./pages/cyber/learning-center/modules/gestion-identites'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <GestionIdentites />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/learning-center/modules/gouvernance-cyber" component={() => {
-              const GouvernanceCyber = lazy(() => import('./pages/cyber/learning-center/modules/gouvernance-cyber'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <GouvernanceCyber />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/learning-center/modules/securite-ot" component={() => {
-              const SecuriteOT = lazy(() => import('./pages/cyber/learning-center/modules/securite-ot'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <SecuriteOT />
-                </Suspense>
-              );
-            }} />
-            
-            <Route path="/cyber/learning-center/modules/ia-securite" component={() => {
-              const IASecurite = lazy(() => import('./pages/cyber/learning-center/modules/ia-securite'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <IASecurite />
-                </Suspense>
-              );
-            }} />
-
-            {/* Route générique pour les modules non implémentés */}
-            <Route path="/cyber/learning-center/modules/:moduleId" component={() => {
-              return (
-                <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-blue-950 to-slate-950 px-4 text-white">
-                  <h1 className="text-3xl font-bold mb-4">Module en développement</h1>
-                  <p className="text-xl text-blue-300 mb-8 text-center max-w-md">
-                    Ce module est en cours de développement et sera disponible prochainement.
-                  </p>
-                  <a 
-                    href="/cyber/learning-center" 
-                    className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors mb-4"
-                  >
-                    Retour au centre d'apprentissage
-                  </a>
-                </div>
-              );
-            }} />
-            
-            {/* Générateur de Modules et affichage des modules personnalisés */}
-            <Route path="/playground/module-generator" component={ModuleGeneratorPage} />
-            <Route path="/custom-module/:id" component={() => {
-              const CustomModulePage = lazy(() => import('./pages/custom-module'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CustomModulePage />
-                </Suspense>
-              );
-            }} />
-            
-            {/* Toutes les autres routes Playground redirigent vers le générateur de modules */}
-            <Route path="/playground" component={() => {
-              window.location.href = '/playground/module-generator';
-              return null;
-            }} />
-            <Route path="/playground/module" component={() => {
-              window.location.href = '/playground/module-generator';
-              return null;
-            }} />
-            <Route path="/playground/module/:moduleId" component={() => {
-              window.location.href = '/playground/module-generator';
-              return null;
-            }} />
-            <Route path="/playground/path/:pathId" component={() => {
-              window.location.href = '/playground/module-generator';
-              return null;
-            }} />
-            
-            {/* Module CyberForge Academy */}
-            {/* Suppression de la route CyberForge Academy */}
-            
-            {/* Ancienne route mc2i AI Learning (redirigée vers nouvelle section pour compatibilité) */}
-            <Route path="/mcai-learning" component={() => {
-              window.location.href = '/outils-ia/mc2i-learning';
-              return null;
-            }} />
-            
-            {/* Nouvelle section Outils IA */}
-            <Route path="/outils-ia" component={OutilsIAPage} />
-            <Route path="/outils-ia/mc2i-learning" component={Mc2iLearningOutils} />
-            <Route path="/outils-ia/assistant" component={CustomAssistantPage} />
-            <Route path="/outils-ia/assistant/create" component={CreateAssistantPage} />
-            <Route path="/outils-ia/assistant/:id" component={AssistantChatPage} />
-            <Route path="/outils-ia/code-generator" component={() => {
-              // Import dynamique du générateur de code
-              const CodeGeneratorPage = lazy(() => import('./pages/outils-ia/code-generator'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CodeGeneratorPage />
-                </Suspense>
-              );
-            }} />
-            
-            {/* Les routes d'administration pour les assistants ont été supprimées */}
-            
-            {/* Toutes les routes CyberForge redirigent vers la page "non disponible" */}
-            <Route path="/cyberforge" component={NotYetImplemented} />
-            <Route path="/cyberforge/academy" component={NotYetImplemented} />
-            <Route path="/cyberforge/modules" component={NotYetImplemented} />
-            <Route path="/cyberforge/modules/:moduleId" component={NotYetImplemented} />
-            <Route path="/cyberforge/modules/lesson/:moduleId/:chapterId/:lessonId" component={NotYetImplemented} />
-            
-            {/* Module Centre de Crise */}
-            <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />
-            <Route path="/cyber-defense/session/:levelId" component={CyberDefenseSessionPage} />
-            <Route path="/cyber-defense" component={CentreDeCriseEvolutifPage} />
-            <Route path="/cyber-defense/mission/:id" component={CyberDefenseMissionPage} />
-            {/* Module CyberChaos - Simulation de crise */}
-            <Route path="/cyber-chaos" component={CyberChaos} />
-            
-            {/* Module Simulation Immersive */}
-            <Route path="/immersive-simulation" component={ImmersiveSimulation} />
-            <Route path="/immersive-simulation/:id" component={ImmersiveScenarioDetail} />
-            <Route path="/immersive-simulation/session/:id" component={ImmersiveSession} />
-            
-            {/* Modules obsolètes redirigés vers page d'erreur */}
-            <Route path="/cyber/emergency-response" component={NotYetImplemented} />
-            <Route path="/cyber/ascension" component={() => {
-              const CyberAscensionComponent = lazy(() => import('./pages/cyber/ascension'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberAscensionComponent />
-                </Suspense>
-              );
-            }} />
-            <Route path="/cyber/ascension/level/:id" component={() => {
-              const CyberAscensionLevelComponent = lazy(() => import('./pages/cyber/ascension/level/[id]'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CyberAscensionLevelComponent />
-                </Suspense>
-              );
-            }} />
-            <Route path="/cyber-ascension" component={() => {
-              window.location.href = '/cyber/ascension';
-              return null;
-            }} />
-            <Route path="/cyber-ascension/theme/:themeId" component={() => {
-              window.location.href = '/cyber/ascension';
-              return null;
-            }} />
-            <Route path="/cyber-ascension/theme/:themeId/level/:levelId" component={() => {
-              const id = window.location.pathname.split('/').pop();
-              window.location.href = `/cyber/ascension/level/${id}`;
-              return null;
-            }} />
-            
-            {/* Routes héritées pour compatibilité */}
-            <Route path="/cyber/arcade/cyber-escape" component={NotYetImplemented} />
-            <Route path="/cyber/arcade/cyber-escape-parefeu" component={NotYetImplemented} />
-            <Route path="/cyber/arcade/password-puzzle" component={NotYetImplemented} />
-            <Route path="/cyber/arcade/firewall-defense" component={NotYetImplemented} />
-            {/* Section Data & IA */}
-            <Route path="/data-ia" component={() => {
-              const DataIaModeSelectionFixed = lazy(() => import('./pages/data-ia-mode-selection-fixed'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <DataIaModeSelectionFixed />
-                </Suspense>
-              );
-            }} />
-            <Route path="/data-ia-old" component={() => {
-              const DataIaModeSelection = lazy(() => import('./pages/data-ia-mode-selection'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <DataIaModeSelection />
-                </Suspense>
-              );
-            }} />
-            <Route path="/data-ia/agent-ia" component={() => {
-              const DataIANotImplemented = lazy(() => import('./pages/data-ia/not-implemented'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <DataIANotImplemented />
-                </Suspense>
-              );
-            }} />
-            <Route path="/data-ia/modules-express" component={() => {
-              const DataIANotImplemented = lazy(() => import('./pages/data-ia/not-implemented'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <DataIANotImplemented />
-                </Suspense>
-              );
-            }} />
-            <Route path="/data-ia/simulation-mission" component={() => {
-              const DataIANotImplemented = lazy(() => import('./pages/data-ia/not-implemented'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <DataIANotImplemented />
-                </Suspense>
-              );
-            }} />
-            <Route path="/data-ia/pitch-restitution" component={() => {
-              const DataIANotImplemented = lazy(() => import('./pages/data-ia/not-implemented'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <DataIANotImplemented />
-                </Suspense>
-              );
-            }} />
-            <Route path="/data-ia/test-technique" component={() => {
-              const DataIANotImplemented = lazy(() => import('./pages/data-ia/not-implemented'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <DataIANotImplemented />
-                </Suspense>
-              );
-            }} />
-            <Route path="/data-ia/diagnostic-express" component={() => {
-              const DataIANotImplemented = lazy(() => import('./pages/data-ia/not-implemented'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <DataIANotImplemented />
-                </Suspense>
-              );
-            }} />
-            <Route path="/amoa" component={() => {
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <AmoaModeSelectionFixed />
-                </Suspense>
-              );
-            }} />
-            <Route path="/amoa-mode-selection" component={() => {
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <AmoaModeSelectionFixed />
-                </Suspense>
-              );
-            }} />
-            <Route path="/amoa-mode-selection-fixed" component={() => {
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <AmoaModeSelectionFixed />
-                </Suspense>
-              );
-            }} />
-            <Route path="/amoa-old" component={AmoaPage} />
-            <Route path="/amoa-mode-selection-old" component={AmoaModeSelection} />
-            {/* Routes pour les nouveaux modules AMOA */}
-            <Route path="/amoa/academie" component={() => {
-              const AmoaAcademie = lazy(() => import('./pages/amoa/academie'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <AmoaAcademie />
-                </Suspense>
-              );
-            }} />
-            <Route path="/amoa/parcours" component={() => {
-              const ParcoursAmoa = lazy(() => import('./pages/amoa/parcours'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <ParcoursAmoa />
-                </Suspense>
-              );
-            }} />
-            {/* Route AMOA Quest supprimée */}
-            <Route path="/amoa/projet-imposteur" component={ProjetImposteur} />
-            <Route path="/amoa/mc2i-interview-preparation" component={Mc2iInterviewPreparation} />
-            <Route path="/amoa/mc2i-interview-preparation-fixed" component={() => {
-              const Mc2iInterviewPreparationFixed = lazy(() => import('./pages/amoa/mc2i-interview-preparation-fixed'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <Mc2iInterviewPreparationFixed />
-                </Suspense>
-              );
-            }} />
-            <Route path="/amoa/test-reflexes" component={() => {
-              const TestReflexesComponent = lazy(() => import('./pages/amoa/test-reflexes'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <TestReflexesComponent />
-                </Suspense>
-              );
-            }} />
-            <Route path="/cyber/crisis-management" component={() => {
-              const CrisisManagementComponent = lazy(() => import('./pages/cyber/crisis-management'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <CrisisManagementComponent />
-                </Suspense>
-              );
-            }} />
-            <Route path="/cyber/plan-continuité" component={() => {
-              const PlanContinuiteComponent = lazy(() => import('./pages/cyber/plan-continuité'));
-              return (
-                <Suspense fallback={<GlobalLoader />}>
-                  <PlanContinuiteComponent />
-                </Suspense>
-              );
-            }} />
-            <Route path="/custom" component={() => {
-              window.location.href = '/playground/module-generator';
-              return null;
-            }} />
-            <Route component={NotFound} />
-          </Switch>
-                <Toaster />
-              </div>
+                {/* Toutes les routes sont maintenant publiques */}
+                <Route path="/cyber/interview-preparation" component={CyberInterviewPreparation} />
+                <Route path="/cyber/interview-simulation" component={NotYetImplemented} />
+                <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
+                
+                {/* Routes publiques */}
+                <Route path="/" component={Home} />
+                <Route path="/modules" component={ModulesPage} />
+                <Route path="/cyber" component={() => {
+                  const CyberModeSelectionFixed = lazy(() => import('./pages/cyber-mode-selection-fixed'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CyberModeSelectionFixed />
+                    </Suspense>
+                  );
+                }} />
+                <Route path="/cyber-mode-selection" component={() => {
+                  const CyberModeSelectionFixed = lazy(() => import('./pages/cyber-mode-selection-fixed'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CyberModeSelectionFixed />
+                    </Suspense>
+                  );
+                }} />
+                <Route path="/cyber-mode-selection-old" component={CyberModeSelection} /> {/* Ancienne interface accessible via -old */}
+                <Route path="/cyber/agent" component={CyberAgentPage} />
+                <Route path="/cyber/cyber-agent" component={CyberAgentRedirectPage} /> {/* Redirection vers la nouvelle version */}
+                <Route path="/cyber/cyber-agent-old" component={CyberAgentRedirectPage} /> {/* Ancienne version (redirection) */}
+                <Route path="/cyber/cyber-agent-new" component={CyberAgentNewPage} /> {/* Nouvelle version du module Cyber Agent */}
+                <Route path="/cyber/expert-learning" component={ExpertLearningPage} /> {/* Module Apprendre en échangeant */}
+                <Route path="/cyber/learning/cyber-mastery" component={() => {
+                  // Import dynamique de la nouvelle page Cyber Mastery
+                  const CyberMasteryPage = lazy(() => import('./pages/cyber/learning/cyber-mastery'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CyberMasteryPage />
+                    </Suspense>
+                  );
+                }} />
+                <Route path="/cyber/learning/cyber-mastery/sensibilisation" component={() => {
+                  // Import dynamique du module de sensibilisation cybersécurité (version gamifiée)
+                  const SensibilisationCyberGame = lazy(() => import('./pages/cyber/learning/modules/sensibilisation-cyber-game'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <SensibilisationCyberGame />
+                    </Suspense>
+                  );
+                }} />
+                <Route path="/cyber/learning/cyber-mastery/:themeId" component={NotYetImplemented} />
+                
+                {/* Module d'arcade cyber et jeux d'enquête */}
+                <Route path="/cyber/arcade" component={CyberArcade} />
+                <Route path="/cyber/arcade/cyber-investigator" component={CyberInvestigator} />
+                <Route path="/cyber/arcade/cyber-investigator/data-leak" component={DataLeakInvestigation} />
+                <Route path="/cyber/arcade/cyber-investigator/ransomware-attack" component={RansomwareAttack} />
+                <Route path="/cyber/arcade/cyber-investigator/insider-threat" component={InsiderThreat} />
+                <Route path="/cyber/arcade/digital-forensics" component={DigitalForensics} />
+                <Route path="/cyber/arcade/threat-intelligence" component={ThreatIntelligence} />
+                <Route path="/cyber/arcade/firewall-tactique" component={() => {
+                  const FirewallTactiqueComponent = lazy(() => import('./pages/cyber/arcade/firewall-tactique'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <FirewallTactiqueComponent />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/arcade/cyber-escape-v2" component={() => {
+                  const CyberEscapeV2Component = lazy(() => import('./pages/cyber/arcade/cyber-escape-v2'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CyberEscapeV2Component />
+                    </Suspense>
+                  );
+                }} />
+                <Route path="/cyber/arcade/brain-hacker" component={() => {
+                  const BrainHackerComponent = lazy(() => import('./pages/cyber/arcade/brain-hacker'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <BrainHackerComponent />
+                    </Suspense>
+                  );
+                }} />
+                
+                {/* Module Bug Hunter */}
+                <Route path="/cyber/arcade/bug-hunter" component={() => {
+                  const BugHunterComponent = lazy(() => import('./pages/cyber/arcade/bug-hunter'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <BugHunterComponent />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/arcade/bug-hunter/challenge/:id" component={() => {
+                  const BugHunterChallengeComponent = lazy(() => import('./pages/cyber/arcade/bug-hunter/challenge/[id]'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <BugHunterChallengeComponent />
+                    </Suspense>
+                  );
+                }} />
+                
+                {/* Module Cyber Snake - Supprimé */}
+                <Route path="/cyber/cyber-snake" component={NotYetImplemented} />
+                <Route path="/cyber/test-technique" component={() => {
+                  const CyberTestTechnique = lazy(() => import('./pages/cyber/test-technique'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CyberTestTechnique />
+                    </Suspense>
+                  );
+                }} />
+                
+                {/* Page de démonstration du style CYBER ACADÉMIE */}
+                <Route path="/cyber/test-cyber-academie" component={() => {
+                  const TestCyberAcademie = lazy(() => import('./pages/cyber/test-cyber-academie'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <TestCyberAcademie />
+                    </Suspense>
+                  );
+                }} />
+                
+                {/* Section Outils Cyber */}
+                <Route path="/cyber/tools" component={() => {
+                  const ToolsPageComponent = lazy(() => import('./pages/cyber/tools'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <ToolsPageComponent />
+                    </Suspense>
+                  );
+                }} />
+                <Route path="/cyber/tools/policy-converter" component={() => {
+                  const PolicyConverterComponent = lazy(() => import('./pages/cyber/tools/policy-converter'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <PolicyConverterComponent />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/tools/phishing-simulator" component={() => {
+                  const PhishingSimulatorComponent = lazy(() => import('./pages/cyber/tools/phishing-simulator'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <PhishingSimulatorComponent />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/tools/assistant-cyber" component={() => {
+                  const AssistantCyberComponent = lazy(() => import('./pages/cyber/tools/assistant-cyber'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <AssistantCyberComponent />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/interview-test" component={() => {
+                  const CyberInterviewTest = lazy(() => import('./pages/cyber/interview-test'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CyberInterviewTest />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/profil-pro" component={() => {
+                  const ProfilProComponent = lazy(() => import('./pages/cyber/profil-pro'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <ProfilProComponent />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/arcade/code-shield" component={() => {
+                  const CodeShieldComponent = lazy(() => import('./pages/cyber/arcade/code-shield'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CodeShieldComponent />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/arcade/code-shield/levels/signatures" component={() => {
+                  const SignaturesComponent = lazy(() => import('./pages/cyber/arcade/code-shield/levels/signatures'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <SignaturesComponent />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/arcade/code-shield/levels/static-analysis" component={() => {
+                  const StaticAnalysisComponent = lazy(() => import('./pages/cyber/arcade/code-shield/levels/static-analysis'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <StaticAnalysisComponent />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/arcade/code-shield/lab" component={() => {
+                  const LabComponent = lazy(() => import('./pages/cyber/arcade/code-shield/lab'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <LabComponent />
+                    </Suspense>
+                  );
+                }} />
+                
+                {/* Nouveau module CYBER ACADÉMIE */}
+                <Route path="/cyber/learning-center" component={() => {
+                  const CyberLearningCenter = lazy(() => import('./pages/cyber/learning-center'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CyberLearningCenter />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/intro-cybersecurite" component={() => {
+                  const IntroCybersecurite = lazy(() => import('./pages/cyber/learning-center/modules/intro-cybersecurite'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <IntroCybersecurite />
+                    </Suspense>
+                  );
+                }} />
+                
+                {/* Centre de crise évolutif (routes héritées et nouvelles) */}
+                <Route path="/cyber-defense" component={CyberDefensePage} />
+                <Route path="/cyberchaos" component={() => {
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CyberChaos />
+                    </Suspense>
+                  );
+                }} />
+                <Route path="/cyber-defense-new" component={CentreDeCriseEvolutifPage} />
+                <Route path="/centre-crise-evolutif" component={CentreDeCriseEvolutifPage} />
+                <Route path="/cyber-defense-session" component={CyberDefenseSessionPage} />
+                <Route path="/cyber-defense-mission" component={CyberDefenseMissionPage} />
+                <Route path="/cyber-crisis-center" component={() => {
+                  const CyberCrisisCenter = lazy(() => import('./pages/cyber-crisis-center'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CyberCrisisCenter />
+                    </Suspense>
+                  );
+                }} />
+                
+                {/* AMOA et modules mc2i */}
+                <Route path="/amoa" component={AmoaPage} />
+                <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
+                <Route path="/amoa-mode-selection-fixed" component={AmoaModeSelectionFixed} />
+                <Route path="/data-ia" component={NotYetImplemented} />
+                
+                <Route path="/amoa/academie" component={() => {
+                  const AmoaAcademie = lazy(() => import('./pages/amoa/academie'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <AmoaAcademie />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/amoa/reflexes" component={NotYetImplemented} />
+                
+                <Route path="/amoa/projet-imposteur" component={ProjetImposteur} />
+                <Route path="/amoa/mc2i-interview-preparation-fixed" component={Mc2iInterviewPreparation} />
+                
+                {/* Playground et modules personnalisés */}
+                <Route path="/playground" component={PlaygroundPage} />
+                <Route path="/playground/module-generator" component={ModuleGeneratorPage} />
+                <Route path="/modules/:id" component={ModuleDetailPage} />
+                <Route path="/custom-module/:id" component={ModuleDetailPage} />
+                
+                {/* Immersive Simulation */}
+                <Route path="/immersive-simulation" component={ImmersiveSimulation} />
+                <Route path="/immersive-scenario/:id" component={ImmersiveScenarioDetail} />
+                <Route path="/immersive-session/:id" component={ImmersiveSession} />
+                
+                {/* Ancien module mc2i Learning et OUTILS IA supprimé */}
+                
+                {/* Route par défaut (404) */}
+                <Route component={NotFound} />
+              </Switch>
+              <Toaster />
+            </div>
           </TutorialProvider>
         </ChatProvider>
       </ThemeProvider>
