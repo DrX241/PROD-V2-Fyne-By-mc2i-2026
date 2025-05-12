@@ -207,7 +207,7 @@ export default function AmoaModeSelection() {
       description: "Développez vos connaissances fondamentales en AMOA et gestion de projet",
       icon: <IoBookOutline className="h-6 w-6 text-blue-100" />,
       gradient: 'from-blue-700 to-blue-900',
-      modules: ['agent-ia']
+      modules: ['agent-ia', 'amoa-academie']
     },
     {
       id: 'sentrainer',
@@ -250,7 +250,7 @@ export default function AmoaModeSelection() {
         'Conduite du changement',
         'Recette fonctionnelle'
       ],
-      modules: ['agent-ia', 'interview-simulation', 'projet-imposteur']
+      modules: ['agent-ia', 'interview-simulation', 'projet-imposteur', 'amoa-academie']
     },
     {
       id: 'product-owner',
@@ -265,7 +265,7 @@ export default function AmoaModeSelection() {
         'Méthodes Agiles',
         'Relation client'
       ],
-      modules: ['agent-ia', 'analyse-besoins']
+      modules: ['agent-ia', 'analyse-besoins', 'amoa-academie']
     },
     {
       id: 'business-analyst',
@@ -280,7 +280,7 @@ export default function AmoaModeSelection() {
         'Business Intelligence',
         'Transformation digitale'
       ],
-      modules: ['agent-ia', 'analyse-besoins', 'test-reflexes']
+      modules: ['agent-ia', 'analyse-besoins', 'test-reflexes', 'amoa-academie']
     },
     {
       id: 'chef-projet',
@@ -295,7 +295,7 @@ export default function AmoaModeSelection() {
         'Reporting',
         'Pilotage budgétaire'
       ],
-      modules: ['agent-ia', 'test-reflexes', 'simulation-reunion', 'certification-interne']
+      modules: ['agent-ia', 'test-reflexes', 'simulation-reunion', 'certification-interne', 'amoa-academie']
     }
   ];
 
