@@ -380,6 +380,25 @@ function App() {
                   );
                 }} />
                 
+                {/* Module CYBERASCENSION - Parcours de certifications */}
+                <Route path="/cyber/ascension" component={() => {
+                  const CyberAscension = lazy(() => import('./pages/cyber/ascension'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CyberAscension />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/ascension/level/:id" component={() => {
+                  const CyberAscensionLevel = lazy(() => import('./pages/cyber/ascension/level/[id]'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CyberAscensionLevel />
+                    </Suspense>
+                  );
+                }} />
+                
                 <Route path="/cyber/learning-center/modules/intro-cybersecurite" component={() => {
                   const IntroCybersecurite = lazy(() => import('./pages/cyber/learning-center/modules/intro-cybersecurite'));
                   return (
