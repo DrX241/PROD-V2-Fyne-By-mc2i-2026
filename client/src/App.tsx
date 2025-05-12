@@ -720,6 +720,13 @@ function App() {
                 </Suspense>
               );
             }} />
+            <Route path="/amoa-mode-selection-fixed" component={() => {
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <AmoaModeSelectionFixed />
+                </Suspense>
+              );
+            }} />
             <Route path="/amoa-old" component={AmoaPage} />
             <Route path="/amoa-mode-selection-old" component={AmoaModeSelection} />
             {/* Routes pour les nouveaux modules AMOA */}
