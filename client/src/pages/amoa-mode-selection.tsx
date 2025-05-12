@@ -11,9 +11,9 @@ import {
   IoBookOutline, 
   IoDesktopOutline, 
   IoTrophyOutline, 
-  IoConstructOutline, 
-  IoMdArrowForward 
+  IoConstructOutline
 } from 'react-icons/io5';
+import { IoMdArrowForward } from 'react-icons/io';
 import { 
   BsKanban, 
   BsPeopleFill, 
