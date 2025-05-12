@@ -163,6 +163,7 @@ function App() {
                 <Route path="/cyber/interview-preparation" component={CyberInterviewPreparation} />
                 <Route path="/cyber/interview-simulation" component={NotYetImplemented} />
                 <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
+                <Route path="/amoa/expert-learning" component={AmoaExpertLearningPage} />
                 
                 {/* Routes pour les modules mc2i qui ne fonctionnaient pas */}
                 <Route path="/amoa/test-reflexes" component={() => {
