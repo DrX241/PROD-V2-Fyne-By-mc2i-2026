@@ -163,6 +163,25 @@ function App() {
                 <Route path="/cyber/interview-simulation" component={NotYetImplemented} />
                 <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
                 
+                {/* Routes pour les modules mc2i qui ne fonctionnaient pas */}
+                <Route path="/amoa/test-reflexes" component={() => {
+                  const TestReflexesComponent = lazy(() => import('./pages/amoa/test-reflexes-fixed'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <TestReflexesComponent />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/outils-ia/mc2i-learning" component={() => {
+                  const Mc2iLearningComponent = lazy(() => import('./pages/outils-ia/mc2i-learning'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <Mc2iLearningComponent />
+                    </Suspense>
+                  );
+                }} />
+                
                 {/* Routes publiques */}
                 <Route path="/" component={Home} />
                 <Route path="/modules" component={ModulesPage} />
