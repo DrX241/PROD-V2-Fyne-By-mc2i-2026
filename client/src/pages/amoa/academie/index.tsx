@@ -401,7 +401,7 @@ export default function AmoaAcademie() {
                 <SelectValue placeholder="Niveau" />
               </SelectTrigger>
               <SelectContent className="bg-indigo-900 border-indigo-700 text-white">
-                <SelectItem value="">Tous les niveaux</SelectItem>
+                <SelectItem value="all">Tous les niveaux</SelectItem>
                 <SelectItem value="débutant">Débutant</SelectItem>
                 <SelectItem value="intermédiaire">Intermédiaire</SelectItem>
                 <SelectItem value="avancé">Avancé</SelectItem>
@@ -413,7 +413,7 @@ export default function AmoaAcademie() {
                 <SelectValue placeholder="Catégorie" />
               </SelectTrigger>
               <SelectContent className="bg-indigo-900 border-indigo-700 text-white">
-                <SelectItem value="">Toutes les catégories</SelectItem>
+                <SelectItem value="all">Toutes les catégories</SelectItem>
                 <SelectItem value="fondamentaux">Fondamentaux</SelectItem>
                 <SelectItem value="méthodologie">Méthodologie</SelectItem>
                 <SelectItem value="gestion de projet">Gestion de projet</SelectItem>
@@ -426,7 +426,7 @@ export default function AmoaAcademie() {
                 <SelectValue placeholder="Durée" />
               </SelectTrigger>
               <SelectContent className="bg-indigo-900 border-indigo-700 text-white">
-                <SelectItem value="">Toutes les durées</SelectItem>
+                <SelectItem value="all">Toutes les durées</SelectItem>
                 <SelectItem value="court">Court (moins de 3h)</SelectItem>
                 <SelectItem value="moyen">Moyen (3-5h)</SelectItem>
                 <SelectItem value="long">Long (plus de 5h)</SelectItem>
