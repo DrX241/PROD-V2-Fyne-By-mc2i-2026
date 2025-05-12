@@ -628,15 +628,7 @@ export default function CyberTestTechnique() {
         </div>
       )}
       
-      <div className="p-6 border-t border-blue-800 flex justify-between">
-        <Button 
-          variant="outline" 
-          onClick={() => window.location.href = '/cyber'}
-          className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30"
-        >
-          <Home className="mr-2 h-4 w-4" />
-          Retour
-        </Button>
+      <div className="p-6 border-t border-blue-800 flex justify-end">
         <Button 
           onClick={startQuiz} 
           disabled={isLoadingOptions || !selectedCategory || !selectedDifficulty || !selectedExerciseType || generateQuestionsMutation.isPending}
@@ -1198,20 +1190,23 @@ export default function CyberTestTechnique() {
     <HomeLayout>
       <PageTitle title="Test Technique de Cybersécurité" />
       <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-blue-950 to-slate-950">
-        <div className="absolute top-4 left-4 z-20">
-          <Button 
-            variant="outline" 
-            className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30 hover:text-white"
-            onClick={() => window.location.href = '/cyber'}
-          >
-            <Home className="h-4 w-4 mr-2" />
-            Retour
-          </Button>
-        </div>
-        <div className="container py-8 px-4 mx-auto flex flex-col items-center justify-center">
-          {step === 'select' && renderSelectionStep()}
-          {step === 'quiz' && renderQuizStep()}
-          {step === 'results' && renderResultsStep()}
+        <div className="container pt-4 px-4 mx-auto">
+          <div className="w-full flex justify-start mb-4">
+            <Button 
+              variant="outline" 
+              className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30"
+              onClick={() => window.location.href = '/cyber'}
+            >
+              <Home className="mr-2 h-4 w-4" />
+              Retour à l'accueil
+            </Button>
+          </div>
+          
+          <div className="flex flex-col items-center justify-center">
+            {step === 'select' && renderSelectionStep()}
+            {step === 'quiz' && renderQuizStep()}
+            {step === 'results' && renderResultsStep()}
+          </div>
         </div>
       </div>
     </HomeLayout>
