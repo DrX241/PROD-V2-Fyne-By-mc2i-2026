@@ -18,8 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-// Suppression de l'import problématique
-// Nous implémentons directement HomeLayout ici
+import HomeLayout from "@/components/layout/HomeLayout";
 import { Separator } from "@/components/ui/separator";
 import { TimerReset, Award, CheckCircle, XCircle, Clock, Brain, Goal, Sparkles, ArrowUpRight, Zap, BookOpen, Trophy, Lightbulb } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
