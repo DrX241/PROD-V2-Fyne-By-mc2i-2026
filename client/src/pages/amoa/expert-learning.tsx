@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Bot, ChevronDown, RefreshCw, Send, X } from "lucide-react";
 import HomeLayout from '@/components/layout/HomeLayout';
-import { DecisionProvider } from '@/contexts/DecisionContext';
+import { DecisionProvider, useDecision } from '@/contexts/DecisionContext';
 import { AmoaDecisionFlow } from '@/components/modules/amoa/AmoaDecisionFlow';
 
 interface Message {
@@ -46,6 +46,7 @@ function formatTextWithStructure(text: string): string {
 // Contenu principal de la page
 function ExpertLearningPageContent() {
   const [, setLocation] = useLocation();
+  const decision = useDecision();
   // États pour le mode décision
   const [isDecisionMode, setIsDecisionMode] = useState(false);
   const [currentScenario, setCurrentScenario] = useState<any>(null);
@@ -490,7 +491,7 @@ function ExpertLearningPageContent() {
                     )}
               
                     {/* Zone de saisie de message - masquée en mode décision */}
-                    {!decision.isInDecisionMode && (
+                    {!isDecisionMode && (
                       <div className="bg-violet-900 p-4 rounded-b-md border-x border-b border-violet-400/30 shadow-[0_0_15px_rgba(167,139,250,0.1)]">
                         <form onSubmit={handleSubmit} className="flex space-x-2">
                           <div className="flex-1 relative">
