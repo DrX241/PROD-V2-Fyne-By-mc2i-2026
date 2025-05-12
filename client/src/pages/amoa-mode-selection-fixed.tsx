@@ -69,8 +69,8 @@ export default function AmoaModeSelectionFixed() {
     // SE FORMER
     {
       id: 'mc2i-ai-learning',
-      title: 'mc2i AI LEARNING',
-      description: "Assistant IA expert en AMOA pour approfondir vos connaissances en mode conversationnel",
+      title: 'COACH IA ÉVOLUTIF',
+      description: "Progressez avec un coach IA personnalisé qui s'adapte à votre niveau et débloque des défis avancés",
       icon: <RiUserSettingsLine className="h-5 w-5" />,
       destination: '/outils-ia/mc2i-learning',
       difficulty: 'tous niveaux',
@@ -78,22 +78,43 @@ export default function AmoaModeSelectionFixed() {
       isNew: true
     },
     {
-      id: 'modules-express',
-      title: 'MODULES EXPRESS',
-      description: "Capsules de formation concises sur les fondamentaux AMOA et la gestion de projet",
-      icon: <BsBookmarkCheck className="h-5 w-5" />,
-      destination: '/amoa/modules-express',
-      difficulty: 'débutant',
-      duration: '5-15 min'
+      id: 'amoa-academy',
+      title: 'AMOA ACADEMY',
+      description: "Parcours interactif avec niveaux progressifs, badges et quiz pour maîtriser l'AMOA et la gestion de projet",
+      icon: <BsBarChartFill className="h-5 w-5" />,
+      destination: '/amoa/academy',
+      difficulty: 'tous niveaux',
+      duration: '5-120 min',
+      isNew: true
     },
     {
-      id: 'referentiel-amoa',
-      title: 'RÉFÉRENTIEL AMOA',
-      description: "Base documentaire complète: méthodes, templates et bonnes pratiques AMOA",
-      icon: <BsFileEarmarkText className="h-5 w-5" />,
-      destination: '/amoa/referentiel',
-      difficulty: 'tous niveaux',
-      duration: 'variable',
+      id: 'projet-simulation',
+      title: 'SIMULATION DE PROJET',
+      description: "Vivez une expérience immersive de gestion de projet avec décisions critiques et conséquences en temps réel",
+      icon: <FaProjectDiagram className="h-5 w-5" />,
+      destination: '/amoa/projet-simulation',
+      difficulty: 'intermédiaire',
+      duration: '30-90 min',
+      isNew: true
+    },
+    {
+      id: 'methodes-agiles',
+      title: 'ATELIER MÉTHODES AGILES',
+      description: "Maîtrisez les méthodes agiles (Scrum, Kanban) à travers des exercices pratiques et des mises en situation",
+      icon: <BsKanban className="h-5 w-5" />,
+      destination: '/amoa/methodes-agiles',
+      difficulty: 'débutant',
+      duration: '20-45 min',
+      isNew: true
+    },
+    {
+      id: 'analyse-business',
+      title: 'LABORATOIRE D\'ANALYSE',
+      description: "Développez vos compétences d'analyse business à travers des cas réels et des outils interactifs",
+      icon: <TbChartDots className="h-5 w-5" />,
+      destination: '/amoa/analyse-business',
+      difficulty: 'avancé',
+      duration: '25-60 min',
       comingSoon: true
     },
     
