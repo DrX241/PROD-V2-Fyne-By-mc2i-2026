@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
-import { ChatCompletionRequestMessage } from "@shared/schema";
-import { openAIService } from "./services/openai";
+import { ChatCompletionRequestMessage } from "openai";
+import openAIService from "./services/openai";
 
 interface LearningBotSession {
   prenom: string | null;
@@ -780,4 +780,3 @@ Tu es strict dans la validation, bienveillant dans le ton, exigeant dans les ret
 
 Tu guides, encourages, et valorises la progression continue.
 `;
-}
