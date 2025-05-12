@@ -450,8 +450,8 @@ export default function CyberModeSelectionRedesign() {
         highContrastMode ? 'bg-black text-white' : 'bg-gradient-to-b from-blue-950 to-black text-white'
       }`} style={{ fontSize: `${textSize}rem` }}>
         {/* Navigation et contrôles */}
-        <div className="p-6 relative container mx-auto">
-          <div className="flex justify-between items-center mb-8">
+        <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">
+          <div className="flex justify-between items-center mb-10">
             <div className="flex items-center">
               <Link href="/">
                 <Button 
@@ -464,7 +464,7 @@ export default function CyberModeSelectionRedesign() {
               <PageTitle title="Cyber Académie" />
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               {/* Bouton d'aide */}
               <TooltipProvider>
                 <Tooltip>
@@ -472,7 +472,7 @@ export default function CyberModeSelectionRedesign() {
                     <Button 
                       variant="outline"
                       size="icon"
-                      className="w-10 h-10 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                      className="w-11 h-11 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
                       onClick={() => {
                         setCurrentTour('cyber-mode-selection-redesign');
                         startTutorial();
@@ -495,7 +495,7 @@ export default function CyberModeSelectionRedesign() {
                     <Button 
                       variant="outline"
                       size="icon"
-                      className={`w-10 h-10 rounded-full ${
+                      className={`w-11 h-11 rounded-full ${
                         highContrastMode 
                           ? 'bg-blue-700 border-blue-600 text-white hover:bg-blue-600' 
                           : 'bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50'
@@ -517,14 +517,14 @@ export default function CyberModeSelectionRedesign() {
               </TooltipProvider>
               
               {/* Contrôle taille du texte */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button 
                         variant="outline"
                         size="icon"
-                        className="w-9 h-9 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                        className="w-10 h-10 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
                         onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
                         data-id="text-smaller-button"
                       >
@@ -543,7 +543,7 @@ export default function CyberModeSelectionRedesign() {
                       <Button 
                         variant="outline"
                         size="icon"
-                        className="w-9 h-9 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                        className="w-10 h-10 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
                         onClick={() => setTextSize(Math.min(1.2, textSize + 0.1))}
                         data-id="text-larger-button"
                       >
@@ -564,13 +564,13 @@ export default function CyberModeSelectionRedesign() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-center mb-10"
+            className="text-center mb-16"
             data-id="main-title"
           >
-            <h1 className="text-4xl font-bold mb-3">
+            <h1 className="text-5xl font-bold mb-4">
               Centre de Formation Cybersécurité - I AM CYBER
             </h1>
-            <p className={`max-w-3xl mx-auto ${
+            <p className={`max-w-3xl mx-auto text-xl ${
               highContrastMode ? 'text-gray-300' : 'text-blue-200' 
             }`}>
               Trouvez votre parcours d'apprentissage personnalisé en cybersécurité
@@ -579,27 +579,27 @@ export default function CyberModeSelectionRedesign() {
 
           {/* Onglets principaux */}
           <Tabs defaultValue="objectifs" className="w-full" data-id="main-tabs">
-            <TabsList className={`w-full mb-4 ${
+            <TabsList className={`w-full mb-8 p-1.5 ${
               highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-white/10'
             }`}>
               <TabsTrigger 
                 value="objectifs" 
-                className={`flex-1 flex items-center justify-center ${
+                className={`flex-1 flex items-center justify-center py-3 ${
                   highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
                 }`}
                 data-id="objectives-tab"
               >
-                <IoBookOutline className="h-5 w-5 mr-2" />
+                <IoBookOutline className="h-5 w-5 mr-3" />
                 Par objectif d'apprentissage
               </TabsTrigger>
               <TabsTrigger 
                 value="metiers" 
-                className={`flex-1 flex items-center justify-center ${
+                className={`flex-1 flex items-center justify-center py-3 ${
                   highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
                 }`}
                 data-id="careers-tab"
               >
-                <BsBriefcase className="h-5 w-5 mr-2" />
+                <BsBriefcase className="h-5 w-5 mr-3" />
                 <div className="flex flex-col items-center">
                   <span>Par métier</span>
                   <span className="text-xs font-light italic mt-0.5 opacity-90">Refonte complète bientôt disponible</span>
@@ -607,26 +607,26 @@ export default function CyberModeSelectionRedesign() {
               </TabsTrigger>
               <TabsTrigger 
                 value="tous" 
-                className={`flex-1 flex items-center justify-center ${
+                className={`flex-1 flex items-center justify-center py-3 ${
                   highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
                 }`}
                 data-id="all-modules-tab"
               >
-                <BsGearFill className="h-5 w-5 mr-2" />
+                <BsGearFill className="h-5 w-5 mr-3" />
                 Tous les modules
               </TabsTrigger>
             </TabsList>
 
             {/* Contenu des onglets */}
             <TabsContent value="objectifs" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {learningObjectives.map((objective) => (
                   <motion.div
                     key={objective.id}
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4 }}
-                    className={`rounded-xl p-6 ${
+                    className={`rounded-xl p-8 shadow-lg ${
                       highContrastMode 
                         ? 'bg-gray-800 border border-gray-700' 
                         : `bg-gradient-to-br ${objective.gradient}`
@@ -634,31 +634,31 @@ export default function CyberModeSelectionRedesign() {
                     data-id={`objective-${objective.id}`}
                   >
                     <div className="flex flex-col h-full">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className={`p-2 rounded-full ${
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className={`p-3 rounded-full ${
                           highContrastMode ? 'bg-blue-900' : 'bg-white/10'
                         }`}>
                           {objective.icon}
                         </div>
-                        <h2 className="text-xl font-bold text-white">
+                        <h2 className="text-2xl font-bold text-white">
                           {objective.title}
                         </h2>
                       </div>
                       
-                      <p className={`mb-4 ${
+                      <p className={`mb-6 ${
                         highContrastMode ? 'text-gray-300' : 'text-blue-100'
                       }`}>
                         {objective.description}
                       </p>
                       
                       <div className="mt-auto">
-                        <h3 className="text-white font-medium mb-2">Modules recommandés:</h3>
-                        <ul className="space-y-2">
+                        <h3 className="text-white font-medium mb-3">Modules recommandés:</h3>
+                        <ul className="space-y-3">
                           {getModulesForObjective(objective.id).map(module => (
                             <li key={module.id}>
                               <Link 
                                 href={module.destination}
-                                className={`block p-2 rounded-lg ${
+                                className={`block p-3 rounded-lg ${
                                   highContrastMode 
                                     ? 'bg-gray-700 hover:bg-gray-600' 
                                     : 'bg-white/10 hover:bg-white/20'
@@ -666,7 +666,7 @@ export default function CyberModeSelectionRedesign() {
                               >
                                 <div className="flex justify-between items-center">
                                   <span className="font-medium">{module.title}</span>
-                                  <IoMdArrowForward className="h-4 w-4" />
+                                  <IoMdArrowForward className="h-5 w-5" />
                                 </div>
                               </Link>
                             </li>
@@ -839,27 +839,27 @@ export default function CyberModeSelectionRedesign() {
             <TabsContent value="tous" className="mt-0">
               {/* Filtres de difficulté */}
               {difficulty.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <div className="text-sm py-1">Filtres actifs:</div>
+                <div className="flex flex-wrap gap-3 mb-6 px-2">
+                  <div className="text-sm py-1 font-medium">Filtres actifs:</div>
                   {difficulty.map(level => (
                     <Badge 
                       key={level}
                       variant="outline"
                       className={`${
                         highContrastMode 
-                          ? 'bg-blue-900 text-white' 
+                          ? 'bg-blue-900 text-white border-blue-700' 
                           : 'bg-blue-100 text-blue-800'
-                      } cursor-pointer`}
+                      } cursor-pointer px-3 py-1 text-sm`}
                       onClick={() => setDifficulty(difficulty.filter(d => d !== level))}
                     >
                       {level}
-                      <button className="ml-1 text-xs">×</button>
+                      <button className="ml-2 text-xs">×</button>
                     </Badge>
                   ))}
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="text-xs h-7"
+                    className="text-xs h-8"
                     onClick={() => setDifficulty([])}
                   >
                     Effacer tous les filtres
@@ -868,19 +868,19 @@ export default function CyberModeSelectionRedesign() {
               )}
 
               {/* Sélection des filtres */}
-              <div className={`mb-6 p-4 rounded-lg ${
+              <div className={`mb-10 p-6 rounded-xl shadow-lg ${
                 highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-white/10'
               }`}>
-                <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-wrap items-center gap-6">
                   <div className="flex-1 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Search className="h-4 w-4 text-gray-400" />
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <Search className="h-5 w-5 text-gray-400" />
                     </div>
                     <Input
                       placeholder="Rechercher un module..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className={`pl-10 ${
+                      className={`pl-12 py-6 h-12 text-base ${
                         highContrastMode 
                           ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-400' 
                           : 'bg-white/10 border-white/20 text-white placeholder:text-gray-300'
@@ -889,14 +889,14 @@ export default function CyberModeSelectionRedesign() {
                     />
                   </div>
                   
-                  <div className="flex items-center gap-2">
-                    <RiFilterLine className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm font-medium">Difficulté:</span>
-                    <div className="flex gap-1">
+                  <div className="flex items-center gap-3">
+                    <RiFilterLine className="h-5 w-5 text-gray-400" />
+                    <span className="text-base font-medium">Difficulté:</span>
+                    <div className="flex gap-2">
                       <Button
                         size="sm"
                         variant={difficulty.includes('débutant') ? 'default' : 'outline'}
-                        className={`h-7 text-xs ${
+                        className={`h-9 px-4 text-sm ${
                           difficulty.includes('débutant')
                             ? highContrastMode 
                               ? 'bg-green-900 hover:bg-green-800' 
