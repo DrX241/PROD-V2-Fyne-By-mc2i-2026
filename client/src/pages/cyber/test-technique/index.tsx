@@ -335,6 +335,25 @@ export default function CyberTestTechnique() {
   const getExerciseTypeName = (id: string): string => {
     return options?.exerciseTypes?.find((t: ExerciseType) => t.id === id)?.name || id;
   };
+  
+  // Fonction pour gérer les changements de réponse dans les QCM
+  const handleResponseChange = (questionIndex: number, optionIndex: number) => {
+    if (!responses || !Array.isArray(responses) || questionIndex >= responses.length) {
+      console.error("Problème avec l'état des réponses", { responses, questionIndex });
+      return;
+    }
+    
+    // Créer une copie du tableau de réponses pour maintenir l'immutabilité
+    const updatedResponses = [...responses];
+    // Mettre à jour la réponse pour la question actuelle
+    updatedResponses[questionIndex] = {
+      ...updatedResponses[questionIndex],
+      answer: optionIndex
+    };
+    
+    // Mettre à jour l'état avec les nouvelles réponses
+    setResponses(updatedResponses);
+  };
 
   // La fonction goToPreviousQuestion est désactivée pour rendre le test plus rigoureux
   const goToPreviousQuestion = () => {
