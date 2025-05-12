@@ -1,11 +1,14 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import React, { useState } from 'react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { FileText, PieChart, Users, Calendar, AlertTriangle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { RefreshCw, AlertTriangle, FileText } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import DOMPurify from 'dompurify';
 
-interface DecisionScenario {
+// Type du scénario de décision
+export interface DecisionScenario {
   id: string;
   title: string;
   description: string;
@@ -19,6 +22,7 @@ interface DecisionScenario {
   }[];
 }
 
+// Props pour le composant
 interface AmoaDecisionFlowProps {
   scenario: DecisionScenario;
   onDecisionMade: (scenarioId: string, optionId: string) => void;
@@ -36,127 +40,150 @@ export function AmoaDecisionFlow({
   totalScenarios,
   summary
 }: AmoaDecisionFlowProps) {
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  
+  // Si on a un résumé, on l'affiche
   if (summary) {
     return (
-      <Card className="w-full bg-violet-950 border-violet-400/30 text-white shadow-[0_0_15px_rgba(167,139,250,0.1)]">
-        <CardHeader className="border-b border-violet-400/20">
-          <CardTitle className="font-mono text-violet-300 flex items-center gap-2">
+      <Card className="w-full bg-indigo-950 border-indigo-400/30 text-white shadow-[0_0_15px_rgba(167,139,250,0.1)]">
+        <CardHeader className="border-b border-indigo-400/20">
+          <CardTitle className="font-mono text-indigo-300 flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            Résumé des décisions
+            Synthèse de votre session AMOA
           </CardTitle>
         </CardHeader>
-        <CardContent className="py-6 prose prose-invert max-w-none text-violet-100">
+        <CardContent className="py-6 prose prose-invert max-w-none text-indigo-100">
           <div
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(summary.replace(/\n/g, '<br />'))
             }}
           />
         </CardContent>
-        <CardFooter className="border-t border-violet-400/20 pt-4 flex justify-center">
-          <Button className="bg-violet-600 hover:bg-violet-500 text-white">
-            Revenir à la discussion
+        <CardFooter className="border-t border-indigo-400/20 pt-4 flex justify-center">
+          <Button 
+            className="bg-indigo-600 hover:bg-indigo-500 text-white"
+            onClick={() => window.location.reload()}
+          >
+            Nouvelle session
           </Button>
         </CardFooter>
       </Card>
     );
   }
 
-  return (
-    <Card className="w-full bg-violet-950 border-violet-400/30 text-white shadow-[0_0_15px_rgba(167,139,250,0.1)]">
-      <CardHeader className="border-b border-violet-400/20">
-        <div className="flex justify-between items-center">
-          <CardTitle className="font-mono text-violet-300 flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-amber-400" />
-            Scénario de décision AMOA
-          </CardTitle>
-          <div className="text-xs text-violet-300 font-mono">
-            {currentNumber}/{totalScenarios}
-          </div>
-        </div>
-        <Progress value={(currentNumber / totalScenarios) * 100} className="h-1 bg-violet-800/50 mt-2">
-          <div className="bg-violet-400"></div>
-        </Progress>
-      </CardHeader>
+  // Gérer la sélection d'une option
+  const handleOptionSelect = (optionId: string) => {
+    setSelectedOption(optionId);
+  };
 
-      <CardContent className="py-6 space-y-4">
-        <div className="font-mono text-lg text-violet-300 font-bold">{scenario.title}</div>
-        
-        <div className="prose prose-invert max-w-none text-violet-100 mb-6">
-          <div
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(scenario.description.replace(/\n/g, '<br />'))
-            }}
+  // Soumettre la décision
+  const handleSubmit = () => {
+    if (selectedOption) {
+      onDecisionMade(scenario.id, selectedOption);
+      setSelectedOption(null);
+    }
+  };
+
+  return (
+    <Card className="w-full bg-indigo-950 border-indigo-400/30 text-white shadow-[0_0_15px_rgba(167,139,250,0.1)]">
+      <CardHeader className="border-b border-indigo-400/20">
+        <div className="flex justify-between items-center mb-2">
+          <Badge variant="outline" className="bg-indigo-900 text-indigo-200 border-indigo-300">
+            Scénario {currentNumber}/{totalScenarios}
+          </Badge>
+          <Progress 
+            value={(currentNumber / totalScenarios) * 100} 
+            className="h-2 w-32 bg-indigo-800" 
+            indicatorClassName="bg-indigo-400"
           />
         </div>
-        
-        <div className="bg-violet-900/50 p-4 rounded-md border border-violet-400/20 space-y-3">
-          <div className="font-mono text-sm text-violet-300">Contexte du projet:</div>
-          <div className="text-sm text-violet-100">{scenario.context}</div>
+        <CardTitle className="text-xl font-bold text-indigo-200">{scenario.title}</CardTitle>
+      </CardHeader>
+      
+      <CardContent className="py-4 space-y-4">
+        <div className="prose prose-invert max-w-none text-indigo-100">
+          <p>{scenario.description}</p>
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-violet-900/50 p-4 rounded-md border border-violet-400/20">
-            <div className="font-mono text-sm text-violet-300 mb-2">Parties prenantes:</div>
-            <ul className="text-sm text-violet-100 space-y-1 list-disc pl-4">
-              {scenario.stakeholders.map((stakeholder, idx) => (
-                <li key={idx}>{stakeholder}</li>
-              ))}
-            </ul>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div className="bg-indigo-900/40 p-3 rounded-md border border-indigo-700/50">
+            <div className="flex items-center gap-2 text-indigo-300 font-medium mb-2">
+              <PieChart className="h-4 w-4" />
+              <span>Contexte du projet</span>
+            </div>
+            <p className="text-sm text-indigo-100">{scenario.context}</p>
           </div>
           
-          <div className="bg-violet-900/50 p-4 rounded-md border border-violet-400/20">
-            <div className="font-mono text-sm text-violet-300 mb-2">Contraintes:</div>
-            <ul className="text-sm text-violet-100 space-y-1 list-disc pl-4">
-              {scenario.constraints.map((constraint, idx) => (
-                <li key={idx}>{constraint}</li>
+          <div className="bg-indigo-900/40 p-3 rounded-md border border-indigo-700/50">
+            <div className="flex items-center gap-2 text-indigo-300 font-medium mb-2">
+              <Users className="h-4 w-4" />
+              <span>Parties prenantes</span>
+            </div>
+            <ul className="list-disc list-inside text-sm text-indigo-100">
+              {scenario.stakeholders.map((stakeholder, index) => (
+                <li key={index}>{stakeholder}</li>
               ))}
             </ul>
           </div>
         </div>
         
-        <div className="font-mono text-lg text-violet-300 font-bold mt-8">Options:</div>
-        
-        <div className="space-y-4">
-          {scenario.options.map((option) => (
-            <div key={option.id} className="bg-violet-900/50 p-4 rounded-md border border-violet-400/20">
-              <div className="font-mono text-sm text-violet-300 font-bold mb-2">
-                Option {option.id}:
-              </div>
-              <div className="text-violet-100 mb-3">{option.text}</div>
-              <div className="text-xs text-violet-200/70">{option.description}</div>
-              <div className="mt-4">
-                <Button
-                  onClick={() => onDecisionMade(scenario.id, option.id)}
-                  disabled={isLoading}
-                  variant="outline"
-                  className="border-violet-400/30 text-violet-300 hover:bg-violet-800 hover:text-violet-200 w-full"
-                >
-                  {isLoading ? (
-                    <>
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                      Traitement...
-                    </>
-                  ) : (
-                    <>Choisir cette option</>
-                  )}
-                </Button>
-              </div>
-            </div>
-          ))}
+        <div className="bg-indigo-900/40 p-3 rounded-md border border-indigo-700/50">
+          <div className="flex items-center gap-2 text-indigo-300 font-medium mb-2">
+            <AlertTriangle className="h-4 w-4" />
+            <span>Contraintes</span>
+          </div>
+          <ul className="list-disc list-inside text-sm text-indigo-100">
+            {scenario.constraints.map((constraint, index) => (
+              <li key={index}>{constraint}</li>
+            ))}
+          </ul>
         </div>
         
-        <div className="bg-amber-900/30 p-4 rounded-md border border-amber-400/20 mt-6">
-          <div className="flex items-start space-x-3">
-            <AlertTriangle className="h-5 w-5 text-amber-400 mt-0.5" />
-            <div>
-              <div className="font-mono text-sm text-amber-300 font-bold">Attention</div>
-              <div className="text-xs text-amber-200/80 mt-1">
-                Cette décision aura un impact sur votre parcours d'apprentissage. Choisissez l'option qui reflète le mieux votre approche en tant que professionnel AMOA.
+        <Separator className="bg-indigo-700/30 my-4" />
+        
+        <div>
+          <h3 className="text-lg font-medium text-indigo-200 mb-4">Options disponibles</h3>
+          <div className="space-y-4">
+            {scenario.options.map((option) => (
+              <div 
+                key={option.id}
+                className={`p-4 rounded-md cursor-pointer transition-all duration-200 ${
+                  selectedOption === option.id
+                    ? "bg-indigo-600/60 border-2 border-indigo-400"
+                    : "bg-indigo-900/40 border border-indigo-700/50 hover:bg-indigo-800/50"
+                }`}
+                onClick={() => handleOptionSelect(option.id)}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <div 
+                    className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                      selectedOption === option.id 
+                        ? "bg-indigo-300" 
+                        : "border border-indigo-400"
+                    }`}
+                  >
+                    {selectedOption === option.id && (
+                      <div className="w-3 h-3 rounded-full bg-indigo-900" />
+                    )}
+                  </div>
+                  <h4 className="font-medium text-indigo-200">{option.text}</h4>
+                </div>
+                <p className="text-sm text-indigo-100 ml-7">{option.description}</p>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </CardContent>
+      
+      <CardFooter className="border-t border-indigo-400/20 pt-4 flex justify-end">
+        <Button 
+          className="bg-indigo-600 hover:bg-indigo-500 text-white"
+          disabled={!selectedOption || isLoading}
+          onClick={handleSubmit}
+        >
+          {isLoading ? "Traitement en cours..." : "Valider la décision"}
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

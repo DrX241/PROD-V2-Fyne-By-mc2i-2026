@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, useLocation } from 'wouter';
+import { useLocation } from 'wouter';
 import DOMPurify from 'dompurify';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Bot, ChevronDown, RefreshCw, Send, X } from "lucide-react";
 import HomeLayout from '@/components/layout/HomeLayout';
-import { DecisionProvider, useDecisionContext } from '@/contexts/DecisionContext';
+import { DecisionProvider } from '@/contexts/DecisionContext';
 import { AmoaDecisionFlow } from '@/components/modules/amoa/AmoaDecisionFlow';
 
 interface Message {
@@ -45,9 +45,14 @@ function formatTextWithStructure(text: string): string {
 
 // Contenu principal de la page
 function ExpertLearningPageContent() {
-  const navigate = useNavigate();
   const [, setLocation] = useLocation();
-  const { decision, startDecisionMode, handleDecisionMade, resetDecisionMode } = useDecisionContext();
+  // États pour le mode décision
+  const [isDecisionMode, setIsDecisionMode] = useState(false);
+  const [currentScenario, setCurrentScenario] = useState<any>(null);
+  const [scenarioNumber, setScenarioNumber] = useState(0);
+  const [totalScenarios, setTotalScenarios] = useState(0);
+  const [isLoadingScenario, setIsLoadingScenario] = useState(false);
+  const [scenarioSummary, setScenarioSummary] = useState<string | null>(null);
   
   // États du chat
   const [messages, setMessages] = useState<Message[]>([]);
@@ -151,7 +156,8 @@ function ExpertLearningPageContent() {
       if (response.data.success) {
         setSessionSummary(response.data.summary);
         setIsSessionActive(false);
-        resetDecisionMode();
+        setIsDecisionMode(false);
+        setCurrentScenario(null);
       }
     } catch (error) {
       console.error('Error ending AMOA expert session:', error);
