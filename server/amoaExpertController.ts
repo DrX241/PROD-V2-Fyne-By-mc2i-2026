@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { openAIService } from './services/openai';
+import { ChatCompletionRequestMessage } from "@shared/schema";
 
 // Structure des sessions utilisateur
 interface UserSession {
-  messages: any[]; // Stocke tous les messages de la conversation
+  messages: ChatCompletionRequestMessage[]; // Stocke tous les messages de la conversation
   decisionMode: {
     isActive: boolean;
     scenarioCount: number;
@@ -79,7 +80,7 @@ export async function initializeAmoaExpertSession(req: Request, res: Response) {
     });
     
     // Message d'accueil
-    const welcomeMessage = {
+    const welcomeMessage: ChatCompletionRequestMessage = {
       role: "assistant",
       content: "Bonjour et bienvenue dans le module d'apprentissage AMOA. Je suis votre expert en Assistance à Maîtrise d'Ouvrage, prêt à vous aider à approfondir vos connaissances et compétences dans ce domaine. \n\nQue souhaitez-vous explorer aujourd'hui ? Voici quelques suggestions :\n\n- Méthodologies d'expression de besoins\n- Pilotage de projet digital\n- Rédaction de cahiers des charges efficaces\n- Techniques d'animation d'ateliers\n- Bonnes pratiques de recette\n- Gestion des parties prenantes\n\nN'hésitez pas à me poser des questions spécifiques ou à me parler de votre contexte professionnel pour que je puisse personnaliser mes réponses."
     };
@@ -127,19 +128,21 @@ export async function processAmoaExpertMessage(req: Request, res: Response) {
       content: message
     });
     
-    // Initialiser le client OpenAI
-    const openai = await connectToAzureOpenAI();
+    // Traiter le message en fonction du contexte
+    let responseContent: string;
     
-    // Envoyer la conversation à OpenAI
-    const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL_NAME || 'gpt-4o-mini',
-      messages: session.messages,
-      temperature: 0.7,
-      max_tokens: 1500
-    });
-    
-    // Récupérer la réponse
-    const responseContent = completion.choices[0].message.content || "Je m'excuse, je n'ai pas pu générer une réponse appropriée.";
+    try {
+      // Envoyer la conversation à OpenAI via le service
+      responseContent = await openAIService.getChatCompletion(
+        session.messages,
+        true, // utiliser le modèle secondaire (gpt-4o-mini)
+        0.7,  // température
+        1500  // max tokens
+      );
+    } catch (apiError) {
+      console.error('OpenAI API error:', apiError);
+      responseContent = "Je rencontre des difficultés techniques pour traiter votre demande. Veuillez réessayer dans quelques instants.";
+    }
     
     // Détecter si l'IA recommande de passer en mode décision
     let activateDecisionMode = false;
@@ -191,8 +194,11 @@ export async function generateAmoaDecisionScenario(req: Request, res: Response) 
       });
     }
     
-    // Initialiser le client OpenAI
-    const openai = await connectToAzureOpenAI();
+    // Utiliser l'historique des messages pour personnaliser le scénario
+    const userContext = session.messages
+      .filter(msg => msg.role === "user")
+      .map(msg => msg.content)
+      .join("\n");
     
     // Prompt pour générer un scénario de décision
     const systemPrompt = `Génère un scénario de décision AMOA réaliste avec le format JSON suivant:
@@ -224,24 +230,21 @@ export async function generateAmoaDecisionScenario(req: Request, res: Response) 
 
 Assure-toi que les options sont équilibrées et qu'il n'y a pas de choix évident. Chaque option doit présenter des avantages et des inconvénients réalistes.`;
 
-    // Utiliser l'historique des messages pour personnaliser le scénario
-    const userContext = session.messages
-      .filter(msg => msg.role === "user")
-      .map(msg => msg.content)
-      .join("\n");
+    // Construire les messages pour la requête
+    const requestMessages: ChatCompletionRequestMessage[] = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: `Voici le contexte et les intérêts de l'utilisateur basés sur ses messages précédents:\n\n${userContext}\n\nGénère un scénario AMOA pertinent et adapté à ce contexte. Le scénario doit être réaliste, complexe et présenter un vrai dilemme professionnel. Si aucun contexte spécifique n'est disponible, crée un scénario général mais intéressant dans le domaine de l'AMOA.` }
+    ];
     
-    const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL_NAME || 'gpt-4o-mini',
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: `Voici le contexte et les intérêts de l'utilisateur basés sur ses messages précédents:\n\n${userContext}\n\nGénère un scénario AMOA pertinent et adapté à ce contexte. Le scénario doit être réaliste, complexe et présenter un vrai dilemme professionnel. Si aucun contexte spécifique n'est disponible, crée un scénario général mais intéressant dans le domaine de l'AMOA.` }
-      ],
-      temperature: 0.8,
-      response_format: { type: "json_object" },
-      max_tokens: 1500
-    });
+    // Envoyer la requête à OpenAI
+    const scenarioString = await openAIService.getChatCompletion(
+      requestMessages,
+      true, // utiliser le modèle secondaire (gpt-4o-mini)
+      0.8,  // température plus élevée pour plus de créativité
+      1500  // max tokens
+    );
     
-    const scenarioString = completion.choices[0].message.content;
+    // Vérification que le scénario a été généré correctement
     if (!scenarioString) {
       throw new Error("Failed to generate scenario");
     }
@@ -307,11 +310,8 @@ export async function processAmoaDecision(req: Request, res: Response) {
       });
     }
     
-    // Initialiser le client OpenAI
-    const openai = await connectToAzureOpenAI();
-    
     // Analyser la décision prise
-    const option = currentScenario.options.find(opt => opt.id === optionId);
+    const option = currentScenario.options.find((opt: any) => opt.id === optionId);
     if (!option) {
       return res.status(404).json({
         success: false,
@@ -336,17 +336,17 @@ Fournis une analyse de cette décision en expliquant:
 
 Ton analyse doit être constructive, équilibrée et pédagogique. N'hésite pas à nuancer ton propos pour montrer la complexité des décisions AMOA en contexte réel.`;
 
-    const feedbackCompletion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL_NAME || 'gpt-4o-mini',
-      messages: [
-        { role: "system", content: getAmoaExpertSystemPrompt() },
-        { role: "user", content: feedbackPrompt }
-      ],
-      temperature: 0.7,
-      max_tokens: 1500
-    });
-    
-    const feedback = feedbackCompletion.choices[0].message.content || "Je n'ai pas pu analyser cette décision.";
+    const feedbackMessages: ChatCompletionRequestMessage[] = [
+      { role: "system", content: getAmoaExpertSystemPrompt() },
+      { role: "user", content: feedbackPrompt }
+    ];
+
+    const feedback = await openAIService.getChatCompletion(
+      feedbackMessages,
+      true,
+      0.7,
+      1500
+    );
     
     // Vérifier si on doit générer un nouveau scénario
     if (session.decisionMode.currentScenario < session.decisionMode.scenarioCount) {
@@ -381,24 +381,24 @@ Ton analyse doit être constructive, équilibrée et pédagogique. N'hésite pas
       const previousScenario = currentScenario;
       const previousChoice = option;
       
-      const scenarioCompletion = await openai.chat.completions.create({
-        model: process.env.OPENAI_MODEL_NAME || 'gpt-4o-mini',
-        messages: [
-          { role: "system", content: systemPrompt },
-          { 
-            role: "user", 
-            content: `L'utilisateur a choisi l'option "${option.text}" dans le scénario précédent "${currentScenario.title}". 
-            Génère un nouveau scénario AMOA qui présente une situation différente mais toujours dans le contexte de l'AMOA. 
-            Ce nouveau scénario doit être plus complexe que le précédent, avec des choix difficiles à faire.
-            Assure-toi que les options sont équilibrées et qu'il n'y a pas de choix évident.` 
-          }
-        ],
-        temperature: 0.8,
-        response_format: { type: "json_object" },
-        max_tokens: 1500
-      });
+      const scenarioMessages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: systemPrompt },
+        { 
+          role: "user", 
+          content: `L'utilisateur a choisi l'option "${option.text}" dans le scénario précédent "${currentScenario.title}". 
+          Génère un nouveau scénario AMOA qui présente une situation différente mais toujours dans le contexte de l'AMOA. 
+          Ce nouveau scénario doit être plus complexe que le précédent, avec des choix difficiles à faire.
+          Assure-toi que les options sont équilibrées et qu'il n'y a pas de choix évident.` 
+        }
+      ];
       
-      const newScenarioString = scenarioCompletion.choices[0].message.content;
+      const newScenarioString = await openAIService.getChatCompletion(
+        scenarioMessages,
+        true,
+        0.8,
+        1500
+      );
+      
       if (!newScenarioString) {
         throw new Error("Failed to generate next scenario");
       }
@@ -427,7 +427,7 @@ Ton analyse doit être constructive, équilibrée et pédagogique. N'hésite pas
       const decisionsHistory = session.decisionMode.scenarios.map((s, index) => {
         const chosenOption = index === session.decisionMode.scenarios.length - 1 
           ? option 
-          : session.decisionMode.scenarios[index].options.find(o => o.id === optionId);
+          : session.decisionMode.scenarios[index].options.find((o: any) => o.id === optionId);
         
         return {
           scenario: s.title,
@@ -448,17 +448,17 @@ Génère un résumé d'apprentissage qui:
 
 Ce résumé doit être constructif, personnalisé et orienté développement professionnel.`;
 
-      const summaryCompletion = await openai.chat.completions.create({
-        model: process.env.OPENAI_MODEL_NAME || 'gpt-4o-mini',
-        messages: [
-          { role: "system", content: getAmoaExpertSystemPrompt() },
-          { role: "user", content: summaryPrompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 1500
-      });
-      
-      const summary = summaryCompletion.choices[0].message.content || "Je n'ai pas pu générer un résumé d'apprentissage.";
+      const summaryMessages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: getAmoaExpertSystemPrompt() },
+        { role: "user", content: summaryPrompt }
+      ];
+
+      const summary = await openAIService.getChatCompletion(
+        summaryMessages,
+        true,
+        0.7,
+        1500
+      );
       
       // Réinitialiser le mode décision
       session.decisionMode.isActive = false;
@@ -543,9 +543,6 @@ export async function endAmoaExpertSession(req: Request, res: Response) {
       .map(msg => `${msg.role === "user" ? "Utilisateur" : "Expert AMOA"}: ${msg.content}`)
       .join("\n\n");
     
-    // Initialiser le client OpenAI
-    const openai = await connectToAzureOpenAI();
-    
     // Générer un résumé de la session
     const summaryPrompt = `Voici l'historique d'une conversation d'apprentissage sur l'AMOA:
 
@@ -559,17 +556,17 @@ Génère un résumé pédagogique de cette session qui:
 
 Ce résumé doit être clair, structuré et orienté vers l'apprentissage continu en AMOA.`;
 
-    const summaryCompletion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL_NAME || 'gpt-4o-mini',
-      messages: [
-        { role: "system", content: getAmoaExpertSystemPrompt() },
-        { role: "user", content: summaryPrompt }
-      ],
-      temperature: 0.7,
-      max_tokens: 1500
-    });
-    
-    const summary = summaryCompletion.choices[0].message.content || "Je n'ai pas pu générer un résumé de session.";
+    const summaryMessages: ChatCompletionRequestMessage[] = [
+      { role: "system", content: getAmoaExpertSystemPrompt() },
+      { role: "user", content: summaryPrompt }
+    ];
+
+    const summary = await openAIService.getChatCompletion(
+      summaryMessages,
+      true,
+      0.7,
+      1500
+    );
     
     // Supprimer la session après avoir généré le résumé
     userSessions.delete(userId);
