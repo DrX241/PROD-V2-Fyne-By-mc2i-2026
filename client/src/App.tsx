@@ -71,6 +71,7 @@ import ProjetImposteur from "@/pages/amoa/projet-imposteur";
 import Mc2iInterviewPreparation from "@/pages/amoa/mc2i-interview-preparation-fixed";
 // Module Apprendre en échangeant
 import ExpertLearningPage from "@/pages/cyber/expert-learning";
+import AmoaExpertLearningPage from "@/pages/amoa/expert-learning";
 // Ancien jeu Cyber Snake (supprimé)
 // Suppression des imports existants de CyberForge
 // Autres pages
