@@ -26,13 +26,28 @@ export default function Mc2iLearningOutils() {
   const { themeMode } = useTheme();
   const isFuturistic = themeMode === 'futuristic';
   
-  // Messages du chat
+  // États du chat
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState('');
   const [isInitialized, setIsInitialized] = useState(false);
   const [initializationAttempted, setInitializationAttempted] = useState(false);
+  
+  // États pour le système gamifié
+  const [userProfile, setUserProfile] = useState<{
+    trigramme: string | null;
+    niveau: string | null;
+    parcours: 'classique' | 'immersion' | null;
+    progression: number;
+    badges: string[];
+  }>({
+    trigramme: null,
+    niveau: null,
+    parcours: null,
+    progression: 0,
+    badges: []
+  });
   
   // Références pour le défilement automatique
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -202,7 +217,7 @@ export default function Mc2iLearningOutils() {
                 mc2i AI Learning
               </h1>
               <p className={`text-sm ${isFuturistic ? 'text-indigo-200' : 'text-gray-600'}`}>
-                Expert en gestion de projet et AMOA
+                Simulation professionnelle immersive et personnalisée
               </p>
             </div>
           </div>
@@ -222,6 +237,27 @@ export default function Mc2iLearningOutils() {
           </div>
         </div>
         
+        {/* Barre de progression */}
+        {userProfile.niveau && userProfile.parcours && (
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center">
+                <Target size={16} className="mr-2 text-violet-600" />
+                <span className="text-sm font-medium">Votre progression</span>
+              </div>
+              <Badge variant="outline" className="bg-violet-100 text-violet-800 hover:bg-violet-200">
+                {userProfile.parcours === 'classique' ? 'Apprentissage Classique' : 'Immersion Totale'}
+              </Badge>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div 
+                className="bg-gradient-to-r from-violet-500 to-indigo-600 h-2.5 rounded-full" 
+                style={{ width: `${userProfile.progression}%` }}>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {/* Zone de messages */}
         <div 
           className={`flex-grow overflow-y-auto mb-4 p-4 rounded-lg ${
@@ -229,7 +265,7 @@ export default function Mc2iLearningOutils() {
               ? 'bg-gradient-to-b from-violet-500/10 to-indigo-500/10 border border-violet-500/20' 
               : 'bg-gray-50/80 border border-violet-200'
           }`}
-          style={{ height: 'calc(100vh - 300px)' }}
+          style={{ height: 'calc(100vh - 350px)' }}
         >
           <AnimatePresence initial={false}>
             {messages.map((msg) => (
@@ -311,11 +347,22 @@ export default function Mc2iLearningOutils() {
           </AnimatePresence>
         </div>
         
+        {/* Affichage badges */}
+        {userProfile.badges.length > 0 && (
+          <div className="mb-4 flex flex-wrap gap-2">
+            {userProfile.badges.map((badge, index) => (
+              <Badge key={index} className="py-1.5 px-3 bg-gradient-to-r from-violet-500 to-indigo-600 text-white hover:from-violet-600 hover:to-indigo-700">
+                <Trophy size={14} className="mr-1" /> {badge}
+              </Badge>
+            ))}
+          </div>
+        )}
+        
         {/* Formulaire de saisie */}
         <form onSubmit={handleSendMessage} className="flex gap-4 items-end">
           <div className="relative flex-grow">
             <Textarea
-              placeholder="Posez une question sur la gestion de projet ou l'AMOA..."
+              placeholder="Entrez votre message pour la simulation professionnelle..."
               value={newMessage}
               onChange={handleInputChange}
               onKeyDown={handleKeyPress}
