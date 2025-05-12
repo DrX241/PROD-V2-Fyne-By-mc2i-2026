@@ -113,34 +113,7 @@ export default function AmoaModeSelection() {
       isNew: true,
       comingSoon: false
     },
-    {
-      id: 'mc2i-ai-learning',
-      title: 'mc2i AI LEARNING',
-      description: 'Formation personnalisée avec des experts mc2i. Apprenez à votre rythme avec notre plateforme d\'IA conversationnelle.',
-      icon: <RiUserSettingsLine className="h-5 w-5 text-blue-200" />,
-      destination: '/outils-ia/mc2i-learning',
-      difficulty: 'tous niveaux',
-      isNew: false,
-      comingSoon: false
-    },
-    {
-      id: 'modules-express',
-      title: 'MODULES EXPRESS',
-      description: 'Condensés de connaissances sur les fondamentaux de l\'AMOA. Assimilez rapidement les concepts clés.',
-      icon: <BsBookmarkCheck className="h-5 w-5 text-green-200" />,
-      destination: '/amoa/modules-express',
-      difficulty: 'débutant',
-      comingSoon: false
-    },
-    {
-      id: 'referentiel-amoa',
-      title: 'RÉFÉRENTIEL AMOA',
-      description: 'Bibliothèque complète des standards, méthodes et outils AMOA utilisés chez mc2i.',
-      icon: <BsFileEarmarkText className="h-5 w-5 text-yellow-200" />,
-      destination: '/amoa/referentiel',
-      difficulty: 'intermédiaire',
-      comingSoon: true
-    },
+    
     {
       id: 'projet-imposteur',
       title: 'QUI EST L\'IMPOSTEUR ?',
@@ -224,7 +197,7 @@ export default function AmoaModeSelection() {
       description: "Développez vos connaissances fondamentales en AMOA et gestion de projet",
       icon: <IoBookOutline className="h-6 w-6 text-blue-100" />,
       gradient: 'from-blue-700 to-blue-900',
-      modules: ['agent-ia', 'mc2i-ai-learning', 'modules-express', 'referentiel-amoa']
+      modules: ['agent-ia']
     },
     {
       id: 'sentrainer',
@@ -267,7 +240,7 @@ export default function AmoaModeSelection() {
         'Conduite du changement',
         'Recette fonctionnelle'
       ],
-      modules: ['agent-ia', 'mc2i-ai-learning', 'modules-express', 'interview-simulation', 'projet-imposteur']
+      modules: ['agent-ia', 'interview-simulation', 'projet-imposteur']
     },
     {
       id: 'product-owner',
@@ -282,7 +255,7 @@ export default function AmoaModeSelection() {
         'Méthodes Agiles',
         'Relation client'
       ],
-      modules: ['agent-ia', 'mc2i-ai-learning', 'modules-express', 'analyse-besoins']
+      modules: ['agent-ia', 'analyse-besoins']
     },
     {
       id: 'business-analyst',
