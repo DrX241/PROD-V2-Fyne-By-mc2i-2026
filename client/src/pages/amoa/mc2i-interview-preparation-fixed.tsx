@@ -709,18 +709,20 @@ const Mc2iInterviewPreparation: React.FC = () => {
         const systemMessage: Message = {
           id: 'system-1',
           role: 'system',
-          content: 'Cette simulation vous permet de pratiquer un entretien avec un recruteur mc2i. Soyez authentique et apportez des réponses précises et concises en montrant comment vos compétences répondent aux besoins en AMOA.',
+          content: 'Cette simulation vous permet de pratiquer un entretien avec un client réel. Vous êtes consultant AMOA et vous devez comprendre sa problématique, poser des questions pertinentes et démontrer votre expertise.',
           timestamp: new Date(),
         };
         
         const welcomeMessage: Message = {
           id: 'assistant-1',
           role: 'assistant',
-          content: `Bonjour, je suis Sophie Martin, chargée de recrutement chez mc2i. Merci d'avoir postulé pour le poste de consultant ${values.profileType.toLowerCase()} avec une expérience de ${values.experienceLevel}. Nous recherchons activement des profils pour intervenir sur des missions dans le secteur ${values.sectorFocus}. 
+          content: `Bonjour, je suis Sophie Martin, Directrice des Systèmes d'Information de l'entreprise EnerGreen, spécialisée dans le secteur ${values.sectorFocus}. Ravie de vous rencontrer aujourd'hui.
 
-Notre cabinet accompagne les entreprises dans leur transformation digitale, et nous avons besoin de consultants AMOA compétents et motivés. Je vais évaluer vos compétences et votre adéquation avec nos valeurs et nos méthodes de travail.
+Notre entreprise fait face à des défis importants de transformation numérique, et nous avons besoin d'un accompagnement AMOA pour nous aider à structurer et mener à bien plusieurs projets stratégiques.
 
-Pouvez-vous commencer par vous présenter en quelques mots, m'expliquer votre parcours, et me dire ce qui vous motive à rejoindre mc2i ?`,
+Notre principal problème actuellement concerne l'optimisation de nos processus métiers et la mise en place d'un nouveau système de gestion qui permettrait une meilleure intégration entre nos différents départements. Nos équipes internes manquent d'expertise en conduite du changement et en cadrage de projets complexes.
+
+Je souhaiterais que vous vous présentiez brièvement, que vous m'expliquiez votre compréhension de notre contexte avec vos propres mots, et que vous me parliez de vos expériences précédentes qui pourraient être pertinentes pour notre situation.`,
           timestamp: new Date(),
         };
         
@@ -758,9 +760,9 @@ Pouvez-vous commencer par vous présenter en quelques mots, m'expliquer votre pa
     const values = {
       recruiterEmail: "",
       candidateName: "",
-      profileType: "Profil confirmé",
-      experienceLevel: "2-5 ans",
-      sectorFocus: "Banque & Assurance",
+      profileType: "Profil consultant",
+      experienceLevel: "3-5 ans",
+      sectorFocus: "Énergie & Environnement",
     };
     
     form.reset(values);
@@ -1227,7 +1229,7 @@ Pouvez-vous commencer par vous présenter en quelques mots, m'expliquer votre pa
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <UserCircle className="w-6 h-6 mr-2 text-yellow-500" />
-                    <CardTitle className="text-xl">Simulation d'entretien mc2i</CardTitle>
+                    <CardTitle className="text-xl">Simulation d'entretien client</CardTitle>
                   </div>
                   <Badge 
                     variant="outline" 
@@ -1238,7 +1240,7 @@ Pouvez-vous commencer par vous présenter en quelques mots, m'expliquer votre pa
                   </Badge>
                 </div>
                 <CardDescription className="text-gray-300">
-                  Entretien avec un recruteur mc2i - Durée : 10 minutes
+                  Entretien avec un client - Durée : 10 minutes
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
@@ -1260,14 +1262,14 @@ Pouvez-vous commencer par vous présenter en quelques mots, m'expliquer votre pa
                           <>
                             <UserCircle className="w-5 h-5 mr-2 text-gray-300" />
                             <span className="text-sm font-bold text-gray-300">
-                              Recruteur mc2i
+                              Client
                             </span>
                           </>
                         ) : (
                           <>
                             <UserCircle className="w-5 h-5 mr-2 text-blue-300" />
                             <span className="text-sm font-bold text-blue-300">
-                              Vous
+                              Consultant (Vous)
                             </span>
                           </>
                         )}
@@ -1330,10 +1332,10 @@ Pouvez-vous commencer par vous présenter en quelques mots, m'expliquer votre pa
               <CardHeader className="border-b border-gray-700/50">
                 <div className="flex items-center">
                   <CheckCircle className="w-6 h-6 mr-2 text-green-500" />
-                  <CardTitle className="text-xl">Évaluation de l'entretien</CardTitle>
+                  <CardTitle className="text-xl">Évaluation de l'entretien client</CardTitle>
                 </div>
                 <CardDescription className="text-gray-300">
-                  Analyse de votre performance durant l'entretien de recrutement
+                  Analyse de votre performance en tant que consultant durant l'entretien client
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
@@ -1401,9 +1403,9 @@ Pouvez-vous commencer par vous présenter en quelques mots, m'expliquer votre pa
                     </div>
                     
                     <div className="bg-gradient-to-r from-purple-900/30 to-purple-800/30 p-5 rounded-md border border-purple-700/30">
-                      <h3 className="text-lg font-semibold mb-2 text-purple-300">Adéquation avec le secteur {form.getValues('sectorFocus') || ""}</h3>
+                      <h3 className="text-lg font-semibold mb-2 text-purple-300">Compréhension de la problématique client</h3>
                       <p className="text-gray-300 mb-2">
-                        {evaluationResult.sectorFitEvaluation || "Aucune évaluation d'adéquation sectorielle disponible."}
+                        {evaluationResult.sectorFitEvaluation || "Aucune évaluation de la compréhension de la problématique client disponible."}
                       </p>
                     </div>
                     
