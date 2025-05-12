@@ -913,7 +913,7 @@ export default function CyberModeSelectionRedesign() {
                       <Button
                         size="sm"
                         variant={difficulty.includes('intermédiaire') ? 'default' : 'outline'}
-                        className={`h-7 text-xs ${
+                        className={`h-9 px-4 text-sm ${
                           difficulty.includes('intermédiaire')
                             ? highContrastMode 
                               ? 'bg-blue-900 hover:bg-blue-800' 
@@ -930,7 +930,7 @@ export default function CyberModeSelectionRedesign() {
                       <Button
                         size="sm"
                         variant={difficulty.includes('avancé') ? 'default' : 'outline'}
-                        className={`h-7 text-xs ${
+                        className={`h-9 px-4 text-sm ${
                           difficulty.includes('avancé')
                             ? highContrastMode 
                               ? 'bg-purple-900 hover:bg-purple-800' 
@@ -947,24 +947,24 @@ export default function CyberModeSelectionRedesign() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-3">
                     <Button 
                       size="sm" 
                       variant="ghost"
-                      className={`p-1 ${activeView === 'grid' ? 'bg-blue-900/30' : ''}`}
+                      className={`p-2 rounded-lg ${activeView === 'grid' ? 'bg-blue-900/50 shadow-md' : ''}`}
                       onClick={() => setActiveView('grid')}
                       data-id="grid-view-button"
                     >
-                      <TbLayoutGrid className="h-5 w-5" />
+                      <TbLayoutGrid className="h-6 w-6" />
                     </Button>
                     <Button 
                       size="sm" 
                       variant="ghost"
-                      className={`p-1 ${activeView === 'list' ? 'bg-blue-900/30' : ''}`}
+                      className={`p-2 rounded-lg ${activeView === 'list' ? 'bg-blue-900/50 shadow-md' : ''}`}
                       onClick={() => setActiveView('list')}
                       data-id="list-view-button"
                     >
-                      <TbList className="h-5 w-5" />
+                      <TbList className="h-6 w-6" />
                     </Button>
                   </div>
                 </div>
@@ -972,10 +972,12 @@ export default function CyberModeSelectionRedesign() {
 
               {/* Liste des modules en grille ou liste */}
               {filteredModules.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-lg mb-2">Aucun module ne correspond à votre recherche</p>
+                <div className="text-center py-16">
+                  <p className="text-xl mb-4">Aucun module ne correspond à votre recherche</p>
                   <Button 
                     variant="outline" 
+                    size="lg"
+                    className="px-6"
                     onClick={() => {
                       setSearchTerm('');
                       setDifficulty([]);
@@ -985,7 +987,7 @@ export default function CyberModeSelectionRedesign() {
                   </Button>
                 </div>
               ) : activeView === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {filteredModules.map(module => (
                     <motion.div
                       key={module.id}
@@ -994,33 +996,33 @@ export default function CyberModeSelectionRedesign() {
                       transition={{ duration: 0.3 }}
                     >
                       <Card 
-                        className={`h-full border ${
+                        className={`h-full border shadow-lg ${
                           highContrastMode 
                             ? 'bg-gray-800 border-gray-700 hover:border-gray-600' 
                             : 'bg-white/5 border-white/20 hover:bg-white/10'
                         } transition-colors`}
                         data-id={`module-card-${module.id}`}
                       >
-                        <CardHeader>
+                        <CardHeader className="pb-3">
                           <div className="flex justify-between items-start">
                             <div className="flex items-start">
-                              <div className={`p-2 rounded-lg shrink-0 mt-0.5 ${
+                              <div className={`p-3 rounded-lg shrink-0 mt-0.5 ${
                                 highContrastMode ? 'bg-blue-900' : 'bg-blue-900/40'
-                              } mr-3`}>
+                              } mr-4`}>
                                 {module.icon}
                               </div>
                               <div>
-                                <CardTitle className="flex flex-wrap items-center gap-1">
+                                <CardTitle className="text-xl flex flex-wrap items-center gap-2">
                                   <span className="line-clamp-2 text-left">{module.title}</span>
                                   {module.isNew && (
-                                    <Badge variant="secondary" className="bg-blue-600 text-white text-xs">
+                                    <Badge variant="secondary" className="bg-blue-600 text-white text-xs px-2 py-1">
                                       Nouveau
                                     </Badge>
                                   )}
                                 </CardTitle>
-                                <CardDescription className={
+                                <CardDescription className={`text-sm mt-1.5 ${
                                   highContrastMode ? 'text-gray-400' : 'text-gray-300'
-                                }>
+                                }`}>
                                   {module.duration}
                                 </CardDescription>
                               </div>
@@ -1028,24 +1030,24 @@ export default function CyberModeSelectionRedesign() {
                             {renderDifficultyBadge(module.difficulty)}
                           </div>
                         </CardHeader>
-                        <CardContent>
-                          <p className={`${highContrastMode ? 'text-gray-300' : 'text-blue-100'} line-clamp-3`}>
+                        <CardContent className="pt-2 pb-6">
+                          <p className={`${highContrastMode ? 'text-gray-300' : 'text-blue-100'} line-clamp-3 text-base`}>
                             {module.description}
                           </p>
                         </CardContent>
-                        <CardFooter className="pt-0">
+                        <CardFooter className="pt-2 pb-4">
                           {module.comingSoon ? (
-                            <Button disabled variant="outline" className="w-full">
+                            <Button disabled variant="outline" className="w-full h-11 text-base">
                               Bientôt disponible
                             </Button>
                           ) : (
                             <Link href={module.destination} className="w-full">
                               <Button 
-                                className="w-full" 
+                                className="w-full h-11 text-base shadow-md" 
                                 variant={highContrastMode ? "outline" : "secondary"}
                               >
                                 Accéder au module
-                                <IoMdArrowForward className="ml-2 h-4 w-4" />
+                                <IoMdArrowForward className="ml-3 h-5 w-5" />
                               </Button>
                             </Link>
                           )}
@@ -1055,7 +1057,7 @@ export default function CyberModeSelectionRedesign() {
                   ))}
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {filteredModules.map(module => (
                     <motion.div
                       key={module.id}
@@ -1064,15 +1066,15 @@ export default function CyberModeSelectionRedesign() {
                       transition={{ duration: 0.2 }}
                     >
                       <div 
-                        className={`flex items-center justify-between p-4 border rounded-lg ${
+                        className={`flex items-center justify-between p-5 border rounded-xl shadow-md ${
                           highContrastMode 
                             ? 'bg-gray-800 border-gray-700 hover:border-gray-600' 
                             : 'bg-white/5 border-white/20 hover:bg-white/10'
                         } transition-colors`}
                         data-id={`module-list-${module.id}`}
                       >
-                        <div className="flex items-start gap-4">
-                          <div className={`p-2 rounded-lg shrink-0 mt-0.5 ${
+                        <div className="flex items-start gap-5">
+                          <div className={`p-3 rounded-lg shrink-0 mt-0.5 ${
                             highContrastMode ? 'bg-blue-900' : 'bg-blue-900/40'
                           }`}>
                             {module.icon}
