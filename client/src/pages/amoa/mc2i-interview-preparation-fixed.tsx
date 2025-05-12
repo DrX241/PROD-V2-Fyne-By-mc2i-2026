@@ -408,7 +408,7 @@ Ton message doit être professionnel, concis (maximum 10 lignes) mais très spé
       
       const data = await response.json();
       
-      if (data && data.content) {
+      if (data && data.choices && data.choices[0] && data.choices[0].message) {
         const systemMessage: Message = {
           id: 'system-1',
           role: 'system',
@@ -419,7 +419,7 @@ Ton message doit être professionnel, concis (maximum 10 lignes) mais très spé
         const welcomeMessage: Message = {
           id: 'assistant-1',
           role: 'assistant',
-          content: data.content,
+          content: data.choices[0].message.content,
           timestamp: new Date(),
         };
         
@@ -621,12 +621,12 @@ Ne termine pas l'entretien avant que le consultant ne l'ait demandé ou que vous
       
       const data = await response.json();
       
-      if (data && data.content) {
+      if (data && data.choices && data.choices[0] && data.choices[0].message) {
         // Créer le message du client avec la réponse générée par IA
         const aiMessage: Message = {
           id: `assistant-${messages.length + 1}`,
           role: 'assistant',
-          content: data.content,
+          content: data.choices[0].message.content,
           timestamp: new Date(),
         };
         
@@ -804,10 +804,10 @@ Ton analyse doit:
       
       const data = await response.json();
       
-      if (data && data.content) {
+      if (data && data.choices && data.choices[0] && data.choices[0].message) {
         try {
           // L'API renvoit du texte qu'il faut parser en JSON
-          let contentText = data.content;
+          let contentText = data.choices[0].message.content;
           
           // Nettoyer la réponse des délimiteurs de code Markdown si présents
           if (contentText.includes('```json')) {
