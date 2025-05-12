@@ -334,6 +334,15 @@ function App() {
                   );
                 }} />
                 
+                <Route path="/cyber/plan-continuite" component={() => {
+                  const PlanContinuiteComponent = lazy(() => import('./pages/cyber/plan-continuite'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <PlanContinuiteComponent />
+                    </Suspense>
+                  );
+                }} />
+                
                 <Route path="/cyber/arcade/code-shield" component={() => {
                   const CodeShieldComponent = lazy(() => import('./pages/cyber/arcade/code-shield'));
                   return (
