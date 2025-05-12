@@ -27,7 +27,7 @@ import {
   BsFileEarmarkCode, 
   BsBriefcase 
 } from 'react-icons/bs';
-import { RiTeamLine, RiUserSettingsLine, RiFilterLine } from 'react-icons/ri';
+import { RiTeamLine, RiUserSettingsLine, RiFilterLine, RiUserSearchLine } from 'react-icons/ri';
 import { MdOutlineEmojiEvents } from 'react-icons/md';
 import { FaProjectDiagram, FaRegChartBar } from 'react-icons/fa';
 import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
@@ -126,7 +126,7 @@ export default function AmoaModeSelection() {
     },
     {
       id: 'projet-imposteur',
-      title: 'QUI EST L\'IMPOSTEUR ?',
+      title: 'TROUVEZ LE COUPABLE !',
       description: 'Jeu de rôle pour apprendre à identifier les incohérences dans la gestion de projet.',
       icon: <BsPeopleFill className="h-5 w-5 text-orange-200" />,
       destination: '/amoa/projet-imposteur',
@@ -159,6 +159,16 @@ export default function AmoaModeSelection() {
       destination: '/amoa/generateur-livrables',
       difficulty: 'intermédiaire',
       comingSoon: false
+    },
+    {
+      id: 'qui-est-imposteur',
+      title: 'QUI EST L\'IMPOSTEUR ?',
+      description: 'Simulation d\'entretien avec analyse des réponses pour évaluer les compétences et la cohérence du candidat.',
+      icon: <RiUserSearchLine className="h-5 w-5 text-purple-200" />,
+      destination: '/amoa/qui-est-imposteur',
+      difficulty: 'avancé',
+      isNew: true,
+      comingSoon: false
     }
   ];
 
@@ -186,7 +196,7 @@ export default function AmoaModeSelection() {
       description: "Testez vos compétences dans des conditions réelles d'examen ou d'entretien",
       icon: <IoTrophyOutline className="h-6 w-6 text-purple-100" />,
       gradient: 'from-purple-700 to-purple-900',
-      modules: ['interview-simulation', 'test-reflexes']
+      modules: ['interview-simulation', 'test-reflexes', 'qui-est-imposteur']
     },
     {
       id: 'creer',

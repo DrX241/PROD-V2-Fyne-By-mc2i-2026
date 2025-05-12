@@ -1,0 +1,98 @@
+On va faire une application ou dans un premier temps on demande à l'utilisateur s'il veut partager des notes après son entretien afin de générer la synthèse de l'entretien qui contient :
+
+Présentation générale du profil:
+
+Description du parcours : Formation (du bac au master), Expérience (date, rôle, mission
+contexte), trous dans le CV (indiquer les raisons)
+
+(Obligatoire)
+Présentation du profil \:Premières impressions, posture ... (Obligatoire)
+Présentation du profil :
+
+Premières impressions, posture ...
+
+(Obligatoire)
+Motivations conseil, SI, mc2i - Compréhension de nos métiers/
+Renseignement sur le cabinet (Obligatoire)
+Motivations conseil, SI, mc2i - Compréhension de nos métiers/
+Renseignement sur le cabinet
+
+(Obligatoire)
+Projet professionnel et perspectivesSouhaits du candidat court terme, moyen terme et long terme (mission, évolution,
+secteur) (Obligatoire)
+Projet professionnel et perspectives
+
+Souhaits du candidat court terme, moyen terme et long terme (mission, évolution,
+secteur)
+
+(Obligatoire)
+Potentiel du candidat vs Ambition (Obligatoire)
+Potentiel du candidat vs Ambition
+
+(Obligatoire)
+Autres processus en cours et planning de décisionSociétés (Nom + secteur)
+Autres processus en cours et planning de décision
+
+Sociétés (Nom + secteur)
+
+Critères et Planning de décision (Obligatoire)
+Critères et Planning de décision
+
+(Obligatoire)
+
+Forces de la candidature
+
+Compétences fonctionnelles/sectorielles, techniques, méthodologiques, soft skills
+
+(Obligatoire)
+
+Faiblesses de la candidature / ou points à approfondir
+
+Commentaire: (Obligatoire)
+
+Faiblesses de la candidature / ou points à approfondir
+
+Commentaire:
+
+(Obligatoire)
+Niveau d’Anglais Niveau d'anglais déclaré par le candidat (Obligatoire)
+Niveau d’Anglais
+
+Niveau d'anglais déclaré par le candidat
+
+(Obligatoire)
+Si votre candidat(e) est un(e) stagiaire ou un(e) alternant(e) Période de formation supplémentaire ou départ à l'étranger après son stage de fin d'études ?
+Si votre candidat(e) est un(e) stagiaire ou un(e) alternant(e)
+
+Période de formation supplémentaire ou départ à l'étranger après son stage de fin d'études ?
+
+Si alternance, rythme du candidat (temps passé en entreprise, temps passé en formation) ?
+Si alternance, rythme du candidat (temps passé en entreprise, temps passé en formation) ?
+
+Synthèse écriteSi votre candidat est un stagiaire, quel est le niveau de sa synthèse écrite (Obligatoire)
+Synthèse écrite
+
+Si votre candidat est un stagiaire, quel est le niveau de sa synthèse écrite
+
+(Obligatoire)
+La raison principale de la décision & Les points à approfondir (Obligatoire)
+La raison principale de la décision & Les points à approfondir
+
+(Obligatoire)
+
+Synthèse globale
+
+---
+
+Ou s'il veut faire passer un test à un candidat, il sélectionne le nombre d'année d'expérience, le secteur d'activité au choix aligné avec la dernière expérience du candiat ( Transport et mobilités
+Banque et finance
+Services publics
+Santé
+Protection sociale
+Retail et luxe
+Assurance
+Industrie
+M) , puis la spécialité Data & IA, ou Cyber, ou UX/UI, change & adoption, agilitéé, marketing et expérience client.
+
+Une fois sélectionné, une simulation est lancé pendant 10 min ou l'IA va questionner l'utilisateur en lui demandant de se présenter et de parler de ses expériences, et à partir des réposes de l'utilisateurs, l'ia va rebondir, challenger en fonction du niveau d'expérience renseigné au début. Et à la fin du temps l'IA fera un retour sur les points forts et les réserves.
+L'IA doit naviguer entre question ouverte, mini cas d'usages, QCM, test de personnalités, etc.
