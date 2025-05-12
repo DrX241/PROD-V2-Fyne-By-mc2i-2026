@@ -742,6 +742,14 @@ function App() {
             {/* Route AMOA Quest supprimée */}
             <Route path="/amoa/projet-imposteur" component={ProjetImposteur} />
             <Route path="/amoa/mc2i-interview-preparation" component={Mc2iInterviewPreparation} />
+            <Route path="/amoa/mc2i-interview-preparation-fixed" component={() => {
+              const Mc2iInterviewPreparationFixed = lazy(() => import('./pages/amoa/mc2i-interview-preparation-fixed'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <Mc2iInterviewPreparationFixed />
+                </Suspense>
+              );
+            }} />
             <Route path="/amoa/test-reflexes" component={() => {
               const TestReflexesComponent = lazy(() => import('./pages/amoa/test-reflexes'));
               return (

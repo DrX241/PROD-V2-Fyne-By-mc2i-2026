@@ -140,7 +140,7 @@ export default function AmoaModeSelectionFixed() {
       duration: '30-45 min'
     },
     {
-      id: 'mc2i-interview-preparation-fixed',
+      id: 'mc2i-interview-preparation',
       title: 'ENTRETIEN mc2i',
       description: "Simulation d'entretien de recrutement avec un consultant mc2i pour évaluer vos compétences AMOA",
       icon: <BsClipboardCheck className="h-5 w-5" />,
