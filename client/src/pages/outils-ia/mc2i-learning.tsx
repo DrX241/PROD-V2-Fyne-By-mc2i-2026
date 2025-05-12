@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
-import { GraduationCap, Send, BookOpen, RefreshCw, ArrowLeft } from 'lucide-react';
+import { GraduationCap, Send, BookOpen, RefreshCw, ArrowLeft, Shield, Target, Mail, Trophy, Zap } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,6 +12,7 @@ import { Avatar } from '@/components/ui/avatar';
 import { Link } from 'wouter';
 import robotWithLightbulbPath from "../../assets/robot-with-lightbulb.jpg";
 import userProfessionalPath from "../../assets/user-professional.svg";
+import { Badge } from '@/components/ui/badge';
 
 // Interface pour les messages du chat
 interface ChatMessage {
