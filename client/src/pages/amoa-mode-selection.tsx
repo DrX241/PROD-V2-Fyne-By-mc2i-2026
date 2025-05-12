@@ -267,7 +267,7 @@ export default function AmoaModeSelection() {
         'Conduite du changement',
         'Recette fonctionnelle'
       ],
-      modules: ['mc2i-ai-learning', 'modules-express', 'interview-simulation', 'projet-imposteur']
+      modules: ['agent-ia', 'mc2i-ai-learning', 'modules-express', 'interview-simulation', 'projet-imposteur']
     },
     {
       id: 'product-owner',
@@ -282,7 +282,7 @@ export default function AmoaModeSelection() {
         'Méthodes Agiles',
         'Relation client'
       ],
-      modules: ['mc2i-ai-learning', 'modules-express', 'analyse-besoins']
+      modules: ['agent-ia', 'mc2i-ai-learning', 'modules-express', 'analyse-besoins']
     },
     {
       id: 'business-analyst',
@@ -297,7 +297,7 @@ export default function AmoaModeSelection() {
         'Business Intelligence',
         'Transformation digitale'
       ],
-      modules: ['mc2i-ai-learning', 'analyse-besoins', 'test-reflexes']
+      modules: ['agent-ia', 'mc2i-ai-learning', 'analyse-besoins', 'test-reflexes']
     },
     {
       id: 'chef-projet',
@@ -312,7 +312,7 @@ export default function AmoaModeSelection() {
         'Reporting',
         'Pilotage budgétaire'
       ],
-      modules: ['modules-express', 'test-reflexes', 'simulation-reunion', 'certification-interne']
+      modules: ['agent-ia', 'modules-express', 'test-reflexes', 'simulation-reunion', 'certification-interne']
     }
   ];
 
