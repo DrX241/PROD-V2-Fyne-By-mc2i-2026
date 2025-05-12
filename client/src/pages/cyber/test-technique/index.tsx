@@ -738,6 +738,18 @@ export default function CyberTestTechnique() {
                 Précédent
               </Button>
               
+              {/* Bouton d'abandon */}
+              <Button 
+                variant="destructive" 
+                onClick={abandonTest}
+                className="bg-red-700/80 border-red-800 text-white hover:bg-red-800"
+              >
+                <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Abandonner
+              </Button>
+              
               {currentQuestion < questions.length - 1 ? (
                 <Button 
                   onClick={goToNextQuestion}
