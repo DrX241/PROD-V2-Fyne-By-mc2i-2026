@@ -10,7 +10,7 @@ import { BsKanban, BsPeopleFill, BsClipboardCheck, BsGearFill,
          BsBookmarkCheck, BsClipboardData, BsFileEarmarkText, BsFileEarmarkCode } from 'react-icons/bs';
 import { RiTeamLine, RiUserSettingsLine } from 'react-icons/ri';
 import { MdOutlineEmojiEvents } from 'react-icons/md';
-import { FaProjectDiagram, FaRegChartBar } from 'react-icons/fa';
+import { FaProjectDiagram, FaRegChartBar, FaGraduationCap } from 'react-icons/fa';
 import { TbChartDots, TbReportAnalytics } from 'react-icons/tb';
 import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
 import { FiHelpCircle, FiMoon, FiSun } from 'react-icons/fi';
@@ -78,23 +78,24 @@ export default function AmoaModeSelectionFixed() {
       isNew: true
     },
     {
-      id: 'modules-express',
-      title: 'MODULES EXPRESS',
-      description: "Capsules de formation concises sur les fondamentaux AMOA et la gestion de projet",
-      icon: <BsBookmarkCheck className="h-5 w-5" />,
-      destination: '/amoa/modules-express',
-      difficulty: 'débutant',
-      duration: '5-15 min'
+      id: 'amoa-academie',
+      title: 'AMOA ACADÉMIE',
+      description: "Centre d'apprentissage complet en AMOA avec parcours thématiques, modules interactifs et suivi IA personnalisé",
+      icon: <FaGraduationCap className="h-5 w-5" />,
+      destination: '/amoa/academie',
+      difficulty: 'tous niveaux',
+      duration: 'adaptatif',
+      isNew: true
     },
     {
-      id: 'referentiel-amoa',
-      title: 'RÉFÉRENTIEL AMOA',
-      description: "Base documentaire complète: méthodes, templates et bonnes pratiques AMOA",
-      icon: <BsFileEarmarkText className="h-5 w-5" />,
-      destination: '/amoa/referentiel',
+      id: 'parcours-amoa',
+      title: 'PARCOURS AMOA',
+      description: "Développez méthodiquement vos compétences AMOA grâce à un parcours progressif personnalisé par l'IA",
+      icon: <BsBarChartFill className="h-5 w-5" />,
+      destination: '/amoa/parcours',
       difficulty: 'tous niveaux',
       duration: 'variable',
-      comingSoon: true
+      isNew: true
     },
     
     // S'ENTRAÎNER
@@ -201,8 +202,8 @@ export default function AmoaModeSelectionFixed() {
       icon: <IoBookOutline className="h-6 w-6 text-blue-100" />,
       modules: [
         'mc2i-ai-learning',      // Assistant IA pour répondre aux questions
-        'modules-express',       // Modules courts de formation
-        'referentiel-amoa'       // Référentiel documentaire
+        'amoa-academie',         // Centre d'apprentissage en AMOA
+        'parcours-amoa'          // Parcours progressif personnalisé
       ],
       gradient: 'from-blue-700 to-blue-900',
       categories: [
@@ -258,7 +259,7 @@ export default function AmoaModeSelectionFixed() {
       description: "Accompagner les projets informatiques depuis l'expression de besoin jusqu'au déploiement",
       icon: <BsClipboardData className="h-6 w-6 text-blue-100" />,
       skills: ['Analyse de besoins', 'Rédaction spécifications', 'Test', 'Conduite du changement'],
-      modules: ['mc2i-ai-learning', 'modules-express', 'interview-simulation', 'mc2i-interview-preparation', 'projet-imposteur'],
+      modules: ['mc2i-ai-learning', 'amoa-academie', 'interview-simulation', 'mc2i-interview-preparation', 'projet-imposteur'],
       gradient: 'from-blue-600 to-blue-800'
     },
     {
@@ -267,7 +268,7 @@ export default function AmoaModeSelectionFixed() {
       description: "Gérer le backlog produit et prioriser les fonctionnalités dans un contexte Agile",
       icon: <BsKanban className="h-6 w-6 text-green-100" />,
       skills: ['Gestion de backlog', 'User stories', 'Agile', 'Priorisation'],
-      modules: ['mc2i-ai-learning', 'modules-express', 'analyse-besoins'],
+      modules: ['mc2i-ai-learning', 'amoa-academie', 'analyse-besoins'],
       gradient: 'from-green-600 to-green-800'
     },
     {
@@ -276,7 +277,7 @@ export default function AmoaModeSelectionFixed() {
       description: "Analyser et modéliser les processus métier pour concevoir des solutions optimales",
       icon: <FaRegChartBar className="h-6 w-6 text-amber-100" />,
       skills: ['Analyse processus', 'Modélisation', 'Data analytics', 'Business case'],
-      modules: ['mc2i-ai-learning', 'analyse-besoins', 'test-reflexes'],
+      modules: ['mc2i-ai-learning', 'analyse-besoins', 'parcours-amoa'],
       gradient: 'from-amber-600 to-amber-800'
     },
     {
@@ -285,7 +286,7 @@ export default function AmoaModeSelectionFixed() {
       description: "Piloter des projets informatiques en respectant le budget, les délais et la qualité",
       icon: <FaProjectDiagram className="h-6 w-6 text-red-100" />,
       skills: ['Gestion de projet', 'Planification', 'Gestion risques', 'Pilotage d\'équipe'],
-      modules: ['modules-express', 'test-reflexes', 'simulation-reunion', 'certification-interne'],
+      modules: ['parcours-amoa', 'test-reflexes', 'simulation-reunion', 'certification-interne'],
       gradient: 'from-red-600 to-red-800'
     }
   ];
