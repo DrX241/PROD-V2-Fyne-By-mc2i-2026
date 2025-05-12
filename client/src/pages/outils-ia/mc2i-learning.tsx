@@ -116,7 +116,7 @@ export default function Mc2iLearningOutils() {
     }
   };
 
-  // Ajouter un message au chat
+  // Ajouter un message au chat et mettre à jour le profil utilisateur
   const addMessage = (role: 'assistant' | 'user', content: string) => {
     const newMsg: ChatMessage = {
       id: uuidv4(),
@@ -125,6 +125,65 @@ export default function Mc2iLearningOutils() {
       timestamp: new Date()
     };
     setMessages(prev => [...prev, newMsg]);
+    
+    // Mettre à jour le profil utilisateur en fonction du contenu des messages
+    if (role === 'assistant') {
+      // Extraire le trigramme potentiel
+      const trigrammeMatch = content.match(/[A-Z]{3}/);
+      if (trigrammeMatch && !userProfile.trigramme) {
+        setUserProfile(prev => ({ ...prev, trigramme: trigrammeMatch[0] }));
+      }
+      
+      // Détecter le niveau
+      const niveauPatterns = [
+        'Consultant', 'Consultant Confirmé', 'Consultant Senior', 
+        'Chef de Projet', 'Manager', 'Senior Manager', 'Directeur'
+      ];
+      
+      for (const niveau of niveauPatterns) {
+        if (content.includes(niveau) && !userProfile.niveau) {
+          setUserProfile(prev => ({ ...prev, niveau }));
+          break;
+        }
+      }
+      
+      // Détecter le parcours
+      if (content.includes("Apprentissage Classique")) {
+        setUserProfile(prev => ({ ...prev, parcours: 'classique', progression: Math.max(prev.progression, 25) }));
+      } else if (content.includes("Immersion Totale")) {
+        setUserProfile(prev => ({ ...prev, parcours: 'immersion', progression: Math.max(prev.progression, 16) }));
+      }
+      
+      // Mettre à jour la progression
+      if (content.includes("Voici votre premier scénario")) {
+        setUserProfile(prev => ({ ...prev, progression: Math.max(prev.progression, 40) }));
+      } else if (content.includes("Voici votre deuxième scénario")) {
+        setUserProfile(prev => ({ ...prev, progression: Math.max(prev.progression, 60) }));
+      } else if (content.includes("dernier scénario")) {
+        setUserProfile(prev => ({ ...prev, progression: Math.max(prev.progression, 80) }));
+      } else if (content.includes("Synthèse de votre performance")) {
+        setUserProfile(prev => ({ 
+          ...prev, 
+          progression: 100,
+          badges: [...prev.badges.filter(b => b !== "Parcours Terminé"), "Parcours Terminé"]
+        }));
+      }
+      
+      // Attribuer des badges selon les performances
+      if (content.includes("Points forts") && content.includes("excellente analyse")) {
+        setUserProfile(prev => ({ 
+          ...prev, 
+          badges: [...prev.badges.filter(b => b !== "Expert en Analyse"), "Expert en Analyse"] 
+        }));
+      }
+      
+      if (content.includes("Points forts") && content.includes("communication claire")) {
+        setUserProfile(prev => ({ 
+          ...prev, 
+          badges: [...prev.badges.filter(b => b !== "Communicateur Efficace"), "Communicateur Efficace"] 
+        }));
+      }
+    }
   };
 
   // Défilement automatique vers le bas lors de l'ajout de nouveaux messages
@@ -184,6 +243,14 @@ export default function Mc2iLearningOutils() {
   const handleResetSession = () => {
     // Effacer les messages
     setMessages([]);
+    // Réinitialiser le profil utilisateur
+    setUserProfile({
+      trigramme: null,
+      niveau: null,
+      parcours: null,
+      progression: 0,
+      badges: []
+    });
     // Réinitialiser l'ID utilisateur pour forcer une nouvelle session
     const newUserId = uuidv4();
     localStorage.setItem('mcai_user_id', newUserId);
