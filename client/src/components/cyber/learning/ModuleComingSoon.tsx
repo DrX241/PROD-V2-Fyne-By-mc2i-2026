@@ -1,49 +1,68 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { ArrowLeft, Clock } from 'lucide-react';
+import { ArrowLeft, Shield, Microscope, LayoutGrid, AlertOctagon, BrainCircuit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
+import PageTitle from '@/components/utils/PageTitle';
 
 interface ModuleComingSoonProps {
   title: string;
+  subtitle?: string;
 }
 
-export default function ModuleComingSoon({ title }: ModuleComingSoonProps) {
+export default function ModuleComingSoon({ title, subtitle = "Module en développement" }: ModuleComingSoonProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-900 text-white">
-      <div className="container mx-auto px-6 py-8">
-        {/* Bouton de retour */}
+    <div className="container mx-auto px-4 py-6">
+      <div className="mb-6">
         <Link href="/cyber/learning-center">
-          <Button variant="ghost" className="mb-6 text-blue-300 hover:text-blue-100 hover:bg-blue-900/30">
+          <Button variant="ghost" className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour au centre d'apprentissage
+            Retour au Centre d'Apprentissage
           </Button>
         </Link>
-        
-        <Card className="bg-blue-900/20 border-blue-800 w-full max-w-4xl mx-auto">
-          <CardHeader className="pb-4 text-center">
-            <div className="mb-4 p-3 bg-amber-600/40 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-              <Clock className="h-8 w-8 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold mb-2">Module en développement</h1>
-            <p className="text-blue-200 text-lg">{title}</p>
-          </CardHeader>
-          <CardContent className="text-center pb-8">
-            <p className="text-blue-100 mb-6">
-              Ce module est actuellement en cours de développement et sera bientôt disponible.
-              Nous travaillons activement pour vous proposer un contenu de qualité.
+        <PageTitle
+          title={title}
+          subtitle={subtitle}
+          icon={<BrainCircuit className="h-8 w-8 text-blue-500" />}
+        />
+      </div>
+
+      <div className="flex flex-col items-center justify-center py-12">
+        <Shield className="h-24 w-24 text-blue-500 mb-6" />
+        <h2 className="text-3xl font-bold mb-4 text-center">Module en développement</h2>
+        <p className="text-xl text-blue-300 mb-8 text-center max-w-2xl">
+          Le module complet sur {title.toLowerCase()} sera disponible prochainement. 
+          Il couvrira les concepts fondamentaux, les bonnes pratiques, les techniques 
+          et les méthodes adaptées à ce domaine.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mb-8">
+          <Card className="p-6 bg-blue-900/20 border-blue-800 flex flex-col items-center text-center">
+            <Microscope className="h-10 w-10 text-blue-500 mb-3" />
+            <h3 className="font-bold mb-2">Concepts fondamentaux</h3>
+            <p className="text-blue-200 text-sm">
+              Terminologie, principes de base et concepts essentiels
             </p>
-            
-            <div className="flex flex-col gap-4 items-center justify-center mt-8">
-              <Button variant="default" className="bg-blue-700 hover:bg-blue-600" asChild>
-                <Link href="/cyber/learning-center">
-                  Retourner à la liste des modules
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        
+          </Card>
+          <Card className="p-6 bg-blue-900/20 border-blue-800 flex flex-col items-center text-center">
+            <LayoutGrid className="h-10 w-10 text-blue-500 mb-3" />
+            <h3 className="font-bold mb-2">Méthodologies</h3>
+            <p className="text-blue-200 text-sm">
+              Méthodes, processus et bonnes pratiques adaptés aux contextes professionnels
+            </p>
+          </Card>
+          <Card className="p-6 bg-blue-900/20 border-blue-800 flex flex-col items-center text-center">
+            <AlertOctagon className="h-10 w-10 text-blue-500 mb-3" />
+            <h3 className="font-bold mb-2">Normes et conformité</h3>
+            <p className="text-blue-200 text-sm">
+              Standards, réglementations et exigences de conformité applicables
+            </p>
+          </Card>
+        </div>
+        <Link href="/cyber/learning-center">
+          <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+            Retour au Centre d'Apprentissage
+          </Button>
+        </Link>
       </div>
     </div>
   );

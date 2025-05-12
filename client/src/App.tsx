@@ -604,7 +604,10 @@ function App() {
                   const ModulePage = lazy(() => import('./components/cyber/learning/ModuleComingSoon'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
-                      <ModulePage title="Modélisation des menaces" />
+                      <ModulePage
+                        title="Modélisation des menaces"
+                        subtitle="Comprendre et modéliser les menaces pour mieux protéger vos systèmes d'information"
+                      />
                     </Suspense>
                   );
                 }} />
@@ -613,7 +616,10 @@ function App() {
                   const ModulePage = lazy(() => import('./components/cyber/learning/ModuleComingSoon'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
-                      <ModulePage title="Analyse et gestion des risques" />
+                      <ModulePage
+                        title="Analyse et gestion des risques"
+                        subtitle="Méthodologies d'analyse et de gestion des risques en cybersécurité"
+                      />
                     </Suspense>
                   );
                 }} />
@@ -622,7 +628,10 @@ function App() {
                   const ModulePage = lazy(() => import('./components/cyber/learning/ModuleComingSoon'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
-                      <ModulePage title="Normes et standards de sécurité" />
+                      <ModulePage
+                        title="Normes et standards de sécurité"
+                        subtitle="Panorama des normes et standards internationaux en cybersécurité"
+                      />
                     </Suspense>
                   );
                 }} />
