@@ -72,126 +72,126 @@ export default function ParcoursAmoa() {
   
   const { toast } = useToast();
 
-  // Niveaux de compétences
+  // Niveaux de compétences - inspirés par l'approche CYBERASCENSION
   const competenceLevels: CompetenceLevel[] = [
     {
       id: 1,
-      title: "Fondamental",
-      description: "Les compétences essentielles pour tout consultant AMOA",
+      title: "Niveau 1 - Initiation AMOA",
+      description: "Découvrez les fondamentaux de l'assistance à maîtrise d'ouvrage et le rôle de l'AMOA avec l'IA",
       skills: [
         {
-          id: "recueil-besoins",
-          name: "Recueil des besoins",
-          description: "Techniques d'entretien et de collecte d'exigences",
-          exercises: ["Entretien guidé", "Questionnaire", "Atelier de brainstorming"],
+          id: "comprendre-amoa",
+          name: "Comprendre le rôle AMOA",
+          description: "Découvrir les responsabilités et la place de l'AMOA dans l'organisation",
+          exercises: ["Quiz interactif", "Étude de cas", "Simulation de réunion"],
           isCompleted: false,
           progress: 30
         },
         {
-          id: "documentation",
-          name: "Documentation fonctionnelle",
-          description: "Rédaction de spécifications claires et structurées",
-          exercises: ["Modèle de spécifications", "Cas d'utilisation", "Exigences"],
+          id: "vocabulaire-projet",
+          name: "Vocabulaire essentiel",
+          description: "Maîtriser le langage professionnel de la gestion de projet",
+          exercises: ["Glossaire interactif", "Mise en situation", "Challenge vocabulaire"],
+          isCompleted: false,
+          progress: 25
+        },
+        {
+          id: "cycle-de-vie",
+          name: "Cycle de vie projet",
+          description: "Comprendre les différentes phases d'un projet et le rôle de l'AMOA",
+          exercises: ["Visualisation interactive", "Étude comparative", "Mini-projet"],
           isCompleted: false,
           progress: 20
         },
         {
-          id: "communication",
-          name: "Communication professionnelle",
-          description: "Techniques de communication efficace avec les parties prenantes",
-          exercises: ["Présentation", "Synthèse", "Argumentation"],
+          id: "initiation-ia",
+          name: "Introduction à l'IA en AMOA",
+          description: "Comprendre comment l'IA peut transformer le travail de l'AMOA",
+          exercises: ["Démonstration IA", "Cas pratiques", "Quiz prospectif"],
           isCompleted: false,
           progress: 15
-        },
-        {
-          id: "bases-projet",
-          name: "Bases de la gestion de projet",
-          description: "Comprendre les fondamentaux de la gestion de projet",
-          exercises: ["Planning", "Budget", "Périmètre"],
-          isCompleted: false,
-          progress: 10
         }
       ],
       isUnlocked: true,
-      progress: 20,
-      icon: <Shield className="h-6 w-6" />
+      progress: 25,
+      icon: <BookOpen className="h-6 w-6" />
     },
     {
       id: 2,
-      title: "Intermédiaire",
-      description: "Compétences pour consultants AMOA confirmés",
+      title: "Niveau 2 - Analyse IA des besoins",
+      description: "Utilisez l'IA pour recueillir et formaliser les besoins métier de façon structurée",
       skills: [
         {
-          id: "analyse-processus",
-          name: "Analyse des processus",
-          description: "Modélisation et optimisation des processus métier",
-          exercises: ["BPMN", "Cartographie", "Analyse de la valeur"],
+          id: "entretiens-ia",
+          name: "Entretiens augmentés par l'IA",
+          description: "Techniques d'entretien optimisées par intelligence artificielle",
+          exercises: ["Simulation d'entretien", "Analyse IA", "Feedback automatisé"],
           isCompleted: false,
           progress: 0
         },
         {
-          id: "animation-atelier",
-          name: "Animation d'ateliers",
-          description: "Techniques pour animer des sessions de travail productives",
-          exercises: ["Facilitation", "Gestion de groupe", "Résolution de conflits"],
+          id: "structuration-exigences",
+          name: "Structuration des exigences",
+          description: "Organiser et hiérarchiser les besoins avec assistance IA",
+          exercises: ["Classement automatique", "Détection d'incohérences", "Visualisation"],
           isCompleted: false,
           progress: 0
         },
         {
-          id: "test-recette",
-          name: "Tests et recette",
-          description: "Stratégie de test et validation des livrables",
-          exercises: ["Plan de test", "Jeux d'essai", "Rapport de recette"],
+          id: "analyse-textuelle",
+          name: "Analyse textuelle intelligente",
+          description: "Extraire des insights clés à partir de documents projet",
+          exercises: ["Extraction sémantique", "Synthèse automatique", "Validation croisée"],
           isCompleted: false,
           progress: 0
         },
         {
-          id: "conduite-changement",
-          name: "Conduite du changement",
-          description: "Accompagnement des utilisateurs dans la transformation",
-          exercises: ["Communication", "Formation", "Accompagnement"],
+          id: "personas-ia",
+          name: "Génération de personas",
+          description: "Créer des profils utilisateurs pertinents avec l'IA",
+          exercises: ["Création assistée", "Validation", "Scénarios d'usage"],
           isCompleted: false,
           progress: 0
         }
       ],
       isUnlocked: false,
       progress: 0,
-      icon: <Briefcase className="h-6 w-6" />
+      icon: <BrainCircuit className="h-6 w-6" />
     },
     {
       id: 3,
-      title: "Avancé",
-      description: "Compétences pour consultants AMOA experts",
+      title: "Niveau 3 - Pilotage augmenté",
+      description: "Développez vos compétences en pilotage de projet assisté par l'intelligence artificielle",
       skills: [
         {
-          id: "pilotage",
-          name: "Pilotage de projet",
-          description: "Suivi, reporting et pilotage d'équipe",
-          exercises: ["Tableau de bord", "KPI", "Gestion d'équipe"],
+          id: "suivi-ia",
+          name: "Suivi de projet intelligent",
+          description: "Mettre en place des outils IA pour le monitoring de projet",
+          exercises: ["Configuration dashboard", "Alertes prédictives", "Reporting automatisé"],
           isCompleted: false,
           progress: 0
         },
         {
-          id: "gestion-risques",
-          name: "Gestion des risques",
-          description: "Identification et mitigation des risques projet",
-          exercises: ["Analyse de risques", "Plan de mitigation", "Suivi"],
+          id: "risques-ia",
+          name: "Gestion prédictive des risques",
+          description: "Anticiper et gérer les risques avec des modèles prédictifs",
+          exercises: ["Modélisation", "Simulation", "Plans d'action"],
           isCompleted: false,
           progress: 0
         },
         {
-          id: "negociation",
-          name: "Négociation",
-          description: "Techniques de négociation et résolution de conflits",
-          exercises: ["Négociation contractuelle", "Gestion de conflit", "Influence"],
+          id: "communication-augmentee",
+          name: "Communication augmentée",
+          description: "Optimiser la communication projet avec l'intelligence artificielle",
+          exercises: ["Assistants virtuels", "Synthèse automatique", "Multilinguisme"],
           isCompleted: false,
           progress: 0
         },
         {
-          id: "architecture-fonctionnelle",
-          name: "Architecture fonctionnelle",
-          description: "Conception et modélisation d'architectures",
-          exercises: ["Cartographie applicative", "Urbanisation SI", "Modélisation"],
+          id: "decision-assistee",
+          name: "Prise de décision assistée",
+          description: "Utiliser l'IA comme support à la décision en contexte projet",
+          exercises: ["Analyse multicritères", "Recommandation", "Évaluation d'impact"],
           isCompleted: false,
           progress: 0
         }
@@ -202,38 +202,80 @@ export default function ParcoursAmoa() {
     },
     {
       id: 4,
-      title: "Expert",
-      description: "Compétences pour consultants AMOA de haut niveau",
+      title: "Niveau 4 - Documentation intelligente",
+      description: "Maîtrisez la rédaction augmentée de documents fonctionnels avec l'IA",
       skills: [
         {
-          id: "conseil-strategique",
-          name: "Conseil stratégique",
-          description: "Accompagnement stratégique des décideurs",
-          exercises: ["Transformation digitale", "Roadmap", "Business plan"],
+          id: "specifications-ia",
+          name: "Spécifications assistées par IA",
+          description: "Rédiger des spécifications fonctionnelles avec assistance IA",
+          exercises: ["Co-rédaction", "Validation automatique", "Revue intelligente"],
           isCompleted: false,
           progress: 0
         },
         {
-          id: "innovation",
-          name: "Innovation & Disruption",
-          description: "Intégrer l'innovation dans les projets métier",
-          exercises: ["Design thinking", "POC", "Veille technologique"],
+          id: "coherence-exigences",
+          name: "Vérification de cohérence",
+          description: "Garantir l'intégrité des exigences avec des modèles prédictifs",
+          exercises: ["Détection d'anomalies", "Analyse d'impact", "Traçabilité"],
           isCompleted: false,
           progress: 0
         },
         {
-          id: "methodologie-complexe",
-          name: "Méthodologies complexes",
-          description: "Adaptation et optimisation des méthodologies",
-          exercises: ["Scaled Agile", "Hybride", "Sur-mesure"],
+          id: "generation-doc",
+          name: "Génération documentaire",
+          description: "Automatiser la production de documentation projet de qualité",
+          exercises: ["Templates intelligents", "Mise à jour dynamique", "Multiformat"],
           isCompleted: false,
           progress: 0
         },
         {
-          id: "gouvernance",
-          name: "Gouvernance projet",
-          description: "Mise en place et pilotage de la gouvernance",
-          exercises: ["Comités", "Prise de décision", "Priorisation"],
+          id: "prototypage-rapide",
+          name: "Prototypage rapide",
+          description: "Créer des maquettes et wireframes avec assistance IA",
+          exercises: ["Design from text", "Test utilisateur", "Itération assistée"],
+          isCompleted: false,
+          progress: 0
+        }
+      ],
+      isUnlocked: false,
+      progress: 0,
+      icon: <FileText className="h-6 w-6" />
+    },
+    {
+      id: 5,
+      title: "Niveau 5 - Certification AMOA",
+      description: "Préparez et obtenez votre certification AMOA avec assistance IA personnalisée",
+      skills: [
+        {
+          id: "strategie-projet-ia",
+          name: "Stratégie globale augmentée",
+          description: "Intégrer l'IA dans la vision stratégique des projets",
+          exercises: ["Roadmap intelligente", "Allocation ressources", "Optimisation"],
+          isCompleted: false,
+          progress: 0
+        },
+        {
+          id: "techniques-avancees",
+          name: "Techniques avancées AMOA",
+          description: "Maîtriser les approches de pointe en assistance MOA",
+          exercises: ["Scénarios complexes", "Cas multi-projets", "Gouvernance"],
+          isCompleted: false,
+          progress: 0
+        },
+        {
+          id: "preparation-certification",
+          name: "Préparation personnalisée",
+          description: "Programme adaptatif de préparation à la certification",
+          exercises: ["Simulation d'examen", "Revue personnalisée", "Coaching IA"],
+          isCompleted: false,
+          progress: 0
+        },
+        {
+          id: "evaluation-finale",
+          name: "Évaluation finale",
+          description: "Évaluation complète des compétences pour la certification",
+          exercises: ["Examen blanc", "Projet de synthèse", "Soutenance"],
           isCompleted: false,
           progress: 0
         }
@@ -244,43 +286,43 @@ export default function ParcoursAmoa() {
     }
   ];
 
-  // Parcours spécialisés
+  // Parcours spécialisés orientés IA et certification
   const parcoursPaths: ParcoursPath[] = [
     {
-      id: "conseil",
-      title: "Parcours Conseil",
-      description: "Devenez un expert en relation client, techniques d'entretien et communication",
+      id: "conseil-ia",
+      title: "AMOA Consultant Augmenté",
+      description: "Devenez un expert en relation client et analyse de besoins assistées par IA",
       levels: [1, 2, 3],
-      icon: <MessageCircle />,
-      gradient: "from-blue-600 to-blue-800",
+      icon: <BrainCircuit />,
+      gradient: "from-blue-500 to-indigo-700",
       progress: 15
     },
     {
-      id: "specification",
-      title: "Parcours Spécification",
-      description: "Maîtrisez l'art de la documentation, modélisation et exigences",
-      levels: [1, 2, 3, 4],
-      icon: <FileText />,
-      gradient: "from-indigo-600 to-indigo-800",
+      id: "specification-ia",
+      title: "AMOA Documentation Intelligente",
+      description: "Maîtrisez la génération et validation automatique des livrables de projet",
+      levels: [1, 2, 4, 5],
+      icon: <Sparkles />,
+      gradient: "from-violet-600 to-purple-800",
       progress: 10
     },
     {
-      id: "test-qualite",
-      title: "Parcours Test et Qualité",
-      description: "Développez vos compétences en stratégies de test et assurance qualité",
-      levels: [1, 2, 3],
-      icon: <ListChecks />,
-      gradient: "from-purple-600 to-purple-800",
+      id: "pilotage-ia",
+      title: "AMOA Pilotage Prédictif",
+      description: "Utilisez l'IA pour anticiper les risques et optimiser le suivi de projet",
+      levels: [1, 3, 4, 5],
+      icon: <LineChart />,
+      gradient: "from-cyan-500 to-blue-700",
       progress: 5
     },
     {
-      id: "pilotage",
-      title: "Parcours Pilotage",
-      description: "Perfectionnez-vous en gestion de projet, planification et suivi",
-      levels: [1, 2, 3, 4],
-      icon: <BarChart3 />,
-      gradient: "from-teal-600 to-teal-800",
-      progress: 8
+      id: "certification",
+      title: "Certification AMOA",
+      description: "Préparez-vous à l'examen de certification avec un programme personnalisé par IA",
+      levels: [1, 2, 3, 4, 5],
+      icon: <Trophy />,
+      gradient: "from-amber-500 to-orange-700",
+      progress: 0
     }
   ];
 
@@ -306,23 +348,57 @@ export default function ParcoursAmoa() {
     }
   };
 
-  // Génération de recommandations IA
-  const generateRecommendations = () => {
+  // Génération de recommandations IA avec Azure OpenAI
+  const generateRecommendations = async () => {
     toast({
       title: "Recommandations personnalisées",
       description: "Analyse de votre profil et génération de recommandations en cours...",
       duration: 3000
     });
     
-    // Ici, vous appelleriez Azure OpenAI pour générer des recommandations personnalisées
-    setTimeout(() => {
+    try {
+      // Appel à l'API OpenAI via Azure
+      const response = await fetch('/api/openai/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: `En tant que conseiller IA spécialisé en AMOA, analyse le profil de l'utilisateur qui est actuellement au niveau ${competenceLevels[selectedLevel-1].title} avec ${competenceLevels[selectedLevel-1].progress}% de progression. 
+          Génère 3 recommandations personnalisées pour progresser efficacement dans le parcours AMOA ASCENSION.
+          Pour chaque recommandation, inclus: un titre court, une description de 1-2 phrases, et une action concrète à réaliser.`,
+          max_tokens: 400,
+          temperature: 0.7
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        toast({
+          title: "Recommandations IA prêtes !",
+          description: "Voici vos prochaines étapes recommandées par l'IA pour progresser.",
+          variant: "default",
+          duration: 5000
+        });
+        
+        // Afficher un dialogue avec les recommandations
+        // Cette partie pourrait être implémentée avec un composant de dialogue modal
+        alert(`Recommandations IA pour votre progression:
+        
+${data.text}`);
+        
+      } else {
+        throw new Error('Erreur lors de la génération des recommandations');
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
       toast({
-        title: "Recommandations prêtes !",
-        description: "Fonctionnalité à venir prochainement",
-        variant: "default",
+        title: "Erreur",
+        description: "Impossible de générer des recommandations pour le moment. Veuillez réessayer plus tard.",
+        variant: "destructive",
         duration: 5000
       });
-    }, 2000);
+    }
   };
 
   return (
@@ -336,13 +412,13 @@ export default function ParcoursAmoa() {
               Retour
             </Button>
           </Link>
-          <PageTitle title="PARCOURS AMOA" />
+          <PageTitle title="AMOA ASCENSION" />
         </div>
         
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Parcours AMOA</h1>
-            <p className="text-indigo-200 mt-1">Développez méthodiquement vos compétences AMOA</p>
+            <h1 className="text-3xl font-bold">AMOA ASCENSION</h1>
+            <p className="text-indigo-200 mt-1">Suivez un parcours complet de gestion de projet AMOA avec l'IA comme guide</p>
           </div>
           
           <div className="flex gap-2 mt-4 md:mt-0">
