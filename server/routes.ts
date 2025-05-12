@@ -725,13 +725,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber-expert/decisions/submit', submitDecision);
   app.post('/api/cyber-expert/decisions/status', checkDecisionStatus);
   
-  // Routes pour AMOA Expert
-  app.post('/api/amoa-expert/init', initializeAmoaExpertSession);
-  app.post('/api/amoa-expert/message', processAmoaExpertMessage);
-  app.post('/api/amoa-expert/end', endAmoaExpertSession);
-  app.post('/api/amoa-expert/decisions/generate', generateAmoaDecisionScenario);
-  app.post('/api/amoa-expert/decisions/submit', processAmoaDecision);
-  app.post('/api/amoa-expert/decisions/status', checkDecisionModeStatus);
+  // Routes pour AMOA Expert - Anciennes routes commentées au profit des nouvelles routes plus bas
+  // app.post('/api/amoa-expert/init', initializeAmoaExpertSession);
+  // app.post('/api/amoa-expert/message', processAmoaExpertMessage);
+  // app.post('/api/amoa-expert/end', endAmoaExpertSession);
+  // app.post('/api/amoa-expert/decisions/generate', generateAmoaDecisionScenario);
+  // app.post('/api/amoa-expert/decisions/submit', processAmoaDecision);
+  // app.post('/api/amoa-expert/decisions/status', checkDecisionModeStatus);
   
   // Routes pour les assistants personnalisés
   // Routes utilisateur
