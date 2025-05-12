@@ -35,6 +35,7 @@ import { generateQuizQuestion, generateQuizHint, generateFullQuiz } from "./adap
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
+import * as amoaExpertController from "./amoaExpertController";
 import { simulateTargetResponse, analyzePerformance } from "./brainHackerController";
 import { analyzeDefenseStrategy, generateAttackScenario, generateTacticalTip } from "./firewallTactiqueController";
 import { 
@@ -4731,6 +4732,14 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   app.post('/api/cyber/adaptive-quiz/question', generateQuizQuestion);
   app.post('/api/cyber/adaptive-quiz/hint', generateQuizHint);
   app.post('/api/cyber/adaptive-quiz/full', generateFullQuiz);
+  
+  // Routes pour AMOA Expert
+  app.post('/api/amoa-expert/init', amoaExpertController.initializeAmoaExpertSession);
+  app.post('/api/amoa-expert/message', amoaExpertController.processAmoaExpertMessage);
+  app.post('/api/amoa-expert/generate-scenario', amoaExpertController.generateAmoaDecisionScenario);
+  app.post('/api/amoa-expert/decision', amoaExpertController.processAmoaDecision);
+  app.post('/api/amoa-expert/check-status', amoaExpertController.checkDecisionModeStatus);
+  app.post('/api/amoa-expert/end', amoaExpertController.endAmoaExpertSession);
 
   // Fin des routes API
 
