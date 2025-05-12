@@ -356,16 +356,31 @@ const Mc2iInterviewPreparation: React.FC = () => {
         role: "system",
         content: `Tu es Sophie Martin, Directrice des Systèmes d'Information de l'entreprise EnerGreen, spécialisée dans le secteur ${values.sectorFocus}.
 
-Tu dois générer un message d'introduction pour un entretien avec un consultant AMOA qui viendra t'aider sur un projet de transformation numérique.
+Le consultant AMOA que tu vas rencontrer a le profil suivant:
+- Type de profil: ${values.profileType}
+- Niveau d'expérience: ${values.experienceLevel}
+
+Ton entreprise fait face à des défis spécifiques liés au secteur ${values.sectorFocus}. Adapte complètement ton discours, ta problématique et tes attentes à ce secteur.
 
 Dans ton message d'introduction, tu dois:
 1. Te présenter (nom, poste, entreprise)
-2. Expliquer brièvement le contexte de ton entreprise
-3. Présenter la problématique principale (optimisation des processus métiers, mise en place d'un nouveau système de gestion)
-4. Mentionner que tes équipes manquent d'expertise en conduite du changement
+2. Expliquer le contexte de ton entreprise avec des détails propres au secteur ${values.sectorFocus}
+3. Présenter une problématique principale spécifique à ton secteur (pas uniquement générique)
+4. Mentionner des difficultés techniques ou organisationnelles précises liées à ton secteur
 5. Demander au consultant de se présenter et d'expliquer comment son expérience pourrait aider dans ce contexte
 
-Ton message doit être professionnel, concis (maximum 10 lignes) et inciter le consultant à démontrer ses compétences AMOA.`
+Si le secteur est "Banque & Assurance", parle de conformité réglementaire, gestion des risques, et transformation digitale des services financiers.
+Si le secteur est "Énergie & Environnement", évoque la transition énergétique, l'optimisation de la production, et les enjeux de durabilité.
+Si le secteur est "Santé & Protection sociale", mentionne la gestion des données patients, la continuité des soins, et la coordination des acteurs de santé.
+Si le secteur est "Secteur public", aborde la modernisation des services publics, la simplification administrative, et la relation citoyenne.
+Si le secteur est "Télécoms & Médias", parle des infrastructures réseau, services numériques, et expérience utilisateur omnicanale.
+Si le secteur est "Transport & Logistique", évoque l'optimisation des chaînes logistiques, la planification des transports, et le suivi en temps réel.
+Si le secteur est "Industrie & Distribution", mentionne l'industrie 4.0, la supply chain, et l'optimisation des processus de production.
+
+Si le consultant a peu d'expérience (0-2 ans), prépare une problématique plus accessible et guidée.
+Si le consultant est très expérimenté (5+ ans), présente un cas complexe avec des enjeux stratégiques et organisationnels importants.
+
+Ton message doit être professionnel, concis (maximum 10 lignes) mais très spécifique au secteur ${values.sectorFocus}.`
       };
       
       // Message utilisateur pour générer l'introduction
@@ -428,11 +443,59 @@ Ton message doit être professionnel, concis (maximum 10 lignes) et inciter le c
       }
     } catch (error) {
       console.error('Erreur lors du démarrage de la simulation:', error);
+      
+      // Message d'erreur plus descriptif
+      let errorMessage = "Impossible de démarrer la simulation. ";
+      
+      // Vérifier si c'est une erreur réseau
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage += "Problème de connexion au serveur. Vérifiez votre connexion Internet.";
+      } 
+      // Vérifier si l'erreur contient un message de réponse
+      else if (error instanceof Error && error.message.includes('OpenAI')) {
+        errorMessage += "Erreur lors de la communication avec l'API IA. Veuillez réessayer dans quelques instants.";
+      }
+      // Erreur par défaut
+      else {
+        errorMessage += "Une erreur inattendue s'est produite. Veuillez réessayer.";
+      }
+      
       toast({
-        title: "Erreur",
-        description: "Impossible de démarrer la simulation. Veuillez réessayer.",
+        title: "Erreur de simulation",
+        description: errorMessage,
         variant: "destructive",
       });
+      
+      // Créer un message de simulation de repli pour permettre de continuer même si l'IA échoue
+      const fallbackSystemMessage: Message = {
+        id: 'system-1',
+        role: 'system',
+        content: 'Cette simulation vous permet de pratiquer un entretien avec un client. Vous êtes consultant AMOA et vous devez comprendre sa problématique et démontrer votre expertise.',
+        timestamp: new Date(),
+      };
+      
+      const fallbackWelcomeMessage: Message = {
+        id: 'assistant-1',
+        role: 'assistant',
+        content: `Bonjour, je suis Sophie Martin, Directrice des Systèmes d'Information chez EnerGreen, entreprise spécialisée dans le secteur ${values.sectorFocus}. Notre société fait face à d'importants défis de transformation numérique, notamment pour optimiser nos processus métiers et moderniser notre système de gestion. Nos équipes manquent d'expertise en conduite du changement et nous recherchons un consultant AMOA pour nous accompagner. Pouvez-vous vous présenter et m'expliquer comment votre expertise pourrait nous aider ?`,
+        timestamp: new Date(),
+      };
+      
+      setMessages([fallbackSystemMessage, fallbackWelcomeMessage]);
+      setIsSimulationActive(true);
+      setActiveTab('simulation');
+      
+      const timer = setInterval(() => {
+        setTimeRemaining(prevTime => {
+          if (prevTime <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+      
+      setTimerId(timer);
     } finally {
       setIsLoading(false);
     }
@@ -484,32 +547,54 @@ Ton message doit être professionnel, concis (maximum 10 lignes) et inciter le c
         content: userInput
       });
       
+      // Récupérer les paramètres du formulaire
+      const formData = form.getValues();
+      
       // Création du prompt système pour guider la réponse du client IA
       const systemPrompt = {
         role: "system",
-        content: `Tu es Sophie Martin, Directrice des Systèmes d'Information de l'entreprise EnerGreen, spécialisée dans le secteur de l'énergie et l'environnement.
+        content: `Tu es Sophie Martin, Directrice des Systèmes d'Information de l'entreprise EnerGreen, spécialisée dans le secteur ${formData.sectorFocus}.
 
-Tu es en entretien avec un consultant AMOA que tu évalues pour un projet de transformation numérique dans ton entreprise.
+Tu es en entretien avec un consultant AMOA ayant les caractéristiques suivantes:
+- Type de profil: ${formData.profileType}
+- Niveau d'expérience: ${formData.experienceLevel}
 
-Voici le contexte que tu as déjà présenté:
-- Ton entreprise fait face à des défis de transformation numérique
-- Vous avez besoin d'aide pour structurer et mener à bien plusieurs projets stratégiques
-- Le principal problème concerne l'optimisation des processus métiers et la mise en place d'un nouveau système de gestion intégré
-- Vos équipes manquent d'expertise en conduite du changement et en cadrage de projets complexes
+Tu adaptes ton niveau d'exigence et ta façon de communiquer en fonction de son profil et de son expérience.
+
+Voici le contexte spécifique à ton secteur ${formData.sectorFocus}:
+${formData.sectorFocus === "Banque & Assurance" ? 
+  "- Ton entreprise doit mettre en place un système de gestion des risques conforme aux nouvelles réglementations financières\n- Vous devez moderniser vos processus de conformité tout en améliorant l'expérience client\n- Le système actuel est fragmenté et peu sécurisé" : 
+formData.sectorFocus === "Énergie & Environnement" ? 
+  "- Ton entreprise développe des solutions pour la transition énergétique et l'optimisation des ressources\n- Vous devez intégrer vos différents systèmes de gestion de production et distribution\n- L'architecture informatique actuelle n'est pas adaptée aux enjeux de durabilité et d'innovation" :
+formData.sectorFocus === "Santé & Protection sociale" ? 
+  "- Ton entreprise doit mettre en place un système de gestion des données patients conforme au RGPD\n- Vous devez optimiser la coordination entre les différents acteurs de santé\n- Les systèmes actuels sont cloisonnés et ne permettent pas une vision intégrée du parcours patient" :
+formData.sectorFocus === "Secteur public" ?
+  "- Ton organisation doit moderniser ses services digitaux pour les citoyens\n- Vous devez simplifier les procédures administratives tout en renforçant la sécurité\n- Les systèmes existants sont obsolètes et peu interopérables" :
+formData.sectorFocus === "Télécoms & Médias" ?
+  "- Ton entreprise doit transformer son infrastructure réseau et ses plateformes de services\n- Vous devez améliorer l'expérience utilisateur omnicanale et personnalisée\n- Les systèmes actuels ne permettent pas l'agilité nécessaire face à la concurrence" :
+formData.sectorFocus === "Transport & Logistique" ?
+  "- Ton entreprise doit optimiser sa chaîne logistique et sa planification des transports\n- Vous devez mettre en place un suivi en temps réel des flux et des ressources\n- Les outils actuels sont disparates et manquent de précision" :
+  "- Ton entreprise doit moderniser ses processus de production et sa supply chain\n- Vous devez mettre en place des solutions d'industrie 4.0 et d'automatisation\n- Les systèmes actuels ne permettent pas une vision intégrée de la chaîne de valeur"}
 
 Dans cet entretien:
 1. Tu dois évaluer rigoureusement les compétences AMOA du consultant
-2. Pose des questions PRÉCISES et CHALLENGEANTES sur les concepts AMOA, la méthodologie projet, et l'analyse des besoins
+2. Pose des questions PRÉCISES et CHALLENGEANTES sur les concepts AMOA, adaptées au secteur ${formData.sectorFocus}
 3. Réagis de manière réaliste aux réponses du consultant, en creusant les points flous ou incomplets
 4. Si le consultant propose une méthode ou solution, demande des détails concrets sur sa mise en œuvre
-5. Concentre-toi sur des problématiques concrètes liées au contexte présenté
-6. Sois professionnelle mais exigeante sur la justesse technique des réponses
+5. Concentre-toi sur des problématiques spécifiques à ${formData.sectorFocus}
+6. Adapte ton niveau d'exigence technique au niveau d'expérience du consultant: ${formData.experienceLevel}
+
+${formData.experienceLevel === "0-2 ans" ? 
+  "Comme le consultant est junior, sois pédagogique mais attentive à ses connaissances de base en AMOA" : 
+formData.experienceLevel === "2-5 ans" ? 
+  "Comme le consultant est confirmé, teste sa capacité à appliquer des méthodologies projet dans des cas concrets" :
+  "Comme le consultant est expérimenté/senior, challenge sa vision stratégique et sa capacité à gérer des projets complexes"}
 
 Ta réponse doit:
 - Être concise (max 4-5 phrases)
 - Réagir spécifiquement au dernier message du consultant
 - Poser une nouvelle question pour approfondir un aspect AMOA ou challenger le consultant
-- Rester dans le contexte du projet de transformation numérique présenté
+- Rester dans le contexte spécifique du projet dans le secteur ${formData.sectorFocus}
 
 Ne termine pas l'entretien avant que le consultant ne l'ait demandé ou que vous ayez échangé au moins 5 fois.`
       };
@@ -552,11 +637,47 @@ Ne termine pas l'entretien avant que le consultant ne l'ait demandé ou que vous
       }
     } catch (error) {
       console.error('Erreur lors de la génération de la réponse:', error);
+      
+      // Message d'erreur plus descriptif
+      let errorMessage = "Impossible de générer une réponse IA. ";
+      
+      // Vérifier si c'est une erreur réseau
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage += "Problème de connexion au serveur. Vérifiez votre connexion Internet.";
+      } 
+      // Vérifier si l'erreur contient un message de réponse
+      else if (error instanceof Error && error.message.includes('OpenAI')) {
+        errorMessage += "Erreur lors de la communication avec l'API IA. Veuillez réessayer dans quelques instants.";
+      }
+      // Erreur par défaut
+      else {
+        errorMessage += "Une erreur inattendue s'est produite. Veuillez réessayer.";
+      }
+      
       toast({
-        title: "Erreur",
-        description: "Impossible de générer une réponse IA. Veuillez réessayer.",
+        title: "Erreur de génération",
+        description: errorMessage,
         variant: "destructive",
       });
+      
+      // Générer une réponse de secours pour permettre à l'utilisateur de continuer
+      const formData = form.getValues();
+      const fallbackContent = formData.sectorFocus === "Banque & Assurance" ?
+        "Je comprends votre point de vue. Dans le secteur bancaire, la conformité réglementaire est effectivement primordiale. Pourriez-vous préciser comment vous envisagez la mise en place d'un cadre méthodologique pour notre projet de système de gestion des risques ?" :
+        formData.sectorFocus === "Énergie & Environnement" ?
+        "C'est intéressant. Dans notre contexte d'optimisation des ressources énergétiques, comment proposeriez-vous de structurer la phase d'analyse des besoins utilisateurs pour notre nouveau système de gestion intégré ?" :
+        "Merci pour ces précisions. Comment aborderiez-vous concrètement la phase d'analyse des besoins dans notre contexte spécifique ? Quelles méthodes privilégieriez-vous ?";
+      
+      // Créer le message de secours
+      const fallbackMessage: Message = {
+        id: `assistant-${messages.length + 1}`,
+        role: 'assistant',
+        content: fallbackContent,
+        timestamp: new Date(),
+      };
+      
+      // Ajouter le message de secours à la conversation
+      setMessages(prev => [...prev, fallbackMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -607,20 +728,33 @@ Ne termine pas l'entretien avant que le consultant ne l'ait demandé ou que vous
           content: msg.content
         }));
       
+      // Récupérer les paramètres du formulaire
+      const formData = form.getValues();
+      
       // Création du prompt système pour l'analyse
       const systemPrompt = {
         role: "system",
-        content: `Tu es un expert en évaluation d'entretiens clients dans le contexte AMOA (Assistance à Maîtrise d'Ouvrage).
+        content: `Tu es un expert en évaluation d'entretiens clients dans le contexte AMOA (Assistance à Maîtrise d'Ouvrage), spécialisé dans le secteur ${formData.sectorFocus}.
         
-Tu dois analyser méticuleusement cette conversation entre un client et un consultant AMOA.
-Le client a présenté une problématique business réelle, et le consultant (utilisateur) a tenté d'y répondre.
+Tu dois analyser méticuleusement cette conversation entre Sophie Martin (DSI d'EnerGreen) et un consultant AMOA ayant les caractéristiques suivantes:
+- Type de profil: ${formData.profileType}
+- Niveau d'expérience: ${formData.experienceLevel}
+- Secteur d'activité: ${formData.sectorFocus}
+
+Adapte tes critères d'évaluation en fonction de son profil et de son niveau d'expérience.
 
 Ton rôle est d'évaluer la performance du consultant selon ces critères:
-1. Qualité de l'écoute et compréhension des besoins
-2. Pertinence des questions posées et capacité à approfondir
-3. Maîtrise des concepts AMOA et méthodologies projet
-4. Capacité à proposer des solutions adaptées
-5. Professionnalisme et posture consultative
+1. Qualité de l'écoute et compréhension des besoins spécifiques au secteur ${formData.sectorFocus}
+2. Pertinence des questions posées et capacité à approfondir les problématiques du secteur
+3. Maîtrise des concepts AMOA et méthodologies projet adaptées au contexte ${formData.sectorFocus}
+4. Capacité à proposer des solutions adaptées au niveau de maturité de l'entreprise
+5. Professionnalisme et posture consultative attendue pour un profil ${formData.profileType}
+
+${formData.experienceLevel === "0-2 ans" ? 
+  "Pour un consultant junior, évalue principalement les connaissances fondamentales et la capacité d'apprentissage." : 
+formData.experienceLevel === "2-5 ans" ? 
+  "Pour un consultant confirmé, évalue la capacité à appliquer des méthodologies et à gérer des situations complexes." :
+  "Pour un consultant expérimenté, évalue la vision stratégique, l'expertise sectorielle et la capacité à apporter une réelle valeur ajoutée."}
 
 IMPORTANT: Tu dois produire une analyse détaillée et constructive au format JSON avec les champs suivants:
 - summary: résumé global de la performance (150-200 mots)
@@ -628,10 +762,15 @@ IMPORTANT: Tu dois produire une analyse détaillée et constructive au format JS
 - improvements: tableau de 3-5 axes d'amélioration (phrases courtes et précises)
 - detailedNotes: analyse détaillée de la performance (300-350 mots)
 - recommendations: tableau de 3-5 recommandations concrètes d'amélioration
-- sectorFitEvaluation: évaluation de la compréhension du secteur et des spécificités métier (100-150 mots)
-- conclusion: conclusion et perspective d'évolution (100-150 mots)
+- sectorFitEvaluation: évaluation approfondie de la compréhension du secteur ${formData.sectorFocus} et des spécificités métier (100-150 mots)
+- conclusion: conclusion et perspective d'évolution professionnelle adaptée au profil ${formData.profileType} (100-150 mots)
 
-Ton analyse doit être rigoureuse, utile pour le développement professionnel, et basée uniquement sur les échanges réels de la conversation.`
+Ton analyse doit:
+- Être rigoureuse et utile pour le développement professionnel
+- Être basée uniquement sur les échanges réels de la conversation
+- Tenir compte des spécificités du secteur ${formData.sectorFocus}
+- Adapter le niveau d'exigence au profil ${formData.profileType} et à l'expérience ${formData.experienceLevel}
+- Mettre en évidence les compétences particulièrement importantes pour réussir dans le secteur ${formData.sectorFocus}`
       };
       
       // Ajout d'un message utilisateur pour préciser la demande
@@ -699,11 +838,56 @@ Ton analyse doit être rigoureuse, utile pour le développement professionnel, e
       }
     } catch (error) {
       console.error('Erreur lors de l\'évaluation:', error);
+      
+      // Message d'erreur plus descriptif
+      let errorMessage = "Impossible d'obtenir l'évaluation IA. ";
+      
+      // Vérifier si c'est une erreur réseau
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage += "Problème de connexion au serveur. Vérifiez votre connexion Internet.";
+      } 
+      // Vérifier si l'erreur contient un message de réponse
+      else if (error instanceof Error && error.message.includes('OpenAI')) {
+        errorMessage += "Erreur lors de la communication avec l'API IA. Veuillez réessayer dans quelques instants.";
+      }
+      // Erreur par défaut
+      else {
+        errorMessage += "Une erreur inattendue s'est produite. Veuillez réessayer.";
+      }
+      
       toast({
-        title: "Erreur",
-        description: "Impossible d'obtenir l'évaluation IA. Veuillez réessayer.",
+        title: "Erreur d'évaluation",
+        description: errorMessage,
         variant: "destructive",
       });
+      
+      // Créer une évaluation de secours basique pour permettre à l'utilisateur de terminer
+      const formData = form.getValues();
+      const fallbackEvaluation = {
+        summary: `L'entretien avec le client dans le secteur ${formData.sectorFocus} a permis d'aborder plusieurs aspects importants de la problématique. Des éléments de méthodologie AMOA et d'analyse des besoins ont été discutés, avec une attention aux spécificités du secteur.`,
+        strengths: [
+          "Participation active à l'échange",
+          "Tentative d'adaptation au contexte spécifique du client",
+          "Abord de concepts AMOA pertinents"
+        ],
+        improvements: [
+          "Approfondir les spécificités du secteur d'activité",
+          "Structurer davantage l'approche méthodologique",
+          "Poser des questions plus précises pour cerner les besoins"
+        ],
+        detailedNotes: `L'entretien a permis d'explorer différents aspects de la problématique client dans le secteur ${formData.sectorFocus}. Les questions posées ont montré un intérêt pour comprendre le contexte et les besoins spécifiques. Des éléments de méthodologie AMOA ont été évoqués, avec une tentative d'adaptation au contexte particulier du client. Pour améliorer les futurs entretiens, il serait bénéfique d'approfondir la connaissance des spécificités du secteur, de structurer davantage l'approche méthodologique proposée et de poser des questions plus précises pour cerner les besoins exacts du client.`,
+        recommendations: [
+          "Approfondir la connaissance du secteur ${formData.sectorFocus}",
+          "Préparer une structure d'entretien plus détaillée",
+          "S'entraîner à reformuler les besoins du client"
+        ],
+        sectorFitEvaluation: `La compréhension des enjeux spécifiques au secteur ${formData.sectorFocus} était présente mais pourrait être approfondie. Une meilleure connaissance des défis et contraintes propres à ce domaine permettrait une analyse plus pertinente des besoins et des solutions plus adaptées.`,
+        conclusion: `Avec de la pratique et un approfondissement des connaissances sectorielles, la qualité des entretiens clients continuera de s'améliorer. Continuer à s'exercer dans des simulations variées permettra de développer les compétences nécessaires pour exceller dans les missions AMOA.`
+      };
+      
+      setEvaluationResult(fallbackEvaluation);
+      setActiveTab('evaluation');
+      setSimulationComplete(true);
     } finally {
       setIsLoading(false);
     }
