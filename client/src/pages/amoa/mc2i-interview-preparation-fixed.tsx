@@ -959,12 +959,12 @@ Ton analyse doit:
       <div className="flex flex-col w-full min-h-screen p-4 md:p-8 bg-gradient-to-b from-gray-800 to-gray-950 text-white">
         <div className="flex justify-between items-center mb-4">
           <Button 
-            variant="ghost" 
-            className="flex items-center text-gray-300 hover:text-white hover:bg-gray-700/50" 
-            onClick={() => setLocation('/amoa-mode-selection-fixed')}
+            variant="outline" 
+            className="bg-blue-600 hover:bg-blue-700 text-white border-0 rounded-full shadow-md" 
+            onClick={() => setLocation('/')}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour
+            Retour à I AM mc2i
           </Button>
           
           <div className="flex items-center">
