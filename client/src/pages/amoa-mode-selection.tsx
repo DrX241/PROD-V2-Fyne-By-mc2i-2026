@@ -14,6 +14,7 @@ import {
   IoConstructOutline
 } from 'react-icons/io5';
 import { IoMdArrowForward } from 'react-icons/io';
+import { FaGraduationCap } from 'react-icons/fa';
 import { 
   BsKanban, 
   BsPeopleFill, 
@@ -113,7 +114,16 @@ export default function AmoaModeSelection() {
       isNew: true,
       comingSoon: false
     },
-    
+    {
+      id: 'amoa-academie',
+      title: 'AMOA ACADÉMIE',
+      description: 'Centre de formation structuré avec parcours rapide AMOA, modules interactifs et suivi IA personnalisé.',
+      icon: <FaGraduationCap className="h-5 w-5 text-violet-200" />,
+      destination: '/amoa/learning-center',
+      difficulty: 'tous niveaux',
+      isNew: true,
+      comingSoon: false
+    },
     {
       id: 'projet-imposteur',
       title: 'QUI EST L\'IMPOSTEUR ?',
