@@ -89,12 +89,12 @@ export default function AmoaModeSelectionFixed() {
     },
     {
       id: 'parcours-amoa',
-      title: 'PARCOURS AMOA',
-      description: "Développez méthodiquement vos compétences AMOA grâce à un parcours progressif personnalisé par l'IA",
+      title: 'AMOA ASCENSION',
+      description: "Suivez un parcours complet de gestion de projet AMOA avec l'IA comme guide pour préparer votre certification",
       icon: <BsBarChartFill className="h-5 w-5" />,
       destination: '/amoa/parcours',
       difficulty: 'tous niveaux',
-      duration: 'variable',
+      duration: '10-15h',
       isNew: true
     },
     
