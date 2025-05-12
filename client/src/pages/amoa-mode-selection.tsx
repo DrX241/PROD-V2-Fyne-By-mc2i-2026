@@ -119,7 +119,7 @@ export default function AmoaModeSelection() {
       title: 'AMOA ACADÉMIE',
       description: 'Centre de formation structuré avec parcours rapide AMOA, modules interactifs et suivi IA personnalisé.',
       icon: <FaGraduationCap className="h-5 w-5 text-violet-200" />,
-      destination: '/amoa/learning-center',
+      destination: '/amoa/academie',
       difficulty: 'tous niveaux',
       isNew: true,
       comingSoon: false
