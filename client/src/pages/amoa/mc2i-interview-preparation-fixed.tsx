@@ -87,7 +87,7 @@ const BestPracticesContent: React.FC<BestPracticesContentProps> = ({ setActiveTa
     <div className="px-8 py-6 bg-gradient-to-b from-gray-900 to-gray-950 rounded-lg">
       {/* Section title with progress bar */}
       <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold text-white mb-2">Parcours du consultant mc2i</h2>
+        <h2 className="text-2xl font-bold text-white mb-2">Préparation à l'entretien client</h2>
         <div className="w-full bg-gray-700 h-2 rounded-full overflow-hidden mb-2">
           <div 
             className="bg-gradient-to-r from-green-400 to-blue-500 h-full transition-all duration-500 ease-out"
@@ -929,31 +929,31 @@ Je souhaiterais que vous vous présentiez brièvement, que vous m'expliquiez vot
       // Simuler un appel API d'évaluation (à remplacer par l'appel réel)
       setTimeout(() => {
         const mockEvaluation = {
-          summary: "Votre performance durant cet entretien démontre une bonne compréhension des concepts AMOA et de bonnes capacités de communication, mais certains aspects techniques et méthodologiques pourraient être approfondis pour renforcer votre candidature chez mc2i.",
+          summary: "Votre performance durant cet entretien client démontre une bonne compréhension des enjeux business et une capacité à dialoguer avec les parties prenantes. Vous avez montré des compétences en analyse de besoins, mais certains aspects techniques et méthodologiques pourraient être approfondis pour maximiser l'impact de votre accompagnement AMOA.",
           strengths: [
-            "Bonne maîtrise des concepts fondamentaux d'AMOA",
+            "Bonne écoute et compréhension des problématiques client",
             "Communication claire et professionnelle",
-            "Capacité à structurer votre discours de façon logique",
-            "Adaptabilité aux questions complexes",
-            "Posture professionnelle et synthèse efficace"
+            "Capacité à reformuler les besoins et à poser des questions pertinentes",
+            "Adaptabilité face aux enjeux complexes présentés par le client",
+            "Posture consultative appropriée et synthèse efficace des priorités"
           ],
           improvements: [
-            "Approfondissement des méthodologies agiles en contexte AMOA",
-            "Exemples concrets parfois insuffisamment détaillés",
-            "Connaissance des outils spécifiques au métier à renforcer",
-            "Articulation entre théorie et mise en application pratique",
-            "Vision stratégique du rôle de l'AMOA à développer"
+            "Approfondissement des propositions de solutions concrètes",
+            "Structure de l'entretien parfois insuffisamment maîtrisée",
+            "Questionnement sur les contraintes organisationnelles à renforcer",
+            "Articulation entre besoins exprimés et solutions à proposer",
+            "Analyse des risques projet à développer davantage"
           ],
-          detailedNotes: "Votre entretien révèle une solide base en assistance à maîtrise d'ouvrage. Vous présentez clairement vos compétences et expériences, avec une bonne articulation des concepts. Cependant, votre discours gagnerait en impact avec des exemples plus précis et des méthodologies plus détaillées. Les recruteurs chez mc2i accordent une importance particulière à la maîtrise des outils et méthodes spécifiques, ainsi qu'à la capacité d'adaptation sectorielle. Votre approche des questions démontre un bon potentiel, mais nécessite un renforcement technique pour atteindre le niveau d'un consultant confirmé.",
+          detailedNotes: "Votre entretien avec le client révèle une bonne capacité d'analyse et d'écoute. Vous avez su créer un climat de confiance et identifier plusieurs points importants de la problématique. Cependant, votre approche gagnerait en impact avec une méthodologie plus structurée pour l'identification des besoins et une capacité à projeter le client vers des solutions concrètes. Les clients accordent une importance particulière à la valeur ajoutée immédiate que peut apporter un consultant, notamment sa capacité à naviguer dans leur contexte organisationnel tout en apportant une expertise externe. Votre approche des questions montre un bon potentiel, mais nécessite un renforcement des techniques d'entretien et de cadrage.",
           recommendations: [
-            "Approfondissez votre connaissance des référentiels méthodologiques (PRINCE2, PMI, ITIL)",
-            "Développez un portfolio d'exemples concrets pour chaque compétence clé en AMOA",
-            "Renforcez votre expertise sur les outils de modélisation de processus (BPMN, UML)",
-            "Préparez-vous à discuter de cas complexes de gestion de parties prenantes",
-            "Développez votre connaissance des spécificités sectorielles (réglementation, tendances)"
+            "Développez une méthodologie d'entretien plus structurée (QQOQCCP, 5W, etc.)",
+            "Préparez un questionnaire type pour chaque phase de cadrage projet",
+            "Renforcez votre connaissance des principes de transformation numérique spécifiques au secteur du client",
+            "Améliorez votre technique de reformulation pour valider votre compréhension",
+            "Développez votre capacité à projeter le client vers une vision solution concrète"
           ],
-          sectorFitEvaluation: "Votre compréhension du secteur montre une base solide, mais manque parfois de profondeur sur les défis réglementaires et les tendances d'innovation actuelles. mc2i valorise particulièrement les consultants ayant une vision claire des enjeux sectoriels.",
-          conclusion: "Votre profil présente un bon potentiel pour une carrière chez mc2i, avec des bases solides en AMOA. En travaillant sur les axes d'amélioration identifiés, particulièrement sur l'approfondissement technique et méthodologique, vous renforcerez significativement votre candidature. Nous vous encourageons à explorer les formations spécialisées dans les domaines mentionnés pour combler ces écarts."
+          sectorFitEvaluation: "Votre compréhension de la problématique client montre une bonne analyse des enjeux métier, mais manque parfois de profondeur sur les spécificités sectorielles et les tendances d'innovation actuelles. Vous avez perçu certains défis organisationnels mais pourriez approfondir l'analyse des impacts potentiels du projet sur l'ensemble de la chaîne de valeur.",
+          conclusion: "Votre approche montre un potentiel réel pour accompagner efficacement ce type de client. Vous avez établi une relation de confiance et démontré une bonne compréhension des enjeux principaux. En travaillant sur les axes d'amélioration identifiés, particulièrement sur la structuration des entretiens et l'approfondissement des solutions concrètes, vous renforcerez significativement votre impact en tant que consultant AMOA. Nous vous recommandons également de développer une connaissance plus approfondie des problématiques spécifiques au secteur d'activité du client."
         };
         
         setEvaluationResult(mockEvaluation);
@@ -1448,7 +1448,7 @@ Je souhaiterais que vous vous présentiez brièvement, que vous m'expliquiez vot
           <DialogHeader>
             <DialogTitle>Informations nécessaires pour l'évaluation finale</DialogTitle>
             <DialogDescription className="text-gray-300">
-              Pour recevoir l'évaluation et terminer la simulation, veuillez compléter les informations suivantes.
+              Pour recevoir l'évaluation de votre entretien client, veuillez compléter les informations suivantes.
             </DialogDescription>
           </DialogHeader>
           <Form {...contactForm}>
@@ -1458,10 +1458,10 @@ Je souhaiterais que vous vous présentiez brièvement, que vous m'expliquiez vot
                 name="recruiterEmail"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Votre email</FormLabel>
+                    <FormLabel className="text-white">Votre email professionnel</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="votre.email@mc2i.fr" 
+                        placeholder="votre.email@entreprise.fr" 
                         className="bg-gray-700/60 border-gray-600 text-white"
                         {...field} 
                       />
@@ -1475,7 +1475,7 @@ Je souhaiterais que vous vous présentiez brièvement, que vous m'expliquiez vot
                 name="candidateName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Nom du consultant</FormLabel>
+                    <FormLabel className="text-white">Votre nom complet</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="Prénom Nom" 
