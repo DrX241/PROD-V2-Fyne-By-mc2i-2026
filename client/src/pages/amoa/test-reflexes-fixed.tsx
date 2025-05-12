@@ -1,32 +1,45 @@
-import { useState, useEffect, useRef } from "react";
-import { cn } from "@/lib/utils";
+import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Link } from "wouter";
+import { 
+  ArrowLeft, 
+  Clock, 
+  CheckCircle2, 
+  XCircle, 
+  Brain, 
+  BarChart3, 
+  TimerReset, 
+  Info,
+  AlertCircle,
+  Award,
+  Users,
+  FileText,
+  Zap,
+  Lightbulb,
+  Briefcase,
+  Sparkles,
+  MessageSquare,
+  Check,
+  CheckCircle,
+  AlertTriangle,
+  ArrowRight,
+  BookOpen,
+  Trophy,
+  Loader2
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { apiRequest } from "@/lib/queryClient";
+import { cn } from "@/lib/utils";
 import HomeLayout from "@/components/layout/HomeLayout";
-import { Separator } from "@/components/ui/separator";
-import { TimerReset, Award, CheckCircle, XCircle, Clock, Brain, Goal, Sparkles, ArrowUpRight, Zap, BookOpen, Trophy, Lightbulb } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
-import testQuestions from "../../data/amoa/test-reflexes-questions";
 import { motion } from "framer-motion";
+import testQuestions from "../../data/amoa/test-reflexes-questions";
 
-// Types
+// Types pour le test de réflexes
 interface Question {
   id: string;
   text: string;
@@ -94,7 +107,7 @@ type AnswerMap = {
   };
 };
 
-const TestDeReflexes = () => {
+const TestDeReflexes: React.FC = () => {
   const { toast } = useToast();
 
   // États du test
@@ -496,10 +509,19 @@ const TestDeReflexes = () => {
       // Récupérer l'analyse IA
       const aiAnalysis = await response.json();
       
-      // Intégrer l'analyse IA aux résultats
-      calculatedResults.aiEvaluation = aiAnalysis;
+      // Mettre à jour les résultats avec l'analyse IA
+      setResults({
+        ...calculatedResults,
+        aiEvaluation: aiAnalysis.analysis
+      });
+      
     } catch (error) {
       console.error('Erreur lors de l\'analyse IA:', error);
+      
+      // Afficher les résultats sans l'analyse IA
+      setResults(calculatedResults);
+      
+      // Afficher un message d'erreur
       toast({
         title: "Analyse IA indisponible",
         description: "L'analyse détaillée n'a pas pu être générée. Les résultats basiques sont affichés.",
@@ -509,19 +531,30 @@ const TestDeReflexes = () => {
       setLoading(false);
     }
     
-    // Mettre à jour les résultats et l'interface
-    setResults(calculatedResults);
-    setIsFinished(true);
-    setActiveTab("results");
+    // Afficher une notification pour le score
+    setTimeout(() => {
+      const scoreMessage = calculatedResults.score >= 70 
+        ? "Excellent travail ! " 
+        : calculatedResults.score >= 50 
+          ? "Bon travail. " 
+          : "Continuez vos efforts. ";
+          
+      toast({
+        title: `Test terminé - Score: ${calculatedResults.score.toFixed(0)}%`,
+        description: `${scoreMessage}Consultez vos résultats détaillés.`,
+        variant: calculatedResults.score >= 70 
+          ? "default" 
+          : calculatedResults.score >= 50 
+            ? "default" 
+            : "default"
+      });
+    }, 500);
     
-    toast({
-      title: "Test terminé !",
-      description: `Votre score : ${calculatedResults.score.toFixed(0)}% (${calculatedResults.correctAnswers}/${calculatedResults.totalQuestions})`,
-      variant: "default"
-    });
+    // Passer à l'onglet des résultats
+    setActiveTab("results");
   };
 
-  // Nettoyer tous les timers à la fermeture du composant
+  // Nettoyer les timers au démontage du composant
   useEffect(() => {
     return () => {
       if (timer) {
@@ -530,164 +563,165 @@ const TestDeReflexes = () => {
     };
   }, [timer]);
 
+  // Rendu du composant
   return (
     <HomeLayout>
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-green-900 to-gray-900 pt-16 pb-12">
-        <div className="container mx-auto px-4 py-5">
-          <Card className="w-full mx-auto dark:bg-gray-900/60 backdrop-blur-sm border-green-900/30">
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle className="text-2xl text-white">Test de réflexes AMOA</CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Évaluez vos connaissances et votre réactivité face à des situations de gestion de projet
-                  </CardDescription>
+      <div className="container py-8 px-4 sm:px-6">
+        <div className="max-w-4xl mx-auto">
+          <Card className="border-gray-800 bg-gray-900/70 shadow-xl">
+            <CardHeader className="border-b border-gray-800 bg-gray-900/50 px-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Brain className="h-6 w-6 text-blue-400" />
+                  <CardTitle className="text-xl font-bold text-white">Test de Réflexes AMOA</CardTitle>
                 </div>
-                <Badge variant="outline" className="bg-green-900/50 text-white border-green-500/30 ml-2">
-                  <Brain className="mr-1 h-4 w-4" />
-                  AMOA
-                </Badge>
+                <Link href="/amoa-mode-selection">
+                  <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Retour
+                  </Button>
+                </Link>
               </div>
             </CardHeader>
-
-            <Tabs defaultValue="intro" value={activeTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 bg-gray-800/40">
+            
+            <Tabs 
+              defaultValue="intro" 
+              value={activeTab} 
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
+              <TabsList className="grid w-full grid-cols-3 bg-gray-900/90 border-b border-gray-800 rounded-none px-6 h-14">
                 <TabsTrigger 
                   value="intro" 
-                  onClick={() => setActiveTab("intro")}
                   disabled={isStarted && !isFinished}
+                  className={cn(
+                    "rounded-none data-[state=active]:border-b-2 border-blue-500 text-gray-400 data-[state=active]:text-blue-400 data-[state=active]:shadow-none"
+                  )}
                 >
+                  <Info className="mr-2 h-4 w-4" />
                   Introduction
                 </TabsTrigger>
                 <TabsTrigger 
                   value="test" 
-                  onClick={() => setActiveTab("test")}
                   disabled={!isStarted || isFinished}
+                  className={cn(
+                    "rounded-none data-[state=active]:border-b-2 border-blue-500 text-gray-400 data-[state=active]:text-blue-400 data-[state=active]:shadow-none"
+                  )}
                 >
+                  <Clock className="mr-2 h-4 w-4" />
                   Test en cours
                 </TabsTrigger>
                 <TabsTrigger 
                   value="results" 
-                  onClick={() => setActiveTab("results")}
                   disabled={!isFinished}
+                  className={cn(
+                    "rounded-none data-[state=active]:border-b-2 border-blue-500 text-gray-400 data-[state=active]:text-blue-400 data-[state=active]:shadow-none"
+                  )}
                 >
+                  <BarChart3 className="mr-2 h-4 w-4" />
                   Résultats
                 </TabsTrigger>
               </TabsList>
-
+              
               <TabsContent value="intro" className="p-0">
-                <CardContent className="space-y-5 p-6">
-                  <div className="rounded-lg bg-black/20 p-4">
-                    <div className="flex items-center mb-2">
-                      <Goal className="w-5 h-5 text-green-400 mr-2" />
-                      <h3 className="text-lg font-semibold text-white">Objectif du test</h3>
-                    </div>
-                    <p className="text-gray-300">
-                      Évaluez vos réflexes AMOA à travers 15 questions aléatoires couvrant différents aspects de l'assistance à maîtrise d'ouvrage. 
-                      Le test s'adapte à votre niveau pour une évaluation personnalisée.
+                <CardContent className="p-6 space-y-6">
+                  <div className="bg-gradient-to-r from-blue-900/20 to-indigo-900/20 rounded-lg p-6 border border-blue-900/30">
+                    <h2 className="text-2xl font-bold text-white mb-3">Testez vos réflexes AMOA</h2>
+                    <p className="text-gray-300 mb-4">
+                      Ce test évalue votre capacité à réagir rapidement aux situations typiques rencontrées par un AMOA. 
+                      Répondez aux questions dans le temps imparti et recevez une analyse détaillée de vos performances.
                     </p>
-                  </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <div>
+                        <h3 className="text-lg font-semibold text-blue-300 mb-2 flex items-center">
+                          <TimerReset className="w-5 h-5 mr-2" />
+                          Comment ça marche
+                        </h3>
+                        <ul className="space-y-1 text-gray-300 list-disc list-inside text-sm">
+                          <li>Test composé de 15 questions à choix multiples</li>
+                          <li>Chaque question a son propre chronomètre</li>
+                          <li>La difficulté s'adapte selon vos performances</li>
+                          <li>L'IA analyse vos résultats et vous donne un feedback détaillé</li>
+                        </ul>
+                      </div>
 
-                  <div className="rounded-lg bg-black/20 p-4">
-                    <div className="flex items-center mb-2">
-                      <Clock className="w-5 h-5 text-amber-400 mr-2" />
-                      <h3 className="text-lg font-semibold text-white">Fonctionnement</h3>
-                    </div>
-                    <ul className="space-y-1 text-gray-300 list-disc pl-5">
-                      <li>Test composé de 15 questions à choix multiples</li>
-                      <li>Chaque question a son propre chronomètre</li>
-                      <li>La difficulté s'adapte selon vos performances</li>
-                      <li>L'IA analyse vos résultats et vous donne un feedback détaillé</li>
-                    </ul>
-                  </div>
-
-                  <div className="rounded-lg bg-black/20 p-4">
-                    <div className="flex items-center mb-2">
-                      <Trophy className="w-5 h-5 text-blue-400 mr-2" />
-                      <h3 className="text-lg font-semibold text-white">Challenges</h3>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <Badge className="flex justify-center bg-amber-900/40 text-amber-200 hover:bg-amber-900/60 py-2 border-none">
-                        <Clock className="w-4 h-4 mr-1" /> Questions chronométrées
-                      </Badge>
-                      <Badge className="flex justify-center bg-green-900/40 text-green-200 hover:bg-green-900/60 py-2 border-none">
-                        <Sparkles className="w-4 h-4 mr-1" /> Adaptation intelligente
-                      </Badge>
-                      <Badge className="flex justify-center bg-blue-900/40 text-blue-200 hover:bg-blue-900/60 py-2 border-none">
-                        <Brain className="w-4 h-4 mr-1" /> Analyse IA de vos performances
-                      </Badge>
-                    </div>
-                  </div>
-                </CardContent>
-
-                <CardFooter className="pt-0 pb-4 px-6">
-                  <Button 
-                    size="lg"
-                    className="w-full bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 text-white"
-                    onClick={handleStartTest}
-                  >
-                    Commencer le test
-                    <ArrowUpRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </CardFooter>
-              </TabsContent>
-
-              <TabsContent value="test" className="p-0">
-                {currentQuestion && (
-                  <CardContent className="p-6 space-y-5">
-                    <div className="space-y-3">
-                      <div className="flex flex-col gap-2">
-                        <div className="flex justify-between items-center">
-                          <Badge 
-                            variant="outline" 
-                            className={cn(
-                              "bg-white/10 text-white ml-auto",
-                              timeLeft < 5 ? "animate-pulse bg-red-900/30 border-red-500/30" : "border-blue-500/30"
-                            )}
-                          >
-                            <Clock className="mr-1 h-3 w-3" />
-                            {timeLeft} secondes
-                          </Badge>
+                      <div className="rounded-lg bg-black/20 p-4">
+                        <div className="flex items-center mb-2">
+                          <Trophy className="w-5 h-5 text-blue-400 mr-2" />
+                          <h3 className="text-lg font-semibold text-white">Challenges</h3>
                         </div>
-                        
-                        <div className="flex justify-between items-center">
-                          <Badge 
-                            variant="outline" 
-                            className={cn(
-                              "bg-white/10 text-white",
-                              currentQuestion.difficulty === "facile" ? "border-green-500/30" :
-                              currentQuestion.difficulty === "moyen" ? "border-yellow-500/30" :
-                              "border-red-500/30"
-                            )}
-                          >
-                            {currentQuestion.category}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <Badge className="flex justify-center bg-amber-900/40 text-amber-200 hover:bg-amber-900/60 py-2 border-none">
+                            <Clock className="w-4 h-4 mr-1" /> Questions chronométrées
                           </Badge>
-                          
-                          <Badge 
-                            variant="outline" 
-                            className={cn(
-                              "bg-white/10 text-white",
-                              difficulty === "facile" ? "border-green-500/30" :
-                              difficulty === "moyen" ? "border-amber-500/30" :
-                              "border-red-500/30"
-                            )}
-                          >
-                            <span className="capitalize">Difficulté: {difficulty}</span>
+                          <Badge className="flex justify-center bg-green-900/40 text-green-200 hover:bg-green-900/60 py-2 border-none">
+                            <Sparkles className="w-4 h-4 mr-1" /> Adaptation intelligente
+                          </Badge>
+                          <Badge className="flex justify-center bg-blue-900/40 text-blue-200 hover:bg-blue-900/60 py-2 border-none">
+                            <Brain className="w-4 h-4 mr-1" /> Analyse IA de vos performances
                           </Badge>
                         </div>
                       </div>
-                      <CardTitle className="text-xl mt-2">{currentQuestion.text}</CardTitle>
+                    </div>
+                  </div>
+
+                  <CardFooter className="pt-0 pb-4 px-6">
+                    <Button 
+                      onClick={handleStartTest}
+                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white"
+                    >
+                      Commencer le test
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </CardFooter>
+                </CardContent>
+              </TabsContent>
+              
+              <TabsContent value="test" className="p-0">
+                {currentQuestion && (
+                  <CardContent className="p-6">
+                    <div className="mb-4">
+                      <div className="flex justify-between items-center mb-1">
+                        <div className="flex items-center">
+                          <Badge className="bg-blue-600 text-white border-none">
+                            Question {questionCount}/{maxQuestions}
+                          </Badge>
+                          <Badge className="ml-2 bg-gray-800 text-gray-200 border-none">
+                            {currentQuestion.difficulty === "facile" ? "Facile" : 
+                             currentQuestion.difficulty === "moyen" ? "Intermédiaire" : "Expert"}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center">
+                          <Clock className={cn(
+                            "w-4 h-4 mr-1",
+                            timeLeft < 5 ? "text-red-500 animate-pulse" :
+                            timeLeft < 10 ? "text-amber-500" :
+                            "text-green-500"
+                          )} />
+                          <span className={cn(
+                            "text-sm font-medium",
+                            timeLeft < 5 ? "text-red-500" :
+                            timeLeft < 10 ? "text-amber-500" :
+                            "text-green-500"
+                          )}>
+                            {timeLeft}s
+                          </span>
+                        </div>
+                      </div>
                       <Progress 
                         value={(timeLeft / currentQuestion.timeLimit) * 100} 
                         className={cn(
                           "h-2",
-                          timeLeft < 5 ? "bg-red-900/30" : "bg-blue-900/30"
+                          timeLeft < 5 ? "bg-red-900/30" :
+                          timeLeft < 10 ? "bg-amber-900/30" :
+                          "bg-green-900/30"
                         )}
                       />
-                      
-                      <div className="flex justify-between items-center">
-                        <div className="text-sm text-gray-400">Question {questionCount} sur {maxQuestions}</div>
-                      </div>
+                    </div>
+                    
+                    <div className="mb-6">
+                      <h3 className="text-xl font-semibold text-white mb-3">{currentQuestion.text}</h3>
                       
                       <div className="grid gap-3 mt-3">
                         {currentQuestion.options.map((option) => (
@@ -700,54 +734,60 @@ const TestDeReflexes = () => {
                               selectedOptionId === option.id && !option.isCorrect && "bg-red-900/30 hover:bg-red-900/40 border-red-500/30",
                               selectedOptionId && selectedOptionId !== option.id && option.isCorrect && "border-green-500/80"
                             )}
+                            disabled={selectedOptionId !== null}
                             onClick={() => handleSelectAnswer(option.id, option.isCorrect)}
-                            disabled={!!selectedOptionId}
                           >
-                            <div className="flex w-full items-center">
-                              <div className="mr-2 flex h-5 w-5 items-center justify-center rounded-full border border-gray-400">
-                                {selectedOptionId === option.id && option.isCorrect && <CheckCircle className="h-5 w-5 text-green-500" />}
-                                {selectedOptionId === option.id && !option.isCorrect && <XCircle className="h-5 w-5 text-red-500" />}
-                                {selectedOptionId && selectedOptionId !== option.id && option.isCorrect && <CheckCircle className="h-5 w-5 text-green-500" />}
-                              </div>
-                              <span className={cn(
-                                "flex-grow",
-                                selectedOptionId === option.id && option.isCorrect && "text-green-300",
-                                selectedOptionId === option.id && !option.isCorrect && "text-red-300",
-                                selectedOptionId && selectedOptionId !== option.id && option.isCorrect && "text-green-300"
-                              )}>
-                                {option.text}
-                              </span>
-                            </div>
+                            {selectedOptionId === option.id ? (
+                              option.isCorrect ? (
+                                <CheckCircle2 className="h-5 w-5 text-green-500 mr-2 shrink-0" />
+                              ) : (
+                                <XCircle className="h-5 w-5 text-red-500 mr-2 shrink-0" />
+                              )
+                            ) : (
+                              <div className="h-5 w-5 border-2 border-gray-600 rounded-full mr-2 shrink-0" />
+                            )}
+                            <span>{option.text}</span>
                           </Button>
                         ))}
                       </div>
                     </div>
-
-                    {showExplanation && currentQuestion.options.find(o => o.isCorrect)?.explanation && (
+                    
+                    {showExplanation && currentQuestion.options.find(o => o.id === selectedOptionId)?.explanation && (
                       <motion.div
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="rounded-lg bg-black/20 p-4 border border-blue-900/30"
+                        className="bg-gray-800/60 border border-gray-700/50 rounded-lg p-4 mb-6"
                       >
-                        <div className="flex items-center mb-1">
-                          <Lightbulb className="w-5 h-5 text-blue-400 mr-2" />
-                          <h3 className="text-lg font-semibold text-white">Explication</h3>
+                        <div className="flex items-start">
+                          <div className={cn(
+                            "rounded-full p-1 mr-3 mt-0.5",
+                            selectedOptionId && currentQuestion.options.find(o => o.id === selectedOptionId)?.isCorrect
+                              ? "bg-green-900/30 text-green-500"
+                              : "bg-red-900/30 text-red-500"
+                          )}>
+                            {selectedOptionId && currentQuestion.options.find(o => o.id === selectedOptionId)?.isCorrect
+                              ? <CheckCircle className="h-5 w-5" />
+                              : <AlertCircle className="h-5 w-5" />
+                            }
+                          </div>
+                          <div>
+                            <h4 className={cn(
+                              "font-medium mb-1",
+                              selectedOptionId && currentQuestion.options.find(o => o.id === selectedOptionId)?.isCorrect
+                                ? "text-green-400"
+                                : "text-red-400"
+                            )}>
+                              {feedbackMessage}
+                            </h4>
+                            <p className="text-gray-300 text-sm">
+                              {currentQuestion.options.find(o => o.id === selectedOptionId)?.explanation}
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-gray-300">
-                          {currentQuestion.options.find(o => o.isCorrect)?.explanation}
-                        </p>
                       </motion.div>
                     )}
-
-                    {feedbackMessage && (
-                      <Alert className="bg-gray-800/50 border-blue-900/30">
-                        <Zap className="h-4 w-4 text-blue-400" />
-                        <AlertTitle>Feedback</AlertTitle>
-                        <AlertDescription>{feedbackMessage}</AlertDescription>
-                      </Alert>
-                    )}
-
-                    {showExplanation && (
+                    
+                    {selectedOptionId && (
                       <Button 
                         onClick={goToNextQuestion}
                         className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white"
@@ -755,7 +795,7 @@ const TestDeReflexes = () => {
                         {questionCount >= maxQuestions 
                           ? "Terminer le test et voir les résultats" 
                           : "Question suivante"}
-                        <ArrowUpRight className="ml-2 h-4 w-4" />
+                        <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     )}
                   </CardContent>
@@ -769,37 +809,89 @@ const TestDeReflexes = () => {
                       <div className="text-center">
                         <h3 className="text-xl font-medium text-white mb-2">Analyse de vos performances en cours...</h3>
                         <p className="text-gray-400 mb-4">L'IA analyse vos réponses pour générer un rapport détaillé</p>
+                        <div className="flex justify-center">
+                          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                        </div>
                       </div>
+                      
                       <div className="space-y-3">
-                        <Skeleton className="h-[40px] w-full bg-gray-800/50" />
-                        <Skeleton className="h-[100px] w-full bg-gray-800/50" />
-                        <Skeleton className="h-[150px] w-full bg-gray-800/50" />
-                        <Skeleton className="h-[80px] w-full bg-gray-800/50" />
+                        <Skeleton className="h-12 w-full bg-gray-800/50" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <Skeleton className="h-24 w-full bg-gray-800/50" />
+                          <Skeleton className="h-24 w-full bg-gray-800/50" />
+                        </div>
+                        <Skeleton className="h-32 w-full bg-gray-800/50" />
                       </div>
                     </div>
                   ) : results ? (
                     <div className="space-y-6">
-                      <div className="text-center py-4">
-                        <div className="inline-flex items-center justify-center p-4 bg-green-900/30 rounded-full mb-4 border border-green-600/30">
-                          <Trophy className="h-12 w-12 text-green-400" />
+                      <div className="flex flex-col md:flex-row gap-6">
+                        <div className="bg-gray-800/30 border border-gray-700/50 rounded-lg p-4 flex-1">
+                          <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
+                            <CheckCircle className="w-5 h-5 text-blue-400 mr-2" />
+                            Résumé
+                          </h3>
+                          
+                          <div className="space-y-4">
+                            <div>
+                              <p className="text-sm text-gray-400 mb-1">Score global</p>
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-2xl font-bold text-white">{results.score.toFixed(0)}%</span>
+                                <span className="text-sm text-gray-400">{results.correctAnswers} / {results.totalQuestions} correctes</span>
+                              </div>
+                              <Progress 
+                                value={results.score} 
+                                className={cn(
+                                  "h-2",
+                                  results.score < 33 ? "bg-red-600" : 
+                                  results.score < 66 ? "bg-amber-600" : 
+                                  "bg-green-600"
+                                )}
+                              />
+                            </div>
+                            
+                            <div>
+                              <p className="text-sm text-gray-400 mb-1">Temps de réponse moyen</p>
+                              <div className="flex items-center">
+                                <Clock className="h-5 w-5 mr-2 text-blue-400" />
+                                <span className="text-lg font-semibold text-white">{results.averageResponseTime.toFixed(1)} secondes</span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <h3 className="text-2xl font-bold text-white">{results.score.toFixed(0)}%</h3>
-                        <p className="text-gray-400 mt-1">
-                          {results.correctAnswers} réponses correctes sur {results.totalQuestions} questions
-                        </p>
-                        <div className="flex justify-center mt-2">
-                          <Badge variant="outline" className="bg-blue-900/20 text-blue-300 border-blue-700/30">
-                            <Clock className="mr-1 h-3 w-3" />
-                            Temps moyen: {results.averageResponseTime.toFixed(1)}s par question
-                          </Badge>
+                        
+                        <div className="bg-gray-800/30 border border-gray-700/50 rounded-lg p-4 flex-1">
+                          <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
+                            <BarChart3 className="w-5 h-5 text-blue-400 mr-2" />
+                            Performance par catégorie
+                          </h3>
+                          
+                          <div className="space-y-3">
+                            {Object.entries(results.categoryScores).map(([category, data]) => (
+                              <div key={category}>
+                                <div className="flex justify-between items-center mb-1">
+                                  <p className="text-sm text-gray-300">{category}</p>
+                                  <span className="text-sm font-medium text-gray-300">{data.score.toFixed(0)}%</span>
+                                </div>
+                                <Progress 
+                                  value={data.score} 
+                                  className={cn(
+                                    "h-2",
+                                    data.score < 33 ? "bg-red-900/30" : 
+                                    data.score < 66 ? "bg-amber-900/30" : 
+                                    "bg-green-900/30"
+                                  )}
+                                />
+                                <p className="text-xs text-gray-400 mt-1">{data.total} question{data.total > 1 ? 's' : ''}</p>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
-
+                      
+                      {/* Analyse IA du test */}
                       {results.aiEvaluation && (
-                        <>
-                          <Separator className="bg-gray-700/50" />
-                          
-                          <div className="rounded-lg bg-black/20 p-4 border border-blue-900/30">
+                        <div className="bg-gradient-to-br from-blue-900/20 to-indigo-900/20 border border-blue-800/30 rounded-lg p-5">
                             <div className="flex items-center mb-3">
                               <Brain className="w-6 h-6 text-blue-400 mr-2" />
                               <h3 className="text-xl font-bold text-white">Analyse IA</h3>
@@ -830,92 +922,62 @@ const TestDeReflexes = () => {
                                   <CheckCircle className="w-4 h-4 mr-2" />
                                   Points forts
                                 </h4>
-                                <ul className="list-disc pl-5 text-gray-300 space-y-1">
-                                  {results.aiEvaluation.strengths.map((strength, index) => (
-                                    <li key={index}>{strength}</li>
+                                <ul className="space-y-1">
+                                  {results.aiEvaluation?.strengths.map((strength, index) => (
+                                    <li key={index} className="text-gray-300 text-sm flex items-start">
+                                      <CheckCircle2 className="w-3 h-3 text-green-500 mr-2 mt-1 shrink-0" />
+                                      <span>{strength}</span>
+                                    </li>
                                   ))}
                                 </ul>
                               </div>
                               
                               <div className="rounded-md bg-red-900/20 p-3 border border-red-700/30">
                                 <h4 className="text-md font-semibold text-red-300 mb-2 flex items-center">
-                                  <XCircle className="w-4 h-4 mr-2" />
+                                  <AlertTriangle className="w-4 h-4 mr-2" />
                                   Points à améliorer
                                 </h4>
-                                <ul className="list-disc pl-5 text-gray-300 space-y-1">
-                                  {results.aiEvaluation.weaknesses.map((weakness, index) => (
-                                    <li key={index}>{weakness}</li>
+                                <ul className="space-y-1">
+                                  {results.aiEvaluation?.weaknesses.map((weakness, index) => (
+                                    <li key={index} className="text-gray-300 text-sm flex items-start">
+                                      <XCircle className="w-3 h-3 text-red-500 mr-2 mt-1 shrink-0" />
+                                      <span>{weakness}</span>
+                                    </li>
                                   ))}
                                 </ul>
                               </div>
                             </div>
                             
-                            <div className="rounded-md bg-blue-900/20 p-3 border border-blue-700/30 mb-4">
-                              <h4 className="text-md font-semibold text-blue-300 mb-2 flex items-center">
-                                <Lightbulb className="w-4 h-4 mr-2" />
-                                Suggestions d'amélioration
-                              </h4>
-                              <ul className="list-disc pl-5 text-gray-300 space-y-1">
-                                {results.aiEvaluation.improvementSuggestions.map((suggestion, index) => (
-                                  <li key={index}>{suggestion}</li>
-                                ))}
-                              </ul>
-                            </div>
+                            {/* Section des suggestions d'amélioration */}
+                            {results.aiEvaluation?.improvementSuggestions && results.aiEvaluation.improvementSuggestions.length > 0 && (
+                              <div className="mb-4">
+                                <h4 className="text-md font-semibold text-blue-300 mb-2 flex items-center">
+                                  <Lightbulb className="w-4 h-4 mr-2" />
+                                  Suggestions d'amélioration
+                                </h4>
+                                <ul className="space-y-1">
+                                  {results.aiEvaluation.improvementSuggestions.map((suggestion, index) => (
+                                    <li key={index} className="text-gray-300 text-sm flex items-start">
+                                      <Sparkles className="w-3 h-3 text-amber-500 mr-2 mt-1 shrink-0" />
+                                      <span>{suggestion}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
                             
-                            <div className="rounded-md bg-purple-900/20 p-3 border border-purple-700/30">
-                              <h4 className="text-md font-semibold text-purple-300 mb-2 flex items-center">
-                                <Zap className="w-4 h-4 mr-2" />
-                                Perspective professionnelle
-                              </h4>
-                              <p className="text-gray-300">
-                                {results.aiEvaluation.professionalInsight}
-                              </p>
-                            </div>
-                          </div>
-                          
-                          {results.aiEvaluation.ranking && (
-                            <div className="rounded-lg bg-amber-900/20 p-4 border border-amber-700/30 text-center">
-                              <h4 className="text-lg font-semibold text-amber-300 mb-2">Votre positionnement</h4>
-                              <div className="flex items-center justify-center gap-6">
-                                <div>
-                                  <p className="text-sm text-gray-400">Position</p>
-                                  <p className="text-2xl font-bold text-white">{results.aiEvaluation.ranking.position}</p>
-                                  <p className="text-xs text-gray-400">sur {results.aiEvaluation.ranking.totalParticipants}</p>
-                                </div>
-                                <div>
-                                  <p className="text-sm text-gray-400">Percentile</p>
-                                  <p className="text-2xl font-bold text-white">{results.aiEvaluation.ranking.percentile}%</p>
-                                  <p className="text-xs text-gray-400">des utilisateurs</p>
-                                </div>
+                            {/* Analyse professionnelle */}
+                            {results.aiEvaluation?.professionalInsight && (
+                              <div className="rounded-md bg-gray-800/40 p-3 border border-gray-700/30">
+                                <h4 className="text-md font-semibold text-gray-200 mb-2 flex items-center">
+                                  <Users className="w-4 h-4 mr-2" />
+                                  Analyse professionnelle
+                                </h4>
+                                <p className="text-gray-300 text-sm">{results.aiEvaluation.professionalInsight}</p>
                               </div>
-                            </div>
-                          )}
-                        </>
-                      )}
-                      
-                      <div className="rounded-lg bg-black/20 p-4">
-                        <h3 className="text-lg font-semibold text-white mb-2">Détail par catégorie</h3>
-                        <div className="space-y-3">
-                          {Object.entries(results.categoryScores).map(([category, data]) => (
-                            <div key={category}>
-                              <div className="flex justify-between items-center mb-1">
-                                <span className="text-gray-300">{category}</span>
-                                <span className="text-gray-300">{data.score.toFixed(0)}%</span>
-                              </div>
-                              <Progress 
-                                value={data.score} 
-                                className={cn(
-                                  "h-2",
-                                  data.score < 33 ? "bg-red-900/30" : 
-                                  data.score < 66 ? "bg-amber-900/30" : 
-                                  "bg-green-900/30"
-                                )}
-                              />
-                              <p className="text-xs text-gray-400 mt-1">{data.total} question{data.total > 1 ? 's' : ''}</p>
-                            </div>
-                          ))}
+                            )}
                         </div>
-                      </div>
+                      )}
                     </div>
                   ) : (
                     <div className="py-8 text-center">
