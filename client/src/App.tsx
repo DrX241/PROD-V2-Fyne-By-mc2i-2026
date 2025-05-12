@@ -399,7 +399,208 @@ function App() {
                 }} />
                 
                 {/* Routes pour les modules de Cyber Académie */}
-                <Route path="/cyber/learning-center/modules/:moduleId" component={NotYetImplemented} />
+                <Route path="/cyber/learning-center/modules/fiches-cyber-express" component={() => {
+                  const FichesCyberExpress = lazy(() => import('./pages/cyber/learning-center/modules/fiches-cyber-express'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <FichesCyberExpress />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/glossaire-visuel" component={() => {
+                  const GlossaireVisuel = lazy(() => import('./pages/cyber/learning-center/modules/glossaire-visuel'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <GlossaireVisuel />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/quiz-adaptatif-ia" component={() => {
+                  const QuizAdaptatifIA = lazy(() => import('./pages/cyber/learning-center/modules/quiz-adaptatif-ia'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <QuizAdaptatifIA />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/memo-ia-personnalise" component={() => {
+                  const MemoIAPersonnalise = lazy(() => import('./pages/cyber/learning-center/modules/memo-ia-personnalise'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <MemoIAPersonnalise />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/phishing-detection" component={() => {
+                  const PhishingDetection = lazy(() => import('./pages/cyber/learning-center/modules/phishing-detection'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <PhishingDetection />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/ransomware" component={() => {
+                  const Ransomware = lazy(() => import('./pages/cyber/learning-center/modules/ransomware'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <Ransomware />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/mot-de-passe" component={() => {
+                  const MotDePasse = lazy(() => import('./pages/cyber/learning-center/modules/mot-de-passe'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <MotDePasse />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/byod-securite" component={() => {
+                  const BYODSecurite = lazy(() => import('./pages/cyber/learning-center/modules/byod-securite'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <BYODSecurite />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/zero-trust" component={() => {
+                  const ZeroTrust = lazy(() => import('./pages/cyber/learning-center/modules/zero-trust'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <ZeroTrust />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/securite-cloud" component={() => {
+                  const SecuriteCloud = lazy(() => import('./pages/cyber/learning-center/modules/securite-cloud'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <SecuriteCloud />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/securite-donnees" component={() => {
+                  const SecuriteDonnees = lazy(() => import('./pages/cyber/learning-center/modules/securite-donnees'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <SecuriteDonnees />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/securite-reseaux" component={() => {
+                  const SecuriteReseaux = lazy(() => import('./pages/cyber/learning-center/modules/securite-reseaux'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <SecuriteReseaux />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/securite-ot" component={() => {
+                  const SecuriteOT = lazy(() => import('./pages/cyber/learning-center/modules/securite-ot'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <SecuriteOT />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/ia-securite" component={() => {
+                  const IASecurite = lazy(() => import('./pages/cyber/learning-center/modules/ia-securite'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <IASecurite />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/devsecops" component={() => {
+                  const DevSecOps = lazy(() => import('./pages/cyber/learning-center/modules/devsecops'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <DevSecOps />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/gouvernance-cyber" component={() => {
+                  const GouvernanceCyber = lazy(() => import('./pages/cyber/learning-center/modules/gouvernance-cyber'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <GouvernanceCyber />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/gestion-identites" component={() => {
+                  const GestionIdentites = lazy(() => import('./pages/cyber/learning-center/modules/gestion-identites'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <GestionIdentites />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/micro-learning" component={() => {
+                  const MicroLearning = lazy(() => import('./pages/cyber/learning-center/modules/micro-learning'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <MicroLearning />
+                    </Suspense>
+                  );
+                }} />
+                
+                {/* Routes spécifiques pour le micro-learning */}
+                <Route path="/cyber/learning-center/modules/micro-learning/fondamentaux/principes-base" component={() => {
+                  const PrincipesBase = lazy(() => import('./pages/cyber/learning-center/modules/micro-learning/fondamentaux/principes-base'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <PrincipesBase />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/micro-learning/menaces/phishing" component={() => {
+                  const PhishingModule = lazy(() => import('./pages/cyber/learning-center/modules/micro-learning/menaces/phishing'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <PhishingModule />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/learning-center/modules/micro-learning/techniques/cryptographie" component={() => {
+                  const Cryptographie = lazy(() => import('./pages/cyber/learning-center/modules/micro-learning/techniques/cryptographie'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <Cryptographie />
+                    </Suspense>
+                  );
+                }} />
+                
+                {/* Route pour le module d'introduction à la cybersécurité */}
+                <Route path="/cyber/learning-center/modules/intro-cybersecurite" component={() => {
+                  const IntroCybersecurite = lazy(() => import('./pages/cyber/learning-center/modules/intro-cybersecurite'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <IntroCybersecurite />
+                    </Suspense>
+                  );
+                }} />
+                
+                {/* Route générique pour les autres modules non implémentés explicitement */}
+                <Route path="/cyber/learning-center/modules/:moduleId" component={NotFound} />
                 
                 {/* Module CYBERASCENSION - Parcours de certifications */}
                 <Route path="/cyber/ascension" component={() => {
