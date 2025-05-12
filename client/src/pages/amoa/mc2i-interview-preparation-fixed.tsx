@@ -716,13 +716,11 @@ const Mc2iInterviewPreparation: React.FC = () => {
         const welcomeMessage: Message = {
           id: 'assistant-1',
           role: 'assistant',
-          content: `Bonjour, je suis Thierry Dubois, responsable des projets digitaux chez ${values.sectorFocus === 'Banque & Assurance' ? 'Crédit Mutuel' : 
-                   values.sectorFocus === 'Secteur Public' ? 'le Ministère de la Transformation Numérique' :
-                   values.sectorFocus === 'Énergie' ? 'EDF' : 'notre entreprise'}. Nous recherchons un consultant ${values.profileType.toLowerCase()} pour nous accompagner sur un projet de ${
-                   values.sectorFocus === 'Banque & Assurance' ? 'refonte de notre application mobile bancaire' : 
-                   values.sectorFocus === 'Secteur Public' ? 'dématérialisation des procédures administratives' :
-                   values.sectorFocus === 'Énergie' ? 'pilotage de la consommation énergétique' : 'transformation digitale'
-                   }. Pouvez-vous vous présenter et me parler de votre expérience pertinente pour ce poste ?`,
+          content: `Bonjour, je suis Sophie Martin, chargée de recrutement chez mc2i. Merci d'avoir postulé pour le poste de consultant ${values.profileType.toLowerCase()} avec une expérience de ${values.experienceLevel}. Nous recherchons activement des profils pour intervenir sur des missions dans le secteur ${values.sectorFocus}. 
+
+Notre cabinet accompagne les entreprises dans leur transformation digitale, et nous avons besoin de consultants AMOA compétents et motivés. Je vais évaluer vos compétences et votre adéquation avec nos valeurs et nos méthodes de travail.
+
+Pouvez-vous commencer par vous présenter en quelques mots, m'expliquer votre parcours, et me dire ce qui vous motive à rejoindre mc2i ?`,
           timestamp: new Date(),
         };
         
@@ -770,9 +768,10 @@ const Mc2iInterviewPreparation: React.FC = () => {
   };
   
   // Fonction pour envoyer un message
-  const sendMessage = async () => {
+  const sendMessage = () => {
     if (!userInput.trim() || isLoading) return;
     
+    // Créer le message utilisateur
     const userMessage: Message = {
       id: `user-${messages.length + 1}`,
       role: 'user',
@@ -780,47 +779,112 @@ const Mc2iInterviewPreparation: React.FC = () => {
       timestamp: new Date(),
     };
     
+    // Ajouter le message utilisateur à la conversation
     setMessages(prev => [...prev, userMessage]);
     setUserInput('');
     setIsLoading(true);
     
-    try {
-      // Simuler une réponse de l'IA (à remplacer par l'appel API réel)
-      setTimeout(() => {
-        const aiResponses = [
-          "Pourriez-vous me parler d'une expérience où vous avez dû gérer des parties prenantes ayant des intérêts divergents ?",
-          "Quelles méthodologies de gestion de projet avez-vous l'habitude d'utiliser ? Quelle est votre approche préférée et pourquoi ?",
-          "Comment abordez-vous la gestion des risques dans vos projets ?",
-          "Quelles sont vos compétences techniques qui seraient pertinentes pour ce projet ?",
-          "Comment vous adaptez-vous aux changements de priorités en cours de projet ?",
-          "Merci pour votre candidature, nous allons examiner votre profil et vous recontacterons très prochainement. Avez-vous des questions avant que nous ne terminions cet entretien ?"
+    // Simuler un délai pour une expérience plus réaliste
+    setTimeout(() => {
+      try {
+        // Questions spécifiques pour le recruteur mc2i selon l'étape de l'entretien
+        const questionIndex = Math.floor(messages.length / 2);
+        
+        // Liste de questions de recrutement pour différentes étapes de l'entretien
+        const recruiterQuestions = [
+          // Phase 1: Questions sur l'expérience et le parcours
+          "Je vous remercie pour cette présentation. Pouvez-vous me décrire un projet AMOA significatif sur lequel vous avez travaillé et votre contribution spécifique ?",
+          
+          // Phase 2: Questions techniques sur l'AMOA
+          "Très intéressant. Dans le cadre de vos missions AMOA, comment procédez-vous pour analyser et formaliser les besoins des utilisateurs ? Quelles méthodes et outils utilisez-vous ?",
+          
+          // Phase 3: Questions sur la gestion de projet
+          "Je vois. Et comment gérez-vous les situations où les exigences sont floues ou contradictoires ? Pouvez-vous me donner un exemple concret où vous avez dû faire face à ce type de situation ?",
+          
+          // Phase 4: Questions sur la relation client
+          "Lorsque vous êtes confronté à des parties prenantes ayant des visions différentes sur un projet, comment parvenez-vous à établir un consensus ? Quelle approche adoptez-vous ?",
+          
+          // Phase 5: Questions sur la résolution de problèmes
+          "Racontez-moi une situation difficile que vous avez rencontrée sur un projet et comment vous l'avez surmontée. Qu'avez-vous appris de cette expérience ?",
+          
+          // Phase 6: Questions sur les méthodologies
+          "Quelles méthodologies de gestion de projet connaissez-vous et avez-vous expérimentées ? Comment choisissez-vous la plus adaptée selon le contexte ?",
+          
+          // Phase 7: Questions sur les outils
+          "Quels outils et logiciels maîtrisez-vous pour la gestion de projet et la modélisation des processus ? Comment les utilisez-vous au quotidien ?",
+          
+          // Phase 8: Questions sur la vision du poste
+          "Selon vous, quelles sont les qualités essentielles d'un bon consultant AMOA chez mc2i ? Comment incarnez-vous ces qualités ?",
+          
+          // Phase 9: Questions sur les motivations
+          "Qu'est-ce qui vous intéresse particulièrement dans ce secteur ? Avez-vous des connaissances ou expériences spécifiques à ce domaine ?",
+          
+          // Phase finale: Conclusion
+          "Nous arrivons à la fin de cet entretien. Avez-vous des questions sur mc2i, nos méthodes de travail ou le poste que vous souhaiteriez me poser ?"
         ];
         
+        // Message personnalisé selon l'étape de l'entretien
+        let aiResponse = "";
+        
+        // Si l'entretien a déjà duré assez longtemps, utiliser le dernier message (conclusion)
+        if (questionIndex >= recruiterQuestions.length - 1 || messages.length >= 12) {
+          aiResponse = recruiterQuestions[recruiterQuestions.length - 1];
+        } else {
+          // Sinon, utiliser la question correspondante à l'étape actuelle
+          aiResponse = recruiterQuestions[questionIndex];
+        }
+        
+        // Créer le message du recruteur
         const aiMessage: Message = {
           id: `assistant-${messages.length + 2}`,
           role: 'assistant',
-          content: messages.length >= 10 ? aiResponses[5] : aiResponses[Math.floor((messages.length - 1) / 2) % 5],
+          content: aiResponse,
           timestamp: new Date(),
         };
         
+        // Ajouter le message du recruteur à la conversation
         setMessages(prev => [...prev, aiMessage]);
-        setIsLoading(false);
         
+        // Terminer automatiquement l'entretien après un certain nombre d'échanges
         if (messages.length >= 10) {
           setTimeout(() => {
             setSimulationComplete(true);
           }, 3000);
         }
-      }, 1500);
-    } catch (error) {
-      console.error('Erreur lors de l\'envoi du message:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible d'envoyer le message. Veuillez réessayer.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-    }
+      } catch (error) {
+        console.error('Erreur lors de la génération de réponse:', error);
+        
+        // Questions de repli en cas d'erreur
+        const fallbackResponses = [
+          "Je trouve votre réponse intéressante. Pouvez-vous approfondir sur votre approche méthodologique en AMOA ?",
+          "Merci pour ces précisions. Comment géreriez-vous les parties prenantes dans un projet complexe ?",
+          "Pourriez-vous me donner un exemple concret où vous avez dû faire face à un changement de périmètre en cours de projet ?",
+          "Quels outils utilisez-vous habituellement pour formaliser les besoins ?",
+          "Comment vous assurez-vous de la bonne compréhension des exigences par toutes les parties prenantes ?"
+        ];
+        
+        // Créer un message de repli
+        const fallbackMessage: Message = {
+          id: `assistant-${messages.length + 2}`,
+          role: 'assistant',
+          content: fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)],
+          timestamp: new Date(),
+        };
+        
+        // Ajouter le message de repli à la conversation
+        setMessages(prev => [...prev, fallbackMessage]);
+        
+        // Notification discrète
+        toast({
+          title: "Note",
+          description: "Utilisation de questions prédéfinies.",
+          variant: "default",
+        });
+      } finally {
+        // Toujours désactiver l'indicateur de chargement
+        setIsLoading(false);
+      }
+    }, 1500);
   };
   
   // Compléter la simulation
@@ -863,28 +927,31 @@ const Mc2iInterviewPreparation: React.FC = () => {
       // Simuler un appel API d'évaluation (à remplacer par l'appel réel)
       setTimeout(() => {
         const mockEvaluation = {
-          summary: "Votre performance pendant cette audition a démontré une bonne préparation technique mais pourrait être améliorée au niveau des compétences de communication et de la concision des réponses.",
+          summary: "Votre performance durant cet entretien démontre une bonne compréhension des concepts AMOA et de bonnes capacités de communication, mais certains aspects techniques et méthodologiques pourraient être approfondis pour renforcer votre candidature chez mc2i.",
           strengths: [
-            "Bonnes connaissances techniques dans le domaine demandé",
-            "Structure claire dans la présentation de vos expériences",
-            "Posture professionnelle tout au long de l'entretien",
-            "Questions pertinentes posées au client"
+            "Bonne maîtrise des concepts fondamentaux d'AMOA",
+            "Communication claire et professionnelle",
+            "Capacité à structurer votre discours de façon logique",
+            "Adaptabilité aux questions complexes",
+            "Posture professionnelle et synthèse efficace"
           ],
           improvements: [
-            "Réponses parfois trop longues et détaillées",
-            "Tendance à utiliser un vocabulaire trop technique",
-            "Communication non verbale à améliorer (contact visuel, gestuelle)",
-            "Manque d'exemples concrets pour illustrer certaines compétences"
+            "Approfondissement des méthodologies agiles en contexte AMOA",
+            "Exemples concrets parfois insuffisamment détaillés",
+            "Connaissance des outils spécifiques au métier à renforcer",
+            "Articulation entre théorie et mise en application pratique",
+            "Vision stratégique du rôle de l'AMOA à développer"
           ],
-          detailedNotes: "Vous avez bien réussi à présenter vos compétences techniques et expériences pertinentes. Le discours était structuré mais parfois trop détaillé, ce qui peut perdre l'attention de l'interlocuteur. Travaillez sur la concision de vos réponses tout en conservant les éléments essentiels. Votre posture était professionnelle, mais la communication non verbale mérite d'être améliorée pour projeter plus de confiance.",
+          detailedNotes: "Votre entretien révèle une solide base en assistance à maîtrise d'ouvrage. Vous présentez clairement vos compétences et expériences, avec une bonne articulation des concepts. Cependant, votre discours gagnerait en impact avec des exemples plus précis et des méthodologies plus détaillées. Les recruteurs chez mc2i accordent une importance particulière à la maîtrise des outils et méthodes spécifiques, ainsi qu'à la capacité d'adaptation sectorielle. Votre approche des questions démontre un bon potentiel, mais nécessite un renforcement technique pour atteindre le niveau d'un consultant confirmé.",
           recommendations: [
-            "Pratiquez des présentations de 30 secondes à 2 minutes pour vos expériences",
-            "Enregistrez-vous pour analyser votre communication non verbale",
-            "Adaptez votre vocabulaire à votre interlocuteur",
-            "Préparez des exemples concrets pour chaque compétence clé"
+            "Approfondissez votre connaissance des référentiels méthodologiques (PRINCE2, PMI, ITIL)",
+            "Développez un portfolio d'exemples concrets pour chaque compétence clé en AMOA",
+            "Renforcez votre expertise sur les outils de modélisation de processus (BPMN, UML)",
+            "Préparez-vous à discuter de cas complexes de gestion de parties prenantes",
+            "Développez votre connaissance des spécificités sectorielles (réglementation, tendances)"
           ],
-          sectorFitEvaluation: "Votre compréhension des enjeux spécifiques du secteur est bonne, mais pourrait être approfondie en ce qui concerne les tendances actuelles et les défis réglementaires.",
-          conclusion: "Votre profil correspond globalement aux attentes pour ce type de mission. Avec quelques ajustements dans votre communication et une préparation plus ciblée sur le secteur, vous augmenterez significativement vos chances de succès lors des prochaines auditions."
+          sectorFitEvaluation: "Votre compréhension du secteur montre une base solide, mais manque parfois de profondeur sur les défis réglementaires et les tendances d'innovation actuelles. mc2i valorise particulièrement les consultants ayant une vision claire des enjeux sectoriels.",
+          conclusion: "Votre profil présente un bon potentiel pour une carrière chez mc2i, avec des bases solides en AMOA. En travaillant sur les axes d'amélioration identifiés, particulièrement sur l'approfondissement technique et méthodologique, vous renforcerez significativement votre candidature. Nous vous encourageons à explorer les formations spécialisées dans les domaines mentionnés pour combler ces écarts."
         };
         
         setEvaluationResult(mockEvaluation);
