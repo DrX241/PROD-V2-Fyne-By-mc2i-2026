@@ -544,45 +544,63 @@ function ExpertLearningPageContent() {
             {sessionSummary && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
                 <Card className="w-full max-w-3xl bg-violet-950 border-violet-400/30 text-white shadow-[0_0_20px_rgba(167,139,250,0.2)]">
-                  <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="text-violet-400">Résumé de votre session</CardTitle>
+                  <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-violet-950 to-indigo-900 border-b border-violet-400/20">
+                    <CardTitle className="text-violet-200 flex items-center gap-2">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-violet-300">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#c4b5fd" />
+                      </svg>
+                      <span>Bilan de votre aventure AMOA</span>
+                    </CardTitle>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={closeSessionSummary}
-                      className="text-violet-400 hover:text-violet-300 hover:bg-violet-900"
+                      className="text-violet-300 hover:text-violet-100 hover:bg-violet-800/50"
                     >
                       <X className="h-5 w-5" />
                     </Button>
                   </CardHeader>
-                  <CardContent className="max-h-[60vh] overflow-y-auto">
+                  <CardContent className="max-h-[60vh] overflow-y-auto pt-6">
                     {sessionSummary === "Aucune interaction n'a été enregistrée pendant cette session." ? (
-                      <div className="flex flex-col items-center justify-center py-6 text-center">
-                        <p className="text-violet-100 mb-2">{sessionSummary}</p>
-                        <p className="text-violet-300/70 text-sm">Pour obtenir un résumé détaillé, échangez des messages avec l'assistant pendant la session.</p>
+                      <div className="flex flex-col items-center justify-center py-8 text-center">
+                        <div className="w-16 h-16 mb-4 rounded-full bg-violet-900/50 flex items-center justify-center">
+                          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#c4b5fd" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </div>
+                        <p className="text-violet-100 mb-3 text-lg font-medium">{sessionSummary}</p>
+                        <p className="text-violet-300/70 text-sm px-6">Pour obtenir un bilan personnalisé et débloquer de nouvelles compétences, échangez avec Sam lors de votre prochaine session.</p>
                       </div>
                     ) : (
-                      <div 
-                        className="prose prose-invert max-w-none text-violet-100" 
-                        dangerouslySetInnerHTML={{ 
-                          __html: DOMPurify.sanitize(formatTextWithStructure(sessionSummary)) 
-                        }}
-                      />
+                      <div className="space-y-6">
+                        <div className="bg-violet-900/30 p-4 rounded-lg border border-violet-500/20 shadow-inner">
+                          <div 
+                            className="prose prose-invert max-w-none text-violet-100" 
+                            dangerouslySetInnerHTML={{ 
+                              __html: DOMPurify.sanitize(formatTextWithStructure(sessionSummary)) 
+                            }}
+                          />
+                        </div>
+                      </div>
                     )}
                   </CardContent>
-                  <CardFooter className="flex justify-center gap-4">
+                  <CardFooter className="flex justify-center gap-4 pt-6 pb-6">
                     <Button
                       onClick={startSession}
-                      className="bg-violet-600 hover:bg-violet-500 text-white"
+                      className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-0 shadow-[0_0_15px_rgba(109,40,217,0.25)] font-medium px-6"
                     >
-                      Nouvelle session
+                      <svg width="20" height="20" viewBox="0 0 24 24" className="mr-2" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M10 8L16 12L10 16V8Z" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      Démarrer une nouvelle aventure
                     </Button>
                     <Button
                       variant="outline"
                       onClick={handleReturnToPrevious}
-                      className="border-violet-400/30 text-violet-400 hover:bg-violet-900 hover:border-violet-400/50"
+                      className="border-violet-400/30 text-violet-300 hover:bg-violet-800/50 hover:text-violet-100 hover:border-violet-400/50"
                     >
-                      Retour à l'accueil
+                      Retour à la console principale
                     </Button>
                   </CardFooter>
                 </Card>
