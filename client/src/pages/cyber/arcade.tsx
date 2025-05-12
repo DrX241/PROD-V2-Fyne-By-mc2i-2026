@@ -37,7 +37,8 @@ export default function CyberArcade() {
       description: 'Incarnez un chercheur en sécurité et trouvez des vulnérabilités dans des applications web. Soumettez des rapports détaillés comme dans un vrai programme de bug bounty.',
       icon: <FileSearch className="w-6 h-6" />,
       gradient: 'from-red-600 to-amber-700',
-      available: true,
+      available: false,
+      comingSoon: true,
       route: '/cyber/arcade/bug-hunter'
     },
     {
@@ -46,7 +47,8 @@ export default function CyberArcade() {
       description: 'Ingénierie sociale inversée : incarnez le hacker et trouvez le moyen le plus subtil de piéger la victime',
       icon: <Brain className="w-6 h-6" />,
       gradient: 'from-fuchsia-500 to-purple-800',
-      available: true,
+      available: false,
+      comingSoon: true,
       route: '/cyber/arcade/brain-hacker'
     },
     {
@@ -65,7 +67,8 @@ export default function CyberArcade() {
       description: 'Créez votre propre antivirus et protégez le système contre les malwares',
       icon: <Shield className="w-6 h-6" />,
       gradient: 'from-blue-600 to-blue-900',
-      available: true,
+      available: false,
+      comingSoon: true,
       route: '/cyber/arcade/code-shield'
     },
     {
