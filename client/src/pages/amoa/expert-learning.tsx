@@ -23,21 +23,31 @@ function formatTextWithStructure(text: string): string {
     '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-violet-400 hover:text-violet-300 underline">$1</a>'
   );
   
-  // Préserve les retours à la ligne et ajoute quelques mises en forme
+  // Format minimal pour un rendu élégant - moins académique
   const formatted = linkified
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Gras
+    // Conserver le formatage basique (gras/italique) pour l'emphase
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-violet-200">$1</strong>') // Gras subtil
     .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italique
-    .replace(/```([\s\S]*?)```/g, '<pre class="bg-violet-900/30 p-3 rounded my-2 overflow-x-auto"><code>$1</code></pre>') // Code block
-    .replace(/`([^`]+)`/g, '<code class="bg-violet-900/30 px-1 rounded">$1</code>') // Inline code
-    .replace(/^### (.*?)$/gm, '<h3 class="text-lg font-bold text-violet-300 mt-4 mb-2">$1</h3>') // h3
-    .replace(/^## (.*?)$/gm, '<h2 class="text-xl font-bold text-violet-300 mt-4 mb-2">$1</h2>') // h2
-    .replace(/^# (.*?)$/gm, '<h1 class="text-2xl font-bold text-violet-300 mt-4 mb-2">$1</h1>') // h1
-    .replace(/^> (.*?)$/gm, '<blockquote class="border-l-4 border-violet-500 pl-4 italic text-violet-300/80 my-2">$1</blockquote>') // blockquote
-    .replace(/^- (.*?)$/gm, '<li class="ml-4">$1</li>') // unordered list items
-    .replace(/^(\d+)\. (.*?)$/gm, '<li class="ml-4"><span class="text-violet-400">$1.</span> $2</li>') // ordered list items
-    .replace(/<\/li>\n<li/g, '</li><li') // Fix adjacent list items
-    .replace(/\n\n/g, '<br/><br/>') // Double line breaks
-    .replace(/\n/g, '<br/>'); // Single line breaks
+    
+    // Conserver le code mais avec un style plus discret
+    .replace(/```([\s\S]*?)```/g, '<div class="bg-violet-900/20 p-3 rounded my-2 overflow-x-auto border-l-2 border-violet-400/30">$1</div>') // Code block simplifié
+    .replace(/`([^`]+)`/g, '<span class="text-violet-300">$1</span>') // Inline code subtil
+    
+    // Supprime les titres markdown pour un style plus conversationnel
+    .replace(/^### (.*?)$/gm, '<div class="text-violet-300 font-medium mt-3 mb-1">$1</div>') 
+    .replace(/^## (.*?)$/gm, '<div class="text-violet-300 font-medium mt-3 mb-1">$1</div>') 
+    .replace(/^# (.*?)$/gm, '<div class="text-violet-300 font-medium mt-3 mb-1">$1</div>') 
+    
+    // Citations plus subtiles 
+    .replace(/^> (.*?)$/gm, '<div class="border-l-2 border-violet-500/40 pl-3 my-2 text-violet-300/80">$1</div>') 
+    
+    // Listes simplifiées
+    .replace(/^- (.*?)$/gm, '<div class="flex mb-1">• <span class="ml-2">$1</span></div>') // Puces stylisées
+    .replace(/^(\d+)\. (.*?)$/gm, '<div class="flex mb-1"><span class="text-violet-400 mr-2">$1.</span> <span>$2</span></div>') // Numération stylisée
+    
+    // Paragraphes et espacement naturel
+    .replace(/\n\n/g, '<div class="mt-2"></div>') // Double espace
+    .replace(/\n/g, '<br>'); // Simple saut de ligne
   
   return formatted;
 }
