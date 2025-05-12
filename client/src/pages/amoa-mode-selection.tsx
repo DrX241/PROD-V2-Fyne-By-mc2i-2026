@@ -253,7 +253,7 @@ export default function AmoaModeSelection() {
         'Business Intelligence',
         'Transformation digitale'
       ],
-      modules: ['agent-ia', 'test-reflexes', 'amoa-academie', 'generateur-livrables']
+      modules: ['agent-ia', 'test-reflexes', 'qui-est-imposteur', 'amoa-academie', 'generateur-livrables']
     },
     {
       id: 'chef-projet',
@@ -268,7 +268,7 @@ export default function AmoaModeSelection() {
         'Reporting',
         'Pilotage budgétaire'
       ],
-      modules: ['agent-ia', 'test-reflexes', 'amoa-academie', 'generateur-livrables']
+      modules: ['agent-ia', 'test-reflexes', 'qui-est-imposteur', 'amoa-academie', 'generateur-livrables']
     }
   ];
 
