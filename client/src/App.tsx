@@ -398,6 +398,9 @@ function App() {
                   );
                 }} />
                 
+                {/* Routes pour les modules de Cyber Académie */}
+                <Route path="/cyber/learning-center/modules/:moduleId" component={NotYetImplemented} />
+                
                 {/* Module CYBERASCENSION - Parcours de certifications */}
                 <Route path="/cyber/ascension" component={() => {
                   const CyberAscension = lazy(() => import('./pages/cyber/ascension'));
