@@ -389,15 +389,15 @@ Ton message doit être professionnel, concis (maximum 10 lignes) mais très spé
         content: `Génère un message d'introduction pour un entretien client dans le secteur ${values.sectorFocus}.`
       };
       
-      // Appel à l'API Azure OpenAI pour générer le message d'introduction
-      const response = await fetch('/api/openai/completion', {
+      // Appel à l'API OpenAI existante pour générer le message d'introduction
+      const response = await fetch('/api/openai/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           messages: [systemPrompt, userPrompt],
-          model: "gpt-4o-mini", // Utiliser le modèle disponible
+          useSecondaryModel: true, // Utiliser gpt-4o-mini qui est plus rapide
           temperature: 0.7
         }),
       });
@@ -408,7 +408,7 @@ Ton message doit être professionnel, concis (maximum 10 lignes) mais très spé
       
       const data = await response.json();
       
-      if (data && data.choices && data.choices[0] && data.choices[0].message) {
+      if (data && data.content) {
         const systemMessage: Message = {
           id: 'system-1',
           role: 'system',
@@ -419,7 +419,7 @@ Ton message doit être professionnel, concis (maximum 10 lignes) mais très spé
         const welcomeMessage: Message = {
           id: 'assistant-1',
           role: 'assistant',
-          content: data.choices[0].message.content,
+          content: data.content,
           timestamp: new Date(),
         };
         
@@ -599,8 +599,8 @@ Ta réponse doit:
 Ne termine pas l'entretien avant que le consultant ne l'ait demandé ou que vous ayez échangé au moins 5 fois.`
       };
       
-      // Appel à l'API Azure OpenAI pour générer la réponse
-      const response = await fetch('/api/openai/completion', {
+      // Appel à l'API OpenAI existante pour générer la réponse
+      const response = await fetch('/api/openai/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -610,7 +610,7 @@ Ne termine pas l'entretien avant que le consultant ne l'ait demandé ou que vous
             systemPrompt,
             ...conversationHistory,
           ],
-          model: "gpt-4o-mini", // Utiliser le modèle disponible dans Azure
+          useSecondaryModel: true, // Utiliser gpt-4o-mini qui est plus rapide
           temperature: 0.7
         }),
       });
@@ -621,12 +621,12 @@ Ne termine pas l'entretien avant que le consultant ne l'ait demandé ou que vous
       
       const data = await response.json();
       
-      if (data && data.choices && data.choices[0] && data.choices[0].message) {
+      if (data && data.content) {
         // Créer le message du client avec la réponse générée par IA
         const aiMessage: Message = {
           id: `assistant-${messages.length + 1}`,
           role: 'assistant',
-          content: data.choices[0].message.content,
+          content: data.content,
           timestamp: new Date(),
         };
         
@@ -779,8 +779,8 @@ Ton analyse doit:
         content: `Voici l'historique complet d'un entretien entre un client et un consultant AMOA. Analyse la performance du consultant et fournis une évaluation structurée au format JSON comme demandé dans tes instructions. Assure-toi que ton analyse soit précise, équilibrée et constructive.`
       };
       
-      // Appel à l'API pour générer l'évaluation
-      const response = await fetch('/api/openai/completion', {
+      // Appel à l'API OpenAI existante pour générer l'évaluation
+      const response = await fetch('/api/openai/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -791,9 +791,10 @@ Ton analyse doit:
             ...conversationHistory,
             userPrompt
           ],
-          model: "gpt-4o-mini", // Utiliser le modèle disponible
-          temperature: 0.7,
-          response_format: { type: "json_object" }
+          useSecondaryModel: true, // Utiliser gpt-4o-mini qui est plus rapide
+          temperature: 0.7
+          // Note: l'API chat ne supporte pas le format de réponse JSON,
+          // nous allons parser la réponse texte en JSON manuellement
         }),
       });
       
@@ -803,10 +804,19 @@ Ton analyse doit:
       
       const data = await response.json();
       
-      if (data && data.choices && data.choices[0] && data.choices[0].message) {
+      if (data && data.content) {
         try {
+          // L'API renvoit du texte qu'il faut parser en JSON
+          let contentText = data.content;
+          
+          // Nettoyer la réponse des délimiteurs de code Markdown si présents
+          if (contentText.includes('```json')) {
+            contentText = contentText.replace(/```json\n/g, '');
+            contentText = contentText.replace(/```/g, '');
+          }
+          
           // Analyser la réponse JSON
-          let evaluationData = JSON.parse(data.choices[0].message.content);
+          let evaluationData = JSON.parse(contentText);
           
           // Vérifier que tous les champs sont présents, sinon ajouter des valeurs par défaut
           const defaultEvaluation = {
