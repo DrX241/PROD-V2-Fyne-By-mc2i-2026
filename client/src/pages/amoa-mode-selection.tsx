@@ -1,286 +1,341 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { Search, ArrowRight, Home } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 // Icônes modernes de React Icons
 import { IoHome as IoHomeIcon, IoSearchOutline, IoBookOutline, IoDesktopOutline, IoTrophyOutline, IoConstructOutline } from 'react-icons/io5';
-import { IoMdArrowForward, IoMdArrowBack } from 'react-icons/io';
-import { BsKanban, BsPeopleFill, BsClipboardCheck, BsGearFill, BsFilterLeft, 
-         BsCalendarCheck, BsBarChartFill, BsLightbulb, BsChevronRight, BsReverseLayoutTextWindowReverse,
-         BsBookmarkCheck, BsClipboardData, BsFileEarmarkText, BsFileEarmarkCheck, BsFileEarmarkCode } from 'react-icons/bs';
-import { FiSun, FiMoon } from 'react-icons/fi';
-import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
-import { RiTeamLine, RiGovernmentLine, RiUserSettingsLine, RiGuideLine } from 'react-icons/ri';
-import { MdAssessment, MdOutlineEmojiEvents, MdOutlineAutoGraph, MdOutlinePolicy } from 'react-icons/md';
-import { FaProjectDiagram, FaRegChartBar, FaRegObjectGroup } from 'react-icons/fa';
-import { SiGoogleanalytics } from 'react-icons/si';
-import { TbChartDots, TbReportAnalytics, TbExchange } from 'react-icons/tb';
+import { BsKanban, BsPeopleFill, BsClipboardCheck, BsGearFill, 
+         BsLightbulb, BsBookmarkCheck, BsClipboardData, BsFileEarmarkText, 
+         BsFileEarmarkCode } from 'react-icons/bs';
+import { RiTeamLine, RiUserSettingsLine } from 'react-icons/ri';
+import { MdOutlineEmojiEvents } from 'react-icons/md';
+import { FaProjectDiagram, FaRegChartBar } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
 // Types pour l'organisation des modules
-interface Module {
+interface ModeItem {
   id: string;
   title: string;
-  description: string;
   icon: React.ReactNode;
   destination: string;
-  difficulty: 'débutant' | 'intermédiaire' | 'avancé' | 'tous niveaux';
-  duration: string;
-  isNew?: boolean;
   comingSoon?: boolean;
+  isNew?: boolean;
 }
 
-interface LearningObjective {
+interface ModeOption {
   id: string;
   title: string;
   description: string;
   icon: React.ReactNode;
-  modules: string[]; // IDs des modules recommandés
   gradient: string;
-  categories?: string[]; // Optionnel: Catégories pour l'objectif
-}
-
-interface CareerPath {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  skills: string[];
-  modules: string[]; // IDs des modules recommandés
-  gradient: string;
+  destination: string;
+  comingSoon?: boolean;
+  items: ModeItem[];
 }
 
 export default function AmoaModeSelection() {
-  const [hoveredModule, setHoveredModule] = useState<string | null>(null);
+  const [hoveredMode, setHoveredMode] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [activeTab, setActiveTab] = useState('modules');
 
-  // Liste complète des modules AMOA
-  const modules: Module[] = [
-    // SE FORMER
-    {
-      id: 'mc2i-ai-learning',
-      title: 'mc2i AI LEARNING',
-      description: "Assistant IA expert en AMOA pour approfondir vos connaissances en mode conversationnel",
-      icon: <RiUserSettingsLine className="h-5 w-5" />,
-      destination: '/outils-ia/mc2i-learning',
-      difficulty: 'tous niveaux',
-      duration: '10-60 min',
-      isNew: true
-    },
-    {
-      id: 'modules-express',
-      title: 'MODULES EXPRESS',
-      description: "Capsules de formation concises sur les fondamentaux AMOA et la gestion de projet",
-      icon: <BsBookmarkCheck className="h-5 w-5" />,
-      destination: '/amoa/modules-express',
-      difficulty: 'débutant',
-      duration: '5-15 min'
-    },
-    {
-      id: 'referentiel-amoa',
-      title: 'RÉFÉRENTIEL AMOA',
-      description: "Base documentaire complète: méthodes, templates et bonnes pratiques AMOA",
-      icon: <BsFileEarmarkText className="h-5 w-5" />,
-      destination: '/amoa/referentiel',
-      difficulty: 'tous niveaux',
-      duration: 'variable',
-      comingSoon: true
-    },
-    
-    // S'ENTRAÎNER
-    {
-      id: 'projet-imposteur',
-      title: 'QUI EST L\'IMPOSTEUR ?',
-      description: "Détectez le stakeholder qui tente de saboter votre projet informatique",
-      icon: <BsPeopleFill className="h-5 w-5" />,
-      destination: '/amoa/projet-imposteur',
-      difficulty: 'intermédiaire',
-      duration: '15-30 min'
-    },
-    {
-      id: 'simulation-reunion',
-      title: 'SIMULATION RÉUNION',
-      description: "Entraînez-vous à animer des réunions projet avec différents profils de participants",
-      icon: <RiTeamLine className="h-5 w-5" />,
-      destination: '/amoa/simulation-reunion',
-      difficulty: 'intermédiaire', 
-      duration: '20-40 min',
-      comingSoon: true
-    },
-    {
-      id: 'analyse-besoins',
-      title: 'ATELIER BESOINS',
-      description: "Pratiquez l'élicitation et l'analyse des besoins métier en environnement simulé",
-      icon: <BsLightbulb className="h-5 w-5" />,
-      destination: '/amoa/analyse-besoins',
-      difficulty: 'intermédiaire',
-      duration: '30-45 min',
-      comingSoon: true
-    },
-    
-    // S'ÉVALUER
-    {
-      id: 'interview-simulation',
-      title: 'AUDITION CLIENT',
-      description: "Préparez-vous aux auditions client avec des scénarios réalistes",
-      icon: <BsClipboardCheck className="h-5 w-5" />,
-      destination: '/amoa/interview-simulation',
-      difficulty: 'avancé',
-      duration: '30-45 min'
-    },
-    {
-      id: 'test-reflexes',
-      title: 'TEST DE RÉFLEXES',
-      description: "Évaluez votre capacité à réagir aux situations critiques en gestion de projet",
-      icon: <IoTrophyOutline className="h-5 w-5" />,
-      destination: '/amoa/test-reflexes',
-      difficulty: 'avancé',
-      duration: '15-30 min'
-    },
-    {
-      id: 'certification-interne',
-      title: 'CERTIFICATION INTERNE',
-      description: "Validez vos compétences AMOA via notre parcours complet de certification",
-      icon: <MdOutlineEmojiEvents className="h-5 w-5" />,
-      destination: '/amoa/certification',
-      difficulty: 'avancé',
-      duration: '60-90 min',
-      comingSoon: true
-    },
-    
-    // CRÉER/AUTOMATISER
-    {
-      id: 'generateur-livrables',
-      title: 'GÉNÉRATEUR DE LIVRABLES',
-      description: "Créez rapidement des livrables AMOA professionnels avec assistance IA",
-      icon: <BsFileEarmarkCode className="h-5 w-5" />,
-      destination: '/amoa/generateur-livrables',
-      difficulty: 'intermédiaire',
-      duration: 'variable',
-      comingSoon: true,
-      isNew: true
-    },
-    {
-      id: 'toolkit-amoa',
-      title: 'TOOLKIT AMOA',
-      description: "Suite d'outils pour optimiser votre productivité sur les tâches AMOA récurrentes",
-      icon: <BsGearFill className="h-5 w-5" />,
-      destination: '/amoa/toolkit',
-      difficulty: 'intermédiaire',
-      duration: 'variable',
-      comingSoon: true
-    }
-  ];
-
-  // Définition des objectifs d'apprentissage
-  const learningObjectives: LearningObjective[] = [
+  // Liste complète des modules AMOA organisés par objectif d'apprentissage
+  const amoaModes: ModeOption[] = [
     {
       id: 'seformer',
       title: "SE FORMER",
-      description: "Développer vos connaissances fondamentales en AMOA et gestion de projet",
+      description: "Développez vos connaissances fondamentales en AMOA et gestion de projet",
       icon: <IoBookOutline className="h-6 w-6 text-blue-100" />,
-      modules: [
-        'mc2i-ai-learning',      // Assistant IA pour répondre aux questions
-        'modules-express',       // Modules courts de formation
-        'referentiel-amoa'       // Référentiel documentaire
-      ],
       gradient: 'from-blue-700 to-blue-900',
-      categories: [
-        'Fondamentaux AMOA',
-        'Gestion de projet',
-        'Méthodologies',
-        'Outils et techniques'
+      destination: '#',
+      comingSoon: false,
+      items: [
+        {
+          id: 'mc2i-ai-learning',
+          title: 'mc2i AI LEARNING',
+          icon: <RiUserSettingsLine className="h-5 w-5" />,
+          destination: '/outils-ia/mc2i-learning',
+          comingSoon: false,
+          isNew: true
+        },
+        {
+          id: 'modules-express',
+          title: 'MODULES EXPRESS',
+          icon: <BsBookmarkCheck className="h-5 w-5" />,
+          destination: '/amoa/modules-express',
+          comingSoon: false
+        },
+        {
+          id: 'referentiel-amoa',
+          title: 'RÉFÉRENTIEL AMOA',
+          icon: <BsFileEarmarkText className="h-5 w-5" />,
+          destination: '/amoa/referentiel',
+          comingSoon: true
+        }
       ]
     },
     {
       id: 'sentrainer',
       title: "S'ENTRAÎNER",
-      description: "Mettre en pratique vos connaissances avec des exercices interactifs et des simulations",
+      description: "Mettez en pratique vos connaissances avec des exercices interactifs et des simulations",
       icon: <IoDesktopOutline className="h-6 w-6 text-indigo-100" />,
-      modules: [
-        'projet-imposteur',      // Jeu de détection d'imposteur
-        'simulation-reunion',    // Simulation de réunion projet
-        'analyse-besoins'        // Atelier d'analyse des besoins
-      ],
-      gradient: 'from-indigo-700 to-indigo-900'
+      gradient: 'from-indigo-700 to-indigo-900',
+      destination: '#',
+      comingSoon: false,
+      items: [
+        {
+          id: 'projet-imposteur',
+          title: 'QUI EST L\'IMPOSTEUR ?',
+          icon: <BsPeopleFill className="h-5 w-5" />,
+          destination: '/amoa/projet-imposteur',
+          comingSoon: false
+        },
+        {
+          id: 'simulation-reunion',
+          title: 'SIMULATION RÉUNION',
+          icon: <RiTeamLine className="h-5 w-5" />,
+          destination: '/amoa/simulation-reunion',
+          comingSoon: true
+        },
+        {
+          id: 'analyse-besoins',
+          title: 'ATELIER BESOINS',
+          icon: <BsLightbulb className="h-5 w-5" />,
+          destination: '/amoa/analyse-besoins',
+          comingSoon: true
+        }
+      ]
     },
     {
       id: 'sevaluer',
       title: "S'ÉVALUER",
-      description: "Tester vos compétences dans des conditions réelles d'examen ou d'entretien",
+      description: "Testez vos compétences dans des conditions réelles d'examen ou d'entretien",
       icon: <IoTrophyOutline className="h-6 w-6 text-purple-100" />,
-      modules: [
-        'interview-simulation',  // Préparation d'audition client
-        'test-reflexes',         // Test de réflexes AMOA
-        'certification-interne'  // Parcours de certification
-      ],
-      gradient: 'from-purple-700 to-purple-900'
+      gradient: 'from-purple-700 to-purple-900',
+      destination: '#',
+      comingSoon: false,
+      items: [
+        {
+          id: 'interview-simulation',
+          title: 'AUDITION CLIENT',
+          icon: <BsClipboardCheck className="h-5 w-5" />,
+          destination: '/amoa/interview-simulation',
+          comingSoon: false
+        },
+        {
+          id: 'test-reflexes',
+          title: 'TEST DE RÉFLEXES',
+          icon: <IoTrophyOutline className="h-5 w-5" />,
+          destination: '/amoa/test-reflexes',
+          comingSoon: false
+        },
+        {
+          id: 'certification-interne',
+          title: 'CERTIFICATION INTERNE',
+          icon: <MdOutlineEmojiEvents className="h-5 w-5" />,
+          destination: '/amoa/certification',
+          comingSoon: true
+        }
+      ]
     },
     {
       id: 'creer',
       title: "CRÉER/AUTOMATISER",
-      description: "Utiliser des outils pour générer du contenu et automatiser des tâches AMOA",
+      description: "Utilisez des outils pour générer du contenu et automatiser des tâches AMOA",
       icon: <IoConstructOutline className="h-6 w-6 text-cyan-100" />,
-      modules: [
-        'generateur-livrables',  // Générateur de livrables AMOA
-        'toolkit-amoa'           // Toolkit d'automatisation AMOA
-      ],
-      gradient: 'from-cyan-700 to-cyan-900'
+      gradient: 'from-cyan-700 to-cyan-900',
+      destination: '#',
+      comingSoon: false,
+      items: [
+        {
+          id: 'generateur-livrables',
+          title: 'GÉNÉRATEUR DE LIVRABLES',
+          icon: <BsFileEarmarkCode className="h-5 w-5" />,
+          destination: '/amoa/generateur-livrables',
+          comingSoon: true,
+          isNew: true
+        },
+        {
+          id: 'toolkit-amoa',
+          title: 'TOOLKIT AMOA',
+          icon: <BsGearFill className="h-5 w-5" />,
+          destination: '/amoa/toolkit',
+          comingSoon: true
+        }
+      ]
     }
   ];
 
   // Parcours métiers AMOA
-  const careerPaths: CareerPath[] = [
+  const careerPaths: ModeOption[] = [
     {
       id: 'consultant-amoa',
       title: 'Consultant AMOA',
       description: "Accompagner les projets informatiques depuis l'expression de besoin jusqu'au déploiement",
       icon: <BsClipboardData className="h-6 w-6 text-blue-100" />,
-      skills: ['Analyse de besoins', 'Rédaction spécifications', 'Test', 'Conduite du changement'],
-      modules: ['mc2i-ai-learning', 'modules-express', 'interview-simulation', 'projet-imposteur'],
-      gradient: 'from-blue-600 to-blue-800'
+      gradient: 'from-blue-600 to-blue-800',
+      destination: '#',
+      comingSoon: false,
+      items: [
+        {
+          id: 'mc2i-ai-learning',
+          title: 'mc2i AI LEARNING',
+          icon: <RiUserSettingsLine className="h-5 w-5" />,
+          destination: '/outils-ia/mc2i-learning',
+          comingSoon: false
+        },
+        {
+          id: 'modules-express',
+          title: 'MODULES EXPRESS',
+          icon: <BsBookmarkCheck className="h-5 w-5" />,
+          destination: '/amoa/modules-express',
+          comingSoon: false
+        },
+        {
+          id: 'interview-simulation',
+          title: 'AUDITION CLIENT',
+          icon: <BsClipboardCheck className="h-5 w-5" />,
+          destination: '/amoa/interview-simulation',
+          comingSoon: false
+        },
+        {
+          id: 'projet-imposteur',
+          title: 'QUI EST L\'IMPOSTEUR ?',
+          icon: <BsPeopleFill className="h-5 w-5" />,
+          destination: '/amoa/projet-imposteur',
+          comingSoon: false
+        }
+      ]
     },
     {
       id: 'product-owner',
       title: 'Product Owner',
       description: "Gérer le backlog produit et prioriser les fonctionnalités dans un contexte Agile",
       icon: <BsKanban className="h-6 w-6 text-green-100" />,
-      skills: ['Gestion de backlog', 'User stories', 'Agile', 'Priorisation'],
-      modules: ['mc2i-ai-learning', 'modules-express', 'analyse-besoins'],
-      gradient: 'from-green-600 to-green-800'
+      gradient: 'from-green-600 to-green-800',
+      destination: '#',
+      comingSoon: false,
+      items: [
+        {
+          id: 'mc2i-ai-learning',
+          title: 'mc2i AI LEARNING',
+          icon: <RiUserSettingsLine className="h-5 w-5" />,
+          destination: '/outils-ia/mc2i-learning',
+          comingSoon: false
+        },
+        {
+          id: 'modules-express',
+          title: 'MODULES EXPRESS',
+          icon: <BsBookmarkCheck className="h-5 w-5" />,
+          destination: '/amoa/modules-express',
+          comingSoon: false
+        },
+        {
+          id: 'analyse-besoins',
+          title: 'ATELIER BESOINS',
+          icon: <BsLightbulb className="h-5 w-5" />,
+          destination: '/amoa/analyse-besoins',
+          comingSoon: true
+        }
+      ]
     },
     {
       id: 'business-analyst',
       title: 'Business Analyst',
       description: "Analyser et modéliser les processus métier pour concevoir des solutions optimales",
       icon: <FaRegChartBar className="h-6 w-6 text-amber-100" />,
-      skills: ['Analyse processus', 'Modélisation', 'Data analytics', 'Business case'],
-      modules: ['mc2i-ai-learning', 'analyse-besoins', 'test-reflexes'],
-      gradient: 'from-amber-600 to-amber-800'
+      gradient: 'from-amber-600 to-amber-800',
+      destination: '#',
+      comingSoon: false,
+      items: [
+        {
+          id: 'mc2i-ai-learning',
+          title: 'mc2i AI LEARNING',
+          icon: <RiUserSettingsLine className="h-5 w-5" />,
+          destination: '/outils-ia/mc2i-learning',
+          comingSoon: false
+        },
+        {
+          id: 'analyse-besoins',
+          title: 'ATELIER BESOINS',
+          icon: <BsLightbulb className="h-5 w-5" />,
+          destination: '/amoa/analyse-besoins',
+          comingSoon: true
+        },
+        {
+          id: 'test-reflexes',
+          title: 'TEST DE RÉFLEXES',
+          icon: <IoTrophyOutline className="h-5 w-5" />,
+          destination: '/amoa/test-reflexes',
+          comingSoon: false
+        }
+      ]
     },
     {
       id: 'chef-projet',
       title: 'Chef de Projet',
       description: "Piloter des projets informatiques en respectant le budget, les délais et la qualité",
       icon: <FaProjectDiagram className="h-6 w-6 text-red-100" />,
-      skills: ['Gestion de projet', 'Planification', 'Gestion risques', 'Pilotage d\'équipe'],
-      modules: ['modules-express', 'test-reflexes', 'simulation-reunion', 'certification-interne'],
-      gradient: 'from-red-600 to-red-800'
+      gradient: 'from-red-600 to-red-800',
+      destination: '#',
+      comingSoon: false,
+      items: [
+        {
+          id: 'modules-express',
+          title: 'MODULES EXPRESS',
+          icon: <BsBookmarkCheck className="h-5 w-5" />,
+          destination: '/amoa/modules-express',
+          comingSoon: false
+        },
+        {
+          id: 'test-reflexes',
+          title: 'TEST DE RÉFLEXES',
+          icon: <IoTrophyOutline className="h-5 w-5" />,
+          destination: '/amoa/test-reflexes',
+          comingSoon: false
+        },
+        {
+          id: 'simulation-reunion',
+          title: 'SIMULATION RÉUNION',
+          icon: <RiTeamLine className="h-5 w-5" />,
+          destination: '/amoa/simulation-reunion',
+          comingSoon: true
+        },
+        {
+          id: 'certification-interne',
+          title: 'CERTIFICATION INTERNE',
+          icon: <MdOutlineEmojiEvents className="h-5 w-5" />,
+          destination: '/amoa/certification',
+          comingSoon: true
+        }
+      ]
     }
   ];
 
-  // Filtrage des modules basé sur la recherche
-  const filteredModules = modules.filter(module => 
-    module.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    module.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filtrer les modes en fonction de la recherche
+  const filteredModes = amoaModes.filter(mode => {
+    const matchesSearch = mode.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         mode.description.toLowerCase().includes(searchQuery.toLowerCase());
+                         
+    const hasMatchingItems = mode.items.some(item => 
+      item.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    
+    return matchesSearch || hasMatchingItems;
+  });
+
+  const filteredCareers = careerPaths.filter(career => {
+    const matchesSearch = career.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          career.description.toLowerCase().includes(searchQuery.toLowerCase());
+                           
+    const hasMatchingItems = career.items.some(item => 
+      item.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    
+    return matchesSearch || hasMatchingItems;
+  });
 
   return (
     <HomeLayout>
@@ -298,231 +353,199 @@ export default function AmoaModeSelection() {
           </Button>
         </div>
         
+        {/* Arrière-plan simplifié */}
+        <div className="absolute inset-0 w-full h-full opacity-20">
+          <div className="absolute inset-0 bg-[#001529] overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 bottom-0 grid grid-cols-12 gap-3 opacity-30">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="border-r border-blue-500/20 h-full"></div>
+              ))}
+            </div>
+            <div className="absolute top-0 left-0 right-0 bottom-0 grid grid-rows-12 gap-3 opacity-30">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="border-b border-blue-500/20 w-full"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+        
         {/* Contenu principal */}
-        <div className="relative z-10 max-w-[1600px] w-full mx-auto px-4 py-12 sm:px-6 sm:py-16">
-          <div className="text-center mb-10 sm:mb-16">
-            <motion.h1 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4"
-            >
+        <div className="relative z-10 max-w-[1600px] w-full mx-auto px-4 py-4 sm:px-6 sm:py-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-4 sm:mb-6 mt-2"
+          >
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3">
               I AM <span className="text-blue-300">mc2i</span>
-            </motion.h1>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-lg sm:text-xl text-blue-200 max-w-3xl mx-auto"
-            >
-              Assistant de formation intelligent pour les métiers de la transformation numérique
-            </motion.p>
-            
-            {/* Barre de recherche et filtres */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="mt-8 max-w-xl mx-auto relative"
-            >
-              <div className="relative">
-                <IoSearchOutline className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <Input
-                  type="text"
-                  placeholder="Rechercher un module..."
-                  className="pl-10 pr-4 py-2 w-full bg-white/10 border-white/20 text-white placeholder-blue-200/70 focus:border-blue-400"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </motion.div>
+            </h1>
+            <p className="text-lg sm:text-xl text-blue-200 max-w-3xl mx-auto">
+              Choisissez votre parcours d'apprentissage en transformation numérique
+            </p>
+          </motion.div>
+
+          {/* Barre de recherche */}
+          <div className="max-w-md mx-auto mb-8">
+            <div className="relative">
+              <IoSearchOutline className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Rechercher un module..."
+                className="pl-10 pr-4 py-2 w-full bg-white/10 border-white/20 text-white placeholder-blue-200/70 focus:border-blue-400"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
           </div>
 
-          {/* Tabs pour sélectionner la vue */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-            <TabsList className="mx-auto bg-blue-950/50 border border-blue-800">
-              <TabsTrigger value="modules" className="data-[state=active]:bg-blue-700">
-                Par modules
-              </TabsTrigger>
-              <TabsTrigger value="objectives" className="data-[state=active]:bg-blue-700">
-                Par objectifs
-              </TabsTrigger>
-              <TabsTrigger value="careers" className="data-[state=active]:bg-blue-700">
-                Par métiers
-              </TabsTrigger>
-            </TabsList>
-            
-            {/* Vue par modules */}
-            <TabsContent value="modules" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredModules.map((module) => (
-                  <motion.div
-                    key={module.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                    className="relative"
-                    onMouseEnter={() => setHoveredModule(module.id)}
-                    onMouseLeave={() => setHoveredModule(null)}
-                  >
-                    <Link href={module.comingSoon ? "#" : module.destination}>
-                      <div className={`bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl overflow-hidden h-full transition-all duration-200 ${hoveredModule === module.id ? 'bg-white/20 border-white/30 shadow-lg' : 'shadow'}`}>
-                        <div className="p-5">
-                          <div className="flex items-center mb-3">
-                            <div className="bg-blue-700/50 p-2 rounded-lg mr-3">
-                              {module.icon}
-                            </div>
-                            <h3 className="font-bold text-white">{module.title}</h3>
-                            {module.isNew && (
-                              <Badge className="ml-2 bg-blue-600 text-white">NOUVEAU</Badge>
-                            )}
-                          </div>
-                          <p className="text-blue-100 text-sm mb-4 min-h-[60px]">
-                            {module.description}
-                          </p>
-                          <div className="flex justify-between items-center">
-                            <div className="flex space-x-2">
-                              <Badge variant="outline" className="text-xs">
-                                {module.difficulty}
-                              </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                {module.duration}
-                              </Badge>
-                            </div>
-                            {module.comingSoon ? (
-                              <Badge variant="outline" className="border-amber-500 text-amber-400">
-                                Bientôt
-                              </Badge>
-                            ) : (
-                              <div className="bg-blue-600/50 rounded-full p-1">
-                                <IoMdArrowForward className="h-4 w-4 text-white" />
+          {/* Rangés par objectifs */}
+          <h2 className="text-xl text-white font-semibold mb-6 flex items-center">
+            <span className="bg-blue-500/30 rounded-full p-1.5 mr-2">
+              <IoBookOutline className="h-5 w-5 text-blue-200" />
+            </span>
+            Rangés par objectifs
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 px-3 sm:px-6 max-w-full mx-auto mb-10">
+            {filteredModes.map((category, index) => (
+              <motion.div
+                key={category.id}
+                data-id={category.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="relative overflow-hidden shadow-xl transform transition-all duration-300 hover:shadow-2xl h-full w-full flex-1 rounded-xl"
+                onMouseEnter={() => setHoveredMode(category.id)}
+                onMouseLeave={() => setHoveredMode(null)}
+              >
+                {/* Gradient background */}
+                <div className={`bg-gradient-to-br ${category.gradient} p-5 lg:p-6 h-full flex flex-col relative overflow-hidden rounded-xl`}>
+                  {/* Glow effect on hover */}
+                  {hoveredMode === category.id && (
+                    <>
+                      <div className="absolute inset-0 bg-white opacity-5"></div>
+                    </>
+                  )}
+                  
+                  {/* Éléments décoratifs simplifiés */}
+                  <div className="absolute h-16 w-16 -top-8 -right-8 bg-white opacity-20 rounded-full blur-md"></div>
+                  
+                  <div className="flex flex-col h-full relative z-10">
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-3 text-center px-2">
+                      {category.title}
+                    </h2>
+                    <p className="text-blue-100 mb-2 text-xs lg:text-sm text-center line-clamp-2 px-1">
+                      {category.description}
+                    </p>
+                    
+                    {/* Liste des modules dans cette catégorie */}
+                    <div className="mt-4 flex-grow">
+                      <div className="space-y-3">
+                        {category.items.map((item) => (
+                          <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
+                            <div className="flex items-center p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
+                              <div className="flex-grow">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="text-white font-medium text-base">{item.title}</h3>
+                                  {item.isNew && (
+                                    <Badge className="ml-auto text-xs bg-blue-600 text-white">NOUVEAU</Badge>
+                                  )}
+                                </div>
                               </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            </TabsContent>
-            
-            {/* Vue par objectifs d'apprentissage */}
-            <TabsContent value="objectives" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {learningObjectives.map((objective) => (
-                  <motion.div
-                    key={objective.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3 }}
-                    className="relative"
-                  >
-                    <div className={`bg-gradient-to-br ${objective.gradient} rounded-xl overflow-hidden shadow-lg border border-white/20`}>
-                      <div className="p-5">
-                        <div className="flex items-center mb-4">
-                          <div className="mr-3">
-                            {objective.icon}
-                          </div>
-                          <h3 className="font-bold text-xl text-white">{objective.title}</h3>
-                        </div>
-                        
-                        <p className="text-blue-100 mb-4">
-                          {objective.description}
-                        </p>
-                        
-                        <div className="space-y-2">
-                          <h4 className="font-medium text-white text-sm mb-2">Modules recommandés:</h4>
-                          {objective.modules.map((moduleId) => {
-                            const moduleInfo = modules.find(m => m.id === moduleId);
-                            return moduleInfo ? (
-                              <Link key={moduleId} href={moduleInfo.comingSoon ? "#" : moduleInfo.destination}>
-                                <div className="flex items-center p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                                  <div className="mr-2">
-                                    {moduleInfo.icon}
-                                  </div>
-                                  <span className="text-sm text-white">{moduleInfo.title}</span>
-                                  {moduleInfo.comingSoon && (
-                                    <Badge variant="outline" className="ml-auto border-amber-500 text-amber-400 text-xs">
-                                      Bientôt
-                                    </Badge>
-                                  )}
+                              {item.comingSoon ? (
+                                <Badge variant="outline" className="border-amber-500 text-amber-400 text-xs">
+                                  Bientôt
+                                </Badge>
+                              ) : (
+                                <div className="text-white bg-blue-500/30 p-1 rounded-full">
+                                  <ArrowRight className="h-4 w-4" />
                                 </div>
-                              </Link>
-                            ) : null;
-                          })}
-                        </div>
+                              )}
+                            </div>
+                          </Link>
+                        ))}
                       </div>
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-            </TabsContent>
-            
-            {/* Vue par parcours métiers */}
-            <TabsContent value="careers" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {careerPaths.map((career) => (
-                  <motion.div
-                    key={career.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3 }}
-                    className="relative"
-                  >
-                    <div className={`bg-gradient-to-br ${career.gradient} rounded-xl overflow-hidden shadow-lg border border-white/20`}>
-                      <div className="p-5">
-                        <div className="flex items-center mb-4">
-                          <div className="mr-3">
-                            {career.icon}
-                          </div>
-                          <h3 className="font-bold text-xl text-white">{career.title}</h3>
-                        </div>
-                        
-                        <p className="text-blue-100 mb-4">
-                          {career.description}
-                        </p>
-                        
-                        <div className="mb-4">
-                          <h4 className="font-medium text-white text-sm mb-2">Compétences clés:</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {career.skills.map((skill, index) => (
-                              <Badge key={index} variant="outline" className="bg-white/10">
-                                {skill}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <h4 className="font-medium text-white text-sm mb-2">Parcours recommandé:</h4>
-                          {career.modules.map((moduleId) => {
-                            const moduleInfo = modules.find(m => m.id === moduleId);
-                            return moduleInfo ? (
-                              <Link key={moduleId} href={moduleInfo.comingSoon ? "#" : moduleInfo.destination}>
-                                <div className="flex items-center p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                                  <div className="mr-2">
-                                    {moduleInfo.icon}
-                                  </div>
-                                  <span className="text-sm text-white">{moduleInfo.title}</span>
-                                  {moduleInfo.comingSoon && (
-                                    <Badge variant="outline" className="ml-auto border-amber-500 text-amber-400 text-xs">
-                                      Bientôt
-                                    </Badge>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          
+          {/* Rangés par métiers */}
+          <h2 className="text-xl text-white font-semibold mb-6 mt-8 flex items-center">
+            <span className="bg-blue-500/30 rounded-full p-1.5 mr-2">
+              <BsPeopleFill className="h-5 w-5 text-blue-200" />
+            </span>
+            Rangés par métiers
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 px-3 sm:px-6 max-w-full mx-auto">
+            {filteredCareers.map((career, index) => (
+              <motion.div
+                key={career.id}
+                data-id={career.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="relative overflow-hidden shadow-xl transform transition-all duration-300 hover:shadow-2xl h-full w-full flex-1 rounded-xl"
+                onMouseEnter={() => setHoveredMode(career.id)}
+                onMouseLeave={() => setHoveredMode(null)}
+              >
+                {/* Gradient background */}
+                <div className={`bg-gradient-to-br ${career.gradient} p-5 lg:p-6 h-full flex flex-col relative overflow-hidden rounded-xl`}>
+                  {/* Glow effect on hover */}
+                  {hoveredMode === career.id && (
+                    <>
+                      <div className="absolute inset-0 bg-white opacity-5"></div>
+                    </>
+                  )}
+                  
+                  {/* Éléments décoratifs simplifiés */}
+                  <div className="absolute h-16 w-16 -top-8 -right-8 bg-white opacity-20 rounded-full blur-md"></div>
+                  
+                  <div className="flex flex-col h-full relative z-10">
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-3 text-center px-2">
+                      {career.title}
+                    </h2>
+                    <p className="text-blue-100 mb-2 text-xs lg:text-sm text-center line-clamp-2 px-1">
+                      {career.description}
+                    </p>
+                    
+                    {/* Liste des modules dans cette catégorie */}
+                    <div className="mt-4 flex-grow">
+                      <div className="space-y-3">
+                        {career.items.map((item) => (
+                          <Link key={item.id} href={item.comingSoon ? '#' : item.destination} onClick={(e) => item.comingSoon && e.preventDefault()}>
+                            <div className="flex items-center p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer border border-white/20 shadow-sm hover:shadow-md hover:border-white/40">
+                              <div className="flex-grow">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="text-white font-medium text-base">{item.title}</h3>
+                                  {item.isNew && (
+                                    <Badge className="ml-auto text-xs bg-blue-600 text-white">NOUVEAU</Badge>
                                   )}
                                 </div>
-                              </Link>
-                            ) : null;
-                          })}
-                        </div>
+                              </div>
+                              {item.comingSoon ? (
+                                <Badge variant="outline" className="border-amber-500 text-amber-400 text-xs">
+                                  Bientôt
+                                </Badge>
+                              ) : (
+                                <div className="text-white bg-blue-500/30 p-1 rounded-full">
+                                  <ArrowRight className="h-4 w-4" />
+                                </div>
+                              )}
+                            </div>
+                          </Link>
+                        ))}
                       </div>
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </HomeLayout>
