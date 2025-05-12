@@ -146,7 +146,7 @@ export default function CyberModeSelectionRedesign() {
       title: 'PLAN DE CONTINUITÉ D\'ACTIVITÉ',
       description: "Apprenez à concevoir, déployer et tester un Plan de Continuité d'Activité efficace pour garantir la résilience de votre organisation",
       icon: <BsShieldCheck className="h-5 w-5" />,
-      destination: '/cyber/plan-continuité',
+      destination: '/cyber/plan-continuite',
       difficulty: 'intermédiaire',
       duration: '30-45 min',
       isNew: true,
