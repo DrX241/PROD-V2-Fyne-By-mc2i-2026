@@ -134,33 +134,6 @@ export default function AmoaModeSelection() {
       comingSoon: false
     },
     {
-      id: 'simulation-reunion',
-      title: 'SIMULATION RÉUNION',
-      description: 'Pratiquez l\'animation de réunions client avec différents scénarios et profils.',
-      icon: <RiTeamLine className="h-5 w-5 text-purple-200" />,
-      destination: '/amoa/simulation-reunion',
-      difficulty: 'intermédiaire',
-      comingSoon: true
-    },
-    {
-      id: 'analyse-besoins',
-      title: 'ATELIER BESOINS',
-      description: 'Exercices pratiques pour maîtriser l\'expression et l\'analyse des besoins client.',
-      icon: <BsLightbulb className="h-5 w-5 text-yellow-200" />,
-      destination: '/amoa/analyse-besoins',
-      difficulty: 'intermédiaire',
-      comingSoon: true
-    },
-    {
-      id: 'interview-simulation',
-      title: 'AUDITION CLIENT',
-      description: 'Entraînez-vous à l\'entretien client avec notre simulateur intelligent.',
-      icon: <BsClipboardCheck className="h-5 w-5 text-blue-200" />,
-      destination: '/amoa/interview-simulation',
-      difficulty: 'avancé',
-      comingSoon: false
-    },
-    {
       id: 'test-reflexes',
       title: 'TEST DE RÉFLEXES',
       description: 'Testez vos réflexes AMOA face à des situations complexes en temps limité.',
@@ -170,32 +143,13 @@ export default function AmoaModeSelection() {
       comingSoon: false
     },
     {
-      id: 'certification-interne',
-      title: 'CERTIFICATION INTERNE',
-      description: 'Validez officiellement vos compétences AMOA selon les standards mc2i.',
-      icon: <MdOutlineEmojiEvents className="h-5 w-5 text-yellow-200" />,
-      destination: '/amoa/certification',
-      difficulty: 'avancé',
-      comingSoon: true
-    },
-    {
       id: 'generateur-livrables',
       title: 'GÉNÉRATEUR DE LIVRABLES',
-      description: 'Assistant IA pour créer rapidement des livrables AMOA professionnels.',
+      description: 'Assistant IA pour créer des livrables AMOA professionnels.',
       icon: <BsFileEarmarkCode className="h-5 w-5 text-green-200" />,
       destination: '/amoa/generateur-livrables',
       difficulty: 'intermédiaire',
-      isNew: true,
-      comingSoon: true
-    },
-    {
-      id: 'toolkit-amoa',
-      title: 'TOOLKIT AMOA',
-      description: 'Boîte à outils complète pour automatiser vos tâches AMOA quotidiennes.',
-      icon: <BsGearFill className="h-5 w-5 text-blue-200" />,
-      destination: '/amoa/toolkit',
-      difficulty: 'intermédiaire',
-      comingSoon: true
+      comingSoon: false
     }
   ];
 
@@ -215,7 +169,7 @@ export default function AmoaModeSelection() {
       description: "Mettez en pratique vos connaissances avec des exercices interactifs et des simulations",
       icon: <IoDesktopOutline className="h-6 w-6 text-indigo-100" />,
       gradient: 'from-indigo-700 to-indigo-900',
-      modules: ['projet-imposteur', 'simulation-reunion', 'analyse-besoins']
+      modules: ['projet-imposteur']
     },
     {
       id: 'sevaluer',
@@ -223,7 +177,7 @@ export default function AmoaModeSelection() {
       description: "Testez vos compétences dans des conditions réelles d'examen ou d'entretien",
       icon: <IoTrophyOutline className="h-6 w-6 text-purple-100" />,
       gradient: 'from-purple-700 to-purple-900',
-      modules: ['interview-simulation', 'test-reflexes', 'certification-interne']
+      modules: ['test-reflexes']
     },
     {
       id: 'creer',
@@ -231,7 +185,7 @@ export default function AmoaModeSelection() {
       description: "Utilisez des outils pour générer du contenu et automatiser des tâches AMOA",
       icon: <IoConstructOutline className="h-6 w-6 text-cyan-100" />,
       gradient: 'from-cyan-700 to-cyan-900',
-      modules: ['generateur-livrables', 'toolkit-amoa']
+      modules: ['generateur-livrables']
     }
   ];
 
@@ -250,7 +204,7 @@ export default function AmoaModeSelection() {
         'Conduite du changement',
         'Recette fonctionnelle'
       ],
-      modules: ['agent-ia', 'interview-simulation', 'projet-imposteur', 'amoa-academie']
+      modules: ['agent-ia', 'projet-imposteur', 'amoa-academie', 'generateur-livrables']
     },
     {
       id: 'product-owner',
@@ -265,7 +219,7 @@ export default function AmoaModeSelection() {
         'Méthodes Agiles',
         'Relation client'
       ],
-      modules: ['agent-ia', 'analyse-besoins', 'amoa-academie']
+      modules: ['agent-ia', 'amoa-academie', 'generateur-livrables']
     },
     {
       id: 'business-analyst',
@@ -280,7 +234,7 @@ export default function AmoaModeSelection() {
         'Business Intelligence',
         'Transformation digitale'
       ],
-      modules: ['agent-ia', 'analyse-besoins', 'test-reflexes', 'amoa-academie']
+      modules: ['agent-ia', 'test-reflexes', 'amoa-academie', 'generateur-livrables']
     },
     {
       id: 'chef-projet',
@@ -295,7 +249,7 @@ export default function AmoaModeSelection() {
         'Reporting',
         'Pilotage budgétaire'
       ],
-      modules: ['agent-ia', 'test-reflexes', 'simulation-reunion', 'certification-interne', 'amoa-academie']
+      modules: ['agent-ia', 'test-reflexes', 'amoa-academie', 'generateur-livrables']
     }
   ];
 
