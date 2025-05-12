@@ -722,6 +722,23 @@ function App() {
             }} />
             <Route path="/amoa-old" component={AmoaPage} />
             <Route path="/amoa-mode-selection-old" component={AmoaModeSelection} />
+            {/* Routes pour les nouveaux modules AMOA */}
+            <Route path="/amoa/academie" component={() => {
+              const AmoaAcademie = lazy(() => import('./pages/amoa/academie'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <AmoaAcademie />
+                </Suspense>
+              );
+            }} />
+            <Route path="/amoa/parcours" component={() => {
+              const ParcoursAmoa = lazy(() => import('./pages/amoa/parcours'));
+              return (
+                <Suspense fallback={<GlobalLoader />}>
+                  <ParcoursAmoa />
+                </Suspense>
+              );
+            }} />
             {/* Route AMOA Quest supprimée */}
             <Route path="/amoa/projet-imposteur" component={ProjetImposteur} />
             <Route path="/amoa/mc2i-interview-preparation" component={Mc2iInterviewPreparation} />
