@@ -234,7 +234,7 @@ export default function AmoaModeSelection() {
     },
     {
       id: 'creer',
-      title: "CRÉER/AUTOMATISER",
+      title: "AUTOMATISER",
       description: "Utilisez des outils pour générer du contenu et automatiser des tâches AMOA",
       icon: <IoConstructOutline className="h-6 w-6 text-cyan-100" />,
       gradient: 'from-cyan-700 to-cyan-900',

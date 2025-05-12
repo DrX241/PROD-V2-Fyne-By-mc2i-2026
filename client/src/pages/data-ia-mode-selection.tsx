@@ -219,7 +219,7 @@ export default function DataIaModeSelection() {
     },
     {
       id: 'creer',
-      title: "CRÉER/AUTOMATISER",
+      title: "AUTOMATISER",
       description: "Utilisez des outils pour générer et transformer des données, et accédez à des modèles IA",
       icon: <IoConstructOutline className="h-6 w-6 text-blue-100" />,
       gradient: 'from-blue-700 to-cyan-900',

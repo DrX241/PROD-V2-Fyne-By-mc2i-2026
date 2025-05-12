@@ -280,7 +280,7 @@ export default function CyberModeSelectionRedesign() {
     },
     {
       id: 'creer',
-      title: "CRÉER/AUTOMATISER",
+      title: "AUTOMATISER",
       description: "Utiliser des outils pour générer du contenu et automatiser des tâches de cybersécurité",
       icon: <IoConstructOutline className="h-6 w-6 text-teal-100" />,
       modules: [
