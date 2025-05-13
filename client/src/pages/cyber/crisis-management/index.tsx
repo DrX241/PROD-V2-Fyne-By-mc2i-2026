@@ -22,14 +22,83 @@ import { apiRequest } from '@/lib/queryClient';
 
 export default function CrisisManagement() {
   const { toast } = useToast();
+  const [, navigate] = useLocation();
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [availableScenarios, setAvailableScenarios] = useState([]);
+  const [startingSession, setStartingSession] = useState(false);
+  const [selectedScenarioId, setSelectedScenarioId] = useState(null);
+
+  useEffect(() => {
+    // Charger les scénarios disponibles
+    fetchScenarios();
+  }, []);
+
+  const fetchScenarios = async () => {
+    setLoading(true);
+    try {
+      const response = await apiRequest('GET', '/api/crisis-management/scenarios');
+      const data = await response.json();
+      
+      if (data.success) {
+        setAvailableScenarios(data.scenarios);
+      } else {
+        toast({
+          title: "Erreur",
+          description: data.error || "Impossible de charger les scénarios",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des scénarios:", error);
+      toast({
+        title: "Erreur de connexion",
+        description: "Impossible de se connecter au serveur",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const startSession = async (scenarioId) => {
+    setSelectedScenarioId(scenarioId);
+    setStartingSession(true);
+    try {
+      const response = await apiRequest('POST', '/api/crisis-management/start', {
+        userId: "user-" + Math.random().toString(36).substring(2, 9), // Identifiant utilisateur temporaire
+        scenarioId
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        // Rediriger vers la page de session active
+        navigate(`/cyber/crisis-management/session/${data.sessionId}`);
+      } else {
+        toast({
+          title: "Erreur",
+          description: data.error || "Impossible de démarrer la session",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors du démarrage de la session:", error);
+      toast({
+        title: "Erreur de connexion",
+        description: "Impossible de se connecter au serveur",
+        variant: "destructive"
+      });
+    } finally {
+      setStartingSession(false);
+    }
+  };
 
   const handleSubscribe = () => {
     setIsSubscribed(true);
     setTimeout(() => {
       toast({
         title: "Merci pour votre intérêt !",
-        description: "Vous serez notifié(e) dès que le module sera disponible.",
+        description: "Vous serez notifié(e) des prochaines mises à jour du module.",
         duration: 5000,
       });
     }, 0);
@@ -109,7 +178,7 @@ export default function CrisisManagement() {
             <BsExclamationCircleFill className="h-10 w-10 text-red-500" />
             <h1 className="text-4xl font-bold tracking-tight">GESTION DE CRISE</h1>
           </div>
-          <Badge variant="outline" className="text-yellow-400 border-yellow-400 mb-4">Disponible prochainement</Badge>
+          <Badge variant="outline" className="text-green-400 border-green-500 mb-4">Disponible maintenant</Badge>
           <p className="text-xl text-blue-100 max-w-3xl mx-auto">
             Mettez-vous dans la peau d'un RSSI confronté à des incidents majeurs et apprenez à gérer 
             efficacement une crise cybersécurité en temps réel.
@@ -204,25 +273,25 @@ export default function CrisisManagement() {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <p className="font-medium">Développement de l'IA adaptative</p>
-                  <Badge variant="outline" className="bg-blue-900/30 text-blue-400 border-blue-500">En cours</Badge>
+                  <Badge variant="outline" className="bg-green-900/30 text-green-400 border-green-500">Complété</Badge>
                 </div>
-                <Progress value={70} className="h-2 bg-blue-800/50" />
+                <Progress value={100} className="h-2 bg-blue-800/50" />
               </div>
               
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <p className="font-medium">Intégration des simulations temps réel</p>
-                  <Badge variant="outline" className="bg-yellow-900/30 text-yellow-400 border-yellow-500">En planification</Badge>
+                  <Badge variant="outline" className="bg-green-900/30 text-green-400 border-green-500">Complété</Badge>
                 </div>
-                <Progress value={30} className="h-2 bg-blue-800/50" />
+                <Progress value={100} className="h-2 bg-blue-800/50" />
               </div>
               
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <p className="font-medium">Test et optimisation de l'expérience</p>
-                  <Badge variant="outline" className="bg-gray-800/30 text-gray-400 border-gray-600">À venir</Badge>
+                  <Badge variant="outline" className="bg-blue-900/30 text-blue-400 border-blue-500">En cours</Badge>
                 </div>
-                <Progress value={10} className="h-2 bg-blue-800/50" />
+                <Progress value={75} className="h-2 bg-blue-800/50" />
               </div>
             </div>
           </div>
@@ -264,8 +333,22 @@ export default function CrisisManagement() {
                     <IoMdTimer className="mr-1 h-4 w-4" />
                     {scenario.duration}
                   </div>
-                  <Button variant="ghost" disabled className="text-sm h-8 bg-blue-800/20">
-                    <FiLock className="mr-1 h-3 w-3" /> Bientôt disponible
+                  <Button 
+                    variant="ghost" 
+                    className="text-sm h-8 bg-blue-800/20 hover:bg-blue-700/50"
+                    onClick={() => startSession(scenario.id)}
+                    disabled={startingSession || selectedScenarioId === scenario.id}
+                  >
+                    {startingSession && selectedScenarioId === scenario.id ? (
+                      <>
+                        <div className="w-3 h-3 rounded-full border-2 border-blue-300 border-t-transparent animate-spin mr-1"></div>
+                        Démarrage...
+                      </>
+                    ) : (
+                      <>
+                        <FiPlay className="mr-1 h-3 w-3" /> Démarrer la simulation
+                      </>
+                    )}
                   </Button>
                 </CardFooter>
               </Card>
@@ -282,19 +365,27 @@ export default function CrisisManagement() {
         >
           <div className="flex flex-col items-center max-w-2xl mx-auto">
             <IoMdNotifications className="h-12 w-12 text-yellow-400 mb-4" />
-            <h2 className="text-2xl font-bold mb-4">Soyez les premiers à relever le défi</h2>
+            <h2 className="text-2xl font-bold mb-4">Le défi de gestion de crise vous attend</h2>
             <p className="text-blue-100 mb-6">
-              Recevez une notification dès que le module de Gestion de Crise sera disponible.
-              Préparez-vous à tester vos capacités de décision et de leadership en cybersécurité.
+              Notre module de Gestion de Crise est désormais disponible ! Testez vos compétences en 
+              matière de prise de décision et de leadership face à des incidents de cybersécurité critiques.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Button
                 size="lg"
                 className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white border-none"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                Découvrir les scénarios
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-blue-500 hover:bg-blue-800/30 text-white"
                 onClick={handleSubscribe}
                 disabled={isSubscribed}
               >
-                {isSubscribed ? "Vous êtes inscrit(e) !" : "Être notifié(e) au lancement"}
+                {isSubscribed ? "Vous êtes inscrit(e) aux mises à jour" : "Recevoir les mises à jour"}
               </Button>
             </div>
           </div>
