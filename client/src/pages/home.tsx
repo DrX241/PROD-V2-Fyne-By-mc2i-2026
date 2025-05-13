@@ -729,7 +729,7 @@ export default function Home() {
                   transition={{ duration: 0.7 }}
                 >
                   {isFuturistic ? (
-                    <div className="inline-flex flex-wrap justify-center gap-x-3">
+                    <div className="inline-flex justify-center tracking-tight">
                       <motion.span 
                         className="text-cyan-300"
                         animate={{ 
@@ -737,7 +737,7 @@ export default function Home() {
                         }} 
                         transition={{ duration: 2.5, repeat: Infinity, repeatType: "loop" }}
                       >F</motion.span>
-                      <span>or</span>
+                      <span className="mr-1">or</span>
                       <motion.span 
                         className="text-cyan-300"
                         animate={{ 
@@ -745,7 +745,7 @@ export default function Home() {
                         }} 
                         transition={{ duration: 2.5, delay: 0.5, repeat: Infinity, repeatType: "loop" }}
                       >Y</motion.span>
-                      <span>our</span>
+                      <span className="mr-1">our</span>
                       <motion.span 
                         className="text-cyan-300"
                         animate={{ 
@@ -753,7 +753,7 @@ export default function Home() {
                         }} 
                         transition={{ duration: 2.5, delay: 1, repeat: Infinity, repeatType: "loop" }}
                       >N</motion.span>
-                      <span>ext</span>
+                      <span className="mr-1">ext</span>
                       <motion.span 
                         className="text-cyan-300"
                         animate={{ 
@@ -764,7 +764,7 @@ export default function Home() {
                       <span>xperience</span>
                     </div>
                   ) : (
-                    <div className="inline-flex flex-wrap justify-center gap-x-2">
+                    <div className="inline-flex justify-center tracking-tight">
                       <motion.span 
                         className="text-blue-600"
                         animate={{ 
@@ -772,7 +772,7 @@ export default function Home() {
                         }} 
                         transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
                       >F</motion.span>
-                      <span>or</span>
+                      <span className="mr-1">or</span>
                       <motion.span 
                         className="text-blue-600"
                         animate={{ 
@@ -780,7 +780,7 @@ export default function Home() {
                         }} 
                         transition={{ duration: 3, delay: 0.5, repeat: Infinity, repeatType: "reverse" }}
                       >Y</motion.span>
-                      <span>our</span>
+                      <span className="mr-1">our</span>
                       <motion.span 
                         className="text-blue-600"
                         animate={{ 
@@ -788,7 +788,7 @@ export default function Home() {
                         }} 
                         transition={{ duration: 3, delay: 1, repeat: Infinity, repeatType: "reverse" }}
                       >N</motion.span>
-                      <span>ext</span>
+                      <span className="mr-1">ext</span>
                       <motion.span 
                         className="text-blue-600"
                         animate={{ 
@@ -837,20 +837,16 @@ export default function Home() {
               >
                 <div className="flex flex-col sm:block text-center">
                   <span className="inline-block">Améliorez </span>
-                  <span className={`inline-block my-2 sm:my-0 relative px-2 mx-1 ${
-                    isFuturistic 
-                      ? 'bg-gradient-to-r from-blue-600/20 to-indigo-600/20 rounded-md border-l-2 border-r-2 border-cyan-400/50'
-                      : 'bg-blue-50 rounded-md border-l-2 border-r-2 border-blue-400'
-                  }`}>
+                  <span className="inline-block my-2 sm:my-0 relative mx-1">
                     <span className={isFuturistic 
                       ? "bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 relative z-10"
                       : "text-blue-600 relative z-10"
                     }>votre expertise</span>
                     {isFuturistic && (
                       <motion.div 
-                        className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 blur-md"
+                        className="absolute inset-0 blur-sm"
                         animate={{ 
-                          opacity: [0.5, 0.8, 0.5]
+                          opacity: [0.3, 0.5, 0.3]
                         }} 
                         transition={{ 
                           duration: 3, 
