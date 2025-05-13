@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Send, ChevronDown, RefreshCw, Bot, X, ArrowLeft } from "lucide-react";
+import { Send, ChevronDown, RefreshCw, Bot, X, ArrowLeft, FileText, Plus, Home } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import HomeLayout from "@/components/layout/HomeLayout";
 import PageTitle from "@/components/utils/PageTitle";
@@ -416,28 +416,28 @@ function ExpertLearningPageContent() {
             </Button>
           </div>
           
-          <div className="flex flex-col items-center justify-center h-full pt-16">
+          <div className="flex flex-col items-center justify-center h-full pt-12 w-full px-6">
             {!isSessionActive && !sessionSummary ? (
               // Page d'accueil - style terminal de cybersécurité
-              <Card className="w-full max-w-2xl bg-[#091525] border border-[#00b4d8]/30 text-white shadow-[0_0_15px_rgba(0,180,216,0.1)]">
+              <Card className="w-full max-w-4xl bg-[#091525] border border-[#00b4d8]/30 text-white shadow-[0_0_20px_rgba(0,180,216,0.15)]">
                 <CardHeader className="border-b border-[#00b4d8]/20">
-                  <CardTitle className="font-mono text-[#00b4d8] flex items-center gap-2">
-                    <Bot className="h-5 w-5" />
+                  <CardTitle className="font-mono text-xl text-[#00b4d8] flex items-center gap-2">
+                    <Bot className="h-6 w-6" />
                     EXPERT CYBERSÉCURITÉ - INTERFACE DE DIALOGUE
                   </CardTitle>
-                  <CardDescription className="text-[#c3d9ee]/70 font-mono">
+                  <CardDescription className="text-[#c3d9ee]/70 font-mono text-base">
                     VERSION 2.5.3 | ÉTAT: <span className="text-[#4cc9f0]">PRÊT</span>
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="py-6 space-y-4 text-[#c3d9ee]">
-                  <div className="font-mono text-sm border-l-2 border-[#00b4d8]/50 pl-4">
-                    <p>Bienvenue sur le module <span className="text-[#00b4d8]">APPRENDRE EN ÉCHANGEANT</span>.</p>
+                <CardContent className="py-8 space-y-6 text-[#c3d9ee]">
+                  <div className="font-mono text-base border-l-2 border-[#00b4d8]/50 pl-6 py-2">
+                    <p>Bienvenue sur le module <span className="text-[#00b4d8] font-semibold">APPRENDRE EN ÉCHANGEANT</span>.</p>
                     <p className="mt-2">Cette interface vous permet d'interagir avec un expert en cybersécurité pour explorer des concepts adaptés à votre niveau et à vos besoins spécifiques.</p>
                   </div>
                   
-                  <div className="bg-[#121e2e] p-4 rounded-md border border-[#00b4d8]/30 font-mono text-sm space-y-3">
-                    <p className="text-[#e63946]">► FONCTIONNALITÉS:</p>
-                    <ul className="space-y-2 pl-6 list-disc text-[#c3d9ee]">
+                  <div className="bg-[#121e2e] p-6 rounded-md border border-[#00b4d8]/30 font-mono text-base space-y-4">
+                    <p className="text-[#e63946] font-semibold">► FONCTIONNALITÉS:</p>
+                    <ul className="space-y-3 pl-6 list-disc text-[#c3d9ee]">
                       <li>Dialogue avec un expert en cybersécurité pour identifier vos besoins d'apprentissage</li>
                       <li>Contenu personnalisé adapté à votre niveau et votre domaine professionnel</li>
                       <li>Formats d'apprentissage flexibles (académiques, simulations, défis)</li>
@@ -446,15 +446,15 @@ function ExpertLearningPageContent() {
                     </ul>
                   </div>
                 </CardContent>
-                <CardFooter className="border-t border-[#00b4d8]/20 pt-4 flex justify-center">
+                <CardFooter className="border-t border-[#00b4d8]/20 pt-6 pb-4 flex justify-center">
                   <Button 
                     onClick={startSession}
                     disabled={isLoading}
-                    className="bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525] font-mono"
+                    className="bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525] font-mono text-base px-8 py-6 h-auto"
                   >
                     {isLoading ? (
                       <>
-                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                        <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
                         INITIALISATION...
                       </>
                     ) : (
@@ -464,7 +464,7 @@ function ExpertLearningPageContent() {
                 </CardFooter>
               </Card>
             ) : (
-              <div className="flex flex-col w-full max-w-4xl mx-auto">
+              <div className="flex flex-col w-full max-w-6xl mx-auto">
                 {/* Mode décision ou chat standard */}
                 {decision.isInDecisionMode && decision.currentScenario ? (
                   <CyberDecisionFlow 
@@ -480,9 +480,9 @@ function ExpertLearningPageContent() {
                     {/* Zone de chat avec messages */}
                     <div 
                       ref={chatContainerRef}
-                      className="flex-1 overflow-y-auto bg-[#091525]/80 border border-[#00b4d8]/30 rounded-t-md shadow-[0_0_15px_rgba(0,180,216,0.1)] h-[calc(100vh-350px)] min-h-[400px]"
+                      className="flex-1 overflow-y-auto bg-[#091525]/80 border border-[#00b4d8]/30 rounded-t-md shadow-[0_0_20px_rgba(0,180,216,0.15)] h-[calc(100vh-300px)] min-h-[500px]"
                     >
-                      <div className="p-4 space-y-4">
+                      <div className="p-6 space-y-6">
                         {messages.map((message) => (
                           <div
                             key={message.id}
@@ -491,23 +491,23 @@ function ExpertLearningPageContent() {
                             }`}
                           >
                             <div
-                              className={`max-w-[85%] p-3 rounded-md ${
+                              className={`max-w-[85%] p-4 rounded-md ${
                                 message.type === "user"
-                                  ? "bg-[#00b4d8]/30 text-white ml-auto"
-                                  : "bg-[#121e2e] border border-[#00b4d8]/20 text-white"
+                                  ? "bg-[#00b4d8]/30 text-white ml-auto shadow-[0_2px_10px_rgba(0,180,216,0.15)]"
+                                  : "bg-[#121e2e] border border-[#00b4d8]/20 text-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
                               }`}
                             >
                               {message.type === "bot" ? (
                                 <div 
-                                  className="prose prose-invert max-w-none text-[#c3d9ee]" 
+                                  className="prose prose-invert max-w-none text-[#c3d9ee] text-base" 
                                   dangerouslySetInnerHTML={{ 
                                     __html: DOMPurify.sanitize(formatTextWithStructure(message.content)) 
                                   }}
                                 />
                               ) : (
-                                <p className="text-[#c3d9ee]">{message.content}</p>
+                                <p className="text-[#c3d9ee] text-base">{message.content}</p>
                               )}
-                              <div className="text-xs text-[#00b4d8]/60 mt-1 text-right">
+                              <div className="text-xs text-[#00b4d8]/60 mt-2 text-right">
                                 {new Date(message.timestamp).toLocaleTimeString([], { 
                                   hour: '2-digit', 
                                   minute: '2-digit' 
@@ -518,11 +518,11 @@ function ExpertLearningPageContent() {
                         ))}
                         {isLoading && (
                           <div className="flex justify-start">
-                            <div className="max-w-[85%] p-3 rounded-md bg-[#121e2e] border border-[#00b4d8]/20 text-white">
-                              <div className="flex space-x-2">
-                                <div className="w-2 h-2 rounded-full bg-[#00b4d8]/30 animate-pulse"></div>
-                                <div className="w-2 h-2 rounded-full bg-[#00b4d8]/30 animate-pulse delay-150"></div>
-                                <div className="w-2 h-2 rounded-full bg-[#00b4d8]/30 animate-pulse delay-300"></div>
+                            <div className="max-w-[85%] p-4 rounded-md bg-[#121e2e] border border-[#00b4d8]/20 text-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+                              <div className="flex space-x-3">
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#00b4d8]/50 animate-pulse"></div>
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#00b4d8]/50 animate-pulse delay-150"></div>
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#00b4d8]/50 animate-pulse delay-300"></div>
                               </div>
                             </div>
                           </div>
@@ -544,8 +544,8 @@ function ExpertLearningPageContent() {
               
                     {/* Zone de saisie de message - masquée en mode décision */}
                     {!decision.isInDecisionMode && (
-                      <div className="bg-[#121e2e] p-4 rounded-b-md border-x border-b border-[#00b4d8]/30 shadow-[0_0_15px_rgba(0,180,216,0.1)]">
-                        <form onSubmit={handleSubmit} className="flex space-x-2">
+                      <div className="bg-[#121e2e] p-6 rounded-b-md border-x border-b border-[#00b4d8]/30 shadow-[0_0_20px_rgba(0,180,216,0.15)]">
+                        <form onSubmit={handleSubmit} className="flex space-x-3">
                           <div className="flex-1 relative">
                             <textarea
                               ref={textareaRef}
@@ -553,35 +553,35 @@ function ExpertLearningPageContent() {
                               onChange={(e) => setInputMessage(e.target.value)}
                               onKeyDown={handleKeyDown}
                               placeholder="Posez votre question sur la cybersécurité..."
-                              className="w-full p-3 bg-[#091525] text-[#c3d9ee] border border-[#00b4d8]/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 resize-none min-h-[60px] max-h-[120px] overflow-y-auto"
+                              className="w-full p-4 bg-[#091525] text-[#c3d9ee] border border-[#00b4d8]/30 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 resize-none min-h-[70px] max-h-[150px] overflow-y-auto text-base shadow-inner"
                               disabled={isLoading}
                               rows={2}
                             />
-                            <div className="absolute right-3 bottom-2 text-xs text-[#00b4d8]/60">
+                            <div className="absolute right-3 bottom-3 text-xs text-[#00b4d8]/70">
                               {inputMessage.length > 0 ? `${inputMessage.length} car.` : 'Entrée: envoyer · Maj+Entrée: nouvelle ligne'}
                             </div>
                           </div>
                           <Button 
                             type="submit" 
                             disabled={isLoading || !inputMessage.trim()} 
-                            className="bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525] self-end h-[60px] w-[60px]"
+                            className="bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525] self-end h-[70px] w-[70px] shadow-md"
                           >
                             {isLoading ? (
-                              <RefreshCw className="h-5 w-5 animate-spin" />
+                              <RefreshCw className="h-6 w-6 animate-spin" />
                             ) : (
-                              <Send className="h-5 w-5" />
+                              <Send className="h-6 w-6" />
                             )}
                           </Button>
                         </form>
                         
                         {/* Bouton de fin de session */}
-                        <div className="mt-3 flex justify-center">
+                        <div className="mt-4 flex justify-center">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={endSession}
                             disabled={isLoading}
-                            className="bg-[#091525] border-[#e63946]/30 text-[#e63946] hover:bg-[#112641] hover:border-[#e63946]/50 text-xs"
+                            className="bg-[#091525] border-[#e63946]/30 text-[#e63946] hover:bg-[#112641] hover:border-[#e63946]/50 text-sm py-2 px-4"
                           >
                             Terminer la session
                           </Button>
@@ -595,10 +595,13 @@ function ExpertLearningPageContent() {
             
             {/* Résumé de session (modal) */}
             {sessionSummary && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
-                <Card className="w-full max-w-2xl bg-[#091525] border-[#00b4d8]/30 text-white shadow-[0_0_20px_rgba(0,180,216,0.2)]">
-                  <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="text-[#00b4d8]">Résumé de votre session</CardTitle>
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/75">
+                <Card className="w-full max-w-4xl bg-[#091525] border border-[#00b4d8]/40 text-white shadow-[0_0_30px_rgba(0,180,216,0.25)]">
+                  <CardHeader className="flex flex-row items-center justify-between border-b border-[#00b4d8]/20 pb-4">
+                    <CardTitle className="text-[#00b4d8] text-xl font-mono flex items-center gap-2">
+                      <FileText className="h-5 w-5" />
+                      Résumé de votre session
+                    </CardTitle>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -608,26 +611,28 @@ function ExpertLearningPageContent() {
                       <X className="h-5 w-5" />
                     </Button>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="py-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
                     <div 
-                      className="prose prose-invert max-w-none text-[#c3d9ee]" 
+                      className="prose prose-invert max-w-none text-[#c3d9ee] text-base" 
                       dangerouslySetInnerHTML={{ 
                         __html: DOMPurify.sanitize(formatTextWithStructure(sessionSummary)) 
                       }}
                     />
                   </CardContent>
-                  <CardFooter className="flex justify-center gap-4">
+                  <CardFooter className="flex justify-center gap-6 border-t border-[#00b4d8]/20 pt-5">
                     <Button
                       onClick={startSession}
-                      className="bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525]"
+                      className="bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525] px-6 py-2 h-auto text-base"
                     >
+                      <Plus className="mr-2 h-4 w-4" />
                       Nouvelle session
                     </Button>
                     <Button
                       variant="outline"
                       onClick={handleReturnToPrevious}
-                      className="border-[#00b4d8]/30 text-[#00b4d8] hover:bg-[#112641] hover:border-[#00b4d8]/50"
+                      className="border-[#00b4d8]/30 text-[#00b4d8] hover:bg-[#112641] hover:border-[#00b4d8]/50 px-6 py-2 h-auto text-base"
                     >
+                      <Home className="mr-2 h-4 w-4" />
                       Retour à l'accueil
                     </Button>
                   </CardFooter>

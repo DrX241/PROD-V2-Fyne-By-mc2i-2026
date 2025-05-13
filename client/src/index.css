@@ -520,6 +520,26 @@
   .custom-scrollbar.module-description::-webkit-scrollbar-thumb:hover {
     background: rgba(59, 130, 246, 0.7);
   }
+  
+  /* Scrollbar personnalisée pour l'interface cyber expert */
+  .custom-scrollbar.cyber-expert::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .custom-scrollbar.cyber-expert::-webkit-scrollbar-track {
+    background: rgba(9, 21, 37, 0.5);
+    border-radius: 4px;
+  }
+  
+  .custom-scrollbar.cyber-expert::-webkit-scrollbar-thumb {
+    background: rgba(0, 180, 216, 0.4);
+    border-radius: 4px;
+  }
+  
+  .custom-scrollbar.cyber-expert::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 180, 216, 0.6);
+  }
 
   /* Classes pour optimiser l'espace */
   .full-width-container {
