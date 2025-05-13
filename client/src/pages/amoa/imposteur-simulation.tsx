@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'wouter';
-import { HomeLayout } from '@/components/layout/HomeLayout';
+import { useLocation } from 'wouter';
+import HomeLayout from '@/components/layout/HomeLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -68,7 +68,7 @@ const specialties = [
 
 export default function ImposteurSimulation() {
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const [activeView, setActiveView] = useState<'setup' | 'simulation' | 'results'>('setup');
   const [simulation, setSimulation] = useState<SimulationState>({
     isStarted: false,

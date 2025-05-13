@@ -4742,6 +4742,11 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   app.post('/api/amoa-expert/check-status', amoaExpertController.checkDecisionModeStatus);
   app.post('/api/amoa-expert/end', amoaExpertController.endAmoaExpertSession);
 
+  // Routes pour le module "Qui est l'imposteur?"
+  app.post('/api/amoa/imposteur-simulation/start', startImposteurSimulation);
+  app.post('/api/amoa/imposteur-simulation/message', processImposteurMessage);
+  app.post('/api/amoa/imposteur-simulation/complete', completeImposteurSimulation);
+
   // Fin des routes API
 
   // Routes pour CyberQuest
