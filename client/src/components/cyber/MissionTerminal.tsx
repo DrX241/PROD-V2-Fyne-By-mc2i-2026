@@ -311,6 +311,9 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
           textShadow: terminalMode ? '0 0 5px rgba(0, 255, 0, 0.5)' : 'none'
         }}>
           {message.content}
+          {terminalMode && index === messages.length - 1 && (
+            <span className="blinking-cursor"></span>
+          )}
         </div>
       );
     }
@@ -586,12 +589,7 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
         ) : (
           <div className="space-y-2">
             {messages.map((message, index) => (
-              <div key={index} className="message-wrapper">
-                {renderMessage(message, index)}
-                {terminalMode && index === messages.length - 1 && message.type === 'system' && (
-                  <div className="blinking-cursor"></div>
-                )}
-              </div>
+              renderMessage(message, index)
             ))}
             <div ref={messagesEndRef} />
           </div>
