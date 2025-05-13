@@ -36,13 +36,6 @@ import { generateQuizQuestion, generateQuizHint, generateFullQuiz } from "./adap
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
-import { 
-  initMissionTerminal, 
-  processAcceptMission, 
-  processRoleSelection, 
-  processMissionDecision, 
-  endMission 
-} from "./cyberMissionController";
 import * as amoaExpertController from "./amoaExpertController";
 import { startImposteurSimulation, processImposteurMessage, completeImposteurSimulation } from "./imposteurSimulationController";
 import { simulateTargetResponse, analyzePerformance } from "./brainHackerController";
@@ -781,13 +774,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber-expert/decisions/start', startDecisionFlow);
   app.post('/api/cyber-expert/decisions/submit', submitDecision);
   app.post('/api/cyber-expert/decisions/status', checkDecisionStatus);
-  
-  // Routes pour le mode mission du chatbot cyber
-  app.post('/api/cyber-mission/init', initMissionTerminal);
-  app.post('/api/cyber-mission/accept', processAcceptMission);
-  app.post('/api/cyber-mission/select-role', processRoleSelection);
-  app.post('/api/cyber-mission/decision', processMissionDecision);
-  app.post('/api/cyber-mission/end', endMission);
   
   // Routes pour l'enquêteur cyber avec IA
   app.post('/api/cyber-investigator/analyze-evidence', analyzeEvidence);
