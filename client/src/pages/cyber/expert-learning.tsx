@@ -106,7 +106,7 @@ const CyberExpertLearning: React.FC = () => {
   const decision = useDecision();
   
   // États
-  const [userId] = useState<string>(uuidv4());
+  const [userId, setUserId] = useState<string>(uuidv4());
   const [isSessionActive, setIsSessionActive] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
@@ -273,7 +273,7 @@ const CyberExpertLearning: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: userId
+          // Pas besoin d'envoyer userId ici, le serveur en génère un
         })
       });
       
@@ -282,6 +282,14 @@ const CyberExpertLearning: React.FC = () => {
       }
       
       const data = await response.json();
+      
+      // Important: stocker l'ID de session retourné par le serveur pour les appels API suivants
+      if (data.userId) {
+        setUserId(data.userId);
+        console.log('ID de session récupéré:', data.userId);
+      } else {
+        console.error('Erreur: aucun userId retourné par le serveur');
+      }
       
       // Message d'accueil spécifique à la gestion de crise pour un RSSI
       const crisisWelcomeContent = "🚨 **ALERTE CYBERSÉCURITÉ - MODE GESTION DE CRISE** 🚨\n\nBonjour Responsable de la Sécurité,\n\nNous sommes le 13 mai 2025, et une situation de crise vient d'être détectée dans votre organisation. Je suis votre assistant spécialisé en réponse aux incidents pour vous accompagner dans cette situation d'urgence.\n\n**SIGNALEMENT INITIAL:** Une possible intrusion avec latéralisation a été détectée sur votre infrastructure, avec plusieurs indicateurs de compromission. Une activité suspecte est en cours et pourrait affecter vos données sensibles.\n\nComment souhaitez-vous procéder ? Je vous propose plusieurs options:\n\n- Évaluation initiale de la menace\n- Confinement des systèmes critiques\n- Constitution de la cellule de crise\n- Communication aux parties prenantes\n\nQuelle est votre première directive ?";
