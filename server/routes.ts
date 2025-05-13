@@ -39,6 +39,7 @@ import * as amoaExpertController from "./amoaExpertController";
 import { startImposteurSimulation, processImposteurMessage, completeImposteurSimulation } from "./imposteurSimulationController";
 import { simulateTargetResponse, analyzePerformance } from "./brainHackerController";
 import { analyzeDefenseStrategy, generateAttackScenario, generateTacticalTip } from "./firewallTactiqueController";
+import { generateLivrable } from "./livrablesGeneratorController";
 import { 
   generateCode, 
   getCodeGenerationHistory, 
