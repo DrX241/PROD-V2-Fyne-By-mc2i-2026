@@ -1340,7 +1340,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                title: "Azure OpenAI GPT-4o",
+                title: "Modèle avancé de langage",
                 description: "Notre modèle principal de génération de contenu, capable de comprendre et créer du texte avancé avec une compréhension nuancée du contexte professionnel.",
                 icon: <Cpu className="h-8 w-8" />,
                 features: ["Compréhension contextuelle", "Personnalisation avancée", "Support multilingue"]
