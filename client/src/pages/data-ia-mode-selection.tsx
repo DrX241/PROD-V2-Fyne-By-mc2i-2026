@@ -113,8 +113,8 @@ export default function DataIaModeSelection() {
       icon: <BsGraphUp className="h-5 w-5 text-purple-200" />,
       destination: '/data-ia/data-trainer',
       difficulty: 'débutant',
-      isNew: true,
-      comingSoon: false
+      isNew: false,
+      comingSoon: true
     },
     {
       id: 'ia-concepts',
@@ -123,7 +123,7 @@ export default function DataIaModeSelection() {
       icon: <RiRobot2Line className="h-5 w-5 text-indigo-200" />,
       destination: '/data-ia/ia-concepts',
       difficulty: 'débutant',
-      comingSoon: false
+      comingSoon: true
     },
     {
       id: 'data-playground',
@@ -141,7 +141,7 @@ export default function DataIaModeSelection() {
       icon: <BsDatabase className="h-5 w-5 text-blue-200" />,
       destination: '/data-ia/projets-data-science',
       difficulty: 'intermédiaire',
-      comingSoon: false
+      comingSoon: true
     },
     {
       id: 'simulations-ia',
@@ -177,7 +177,7 @@ export default function DataIaModeSelection() {
       icon: <BsFileEarmarkCode className="h-5 w-5 text-green-200" />,
       destination: '/data-ia/data-generator',
       difficulty: 'intermédiaire',
-      isNew: true,
+      isNew: false,
       comingSoon: true
     },
     {
