@@ -755,7 +755,7 @@ export default function GenerateurLivrables() {
 
   return (
     <HomeLayout>
-      <div className="container py-8 max-w-screen-lg">
+      <div className="container py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* En-tête de la page */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
@@ -816,7 +816,7 @@ export default function GenerateurLivrables() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="p-6 rounded-xl border bg-card lg:col-span-4"
+                  className="p-6 rounded-xl border bg-card lg:col-span-5"
                 >
                   {renderInputForm(generator)}
                 </motion.div>
@@ -826,7 +826,7 @@ export default function GenerateurLivrables() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="p-6 rounded-xl border bg-card lg:col-span-8"
+                  className="p-6 rounded-xl border bg-card lg:col-span-7"
                 >
                   {generatedContent[generator.id] 
                     ? renderGeneratedContent(generator.id)
