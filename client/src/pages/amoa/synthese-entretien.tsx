@@ -239,18 +239,20 @@ export default function SyntheseEntretien() {
 
         {/* Onglets principal */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-8 w-full grid grid-cols-2">
-            <TabsTrigger value="entretien" className="text-base py-3">
-              Saisir les notes
-            </TabsTrigger>
-            <TabsTrigger 
-              value="resultats" 
-              className="text-base py-3"
-              disabled={!synthese}
-            >
-              Résultats
-            </TabsTrigger>
-          </TabsList>
+          <div className="max-w-[calc(100%-2rem)] mx-auto">
+            <TabsList className="mb-8 w-full grid grid-cols-2">
+              <TabsTrigger value="entretien" className="text-base">
+                Saisir les notes
+              </TabsTrigger>
+              <TabsTrigger 
+                value="resultats" 
+                className="text-base"
+                disabled={!synthese}
+              >
+                Résultats
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Onglet de saisie des notes */}
           <TabsContent value="entretien" className="space-y-4">
