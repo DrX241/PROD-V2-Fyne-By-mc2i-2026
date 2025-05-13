@@ -918,113 +918,178 @@ export default function Home() {
                 </Link>
               </motion.div>
               
-              {/* Arguments en faveur de la formation IA avec effets d'animation */}
-              <motion.div
-                className="mt-16 mb-8 grid grid-cols-1 md:grid-cols-3 gap-5 max-w-6xl mx-auto"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.7 }}
-              >
+              {/* Arguments flottants avec animation et apparition spontanée */}
+              <div className="relative h-96 mt-16 mb-8 mx-auto">
                 {[
                   {
                     title: "Apprentissage personnalisé",
-                    description: "Expérience adaptée à votre rythme et à vos besoins spécifiques",
                     icon: <Sparkles className="h-6 w-6" />,
-                    delay: 0
+                    position: { top: "10%", left: "15%" },
+                    delay: 0.5,
+                    animation: "fade-zoom"
                   },
                   {
                     title: "Engagement maximal",
-                    description: "Contenu dynamique et interactif qui stimule la participation active",
                     icon: <Target className="h-6 w-6" />,
-                    delay: 0.2
+                    position: { top: "25%", left: "60%" },
+                    delay: 0.8,
+                    animation: "float-in"
                   },
                   {
-                    title: "Cas d'usage illimités",
-                    description: "Scénarios variés générés à la demande pour une pratique concrète",
+                    title: "Cas d'usages illimités",
                     icon: <BookOpen className="h-6 w-6" />,
-                    delay: 0.4
+                    position: { top: "60%", left: "25%" },
+                    delay: 1.3,
+                    animation: "bounce-in"
                   },
                   {
                     title: "Apprentissage par le jeu",
-                    description: "Mémorisation améliorée grâce à une approche ludique et immersive",
                     icon: <GamepadIcon className="h-6 w-6" />,
-                    delay: 0.6
+                    position: { top: "70%", left: "70%" },
+                    delay: 1.7,
+                    animation: "slide-up"
                   },
                   {
-                    title: "Mesure de progression",
-                    description: "Analyse détaillée de vos performances et axes d'amélioration",
+                    title: "Analyse de progression",
                     icon: <BarChart2 className="h-6 w-6" />,
-                    delay: 0.8
+                    position: { top: "40%", left: "30%" },
+                    delay: 2.1,
+                    animation: "pop"
                   },
                   {
                     title: "Innovation continue",
-                    description: "Formation évolutive qui intègre les dernières avancées technologiques",
                     icon: <RocketIcon className="h-6 w-6" />,
-                    delay: 1.0
+                    position: { top: "20%", left: "85%" },
+                    delay: 2.5,
+                    animation: "float-in"
                   }
-                ].map((arg, index) => (
-                  <motion.div
-                    key={index}
-                    className={`rounded-xl overflow-hidden ${
-                      isFuturistic 
-                        ? 'bg-blue-900/30 border border-blue-600/20 backdrop-blur-sm' 
-                        : 'bg-white border border-blue-100 shadow-sm'
-                    }`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.8 + arg.delay }}
-                    whileHover={{ scale: 1.05, 
-                      boxShadow: isFuturistic 
-                        ? '0 0 25px rgba(59, 130, 246, 0.3)' 
-                        : '0 10px 25px rgba(0, 0, 0, 0.08)' 
-                    }}
-                  >
-                    <motion.div 
-                      className="p-5"
-                      initial={{ background: "transparent" }}
-                      whileHover={{ 
-                        background: isFuturistic 
-                          ? "linear-gradient(to bottom right, rgba(37, 99, 235, 0.1), rgba(79, 70, 229, 0.1))" 
-                          : "linear-gradient(to bottom right, rgba(239, 246, 255, 0.7), rgba(219, 234, 254, 0.7))" 
+                ].map((arg, index) => {
+                  // Sélection des animations en fonction du type demandé
+                  let initialAnimation = {};
+                  let animateAnimation = {};
+                  
+                  switch(arg.animation) {
+                    case "fade-zoom":
+                      initialAnimation = { opacity: 0, scale: 0.5 };
+                      animateAnimation = { opacity: 1, scale: 1 };
+                      break;
+                    case "float-in":
+                      initialAnimation = { opacity: 0, y: 40 };
+                      animateAnimation = { 
+                        opacity: 1, 
+                        y: 0,
+                        transition: {
+                          y: {
+                            type: "spring",
+                            stiffness: 100
+                          },
+                          opacity: { duration: 0.5 }
+                        }
+                      };
+                      break;
+                    case "bounce-in":
+                      initialAnimation = { opacity: 0, scale: 0 };
+                      animateAnimation = { 
+                        opacity: 1, 
+                        scale: [0, 1.2, 1],
+                        transition: {
+                          scale: {
+                            type: "spring",
+                            stiffness: 200,
+                            damping: 10
+                          },
+                          opacity: { duration: 0.5 }
+                        }
+                      };
+                      break;
+                    case "slide-up":
+                      initialAnimation = { opacity: 0, y: 100 };
+                      animateAnimation = { 
+                        opacity: 1, 
+                        y: 0,
+                        transition: {
+                          type: "tween",
+                          ease: "backOut"
+                        }
+                      };
+                      break;
+                    case "pop":
+                      initialAnimation = { opacity: 0, scale: 0.7 };
+                      animateAnimation = { 
+                        opacity: 1, 
+                        scale: [0.7, 1.15, 1],
+                        transition: {
+                          duration: 0.7
+                        }
+                      };
+                      break;
+                    default:
+                      initialAnimation = { opacity: 0 };
+                      animateAnimation = { opacity: 1 };
+                  }
+                  
+                  return (
+                    <motion.div
+                      key={index}
+                      className="absolute transform -translate-x-1/2 -translate-y-1/2"
+                      style={{
+                        top: arg.position.top,
+                        left: arg.position.left
                       }}
+                      initial={initialAnimation}
+                      animate={animateAnimation}
+                      transition={{ delay: arg.delay }}
                     >
-                      <div className="mb-3">
+                      <motion.div
+                        className={`flex items-center gap-3 ${
+                          isFuturistic 
+                            ? 'text-cyan-300' 
+                            : 'text-blue-700'
+                        }`}
+                        whileHover={{ scale: 1.1 }}
+                        animate={{ 
+                          y: [0, -10, 0],
+                        }}
+                        transition={{ 
+                          y: { 
+                            duration: 3 + index, 
+                            repeat: Infinity,
+                            repeatType: "mirror",
+                            ease: "easeInOut" 
+                          }
+                        }}
+                      >
                         <motion.div
-                          className={`inline-flex items-center justify-center p-2 rounded-lg ${
+                          className={`inline-flex items-center justify-center p-2.5 rounded-full ${
                             isFuturistic 
-                              ? 'bg-blue-800/50 text-cyan-300' 
-                              : 'bg-blue-100 text-blue-600'
+                              ? 'bg-blue-800/50 backdrop-blur-sm border border-blue-500/30' 
+                              : 'bg-blue-100 border border-blue-200'
                           }`}
                           whileHover={{ 
-                            rotate: [0, 5, -5, 0],
-                            scale: [1, 1.1, 1],
+                            rotate: 15,
+                            boxShadow: isFuturistic 
+                              ? '0 0 20px rgba(59, 130, 246, 0.5)' 
+                              : '0 0 15px rgba(59, 130, 246, 0.2)'
                           }}
-                          transition={{ duration: 0.5 }}
                         >
                           {arg.icon}
                         </motion.div>
-                      </div>
-                      <h3 className={`text-lg font-bold mb-2 ${isFuturistic ? 'text-cyan-300' : 'text-blue-700'}`}>
-                        {arg.title}
-                      </h3>
-                      <p className={`text-sm ${isFuturistic ? 'text-blue-100' : 'text-gray-600'}`}>
-                        {arg.description}
-                      </p>
-                      <motion.div
-                        className={`w-16 h-1 mt-4 rounded-full ${
-                          isFuturistic 
-                            ? 'bg-gradient-to-r from-blue-500 to-cyan-400' 
-                            : 'bg-blue-500'
-                        }`}
-                        initial={{ width: 0 }}
-                        whileInView={{ width: 64 }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                        viewport={{ once: true }}
-                      />
+                        <motion.p 
+                          className={`text-base font-bold ${
+                            isFuturistic ? 'text-cyan-300 font-cyber-accent' : 'text-blue-700'
+                          }`}
+                          whileHover={{ 
+                            scale: 1.05, 
+                            color: isFuturistic ? '#7dd3fc' : '#2563eb' 
+                          }}
+                        >
+                          {arg.title}
+                        </motion.p>
+                      </motion.div>
                     </motion.div>
-                  </motion.div>
-                ))}
-              </motion.div>
+                  );
+                })}
+              </div>
             </div>
             
             {/* Section de statistiques supprimée à la demande de l'utilisateur */}
