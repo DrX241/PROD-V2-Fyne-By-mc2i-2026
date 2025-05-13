@@ -9,7 +9,9 @@ import {
   ChevronRight, 
   RefreshCw, 
   Bot, 
-  Lightbulb as LightbulbIcon 
+  Lightbulb as LightbulbIcon,
+  X,
+  ArrowLeft
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import HomeLayout from "@/components/layout/HomeLayout";
@@ -333,6 +335,14 @@ const CyberExpertLearning: React.FC = () => {
                         <div className="bg-[#091525]/80 py-1 px-4 rounded-full border border-[#00b4d8]/30 text-xs text-[#c3d9ee]/80">
                           <span className="text-[#4cc9f0]">NIVEAU:</span> Agent cybernétique
                         </div>
+                        <Button
+                          variant="outline"
+                          onClick={() => window.location.href = "/cyber"}
+                          className="border-[#00b4d8]/40 bg-[#091525]/60 text-[#00b4d8] hover:bg-[#112641] text-xs"
+                        >
+                          <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
+                          RETOUR AU CYBERSPACE
+                        </Button>
                       </div>
                     </div>
                   </div>
