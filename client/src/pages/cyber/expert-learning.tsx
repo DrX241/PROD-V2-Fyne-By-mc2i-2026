@@ -312,7 +312,7 @@ const CyberExpertLearning: React.FC = () => {
             {!isSessionActive && !sessionSummary ? (
               // Page d'accueil plein écran sans bordures, vraiment immersive
               <div className="w-full h-full flex flex-col">
-                <div className="bg-gradient-to-b from-[#050a15] to-[#091525] text-white min-h-screen pb-80">
+                <div className="bg-gradient-to-b from-[#050a15] to-[#091525] text-white" style={{minHeight: '150vh', paddingBottom: '500px'}}>
                   {/* Barre de navigation fixe en haut sans bordures */}
                   <div className="bg-gradient-to-r from-[#091525]/90 to-[#112641]/90 p-4 lg:p-6 backdrop-blur-md fixed top-0 w-full z-40 shadow-lg shadow-[#00b4d8]/10">
                     <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -823,7 +823,7 @@ const CyberExpertLearning: React.FC = () => {
                     {/* Zone de messages avec défilement */}
                     <div 
                       ref={chatContainerRef}
-                      className="flex-1 overflow-y-auto p-6 pb-36 space-y-6 custom-scrollbar cyber-expert"
+                      className="flex-1 overflow-y-auto p-6 pb-96 space-y-6 custom-scrollbar cyber-expert" style={{paddingBottom: '400px'}}
                     >
                       {messages.map((message, index) => (
                         <div key={message.id}>
