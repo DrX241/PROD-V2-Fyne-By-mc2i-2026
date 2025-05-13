@@ -305,8 +305,11 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
   // Rendu d'un message selon son type
   const renderMessage = (message: { type: 'system' | 'user' | 'pnj', content: string, pnjId?: string }, index: number) => {
     if (message.type === 'system') {
+      // Applique un style de terminal plus réaliste pour les messages système
       return (
-        <div key={index} className="whitespace-pre-wrap bg-gray-800 text-white p-3 rounded-md mb-4 font-mono">
+        <div key={index} className={`whitespace-pre-wrap text-green-400 mb-2 font-mono leading-tight ${terminalMode ? '' : 'bg-gray-800 p-3 rounded-md'}`} style={{
+          textShadow: terminalMode ? '0 0 5px rgba(0, 255, 0, 0.5)' : 'none'
+        }}>
           {message.content}
         </div>
       );
@@ -355,18 +358,19 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
   const renderChoices = () => {
     if (terminalMode) {
       return (
-        <div className="mt-4 flex flex-col gap-2">
-          {choices.map((choice) => (
-            <Button
+        <div className="mt-4 flex flex-col gap-3 font-mono">
+          {choices.map((choice, index) => (
+            <button
               key={choice.id}
-              variant="outline"
-              className="text-left justify-between border-gray-600 hover:bg-gray-700"
+              className="text-left p-2 bg-transparent border-0 text-green-400 hover:text-green-300 cursor-pointer flex items-center transition-colors"
               onClick={() => handleInitialChoice(choice.id)}
               disabled={loading}
+              style={{ textShadow: '0 0 5px rgba(0, 255, 0, 0.3)' }}
             >
+              <span className="mr-2">{'>'}</span>
+              <span className="mr-2">{index + 1}.</span>
               <span>{choice.text}</span>
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            </button>
           ))}
         </div>
       );
@@ -524,14 +528,32 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
   
   // Rendu principal
   return (
-    <div className="bg-gray-900 text-white p-4 h-full flex flex-col">
+    <div className={`bg-gray-900 text-white p-4 h-full flex flex-col ${terminalMode ? 'terminal-container font-mono' : ''}`}
+      style={terminalMode ? {
+        background: 'linear-gradient(to bottom, #121212, #000000)',
+        boxShadow: 'inset 0 0 30px rgba(0,0,0,0.9)',
+        fontFamily: "'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace"
+      } : {}}>
       {/* En-tête */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center">
-          <Shield className="h-6 w-6 mr-2 text-blue-400" />
-          <h2 className="text-xl font-bold">
-            {terminalMode ? "TERMINAL SÉCURISÉ" : missionData?.missionNom || "Mission Cyber"}
-          </h2>
+          {terminalMode ? (
+            <div className="flex items-center">
+              <div className="h-3 w-3 rounded-full bg-red-500 mr-1"></div>
+              <div className="h-3 w-3 rounded-full bg-yellow-500 mr-1"></div>
+              <div className="h-3 w-3 rounded-full bg-green-500 mr-2"></div>
+              <h2 className="text-xl font-bold text-green-400" style={{ textShadow: '0 0 5px rgba(0, 255, 0, 0.5)' }}>
+                TERMINAL SÉCURISÉ
+              </h2>
+            </div>
+          ) : (
+            <>
+              <Shield className="h-6 w-6 mr-2 text-blue-400" />
+              <h2 className="text-xl font-bold">
+                {missionData?.missionNom || "Mission Cyber"}
+              </h2>
+            </>
+          )}
         </div>
         
         {!terminalMode && (
@@ -551,7 +573,11 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
       {renderMetricsDashboard()}
       
       {/* Zone de messages */}
-      <div className={`flex-grow overflow-y-auto mb-4 ${terminalMode ? 'font-mono bg-black p-3 rounded-md' : ''}`}>
+      <div className={`flex-grow overflow-y-auto mb-4 ${
+        terminalMode 
+          ? 'font-mono bg-black p-3 rounded-md border border-gray-700 shadow-inner' 
+          : ''
+      }`}>
         {initializing ? (
           <div className="flex items-center justify-center h-full">
             <Loader2 className="h-6 w-6 animate-spin text-blue-500 mr-2" />
@@ -559,7 +585,14 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
           </div>
         ) : (
           <div className="space-y-2">
-            {messages.map(renderMessage)}
+            {messages.map((message, index) => (
+              <React.Fragment key={index}>
+                {renderMessage(message, index)}
+                {terminalMode && index === messages.length - 1 && message.type === 'system' && (
+                  <div className="blinking-cursor"></div>
+                )}
+              </React.Fragment>
+            ))}
             <div ref={messagesEndRef} />
           </div>
         )}
