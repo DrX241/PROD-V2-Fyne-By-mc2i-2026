@@ -154,7 +154,7 @@ export default function AmoaModeSelection() {
       title: 'GÉNÉRATEUR DE LIVRABLES',
       description: 'Assistant IA pour créer des livrables AMOA professionnels.',
       icon: <BsFileEarmarkCode className="h-5 w-5 text-green-200" />,
-      destination: '/amoa/generateur-livrables',
+      destination: '/automatiser/generateur-livrables',
       difficulty: 'intermédiaire',
       comingSoon: false
     },
