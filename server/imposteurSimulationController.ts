@@ -1,6 +1,12 @@
 import { Request, Response } from 'express';
 import { openAIService } from './services/openai';
 
+// Type pour les messages de complétion de chat
+type ChatCompletionRequestMessage = {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+};
+
 /**
  * Interface pour stocker les sessions de simulation "Qui est l'imposteur"
  */
@@ -10,7 +16,7 @@ interface UserSession {
     sector: string;
     specialty: string;
   };
-  messages: Array<{ role: string; content: string }>;
+  messages: ChatCompletionRequestMessage[];
 }
 
 // Map pour stocker les sessions utilisateur
@@ -69,7 +75,7 @@ export async function startImposteurSimulation(req: Request, res: Response) {
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'assistant', content: initialMessage }
-      ]
+      ] as ChatCompletionRequestMessage[]
     });
 
     res.status(200).json({
@@ -96,14 +102,14 @@ export async function processImposteurMessage(req: Request, res: Response) {
     }
 
     // Ajoute le message utilisateur à l'historique
-    session.messages.push({ role: 'user', content: message });
+    session.messages.push({ role: 'user', content: message } as ChatCompletionRequestMessage);
 
     // Ajoute une indication sur le temps restant si nécessaire
     if (remainingTime < 120) { // moins de 2 minutes restantes
       session.messages.push({ 
         role: 'system', 
         content: `Il reste moins de ${Math.ceil(remainingTime / 60)} minutes à l'entretien. Prépare-toi à conclure avec une dernière question significative.` 
-      });
+      } as ChatCompletionRequestMessage);
     }
 
     // Obtient la réponse de l'API
@@ -115,7 +121,7 @@ export async function processImposteurMessage(req: Request, res: Response) {
     );
 
     // Ajoute la réponse à l'historique
-    session.messages.push({ role: 'assistant', content: responseMessage });
+    session.messages.push({ role: 'assistant', content: responseMessage } as ChatCompletionRequestMessage);
 
     // Met à jour la session
     userSessions.set(sessionId, session);
@@ -157,7 +163,7 @@ Ton objectif est d'identifier si le candidat maîtrise réellement le domaine qu
 Réponds uniquement en format JSON structuré comme décrit ci-dessus.`;
 
     // Ajoute le prompt d'évaluation à l'historique
-    session.messages.push({ role: 'system', content: evaluationPrompt });
+    session.messages.push({ role: 'system', content: evaluationPrompt } as ChatCompletionRequestMessage);
 
     // Obtient l'évaluation de l'API
     const evaluationResponse = await openAIService.getChatCompletion(
