@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { openai } from './services/openai';
-import { ChatCompletionRequestMessage } from './interfaces/openaiInterface';
+import { openAIService } from './services/openai';
+import { ChatCompletionRequestMessage } from '@shared/schema';
 
 /**
  * Contrôleur pour la génération de synthèse d'entretien
@@ -50,13 +50,12 @@ Pour le format de réponse, tu dois fournir uniquement un objet JSON sans texte 
       content: `Voici mes notes d'entretien. Analyse-les et génère une synthèse structurée selon le format demandé :\n\n${notes}`
     };
 
-    // Appel à l'API OpenAI
-    const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-      messages: [systemMessage, userMessage],
-      temperature: 0.7,
-      response_format: { type: "json_object" }
-    });
+    // Appel à l'API OpenAI via notre service
+    const response = await openAIService.sendChatRequest(
+      [systemMessage, userMessage],
+      0.7,
+      true // format JSON
+    );
 
     // Extraction et parsing de la réponse
     const content = response.choices[0].message.content;
