@@ -51,13 +51,13 @@ Pour le format de réponse, tu dois fournir uniquement un objet JSON sans texte 
     };
 
     // Appel à l'API OpenAI via notre service - en demandant un format JSON
-    const responseText = await openAIService.getChatCompletionWithCache(
-      [systemMessage, userMessage],
-      0.7,
-      2000,
-      true, // Utiliser le modèle secondaire (plus rapide)
-      { responseFormat: 'json_object' } // Demander explicitement un format JSON
-    );
+    const responseText = await openAIService.getChatCompletionWithCache({
+      messages: [systemMessage, userMessage],
+      temperature: 0.7,
+      maxTokens: 2000,
+      useSecondaryKey: true, // Utiliser le modèle secondaire (plus rapide)
+      responseFormat: 'json_object' // Demander explicitement un format JSON
+    });
 
     // Nettoyage et parsing de la réponse
     let synthese;

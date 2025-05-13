@@ -521,7 +521,8 @@ class OpenAIService {
       messages: ChatCompletionRequestMessage[],
       temperature?: number,
       maxTokens?: number,
-      useSecondaryKey?: boolean
+      useSecondaryKey?: boolean,
+      responseFormat?: string
     }
   ): Promise<string>;
   
@@ -531,7 +532,8 @@ class OpenAIService {
       messages: ChatCompletionRequestMessage[],
       temperature?: number,
       maxTokens?: number,
-      useSecondaryKey?: boolean
+      useSecondaryKey?: boolean,
+      responseFormat?: string
     },
     temperature: number = 0.7,
     maxTokens: number = 2000,
@@ -542,6 +544,7 @@ class OpenAIService {
     let actualTemperature = temperature;
     let actualMaxTokens = maxTokens;
     let actualUseSecondaryKey = useSecondaryKey;
+    let responseFormat: string | undefined;
     
     if (!Array.isArray(messagesOrOptions)) {
       // Si c'est un objet d'options
@@ -549,6 +552,7 @@ class OpenAIService {
       actualTemperature = messagesOrOptions.temperature ?? 0.7;
       actualMaxTokens = messagesOrOptions.maxTokens ?? 2000;
       actualUseSecondaryKey = messagesOrOptions.useSecondaryKey ?? false;
+      responseFormat = messagesOrOptions.responseFormat;
     } else {
       // Si c'est un tableau de messages
       messages = messagesOrOptions;
