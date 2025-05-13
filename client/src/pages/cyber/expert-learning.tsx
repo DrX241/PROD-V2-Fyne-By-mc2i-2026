@@ -204,7 +204,7 @@ const CyberExpertLearning: React.FC = () => {
     try {
       // Si le mode décision est activé, envoyer à l'API appropriée
       if (decision.isInDecisionMode) {
-        decision.makeDecision(inputMessage);
+        decision.submitDecision(inputMessage);
         setIsLoading(false);
         return;
       }
@@ -245,7 +245,7 @@ const CyberExpertLearning: React.FC = () => {
       
       // Si le bot suggère de passer en mode décision, l'activer
       if (data.sessionStatus?.readyForDecisionMode) {
-        decision.startDecisionMode();
+        decision.startDecisionFlow("Gestion de crise cyber");
       }
       
     } catch (error) {
@@ -283,11 +283,14 @@ const CyberExpertLearning: React.FC = () => {
       
       const data = await response.json();
       
-      // Créer le message d'accueil du bot avec le contenu de la réponse du serveur
+      // Message d'accueil spécifique à la gestion de crise pour un RSSI
+      const crisisWelcomeContent = "🚨 **ALERTE CYBERSÉCURITÉ - MODE GESTION DE CRISE** 🚨\n\nBonjour Responsable de la Sécurité,\n\nNous sommes le 13 mai 2025, et une situation de crise vient d'être détectée dans votre organisation. Je suis votre assistant spécialisé en réponse aux incidents pour vous accompagner dans cette situation d'urgence.\n\n**SIGNALEMENT INITIAL:** Une possible intrusion avec latéralisation a été détectée sur votre infrastructure, avec plusieurs indicateurs de compromission. Une activité suspecte est en cours et pourrait affecter vos données sensibles.\n\nComment souhaitez-vous procéder ? Je vous propose plusieurs options:\n\n- Évaluation initiale de la menace\n- Confinement des systèmes critiques\n- Constitution de la cellule de crise\n- Communication aux parties prenantes\n\nQuelle est votre première directive ?";
+      
+      // Créer le message d'accueil du bot avec le contenu de crise personnalisé
       const welcomeMessage: Message = {
         id: uuidv4(),
         type: "bot",
-        content: data.welcomeMessage || "Bienvenue dans l'environnement d'apprentissage cyber. Je suis votre assistant IA spécialisé en cybersécurité. Comment puis-je vous aider aujourd'hui ?",
+        content: crisisWelcomeContent,
         timestamp: Date.now()
       };
       
