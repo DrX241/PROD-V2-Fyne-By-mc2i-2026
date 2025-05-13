@@ -562,39 +562,13 @@ export default function DataIaModeSelection() {
                       </p>
                       
                       <div className="mt-auto">
-                        <h3 className="text-white font-medium mb-3">Modules recommandés:</h3>
-                        <ul className="space-y-3">
-                          {getModulesForObjective(objective.id).map(module => (
-                            <li key={module.id}>
-                              <Link 
-                                href={module.comingSoon ? "#" : module.destination}
-                                onClick={(e) => module.comingSoon && e.preventDefault()}
-                                className={`block p-3 rounded-lg ${
-                                  highContrastMode 
-                                    ? 'bg-gray-700 hover:bg-gray-600' 
-                                    : 'bg-white/10 hover:bg-white/20'
-                                } transition-colors`}
-                              >
-                                <div className="flex justify-between items-center">
-                                  <div className="flex items-center">
-                                    <span className="font-medium">{module.title}</span>
-                                    {module.isNew && (
-                                      <Badge className="ml-2 bg-purple-600 text-white text-xs">
-                                        NOUVEAU
-                                      </Badge>
-                                    )}
-                                    {module.comingSoon && (
-                                      <Badge variant="outline" className="ml-2 border-amber-500 text-amber-400 text-xs">
-                                        Bientôt
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  {!module.comingSoon && <IoMdArrowForward className="h-5 w-5" />}
-                                </div>
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
+                        <h3 className="text-white font-medium mb-3">Modules:</h3>
+                        <div className="p-4 rounded-lg bg-white/10 text-center">
+                          <Badge variant="outline" className="px-3 py-1.5 border-amber-500 text-amber-400 text-md mb-2">
+                            Bientôt disponible
+                          </Badge>
+                          <p className="text-purple-100 text-sm">Les modules de cette section seront disponibles prochainement.</p>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -688,63 +662,12 @@ export default function DataIaModeSelection() {
                             
                             {/* Modules recommandés */}
                             <div className="lg:col-span-2">
-                              <h3 className="text-lg font-semibold mb-3">Parcours d'apprentissage recommandé</h3>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {getModulesForCareer(career.id).map((module, index) => (
-                                  <Card 
-                                    key={module.id}
-                                    className={`flex flex-col h-full border ${
-                                      highContrastMode ? 'bg-gray-700 border-gray-600' : 'bg-white/10 border-white/20'
-                                    }`}
-                                  >
-                                    <CardHeader className="pb-2">
-                                      <div className="flex justify-between">
-                                        <div className="flex gap-2 items-start">
-                                          <div className={`p-1.5 rounded-md shrink-0 mt-0.5 ${
-                                            highContrastMode ? 'bg-purple-900' : 'bg-white/10'
-                                          }`}>
-                                            {module.icon}
-                                          </div>
-                                          <CardTitle className="text-lg line-clamp-2 text-left">
-                                            {module.title}
-                                            {module.isNew && (
-                                              <Badge className="ml-2 bg-purple-600 text-white text-xs">
-                                                NOUVEAU
-                                              </Badge>
-                                            )}
-                                          </CardTitle>
-                                        </div>
-                                        {renderDifficultyBadge(module.difficulty)}
-                                      </div>
-                                    </CardHeader>
-                                    <CardContent>
-                                      <p className={`${highContrastMode ? 'text-gray-300' : 'text-purple-100'} line-clamp-2`}>
-                                        {module.description}
-                                      </p>
-                                    </CardContent>
-                                    <CardFooter className="mt-auto pt-2">
-                                      {module.comingSoon ? (
-                                        <Button 
-                                          variant={highContrastMode ? "outline" : "secondary"} 
-                                          className="w-full opacity-70 cursor-not-allowed"
-                                          disabled
-                                        >
-                                          Bientôt disponible
-                                        </Button>
-                                      ) : (
-                                        <Link href={module.destination} className="w-full">
-                                          <Button 
-                                            variant={highContrastMode ? "outline" : "secondary"} 
-                                            className="w-full"
-                                          >
-                                            Accéder au module
-                                            <IoMdArrowForward className="ml-2 h-4 w-4" />
-                                          </Button>
-                                        </Link>
-                                      )}
-                                    </CardFooter>
-                                  </Card>
-                                ))}
+                              <h3 className="text-lg font-semibold mb-3">Parcours d'apprentissage</h3>
+                              <div className="p-6 rounded-lg bg-white/10 text-center">
+                                <Badge variant="outline" className="px-3 py-1.5 border-amber-500 text-amber-400 text-md mb-3">
+                                  Bientôt disponible
+                                </Badge>
+                                <p className="text-purple-100">Les modules pour ce parcours métier seront disponibles prochainement.</p>
                               </div>
                             </div>
                           </div>
@@ -885,86 +808,90 @@ export default function DataIaModeSelection() {
                 </div>
               </div>
 
-              {/* Liste de tous les modules filtrés */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {getFilteredModules().map(module => (
-                  <Card
-                    key={module.id}
-                    className={`h-full border ${
-                      highContrastMode 
-                        ? 'bg-gray-800 border-gray-700' 
-                        : 'bg-white/10 border-white/20 hover:bg-white/15'
-                    } transition-all duration-200`}
-                  >
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex gap-3">
-                          <div className={`p-2.5 rounded-lg ${
-                            highContrastMode 
-                              ? 'bg-purple-900' 
-                              : 'bg-gradient-to-br from-purple-600 to-indigo-800'
-                          }`}>
-                            {module.icon}
-                          </div>
-                          <div>
-                            <CardTitle className="text-xl mb-1 flex items-center">
-                              {module.title}
-                              {module.isNew && (
-                                <Badge className="ml-2 bg-purple-600 text-white text-xs">
-                                  NOUVEAU
-                                </Badge>
-                              )}
-                            </CardTitle>
-                            <div className="flex gap-2">
-                              {renderDifficultyBadge(module.difficulty)}
-                            </div>
-                          </div>
-                        </div>
+              {/* Affichage du message "Bientôt disponible" pour tous les modules */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Section SE FORMER */}
+                <Card className={`h-full border ${highContrastMode ? 'bg-gray-800 border-gray-700' : 'bg-white/10 border-white/20'}`}>
+                  <CardHeader>
+                    <div className="flex items-start justify-center">
+                      <div className={`p-3 rounded-lg ${highContrastMode ? 'bg-purple-900' : 'bg-gradient-to-br from-purple-600 to-indigo-800'}`}>
+                        <IoBookOutline className="h-6 w-6 text-purple-100" />
                       </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className={highContrastMode ? 'text-gray-300' : 'text-purple-100'}>
-                        {module.description}
-                      </p>
-                    </CardContent>
-                    <CardFooter className="pt-2 flex justify-between items-center">
-                      {module.comingSoon ? (
-                        <Badge variant="outline" className="px-3 py-1.5 border-amber-500 text-amber-400">
-                          Bientôt disponible
-                        </Badge>
-                      ) : (
-                        <Link href={module.destination} className="w-full">
-                          <Button 
-                            className={`w-full ${
-                              highContrastMode 
-                                ? 'bg-purple-900 hover:bg-purple-800' 
-                                : 'bg-purple-600 hover:bg-purple-700'
-                            }`}
-                          >
-                            Accéder au module
-                            <IoMdArrowForward className="ml-2 h-4 w-4" />
-                          </Button>
-                        </Link>
-                      )}
-                    </CardFooter>
-                  </Card>
-                ))}
+                    </div>
+                    <CardTitle className="text-center text-xl mt-2">SE FORMER</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <Badge variant="outline" className="px-3 py-1.5 border-amber-500 text-amber-400 text-md mb-3">
+                      Bientôt disponible
+                    </Badge>
+                    <p className={highContrastMode ? 'text-gray-300' : 'text-purple-100'}>
+                      Modules de formation Data & IA à venir prochainement.
+                    </p>
+                  </CardContent>
+                </Card>
+                
+                {/* Section S'ENTRAÎNER */}
+                <Card className={`h-full border ${highContrastMode ? 'bg-gray-800 border-gray-700' : 'bg-white/10 border-white/20'}`}>
+                  <CardHeader>
+                    <div className="flex items-start justify-center">
+                      <div className={`p-3 rounded-lg ${highContrastMode ? 'bg-blue-900' : 'bg-gradient-to-br from-blue-600 to-indigo-800'}`}>
+                        <IoDesktopOutline className="h-6 w-6 text-blue-100" />
+                      </div>
+                    </div>
+                    <CardTitle className="text-center text-xl mt-2">S'ENTRAÎNER</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <Badge variant="outline" className="px-3 py-1.5 border-amber-500 text-amber-400 text-md mb-3">
+                      Bientôt disponible
+                    </Badge>
+                    <p className={highContrastMode ? 'text-gray-300' : 'text-purple-100'}>
+                      Modules d'entraînement Data & IA à venir prochainement.
+                    </p>
+                  </CardContent>
+                </Card>
+                
+                {/* Section S'ÉVALUER */}
+                <Card className={`h-full border ${highContrastMode ? 'bg-gray-800 border-gray-700' : 'bg-white/10 border-white/20'}`}>
+                  <CardHeader>
+                    <div className="flex items-start justify-center">
+                      <div className={`p-3 rounded-lg ${highContrastMode ? 'bg-pink-900' : 'bg-gradient-to-br from-pink-600 to-purple-800'}`}>
+                        <IoTrophyOutline className="h-6 w-6 text-pink-100" />
+                      </div>
+                    </div>
+                    <CardTitle className="text-center text-xl mt-2">S'ÉVALUER</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <Badge variant="outline" className="px-3 py-1.5 border-amber-500 text-amber-400 text-md mb-3">
+                      Bientôt disponible
+                    </Badge>
+                    <p className={highContrastMode ? 'text-gray-300' : 'text-purple-100'}>
+                      Modules d'évaluation Data & IA à venir prochainement.
+                    </p>
+                  </CardContent>
+                </Card>
+                
+                {/* Section AUTOMATISER */}
+                <Card className={`h-full border ${highContrastMode ? 'bg-gray-800 border-gray-700' : 'bg-white/10 border-white/20'}`}>
+                  <CardHeader>
+                    <div className="flex items-start justify-center">
+                      <div className={`p-3 rounded-lg ${highContrastMode ? 'bg-cyan-900' : 'bg-gradient-to-br from-cyan-600 to-blue-800'}`}>
+                        <IoConstructOutline className="h-6 w-6 text-cyan-100" />
+                      </div>
+                    </div>
+                    <CardTitle className="text-center text-xl mt-2">AUTOMATISER</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <Badge variant="outline" className="px-3 py-1.5 border-amber-500 text-amber-400 text-md mb-3">
+                      Bientôt disponible
+                    </Badge>
+                    <p className={highContrastMode ? 'text-gray-300' : 'text-purple-100'}>
+                      Modules d'automatisation Data & IA à venir prochainement.
+                    </p>
+                  </CardContent>
+                </Card>
               </div>
 
-              {/* Message si aucun module ne correspond */}
-              {getFilteredModules().length === 0 && (
-                <div className={`p-10 rounded-xl text-center ${
-                  highContrastMode ? 'bg-gray-800' : 'bg-white/10'
-                }`}>
-                  <div className="mx-auto w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-purple-900/50">
-                    <Search className="h-8 w-8 text-purple-300" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Aucun module trouvé</h3>
-                  <p className={highContrastMode ? 'text-gray-400' : 'text-purple-200'}>
-                    Essayez d'ajuster vos critères de recherche ou de filtres.
-                  </p>
-                </div>
-              )}
+              {/* Ce message n'est plus nécessaire car tous les modules sont remplacés par les cartes "Bientôt disponible" */}
             </TabsContent>
           </Tabs>
         </div>
