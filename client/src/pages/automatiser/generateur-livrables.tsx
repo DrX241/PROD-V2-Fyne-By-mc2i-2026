@@ -767,7 +767,7 @@ export default function GenerateurLivrables() {
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
+            <h1 className="text-3xl font-extrabold text-black dark:text-white flex items-center gap-2">
               <Lightbulb className="h-8 w-8 text-amber-400" />
               Générateur de Livrables
             </h1>
@@ -805,7 +805,7 @@ export default function GenerateurLivrables() {
                   {generator.icon}
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">{generator.title}</h2>
+                  <h2 className="text-2xl font-extrabold text-black dark:text-white">{generator.title}</h2>
                   <p className="text-gray-900 dark:text-gray-100">{generator.description}</p>
                 </div>
               </div>
@@ -835,7 +835,7 @@ export default function GenerateurLivrables() {
                         <div className="bg-muted/30 rounded-full p-6 mb-4">
                           {generator.icon}
                         </div>
-                        <h3 className="text-lg font-medium mb-2">Prêt à générer votre livrable ?</h3>
+                        <h3 className="text-lg font-bold text-black dark:text-white mb-2">Prêt à générer votre livrable ?</h3>
                         <p className="text-gray-900 dark:text-gray-100 mb-6 max-w-sm">
                           Remplissez le formulaire à gauche et cliquez sur "Générer le livrable" pour créer votre document.
                         </p>
