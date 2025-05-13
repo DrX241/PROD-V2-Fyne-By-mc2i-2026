@@ -128,9 +128,9 @@ export default function SyntheseEntretien() {
     <div className="mb-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
       <div className="flex items-center gap-2 mb-2">
         <span className="text-xl">{field.icon}</span>
-        <h3 className="font-semibold">{field.label}</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-white">{field.label}</h3>
       </div>
-      <p className="whitespace-pre-wrap">
+      <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
         {synthese?.[field.id] || 'Non spécifié'}
       </p>
     </div>
