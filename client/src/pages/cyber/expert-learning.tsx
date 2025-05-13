@@ -419,20 +419,77 @@ function ExpertLearningPageContent() {
           <div className="flex flex-col items-center justify-center h-full pt-12 w-full px-6">
             {!isSessionActive && !sessionSummary ? (
               // Page d'accueil - style terminal de cybersécurité
-              <Card className="w-full max-w-4xl bg-[#091525] border border-[#00b4d8]/30 text-white shadow-[0_0_20px_rgba(0,180,216,0.15)]">
+              <Card className="w-full max-w-5xl bg-[#091525] border border-[#00b4d8]/30 text-white shadow-[0_0_20px_rgba(0,180,216,0.15)]">
                 <CardHeader className="border-b border-[#00b4d8]/20">
                   <CardTitle className="font-mono text-xl text-[#00b4d8] flex items-center gap-2">
                     <Bot className="h-6 w-6" />
                     EXPERT CYBERSÉCURITÉ - INTERFACE DE DIALOGUE
                   </CardTitle>
                   <CardDescription className="text-[#c3d9ee]/70 font-mono text-base">
-                    VERSION 2.5.3 | ÉTAT: <span className="text-[#4cc9f0]">PRÊT</span>
+                    VERSION 2.5.3 | ÉTAT: <span className="text-[#4cc9f0]">PRÊT</span> | <span className="text-[#00b4d8]">IA adaptative</span>
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="py-8 space-y-6 text-[#c3d9ee]">
                   <div className="font-mono text-base border-l-2 border-[#00b4d8]/50 pl-6 py-2">
                     <p>Bienvenue sur le module <span className="text-[#00b4d8] font-semibold">APPRENDRE EN ÉCHANGEANT</span>.</p>
                     <p className="mt-2">Cette interface vous permet d'interagir avec un expert en cybersécurité pour explorer des concepts adaptés à votre niveau et à vos besoins spécifiques.</p>
+                  </div>
+                  
+                  {/* Topics suggérés */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <div 
+                      className="bg-[#121e2e] p-4 rounded-md border border-[#00b4d8]/30 hover:border-[#00b4d8]/70 hover:shadow-[0_0_15px_rgba(0,180,216,0.2)] transition-all cursor-pointer group"
+                      onClick={() => {
+                        setInputMessage("Je voudrais apprendre à détecter et me protéger contre le phishing");
+                        startSession();
+                      }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="w-8 h-8 bg-[#091525] rounded-full flex items-center justify-center border border-[#00b4d8]/40 mr-3 group-hover:bg-[#00b4d8]/20 transition-all">
+                          <svg className="h-4 w-4 text-[#00b4d8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                        </div>
+                        <h3 className="font-mono font-medium text-[#00b4d8]">Sécurité Email</h3>
+                      </div>
+                      <p className="text-sm text-[#c3d9ee]/80 pl-11">Apprenez à repérer et éviter les tentatives de phishing et les arnaques par email</p>
+                    </div>
+                    
+                    <div 
+                      className="bg-[#121e2e] p-4 rounded-md border border-[#00b4d8]/30 hover:border-[#00b4d8]/70 hover:shadow-[0_0_15px_rgba(0,180,216,0.2)] transition-all cursor-pointer group"
+                      onClick={() => {
+                        setInputMessage("Explique-moi ce qu'est un ransomware et comment m'en protéger");
+                        startSession();
+                      }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="w-8 h-8 bg-[#091525] rounded-full flex items-center justify-center border border-[#00b4d8]/40 mr-3 group-hover:bg-[#00b4d8]/20 transition-all">
+                          <svg className="h-4 w-4 text-[#00b4d8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                          </svg>
+                        </div>
+                        <h3 className="font-mono font-medium text-[#00b4d8]">Ransomwares</h3>
+                      </div>
+                      <p className="text-sm text-[#c3d9ee]/80 pl-11">Comprendre les ransomwares et les stratégies de protection des données</p>
+                    </div>
+                    
+                    <div 
+                      className="bg-[#121e2e] p-4 rounded-md border border-[#00b4d8]/30 hover:border-[#00b4d8]/70 hover:shadow-[0_0_15px_rgba(0,180,216,0.2)] transition-all cursor-pointer group"
+                      onClick={() => {
+                        setInputMessage("Je souhaite découvrir les bonnes pratiques de sécurité pour mes appareils personnels");
+                        startSession();
+                      }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="w-8 h-8 bg-[#091525] rounded-full flex items-center justify-center border border-[#00b4d8]/40 mr-3 group-hover:bg-[#00b4d8]/20 transition-all">
+                          <svg className="h-4 w-4 text-[#00b4d8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                          </svg>
+                        </div>
+                        <h3 className="font-mono font-medium text-[#00b4d8]">Protection personnelle</h3>
+                      </div>
+                      <p className="text-sm text-[#c3d9ee]/80 pl-11">Sécurisez vos appareils et données personnelles au quotidien</p>
+                    </div>
                   </div>
                   
                   <div className="bg-[#121e2e] p-6 rounded-md border border-[#00b4d8]/30 font-mono text-base space-y-4">
@@ -444,6 +501,10 @@ function ExpertLearningPageContent() {
                       <li>Références actualisées aux standards et bonnes pratiques de l'ANSSI et autres organismes</li>
                       <li>Mode décision avec scénarios complexes et choix stratégiques</li>
                     </ul>
+                  </div>
+                  
+                  <div className="text-center text-sm text-[#c3d9ee]/70 italic">
+                    <p>Les suggestions ci-dessus sont des points de départ, mais n'hésitez pas à poser vos propres questions!</p>
                   </div>
                 </CardContent>
                 <CardFooter className="border-t border-[#00b4d8]/20 pt-6 pb-4 flex justify-center">
@@ -477,10 +538,36 @@ function ExpertLearningPageContent() {
                   />
                 ) : (
                   <div className="flex flex-col w-full">
+                    {/* Barre de statut et de progression */}
+                    <div className="bg-[#091525] border border-[#00b4d8]/30 border-b-0 rounded-t-md p-3 flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center">
+                          <span className="h-2.5 w-2.5 rounded-full bg-[#4cc9f0] animate-pulse mr-2"></span>
+                          <span className="text-[#c3d9ee] text-xs font-mono">STATUT: CONNECTÉ</span>
+                        </div>
+                        <div className="text-[#c3d9ee]/70 text-xs font-mono">
+                          Niveau d'apprentissage: <span className="text-[#00b4d8]">Adaptatif</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-[#c3d9ee]/70 text-xs font-mono hidden sm:block">
+                          <span className="text-[#00b4d8]">Aide:</span> Tapez "aide" pour voir les commandes disponibles
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setInputMessage("Pouvons-nous passer au mode exercice pratique ?")}
+                          className="border-[#00b4d8]/50 bg-[#091525] text-[#00b4d8] hover:bg-[#112641] text-xs py-1"
+                        >
+                          Mode pratique
+                        </Button>
+                      </div>
+                    </div>
+                
                     {/* Zone de chat avec messages */}
                     <div 
                       ref={chatContainerRef}
-                      className="flex-1 overflow-y-auto custom-scrollbar cyber-expert bg-[#091525]/80 border border-[#00b4d8]/30 rounded-t-md shadow-[0_0_20px_rgba(0,180,216,0.15)] h-[calc(100vh-300px)] min-h-[500px]"
+                      className="flex-1 overflow-y-auto custom-scrollbar cyber-expert bg-[#091525]/80 border border-[#00b4d8]/30 rounded-none shadow-[0_0_20px_rgba(0,180,216,0.15)] h-[calc(100vh-350px)] min-h-[450px]"
                     >
                       <div className="p-6 space-y-6">
                         {messages.map((message) => (
@@ -545,6 +632,56 @@ function ExpertLearningPageContent() {
                     {/* Zone de saisie de message - masquée en mode décision */}
                     {!decision.isInDecisionMode && (
                       <div className="bg-[#121e2e] p-6 rounded-b-md border-x border-b border-[#00b4d8]/30 shadow-[0_0_20px_rgba(0,180,216,0.15)]">
+                        {/* Suggestions de questions pour guider l'utilisateur */}
+                        <div className="mb-4 px-1">
+                          <p className="text-[#00b4d8] text-sm font-mono mb-2 flex items-center">
+                            <span className="inline-block w-4 h-4 bg-[#00b4d8] rounded-full animate-pulse mr-2"></span>
+                            SUGGESTIONS DE QUESTIONS:
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setInputMessage("Comment me protéger contre le phishing ?")}
+                              className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                            >
+                              Comment me protéger contre le phishing ?
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setInputMessage("Explique-moi les ransomwares")}
+                              className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                            >
+                              Explique-moi les ransomwares
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setInputMessage("Comment sécuriser mon Wi-Fi ?")}
+                              className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                            >
+                              Comment sécuriser mon Wi-Fi ?
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setInputMessage("Crée un exercice pratique sur le phishing")}
+                              className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                            >
+                              Crée un exercice pratique
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setInputMessage("Propose-moi un scénario de décision")}
+                              className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                            >
+                              Propose-moi un scénario de décision
+                            </Button>
+                          </div>
+                        </div>
+
                         <form onSubmit={handleSubmit} className="flex space-x-3">
                           <div className="flex-1 relative">
                             <textarea
@@ -573,6 +710,13 @@ function ExpertLearningPageContent() {
                             )}
                           </Button>
                         </form>
+
+                        {/* Guide d'utilisation */}
+                        <div className="mt-3 px-1 text-[#c3d9ee]/70 text-xs flex items-center justify-center gap-3">
+                          <span className="flex items-center"><svg className="h-3 w-3 mr-1 text-[#00b4d8]" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path></svg>Poser des questions précises</span>
+                          <span className="flex items-center"><svg className="h-3 w-3 mr-1 text-[#00b4d8]" fill="currentColor" viewBox="0 0 20 20"><path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z"></path><path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z"></path></svg>Demander des exercices</span>
+                          <span className="flex items-center"><svg className="h-3 w-3 mr-1 text-[#00b4d8]" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd"></path></svg>Explorer des scénarios</span>
+                        </div>
                         
                         {/* Bouton de fin de session */}
                         <div className="mt-4 flex justify-center">

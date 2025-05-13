@@ -44,10 +44,10 @@ export async function initCyberExpertSession(req: Request, res: Response) {
       content: getCyberExpertSystemPrompt()
     };
     
-    // Message d'accueil plus flexible
+    // Message d'accueil plus interactif et guidé
     const welcomeMessage: ChatCompletionRequestMessage = {
       role: "assistant",
-      content: "👋 Bonjour, je suis CYBER EXPERT de mc2i ! 🔐\n\nJe peux vous aider sur n'importe quel sujet lié à la cybersécurité, adapté à votre niveau et vos besoins.\n\nQue voulez-vous explorer aujourd'hui ?\n\n• Un concept précis (phishing, ransomware, RGPD...)\n• Une situation concrète (incident de sécurité, audit...)\n• Des bonnes pratiques pour votre entreprise\n\nPouvez-vous me dire ce qui vous intéresse dans le domaine cyber ? Je m'adapterai à votre style d'apprentissage préféré !"
+      content: "👋 Bonjour et bienvenue dans votre session d'apprentissage personnalisée en cybersécurité ! 🔐\n\nJe suis CYBER EXPERT de mc2i, votre guide interactif dans ce domaine passionnant. Je vais vous accompagner pas à pas pour rendre cette expérience à la fois instructive et engageante.\n\n**Voici comment nous allons procéder :**\n\n1. Commençons par définir ce qui vous intéresse particulièrement en cybersécurité\n2. Ensemble, nous explorerons ce sujet à votre rythme et selon vos préférences\n3. Je vous proposerai des exercices pratiques pour tester vos connaissances\n4. Nous pourrons aussi simuler des scénarios de décision dans des situations réelles\n\n**Pour démarrer, dites-moi simplement :**\n• Quel aspect de la cybersécurité vous intéresse le plus ? (phishing, ransomware, protection des données...)\n• Votre niveau actuel de connaissance (débutant, intermédiaire, avancé)\n• Si vous préférez apprendre par des exemples concrets, des explications détaillées ou des mises en situation\n\nÀ tout moment, vous pouvez taper 'aide' pour voir les commandes disponibles ou 'exercice' pour passer à un mode plus pratique. Alors, par où souhaitez-vous commencer notre exploration ?"
     };
     
     // Ajouter les messages à la session
@@ -94,8 +94,12 @@ export async function processCyberExpertMessage(req: Request, res: Response) {
     // Traiter le message en fonction de l'étape actuelle
     let response: string;
     
+    // Vérifier si l'utilisateur demande de l'aide
+    if (message.toLowerCase().trim() === 'aide' || message.toLowerCase().trim() === 'help') {
+      response = generateHelpGuide();
+    } 
     // Si le message contient une question hors sujet (non cyber), la refuser
-    if (isNonCyberQuestion(message)) {
+    else if (isNonCyberQuestion(message)) {
       response = "⚠️ Bien essayé, mais nous ne parlons que de cyber ici :) ⚠️";
     } else {
       switch (session.currentStage) {
