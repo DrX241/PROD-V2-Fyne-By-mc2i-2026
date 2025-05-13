@@ -704,7 +704,7 @@ export default function GenerateurLivrables() {
             </div>
           </div>
 
-          <div className="bg-white text-black dark:bg-gray-900 dark:text-white rounded-lg p-6 shadow-lg">
+          <div className="bg-white text-black dark:bg-gray-900 dark:text-white rounded-lg p-6 shadow-lg w-full overflow-auto">
             <Accordion type="single" collapsible className="w-full">
               {content.sections.map((section, index) => (
                 <AccordionItem key={index} value={`section-${index}`}>
@@ -712,7 +712,7 @@ export default function GenerateurLivrables() {
                     {section.title}
                   </AccordionTrigger>
                   <AccordionContent>
-                    <div className="whitespace-pre-wrap p-4 rounded bg-gray-50 dark:bg-gray-800">
+                    <div className="whitespace-pre-wrap p-4 rounded bg-gray-50 dark:bg-gray-800 text-base">
                       {section.content}
                     </div>
                   </AccordionContent>
@@ -746,8 +746,8 @@ export default function GenerateurLivrables() {
           </div>
         </div>
 
-        <div className="bg-white text-black dark:bg-gray-900 dark:text-white rounded-lg p-6 shadow-lg">
-          <pre className="whitespace-pre-wrap font-sans">{content.content}</pre>
+        <div className="bg-white text-black dark:bg-gray-900 dark:text-white rounded-lg p-6 shadow-lg w-full overflow-auto">
+          <pre className="whitespace-pre-wrap font-sans text-base">{content.content}</pre>
         </div>
       </div>
     );
@@ -810,13 +810,13 @@ export default function GenerateurLivrables() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                 {/* Formulaire à gauche */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="p-6 rounded-xl border bg-card"
+                  className="p-6 rounded-xl border bg-card lg:col-span-1"
                 >
                   {renderInputForm(generator)}
                 </motion.div>
@@ -826,7 +826,7 @@ export default function GenerateurLivrables() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="p-6 rounded-xl border bg-card"
+                  className="p-6 rounded-xl border bg-card lg:col-span-2"
                 >
                   {generatedContent[generator.id] 
                     ? renderGeneratedContent(generator.id)
