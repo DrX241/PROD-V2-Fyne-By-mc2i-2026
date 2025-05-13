@@ -36,6 +36,7 @@ import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearn
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
 import * as amoaExpertController from "./amoaExpertController";
+import { startImposteurSimulation, processImposteurMessage, completeImposteurSimulation } from "./imposteurSimulationController";
 import { simulateTargetResponse, analyzePerformance } from "./brainHackerController";
 import { analyzeDefenseStrategy, generateAttackScenario, generateTacticalTip } from "./firewallTactiqueController";
 import { 
