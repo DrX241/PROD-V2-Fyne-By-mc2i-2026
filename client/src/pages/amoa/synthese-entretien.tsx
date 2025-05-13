@@ -125,12 +125,14 @@ export default function SyntheseEntretien() {
 
   // Composant pour afficher un champ de la synthèse
   const SyntheseField = ({ field }: { field: { id: string, label: string, icon: string } }) => (
-    <div className="mb-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-xl">{field.icon}</span>
+    <div className="mb-6 p-5 bg-gray-50 dark:bg-gray-800/60 rounded-xl border-0 ring-1 ring-gray-100 dark:ring-gray-700/50 transition-all hover:shadow-sm">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+          <span className="text-lg">{field.icon}</span>
+        </div>
         <h3 className="font-semibold text-gray-900 dark:text-white">{field.label}</h3>
       </div>
-      <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+      <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200 pl-2 border-l-2 border-emerald-200 dark:border-emerald-800/50">
         {synthese?.[field.id] || 'Non spécifié'}
       </p>
     </div>
@@ -329,7 +331,7 @@ export default function SyntheseEntretien() {
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-800">
+                <div className="bg-white dark:bg-gray-900 rounded-xl p-8 shadow-md border-0 ring-1 ring-gray-200 dark:ring-gray-700">
                   {syntheseFields.map(field => (
                     <SyntheseField key={field.id} field={field} />
                   ))}
