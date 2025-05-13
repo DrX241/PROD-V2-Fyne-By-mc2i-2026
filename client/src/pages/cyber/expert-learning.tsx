@@ -11,7 +11,12 @@ import {
   Bot, 
   Lightbulb as LightbulbIcon,
   X,
-  ArrowLeft
+  ArrowLeft,
+  AlertTriangle,
+  HardDrive,
+  Users,
+  MessageCircle,
+  ShieldAlert
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import HomeLayout from "@/components/layout/HomeLayout";
@@ -89,6 +94,19 @@ interface Message {
   type: "user" | "bot";
   content: string;
   timestamp: number;
+  choices?: CrisisChoice[];
+}
+
+// Interface pour les choix de crise interactifs
+interface CrisisChoice {
+  id: string;
+  text: string;
+  icon: "alert" | "containment" | "team" | "communication";
+  impact?: {
+    security: number;   // -2 à +2
+    business: number;   // -2 à +2
+    reputation: number; // -2 à +2
+  };
 }
 
 // Interface pour le statut de la session
@@ -324,6 +342,18 @@ const CyberExpertLearning: React.FC = () => {
   return (
     <HomeLayout className="cyber-immersive">
       <div className="relative min-h-screen max-h-screen w-full overflow-hidden bg-gradient-to-b from-[#0c1525] via-[#091525] to-[#050d1a] text-white">
+        {/* Bouton de retour au cyberspace */}
+        <div className="absolute top-4 left-4 z-50">
+          <Button 
+            onClick={handleReturnToPrevious}
+            variant="destructive"
+            className="flex items-center gap-2 bg-[#e63946] hover:bg-[#e63946]/80 text-white font-bold py-2 px-4 rounded-md"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            RETOUR AU CYBERSPACE
+          </Button>
+        </div>
+        
         {/* Fond décoratif avec effet cyberpunk */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute inset-0 opacity-5">
