@@ -112,7 +112,7 @@ export async function initMissionTerminal(req: Request, res: Response) {
   try {
     const userId = uuidv4();
     
-    // Message d'accueil en mode terminal
+    // Message d'accueil en mode terminal avec des instructions détaillées
     const welcomeMessage = `
     ╔══════════════════════════════════════════════════════════════╗
     ║                     TERMINAL SÉCURISÉ                        ║
@@ -120,17 +120,37 @@ export async function initMissionTerminal(req: Request, res: Response) {
     ╚══════════════════════════════════════════════════════════════╝
 
     > Initialisation de la connexion...
-    > Vérification des autorisations...
+    > Authentification en cours...
+    > Vérification des autorisations de sécurité niveau 4...
     > Accès autorisé
+    > Chiffrement de la connexion activé
 
-    ⚠️ CONFIDENTIEL ⚠️
+    ⚠️ INFORMATION CONFIDENTIELLE - NIVEAU ALPHA ⚠️
 
-    Bonjour agent, nous avons une mission critique qui nécessite vos compétences.
+    Date: ${new Date().toLocaleDateString('fr-FR')}
+    Heure: ${new Date().toLocaleTimeString('fr-FR')}
+    
+    ----------------------------------------------------------------------
+    
+    Bonjour agent, nous avons une mission critique qui requiert une expertise
+    immédiate en cybersécurité. Votre profil a été sélectionné pour ses 
+    compétences spécifiques dans ce domaine.
     
     ├── MISSION : INFILTRATION ET SÉCURISATION
-    │   └── Statut : EN ATTENTE D'ACCEPTATION
+    │   ├── Priorité : ÉLEVÉE
+    │   ├── Risque : NIVEAU 4
+    │   ├── Statut : EN ATTENTE D'ACCEPTATION
+    │   └── Localisation : CONFIDENTIEL (révélée après acceptation)
     
-    Acceptez-vous cette mission ? [oui/non]
+    GUIDE DE L'INTERFACE:
+    1. Utilisez les boutons ci-dessous pour faire vos choix
+    2. Chaque décision aura un impact sur la mission et votre carrière
+    3. Vous interagirez avec différents personnages
+    4. Surveillez vos métriques (budget, sécurité, réputation)
+    
+    ----------------------------------------------------------------------
+    
+    Acceptez-vous cette mission ? [OUI/NON]
     
     > _`;
     
