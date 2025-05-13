@@ -140,15 +140,29 @@ const CyberExpertLearning: React.FC = () => {
     const chatContainer = chatContainerRef.current;
     if (chatContainer) {
       chatContainer.addEventListener('scroll', handleScroll);
+      
+      // Défiler vers le bas après l'ajout de messages, avec plusieurs tentatives
       scrollToBottom();
+      
+      // Répéter le scrollToBottom plusieurs fois pour s'assurer que tout est chargé
+      const scrollIntervals = [100, 300, 500];
+      scrollIntervals.forEach(delay => {
+        setTimeout(scrollToBottom, delay);
+      });
+      
       return () => chatContainer.removeEventListener('scroll', handleScroll);
     }
   }, [messages]);
   
-  // Fonction pour faire défiler vers le bas
+  // Fonction pour faire défiler vers le bas avec un petit délai pour permettre le rendu complet
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      // Utiliser un délai pour s'assurer que tous les éléments sont bien rendus avant de défiler
+      setTimeout(() => {
+        if (chatContainerRef.current) {
+          chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight + 1000; // Ajouter une marge supplémentaire
+        }
+      }, 100);
     }
   };
   
@@ -809,7 +823,7 @@ const CyberExpertLearning: React.FC = () => {
                     {/* Zone de messages avec défilement */}
                     <div 
                       ref={chatContainerRef}
-                      className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar cyber-expert"
+                      className="flex-1 overflow-y-auto p-6 pb-36 space-y-6 custom-scrollbar cyber-expert"
                     >
                       {messages.map((message, index) => (
                         <div key={message.id}>
