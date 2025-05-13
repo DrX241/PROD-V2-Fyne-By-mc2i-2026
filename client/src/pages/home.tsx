@@ -1337,7 +1337,7 @@ export default function Home() {
           </div>
           
           {/* Cartes de technologie */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mx-auto max-w-4xl lg:max-w-5xl">
             {[
               {
                 title: "Modèle d'intélligence artificiel",
@@ -1370,28 +1370,30 @@ export default function Home() {
                     : 'bg-white border border-gray-200 shadow-md'
                 }`}
               >
-                <div className="p-6">
-                  <div className={`mb-5 inline-flex rounded-xl p-3 ${
+                <div className="p-8">
+                  <div className={`mb-6 inline-flex rounded-xl p-4 ${
                     isFuturistic
                       ? 'bg-blue-800/50 text-cyan-300'
                       : 'bg-blue-100 text-blue-700'
                   }`}>
-                    {tech.icon}
+                    <div className="scale-125">
+                      {tech.icon}
+                    </div>
                   </div>
                   
-                  <h3 className={`text-xl font-bold mb-3 ${
+                  <h3 className={`text-2xl font-bold mb-4 ${
                     isFuturistic ? 'text-cyan-300 font-cyber-accent' : 'text-blue-700'
                   }`}>
                     {tech.title}
                   </h3>
                   
-                  <p className={`mb-5 ${
+                  <p className={`mb-6 text-lg ${
                     isFuturistic ? 'text-blue-100/90' : 'text-gray-600'
                   }`}>
                     {tech.description}
                   </p>
                   
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {tech.features.map((feature, i) => (
                       <div 
                         key={i} 
@@ -1399,10 +1401,10 @@ export default function Home() {
                           isFuturistic ? 'text-blue-200/70' : 'text-gray-700'
                         }`}
                       >
-                        <Check className={`h-4 w-4 mr-2 ${
+                        <Check className={`h-5 w-5 mr-3 ${
                           isFuturistic ? 'text-cyan-400' : 'text-blue-500'
                         }`} />
-                        <span className="text-sm">{feature}</span>
+                        <span className="text-base">{feature}</span>
                       </div>
                     ))}
                   </div>
