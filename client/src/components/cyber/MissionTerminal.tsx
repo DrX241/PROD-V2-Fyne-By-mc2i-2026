@@ -383,7 +383,7 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
               onClick={() => handleMissionDecision(choice.id)}
               disabled={loading}
             >
-              <span className="mb-1 font-bold">{choice.texte}</span>
+              <span className="mb-1 font-bold">{choice.text}</span>
               {choice.suggestionAide && (
                 <span className="text-sm text-gray-400 italic">{choice.suggestionAide}</span>
               )}

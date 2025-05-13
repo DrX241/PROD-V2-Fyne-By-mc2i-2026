@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Send, ChevronDown, RefreshCw, Bot, X, ArrowLeft, FileText, Plus, Home } from "lucide-react";
+import { Send, ChevronDown, RefreshCw, Bot, X, ArrowLeft, FileText, Plus, Home, Terminal, Shield } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import HomeLayout from "@/components/layout/HomeLayout";
 import PageTitle from "@/components/utils/PageTitle";
@@ -11,6 +11,7 @@ import DOMPurify from 'dompurify';
 import { useLocation } from 'wouter';
 import { DecisionProvider, useDecision } from "@/contexts/DecisionContext";
 import CyberDecisionFlow from "@/components/cyber/CyberDecisionFlow";
+import MissionTerminal from "@/components/cyber/MissionTerminal";
 
 // Fonction pour formater le texte avec une structure visuelle
 const formatTextWithStructure = (text: string): string => {
@@ -67,6 +68,7 @@ function ExpertLearningPageContent() {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [sessionStatus, setSessionStatus] = useState<SessionStatus | null>(null);
   const [sessionSummary, setSessionSummary] = useState<string | null>(null);
+  const [showMissionTerminal, setShowMissionTerminal] = useState(false);
   
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -317,6 +319,16 @@ function ExpertLearningPageContent() {
     setSessionSummary(null);
     setMessages([]);
     setSessionStatus(null);
+  };
+  
+  // Fonction pour lancer le mode mission
+  const startMissionMode = () => {
+    setShowMissionTerminal(true);
+  };
+  
+  // Fonction pour quitter le mode mission
+  const exitMissionMode = () => {
+    setShowMissionTerminal(false);
   };
   
   // Fonction pour retourner à la page précédente
