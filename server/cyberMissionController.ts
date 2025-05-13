@@ -17,8 +17,10 @@ interface PNJ {
 interface MissionChoice {
   id: string;
   texte: string;
+  text?: string; // Alias pour texte, utilisé par certaines APIs
   consequences?: string;
   suggestionAide?: string;
+  suggestion?: string; // Alias pour suggestionAide, utilisé par certaines APIs
 }
 
 // Interface pour une étape de mission
@@ -778,9 +780,27 @@ async function generateMission(role: any): Promise<CyberMissionSession> {
 }
 
 /**
+ * Interface pour les conséquences d'une décision
+ */
+interface DecisionConsequences {
+  message: string;
+  pnjActif?: string | null;
+  impactBudget: number;
+  impactSecurite: number;
+  impactReputation: number;
+  impactMoral: number;
+  finMission: boolean;
+  typeFinMission?: 'succes' | 'echec' | 'licenciement' | 'abandon';
+}
+
+/**
  * Génère les conséquences d'une décision en utilisant l'IA
  */
-async function generateConsequences(session: CyberMissionSession, etape: MissionStage, choix: MissionChoice) {
+async function generateConsequences(
+  session: CyberMissionSession, 
+  etape: MissionStage, 
+  choix: MissionChoice
+): Promise<DecisionConsequences> {
   // Sélectionner le PNJ qui va réagir (utiliser celui de l'étape ou en choisir un au hasard)
   const pnjActif = etape.pnjActif ? 
     session.pnjs.find(pnj => pnj.id === etape.pnjActif) : 
