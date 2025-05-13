@@ -936,54 +936,7 @@ export default function Home() {
               </motion.div>
             </div>
             
-            {/* Section de statistiques modernes en grille */}
-            <motion.div 
-              className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-10 mt-16 lg:mt-20"
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.7 }}
-            >
-              {[
-                { value: "3", label: "Domaines de compétence", icon: <Layers className="h-5 w-5" /> },
-                { value: "100%", label: "Contenu généré par IA", icon: <Sparkles className="h-5 w-5" /> },
-                { value: "15+", label: "Modules interactifs", icon: <BookOpen className="h-5 w-5" /> },
-                { value: "24/7", label: "Accessibilité", icon: <Clock className="h-5 w-5" /> }
-              ].map((stat, index) => (
-                <motion.div 
-                  key={index}
-                  className={`p-5 rounded-xl ${
-                    isFuturistic 
-                      ? 'bg-blue-900/20 border border-blue-700/30 shadow-blue-900/20 shadow-md' 
-                      : 'bg-white border border-blue-100 shadow-sm'
-                  }`}
-                  whileHover={{ 
-                    scale: 1.03,
-                    boxShadow: isFuturistic ? '0 0 20px rgba(59, 130, 246, 0.2)' : '0 4px 20px rgba(0, 0, 0, 0.05)'
-                  }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <div className="flex flex-col items-center text-center">
-                    <div className={`flex items-center justify-center mb-3 rounded-full p-2 ${
-                      isFuturistic 
-                        ? 'bg-blue-800/50 text-cyan-300' 
-                        : 'bg-blue-50 text-blue-600'
-                    }`}>
-                      {stat.icon}
-                    </div>
-                    <div className={`text-3xl sm:text-4xl font-bold mb-1 ${
-                      isFuturistic ? 'text-white font-cyber-title' : 'text-gray-800'
-                    }`}>
-                      {stat.value}
-                    </div>
-                    <div className={`text-sm ${
-                      isFuturistic ? 'text-blue-200' : 'text-gray-600'
-                    }`}>
-                      {stat.label}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
+            {/* Section de statistiques supprimée à la demande de l'utilisateur */}
             
             {/* Séparateur élégant */}
             <div className="mt-24 mb-12">
