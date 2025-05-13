@@ -357,13 +357,13 @@ const CyberExpertLearning: React.FC = () => {
                       <div className="absolute -left-5 -bottom-5 w-24 h-24 bg-[#4cc9f0]/10 rounded-full blur-2xl"></div>
                     </div>
                     
-                    {/* Modes d'apprentissage - design futuriste sans bordures */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 xl:gap-12">
+                    {/* Modes d'apprentissage - design futuriste sans bordures - 4 côte à côte */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 xl:gap-6">
                     
                       {/* MODE 1: ENVIRONNEMENT DE JEU DE RÔLE - SOC VIRTUEL */}
                       <div 
-                        className="relative group cursor-pointer min-h-[25rem] h-full overflow-hidden"
-                        style={{minHeight: '27rem'}}
+                        className="relative group cursor-pointer h-full overflow-hidden rounded-lg"
+                        style={{height: '22rem'}}
                         onClick={() => {
                           setInputMessage("Initialise un jeu de rôle où je suis un RSSI face à une tentative d'intrusion. Propose différents personnages que je peux incarner et guide-moi dans une simulation réaliste.");
                           startSession();
@@ -380,53 +380,40 @@ const CyberExpertLearning: React.FC = () => {
                           <div className="absolute top-5 right-5 w-20 h-20 border-t-2 border-r-2 border-[#00b4d8]/70 rounded-tr-lg"></div>
                           
                           <div className="mb-5">
-                            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#e63946]/80 text-white text-xs font-bold mb-3">
+                            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#e63946]/80 text-white text-xs font-bold mb-2">
                               <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
-                              ENVIRONNEMENT IMMERSIF
+                              IMMERSIF
                             </div>
                             
-                            <h3 className="font-mono text-2xl sm:text-3xl font-bold text-white mb-4">
-                              JEU DE RÔLE<br/>
-                              <span className="text-[#00b4d8]">CYBER TACTIQUE</span>
+                            <h3 className="font-mono text-xl font-bold text-white mb-2">
+                              <span className="text-[#00b4d8]">JEU DE RÔLE</span>
                             </h3>
                             
-                            <p className="text-[#c3d9ee] mb-5 max-w-md">
-                              Plongez dans un centre d'opérations de sécurité virtuel. Interagissez avec des personnages non-joueurs, prenez des décisions critiques et résolvez des incidents en temps réel.
+                            <p className="text-[#c3d9ee] mb-2 text-xs">
+                              Centre d'opérations SOC virtuel avec PNJ interactifs
                             </p>
                             
-                            <div className="flex flex-wrap gap-2 mb-6">
-                              <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm text-[#00b4d8] px-3 py-1.5 rounded-full text-xs">
-                                <div className="h-4 w-4 rounded-full bg-[#00b4d8]/20 flex items-center justify-center">
-                                  <span className="h-2 w-2 rounded-full bg-[#00b4d8]"></span>
-                                </div>
+                            <div className="flex flex-wrap gap-1 mb-3">
+                              <div className="bg-black/40 backdrop-blur-sm text-[#00b4d8] px-2 py-1 rounded-full text-[10px]">
                                 RSSI
                               </div>
-                              <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm text-[#00b4d8] px-3 py-1.5 rounded-full text-xs">
-                                <div className="h-4 w-4 rounded-full bg-[#00b4d8]/20 flex items-center justify-center">
-                                  <span className="h-2 w-2 rounded-full bg-[#00b4d8]"></span>
-                                </div>
-                                Analyste SOC
-                              </div>
-                              <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm text-[#00b4d8] px-3 py-1.5 rounded-full text-xs">
-                                <div className="h-4 w-4 rounded-full bg-[#00b4d8]/20 flex items-center justify-center">
-                                  <span className="h-2 w-2 rounded-full bg-[#00b4d8]"></span>
-                                </div>
-                                Expert CERT
+                              <div className="bg-black/40 backdrop-blur-sm text-[#00b4d8] px-2 py-1 rounded-full text-[10px]">
+                                Analyste
                               </div>
                             </div>
                           </div>
                           
-                          <button className="group-hover:bg-[#00b4d8] bg-[#00b4d8]/80 text-black font-bold py-3 px-5 rounded-lg transition-all duration-300 flex items-center justify-between w-full">
-                            LANCER LA SIMULATION
-                            <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                          <button className="absolute inset-x-0 bottom-0 group-hover:bg-[#00b4d8] bg-[#00b4d8]/80 text-black font-bold py-2 px-3 transition-all duration-300 flex items-center justify-between w-full">
+                            LANCER
+                            <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                           </button>
                         </div>
                       </div>
                       
                       {/* MODE 2: ENVIRONNEMENT QCM ET EXERCICES */}
                       <div 
-                        className="relative group cursor-pointer min-h-[25rem] h-full overflow-hidden"
-                        style={{minHeight: '27rem'}}
+                        className="relative group cursor-pointer h-full overflow-hidden rounded-lg"
+                        style={{height: '22rem'}}
                         onClick={() => {
                           setInputMessage("Créé un QCM interactif de 5 questions sur la sécurité des réseaux avec différents niveaux de difficulté et explications détaillées.");
                           startSession();
@@ -443,47 +430,43 @@ const CyberExpertLearning: React.FC = () => {
                           <div className="absolute top-5 right-5 w-20 h-20 border-t-2 border-r-2 border-[#4cc9f0]/70 rounded-tr-lg"></div>
                           
                           <div className="mb-5">
-                            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#4cc9f0]/80 text-white text-xs font-bold mb-3">
+                            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#4cc9f0]/80 text-white text-xs font-bold mb-2">
                               <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
-                              CHALLENGES INTERACTIFS
+                              CHALLENGES
                             </div>
                             
-                            <h3 className="font-mono text-2xl sm:text-3xl font-bold text-white mb-4">
-                              EXERCICES &<br/>
-                              <span className="text-[#4cc9f0]">ÉVALUATIONS</span>
+                            <h3 className="font-mono text-xl font-bold text-white mb-2">
+                              <span className="text-[#4cc9f0]">EXERCICES & QCM</span>
                             </h3>
                             
-                            <p className="text-[#c3d9ee] mb-5 max-w-md">
-                              Testez vos connaissances avec des QCM interactifs, des labs pratiques et des défis techniques. Recevez des explications détaillées et suivez votre progression en temps réel.
+                            <p className="text-[#c3d9ee] mb-2 text-xs">
+                              Tests interactifs avec explications détaillées
                             </p>
                             
-                            <div className="grid grid-cols-3 gap-2 mb-6">
-                              <div className="flex flex-col items-center gap-1 bg-black/40 backdrop-blur-sm text-center p-2 rounded text-xs text-white">
-                                <span className="text-[#4cc9f0] font-bold">QCM</span>
-                                <span className="text-[#c3d9ee]/80 text-[10px]">Tests guidés</span>
+                            <div className="flex gap-1 mb-3">
+                              <div className="bg-black/40 backdrop-blur-sm text-[#4cc9f0] px-2 py-1 rounded-full text-[10px]">
+                                QCM
                               </div>
-                              <div className="flex flex-col items-center gap-1 bg-black/40 backdrop-blur-sm text-center p-2 rounded text-xs text-white">
-                                <span className="text-[#4cc9f0] font-bold">LABS</span>
-                                <span className="text-[#c3d9ee]/80 text-[10px]">Pratique</span>
+                              <div className="bg-black/40 backdrop-blur-sm text-[#4cc9f0] px-2 py-1 rounded-full text-[10px]">
+                                Labs
                               </div>
-                              <div className="flex flex-col items-center gap-1 bg-black/40 backdrop-blur-sm text-center p-2 rounded text-xs text-white">
-                                <span className="text-[#4cc9f0] font-bold">DÉFIS</span>
-                                <span className="text-[#c3d9ee]/80 text-[10px]">Avancés</span>
+                              <div className="bg-black/40 backdrop-blur-sm text-[#4cc9f0] px-2 py-1 rounded-full text-[10px]">
+                                Défis
                               </div>
                             </div>
                           </div>
                           
-                          <button className="group-hover:bg-[#4cc9f0] bg-[#4cc9f0]/80 text-black font-bold py-3 px-5 rounded-lg transition-all duration-300 flex items-center justify-between w-full">
-                            COMMENCER L'ÉVALUATION
-                            <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                          <button className="absolute inset-x-0 bottom-0 group-hover:bg-[#4cc9f0] bg-[#4cc9f0]/80 text-black font-bold py-2 px-3 transition-all duration-300 flex items-center justify-between w-full">
+                            COMMENCER
+                            <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                           </button>
                         </div>
                       </div>
                       
                       {/* MODE 3: ENVIRONNEMENT CONVERSATION LIBRE */}
                       <div 
-                        className="relative group cursor-pointer min-h-[25rem] h-full overflow-hidden" 
-                        style={{minHeight: '27rem'}}
+                        className="relative group cursor-pointer h-full overflow-hidden rounded-lg"
+                        style={{height: '22rem'}}
                         onClick={() => {
                           setInputMessage("Je voudrais apprendre à détecter et me protéger contre le phishing");
                           startSession();
@@ -500,49 +483,43 @@ const CyberExpertLearning: React.FC = () => {
                           <div className="absolute top-5 right-5 w-20 h-20 border-t-2 border-r-2 border-[#00b4d8]/70 rounded-tr-lg"></div>
                           
                           <div className="mb-5">
-                            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#48cae4]/80 text-white text-xs font-bold mb-3">
+                            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#48cae4]/80 text-white text-xs font-bold mb-2">
                               <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
-                              DIALOGUE ADAPTATIF
+                              DIALOGUE
                             </div>
                             
-                            <h3 className="font-mono text-xl sm:text-2xl font-bold text-white mb-2">
-                              <span className="inline">EXPERT</span> <span className="text-[#48cae4] inline">CYBERSÉCURITÉ</span> <span className="text-[#48cae4] inline">& GESTION DE CRISE</span>
+                            <h3 className="font-mono text-xl font-bold text-white mb-2">
+                              <span className="text-[#48cae4]">EXPERT CYBER</span>
                             </h3>
                             
-                            <p className="text-[#c3d9ee] mb-5 max-w-md">
-                              Échangez librement avec notre IA experte en cybersécurité. Posez vos questions sur n'importe quel sujet cyber et recevez des explications personnalisées à votre niveau.
+                            <p className="text-[#c3d9ee] mb-2 text-xs">
+                              Conversations libres et conseils personnalisés
                             </p>
                             
-                            <div className="flex flex-wrap gap-2 mb-6">
-                              <div className="bg-black/40 backdrop-blur-sm text-[#48cae4] px-3 py-1.5 rounded-full text-xs">
+                            <div className="flex flex-wrap gap-1 mb-3">
+                              <div className="bg-black/40 backdrop-blur-sm text-[#48cae4] px-2 py-1 rounded-full text-[10px]">
                                 Phishing
                               </div>
-                              <div className="bg-black/40 backdrop-blur-sm text-[#48cae4] px-3 py-1.5 rounded-full text-xs">
+                              <div className="bg-black/40 backdrop-blur-sm text-[#48cae4] px-2 py-1 rounded-full text-[10px]">
                                 Ransomware
                               </div>
-                              <div className="bg-black/40 backdrop-blur-sm text-[#48cae4] px-3 py-1.5 rounded-full text-xs">
-                                Sécurité Réseau
-                              </div>
-                              <div className="bg-black/40 backdrop-blur-sm text-[#48cae4] px-3 py-1.5 rounded-full text-xs">
-                                Zero Trust
-                              </div>
-                              <div className="bg-black/40 backdrop-blur-sm text-[#48cae4] px-3 py-1.5 rounded-full text-xs">
+                              <div className="bg-black/40 backdrop-blur-sm text-[#48cae4] px-2 py-1 rounded-full text-[10px]">
                                 RGPD
                               </div>
                             </div>
                           </div>
                           
-                          <button className="group-hover:bg-[#48cae4] bg-[#48cae4]/80 text-black font-bold py-3 px-5 rounded-lg transition-all duration-300 flex items-center justify-between w-full">
-                            DIALOGUER AVEC L'EXPERT
-                            <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                          <button className="absolute inset-x-0 bottom-0 group-hover:bg-[#48cae4] bg-[#48cae4]/80 text-black font-bold py-2 px-3 transition-all duration-300 flex items-center justify-between w-full">
+                            DIALOGUER
+                            <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                           </button>
                         </div>
                       </div>
                       
                       {/* MODE 4: SCÉNARIOS AVANCÉS */}
                       <div 
-                        className="relative group cursor-pointer min-h-[25rem] h-full overflow-hidden"
-                        style={{minHeight: '27rem'}}
+                        className="relative group cursor-pointer h-full overflow-hidden rounded-lg"
+                        style={{height: '22rem'}}
                         onClick={() => {
                           setInputMessage("Lance un scénario de gestion de crise cybersécurité où je dois analyser une violation de données et proposer un plan d'action");
                           startSession();
@@ -559,35 +536,32 @@ const CyberExpertLearning: React.FC = () => {
                           <div className="absolute top-5 right-5 w-20 h-20 border-t-2 border-r-2 border-[#e63946]/70 rounded-tr-lg"></div>
                           
                           <div className="mb-5">
-                            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#e63946]/80 text-white text-xs font-bold mb-3">
+                            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#e63946]/80 text-white text-xs font-bold mb-2">
                               <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
-                              NIVEAU AVANCÉ
+                              AVANCÉ
                             </div>
                             
-                            <h3 className="font-mono text-2xl sm:text-3xl font-bold text-white mb-4">
-                              GESTION DE<br/>
-                              <span className="text-[#e63946]">CRISE CYBER</span>
+                            <h3 className="font-mono text-xl font-bold text-white mb-2">
+                              <span className="text-[#e63946]">GESTION DE CRISE</span>
                             </h3>
                             
-                            <p className="text-[#c3d9ee] mb-5 max-w-md">
-                              Gérez des scénarios complexes d'attaques sophistiquées. Analysez la situation, prenez des décisions stratégiques et développez votre plan de réponse à incident.
+                            <p className="text-[#c3d9ee] mb-2 text-xs">
+                              Scénarios d'attaques sophistiquées et plans de réponse
                             </p>
                             
-                            <div className="grid grid-cols-2 gap-2 mb-6">
-                              <div className="border border-[#e63946]/30 bg-black/40 backdrop-blur-sm py-2 px-3 rounded text-xs">
-                                <div className="text-[#e63946] font-bold mb-1">Incident Response</div>
-                                <div className="text-[#c3d9ee]/80 text-[10px]">Plan d'action immédiat</div>
+                            <div className="flex flex-wrap gap-1 mb-3">
+                              <div className="bg-black/40 backdrop-blur-sm text-[#e63946] px-2 py-1 rounded-full text-[10px]">
+                                Incident Response
                               </div>
-                              <div className="border border-[#e63946]/30 bg-black/40 backdrop-blur-sm py-2 px-3 rounded text-xs">
-                                <div className="text-[#e63946] font-bold mb-1">APT Detection</div>
-                                <div className="text-[#c3d9ee]/80 text-[10px]">Menaces persistantes</div>
+                              <div className="bg-black/40 backdrop-blur-sm text-[#e63946] px-2 py-1 rounded-full text-[10px]">
+                                APT Detection
                               </div>
                             </div>
                           </div>
                           
-                          <button className="group-hover:bg-[#e63946] bg-[#e63946]/80 text-white font-bold py-3 px-5 rounded-lg transition-all duration-300 flex items-center justify-between w-full">
-                            ACTIVER SCÉNARIO CRITIQUE
-                            <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                          <button className="absolute inset-x-0 bottom-0 group-hover:bg-[#e63946] bg-[#e63946]/80 text-white font-bold py-2 px-3 transition-all duration-300 flex items-center justify-between w-full">
+                            ACTIVER
+                            <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                           </button>
                         </div>
                       </div>
