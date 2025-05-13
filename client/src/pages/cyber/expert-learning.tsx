@@ -252,11 +252,94 @@ const CyberExpertLearning: React.FC = () => {
       }
       
       // Ajouter la réponse du bot
+      // Générer des choix dynamiques basés sur le contenu de la réponse
+      let responseChoices: CrisisChoice[] = [];
+      
+      // Détecter le contexte de la réponse pour proposer des choix pertinents
+      if (data.message.toLowerCase().includes("isoler") || data.message.toLowerCase().includes("confinement")) {
+        responseChoices = [
+          {
+            id: uuidv4(),
+            text: "Déconnecter les systèmes critiques du réseau",
+            icon: "containment",
+            impact: { security: 2, business: -2, reputation: 0 }
+          },
+          {
+            id: uuidv4(),
+            text: "Isoler uniquement les systèmes compromis",
+            icon: "containment",
+            impact: { security: 1, business: -1, reputation: 0 }
+          }
+        ];
+      } else if (data.message.toLowerCase().includes("évaluer") || data.message.toLowerCase().includes("analyse")) {
+        responseChoices = [
+          {
+            id: uuidv4(),
+            text: "Déployer des outils d'analyse forensique",
+            icon: "alert",
+            impact: { security: 1, business: 0, reputation: 0 }
+          },
+          {
+            id: uuidv4(),
+            text: "Vérifier les journaux de sécurité",
+            icon: "alert",
+            impact: { security: 1, business: 0, reputation: 0 }
+          }
+        ];
+      } else if (data.message.toLowerCase().includes("équipe") || data.message.toLowerCase().includes("cellule")) {
+        responseChoices = [
+          {
+            id: uuidv4(),
+            text: "Impliquer l'équipe technique",
+            icon: "team",
+            impact: { security: 1, business: 0, reputation: 0 }
+          },
+          {
+            id: uuidv4(),
+            text: "Faire appel à notre prestataire de réponse aux incidents",
+            icon: "team",
+            impact: { security: 2, business: -1, reputation: 1 }
+          }
+        ];
+      } else if (data.message.toLowerCase().includes("communication") || data.message.toLowerCase().includes("informer")) {
+        responseChoices = [
+          {
+            id: uuidv4(),
+            text: "Préparer une communication pour les employés",
+            icon: "communication",
+            impact: { security: 0, business: 0, reputation: 1 }
+          },
+          {
+            id: uuidv4(),
+            text: "Informer les autorités réglementaires",
+            icon: "communication",
+            impact: { security: 0, business: -1, reputation: 1 }
+          }
+        ];
+      } else {
+        // Choix par défaut si on ne trouve pas de contexte spécifique
+        responseChoices = [
+          {
+            id: uuidv4(),
+            text: "Poursuivre l'investigation",
+            icon: "alert",
+            impact: { security: 1, business: 0, reputation: 0 }
+          },
+          {
+            id: uuidv4(),
+            text: "Prendre des mesures préventives supplémentaires",
+            icon: "containment",
+            impact: { security: 1, business: 0, reputation: 0 }
+          }
+        ];
+      }
+      
       const botResponse: Message = {
         id: uuidv4(),
         type: "bot",
         content: data.message,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        choices: responseChoices
       };
       
       setMessages(prev => [...prev, botResponse]);
@@ -310,14 +393,43 @@ const CyberExpertLearning: React.FC = () => {
       }
       
       // Message d'accueil spécifique à la gestion de crise pour un RSSI
-      const crisisWelcomeContent = "🚨 **ALERTE CYBERSÉCURITÉ - MODE GESTION DE CRISE** 🚨\n\nBonjour Responsable de la Sécurité,\n\nNous sommes le 13 mai 2025, et une situation de crise vient d'être détectée dans votre organisation. Je suis votre assistant spécialisé en réponse aux incidents pour vous accompagner dans cette situation d'urgence.\n\n**SIGNALEMENT INITIAL:** Une possible intrusion avec latéralisation a été détectée sur votre infrastructure, avec plusieurs indicateurs de compromission. Une activité suspecte est en cours et pourrait affecter vos données sensibles.\n\nComment souhaitez-vous procéder ? Je vous propose plusieurs options:\n\n- Évaluation initiale de la menace\n- Confinement des systèmes critiques\n- Constitution de la cellule de crise\n- Communication aux parties prenantes\n\nQuelle est votre première directive ?";
+      const crisisWelcomeContent = "🚨 **ALERTE CYBERSÉCURITÉ - MODE GESTION DE CRISE** 🚨\n\nBonjour Responsable de la Sécurité,\n\nNous sommes le 13 mai 2025, et une situation de crise vient d'être détectée dans votre organisation. Je suis votre assistant spécialisé en réponse aux incidents pour vous accompagner dans cette situation d'urgence.\n\n**SIGNALEMENT INITIAL:** Une possible intrusion avec latéralisation a été détectée sur votre infrastructure, avec plusieurs indicateurs de compromission. L'équipe technique a observé des communications suspectes vers des domaines externes non reconnus et des tentatives d'élévation de privilèges sur plusieurs serveurs critiques.\n\nEn tant que RSSI, vous devez coordonner la réponse immédiate. Quelle action souhaitez-vous entreprendre en priorité ?";
       
-      // Créer le message d'accueil du bot avec le contenu de crise personnalisé
+      // Définir les choix interactifs pour la gestion de crise
+      const initialChoices: CrisisChoice[] = [
+        {
+          id: uuidv4(),
+          text: "Évaluer l'étendue de la compromission",
+          icon: "alert",
+          impact: { security: 1, business: 0, reputation: 0 }
+        },
+        {
+          id: uuidv4(),
+          text: "Isoler les systèmes compromis du reste du réseau",
+          icon: "containment",
+          impact: { security: 2, business: -1, reputation: 0 }
+        },
+        {
+          id: uuidv4(),
+          text: "Convoquer la cellule de crise",
+          icon: "team",
+          impact: { security: 0, business: 1, reputation: 1 }
+        },
+        {
+          id: uuidv4(),
+          text: "Alerter la direction et les parties prenantes",
+          icon: "communication",
+          impact: { security: 0, business: 0, reputation: 1 }
+        }
+      ];
+      
+      // Créer le message d'accueil du bot avec le contenu de crise personnalisé et les choix
       const welcomeMessage: Message = {
         id: uuidv4(),
         type: "bot",
         content: crisisWelcomeContent,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        choices: initialChoices
       };
       
       setMessages([welcomeMessage]);
@@ -946,12 +1058,38 @@ const CyberExpertLearning: React.FC = () => {
                               }`}
                             >
                               {message.type === "bot" ? (
-                                <div 
-                                  className="prose prose-invert max-w-none text-[#c3d9ee] text-base" 
-                                  dangerouslySetInnerHTML={{ 
-                                    __html: DOMPurify.sanitize(formatTextWithStructure(message.content)) 
-                                  }}
-                                />
+                                <div className="prose prose-invert max-w-none text-[#c3d9ee] text-base">
+                                  <div 
+                                    dangerouslySetInnerHTML={{ 
+                                      __html: DOMPurify.sanitize(formatTextWithStructure(message.content)) 
+                                    }}
+                                  />
+                                  
+                                  {/* Afficher les choix interactifs si présents */}
+                                  {message.choices && message.choices.length > 0 && (
+                                    <div className="mt-4 grid grid-cols-1 gap-3">
+                                      {message.choices.map(choice => (
+                                        <Button
+                                          key={choice.id}
+                                          onClick={() => {
+                                            setInputMessage(choice.text);
+                                            handleSubmit(new Event('click') as unknown as React.FormEvent);
+                                          }}
+                                          className="bg-[#091525]/80 border border-[#e63946]/30 hover:bg-[#112641] hover:border-[#e63946]/60 text-white group flex items-center justify-between transition-all duration-300"
+                                        >
+                                          <span className="flex items-center gap-2">
+                                            {choice.icon === "alert" && <AlertTriangle className="h-4 w-4 text-[#e63946]" />}
+                                            {choice.icon === "containment" && <HardDrive className="h-4 w-4 text-[#e63946]" />}
+                                            {choice.icon === "team" && <Users className="h-4 w-4 text-[#e63946]" />}
+                                            {choice.icon === "communication" && <MessageCircle className="h-4 w-4 text-[#e63946]" />}
+                                            {choice.text}
+                                          </span>
+                                          <ChevronRight className="h-4 w-4 opacity-50 group-hover:translate-x-1 transition-transform" />
+                                        </Button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
                               ) : (
                                 <p className="text-[#c3d9ee] text-base">{message.content}</p>
                               )}
