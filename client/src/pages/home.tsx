@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useLocation } from 'wouter';
 import HomeLayout from "@/components/layout/HomeLayout";
-import { ArrowRight, Layers, BookOpen, GraduationCap, Lock, ShieldCheck, AlertTriangle } from "lucide-react";
+import { ArrowRight, Layers, BookOpen, GraduationCap, Lock, ShieldCheck, AlertTriangle, Sparkles, ChevronDown, Clock, Book } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -637,110 +637,383 @@ export default function Home() {
           </div>
         )}
 
-        {/* Contenu principal - Ajusté pour le mode classique afin de préserver la visibilité du robot */}
-        <div className={`w-full max-w-screen-2xl mx-auto px-4 py-16 sm:px-6 ${isFuturistic ? 'lg:px-8' : 'lg:px-4'} lg:py-28 relative z-10 h-full flex items-center`}>
-          <div className="flex flex-col lg:flex-row items-center justify-between">
-            {/* Contenu texte - Position adaptée selon le thème */}
-            <div className={`text-center lg:text-left ${isFuturistic ? 'lg:w-2/5 lg:ml-12' : 'lg:w-2/5 lg:ml-32'} mx-auto lg:mr-0 mb-12 lg:mb-0`}>
-              {/* Badge différent selon le thème */}
-              {isFuturistic ? (
-                <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-600/40 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-md">
-                  Propulsé par l'Intelligence Artificielle
-                </div>
-              ) : (
-                <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-100 border border-blue-200 text-blue-600 text-sm font-medium mb-6">
-                  Formation Assistée par IA
-                </div>
-              )}
-              
-              {/* Animation du slogan FYNE placée avant le titre principal - adapté selon le thème */}
+        {/* Section principale réinventée pour une expérience plus immersive */}
+        <div className="w-full relative z-10 overflow-hidden">
+          {/* Arrière-plan abstrait animé - apparaît progressivement */}
+          <motion.div 
+            className="absolute inset-0 -z-10 opacity-20"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isFuturistic ? 0.25 : 0.1 }}
+            transition={{ duration: 1.5 }}
+          >
+            {!isFuturistic && (
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100">
+                <div className="absolute inset-0" style={{ 
+                  backgroundImage: 'radial-gradient(circle at 20% 40%, rgba(37, 99, 235, 0.1) 0%, transparent 40%), radial-gradient(circle at 80% 20%, rgba(79, 70, 229, 0.1) 0%, transparent 40%)'
+                }}></div>
+              </div>
+            )}
+            {isFuturistic && (
+              <div className="absolute inset-0">
+                {Array.from({ length: 40 }).map((_, i) => (
+                  <motion.div
+                    key={`star-${i}`}
+                    className="absolute rounded-full bg-white"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: Math.random() * 0.7 + 0.3 }}
+                    transition={{ duration: Math.random() * 2 + 1, repeat: Infinity, repeatType: "reverse" }}
+                    style={{
+                      top: `${Math.random() * 100}%`,
+                      left: `${Math.random() * 100}%`,
+                      width: `${Math.max(1, Math.random() * 3)}px`,
+                      height: `${Math.max(1, Math.random() * 3)}px`,
+                      boxShadow: '0 0 4px rgba(255, 255, 255, 0.8)'
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </motion.div>
+
+          {/* Design de grille futuriste - lignes subtiles */}
+          <motion.div 
+            className="absolute inset-0 -z-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.1 }}
+            transition={{ duration: 2 }}
+          >
+            <div className="h-full w-full" style={{
+              backgroundImage: isFuturistic 
+                ? 'linear-gradient(to right, rgba(59, 130, 246, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(59, 130, 246, 0.1) 1px, transparent 1px)'
+                : 'linear-gradient(to right, rgba(59, 130, 246, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(59, 130, 246, 0.05) 1px, transparent 1px)',
+              backgroundSize: '80px 80px'
+            }}>
+            </div>
+          </motion.div>
+
+          {/* Structure principale avec une disposition en deux colonnes équilibrées */}
+          <div className="max-w-screen-2xl mx-auto px-4 py-12 md:py-24 lg:py-32">
+            {/* En-tête centré pour attirer l'attention */}
+            <div className="text-center mb-16 max-w-4xl mx-auto">
+              {/* Badge innovant */}
               <motion.div
-                className="mb-6 relative"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="mb-6"
+              >
+                {isFuturistic ? (
+                  <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-900/80 to-indigo-900/80 border border-blue-500/40 text-blue-200 text-sm font-medium backdrop-blur-md shadow-lg">
+                    <Sparkles className="h-4 w-4 mr-2 text-cyan-300" />
+                    <span>Propulsé par l'Intelligence Artificielle</span>
+                  </div>
+                ) : (
+                  <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 text-blue-700 text-sm font-medium shadow-sm">
+                    <Sparkles className="h-4 w-4 mr-2 text-blue-500" />
+                    <span>Formation Assistée par IA</span>
+                  </div>
+                )}
+              </motion.div>
+              
+              {/* Slogan FYNE animé avec un design élégant */}
+              <motion.div
+                className="mb-4 sm:mb-6 relative"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8 }}
               >
-                {/* Simple affichage du slogan - adapté selon le thème */}
-                <div className={`h-14 text-3xl font-medium flex items-center lg:justify-start justify-center ${isFuturistic ? 'text-white font-cyber-title' : 'text-gray-700'}`}>
-                  {isFuturistic ? (
-                    <span>
-                      <span className="text-cyan-300">F</span>or 
-                      <span className="text-cyan-300"> Y</span>our 
-                      <span className="text-cyan-300"> N</span>ext 
-                      <span className="text-cyan-300"> E</span>xperience
-                    </span>
-                  ) : (
-                    <span>
-                      <span className="text-blue-600">F</span>or 
-                      <span className="text-blue-600"> Y</span>our 
-                      <span className="text-blue-600"> N</span>ext 
-                      <span className="text-blue-600"> E</span>xperience
-                    </span>
-                  )}
-                </div>
-                
-                {/* Ligne décorative en dessous - adapté selon le thème */}
-                <motion.div 
-                  className={`absolute -bottom-1 ${isFuturistic ? 'lg:left-32' : 'lg:left-24'} left-1/2 transform lg:-translate-x-0 -translate-x-1/2 w-64 h-[2px]`}
-                  initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: 250, opacity: 1 }}
-                  transition={{ duration: 1, delay: 0.5 }}
+                <motion.div
+                  className={`text-4xl font-bold ${isFuturistic ? 'font-cyber-title text-white' : 'text-gray-800'} tracking-tight`}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.7 }}
                 >
-                  <div className={`w-full h-full ${isFuturistic 
-                    ? 'bg-gradient-to-r from-transparent via-cyan-400 to-transparent' 
-                    : 'bg-gradient-to-r from-transparent via-blue-500 to-transparent'}`}></div>
+                  {isFuturistic ? (
+                    <div className="inline-flex flex-wrap justify-center gap-x-3">
+                      <motion.span 
+                        className="text-cyan-300"
+                        animate={{ 
+                          textShadow: ["0 0 5px rgba(34,211,238,0)", "0 0 15px rgba(34,211,238,0.5)", "0 0 5px rgba(34,211,238,0)"]
+                        }} 
+                        transition={{ duration: 2.5, repeat: Infinity, repeatType: "loop" }}
+                      >F</motion.span>
+                      <span>or</span>
+                      <motion.span 
+                        className="text-cyan-300"
+                        animate={{ 
+                          textShadow: ["0 0 5px rgba(34,211,238,0)", "0 0 15px rgba(34,211,238,0.5)", "0 0 5px rgba(34,211,238,0)"]
+                        }} 
+                        transition={{ duration: 2.5, delay: 0.5, repeat: Infinity, repeatType: "loop" }}
+                      >Y</motion.span>
+                      <span>our</span>
+                      <motion.span 
+                        className="text-cyan-300"
+                        animate={{ 
+                          textShadow: ["0 0 5px rgba(34,211,238,0)", "0 0 15px rgba(34,211,238,0.5)", "0 0 5px rgba(34,211,238,0)"]
+                        }} 
+                        transition={{ duration: 2.5, delay: 1, repeat: Infinity, repeatType: "loop" }}
+                      >N</motion.span>
+                      <span>ext</span>
+                      <motion.span 
+                        className="text-cyan-300"
+                        animate={{ 
+                          textShadow: ["0 0 5px rgba(34,211,238,0)", "0 0 15px rgba(34,211,238,0.5)", "0 0 5px rgba(34,211,238,0)"]
+                        }} 
+                        transition={{ duration: 2.5, delay: 1.5, repeat: Infinity, repeatType: "loop" }}
+                      >E</motion.span>
+                      <span>xperience</span>
+                    </div>
+                  ) : (
+                    <div className="inline-flex flex-wrap justify-center gap-x-2">
+                      <motion.span 
+                        className="text-blue-600"
+                        animate={{ 
+                          color: ["#2563eb", "#1d4ed8", "#2563eb"]
+                        }} 
+                        transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
+                      >F</motion.span>
+                      <span>or</span>
+                      <motion.span 
+                        className="text-blue-600"
+                        animate={{ 
+                          color: ["#2563eb", "#1d4ed8", "#2563eb"]
+                        }} 
+                        transition={{ duration: 3, delay: 0.5, repeat: Infinity, repeatType: "reverse" }}
+                      >Y</motion.span>
+                      <span>our</span>
+                      <motion.span 
+                        className="text-blue-600"
+                        animate={{ 
+                          color: ["#2563eb", "#1d4ed8", "#2563eb"]
+                        }} 
+                        transition={{ duration: 3, delay: 1, repeat: Infinity, repeatType: "reverse" }}
+                      >N</motion.span>
+                      <span>ext</span>
+                      <motion.span 
+                        className="text-blue-600"
+                        animate={{ 
+                          color: ["#2563eb", "#1d4ed8", "#2563eb"]
+                        }} 
+                        transition={{ duration: 3, delay: 1.5, repeat: Infinity, repeatType: "reverse" }}
+                      >E</motion.span>
+                      <span>xperience</span>
+                    </div>
+                  )}
+                </motion.div>
+                
+                {/* Ligne décorative animée */}
+                <motion.div 
+                  className="mx-auto w-48 h-[3px] mt-3 overflow-hidden rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: "12rem" }}
+                  transition={{ duration: 1, delay: 0.8 }}
+                >
+                  <motion.div 
+                    className={`w-full h-full ${isFuturistic 
+                      ? 'bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500' 
+                      : 'bg-gradient-to-r from-blue-400 via-blue-600 to-blue-400'}`}
+                    animate={{ 
+                      x: ["-100%", "100%"]
+                    }} 
+                    transition={{ 
+                      duration: 3, 
+                      repeat: Infinity, 
+                      ease: "linear"
+                    }}
+                  />
                 </motion.div>
               </motion.div>
 
+              {/* Titre principal avec animation et design moderne */}
               <motion.h1 
-                className={`text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 ${
+                className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 ${
                   isFuturistic 
                     ? 'text-white font-cyber-title tracking-wide' 
-                    : 'text-gray-800 tracking-normal'
+                    : 'text-gray-800 tracking-tight'
                 }`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.9, delay: 0.3 }}
               >
-                Améliorez<br className="xs:hidden" />
-                <span className={isFuturistic 
-                  ? "bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"
-                  : "text-blue-600"
-                }> votre expertise </span><br className="xs:hidden" />
-                avec FYNE
+                <div className="flex flex-col sm:block text-center">
+                  <span className="inline-block">Améliorez </span>
+                  <span className={`inline-block my-2 sm:my-0 relative px-2 mx-1 ${
+                    isFuturistic 
+                      ? 'bg-gradient-to-r from-blue-600/20 to-indigo-600/20 rounded-md border-l-2 border-r-2 border-cyan-400/50'
+                      : 'bg-blue-50 rounded-md border-l-2 border-r-2 border-blue-400'
+                  }`}>
+                    <span className={isFuturistic 
+                      ? "bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 relative z-10"
+                      : "text-blue-600 relative z-10"
+                    }>votre expertise</span>
+                    {isFuturistic && (
+                      <motion.div 
+                        className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 blur-md"
+                        animate={{ 
+                          opacity: [0.5, 0.8, 0.5]
+                        }} 
+                        transition={{ 
+                          duration: 3, 
+                          repeat: Infinity,
+                          repeatType: "reverse"
+                        }}
+                      />
+                    )}
+                  </span>
+                  <span className="inline-block">avec FYNE</span>
+                </div>
               </motion.h1>
               
+              {/* Description engageante */}
               <motion.p 
-                className={`text-xl md:text-2xl mb-10 mx-auto lg:mx-0 lg:max-w-xl leading-relaxed ${
+                className={`text-lg sm:text-xl lg:text-2xl mb-10 max-w-3xl mx-auto leading-relaxed ${
                   isFuturistic 
-                    ? 'text-blue-100 font-cyber-body tracking-wide' 
+                    ? 'text-blue-100 font-cyber-body' 
                     : 'text-gray-600'
                 }`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.3 }}
+                transition={{ duration: 0.7, delay: 0.5 }}
               >
-                Découvrez une nouvelle dimension d'apprentissage interactif grâce à nos modules IA innovants qui s'adaptent parfaitement à votre progression.
+                Découvrez une nouvelle dimension d'apprentissage interactif avec nos modules IA innovants qui s'adaptent parfaitement à votre progression.
               </motion.p>
               
-              {/* Bouton d'action avec effet futuriste */}
+              {/* Boutons d'action avec animation et effet avancé */}
               <motion.div
-                className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center lg:justify-start"
+                className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 justify-center items-center"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.4 }}
+                transition={{ duration: 0.7, delay: 0.6 }}
               >
                 <Link href="/cyber">
-                  <Button size="lg" className="relative px-8 py-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-700 text-white shadow-lg group font-cyber-accent text-lg border border-blue-400/20 overflow-hidden">
-                    <span className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-transparent w-0 group-hover:w-full transition-all duration-700 ease-out" />
-                    <span className="relative z-10">Démarrer une expérience</span>
-                    <ArrowRight className="relative z-10 ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform duration-300" />
+                  <Button 
+                    size="lg" 
+                    className={`relative px-8 py-6 shadow-lg group font-medium text-lg overflow-hidden transition-all duration-300 ${
+                      isFuturistic 
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white border border-blue-400/20 hover:shadow-blue-500/30 hover:shadow-xl' 
+                        : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800'
+                    }`}
+                  >
+                    {isFuturistic && (
+                      <motion.div 
+                        className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-blue-500/0 to-indigo-400/20"
+                        animate={{ 
+                          x: ["-100%", "100%"]
+                        }} 
+                        transition={{ 
+                          duration: 3, 
+                          repeat: Infinity,
+                          repeatType: "loop", 
+                          ease: "linear"
+                        }}
+                      />
+                    )}
+                    <span className="relative z-10 flex items-center">
+                      Démarrer une expérience
+                      <motion.div 
+                        animate={{ x: [0, 5, 0] }} 
+                        transition={{ duration: 1.5, repeat: Infinity, repeatType: "loop" }}
+                        className="ml-2"
+                      >
+                        <ArrowRight className="h-5 w-5" />
+                      </motion.div>
+                    </span>
+                  </Button>
+                </Link>
+                
+                <Link href="#modules">
+                  <Button 
+                    variant="outline"
+                    size="lg" 
+                    className={`px-8 py-6 group font-medium text-lg ${
+                      isFuturistic 
+                        ? 'border-cyan-500/30 text-cyan-300 hover:bg-blue-900/30 hover:border-cyan-400/50'
+                        : 'border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300'
+                    }`}
+                  >
+                    <span className="flex items-center">
+                      Découvrir nos modules
+                      <ChevronDown className="ml-2 h-5 w-5 transition-transform group-hover:translate-y-1" />
+                    </span>
                   </Button>
                 </Link>
               </motion.div>
             </div>
             
-            {/* Le panneau d'information a été retiré */}
+            {/* Section de statistiques modernes en grille */}
+            <motion.div 
+              className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-10 mt-16 lg:mt-20"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.7 }}
+            >
+              {[
+                { value: "3", label: "Domaines de compétence", icon: <Layers className="h-5 w-5" /> },
+                { value: "100%", label: "Contenu généré par IA", icon: <Sparkles className="h-5 w-5" /> },
+                { value: "15+", label: "Modules interactifs", icon: <BookOpen className="h-5 w-5" /> },
+                { value: "24/7", label: "Accessibilité", icon: <Clock className="h-5 w-5" /> }
+              ].map((stat, index) => (
+                <motion.div 
+                  key={index}
+                  className={`p-5 rounded-xl ${
+                    isFuturistic 
+                      ? 'bg-blue-900/20 border border-blue-700/30 shadow-blue-900/20 shadow-md' 
+                      : 'bg-white border border-blue-100 shadow-sm'
+                  }`}
+                  whileHover={{ 
+                    scale: 1.03,
+                    boxShadow: isFuturistic ? '0 0 20px rgba(59, 130, 246, 0.2)' : '0 4px 20px rgba(0, 0, 0, 0.05)'
+                  }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="flex flex-col items-center text-center">
+                    <div className={`flex items-center justify-center mb-3 rounded-full p-2 ${
+                      isFuturistic 
+                        ? 'bg-blue-800/50 text-cyan-300' 
+                        : 'bg-blue-50 text-blue-600'
+                    }`}>
+                      {stat.icon}
+                    </div>
+                    <div className={`text-3xl sm:text-4xl font-bold mb-1 ${
+                      isFuturistic ? 'text-white font-cyber-title' : 'text-gray-800'
+                    }`}>
+                      {stat.value}
+                    </div>
+                    <div className={`text-sm ${
+                      isFuturistic ? 'text-blue-200' : 'text-gray-600'
+                    }`}>
+                      {stat.label}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+            
+            {/* Séparateur élégant */}
+            <div className="mt-24 mb-12">
+              <div className={`h-px max-w-sm mx-auto ${
+                isFuturistic ? 'bg-gradient-to-r from-transparent via-blue-500/40 to-transparent' : 'bg-gradient-to-r from-transparent via-blue-200 to-transparent'
+              }`}></div>
+            </div>
+            
+            {/* Icône de défilement pour indiquer de continuer */}
+            <motion.div 
+              className="flex justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, y: [0, 10, 0] }}
+              transition={{ 
+                opacity: { duration: 0.5, delay: 1 },
+                y: { duration: 2, repeat: Infinity, repeatType: "loop" }
+              }}
+            >
+              <div className={`rounded-full p-2 ${
+                isFuturistic 
+                  ? 'bg-blue-900/30 text-blue-300 border border-blue-700/30' 
+                  : 'bg-blue-50 text-blue-600 border border-blue-100'
+              }`}>
+                <ChevronDown className="h-6 w-6" />
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>
