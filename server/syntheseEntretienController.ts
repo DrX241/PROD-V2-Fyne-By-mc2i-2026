@@ -51,18 +51,18 @@ Pour le format de réponse, tu dois fournir uniquement un objet JSON sans texte 
     };
 
     // Appel à l'API OpenAI via notre service
-    const response = await openAIService.sendChatRequest(
+    const responseText = await openAIService.getChatCompletionWithCache(
       [systemMessage, userMessage],
       0.7,
-      true // format JSON
+      2000,
+      true // Utiliser le modèle secondaire (plus rapide)
     );
 
-    // Extraction et parsing de la réponse
-    const content = response.choices[0].message.content;
+    // Parsing de la réponse
     let synthese;
 
     try {
-      synthese = JSON.parse(content);
+      synthese = JSON.parse(responseText);
     } catch (error) {
       console.error('Erreur de parsing JSON:', error);
       return res.status(500).json({
