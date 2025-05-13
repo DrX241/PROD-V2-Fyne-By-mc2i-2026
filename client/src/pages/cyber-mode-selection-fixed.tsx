@@ -577,45 +577,17 @@ export default function CyberModeSelectionRedesign() {
             </p>
           </motion.div>
 
-          {/* Onglets principaux */}
+          {/* Onglets principaux - TabsList masqué et remplacé par une marge minimale */}
           <Tabs defaultValue="objectifs" className="w-full" data-id="main-tabs">
-            <TabsList className={`w-full mb-8 p-1.5 ${
-              highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-white/10'
-            }`}>
-              <TabsTrigger 
-                value="objectifs" 
-                className={`flex-1 flex items-center justify-center py-3 ${
-                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
-                }`}
-                data-id="objectives-tab"
-              >
-                <IoBookOutline className="h-5 w-5 mr-3" />
-                Par objectif d'apprentissage
-              </TabsTrigger>
-              <TabsTrigger 
-                value="metiers" 
-                className={`flex-1 flex items-center justify-center py-3 ${
-                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
-                }`}
-                data-id="careers-tab"
-              >
-                <BsBriefcase className="h-5 w-5 mr-3" />
-                <div className="flex flex-col items-center">
-                  <span>Par métier</span>
-                  <span className="text-xs font-light italic mt-0.5 opacity-90">Refonte complète bientôt disponible</span>
-                </div>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="tous" 
-                className={`flex-1 flex items-center justify-center py-3 ${
-                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
-                }`}
-                data-id="all-modules-tab"
-              >
-                <BsGearFill className="h-5 w-5 mr-3" />
-                Tous les modules
-              </TabsTrigger>
+            {/* TabsList masqué mais gardé dans le DOM pour maintenir la fonctionnalité */}
+            <TabsList className="hidden">
+              <TabsTrigger value="objectifs" data-id="objectives-tab">Par objectif</TabsTrigger>
+              <TabsTrigger value="metiers" data-id="careers-tab">Par métier</TabsTrigger>
+              <TabsTrigger value="tous" data-id="all-modules-tab">Tous les modules</TabsTrigger>
             </TabsList>
+            
+            {/* Espace réduit pour remonter les cartes */}
+            <div className="mb-2"></div>
 
             {/* Contenu des onglets */}
             <TabsContent value="objectifs" className="mt-0">
