@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Send, ChevronDown, RefreshCw, Bot, X, ArrowLeft, FileText, Plus, Home, Lightbulb as LightbulbIcon } from "lucide-react";
+import { Send, ChevronDown, ChevronRight, RefreshCw, Bot, X, ArrowLeft, FileText, Plus, Home, Lightbulb as LightbulbIcon } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import HomeLayout from "@/components/layout/HomeLayout";
 import PageTitle from "@/components/utils/PageTitle";
@@ -449,114 +449,198 @@ function ExpertLearningPageContent() {
             </Button>
           </div>
           
-          <div className="flex flex-col items-center justify-center h-full pt-12 w-full px-6">
+          <div className="flex flex-col items-center justify-center h-screen w-full overflow-hidden">
             {!isSessionActive && !sessionSummary ? (
-              // Page d'accueil - style terminal de cybersécurité
-              <Card className="w-full max-w-5xl bg-[#091525] border border-[#00b4d8]/30 text-white shadow-[0_0_20px_rgba(0,180,216,0.15)]">
-                <CardHeader className="border-b border-[#00b4d8]/20">
-                  <CardTitle className="font-mono text-xl text-[#00b4d8] flex items-center gap-2">
-                    <Bot className="h-6 w-6" />
-                    EXPERT CYBERSÉCURITÉ - INTERFACE DE DIALOGUE
-                  </CardTitle>
-                  <CardDescription className="text-[#c3d9ee]/70 font-mono text-base">
-                    VERSION 2.5.3 | ÉTAT: <span className="text-[#4cc9f0]">PRÊT</span> | <span className="text-[#00b4d8]">IA adaptative</span>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="py-8 space-y-6 text-[#c3d9ee]">
-                  <div className="font-mono text-base border-l-2 border-[#00b4d8]/50 pl-6 py-2">
-                    <p>Bienvenue sur le module <span className="text-[#00b4d8] font-semibold">APPRENDRE EN ÉCHANGEANT</span>.</p>
-                    <p className="mt-2">Cette interface vous permet d'interagir avec un expert en cybersécurité pour explorer des concepts adaptés à votre niveau et à vos besoins spécifiques.</p>
+              // Page d'accueil - style immersif et gamifié
+              <div className="w-full max-w-7xl mx-auto">
+                <div className="bg-[#091525] border border-[#00b4d8]/30 text-white shadow-[0_0_30px_rgba(0,180,216,0.3)] rounded-lg overflow-hidden">
+                  <div className="border-b border-[#00b4d8]/20 bg-gradient-to-r from-[#091525] to-[#112641] p-6">
+                    <h1 className="font-mono text-2xl text-[#00b4d8] flex items-center gap-3 mb-2">
+                      <Bot className="h-7 w-7" />
+                      CYBER COMMANDER - CENTRE DE CONTRÔLE
+                    </h1>
+                    <p className="text-[#c3d9ee]/90 font-mono">
+                      <span className="inline-block w-3 h-3 bg-[#4cc9f0] animate-pulse mr-2 rounded-full"></span>
+                      SYSTÈME ACTIF | SÉCURITÉ: <span className="text-[#4cc9f0]">NIVEAU ALPHA</span> | <span className="text-[#00b4d8]">IA TACTIQUE v3.0</span>
+                    </p>
                   </div>
-                  
-                  {/* Topics suggérés */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                    <div 
-                      className="bg-[#121e2e] p-4 rounded-md border border-[#00b4d8]/30 hover:border-[#00b4d8]/70 hover:shadow-[0_0_15px_rgba(0,180,216,0.2)] transition-all cursor-pointer group"
-                      onClick={() => {
-                        setInputMessage("Je voudrais apprendre à détecter et me protéger contre le phishing");
-                        startSession();
-                      }}
-                    >
-                      <div className="flex items-center mb-2">
-                        <div className="w-8 h-8 bg-[#091525] rounded-full flex items-center justify-center border border-[#00b4d8]/40 mr-3 group-hover:bg-[#00b4d8]/20 transition-all">
-                          <svg className="h-4 w-4 text-[#00b4d8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                          </svg>
-                        </div>
-                        <h3 className="font-mono font-medium text-[#00b4d8]">Sécurité Email</h3>
-                      </div>
-                      <p className="text-sm text-[#c3d9ee]/80 pl-11">Apprenez à repérer et éviter les tentatives de phishing et les arnaques par email</p>
+
+                  <div className="p-8">
+                    <div className="font-mono text-base border-l-2 border-[#00b4d8]/50 pl-6 py-2 mb-8">
+                      <p className="text-[#00b4d8] font-semibold text-lg">BIENVENUE, AGENT.</p>
+                      <p className="mt-2 text-[#c3d9ee]">Choisissez votre mode d'interaction avec le système cyber avancé. Interface adaptative selon vos besoins et préférences de formation.</p>
                     </div>
                     
-                    <div 
-                      className="bg-[#121e2e] p-4 rounded-md border border-[#00b4d8]/30 hover:border-[#00b4d8]/70 hover:shadow-[0_0_15px_rgba(0,180,216,0.2)] transition-all cursor-pointer group"
-                      onClick={() => {
-                        setInputMessage("Explique-moi ce qu'est un ransomware et comment m'en protéger");
-                        startSession();
-                      }}
-                    >
-                      <div className="flex items-center mb-2">
-                        <div className="w-8 h-8 bg-[#091525] rounded-full flex items-center justify-center border border-[#00b4d8]/40 mr-3 group-hover:bg-[#00b4d8]/20 transition-all">
-                          <svg className="h-4 w-4 text-[#00b4d8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                          </svg>
+                    {/* Sélection de mode immersive et gamifiée */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                      {/* Mode 1: Jeu de Rôles */}
+                      <div 
+                        className="bg-gradient-to-br from-[#121e2e] to-[#0d1520] rounded-lg border border-[#00b4d8]/30 hover:border-[#00b4d8]/70 hover:shadow-[0_0_20px_rgba(0,180,216,0.3)] transition-all cursor-pointer overflow-hidden group"
+                        onClick={() => {
+                          setInputMessage("Initialise un jeu de rôle où je suis un RSSI face à une tentative d'intrusion. Propose différents personnages que je peux incarner et guide-moi dans une simulation réaliste.");
+                          startSession();
+                        }}
+                      >
+                        <div className="p-6">
+                          <div className="flex items-center mb-3">
+                            <div className="w-12 h-12 bg-[#091525] rounded-full flex items-center justify-center border border-[#00b4d8]/40 mr-4 group-hover:bg-[#00b4d8]/20 transition-all shadow-md">
+                              <svg className="h-6 w-6 text-[#00b4d8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                              </svg>
+                            </div>
+                            <h3 className="font-mono font-semibold text-xl text-[#00b4d8]">JEU DE RÔLE IMMERSIF</h3>
+                          </div>
+                          <p className="text-[#c3d9ee] mb-4">Incarnez différents professionnels de la cybersécurité dans des situations de crise réalistes. Interagissez avec des PNJ et prenez des décisions stratégiques face à des incidents.</p>
+                          <div className="flex items-center text-sm text-[#c3d9ee]/70 mt-2">
+                            <div className="flex -space-x-2 mr-3">
+                              <div className="w-6 h-6 rounded-full bg-[#091525] border border-[#00b4d8]/60 flex items-center justify-center text-xs">RSSI</div>
+                              <div className="w-6 h-6 rounded-full bg-[#091525] border border-[#00b4d8]/60 flex items-center justify-center text-xs">SOC</div>
+                              <div className="w-6 h-6 rounded-full bg-[#091525] border border-[#00b4d8]/60 flex items-center justify-center text-xs">CERT</div>
+                            </div>
+                            <span>Multiples personnages disponibles</span>
+                          </div>
                         </div>
-                        <h3 className="font-mono font-medium text-[#00b4d8]">Ransomwares</h3>
+                        <div className="bg-[#091525] px-6 py-3 flex justify-between items-center border-t border-[#00b4d8]/30">
+                          <span className="text-[#c3d9ee]/80 text-sm">Difficulté ajustable</span>
+                          <span className="text-[#00b4d8] font-semibold flex items-center">COMMENCER <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" /></span>
+                        </div>
                       </div>
-                      <p className="text-sm text-[#c3d9ee]/80 pl-11">Comprendre les ransomwares et les stratégies de protection des données</p>
+                      
+                      {/* Mode 2: Mode QCM et Exercices */}
+                      <div 
+                        className="bg-gradient-to-br from-[#121e2e] to-[#0d1520] rounded-lg border border-[#00b4d8]/30 hover:border-[#00b4d8]/70 hover:shadow-[0_0_20px_rgba(0,180,216,0.3)] transition-all cursor-pointer overflow-hidden group"
+                        onClick={() => {
+                          setInputMessage("Créé un QCM interactif de 5 questions sur la sécurité des réseaux avec différents niveaux de difficulté et explications détaillées.");
+                          startSession();
+                        }}
+                      >
+                        <div className="p-6">
+                          <div className="flex items-center mb-3">
+                            <div className="w-12 h-12 bg-[#091525] rounded-full flex items-center justify-center border border-[#00b4d8]/40 mr-4 group-hover:bg-[#00b4d8]/20 transition-all shadow-md">
+                              <svg className="h-6 w-6 text-[#00b4d8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                              </svg>
+                            </div>
+                            <h3 className="font-mono font-semibold text-xl text-[#00b4d8]">QCM & EXERCICES</h3>
+                          </div>
+                          <p className="text-[#c3d9ee] mb-4">Testez vos connaissances avec des QCM interactifs et des exercices pratiques adaptés à votre niveau. Recevez des explications détaillées et suivez votre progression.</p>
+                          <div className="grid grid-cols-3 gap-2 mt-2">
+                            <div className="bg-[#091525] rounded border border-[#00b4d8]/30 py-1 px-2 text-xs text-center text-[#c3d9ee]/80">
+                              <span className="text-[#4cc9f0] block font-semibold">QCM</span>
+                              Évaluation rapide
+                            </div>
+                            <div className="bg-[#091525] rounded border border-[#00b4d8]/30 py-1 px-2 text-xs text-center text-[#c3d9ee]/80">
+                              <span className="text-[#4cc9f0] block font-semibold">Défis</span>
+                              Cas pratiques
+                            </div>
+                            <div className="bg-[#091525] rounded border border-[#00b4d8]/30 py-1 px-2 text-xs text-center text-[#c3d9ee]/80">
+                              <span className="text-[#4cc9f0] block font-semibold">Labs</span>
+                              Exercices guidés
+                            </div>
+                          </div>
+                        </div>
+                        <div className="bg-[#091525] px-6 py-3 flex justify-between items-center border-t border-[#00b4d8]/30">
+                          <span className="text-[#c3d9ee]/80 text-sm">Tous niveaux</span>
+                          <span className="text-[#00b4d8] font-semibold flex items-center">COMMENCER <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" /></span>
+                        </div>
+                      </div>
                     </div>
                     
-                    <div 
-                      className="bg-[#121e2e] p-4 rounded-md border border-[#00b4d8]/30 hover:border-[#00b4d8]/70 hover:shadow-[0_0_15px_rgba(0,180,216,0.2)] transition-all cursor-pointer group"
-                      onClick={() => {
-                        setInputMessage("Je souhaite découvrir les bonnes pratiques de sécurité pour mes appareils personnels");
-                        startSession();
-                      }}
-                    >
-                      <div className="flex items-center mb-2">
-                        <div className="w-8 h-8 bg-[#091525] rounded-full flex items-center justify-center border border-[#00b4d8]/40 mr-3 group-hover:bg-[#00b4d8]/20 transition-all">
-                          <svg className="h-4 w-4 text-[#00b4d8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                          </svg>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      {/* Mode 3: Mode Classique */}
+                      <div 
+                        className="bg-gradient-to-br from-[#121e2e] to-[#0d1520] rounded-lg border border-[#00b4d8]/30 hover:border-[#00b4d8]/70 hover:shadow-[0_0_20px_rgba(0,180,216,0.3)] transition-all cursor-pointer overflow-hidden group"
+                        onClick={() => {
+                          setInputMessage("Je voudrais apprendre à détecter et me protéger contre le phishing");
+                          startSession();
+                        }}
+                      >
+                        <div className="p-6">
+                          <div className="flex items-center mb-3">
+                            <div className="w-12 h-12 bg-[#091525] rounded-full flex items-center justify-center border border-[#00b4d8]/40 mr-4 group-hover:bg-[#00b4d8]/20 transition-all shadow-md">
+                              <svg className="h-6 w-6 text-[#00b4d8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                              </svg>
+                            </div>
+                            <h3 className="font-mono font-semibold text-xl text-[#00b4d8]">CONVERSATION LIBRE</h3>
+                          </div>
+                          <p className="text-[#c3d9ee] mb-4">Échangez librement avec notre expert IA sur n'importe quel sujet de cybersécurité. Posez vos questions et recevez des réponses personnalisées et adaptatives.</p>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            <div className="bg-[#091525] rounded-full border border-[#00b4d8]/30 py-1 px-3 text-xs text-[#c3d9ee]/80">
+                              Phishing
+                            </div>
+                            <div className="bg-[#091525] rounded-full border border-[#00b4d8]/30 py-1 px-3 text-xs text-[#c3d9ee]/80">
+                              Ransomware
+                            </div>
+                            <div className="bg-[#091525] rounded-full border border-[#00b4d8]/30 py-1 px-3 text-xs text-[#c3d9ee]/80">
+                              Sécurité Wi-Fi
+                            </div>
+                            <div className="bg-[#091525] rounded-full border border-[#00b4d8]/30 py-1 px-3 text-xs text-[#c3d9ee]/80">
+                              RGPD
+                            </div>
+                          </div>
                         </div>
-                        <h3 className="font-mono font-medium text-[#00b4d8]">Protection personnelle</h3>
+                        <div className="bg-[#091525] px-6 py-3 flex justify-between items-center border-t border-[#00b4d8]/30">
+                          <span className="text-[#c3d9ee]/80 text-sm">Accès à tous les sujets</span>
+                          <span className="text-[#00b4d8] font-semibold flex items-center">COMMENCER <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" /></span>
+                        </div>
                       </div>
-                      <p className="text-sm text-[#c3d9ee]/80 pl-11">Sécurisez vos appareils et données personnelles au quotidien</p>
+                      
+                      {/* Mode 4: Mode Scénario Avancé */}
+                      <div 
+                        className="bg-gradient-to-br from-[#121e2e] to-[#0d1520] rounded-lg border border-[#00b4d8]/30 hover:border-[#00b4d8]/70 hover:shadow-[0_0_20px_rgba(0,180,216,0.3)] transition-all cursor-pointer overflow-hidden group"
+                        onClick={() => {
+                          setInputMessage("Lance un scénario de gestion de crise cybersécurité où je dois analyser une violation de données et proposer un plan d'action");
+                          startSession();
+                        }}
+                      >
+                        <div className="p-6">
+                          <div className="flex items-center mb-3">
+                            <div className="w-12 h-12 bg-[#091525] rounded-full flex items-center justify-center border border-[#00b4d8]/40 mr-4 group-hover:bg-[#00b4d8]/20 transition-all shadow-md">
+                              <svg className="h-6 w-6 text-[#00b4d8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                              </svg>
+                            </div>
+                            <h3 className="font-mono font-semibold text-xl text-[#00b4d8]">SCÉNARIOS AVANCÉS</h3>
+                          </div>
+                          <p className="text-[#c3d9ee] mb-4">Relevez des défis complexes avec des scénarios avancés de cyberattaques. Analysez la situation, prenez des décisions stratégiques et gérez les conséquences.</p>
+                          <div className="grid grid-cols-2 gap-2 mt-2">
+                            <div className="bg-[#091525] rounded border border-[#00b4d8]/30 py-1 px-2 text-xs text-center text-[#c3d9ee]/80">
+                              <span className="text-[#4cc9f0] block font-semibold">Gestion de crise</span>
+                              Réponse à incident
+                            </div>
+                            <div className="bg-[#091525] rounded border border-[#00b4d8]/30 py-1 px-2 text-xs text-center text-[#c3d9ee]/80">
+                              <span className="text-[#4cc9f0] block font-semibold">Cyberattaques</span>
+                              Tactiques défensives
+                            </div>
+                          </div>
+                        </div>
+                        <div className="bg-[#091525] px-6 py-3 flex justify-between items-center border-t border-[#00b4d8]/30">
+                          <span className="text-[#c3d9ee]/80 text-sm">Pour experts</span>
+                          <span className="text-[#00b4d8] font-semibold flex items-center">COMMENCER <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" /></span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-[#091525] rounded-lg p-6 border border-[#00b4d8]/30 font-mono">
+                      <div className="flex items-center mb-3">
+                        <svg className="h-5 w-5 text-[#e63946] mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-[#e63946] font-semibold">SYSTÈME CYBER ULTRA-IMMERSIF</p>
+                      </div>
+                      <p className="text-[#c3d9ee]/80 text-sm mb-3">
+                        Cette plateforme d'apprentissage adaptive utilise des technologies avancées pour créer une expérience réaliste et immersive. 
+                        Tous les contenus sont générés en temps réel selon vos interactions et votre progression.
+                      </p>
+                      <div className="flex items-center justify-between text-xs text-[#c3d9ee]/60">
+                        <span>Niveau de sécurité: Confidentiel</span>
+                        <span>CyberSystem v3.7.2</span>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="bg-[#121e2e] p-6 rounded-md border border-[#00b4d8]/30 font-mono text-base space-y-4">
-                    <p className="text-[#e63946] font-semibold">► FONCTIONNALITÉS:</p>
-                    <ul className="space-y-3 pl-6 list-disc text-[#c3d9ee]">
-                      <li>Dialogue avec un expert en cybersécurité pour identifier vos besoins d'apprentissage</li>
-                      <li>Contenu personnalisé adapté à votre niveau et votre domaine professionnel</li>
-                      <li>Formats d'apprentissage flexibles (académiques, simulations, défis)</li>
-                      <li>Références actualisées aux standards et bonnes pratiques de l'ANSSI et autres organismes</li>
-                      <li>Mode décision avec scénarios complexes et choix stratégiques</li>
-                    </ul>
-                  </div>
-                  
-                  <div className="text-center text-sm text-[#c3d9ee]/70 italic">
-                    <p>Les suggestions ci-dessus sont des points de départ, mais n'hésitez pas à poser vos propres questions!</p>
-                  </div>
-                </CardContent>
-                <CardFooter className="border-t border-[#00b4d8]/20 pt-6 pb-4 flex justify-center">
-                  <Button 
-                    onClick={startSession}
-                    disabled={isLoading}
-                    className="bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525] font-mono text-base px-8 py-6 h-auto"
-                  >
-                    {isLoading ? (
-                      <>
-                        <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
-                        INITIALISATION...
-                      </>
-                    ) : (
-                      <>DÉMARRER UNE SESSION</>
-                    )}
-                  </Button>
-                </CardFooter>
-              </Card>
+                </div>
+              </div>
             ) : (
               <div className="flex flex-col w-full max-w-6xl mx-auto">
                 {/* Mode décision ou chat standard */}
@@ -597,10 +681,10 @@ function ExpertLearningPageContent() {
                       </div>
                     </div>
                 
-                    {/* Zone de chat avec messages et guides contextuels */}
+                    {/* Zone de chat avec messages et guides contextuels - optimisée pour plein écran */}
                     <div 
                       ref={chatContainerRef}
-                      className="flex-1 overflow-y-auto custom-scrollbar cyber-expert bg-[#091525]/80 border border-[#00b4d8]/30 rounded-none shadow-[0_0_20px_rgba(0,180,216,0.15)] h-[calc(100vh-350px)] min-h-[450px]"
+                      className="flex-1 overflow-y-auto custom-scrollbar cyber-expert bg-[#091525]/80 border border-[#00b4d8]/30 rounded-none shadow-[0_0_20px_rgba(0,180,216,0.15)] h-[calc(100vh-230px)] min-h-[500px]"
                     >
                       <div className="p-6 space-y-6">
                         {/* Barre de progression de l'apprentissage - toujours visible */}
