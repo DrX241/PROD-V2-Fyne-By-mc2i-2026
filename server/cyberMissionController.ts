@@ -373,28 +373,105 @@ export async function processMissionDecision(req: Request, res: Response) {
     // Vérifier si la mission doit se terminer (licenciement, etc.)
     if (consequences.finMission) {
       session.estTerminee = true;
-      session.resultatFinal = consequences.typeFinMission;
+      session.resultatFinal = consequences.typeFinMission || "echec";
       
       // Sauvegarder la session mise à jour
       missionSessions.set(userId, session);
+      
+      console.log("Mission terminée par conséquence:", session.resultatFinal);
       
       return res.status(200).json({
         success: true,
         message: consequences.message,
         pnjActif: consequences.pnjActif,
         missionTerminee: true,
-        resultatFinal: consequences.typeFinMission,
+        resultatFinal: session.resultatFinal,
         metriques: session.metriques
       });
     }
     
     // Passer à l'étape suivante
     session.etapeActuelle++;
+    
+    console.log("Passage à l'étape:", session.etapeActuelle, 
+                "sur", session.etapes.length, "étapes au total");
+    
+    // Vérifier si c'était la dernière étape
+    if (session.etapeActuelle >= session.etapes.length) {
+      session.estTerminee = true;
+      session.resultatFinal = "succes";
+      
+      // Sauvegarder la session mise à jour
+      missionSessions.set(userId, session);
+      
+      console.log("Mission terminée avec succès - fin des étapes");
+      
+      return res.status(200).json({
+        success: true,
+        message: consequences.message,
+        pnjActif: consequences.pnjActif,
+        metriques: session.metriques,
+        missionTerminee: true,
+        resultatFinal: "succes"
+      });
+    }
+    
+    // Récupérer la nouvelle étape
     const nouvelleEtape = session.etapes[session.etapeActuelle];
+    
+    if (!nouvelleEtape) {
+      console.error("Erreur: Étape suivante introuvable", 
+                   { etapeActuelle: session.etapeActuelle, 
+                     totalEtapes: session.etapes.length });
+                     
+      return res.status(500).json({ 
+        error: "Erreur lors du passage à l'étape suivante"
+      });
+    }
+    
+    // Vérifier que l'étape a tous les champs nécessaires
+    if (!nouvelleEtape.id) nouvelleEtape.id = `etape_${session.etapeActuelle + 1}`;
+    if (!nouvelleEtape.titre) nouvelleEtape.titre = `Étape ${session.etapeActuelle + 1}`;
+    if (!nouvelleEtape.type) nouvelleEtape.type = 'decision';
+    if (!nouvelleEtape.choixPossibles || !Array.isArray(nouvelleEtape.choixPossibles) || nouvelleEtape.choixPossibles.length === 0) {
+      nouvelleEtape.choixPossibles = [
+        {
+          id: `choix_default_${session.etapeActuelle}_1`,
+          texte: "Analyser la situation",
+          consequences: "",
+          suggestionAide: ""
+        },
+        {
+          id: `choix_default_${session.etapeActuelle}_2`,
+          texte: "Consulter l'équipe",
+          consequences: "",
+          suggestionAide: ""
+        },
+        {
+          id: `choix_default_${session.etapeActuelle}_3`,
+          texte: "Prendre une décision rapide",
+          consequences: "",
+          suggestionAide: ""
+        }
+      ];
+    }
+    
+    // S'assurer que tous les choix ont des IDs
+    if (nouvelleEtape.choixPossibles) {
+      nouvelleEtape.choixPossibles = nouvelleEtape.choixPossibles.map((choix, idx) => ({
+        id: choix.id || `choix_${session.etapeActuelle + 1}_${idx + 1}`,
+        texte: choix.texte || choix.text || `Option ${idx + 1}`,
+        consequences: choix.consequences || "",
+        suggestionAide: choix.suggestionAide || ""
+      }));
+    }
     
     // Sauvegarder la session mise à jour
     missionSessions.set(userId, session);
     
+    console.log("Passage à l'étape suivante réussi:", nouvelleEtape.id);
+    
+    // Renvoyer la réponse avec la nouvelle étape
     return res.status(200).json({
       success: true,
       message: consequences.message,
@@ -402,10 +479,10 @@ export async function processMissionDecision(req: Request, res: Response) {
       metriques: session.metriques,
       nextStep: {
         id: nouvelleEtape.id,
-        type: nouvelleEtape.type,
-        titre: nouvelleEtape.titre,
-        description: nouvelleEtape.description,
-        pnjActif: nouvelleEtape.pnjActif,
+        type: nouvelleEtape.type || 'decision',
+        titre: nouvelleEtape.titre || `Étape ${session.etapeActuelle + 1}`,
+        description: nouvelleEtape.description || "",
+        pnjActif: nouvelleEtape.pnjActif || null,
         choixPossibles: nouvelleEtape.choixPossibles
       }
     });
@@ -464,8 +541,76 @@ async function generateMission(role: any): Promise<CyberMissionSession> {
     const messages = [systemMessage, userMessage];
     const missionData = await openAIService.getChatCompletionJSON(messages);
     
+    console.log("Données de mission reçues:", JSON.stringify(missionData, null, 2));
+    
     // Générer un ID pour la mission
     const missionId = uuidv4();
+    
+    // Valider et normaliser les étapes
+    const etapesNormalisees = [];
+    
+    if (missionData.etapes && Array.isArray(missionData.etapes)) {
+      // Parcourir et normaliser chaque étape pour s'assurer qu'elle a toutes les propriétés requises
+      for (let i = 0; i < missionData.etapes.length; i++) {
+        const etape = missionData.etapes[i];
+        // S'assurer que l'étape a un ID
+        const etapeId = etape.id || `etape_${i + 1}`;
+        
+        // Normaliser les choix possibles
+        let choixPossibles = [];
+        if (etape.choixPossibles && Array.isArray(etape.choixPossibles)) {
+          choixPossibles = etape.choixPossibles.map((choix, index) => ({
+            id: choix.id || `choix_${i + 1}_${index + 1}`,
+            texte: choix.texte || choix.text || `Option ${index + 1}`,
+            consequences: choix.consequences || "",
+            suggestionAide: choix.suggestionAide || choix.suggestion || ""
+          }));
+        }
+        
+        // Créer une étape normalisée
+        etapesNormalisees.push({
+          id: etapeId,
+          type: etape.type || 'decision',
+          titre: etape.titre || `Étape ${i + 1}`,
+          description: etape.description || "",
+          pnjActif: etape.pnjActif || null,
+          choixPossibles: choixPossibles
+        });
+      }
+    }
+    
+    // Si aucune étape n'est disponible, créer une étape par défaut
+    if (etapesNormalisees.length === 0) {
+      etapesNormalisees.push({
+        id: "etape_default",
+        type: "introduction",
+        titre: "Briefing initial",
+        description: "Bienvenue dans votre mission. Une vulnérabilité a été détectée.",
+        pnjActif: null,
+        choixPossibles: [
+          {
+            id: "choix_default_1",
+            texte: "Analyser la vulnérabilité en détail",
+            consequences: "",
+            suggestionAide: ""
+          },
+          {
+            id: "choix_default_2",
+            texte: "Appliquer immédiatement les correctifs",
+            consequences: "",
+            suggestionAide: ""
+          },
+          {
+            id: "choix_default_3",
+            texte: "Consulter l'équipe technique",
+            consequences: "",
+            suggestionAide: ""
+          }
+        ]
+      });
+    }
+    
+    console.log("Étapes normalisées:", etapesNormalisees);
     
     // Créer la structure de session complète
     const session: CyberMissionSession = {
@@ -480,7 +625,7 @@ async function generateMission(role: any): Promise<CyberMissionSession> {
       messages: [],
       pnjs: missionData.pnjs || [],
       etapeActuelle: 0,
-      etapes: missionData.etapes || [],
+      etapes: etapesNormalisees,
       metriques: {
         budget: 100,
         securite: 70,
@@ -676,10 +821,23 @@ async function generateConsequences(session: CyberMissionSession, etape: Mission
 
   try {
     const messages = [systemMessage, userMessage];
-    const consequences = await openAIService.getChatCompletionJSON(messages);
+    const rawConsequences = await openAIService.getChatCompletionJSON(messages);
     
-    // Ajouter l'ID du PNJ qui réagit
-    consequences.pnjActif = pnjActif?.id;
+    console.log("Conséquences brutes reçues:", JSON.stringify(rawConsequences, null, 2));
+    
+    // Normaliser les conséquences pour s'assurer qu'elles ont toutes les propriétés requises
+    const consequences = {
+      message: rawConsequences.message || "Votre décision a été prise en compte.",
+      pnjActif: pnjActif?.id || null,
+      impactBudget: rawConsequences.impactBudget || 0,
+      impactSecurite: rawConsequences.impactSecurite || 0,
+      impactReputation: rawConsequences.impactReputation || 0,
+      impactMoral: rawConsequences.impactMoral || 0,
+      finMission: !!rawConsequences.finMission,
+      typeFinMission: rawConsequences.finMission ? (rawConsequences.typeFinMission || "echec") : undefined
+    };
+    
+    console.log("Conséquences normalisées:", consequences);
     
     return consequences;
   } catch (error) {
