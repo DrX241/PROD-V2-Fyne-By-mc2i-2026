@@ -17,8 +17,10 @@ export default function HomeLayout({ children, gradientBg = false }: HomeLayoutP
         minHeight: `calc(100vh - ${headerHeight})`,
         WebkitOverflowScrolling: 'touch' // Pour une meilleure performance de défilement sur iOS
       }}>
-        <div className="w-full max-w-full">
-          {children}
+        <div className="w-full max-w-full flex justify-center">
+          <div className="w-full max-w-7xl">
+            {children}
+          </div>
         </div>
       </main>
     </div>

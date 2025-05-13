@@ -34,7 +34,7 @@ export default function PageTitle({ title, subtitle, icon }: PageTitleProps) {
         {icon && <div className="mr-3">{icon}</div>}
         <div>
           <h1 className="text-2xl font-bold">{title}</h1>
-          {subtitle && <p className="text-blue-200 mt-1">{subtitle}</p>}
+          {subtitle && <p className="text-gray-600 dark:text-blue-200 mt-1">{subtitle}</p>}
         </div>
       </div>
     </div>

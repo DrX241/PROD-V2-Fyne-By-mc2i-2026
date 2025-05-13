@@ -60,7 +60,7 @@ export default function Header() {
     
   const userNameClass = themeMode === 'futuristic'
     ? 'text-blue-200'
-    : 'text-neutral-700';
+    : 'text-gray-700';
 
   return (
     <header className={`w-full max-w-[100vw] overflow-hidden fixed top-0 left-0 right-0 z-50 ${headerBgClass}`}>
