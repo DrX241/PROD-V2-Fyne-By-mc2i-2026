@@ -878,15 +878,19 @@ async function generateConsequences(
     console.error("Erreur lors de la génération des conséquences:", error);
     
     // Retourner des conséquences par défaut en cas d'erreur
-    return {
+    const defaultConsequences: DecisionConsequences = {
       message: `${pnjActif?.nom}: Je prends note de votre décision de ${choix.texte}. Nous verrons si cela s'avère être la bonne approche.`,
-      pnjActif: pnjActif?.id,
+      pnjActif: pnjActif?.id || null,
       impactBudget: 0,
       impactSecurite: 0,
       impactReputation: 0,
       impactMoral: 0,
-      finMission: false
+      finMission: false,
+      typeFinMission: undefined
     };
+    
+    console.log("Retour de conséquences par défaut:", defaultConsequences);
+    return defaultConsequences;
   }
 }
 
