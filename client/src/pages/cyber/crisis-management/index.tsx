@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { IoMdArrowBack, IoMdTimer, IoMdNotifications } from 'react-icons/io';
 import { BsExclamationCircleFill, BsShieldCheck, BsLightningCharge, BsPeopleFill, BsCalendarCheck } from 'react-icons/bs';
-import { FiLock, FiUsers, FiServer, FiDatabase, FiGlobe, FiMessageSquare } from 'react-icons/fi';
+import { FiLock, FiUsers, FiServer, FiDatabase, FiGlobe, FiMessageSquare, FiArrowRight, FiPlay } from 'react-icons/fi';
 import { RiRobot2Line, RiTeamLine } from 'react-icons/ri';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 
 export default function CrisisManagement() {
   const { toast } = useToast();

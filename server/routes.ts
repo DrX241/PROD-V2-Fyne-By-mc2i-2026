@@ -41,6 +41,17 @@ import { startImposteurSimulation, processImposteurMessage, completeImposteurSim
 import { simulateTargetResponse, analyzePerformance } from "./brainHackerController";
 import { analyzeDefenseStrategy, generateAttackScenario, generateTacticalTip } from "./firewallTactiqueController";
 import { generateLivrable } from "./livrablesGeneratorController";
+import {
+  getAvailableScenarios,
+  startCrisisSession,
+  getCrisisSessionDetails,
+  sendCrisisMessage,
+  pauseCrisisSession,
+  resumeCrisisSession,
+  endCrisisSession,
+  updateResourceAllocation,
+  recordDecision
+} from "./crisisManagementController";
 import { 
   generateCode, 
   getCodeGenerationHistory, 
@@ -4761,6 +4772,17 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
       });
     }
   });
+  
+  // Routes pour le module de gestion de crise
+  app.get('/api/crisis-management/scenarios', getAvailableScenarios);
+  app.post('/api/crisis-management/start', startCrisisSession);
+  app.get('/api/crisis-management/sessions/:sessionId', getCrisisSessionDetails);
+  app.post('/api/crisis-management/message', sendCrisisMessage);
+  app.post('/api/crisis-management/pause', pauseCrisisSession);
+  app.post('/api/crisis-management/resume', resumeCrisisSession);
+  app.post('/api/crisis-management/end', endCrisisSession);
+  app.post('/api/crisis-management/resources', updateResourceAllocation);
+  app.post('/api/crisis-management/decision', recordDecision);
   
   // Route pour le générateur de livrables
   app.post('/api/mc2i/generateur-livrables', generateLivrable);
