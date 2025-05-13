@@ -18,7 +18,7 @@ export default function HomeLayout({ children, gradientBg = false }: HomeLayoutP
         WebkitOverflowScrolling: 'touch' // Pour une meilleure performance de défilement sur iOS
       }}>
         <div className="w-full max-w-full flex justify-center">
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="w-full">
             {children}
           </div>
         </div>
