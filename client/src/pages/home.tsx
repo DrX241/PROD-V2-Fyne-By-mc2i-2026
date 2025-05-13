@@ -1364,25 +1364,27 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.2 }}
                 viewport={{ once: true }}
-                className={`rounded-xl overflow-hidden ${
+                className={`rounded-2xl overflow-hidden ${
                   isFuturistic 
                     ? 'bg-blue-900/20 border border-blue-500/30 backdrop-blur-sm' 
-                    : 'bg-white border border-gray-200 shadow-md'
-                }`}
+                    : 'bg-white border border-gray-100 shadow-lg'
+                } hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}
               >
-                <div className="p-8">
-                  <div className={`mb-6 inline-flex rounded-xl p-4 ${
+                <div className="p-8 group">
+                  <div className={`mb-6 inline-flex rounded-full p-5 ${
                     isFuturistic
-                      ? 'bg-blue-800/50 text-cyan-300'
-                      : 'bg-blue-100 text-blue-700'
+                      ? 'bg-gradient-to-br from-blue-800/60 to-blue-900/80 text-cyan-300 shadow-inner shadow-blue-500/20'
+                      : 'bg-gradient-to-br from-blue-100 to-indigo-100/80 text-blue-700 shadow-inner shadow-blue-200/50'
                   }`}>
-                    <div className="scale-125">
+                    <div className="scale-125 transform transition-transform duration-300 group-hover:scale-150">
                       {tech.icon}
                     </div>
                   </div>
                   
                   <h3 className={`text-2xl font-bold mb-4 ${
-                    isFuturistic ? 'text-cyan-300 font-cyber-accent' : 'text-blue-700'
+                    isFuturistic 
+                      ? 'text-cyan-300 font-cyber-accent bg-gradient-to-r from-cyan-300 to-blue-400 text-transparent bg-clip-text' 
+                      : 'text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-700'
                   }`}>
                     {tech.title}
                   </h3>
@@ -1393,26 +1395,34 @@ export default function Home() {
                     {tech.description}
                   </p>
                   
-                  <div className="space-y-3">
+                  <div className="space-y-3 mt-auto">
                     {tech.features.map((feature, i) => (
                       <div 
                         key={i} 
                         className={`flex items-center ${
                           isFuturistic ? 'text-blue-200/70' : 'text-gray-700'
-                        }`}
+                        } transition-all duration-300 group-hover:translate-x-1`}
                       >
-                        <Check className={`h-5 w-5 mr-3 ${
-                          isFuturistic ? 'text-cyan-400' : 'text-blue-500'
-                        }`} />
+                        <span className={`flex items-center justify-center h-5 w-5 rounded-full mr-3 ${
+                          isFuturistic 
+                            ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-400/30' 
+                            : 'bg-blue-100 text-blue-600 border border-blue-200'
+                        }`}>
+                          <Check className="h-3 w-3" />
+                        </span>
                         <span className="text-base">{feature}</span>
                       </div>
                     ))}
                   </div>
                 </div>
                 
-                {/* Effet de bordure animée - uniquement en mode futuriste */}
-                {isFuturistic && (
-                  <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 opacity-70"></div>
+                {/* Effet décoratif en bas */}
+                {isFuturistic ? (
+                  <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 opacity-70 relative">
+                    <div className="absolute bottom-0 left-1/2 w-12 h-1.5 bg-white blur-sm opacity-60 animate-pulse"></div>
+                  </div>
+                ) : (
+                  <div className="h-1 w-2/3 mx-auto bg-gradient-to-r from-blue-200 via-indigo-300 to-blue-200 rounded-full opacity-70"></div>
                 )}
               </motion.div>
             ))}
