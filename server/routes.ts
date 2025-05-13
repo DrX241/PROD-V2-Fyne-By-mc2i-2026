@@ -36,6 +36,13 @@ import { generateQuizQuestion, generateQuizHint, generateFullQuiz } from "./adap
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
+import { 
+  initMissionTerminal, 
+  processAcceptMission, 
+  processRoleSelection, 
+  processMissionDecision, 
+  endMission 
+} from "./cyberMissionController";
 import * as amoaExpertController from "./amoaExpertController";
 import { startImposteurSimulation, processImposteurMessage, completeImposteurSimulation } from "./imposteurSimulationController";
 import { simulateTargetResponse, analyzePerformance } from "./brainHackerController";
