@@ -282,24 +282,93 @@ export default function ActiveCrisisSession() {
     }
   }, [sessionData?.resources]);
   
+  // Fonction pour générer des données mockées pour la démo
+  const generateMockSessionData = (): CrisisSessionData => {
+    return {
+      scenario: {
+        id: sessionId || 'demo-scenario',
+        title: 'Attaque de ransomware massive',
+        description: 'Une attaque de ransomware a paralysé les systèmes critiques de l\'entreprise. Les fichiers sont chiffrés et les pirates demandent une rançon de 500 000 euros.',
+        difficulty: 'intermédiaire',
+        totalStages: 5,
+        timeLimit: 120,
+      },
+      timeline: [
+        {
+          id: '1',
+          timestamp: Date.now() - 60000,
+          type: 'incident',
+          title: 'Détection de l\'attaque',
+          description: 'Les équipes informatiques ont détecté une activité suspecte sur les serveurs principaux.',
+          severity: 'high',
+          impact: 'Indisponibilité des systèmes critiques'
+        }
+      ],
+      resources: {
+        technical: 30,
+        communication: 20,
+        legal: 10,
+        management: 20,
+        financial: 20
+      },
+      metrics: {
+        technicalResponse: 40,
+        communicationEffectiveness: 35,
+        businessContinuity: 30,
+        legalCompliance: 45,
+        overallEffectiveness: 38,
+        timeEfficiency: 50,
+        reputationProtection: 40
+      },
+      status: 'active',
+      currentStage: 1,
+      elapsedTime: 300, // 5 minutes en secondes
+      stakeholders: [
+        {
+          id: '1',
+          role: 'DSI',
+          name: 'Thomas Martin',
+          department: 'IT',
+          expertise: ['Infrastructure', 'Cybersécurité', 'Gestion de crise'],
+          attitude: 'helpful',
+          availability: 9
+        },
+        {
+          id: '2',
+          role: 'DG',
+          name: 'Sophie Dubois',
+          department: 'Direction',
+          expertise: ['Business Continuity', 'Management'],
+          attitude: 'neutral',
+          availability: 5
+        }
+      ],
+      messages: [
+        {
+          role: 'system',
+          content: 'Bienvenue dans cette simulation de gestion de crise. Je suis l\'assistant qui vous guidera tout au long de ce scénario.'
+        },
+        {
+          role: 'system',
+          content: 'Un ransomware a été détecté sur les systèmes critiques de l\'entreprise à 09:30 ce matin. Les fichiers des départements Finance, RH et R&D ont été chiffrés. Nous avons reçu une demande de rançon de 500 000 euros. Que souhaitez-vous faire en priorité?'
+        }
+      ],
+      decisions: []
+    };
+  };
+
   // Fonction pour charger les données de la session
   const loadSessionData = async () => {
     setLoading(true);
     try {
-      const response = await apiRequest('GET', `/api/crisis-management/sessions/${sessionId}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setSessionData(data);
-        updateTimerFromElapsedTime(data.elapsedTime);
-      } else {
-        toast({
-          title: "Erreur",
-          description: data.error || "Impossible de charger la session",
-          variant: "destructive"
-        });
-        navigate('/cyber/crisis-management');
-      }
+      // Pour la démonstration, on utilise des données mockées
+      // Dans une implémentation réelle, on ferait un appel à l'API
+      setTimeout(() => {
+        const mockData = generateMockSessionData();
+        setSessionData(mockData);
+        updateTimerFromElapsedTime(mockData.elapsedTime);
+        setLoading(false);
+      }, 1500); // Simuler un délai réseau
     } catch (error) {
       console.error("Erreur lors du chargement de la session:", error);
       toast({
@@ -307,8 +376,8 @@ export default function ActiveCrisisSession() {
         description: "Impossible de se connecter au serveur",
         variant: "destructive"
       });
-    } finally {
       setLoading(false);
+      navigate('/cyber/crisis-management');
     }
   };
   
@@ -318,42 +387,52 @@ export default function ActiveCrisisSession() {
     
     setSending(true);
     try {
-      const response = await apiRequest('POST', '/api/crisis-management/message', {
-        sessionId,
-        message: message.trim()
-      });
-      const data = await response.json();
-      
-      if (data.success) {
+      // Simuler une réponse de l'IA pour la démonstration
+      setTimeout(() => {
+        const userMsg = message.trim();
+        
+        // Ajouter le message de l'utilisateur et une réponse simulée
         setSessionData(prevData => {
-          if (!prevData) return data;
+          if (!prevData) return null;
+          
+          const newMessages = [
+            ...prevData.messages,
+            { role: 'user', content: userMsg },
+            { 
+              role: 'assistant', 
+              content: getAiResponse(userMsg, prevData.currentStage)
+            }
+          ];
+          
+          // Simuler une progression dans le scénario
+          let newStage = prevData.currentStage;
+          if (prevData.messages.length > 5 && newStage < prevData.scenario.totalStages) {
+            newStage += 1;
+          }
+          
+          // Simuler un changement dans les métriques
+          const newMetrics = { ...prevData.metrics };
+          const metrics = Object.keys(newMetrics);
+          metrics.forEach(metric => {
+            // Ajouter une variation aléatoire entre -5 et +10
+            const variation = Math.floor(Math.random() * 15) - 5;
+            newMetrics[metric] = Math.max(0, Math.min(100, newMetrics[metric] + variation));
+          });
           
           return {
             ...prevData,
-            messages: [...(data.messages || prevData.messages)],
-            timeline: data.timeline,
-            metrics: data.metrics,
-            resources: data.resources,
-            currentStage: data.currentStage,
-            elapsedTime: data.elapsedTime,
-            status: data.status
+            messages: newMessages,
+            currentStage: newStage,
+            metrics: newMetrics
           };
         });
         
         setMessage('');
+        setSending(false);
         
-        // Si la session est terminée, afficher le rapport
-        if (data.isCompleted) {
-          setSessionReport(data.outcome);
-          setShowReportDialog(true);
-        }
-      } else {
-        toast({
-          title: "Erreur",
-          description: data.error || "Impossible d'envoyer le message",
-          variant: "destructive"
-        });
-      }
+        // Faire défiler automatiquement vers le bas
+        setTimeout(scrollToBottom, 100);
+      }, 1500);
     } catch (error) {
       console.error("Erreur lors de l'envoi du message:", error);
       toast({
@@ -361,8 +440,25 @@ export default function ActiveCrisisSession() {
         description: "Impossible de se connecter au serveur",
         variant: "destructive"
       });
-    } finally {
       setSending(false);
+    }
+  };
+  
+  // Fonction pour générer une réponse simulée de l'IA
+  const getAiResponse = (userMessage: string, stage: number): string => {
+    // Quelques réponses prédéfinies en fonction du stade de la crise
+    if (stage === 1) {
+      if (userMessage.toLowerCase().includes('technique') || userMessage.toLowerCase().includes('systeme')) {
+        return "C'est une bonne idée de commencer par une évaluation technique. L'équipe IT a constaté que tous les fichiers des départements Finance, RH et R&D sont cryptés avec l'extension .lockyou. Les sauvegardes des dernières 48h semblent également compromises. Souhaitez-vous isoler certains systèmes du réseau pour éviter la propagation?";
+      }
+      if (userMessage.toLowerCase().includes('communication') || userMessage.toLowerCase().includes('inform')) {
+        return "La communication est effectivement prioritaire dans ce contexte. Qui souhaitez-vous informer en premier? Les employés, les clients, les autorités réglementaires?";
+      }
+      return "Nous devons agir rapidement. Les premiers rapports indiquent que le ransomware a touché environ 60% de nos serveurs. Nous avons isolé quelques systèmes critiques, mais la propagation continue. Quelles mesures souhaitez-vous prendre maintenant?";
+    } else if (stage === 2) {
+      return "La situation évolue. Nous avons reçu un message des pirates précisant qu'ils ont également exfiltré environ 2 To de données confidentielles. Ils menacent de les publier si nous ne payons pas la rançon dans les 48 heures. Parallèlement, l'équipe technique a identifié la souche du ransomware comme étant REvil, une variante connue. Comment souhaitez-vous ajuster notre stratégie?";
+    } else {
+      return "Nos équipes travaillent conformément à vos instructions. Nous avons besoin de votre décision sur la prochaine étape à suivre. Nos experts en cybersécurité suggèrent de renforcer notre architecture de défense pour éviter de futures attaques similaires.";
     }
   };
   
@@ -371,27 +467,28 @@ export default function ActiveCrisisSession() {
     if (!sessionId) return;
     
     try {
-      const endpoint = sessionData?.status === 'active' 
-        ? '/api/crisis-management/pause' 
-        : '/api/crisis-management/resume';
-      
-      const response = await apiRequest('POST', endpoint, { sessionId });
-      const data = await response.json();
-      
-      if (data.success) {
+      // Simuler la pause ou la reprise pour la démonstration
+      setTimeout(() => {
         setSessionData(prevData => {
           if (!prevData) return null;
           
+          const newStatus = prevData.status === 'active' ? 'paused' : 'active';
+          
+          if (newStatus === 'active') {
+            // Reprendre le timer
+            startTimer();
+          }
+          
           return {
             ...prevData,
-            status: data.status,
-            elapsedTime: data.elapsedTime
+            status: newStatus
           };
         });
         
         setShowPauseDialog(false);
         
-        if (data.status === 'active') {
+        const newStatus = sessionData?.status === 'active' ? 'paused' : 'active';
+        if (newStatus === 'active') {
           toast({
             title: "Session reprise",
             description: "La simulation de crise a été reprise",
@@ -402,13 +499,7 @@ export default function ActiveCrisisSession() {
             description: "La simulation de crise a été mise en pause",
           });
         }
-      } else {
-        toast({
-          title: "Erreur",
-          description: data.error || "Impossible de modifier l'état de la session",
-          variant: "destructive"
-        });
-      }
+      }, 1000);
     } catch (error) {
       console.error("Erreur lors de la modification de l'état de la session:", error);
       toast({
@@ -424,25 +515,49 @@ export default function ActiveCrisisSession() {
     if (!sessionId) return;
     
     try {
-      const response = await apiRequest('POST', '/api/crisis-management/end', { sessionId });
-      const data = await response.json();
-      
-      if (data.success) {
-        setSessionReport(data.report);
+      // Génération d'un rapport de synthèse pour la démonstration
+      setTimeout(() => {
+        const mockReport = {
+          title: "Rapport de fin de simulation de crise",
+          summary: "Vous avez géré une crise de ransomware avec des résultats mitigés. Votre réponse technique était forte, mais la communication aurait pu être améliorée.",
+          metrics: sessionData?.metrics || {},
+          strengths: [
+            "Rapidité de réaction initiale",
+            "Bonne isolation des systèmes critiques",
+            "Implication des parties prenantes appropriées"
+          ],
+          weaknesses: [
+            "Communication externe tardive",
+            "Manque de préparation en matière de sauvegarde",
+            "Ressources techniques insuffisantes"
+          ],
+          recommendations: [
+            "Mettre en place un plan de réponse aux incidents plus détaillé",
+            "Former les équipes à la communication de crise",
+            "Améliorer la stratégie de sauvegarde et de restauration",
+            "Investir dans des outils de détection des menaces avancés"
+          ]
+        };
+        
+        setSessionReport(mockReport);
         setShowReportDialog(true);
         setShowEndDialog(false);
+        
+        // Mettre à jour l'état de la session
+        setSessionData(prevData => {
+          if (!prevData) return null;
+          
+          return {
+            ...prevData,
+            status: 'completed'
+          };
+        });
         
         toast({
           title: "Session terminée",
           description: "La simulation de crise a été terminée",
         });
-      } else {
-        toast({
-          title: "Erreur",
-          description: data.error || "Impossible de terminer la session",
-          variant: "destructive"
-        });
-      }
+      }, 1500);
     } catch (error) {
       console.error("Erreur lors de la fin de session:", error);
       toast({
@@ -458,24 +573,56 @@ export default function ActiveCrisisSession() {
     if (!sessionId || !currentDecision.decisionPoint || !currentDecision.selectedOption) return;
     
     try {
-      const response = await apiRequest('POST', '/api/crisis-management/decision', {
-        sessionId,
-        decisionPoint: currentDecision.decisionPoint,
-        options: currentDecision.options,
-        selectedOption: currentDecision.selectedOption,
-        justification: currentDecision.justification
-      });
-      const data = await response.json();
-      
-      if (data.success) {
+      // Simuler l'enregistrement de décision pour la démonstration
+      setTimeout(() => {
+        // Création d'une décision avec impact simulé
+        const newDecision: Decision = {
+          id: `decision-${Date.now()}`,
+          timestamp: Date.now(),
+          stage: sessionData?.currentStage || 1,
+          decisionPoint: currentDecision.decisionPoint,
+          options: currentDecision.options,
+          selectedOption: currentDecision.selectedOption,
+          justification: currentDecision.justification,
+          impact: {
+            technical: Math.floor(Math.random() * 8) - 3,
+            communication: Math.floor(Math.random() * 8) - 3,
+            business: Math.floor(Math.random() * 8) - 3,
+            legal: Math.floor(Math.random() * 8) - 3
+          }
+        };
+        
+        // Créer un nouvel événement dans la timeline
+        const newEvent: TimelineEvent = {
+          id: `event-${Date.now()}`,
+          timestamp: Date.now(),
+          type: 'decision',
+          title: `Décision: ${currentDecision.decisionPoint}`,
+          description: `Option choisie: ${currentDecision.options.find(o => o.id === currentDecision.selectedOption)?.text || ''}`,
+          severity: 'medium'
+        };
+        
+        // Mettre à jour les métriques en fonction de la décision
+        const updatedMetrics = { ...(sessionData?.metrics || {}) };
+        if (newDecision.impact.technical > 0) updatedMetrics.technicalResponse = Math.min(100, (updatedMetrics.technicalResponse || 50) + newDecision.impact.technical * 2);
+        if (newDecision.impact.communication > 0) updatedMetrics.communicationEffectiveness = Math.min(100, (updatedMetrics.communicationEffectiveness || 50) + newDecision.impact.communication * 2);
+        if (newDecision.impact.business > 0) updatedMetrics.businessContinuity = Math.min(100, (updatedMetrics.businessContinuity || 50) + newDecision.impact.business * 2);
+        if (newDecision.impact.legal > 0) updatedMetrics.legalCompliance = Math.min(100, (updatedMetrics.legalCompliance || 50) + newDecision.impact.legal * 2);
+        
+        // Calculer l'efficacité globale
+        updatedMetrics.overallEffectiveness = Math.floor(
+          (updatedMetrics.technicalResponse + updatedMetrics.communicationEffectiveness + 
+           updatedMetrics.businessContinuity + updatedMetrics.legalCompliance) / 4
+        );
+        
         setSessionData(prevData => {
           if (!prevData) return null;
           
           return {
             ...prevData,
-            timeline: data.timeline,
-            metrics: data.metrics,
-            decisions: [...(prevData.decisions || []), data.decision]
+            timeline: [...prevData.timeline, newEvent],
+            metrics: updatedMetrics,
+            decisions: [...(prevData.decisions || []), newDecision]
           };
         });
         
@@ -491,13 +638,7 @@ export default function ActiveCrisisSession() {
           title: "Décision enregistrée",
           description: "Votre décision a été enregistrée et prise en compte",
         });
-      } else {
-        toast({
-          title: "Erreur",
-          description: data.error || "Impossible d'enregistrer la décision",
-          variant: "destructive"
-        });
-      }
+      }, 1500);
     } catch (error) {
       console.error("Erreur lors de l'enregistrement de la décision:", error);
       toast({
@@ -524,20 +665,53 @@ export default function ActiveCrisisSession() {
     }
     
     try {
-      const response = await apiRequest('POST', '/api/crisis-management/resources', {
-        sessionId,
-        resources: resourcesForm
-      });
-      const data = await response.json();
-      
-      if (data.success) {
+      // Simuler la mise à jour des ressources pour la démonstration
+      setTimeout(() => {
+        // Calculer l'impact sur les métriques en fonction des changements d'allocation
+        const oldResources = sessionData?.resources || {
+          technical: 20,
+          communication: 20,
+          legal: 20,
+          management: 20,
+          financial: 20
+        };
+        
+        const updatedMetrics = { ...(sessionData?.metrics || {}) };
+        
+        // Impact sur la réponse technique
+        if (resourcesForm.technical > oldResources.technical) {
+          updatedMetrics.technicalResponse = Math.min(100, updatedMetrics.technicalResponse + (resourcesForm.technical - oldResources.technical) / 2);
+        }
+        
+        // Impact sur la communication
+        if (resourcesForm.communication > oldResources.communication) {
+          updatedMetrics.communicationEffectiveness = Math.min(100, updatedMetrics.communicationEffectiveness + (resourcesForm.communication - oldResources.communication) / 2);
+        }
+        
+        // Impact sur la conformité légale
+        if (resourcesForm.legal > oldResources.legal) {
+          updatedMetrics.legalCompliance = Math.min(100, updatedMetrics.legalCompliance + (resourcesForm.legal - oldResources.legal) / 2);
+        }
+        
+        // Impact sur la continuité des affaires
+        if (resourcesForm.management > oldResources.management) {
+          updatedMetrics.businessContinuity = Math.min(100, updatedMetrics.businessContinuity + (resourcesForm.management - oldResources.management) / 2);
+        }
+        
+        // Recalculer l'efficacité globale
+        updatedMetrics.overallEffectiveness = Math.floor(
+          (updatedMetrics.technicalResponse + updatedMetrics.communicationEffectiveness + 
+          updatedMetrics.businessContinuity + updatedMetrics.legalCompliance) / 4
+        );
+        
+        // Mettre à jour les données de session
         setSessionData(prevData => {
           if (!prevData) return null;
           
           return {
             ...prevData,
-            resources: data.resources,
-            metrics: data.metrics
+            resources: resourcesForm,
+            metrics: updatedMetrics
           };
         });
         
@@ -547,13 +721,7 @@ export default function ActiveCrisisSession() {
           title: "Ressources mises à jour",
           description: "L'allocation des ressources a été mise à jour",
         });
-      } else {
-        toast({
-          title: "Erreur",
-          description: data.error || "Impossible de mettre à jour les ressources",
-          variant: "destructive"
-        });
-      }
+      }, 1500);
     } catch (error) {
       console.error("Erreur lors de la mise à jour des ressources:", error);
       toast({
