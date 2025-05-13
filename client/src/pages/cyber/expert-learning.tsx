@@ -502,7 +502,7 @@ function ExpertLearningPageContent() {
                         </div>
                         <div className="bg-[#091525] px-6 py-3 flex justify-between items-center border-t border-[#00b4d8]/30">
                           <span className="text-[#c3d9ee]/80 text-sm">Difficulté ajustable</span>
-                          <span className="text-[#00b4d8] font-semibold flex items-center">COMMENCER <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" /></span>
+                          <span className="text-[#00b4d8] font-semibold flex items-center">COMMENCER <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" /></span>
                         </div>
                       </div>
                       
@@ -541,7 +541,7 @@ function ExpertLearningPageContent() {
                         </div>
                         <div className="bg-[#091525] px-6 py-3 flex justify-between items-center border-t border-[#00b4d8]/30">
                           <span className="text-[#c3d9ee]/80 text-sm">Tous niveaux</span>
-                          <span className="text-[#00b4d8] font-semibold flex items-center">COMMENCER <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" /></span>
+                          <span className="text-[#00b4d8] font-semibold flex items-center">COMMENCER <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" /></span>
                         </div>
                       </div>
                     </div>
@@ -582,7 +582,7 @@ function ExpertLearningPageContent() {
                         </div>
                         <div className="bg-[#091525] px-6 py-3 flex justify-between items-center border-t border-[#00b4d8]/30">
                           <span className="text-[#c3d9ee]/80 text-sm">Accès à tous les sujets</span>
-                          <span className="text-[#00b4d8] font-semibold flex items-center">COMMENCER <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" /></span>
+                          <span className="text-[#00b4d8] font-semibold flex items-center">COMMENCER <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" /></span>
                         </div>
                       </div>
                       
@@ -617,7 +617,7 @@ function ExpertLearningPageContent() {
                         </div>
                         <div className="bg-[#091525] px-6 py-3 flex justify-between items-center border-t border-[#00b4d8]/30">
                           <span className="text-[#c3d9ee]/80 text-sm">Pour experts</span>
-                          <span className="text-[#00b4d8] font-semibold flex items-center">COMMENCER <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" /></span>
+                          <span className="text-[#00b4d8] font-semibold flex items-center">COMMENCER <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" /></span>
                         </div>
                       </div>
                     </div>
