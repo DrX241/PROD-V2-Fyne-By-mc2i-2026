@@ -123,15 +123,6 @@ export default function AmoaModeSelection() {
       comingSoon: false
     },
     {
-      id: 'projet-imposteur',
-      title: 'TROUVEZ LE COUPABLE !',
-      description: 'Jeu de rôle pour apprendre à identifier les incohérences dans la gestion de projet.',
-      icon: <BsPeopleFill className="h-5 w-5 text-orange-200" />,
-      destination: '/amoa/projet-imposteur',
-      difficulty: 'intermédiaire',
-      comingSoon: false
-    },
-    {
       id: 'interview-simulation',
       title: 'AUDITION CLIENT',
       description: 'Entraînez-vous à l\'entretien client avec notre simulateur intelligent.',
@@ -168,9 +159,9 @@ export default function AmoaModeSelection() {
       comingSoon: false
     },
     {
-      id: 'qui-est-imposteur',
-      title: 'QUI EST L\'IMPOSTEUR ?',
-      description: 'Simulation d\'entretien avec analyse des réponses pour évaluer les compétences et la cohérence du candidat.',
+      id: 'preparation-audition',
+      title: 'PRÉPARATION D\'AUDITION',
+      description: 'Simulation d\'entretien avec analyse détaillée de vos réponses pour vous préparer aux auditions professionnelles.',
       icon: <RiUserSearchLine className="h-5 w-5 text-purple-200" />,
       destination: '/amoa/imposteur-simulation',
       difficulty: 'avancé',
@@ -194,7 +185,7 @@ export default function AmoaModeSelection() {
       description: "Mettez en pratique vos connaissances avec des exercices interactifs et des simulations",
       icon: <IoDesktopOutline className="h-6 w-6 text-indigo-100" />,
       gradient: 'from-indigo-700 to-indigo-900',
-      modules: ['projet-imposteur', 'qui-est-imposteur']
+      modules: ['preparation-audition', 'interview-simulation']
     },
     {
       id: 'sevaluer',
@@ -229,7 +220,7 @@ export default function AmoaModeSelection() {
         'Conduite du changement',
         'Recette fonctionnelle'
       ],
-      modules: ['agent-ia', 'interview-simulation', 'projet-imposteur', 'amoa-academie', 'generateur-livrables']
+      modules: ['agent-ia', 'interview-simulation', 'preparation-audition', 'amoa-academie', 'generateur-livrables']
     },
     {
       id: 'product-owner',
@@ -259,7 +250,7 @@ export default function AmoaModeSelection() {
         'Business Intelligence',
         'Transformation digitale'
       ],
-      modules: ['agent-ia', 'test-reflexes', 'qui-est-imposteur', 'amoa-academie', 'generateur-livrables']
+      modules: ['agent-ia', 'test-reflexes', 'preparation-audition', 'amoa-academie', 'generateur-livrables']
     },
     {
       id: 'chef-projet',
@@ -274,7 +265,7 @@ export default function AmoaModeSelection() {
         'Reporting',
         'Pilotage budgétaire'
       ],
-      modules: ['agent-ia', 'test-reflexes', 'qui-est-imposteur', 'amoa-academie', 'generateur-livrables']
+      modules: ['agent-ia', 'test-reflexes', 'preparation-audition', 'amoa-academie', 'generateur-livrables']
     }
   ];
 
