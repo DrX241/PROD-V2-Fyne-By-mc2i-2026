@@ -460,12 +460,13 @@ export async function processMissionDecision(req: Request, res: Response) {
     
     // S'assurer que tous les choix ont des IDs
     if (nouvelleEtape.choixPossibles) {
-      nouvelleEtape.choixPossibles = nouvelleEtape.choixPossibles.map((choix, idx) => ({
-        id: choix.id || `choix_${session.etapeActuelle + 1}_${idx + 1}`,
-        texte: choix.texte || choix.text || `Option ${idx + 1}`,
-        consequences: choix.consequences || "",
-        suggestionAide: choix.suggestionAide || ""
-      }));
+      // Utiliser une boucle for traditionnelle pour éviter les problèmes de typage
+      const choixNormalises: MissionChoice[] = [];
+      for (let idx = 0; idx < nouvelleEtape.choixPossibles.length; idx++) {
+        const choix = nouvelleEtape.choixPossibles[idx];
+        choixNormalises.push(normalizeChoice(choix, `etape_${session.etapeActuelle + 1}`, idx));
+      }
+      nouvelleEtape.choixPossibles = choixNormalises;
     }
     
     // Sauvegarder la session mise à jour
@@ -559,14 +560,13 @@ async function generateMission(role: any): Promise<CyberMissionSession> {
         const etapeId = etape.id || `etape_${i + 1}`;
         
         // Normaliser les choix possibles
-        let choixPossibles = [];
+        let choixPossibles: MissionChoice[] = [];
         if (etape.choixPossibles && Array.isArray(etape.choixPossibles)) {
-          choixPossibles = etape.choixPossibles.map((choix, index) => ({
-            id: choix.id || `choix_${i + 1}_${index + 1}`,
-            texte: choix.texte || choix.text || `Option ${index + 1}`,
-            consequences: choix.consequences || "",
-            suggestionAide: choix.suggestionAide || choix.suggestion || ""
-          }));
+          // Utiliser une boucle for traditionnelle pour éviter les problèmes de typage
+          for (let j = 0; j < etape.choixPossibles.length; j++) {
+            const choix = etape.choixPossibles[j];
+            choixPossibles.push(normalizeChoice(choix, `etape_${i + 1}`, j));
+          }
         }
         
         // Créer une étape normalisée
@@ -791,6 +791,20 @@ interface DecisionConsequences {
   impactMoral: number;
   finMission: boolean;
   typeFinMission?: 'succes' | 'echec' | 'licenciement' | 'abandon';
+}
+
+/**
+ * Normalise un choix de mission pour s'assurer qu'il a toutes les propriétés nécessaires
+ */
+function normalizeChoice(choix: any, etapeId: string, index: number): MissionChoice {
+  return {
+    id: choix.id || `choix_${etapeId}_${index + 1}`,
+    texte: choix.texte || choix.text || `Option ${index + 1}`,
+    text: choix.texte || choix.text || `Option ${index + 1}`,
+    consequences: choix.consequences || "",
+    suggestionAide: choix.suggestionAide || choix.suggestion || "",
+    suggestion: choix.suggestionAide || choix.suggestion || ""
+  };
 }
 
 /**
