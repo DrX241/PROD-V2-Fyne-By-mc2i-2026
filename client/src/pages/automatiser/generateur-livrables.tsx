@@ -831,24 +831,24 @@ export default function GenerateurLivrables() {
                   {generatedContent[generator.id] 
                     ? renderGeneratedContent(generator.id)
                     : (
-                      <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                        <div className="bg-muted/30 rounded-full p-6 mb-4">
+                      <div className="flex flex-col items-center justify-center h-full text-center p-4 bg-gray-800 rounded-lg">
+                        <div className="bg-gray-700 rounded-full p-6 mb-4">
                           {generator.icon}
                         </div>
-                        <h3 className="text-lg font-bold text-black dark:text-white mb-2">Prêt à générer votre livrable ?</h3>
-                        <p className="text-gray-900 dark:text-gray-100 mb-6 max-w-sm">
+                        <h3 className="text-lg font-bold text-white mb-2">Prêt à générer votre livrable ?</h3>
+                        <p className="text-white mb-6 max-w-sm">
                           Remplissez le formulaire à gauche et cliquez sur "Générer le livrable" pour créer votre document.
                         </p>
                         <div className="flex flex-col items-center gap-3">
-                          <div className="flex items-center gap-2 text-sm text-gray-800 dark:text-gray-200">
+                          <div className="flex items-center gap-2 text-sm text-white">
                             <Check className="h-4 w-4 text-green-500" />
                             <span>Génération rapide en quelques secondes</span>
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-800 dark:text-gray-200">
+                          <div className="flex items-center gap-2 text-sm text-white">
                             <Check className="h-4 w-4 text-green-500" />
                             <span>Format professionnel prêt à l'emploi</span>
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-800 dark:text-gray-200">
+                          <div className="flex items-center gap-2 text-sm text-white">
                             <Check className="h-4 w-4 text-green-500" />
                             <span>Personnalisé selon vos informations</span>
                           </div>
