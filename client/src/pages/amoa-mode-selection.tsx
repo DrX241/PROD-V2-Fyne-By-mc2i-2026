@@ -185,7 +185,7 @@ export default function AmoaModeSelection() {
       description: "Mettez en pratique vos connaissances avec des exercices interactifs et des simulations",
       icon: <IoDesktopOutline className="h-6 w-6 text-indigo-100" />,
       gradient: 'from-indigo-700 to-indigo-900',
-      modules: ['preparation-audition', 'interview-simulation']
+      modules: ['preparation-audition']
     },
     {
       id: 'sevaluer',
