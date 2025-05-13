@@ -262,18 +262,52 @@ const CyberExpertLearning: React.FC = () => {
   };
   
   // Fonction pour démarrer une nouvelle session
-  const startSession = () => {
-    // Créer le message d'accueil du bot
-    const welcomeMessage: Message = {
-      id: uuidv4(),
-      type: "bot",
-      content: "Bienvenue dans l'environnement d'apprentissage cyber. Je suis votre assistant IA spécialisé en cybersécurité. Comment puis-je vous aider aujourd'hui ?",
-      timestamp: Date.now()
-    };
+  const startSession = async () => {
+    setIsLoading(true);
     
-    setMessages([welcomeMessage]);
-    setIsSessionActive(true);
-    setSessionSummary(null);
+    try {
+      // Initialiser la session côté serveur
+      const response = await fetch('/api/cyber-expert/init', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userId
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error("Erreur lors de l'initialisation de la session");
+      }
+      
+      const data = await response.json();
+      
+      // Créer le message d'accueil du bot avec le contenu de la réponse du serveur
+      const welcomeMessage: Message = {
+        id: uuidv4(),
+        type: "bot",
+        content: data.welcomeMessage || "Bienvenue dans l'environnement d'apprentissage cyber. Je suis votre assistant IA spécialisé en cybersécurité. Comment puis-je vous aider aujourd'hui ?",
+        timestamp: Date.now()
+      };
+      
+      setMessages([welcomeMessage]);
+      setIsSessionActive(true);
+      setSessionSummary(null);
+      
+      if (data.sessionStatus) {
+        setSessionStatus(data.sessionStatus);
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'initialisation de la session:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'initialisation de la session. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -377,9 +411,13 @@ const CyberExpertLearning: React.FC = () => {
                       <div 
                         className="relative group cursor-pointer h-full overflow-hidden rounded-lg"
                         style={{height: '22rem'}}
-                        onClick={() => {
-                          setInputMessage("Initialise un jeu de rôle où je suis un RSSI face à une tentative d'intrusion. Propose différents personnages que je peux incarner et guide-moi dans une simulation réaliste.");
-                          startSession();
+                        onClick={async () => {
+                          await startSession();
+                          // Donner un peu de temps pour que la session s'initialise
+                          setTimeout(() => {
+                            setInputMessage("Initialise un jeu de rôle où je suis un RSSI face à une tentative d'intrusion. Propose différents personnages que je peux incarner et guide-moi dans une simulation réaliste.");
+                            handleSubmit(new Event('click') as unknown as React.FormEvent);
+                          }, 500);
                         }}
                       >
                         {/* Image de fond avec effet parallaxe */}
@@ -427,9 +465,13 @@ const CyberExpertLearning: React.FC = () => {
                       <div 
                         className="relative group cursor-pointer h-full overflow-hidden rounded-lg"
                         style={{height: '22rem'}}
-                        onClick={() => {
-                          setInputMessage("Créé un QCM interactif de 5 questions sur la sécurité des réseaux avec différents niveaux de difficulté et explications détaillées.");
-                          startSession();
+                        onClick={async () => {
+                          await startSession();
+                          // Donner un peu de temps pour que la session s'initialise
+                          setTimeout(() => {
+                            setInputMessage("Créé un QCM interactif de 5 questions sur la sécurité des réseaux avec différents niveaux de difficulté et explications détaillées.");
+                            handleSubmit(new Event('click') as unknown as React.FormEvent);
+                          }, 500);
                         }}
                       >
                         {/* Image de fond avec effet parallaxe */}
@@ -480,9 +522,13 @@ const CyberExpertLearning: React.FC = () => {
                       <div 
                         className="relative group cursor-pointer h-full overflow-hidden rounded-lg"
                         style={{height: '22rem'}}
-                        onClick={() => {
-                          setInputMessage("Je voudrais apprendre à détecter et me protéger contre le phishing");
-                          startSession();
+                        onClick={async () => {
+                          await startSession();
+                          // Donner un peu de temps pour que la session s'initialise
+                          setTimeout(() => {
+                            setInputMessage("Je voudrais apprendre à détecter et me protéger contre le phishing");
+                            handleSubmit(new Event('click') as unknown as React.FormEvent);
+                          }, 500);
                         }}
                       >
                         {/* Image de fond avec effet parallaxe */}
@@ -533,9 +579,13 @@ const CyberExpertLearning: React.FC = () => {
                       <div 
                         className="relative group cursor-pointer h-full overflow-hidden rounded-lg"
                         style={{height: '22rem'}}
-                        onClick={() => {
-                          setInputMessage("Lance un scénario de gestion de crise cybersécurité où je dois analyser une violation de données et proposer un plan d'action");
-                          startSession();
+                        onClick={async () => {
+                          await startSession();
+                          // Donner un peu de temps pour que la session s'initialise
+                          setTimeout(() => {
+                            setInputMessage("Lance un scénario de gestion de crise cybersécurité où je dois analyser une violation de données et proposer un plan d'action");
+                            handleSubmit(new Event('click') as unknown as React.FormEvent);
+                          }, 500);
                         }}
                       >
                         {/* Image de fond avec effet parallaxe */}
