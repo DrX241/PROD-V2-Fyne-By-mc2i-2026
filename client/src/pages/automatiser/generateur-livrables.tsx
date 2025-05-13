@@ -557,14 +557,14 @@ export default function GenerateurLivrables() {
         {showExamples[generator.id] && generator.examples.length > 0 && (
           <div className="mb-6 p-4 rounded-lg bg-muted/30 border">
             <h4 className="font-medium mb-2">Exemples</h4>
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+            <div className="grid gap-4 grid-cols-1">
               {generator.examples.map((example, index) => (
-                <Card key={index} className="overflow-hidden w-full">
+                <Card key={index} className="overflow-hidden w-full flex flex-col">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base">{example.title}</CardTitle>
                     <CardDescription className="text-xs">{example.description}</CardDescription>
                   </CardHeader>
-                  <CardFooter className="pt-2">
+                  <CardFooter className="pt-2 mt-auto">
                     <Button 
                       variant="secondary" 
                       size="sm" 
@@ -810,13 +810,13 @@ export default function GenerateurLivrables() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
                 {/* Formulaire à gauche */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="p-6 rounded-xl border bg-card lg:col-span-1"
+                  className="p-6 rounded-xl border bg-card lg:col-span-4"
                 >
                   {renderInputForm(generator)}
                 </motion.div>
@@ -826,7 +826,7 @@ export default function GenerateurLivrables() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="p-6 rounded-xl border bg-card lg:col-span-2"
+                  className="p-6 rounded-xl border bg-card lg:col-span-8"
                 >
                   {generatedContent[generator.id] 
                     ? renderGeneratedContent(generator.id)
