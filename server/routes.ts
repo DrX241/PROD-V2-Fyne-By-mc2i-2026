@@ -4774,7 +4774,16 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   });
   
   // Routes pour le module de gestion de crise
-  app.get('/api/crisis-management/scenarios', getAvailableScenarios);
+  // Route de test
+  app.get('/api/crisis-management/test', (req, res) => {
+    console.log('Test route was called!');
+    return res.status(200).json({ success: true, message: 'Test route is working' });
+  });
+  
+  app.get('/api/crisis-management/scenarios', (req, res) => {
+    console.log('Get scenarios route was called!');
+    return getAvailableScenarios(req, res);
+  });
   app.post('/api/crisis-management/start', startCrisisSession);
   app.get('/api/crisis-management/sessions/:sessionId', getCrisisSessionDetails);
   app.post('/api/crisis-management/message', sendCrisisMessage);

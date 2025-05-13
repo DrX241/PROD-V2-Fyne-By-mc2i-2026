@@ -25,19 +25,39 @@ export default function CrisisManagement() {
   const [, navigate] = useLocation();
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [availableScenarios, setAvailableScenarios] = useState([]);
+  const [availableScenarios, setAvailableScenarios] = useState<any[]>([]);
   const [startingSession, setStartingSession] = useState(false);
-  const [selectedScenarioId, setSelectedScenarioId] = useState(null);
+  const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Tester la connectivité d'abord
+    testApiConnection();
     // Charger les scénarios disponibles
     fetchScenarios();
   }, []);
+  
+  // Fonction pour tester la connectivité à l'API
+  const testApiConnection = async () => {
+    try {
+      const response = await fetch('/api/crisis-management/test');
+      const data = await response.json();
+      console.log('API test response:', data);
+      
+      if (data.success) {
+        console.log('API connection successful');
+      } else {
+        console.error('API test route returned error');
+      }
+    } catch (error) {
+      console.error('Error testing API connection:', error);
+    }
+  };
 
   const fetchScenarios = async () => {
     setLoading(true);
     try {
-      const response = await apiRequest('GET', '/api/crisis-management/scenarios');
+      // Utiliser fetch directement au lieu de apiRequest
+      const response = await fetch('/api/crisis-management/scenarios');
       const data = await response.json();
       
       if (data.success) {
@@ -61,14 +81,16 @@ export default function CrisisManagement() {
     }
   };
 
-  const startSession = async (scenarioId) => {
+  const startSession = async (scenarioId: string) => {
     setSelectedScenarioId(scenarioId);
     setStartingSession(true);
     try {
-      const response = await apiRequest('POST', '/api/crisis-management/start', {
+      const payload = {
         userId: "user-" + Math.random().toString(36).substring(2, 9), // Identifiant utilisateur temporaire
         scenarioId
-      });
+      };
+      
+      const response = await apiRequest('POST', '/api/crisis-management/start', payload);
       const data = await response.json();
       
       if (data.success) {
