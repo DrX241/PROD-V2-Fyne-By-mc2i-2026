@@ -40,7 +40,7 @@ const extractFirstName = (input: string): string => {
   return firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
 };
 
-export default function Header() {
+export default function Header({ isFeny = false }) {
   const { userName } = useChatContext();
   const { themeMode } = useTheme();
   
@@ -49,16 +49,16 @@ export default function Header() {
   const userInitial = displayName ? displayName.charAt(0).toUpperCase() : "U";
   
   // Détermine les styles en fonction du thème
-  const headerBgClass = themeMode === 'futuristic' 
+  const headerBgClass = themeMode === 'futuristic' || isFeny
     ? 'bg-gray-900 shadow-md border-b border-blue-900/50' 
     : 'bg-white shadow-sm border-b border-gray-100';
     
   // Classes pour l'affichage de l'utilisateur  
-  const userInitialBgClass = themeMode === 'futuristic'
+  const userInitialBgClass = themeMode === 'futuristic' || isFeny
     ? 'bg-blue-900 text-cyan-300'
     : 'bg-blue-100 text-blue-600';
     
-  const userNameClass = themeMode === 'futuristic'
+  const userNameClass = themeMode === 'futuristic' || isFeny
     ? 'text-blue-200'
     : 'text-gray-700';
 

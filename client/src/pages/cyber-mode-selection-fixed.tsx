@@ -445,12 +445,12 @@ export default function CyberModeSelectionRedesign() {
   };
 
   return (
-    <HomeLayout>
-      <div id="cyber-mode-selection" className={`min-h-screen pb-20 ${
+    <HomeLayout gradientBg={true}>
+      <div id="cyber-mode-selection" className={`min-h-screen pb-20 w-full ${
         highContrastMode ? 'bg-black text-white' : 'bg-gradient-to-b from-blue-950 to-black text-white'
       }`} style={{ fontSize: `${textSize}rem` }}>
         {/* Navigation et contrôles */}
-        <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">
+        <div className="px-4 md:px-8 py-8 relative w-full">
           <div className="flex justify-between items-center mb-10">
             <div className="flex items-center">
               <Link href="/">
