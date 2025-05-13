@@ -58,8 +58,7 @@ function ExpertLearningPageContent() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
                 whileHover={{ scale: 1.02, boxShadow: '0 0 25px rgba(230,57,70,0.3)' }}
-                className="bg-[#121e2e] p-6 rounded-lg border-2 border-[#e63946]/60 cursor-pointer relative overflow-hidden"
-                onClick={startMissionMode}
+                className="bg-[#121e2e] p-6 rounded-lg border-2 border-[#e63946]/60 relative overflow-hidden"
               >
                 {/* Badge clignotant */}
                 <div className="absolute -right-3 -top-3 animate-pulse">

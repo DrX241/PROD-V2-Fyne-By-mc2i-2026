@@ -860,18 +860,74 @@ Tu es ${name}, ${description}. Tu es spécialisé dans le domaine: ${domain}.
         console.log("Réponse brute:", response);
         
         // Tentative de correction du JSON invalide
-        const cleanedResponse = response
+        let cleanedResponse = response
           .replace(/```json\s?/g, '')  // Enlever les délimiteurs markdown pour JSON
           .replace(/```\s?/g, '')       // Enlever les délimiteurs de fin
           .trim();                       // Nettoyer les espaces
+        
+        // Corriger les valeurs numériques avec préfixe +, qui ne sont pas valides en JSON
+        cleanedResponse = cleanedResponse
+          .replace(/"security"\s*:\s*\+(\d+)/g, '"security": $1')
+          .replace(/"budget"\s*:\s*\+(\d+)/g, '"budget": $1')
+          .replace(/"reputation"\s*:\s*\+(\d+)/g, '"reputation": $1')
+          .replace(/"moral"\s*:\s*\+(\d+)/g, '"moral": $1');
           
         try {
           return JSON.parse(cleanedResponse);
         } catch (retryError) {
           console.error("Échec de la correction du JSON. Erreur:", retryError);
+          console.log("Réponse nettoyée:", cleanedResponse);
           
-          // Dernier recours : retourner un objet vide avec le texte brut
-          return { raw: response, error: "Could not parse as JSON" };
+          // Dernier recours : retourner une mission par défaut
+          return { 
+            nomMission: "Opération Cyber Shield",
+            pnjs: [
+              {
+                id: "directeur",
+                nom: "Jean Dupont",
+                role: "Directeur IT",
+                personnalite: "Stressé mais compétent",
+                attitude: "neutre"
+              },
+              {
+                id: "technicien",
+                nom: "Marc Dubois",
+                role: "Technicien réseau",
+                personnalite: "Minutieux et pragmatique",
+                attitude: "favorable"
+              },
+              {
+                id: "manager",
+                nom: "Sophie Lefebvre",
+                role: "Manager d'équipe",
+                personnalite: "Exigeante et perfectionniste",
+                attitude: "hostile"
+              }
+            ],
+            etapes: [
+              {
+                id: "etape1",
+                type: "introduction",
+                titre: "Briefing initial",
+                description: "Bienvenue dans votre mission. Une vulnérabilité a été détectée.",
+                pnjActif: "directeur",
+                choixPossibles: [
+                  {
+                    id: "analyser",
+                    texte: "Analyser la vulnérabilité en détail"
+                  },
+                  {
+                    id: "corriger",
+                    texte: "Appliquer immédiatement les correctifs"
+                  },
+                  {
+                    id: "consulter",
+                    texte: "Consulter l'équipe technique"
+                  }
+                ]
+              }
+            ]
+          };
         }
       }
     } catch (error) {
