@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Send, ChevronDown, RefreshCw, Bot, X, ArrowLeft, FileText, Plus, Home } from "lucide-react";
+import { Send, ChevronDown, RefreshCw, Bot, X, ArrowLeft, FileText, Plus, Home, Lightbulb as LightbulbIcon } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import HomeLayout from "@/components/layout/HomeLayout";
 import PageTitle from "@/components/utils/PageTitle";
@@ -11,6 +11,39 @@ import DOMPurify from 'dompurify';
 import { useLocation } from 'wouter';
 import { DecisionProvider, useDecision } from "@/contexts/DecisionContext";
 import CyberDecisionFlow from "@/components/cyber/CyberDecisionFlow";
+
+// Fonction pour obtenir un message informatif contextuel basé sur l'index
+const getMessage = (index: number): string => {
+  const messages = [
+    "Dans une attaque par phishing, les cybercriminels utilisent souvent des urgences fictives pour vous pousser à agir sans réfléchir. Prenez toujours le temps d'analyser tout email urgent.",
+    "80% des violations de données sont dues à des mots de passe faibles ou réutilisés. Utilisez un gestionnaire de mots de passe pour créer et stocker des mots de passe uniques.",
+    "L'authentification à deux facteurs (2FA) réduit le risque de piratage de compte de plus de 99%, même si votre mot de passe est compromis.",
+    "Les ransomwares sont distribués principalement par phishing (emails), exploitation de vulnérabilités, et connexions à distance non sécurisées.",
+    "Les VPN (réseaux privés virtuels) chiffrent votre trafic internet, mais ne protègent pas contre toutes les menaces. Ils doivent faire partie d'une stratégie de sécurité plus large.",
+    "Les mises à jour de sécurité sont cruciales - plus de 60% des violations de données exploitent des vulnérabilités pour lesquelles des correctifs étaient disponibles.",
+    "Le Wi-Fi public est risqué! Utilisez toujours un VPN sur les réseaux Wi-Fi publics, ou préférez la connexion mobile de votre téléphone.",
+    "La sécurité physique est souvent négligée. Verrouillez votre écran lorsque vous vous absentez et utilisez un filtre de confidentialité en public."
+  ];
+  
+  // Utiliser modulo pour toujours renvoyer un message valide, même si l'index dépasse le tableau
+  return messages[index % messages.length];
+};
+
+// Fonction pour obtenir un sujet de cybersécurité basé sur l'index
+const getTopicFromIndex = (index: number): string => {
+  const topics = [
+    "le phishing et l'ingénierie sociale",
+    "la gestion des mots de passe",
+    "l'authentification à deux facteurs",
+    "les ransomwares",
+    "les VPN et la sécurité de connexion",
+    "l'importance des mises à jour",
+    "la sécurité des réseaux Wi-Fi",
+    "la sécurité physique des appareils"
+  ];
+  
+  return topics[index % topics.length];
+};
 
 // Fonction pour formater le texte avec une structure visuelle
 const formatTextWithStructure = (text: string): string => {
@@ -564,52 +597,150 @@ function ExpertLearningPageContent() {
                       </div>
                     </div>
                 
-                    {/* Zone de chat avec messages */}
+                    {/* Zone de chat avec messages et guides contextuels */}
                     <div 
                       ref={chatContainerRef}
                       className="flex-1 overflow-y-auto custom-scrollbar cyber-expert bg-[#091525]/80 border border-[#00b4d8]/30 rounded-none shadow-[0_0_20px_rgba(0,180,216,0.15)] h-[calc(100vh-350px)] min-h-[450px]"
                     >
                       <div className="p-6 space-y-6">
-                        {messages.map((message) => (
-                          <div
-                            key={message.id}
-                            className={`flex ${
-                              message.type === "user" ? "justify-end" : "justify-start"
-                            }`}
-                          >
-                            <div
-                              className={`max-w-[85%] p-4 rounded-md ${
-                                message.type === "user"
-                                  ? "bg-[#00b4d8]/30 text-white ml-auto shadow-[0_2px_10px_rgba(0,180,216,0.15)]"
-                                  : "bg-[#121e2e] border border-[#00b4d8]/20 text-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
-                              }`}
-                            >
-                              {message.type === "bot" ? (
-                                <div 
-                                  className="prose prose-invert max-w-none text-[#c3d9ee] text-base" 
-                                  dangerouslySetInnerHTML={{ 
-                                    __html: DOMPurify.sanitize(formatTextWithStructure(message.content)) 
-                                  }}
-                                />
-                              ) : (
-                                <p className="text-[#c3d9ee] text-base">{message.content}</p>
-                              )}
-                              <div className="text-xs text-[#00b4d8]/60 mt-2 text-right">
-                                {new Date(message.timestamp).toLocaleTimeString([], { 
-                                  hour: '2-digit', 
-                                  minute: '2-digit' 
-                                })}
-                              </div>
+                        {/* Barre de progression de l'apprentissage - toujours visible */}
+                        <div className="bg-[#121e2e] p-3 rounded-md border border-[#00b4d8]/30 mb-6">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="text-[#00b4d8] text-sm font-semibold flex items-center">
+                              <span className="inline-block w-3 h-3 bg-[#00b4d8] rounded-full mr-2"></span>
+                              PROGRESSION DE L'APPRENTISSAGE
+                            </div>
+                            <div className="text-[#c3d9ee]/70 text-xs">
+                              Session interactive en cours
                             </div>
                           </div>
+                          <div className="w-full bg-[#091525] rounded-full h-2 mb-1">
+                            <div className="bg-gradient-to-r from-[#00b4d8] to-[#4cc9f0] h-2 rounded-full animate-pulse" style={{ width: '35%' }}></div>
+                          </div>
+                          <div className="flex justify-between text-xs text-[#c3d9ee]/70">
+                            <span>Débutant</span>
+                            <span>Intermédiaire</span>
+                            <span>Avancé</span>
+                          </div>
+                        </div>
+                        
+                        {messages.map((message, index) => (
+                          <div key={message.id}>
+                            <div
+                              className={`flex ${
+                                message.type === "user" ? "justify-end" : "justify-start"
+                              }`}
+                            >
+                              <div
+                                className={`max-w-[85%] p-4 rounded-md ${
+                                  message.type === "user"
+                                    ? "bg-[#00b4d8]/30 text-white ml-auto shadow-[0_2px_10px_rgba(0,180,216,0.15)]"
+                                    : "bg-[#121e2e] border border-[#00b4d8]/20 text-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]"
+                                }`}
+                              >
+                                {message.type === "bot" ? (
+                                  <div 
+                                    className="prose prose-invert max-w-none text-[#c3d9ee] text-base" 
+                                    dangerouslySetInnerHTML={{ 
+                                      __html: DOMPurify.sanitize(formatTextWithStructure(message.content)) 
+                                    }}
+                                  />
+                                ) : (
+                                  <p className="text-[#c3d9ee] text-base">{message.content}</p>
+                                )}
+                                <div className="text-xs text-[#00b4d8]/60 mt-2 text-right">
+                                  {new Date(message.timestamp).toLocaleTimeString([], { 
+                                    hour: '2-digit', 
+                                    minute: '2-digit' 
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Afficher des infobulles contextuelles après certains messages du bot */}
+                            {message.type === "bot" && index > 0 && index % 3 === 0 && (
+                              <div className="flex justify-center my-4">
+                                <div className="bg-[#091525] border border-[#00b4d8]/40 rounded-md p-3 max-w-[80%] shadow-[0_0_15px_rgba(0,180,216,0.2)]">
+                                  <div className="flex items-start">
+                                    <div className="bg-[#00b4d8]/20 p-2 rounded-full mr-3">
+                                      <LightbulbIcon className="h-4 w-4 text-[#00b4d8]" />
+                                    </div>
+                                    <div>
+                                      <p className="text-[#00b4d8] text-sm font-semibold">LE SAVIEZ-VOUS ?</p>
+                                      <p className="text-[#c3d9ee] text-sm mt-1">
+                                        {getMessage(index)}
+                                      </p>
+                                      <div className="flex gap-2 mt-2">
+                                        <Button 
+                                          variant="outline" 
+                                          size="sm"
+                                          className="border-[#00b4d8]/30 text-[#00b4d8] hover:bg-[#112641] text-xs py-1"
+                                          onClick={() => setInputMessage(`Dis m'en plus sur ${getTopicFromIndex(index)}`)}
+                                        >
+                                          En savoir plus
+                                        </Button>
+                                        <Button 
+                                          variant="outline" 
+                                          size="sm"
+                                          className="border-[#00b4d8]/30 text-[#00b4d8] hover:bg-[#112641] text-xs py-1"
+                                          onClick={() => setInputMessage(`Donne-moi un exemple concret sur ${getTopicFromIndex(index)}`)}
+                                        >
+                                          Exemple concret
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Afficher des suggestions d'approfondissement après certains messages de l'utilisateur */}
+                            {message.type === "user" && index > 1 && index % 4 === 0 && (
+                              <div className="flex justify-center my-4">
+                                <div className="bg-[#091525] border border-[#00b4d8]/40 rounded-md p-3 max-w-[80%] text-center">
+                                  <p className="text-[#00b4d8] text-sm font-semibold">POUR APPROFONDIR :</p>
+                                  <div className="flex flex-wrap justify-center gap-2 mt-2">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm"
+                                      className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] text-xs py-1"
+                                      onClick={() => setInputMessage("Comment appliquer ça dans mon entreprise ?")}
+                                    >
+                                      Application professionnelle
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm"
+                                      className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] text-xs py-1"
+                                      onClick={() => setInputMessage("Propose-moi un exercice pratique sur ce sujet")}
+                                    >
+                                      Exercice pratique
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm"
+                                      className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] text-xs py-1"
+                                      onClick={() => setInputMessage("Quelles sont les dernières tendances sur ce sujet ?")}
+                                    >
+                                      Tendances actuelles
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         ))}
+                        
                         {isLoading && (
                           <div className="flex justify-start">
                             <div className="max-w-[85%] p-4 rounded-md bg-[#121e2e] border border-[#00b4d8]/20 text-white shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
-                              <div className="flex space-x-3">
-                                <div className="w-2.5 h-2.5 rounded-full bg-[#00b4d8]/50 animate-pulse"></div>
-                                <div className="w-2.5 h-2.5 rounded-full bg-[#00b4d8]/50 animate-pulse delay-150"></div>
-                                <div className="w-2.5 h-2.5 rounded-full bg-[#00b4d8]/50 animate-pulse delay-300"></div>
+                              <div className="flex items-center gap-3">
+                                <div className="flex space-x-2">
+                                  <div className="w-2.5 h-2.5 rounded-full bg-[#00b4d8]/50 animate-pulse"></div>
+                                  <div className="w-2.5 h-2.5 rounded-full bg-[#00b4d8]/50 animate-pulse delay-150"></div>
+                                  <div className="w-2.5 h-2.5 rounded-full bg-[#00b4d8]/50 animate-pulse delay-300"></div>
+                                </div>
+                                <span className="text-xs text-[#00b4d8]/70">Génération d'une réponse personnalisée...</span>
                               </div>
                             </div>
                           </div>
@@ -712,10 +843,123 @@ function ExpertLearningPageContent() {
                         </form>
 
                         {/* Guide d'utilisation */}
-                        <div className="mt-3 px-1 text-[#c3d9ee]/70 text-xs flex items-center justify-center gap-3">
-                          <span className="flex items-center"><svg className="h-3 w-3 mr-1 text-[#00b4d8]" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path></svg>Poser des questions précises</span>
-                          <span className="flex items-center"><svg className="h-3 w-3 mr-1 text-[#00b4d8]" fill="currentColor" viewBox="0 0 20 20"><path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z"></path><path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z"></path></svg>Demander des exercices</span>
-                          <span className="flex items-center"><svg className="h-3 w-3 mr-1 text-[#00b4d8]" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd"></path></svg>Explorer des scénarios</span>
+                        {/* Panel d'aide interactive avancé */}
+                        <div className="mt-4 bg-[#121e2e] border border-[#00b4d8]/20 rounded-md p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="text-[#00b4d8] text-sm font-semibold flex items-center">
+                              <LightbulbIcon className="h-4 w-4 mr-2" />
+                              CONSEILS POUR UNE MEILLEURE EXPÉRIENCE
+                            </div>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-6 text-xs text-[#00b4d8]/70 hover:text-[#00b4d8] hover:bg-[#091525]"
+                              onClick={() => setInputMessage("aide")}
+                            >
+                              Voir toutes les commandes
+                            </Button>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+                            <div className="bg-[#091525] p-3 rounded-md border border-[#00b4d8]/20">
+                              <h4 className="text-[#00b4d8] text-xs font-medium mb-1.5">FORMATS D'APPRENTISSAGE</h4>
+                              <div className="space-y-1.5">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#00b4d8] hover:bg-[#112641]"
+                                  onClick={() => setInputMessage("Je veux un format académique sur ce sujet")}
+                                >
+                                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                                  Format académique
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#00b4d8] hover:bg-[#112641]"
+                                  onClick={() => setInputMessage("Explique-moi ça avec des exemples concrets")}
+                                >
+                                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                  Exemples concrets
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#00b4d8] hover:bg-[#112641]"
+                                  onClick={() => setInputMessage("Propose-moi un défi sur ce sujet")}
+                                >
+                                  <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                                  Mode défi
+                                </Button>
+                              </div>
+                            </div>
+                            
+                            <div className="bg-[#091525] p-3 rounded-md border border-[#00b4d8]/20">
+                              <h4 className="text-[#00b4d8] text-xs font-medium mb-1.5">MODES INTERACTIFS</h4>
+                              <div className="space-y-1.5">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#00b4d8] hover:bg-[#112641]"
+                                  onClick={() => setInputMessage("Crée un exercice pratique sur ce sujet")}
+                                >
+                                  <span className="w-2 h-2 bg-amber-500 rounded-full mr-2"></span>
+                                  Exercice pratique
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#00b4d8] hover:bg-[#112641]"
+                                  onClick={() => setInputMessage("Propose-moi un scénario de décision")}
+                                >
+                                  <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                                  Scénario de décision
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#00b4d8] hover:bg-[#112641]"
+                                  onClick={() => setInputMessage("Évalue mes connaissances sur ce sujet")}
+                                >
+                                  <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                                  Auto-évaluation
+                                </Button>
+                              </div>
+                            </div>
+                            
+                            <div className="bg-[#091525] p-3 rounded-md border border-[#00b4d8]/20">
+                              <h4 className="text-[#00b4d8] text-xs font-medium mb-1.5">ASTUCES PRATIQUES</h4>
+                              <div className="space-y-1.5">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#00b4d8] hover:bg-[#112641]"
+                                  onClick={() => setInputMessage("Comment puis-je appliquer ces concepts au quotidien ?")}
+                                >
+                                  <span className="w-2 h-2 bg-cyan-500 rounded-full mr-2"></span>
+                                  Application quotidienne
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#00b4d8] hover:bg-[#112641]"
+                                  onClick={() => setInputMessage("Donne-moi une checklist de sécurité sur ce sujet")}
+                                >
+                                  <span className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>
+                                  Checklist de sécurité
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#00b4d8] hover:bg-[#112641]"
+                                  onClick={() => setInputMessage("résumé")}
+                                >
+                                  <span className="w-2 h-2 bg-pink-500 rounded-full mr-2"></span>
+                                  Résumé des points clés
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                         
                         {/* Bouton de fin de session */}
