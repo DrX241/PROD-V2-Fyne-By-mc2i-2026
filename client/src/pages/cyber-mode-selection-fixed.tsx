@@ -577,73 +577,109 @@ export default function CyberModeSelectionRedesign() {
             </p>
           </motion.div>
 
-          {/* Titre section Objectifs d'apprentissage */}
-          <div className="flex items-center mb-8">
-            <IoBookOutline className="h-6 w-6 mr-3 text-blue-400" />
-            <h2 className="text-xl font-bold">Par objectif d'apprentissage</h2>
-          </div>
-
-          {/* Contenu des objectifs d'apprentissage */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {learningObjectives.map((objective) => (
-              <motion.div
-                key={objective.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className={`rounded-xl p-8 shadow-lg ${
-                  highContrastMode 
-                    ? 'bg-gray-800 border border-gray-700' 
-                    : `bg-gradient-to-br ${objective.gradient}`
+          {/* Onglets principaux */}
+          <Tabs defaultValue="objectifs" className="w-full" data-id="main-tabs">
+            <TabsList className={`w-full mb-8 p-1.5 ${
+              highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-white/10'
+            }`}>
+              <TabsTrigger 
+                value="objectifs" 
+                className={`flex-1 flex items-center justify-center py-3 ${
+                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
                 }`}
-                data-id={`objective-${objective.id}`}
+                data-id="objectives-tab"
               >
-                <div className="flex flex-col h-full">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className={`p-3 rounded-full ${
-                      highContrastMode ? 'bg-blue-900' : 'bg-white/10'
-                    }`}>
-                      {objective.icon}
-                    </div>
-                    <h2 className="text-2xl font-bold text-white">
-                      {objective.title}
-                    </h2>
-                  </div>
-                  
-                  <p className={`mb-6 ${
-                    highContrastMode ? 'text-gray-300' : 'text-blue-100'
-                  }`}>
-                    {objective.description}
-                  </p>
-                  
-                  <div className="mt-auto">
-                    <h3 className="text-white font-medium mb-3">Modules recommandés:</h3>
-                    <ul className="space-y-3">
-                      {getModulesForObjective(objective.id).map(module => (
-                        <li key={module.id}>
-                          <Link 
-                            href={module.destination}
-                            className={`block p-3 rounded-lg ${
-                              highContrastMode 
-                                ? 'bg-gray-700 hover:bg-gray-600' 
-                                : 'bg-white/10 hover:bg-white/20'
-                            } transition-colors`}
-                          >
-                            <div className="flex justify-between items-center">
-                              <span className="font-medium">{module.title}</span>
-                              <IoMdArrowForward className="h-5 w-5" />
-                            </div>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                <IoBookOutline className="h-5 w-5 mr-3" />
+                Par objectif d'apprentissage
+              </TabsTrigger>
+              <TabsTrigger 
+                value="metiers" 
+                className={`flex-1 flex items-center justify-center py-3 ${
+                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
+                }`}
+                data-id="careers-tab"
+              >
+                <BsBriefcase className="h-5 w-5 mr-3" />
+                <div className="flex flex-col items-center">
+                  <span>Par métier</span>
+                  <span className="text-xs font-light italic mt-0.5 opacity-90">Refonte complète bientôt disponible</span>
                 </div>
-              </motion.div>
-            ))}
-          </div>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="tous" 
+                className={`flex-1 flex items-center justify-center py-3 ${
+                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
+                }`}
+                data-id="all-modules-tab"
+              >
+                <BsGearFill className="h-5 w-5 mr-3" />
+                Tous les modules
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Sections temporairement désactivées */}
+            {/* Contenu des onglets */}
+            <TabsContent value="objectifs" className="mt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {learningObjectives.map((objective) => (
+                  <motion.div
+                    key={objective.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className={`rounded-xl p-8 shadow-lg ${
+                      highContrastMode 
+                        ? 'bg-gray-800 border border-gray-700' 
+                        : `bg-gradient-to-br ${objective.gradient}`
+                    }`}
+                    data-id={`objective-${objective.id}`}
+                  >
+                    <div className="flex flex-col h-full">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className={`p-3 rounded-full ${
+                          highContrastMode ? 'bg-blue-900' : 'bg-white/10'
+                        }`}>
+                          {objective.icon}
+                        </div>
+                        <h2 className="text-2xl font-bold text-white">
+                          {objective.title}
+                        </h2>
+                      </div>
+                      
+                      <p className={`mb-6 ${
+                        highContrastMode ? 'text-gray-300' : 'text-blue-100'
+                      }`}>
+                        {objective.description}
+                      </p>
+                      
+                      <div className="mt-auto">
+                        <h3 className="text-white font-medium mb-3">Modules recommandés:</h3>
+                        <ul className="space-y-3">
+                          {getModulesForObjective(objective.id).map(module => (
+                            <li key={module.id}>
+                              <Link 
+                                href={module.destination}
+                                className={`block p-3 rounded-lg ${
+                                  highContrastMode 
+                                    ? 'bg-gray-700 hover:bg-gray-600' 
+                                    : 'bg-white/10 hover:bg-white/20'
+                                } transition-colors`}
+                              >
+                                <div className="flex justify-between items-center">
+                                  <span className="font-medium">{module.title}</span>
+                                  <IoMdArrowForward className="h-5 w-5" />
+                                </div>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="metiers" className="mt-0">
               <div className="flex flex-col gap-6">
                 {/* Bannière d'information sur la refonte */}
                 <div className={`p-4 rounded-lg border-l-4 border-blue-500 ${
