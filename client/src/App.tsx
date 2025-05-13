@@ -743,6 +743,16 @@ function App() {
                 <Route path="/immersive-scenario/:id" component={ImmersiveScenarioDetail} />
                 <Route path="/immersive-session/:id" component={ImmersiveSession} />
                 
+                {/* Générateur de Livrables AMOA */}
+                <Route path="/automatiser/generateur-livrables" component={() => {
+                  const GenerateurLivrables = lazy(() => import('./pages/automatiser/generateur-livrables'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <GenerateurLivrables />
+                    </Suspense>
+                  );
+                }} />
+                
                 {/* Ancien module mc2i Learning et OUTILS IA supprimé */}
                 
                 {/* Route par défaut (404) */}
