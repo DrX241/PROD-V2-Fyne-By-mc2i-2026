@@ -833,6 +833,52 @@ Tu es ${name}, ${description}. Tu es spécialisé dans le domaine: ${domain}.
       throw new Error("Failed to generate custom assistant prompt");
     }
   }
+
+  /**
+   * Obtenir une complétion qui renvoie directement un objet JSON
+   * @param messages Tableau de messages pour la conversation
+   * @param temperature Température pour la génération (entre 0 et 1)
+   * @param maxTokens Nombre maximum de tokens à générer
+   * @returns Un objet JSON parsé directement depuis la réponse
+   */
+  async getChatCompletionJSON(
+    messages: ChatCompletionRequestMessage[],
+    temperature: number = 0.7,
+    maxTokens: number = 2000
+  ): Promise<any> {
+    try {
+      // Utiliser l'option de format JSON
+      const response = await this.getChatCompletion(messages, temperature, maxTokens, {
+        responseFormat: 'json_object'
+      });
+      
+      // Analyser la réponse en tant que JSON
+      try {
+        return JSON.parse(response);
+      } catch (jsonError) {
+        console.error("Erreur lors du parsing de la réponse JSON:", jsonError);
+        console.log("Réponse brute:", response);
+        
+        // Tentative de correction du JSON invalide
+        const cleanedResponse = response
+          .replace(/```json\s?/g, '')  // Enlever les délimiteurs markdown pour JSON
+          .replace(/```\s?/g, '')       // Enlever les délimiteurs de fin
+          .trim();                       // Nettoyer les espaces
+          
+        try {
+          return JSON.parse(cleanedResponse);
+        } catch (retryError) {
+          console.error("Échec de la correction du JSON. Erreur:", retryError);
+          
+          // Dernier recours : retourner un objet vide avec le texte brut
+          return { raw: response, error: "Could not parse as JSON" };
+        }
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'obtention de la complétion JSON:", error);
+      throw error;
+    }
+  }
 }
 
 export const openAIService = new OpenAIService();
