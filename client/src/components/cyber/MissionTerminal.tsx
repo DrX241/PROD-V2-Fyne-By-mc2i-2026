@@ -93,14 +93,30 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
   // Initialisation de la mission
   const initMission = async () => {
     try {
+      // Réinitialiser complètement l'état du composant
       setLoading(true);
+      setMessages([]);
+      setChoices([]);
+      setCurrentStep(null);
+      setMissionData(null);
+      setMetrics(null);
+      setMissionEnded(false);
+      setMissionResult(null);
+      setRapport(null);
+      setUserId(null);
       
       // Appeler l'API pour initialiser la mission en mode terminal
       const response = await axios.post('/api/cyber-mission/init');
       
       if (response.data.success) {
+        // Mettre à jour l'état avec les données fraîches
         setUserId(response.data.userId);
-        addSystemMessage(response.data.message);
+        
+        // Ajouter le message sans utiliser addSystemMessage pour éviter les problèmes d'état
+        setMessages([{ 
+          type: 'system' as const, 
+          content: response.data.message 
+        }]);
         
         if (response.data.choices && response.data.choices.length > 0) {
           setChoices(response.data.choices);
@@ -128,19 +144,34 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
     }
   };
   
-  // Ajouter un message système
+  // Ajouter un message système - utilise une fonction callback pour garantir la consistance de l'état
   const addSystemMessage = (content: string) => {
-    setMessages(prev => [...prev, { type: 'system', content }]);
+    setMessages(currentMessages => {
+      // Créer une nouvelle copie pour éviter les problèmes de référence
+      const newMessages = [...currentMessages];
+      newMessages.push({ type: 'system', content });
+      return newMessages;
+    });
   };
   
-  // Ajouter un message utilisateur
+  // Ajouter un message utilisateur - utilise une fonction callback pour garantir la consistance de l'état
   const addUserMessage = (content: string) => {
-    setMessages(prev => [...prev, { type: 'user', content }]);
+    setMessages(currentMessages => {
+      // Créer une nouvelle copie pour éviter les problèmes de référence
+      const newMessages = [...currentMessages];
+      newMessages.push({ type: 'user', content });
+      return newMessages;
+    });
   };
   
-  // Ajouter un message de PNJ
+  // Ajouter un message de PNJ - utilise une fonction callback pour garantir la consistance de l'état
   const addPNJMessage = (content: string, pnjId: string) => {
-    setMessages(prev => [...prev, { type: 'pnj', content, pnjId }]);
+    setMessages(currentMessages => {
+      // Créer une nouvelle copie pour éviter les problèmes de référence
+      const newMessages = [...currentMessages];
+      newMessages.push({ type: 'pnj', content, pnjId });
+      return newMessages;
+    });
   };
   
   // Gérer le choix de l'utilisateur (accepter/refuser la mission)
@@ -575,7 +606,7 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
       {renderMissionInfo()}
       {renderMetricsDashboard()}
       
-      {/* Zone de messages */}
+      {/* Zone de messages - Structure complètement réécrite pour éviter les doublons */}
       <div className={`flex-grow overflow-y-auto mb-4 ${
         terminalMode 
           ? 'font-mono bg-black p-3 rounded-md border border-gray-700 shadow-inner' 
@@ -588,9 +619,17 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
           </div>
         ) : (
           <div className="space-y-2">
-            {messages.map((message, index) => (
-              renderMessage(message, index)
-            ))}
+            {messages.length > 0 ? 
+              messages.map((message, index) => (
+                <React.Fragment key={`message-${index}`}>
+                  {renderMessage(message, index)}
+                </React.Fragment>
+              ))
+              : 
+              <div className="text-gray-400 italic">
+                Aucun message
+              </div>
+            }
             <div ref={messagesEndRef} />
           </div>
         )}
