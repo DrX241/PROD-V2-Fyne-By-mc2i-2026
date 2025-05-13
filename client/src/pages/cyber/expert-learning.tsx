@@ -362,7 +362,8 @@ const CyberExpertLearning: React.FC = () => {
                     
                       {/* MODE 1: ENVIRONNEMENT DE JEU DE RÔLE - SOC VIRTUEL */}
                       <div 
-                        className="relative group cursor-pointer min-h-[25rem] overflow-hidden"
+                        className="relative group cursor-pointer min-h-[25rem] h-full overflow-hidden"
+                        style={{minHeight: '27rem'}}
                         onClick={() => {
                           setInputMessage("Initialise un jeu de rôle où je suis un RSSI face à une tentative d'intrusion. Propose différents personnages que je peux incarner et guide-moi dans une simulation réaliste.");
                           startSession();
@@ -424,7 +425,8 @@ const CyberExpertLearning: React.FC = () => {
                       
                       {/* MODE 2: ENVIRONNEMENT QCM ET EXERCICES */}
                       <div 
-                        className="relative group cursor-pointer min-h-[25rem] overflow-hidden"
+                        className="relative group cursor-pointer min-h-[25rem] h-full overflow-hidden"
+                        style={{minHeight: '27rem'}}
                         onClick={() => {
                           setInputMessage("Créé un QCM interactif de 5 questions sur la sécurité des réseaux avec différents niveaux de difficulté et explications détaillées.");
                           startSession();
@@ -480,7 +482,8 @@ const CyberExpertLearning: React.FC = () => {
                       
                       {/* MODE 3: ENVIRONNEMENT CONVERSATION LIBRE */}
                       <div 
-                        className="relative group cursor-pointer min-h-[25rem] overflow-hidden"
+                        className="relative group cursor-pointer min-h-[25rem] h-full overflow-hidden" 
+                        style={{minHeight: '27rem'}}
                         onClick={() => {
                           setInputMessage("Je voudrais apprendre à détecter et me protéger contre le phishing");
                           startSession();
@@ -502,8 +505,8 @@ const CyberExpertLearning: React.FC = () => {
                               DIALOGUE ADAPTATIF
                             </div>
                             
-                            <h3 className="font-mono text-2xl sm:text-3xl font-bold text-white mb-4">
-                              <span className="inline-block">EXPERT CYBERSÉCURITÉ</span> <span className="text-[#48cae4] inline-block">ET GESTION DE CRISE</span>
+                            <h3 className="font-mono text-xl sm:text-2xl font-bold text-white mb-2">
+                              <span className="inline">EXPERT</span> <span className="text-[#48cae4] inline">CYBERSÉCURITÉ</span> <span className="text-[#48cae4] inline">& GESTION DE CRISE</span>
                             </h3>
                             
                             <p className="text-[#c3d9ee] mb-5 max-w-md">
@@ -538,7 +541,8 @@ const CyberExpertLearning: React.FC = () => {
                       
                       {/* MODE 4: SCÉNARIOS AVANCÉS */}
                       <div 
-                        className="relative group cursor-pointer min-h-[25rem] overflow-hidden"
+                        className="relative group cursor-pointer min-h-[25rem] h-full overflow-hidden"
+                        style={{minHeight: '27rem'}}
                         onClick={() => {
                           setInputMessage("Lance un scénario de gestion de crise cybersécurité où je dois analyser une violation de données et proposer un plan d'action");
                           startSession();
