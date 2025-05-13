@@ -4749,6 +4749,19 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   app.post('/api/amoa/imposteur-simulation/message', processImposteurMessage);
   app.post('/api/amoa/imposteur-simulation/complete', completeImposteurSimulation);
   
+  // Route pour la synthèse d'entretien AMOA
+  app.post('/api/amoa/synthese-entretien', async (req: Request, res: Response) => {
+    try {
+      await generateSyntheseEntretien(req, res);
+    } catch (error) {
+      console.error('Erreur lors de la génération de la synthèse d\'entretien:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Une erreur est survenue lors de la génération de la synthèse d\'entretien' 
+      });
+    }
+  });
+  
   // Route pour le générateur de livrables
   app.post('/api/mc2i/generateur-livrables', generateLivrable);
 
