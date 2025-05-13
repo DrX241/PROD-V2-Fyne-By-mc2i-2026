@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { openai } from './services/openai';
+import { openAIService } from './services/openai';
+import { ChatCompletionRequestMessage } from '@shared/schema';
 
 // Types de générateurs disponibles
 export type LivrableGeneratorType = 
@@ -57,24 +58,15 @@ Réponds uniquement avec le document formaté, sans commentaires supplémentaire
 
 Génère un document complet et structuré d'expression de besoin fonctionnel à partir de ces informations.`;
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o", // le newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt }
-    ],
-    temperature: 0.7,
-    max_tokens: 2500,
-  });
+  const messages: ChatCompletionRequestMessage[] = [
+    { role: "system", content: systemPrompt },
+    { role: "user", content: userPrompt }
+  ];
 
-  const content = response.choices[0].message.content || '';
+  const content = await openAIService.createChatCompletion(messages, 0.7, 2500);
 
   // Extraction des sections pour l'interface accordéon
   const sections: DocumentSection[] = [];
-  const sectionRegex = /^(\d+\.\s+[A-ZÉÈÊËÀÂÔÙÛÇÑ\s']+)$/gm;
-  let lastIndex = 0;
-  let match;
-
   const lines = content.split('\n');
   let currentSection: DocumentSection | null = null;
 
@@ -142,17 +134,12 @@ Réponds uniquement avec le document formaté, sans commentaires supplémentaire
 
 Génère un plan de test fonctionnel complet et structuré à partir de ces informations.`;
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o", // le newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt }
-    ],
-    temperature: 0.7,
-    max_tokens: 2500,
-  });
+  const messages: ChatCompletionRequestMessage[] = [
+    { role: "system", content: systemPrompt },
+    { role: "user", content: userPrompt }
+  ];
 
-  const content = response.choices[0].message.content || '';
+  const content = await openAIService.createChatCompletion(messages, 0.7, 2500);
 
   // Extraction des sections pour l'interface accordéon
   const sections: DocumentSection[] = [];
@@ -230,17 +217,12 @@ ${inputs['raw-notes'] || 'Non spécifié'}
 
 Génère un compte-rendu de réunion professionnel et structuré à partir de ces notes brutes.`;
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o", // le newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt }
-    ],
-    temperature: 0.7,
-    max_tokens: 2000,
-  });
+  const messages: ChatCompletionRequestMessage[] = [
+    { role: "system", content: systemPrompt },
+    { role: "user", content: userPrompt }
+  ];
 
-  const content = response.choices[0].message.content || '';
+  const content = await openAIService.createChatCompletion(messages, 0.7, 2000);
 
   // Extraction des sections pour l'interface accordéon
   const sections: DocumentSection[] = [];
@@ -317,17 +299,12 @@ Réponds uniquement avec le document formaté, sans commentaires supplémentaire
 
 Génère un backlog initial Agile à partir de ces informations.`;
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o", // le newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt }
-    ],
-    temperature: 0.7,
-    max_tokens: 2500,
-  });
+  const messages: ChatCompletionRequestMessage[] = [
+    { role: "system", content: systemPrompt },
+    { role: "user", content: userPrompt }
+  ];
 
-  const content = response.choices[0].message.content || '';
+  const content = await openAIService.createChatCompletion(messages, 0.7, 2500);
 
   // Extraction des sections pour l'interface accordéon
   const sections: DocumentSection[] = [];
@@ -413,17 +390,12 @@ Réponds uniquement avec le document formaté, sans commentaires supplémentaire
 
 Génère une politique de sécurité adaptée à partir de ces informations.`;
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o", // le newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt }
-    ],
-    temperature: 0.7,
-    max_tokens: 2500,
-  });
+  const messages: ChatCompletionRequestMessage[] = [
+    { role: "system", content: systemPrompt },
+    { role: "user", content: userPrompt }
+  ];
 
-  const content = response.choices[0].message.content || '';
+  const content = await openAIService.createChatCompletion(messages, 0.7, 2500);
 
   // Extraction des sections pour l'interface accordéon
   const sections: DocumentSection[] = [];
