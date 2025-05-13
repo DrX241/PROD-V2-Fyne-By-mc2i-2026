@@ -10,7 +10,7 @@ export default function HomeLayout({ children, gradientBg = false }: HomeLayoutP
   const headerHeight = "70px";
   
   return (
-    <div className={`min-h-screen w-full flex flex-col ${!gradientBg ? 'bg-slate-50' : ''} overflow-x-hidden overflow-y-auto max-w-[100vw]`}>
+    <div className={`min-h-screen w-full flex flex-col ${!gradientBg ? '' : ''} overflow-x-hidden overflow-y-auto max-w-[100vw]`}>
       <Header isFeny={true} />
 
       <main className="flex-1 w-full overflow-y-auto overflow-x-hidden max-w-full pt-[70px]" style={{ 
@@ -18,7 +18,7 @@ export default function HomeLayout({ children, gradientBg = false }: HomeLayoutP
         WebkitOverflowScrolling: 'touch' // Pour une meilleure performance de défilement sur iOS
       }}>
         <div className="w-full max-w-full flex justify-center">
-          <div className="w-full max-w-7xl">
+          <div className="w-full">
             {children}
           </div>
         </div>
