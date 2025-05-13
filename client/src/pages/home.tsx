@@ -918,177 +918,191 @@ export default function Home() {
                 </Link>
               </motion.div>
               
-              {/* Arguments flottants avec animation et apparition spontanée */}
-              <div className="relative h-96 mt-16 mb-8 mx-auto">
-                {[
-                  {
-                    title: "Apprentissage personnalisé",
-                    icon: <Sparkles className="h-6 w-6" />,
-                    position: { top: "10%", left: "15%" },
-                    delay: 0.5,
-                    animation: "fade-zoom"
-                  },
-                  {
-                    title: "Engagement maximal",
-                    icon: <Target className="h-6 w-6" />,
-                    position: { top: "25%", left: "60%" },
-                    delay: 0.8,
-                    animation: "float-in"
-                  },
-                  {
-                    title: "Cas d'usages illimités",
-                    icon: <BookOpen className="h-6 w-6" />,
-                    position: { top: "60%", left: "25%" },
-                    delay: 1.3,
-                    animation: "bounce-in"
-                  },
-                  {
-                    title: "Apprentissage par le jeu",
-                    icon: <GamepadIcon className="h-6 w-6" />,
-                    position: { top: "70%", left: "70%" },
-                    delay: 1.7,
-                    animation: "slide-up"
-                  },
-                  {
-                    title: "Analyse de progression",
-                    icon: <BarChart2 className="h-6 w-6" />,
-                    position: { top: "40%", left: "30%" },
-                    delay: 2.1,
-                    animation: "pop"
-                  },
-                  {
-                    title: "Innovation continue",
-                    icon: <RocketIcon className="h-6 w-6" />,
-                    position: { top: "20%", left: "85%" },
-                    delay: 2.5,
-                    animation: "float-in"
-                  }
-                ].map((arg, index) => {
-                  // Sélection des animations en fonction du type demandé
-                  let initialAnimation = {};
-                  let animateAnimation = {};
-                  
-                  switch(arg.animation) {
-                    case "fade-zoom":
-                      initialAnimation = { opacity: 0, scale: 0.5 };
-                      animateAnimation = { opacity: 1, scale: 1 };
-                      break;
-                    case "float-in":
-                      initialAnimation = { opacity: 0, y: 40 };
-                      animateAnimation = { 
-                        opacity: 1, 
-                        y: 0,
-                        transition: {
-                          y: {
-                            type: "spring",
-                            stiffness: 100
-                          },
-                          opacity: { duration: 0.5 }
-                        }
-                      };
-                      break;
-                    case "bounce-in":
-                      initialAnimation = { opacity: 0, scale: 0 };
-                      animateAnimation = { 
-                        opacity: 1, 
-                        scale: [0, 1.2, 1],
-                        transition: {
-                          scale: {
-                            type: "spring",
-                            stiffness: 200,
-                            damping: 10
-                          },
-                          opacity: { duration: 0.5 }
-                        }
-                      };
-                      break;
-                    case "slide-up":
-                      initialAnimation = { opacity: 0, y: 100 };
-                      animateAnimation = { 
-                        opacity: 1, 
-                        y: 0,
-                        transition: {
-                          type: "tween",
-                          ease: "backOut"
-                        }
-                      };
-                      break;
-                    case "pop":
-                      initialAnimation = { opacity: 0, scale: 0.7 };
-                      animateAnimation = { 
-                        opacity: 1, 
-                        scale: [0.7, 1.15, 1],
-                        transition: {
-                          duration: 0.7
-                        }
-                      };
-                      break;
-                    default:
-                      initialAnimation = { opacity: 0 };
-                      animateAnimation = { opacity: 1 };
-                  }
-                  
-                  return (
-                    <motion.div
-                      key={index}
-                      className="absolute transform -translate-x-1/2 -translate-y-1/2"
-                      style={{
-                        top: arg.position.top,
-                        left: arg.position.left
-                      }}
-                      initial={initialAnimation}
-                      animate={animateAnimation}
-                      transition={{ delay: arg.delay }}
-                    >
-                      <motion.div
-                        className={`flex items-center gap-3 ${
-                          isFuturistic 
-                            ? 'text-cyan-300' 
-                            : 'text-blue-700'
-                        }`}
-                        whileHover={{ scale: 1.1 }}
-                        animate={{ 
-                          y: [0, -10, 0],
-                        }}
-                        transition={{ 
-                          y: { 
-                            duration: 3 + index, 
-                            repeat: Infinity,
-                            repeatType: "mirror",
-                            ease: "easeInOut" 
+              {/* Arguments avec animations et descriptions visibles */}
+              <div className="mt-20 mb-12">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto px-4">
+                  {[
+                    {
+                      title: "Apprentissage personnalisé",
+                      description: "Expérience adaptée à votre rythme et à vos besoins spécifiques grâce à l'IA générative",
+                      icon: <Sparkles className="h-6 w-6" />,
+                      delay: 0.2,
+                      animation: "fade-zoom"
+                    },
+                    {
+                      title: "Engagement maximal",
+                      description: "Contenu dynamique et interactif qui stimule la participation active et l'immersion",
+                      icon: <Target className="h-6 w-6" />,
+                      delay: 0.4,
+                      animation: "float-in"
+                    },
+                    {
+                      title: "Cas d'usages illimités",
+                      description: "Scénarios variés générés à la demande pour une pratique concrète et personnalisée",
+                      icon: <BookOpen className="h-6 w-6" />,
+                      delay: 0.6,
+                      animation: "bounce-in"
+                    },
+                    {
+                      title: "Apprentissage par le jeu",
+                      description: "Mémorisation améliorée grâce à des approches ludiques et gamifiées favorisant l'engagement",
+                      icon: <GamepadIcon className="h-6 w-6" />,
+                      delay: 0.8,
+                      animation: "slide-up"
+                    },
+                    {
+                      title: "Analyse de progression",
+                      description: "Suivi détaillé de votre évolution avec visualisation claire des forces et axes d'amélioration",
+                      icon: <BarChart2 className="h-6 w-6" />,
+                      delay: 1.0,
+                      animation: "pop"
+                    },
+                    {
+                      title: "Innovation continue",
+                      description: "Formation évolutive intégrant les dernières avancées technologiques et pédagogiques",
+                      icon: <RocketIcon className="h-6 w-6" />,
+                      delay: 1.2,
+                      animation: "float-in"
+                    }
+                  ].map((arg, index) => {
+                    // Sélection des animations en fonction du type demandé
+                    let initialAnimation = {};
+                    let animateAnimation = {};
+                    
+                    switch(arg.animation) {
+                      case "fade-zoom":
+                        initialAnimation = { opacity: 0, scale: 0.5 };
+                        animateAnimation = { opacity: 1, scale: 1 };
+                        break;
+                      case "float-in":
+                        initialAnimation = { opacity: 0, y: 40 };
+                        animateAnimation = { 
+                          opacity: 1, 
+                          y: 0,
+                          transition: {
+                            y: {
+                              type: "spring",
+                              stiffness: 100
+                            },
+                            opacity: { duration: 0.5 }
                           }
-                        }}
+                        };
+                        break;
+                      case "bounce-in":
+                        initialAnimation = { opacity: 0, scale: 0 };
+                        animateAnimation = { 
+                          opacity: 1, 
+                          scale: [0, 1.2, 1],
+                          transition: {
+                            scale: {
+                              type: "spring",
+                              stiffness: 200,
+                              damping: 10
+                            },
+                            opacity: { duration: 0.5 }
+                          }
+                        };
+                        break;
+                      case "slide-up":
+                        initialAnimation = { opacity: 0, y: 100 };
+                        animateAnimation = { 
+                          opacity: 1, 
+                          y: 0,
+                          transition: {
+                            type: "tween",
+                            ease: "backOut"
+                          }
+                        };
+                        break;
+                      case "pop":
+                        initialAnimation = { opacity: 0, scale: 0.7 };
+                        animateAnimation = { 
+                          opacity: 1, 
+                          scale: [0.7, 1.15, 1],
+                          transition: {
+                            duration: 0.7
+                          }
+                        };
+                        break;
+                      default:
+                        initialAnimation = { opacity: 0 };
+                        animateAnimation = { opacity: 1 };
+                    }
+                    
+                    return (
+                      <motion.div
+                        key={index}
+                        initial={initialAnimation}
+                        animate={animateAnimation}
+                        transition={{ delay: arg.delay }}
+                        className="flex flex-col items-center"
                       >
                         <motion.div
-                          className={`inline-flex items-center justify-center p-2.5 rounded-full ${
+                          className={`flex items-center justify-center mb-3 p-3.5 rounded-full ${
                             isFuturistic 
-                              ? 'bg-blue-800/50 backdrop-blur-sm border border-blue-500/30' 
-                              : 'bg-blue-100 border border-blue-200'
+                              ? 'bg-blue-800/50 backdrop-blur-sm border border-blue-500/30 text-cyan-300' 
+                              : 'bg-blue-100 border border-blue-200 text-blue-700'
                           }`}
                           whileHover={{ 
                             rotate: 15,
+                            scale: 1.1,
                             boxShadow: isFuturistic 
                               ? '0 0 20px rgba(59, 130, 246, 0.5)' 
                               : '0 0 15px rgba(59, 130, 246, 0.2)'
                           }}
+                          animate={{ 
+                            y: [0, -6, 0],
+                          }}
+                          transition={{ 
+                            y: { 
+                              duration: 3 + index * 0.5, 
+                              repeat: Infinity,
+                              repeatType: "mirror",
+                              ease: "easeInOut" 
+                            }
+                          }}
                         >
                           {arg.icon}
                         </motion.div>
-                        <motion.p 
-                          className={`text-base font-bold ${
-                            isFuturistic ? 'text-cyan-300 font-cyber-accent' : 'text-blue-700'
-                          }`}
-                          whileHover={{ 
-                            scale: 1.05, 
-                            color: isFuturistic ? '#7dd3fc' : '#2563eb' 
-                          }}
+                        
+                        <motion.div
+                          className="text-center"
+                          whileHover={{ y: -3 }}
                         >
-                          {arg.title}
-                        </motion.p>
+                          <motion.h3 
+                            className={`text-lg font-bold mb-2 ${
+                              isFuturistic ? 'text-cyan-300 font-cyber-accent' : 'text-blue-700'
+                            }`}
+                          >
+                            {arg.title}
+                          </motion.h3>
+                          <motion.p 
+                            className={`text-sm max-w-xs mx-auto ${
+                              isFuturistic ? 'text-blue-100' : 'text-gray-600'
+                            }`}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: arg.delay + 0.3 }}
+                          >
+                            {arg.description}
+                          </motion.p>
+                          
+                          <motion.div
+                            className={`w-16 h-1 mt-3 mx-auto rounded-full ${
+                              isFuturistic 
+                                ? 'bg-gradient-to-r from-blue-500 to-cyan-400' 
+                                : 'bg-blue-500'
+                            }`}
+                            initial={{ width: 0, opacity: 0 }}
+                            whileInView={{ width: 64, opacity: 1 }}
+                            transition={{ duration: 0.6, delay: 0.2 }}
+                            viewport={{ once: true }}
+                          />
+                        </motion.div>
                       </motion.div>
-                    </motion.div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
             
