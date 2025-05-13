@@ -503,8 +503,7 @@ const CyberExpertLearning: React.FC = () => {
                             </div>
                             
                             <h3 className="font-mono text-2xl sm:text-3xl font-bold text-white mb-4">
-                              EXPERT<br/>
-                              <span className="text-[#48cae4]">CYBERSÉCURITÉ</span>
+                              <span className="inline-block">EXPERT CYBERSÉCURITÉ</span> <span className="text-[#48cae4] inline-block">ET GESTION DE CRISE</span>
                             </h3>
                             
                             <p className="text-[#c3d9ee] mb-5 max-w-md">
