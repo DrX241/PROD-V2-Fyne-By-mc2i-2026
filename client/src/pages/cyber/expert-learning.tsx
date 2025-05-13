@@ -210,13 +210,16 @@ const CyberExpertLearning: React.FC = () => {
       }
       
       // Sinon, envoyer à l'API normale
-      const response = await apiRequest<{success: boolean, message: string, sessionStatus: SessionStatus}>('/api/cyber-expert/message', {
+      const response = await fetch('/api/cyber-expert/message', {
         method: 'POST',
-        data: {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           message: inputMessage,
           userId,
           messages: messages.map(m => ({ role: m.type === 'user' ? 'user' : 'assistant', content: m.content }))
-        }
+        })
       });
       
       if (!response.ok) {
@@ -680,6 +683,15 @@ const CyberExpertLearning: React.FC = () => {
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => window.location.href = "/cyber"}
+                      className="border-[#e63946]/50 bg-[#091525]/60 text-[#e63946] hover:bg-[#112641] text-xs py-1"
+                    >
+                      <ArrowLeft className="h-3.5 w-3.5 mr-1" />
+                      RETOUR AU CYBERSPACE
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => setInputMessage("Aide: montre-moi toutes les commandes")}
                       className="border-[#00b4d8]/50 bg-[#091525]/60 text-[#00b4d8] hover:bg-[#112641] text-xs py-1"
                     >
@@ -702,104 +714,113 @@ const CyberExpertLearning: React.FC = () => {
                 
                 {/* Corps principal divisé en deux sections: zone d'info à gauche et chat à droite */}
                 <div className="flex flex-1 overflow-hidden h-[calc(100vh-56px)]">
-                  {/* Panneau latéral gauche - informations contextuelles */}
-                  <div className="w-1/4 bg-[#050a15]/95 border-r border-[#00b4d8]/20 text-white overflow-y-auto hide-scrollbar">
-                    {/* Progression de l'apprentissage */}
-                    <div className="px-4 py-6 border-b border-[#00b4d8]/20">
-                      <h3 className="text-[#00b4d8] font-mono text-sm font-bold mb-3 flex items-center">
-                        <svg className="h-4 w-4 mr-2 text-[#00b4d8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  {/* Panneau latéral gauche - informations contextuelles spécifiques à la gestion de crise */}
+                  <div className="w-1/4 bg-[#050a15]/95 border-r border-[#e63946]/20 text-white overflow-y-auto hide-scrollbar">
+                    {/* En-tête du mode Gestion de crise */}
+                    <div className="bg-[#e63946]/10 p-4 border-b border-[#e63946]/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="h-3 w-3 bg-[#e63946] rounded-full animate-pulse"></div>
+                        <h3 className="text-[#e63946] font-mono text-sm font-bold">MODE GESTION DE CRISE</h3>
+                      </div>
+                      <p className="text-[#c3d9ee]/80 text-xs">Interface spécialisée pour la simulation de scénarios critiques de cybersécurité.</p>
+                    </div>
+                    
+                    {/* Niveau d'alerte et timer */}
+                    <div className="px-4 py-5 border-b border-[#e63946]/20">
+                      <h3 className="text-[#e63946] font-mono text-sm font-bold mb-3 flex items-center">
+                        <svg className="h-4 w-4 mr-2 text-[#e63946]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        PROGRESSION
+                        NIVEAU D'ALERTE
                       </h3>
                       <div className="space-y-2">
                         <div className="w-full bg-[#091525] rounded-full h-2.5">
-                          <div className="bg-gradient-to-r from-[#00b4d8] to-[#4cc9f0] h-2.5 rounded-full" style={{ width: '35%' }}></div>
+                          <div className="bg-gradient-to-r from-[#e63946] to-[#ff6b6b] h-2.5 rounded-full" style={{ width: '85%' }}></div>
                         </div>
                         <div className="flex justify-between text-xs text-[#c3d9ee]/70">
-                          <span>Débutant</span>
-                          <span>Intermédiaire</span>
-                          <span>Avancé</span>
+                          <span>Modéré</span>
+                          <span>Élevé</span>
+                          <span className="text-[#e63946]">Critique</span>
                         </div>
                       </div>
                     </div>
                     
-                    {/* Données de la session courante */}
-                    <div className="px-4 py-6 border-b border-[#00b4d8]/20">
-                      <h3 className="text-[#00b4d8] font-mono text-sm font-bold mb-3 flex items-center">
-                        <svg className="h-4 w-4 mr-2 text-[#00b4d8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    {/* Données de l'incident */}
+                    <div className="px-4 py-5 border-b border-[#e63946]/20">
+                      <h3 className="text-[#e63946] font-mono text-sm font-bold mb-3 flex items-center">
+                        <svg className="h-4 w-4 mr-2 text-[#e63946]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        INFOS SESSION
+                        DÉTAILS DE L'INCIDENT
                       </h3>
                       <div className="space-y-3 text-sm text-[#c3d9ee]/80">
                         <div className="flex justify-between">
-                          <span>Topic:</span>
-                          <span className="text-[#00b4d8]">{sessionStatus?.topic || "En découverte"}</span>
+                          <span>Type:</span>
+                          <span className="text-[#e63946]">{sessionStatus?.topic || "Violation de données"}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span>Niveau actuel:</span>
-                          <span className="text-[#00b4d8]">Adaptatif</span>
+                          <span>Systèmes affectés:</span>
+                          <span className="text-[#e63946]">Serveurs BDD, DMZ</span>
                         </div>
                         <div className="flex justify-between">
-                          <span>Étape:</span>
-                          <span className="text-[#00b4d8]">{sessionStatus?.currentStage || "exploration"}</span>
+                          <span>Vecteur:</span>
+                          <span className="text-[#e63946]">APT</span>
                         </div>
                         <div className="flex justify-between">
-                          <span>Messages:</span>
-                          <span className="text-[#00b4d8]">{messages.length}</span>
+                          <span>Étape d'attaque:</span>
+                          <span className="text-[#e63946]">Exfiltration</span>
                         </div>
                       </div>
                     </div>
                     
-                    {/* Commandes et aide rapide */}
-                    <div className="px-4 py-6 border-b border-[#00b4d8]/20">
-                      <h3 className="text-[#00b4d8] font-mono text-sm font-bold mb-3 flex items-center">
-                        <svg className="h-4 w-4 mr-2 text-[#00b4d8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    {/* Actions de crise */}
+                    <div className="px-4 py-5 border-b border-[#e63946]/20">
+                      <h3 className="text-[#e63946] font-mono text-sm font-bold mb-3 flex items-center">
+                        <svg className="h-4 w-4 mr-2 text-[#e63946]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                         </svg>
-                        COMMANDES RAPIDES
+                        ACTIONS DE CRISE
                       </h3>
                       <div className="space-y-2">
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#00b4d8] hover:bg-[#112641]"
-                          onClick={() => setInputMessage("Crée un QCM sur ce sujet")}
-                        >
-                          <span className="w-2 h-2 bg-[#4cc9f0] rounded-full mr-2"></span>
-                          Mode QCM rapide
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#00b4d8] hover:bg-[#112641]"
-                          onClick={() => setInputMessage("Commencer un jeu de rôle avec des PNJ")}
-                        >
-                          <span className="w-2 h-2 bg-[#00b4d8] rounded-full mr-2"></span>
-                          Activer mode jeu de rôle
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#00b4d8] hover:bg-[#112641]"
-                          onClick={() => setInputMessage("Lance un scénario de gestion de crise")}
+                          className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#e63946] hover:bg-[#112641]"
+                          onClick={() => setInputMessage("Analyser les logs de sécurité")}
                         >
                           <span className="w-2 h-2 bg-[#e63946] rounded-full mr-2"></span>
-                          Scénario de crise
+                          Analyser les logs
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#e63946] hover:bg-[#112641]"
+                          onClick={() => setInputMessage("Activer le plan de contingence")}
+                        >
+                          <span className="w-2 h-2 bg-[#e63946] rounded-full mr-2"></span>
+                          Plan de contingence
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#e63946] hover:bg-[#112641]"
+                          onClick={() => setInputMessage("Communiquer avec les parties prenantes")}
+                        >
+                          <span className="w-2 h-2 bg-[#e63946] rounded-full mr-2"></span>
+                          Communication de crise
                         </Button>
                       </div>
                     </div>
                     
-                    {/* Section "Le saviez-vous?" */}
-                    <div className="px-4 py-6">
-                      <div className="bg-[#091525]/60 border border-[#00b4d8]/30 rounded-lg p-4 shadow-inner">
-                        <h3 className="text-[#00b4d8] font-mono text-sm font-bold mb-3 flex items-center">
+                    {/* Ressources d'urgence */}
+                    <div className="px-4 py-5">
+                      <div className="bg-[#091525]/60 border border-[#e63946]/30 rounded-lg p-4 shadow-inner">
+                        <h3 className="text-[#e63946] font-mono text-sm font-bold mb-3 flex items-center">
                           <LightbulbIcon className="h-4 w-4 mr-2" />
-                          LE SAVIEZ-VOUS ?
+                          DIRECTIVE D'URGENCE
                         </h3>
                         <p className="text-[#c3d9ee]/80 text-xs leading-relaxed">
-                          {getMessage(Math.floor(Math.random() * 8))}
+                          En cas d'incident critique, prioriser l'isolation des systèmes compromis, la préservation des preuves, et la mise en place des mesures de remediation selon les procédures établies.
                         </p>
                       </div>
                     </div>
@@ -947,48 +968,48 @@ const CyberExpertLearning: React.FC = () => {
                     
                     {/* Zone de saisie fixe en bas - toujours visible */}
                     <div className="px-6 py-4 bg-[#091525]/90 backdrop-blur-md border-t border-[#00b4d8]/20 shadow-[0_-4px_20px_rgba(0,0,0,0.2)]">
-                      {/* Quick commands and suggestions */}
+                      {/* Quick commands and suggestions spécifiques à la gestion de crise */}
                       <div className="mb-3">
                         <div className="flex flex-wrap gap-2">
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setInputMessage("Comment me protéger contre le phishing ?")}
-                            className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                            onClick={() => setInputMessage("Quelles sont les premières actions à entreprendre face à cette violation de données ?")}
+                            className="border-[#e63946]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#e63946] text-xs py-1"
                           >
-                            Protection phishing
+                            Actions immédiates
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setInputMessage("Explique-moi les ransomwares")}
-                            className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                            onClick={() => setInputMessage("Comment identifier l'étendue de la compromise ?")}
+                            className="border-[#e63946]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#e63946] text-xs py-1"
                           >
-                            Ransomwares
+                            Évaluation d'impact
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setInputMessage("Comment sécuriser mon Wi-Fi ?")}
-                            className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                            onClick={() => setInputMessage("Quelles informations communiquer à la direction ?")}
+                            className="border-[#e63946]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#e63946] text-xs py-1"
                           >
-                            Sécurité Wi-Fi
+                            Communication interne
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setInputMessage("Crée un exercice pratique")}
-                            className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                            onClick={() => setInputMessage("Propose un plan de remédiation détaillé")}
+                            className="border-[#e63946]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#e63946] text-xs py-1"
                           >
-                            Exercice pratique
+                            Plan de remédiation
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setInputMessage("Mode jeu de rôle")}
-                            className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                            onClick={() => setInputMessage("Simulation de la cellule de crise avec le COMEX")}
+                            className="border-[#e63946]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#e63946] text-xs py-1"
                           >
-                            Jeu de rôle
+                            Cellule de crise
                           </Button>
                         </div>
                       </div>
