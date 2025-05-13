@@ -111,7 +111,6 @@ export default function AmoaModeSelection() {
       icon: <BsLightbulb className="h-5 w-5 text-indigo-200" />,
       destination: '/amoa/expert-learning',
       difficulty: 'tous niveaux',
-      isNew: true,
       comingSoon: false
     },
     {
@@ -121,7 +120,6 @@ export default function AmoaModeSelection() {
       icon: <FaGraduationCap className="h-5 w-5 text-violet-200" />,
       destination: '/amoa/academie',
       difficulty: 'tous niveaux',
-      isNew: true,
       comingSoon: false
     },
     {
@@ -165,9 +163,8 @@ export default function AmoaModeSelection() {
       title: 'QUI EST L\'IMPOSTEUR ?',
       description: 'Simulation d\'entretien avec analyse des réponses pour évaluer les compétences et la cohérence du candidat.',
       icon: <RiUserSearchLine className="h-5 w-5 text-purple-200" />,
-      destination: '/amoa/qui-est-imposteur',
+      destination: '/amoa/imposteur-simulation',
       difficulty: 'avancé',
-      isNew: true,
       comingSoon: false
     }
   ];
@@ -188,7 +185,7 @@ export default function AmoaModeSelection() {
       description: "Mettez en pratique vos connaissances avec des exercices interactifs et des simulations",
       icon: <IoDesktopOutline className="h-6 w-6 text-indigo-100" />,
       gradient: 'from-indigo-700 to-indigo-900',
-      modules: ['projet-imposteur']
+      modules: ['projet-imposteur', 'qui-est-imposteur']
     },
     {
       id: 'sevaluer',
@@ -196,7 +193,7 @@ export default function AmoaModeSelection() {
       description: "Testez vos compétences dans des conditions réelles d'examen ou d'entretien",
       icon: <IoTrophyOutline className="h-6 w-6 text-purple-100" />,
       gradient: 'from-purple-700 to-purple-900',
-      modules: ['interview-simulation', 'test-reflexes', 'qui-est-imposteur']
+      modules: ['interview-simulation', 'test-reflexes']
     },
     {
       id: 'creer',
