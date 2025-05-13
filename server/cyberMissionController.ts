@@ -138,7 +138,7 @@ export async function initMissionTerminal(req: Request, res: Response) {
       success: true,
       userId,
       message: welcomeMessage,
-      terminaMode: true,
+      terminalMode: true,
       choices: [
         { id: 'accepter', text: 'OUI - Accepter la mission' },
         { id: 'refuser', text: 'NON - Refuser la mission' }
