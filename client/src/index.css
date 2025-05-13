@@ -540,6 +540,100 @@
   .custom-scrollbar.cyber-expert::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 180, 216, 0.6);
   }
+  
+  /* Styles immersifs pour la partie cyber - vraiment plein écran sans bordures */
+  .cyber-immersive {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Animation de texte type machine à écrire */
+  .typewriter-text {
+    overflow: hidden;
+    border-right: 2px solid #00b4d8;
+    white-space: nowrap;
+    margin: 0 auto;
+    animation: 
+      typing 3.5s steps(40, end),
+      blink-caret .75s step-end infinite;
+  }
+  
+  @keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+  
+  @keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: #00b4d8 }
+  }
+  
+  /* Masquer la scrollbar sur certains éléments tout en gardant la fonctionnalité */
+  .hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+  
+  /* Animation de gradient en fond pour effets cyberpunk */
+  .cyber-gradient-bg {
+    background: linear-gradient(45deg, #091525, #112641, #0c3c60);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+  }
+  
+  @keyframes gradientBG {
+    0% { background-position: 0% 50% }
+    50% { background-position: 100% 50% }
+    100% { background-position: 0% 50% }
+  }
+  
+  /* Animations pour les interfaces cyber */
+  @keyframes pulse-glow {
+    0% { box-shadow: 0 0 5px rgba(0, 180, 216, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(0, 180, 216, 0.8); }
+    100% { box-shadow: 0 0 5px rgba(0, 180, 216, 0.5); }
+  }
+  
+  .cyber-glow {
+    animation: pulse-glow 2s infinite;
+  }
+  
+  /* Effet de transition pour les images de fond */
+  .cyber-bg-transition {
+    transition: all 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+  }
+  
+  /* Styles pour les différents modes */
+  .roleplay-mode {
+    background-image: url('https://images.unsplash.com/photo-1574586798873-51420e12bdc8?q=80&w=1470&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .qcm-mode {
+    background-image: url('https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1470&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .conversation-mode {
+    background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1470&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .scenario-mode {
+    background-image: url('https://images.unsplash.com/photo-1544890225-2f3faec4cd60?q=80&w=1625&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+  }
 
   /* Classes pour optimiser l'espace */
   .full-width-container {
