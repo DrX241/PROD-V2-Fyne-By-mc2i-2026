@@ -1364,27 +1364,25 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.2 }}
                 viewport={{ once: true }}
-                className={`rounded-2xl overflow-hidden ${
+                className={`rounded-xl overflow-hidden ${
                   isFuturistic 
                     ? 'bg-blue-900/20 border border-blue-500/30 backdrop-blur-sm' 
-                    : 'bg-white border border-gray-100 shadow-lg'
-                } hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}
+                    : 'bg-white border border-gray-200 shadow-md'
+                }`}
               >
-                <div className="p-8 group">
-                  <div className={`mb-6 inline-flex rounded-full p-5 ${
+                <div className="p-8">
+                  <div className={`mb-6 inline-flex rounded-xl p-4 ${
                     isFuturistic
-                      ? 'bg-gradient-to-br from-blue-800/60 to-blue-900/80 text-cyan-300 shadow-inner shadow-blue-500/20'
-                      : 'bg-gradient-to-br from-blue-100 to-indigo-100/80 text-blue-700 shadow-inner shadow-blue-200/50'
+                      ? 'bg-blue-800/50 text-cyan-300'
+                      : 'bg-blue-100 text-blue-700'
                   }`}>
-                    <div className="scale-125 transform transition-transform duration-300 group-hover:scale-150">
+                    <div className="scale-125">
                       {tech.icon}
                     </div>
                   </div>
                   
                   <h3 className={`text-2xl font-bold mb-4 ${
-                    isFuturistic 
-                      ? 'text-cyan-300 font-cyber-accent bg-gradient-to-r from-cyan-300 to-blue-400 text-transparent bg-clip-text' 
-                      : 'text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-700'
+                    isFuturistic ? 'text-cyan-300 font-cyber-accent' : 'text-blue-700'
                   }`}>
                     {tech.title}
                   </h3>
@@ -1395,34 +1393,26 @@ export default function Home() {
                     {tech.description}
                   </p>
                   
-                  <div className="space-y-3 mt-auto">
+                  <div className="space-y-3">
                     {tech.features.map((feature, i) => (
                       <div 
                         key={i} 
                         className={`flex items-center ${
                           isFuturistic ? 'text-blue-200/70' : 'text-gray-700'
-                        } transition-all duration-300 group-hover:translate-x-1`}
+                        }`}
                       >
-                        <span className={`flex items-center justify-center h-5 w-5 rounded-full mr-3 ${
-                          isFuturistic 
-                            ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-400/30' 
-                            : 'bg-blue-100 text-blue-600 border border-blue-200'
-                        }`}>
-                          <Check className="h-3 w-3" />
-                        </span>
+                        <Check className={`h-5 w-5 mr-3 ${
+                          isFuturistic ? 'text-cyan-400' : 'text-blue-500'
+                        }`} />
                         <span className="text-base">{feature}</span>
                       </div>
                     ))}
                   </div>
                 </div>
                 
-                {/* Effet décoratif en bas */}
-                {isFuturistic ? (
-                  <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 opacity-70 relative">
-                    <div className="absolute bottom-0 left-1/2 w-12 h-1.5 bg-white blur-sm opacity-60 animate-pulse"></div>
-                  </div>
-                ) : (
-                  <div className="h-1 w-2/3 mx-auto bg-gradient-to-r from-blue-200 via-indigo-300 to-blue-200 rounded-full opacity-70"></div>
+                {/* Effet de bordure animée - uniquement en mode futuriste */}
+                {isFuturistic && (
+                  <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 opacity-70"></div>
                 )}
               </motion.div>
             ))}
@@ -1430,48 +1420,26 @@ export default function Home() {
           
           {/* Citation ou témoignage */}
           <motion.div 
-            className={`mt-16 rounded-2xl p-10 ${
+            className={`mt-16 rounded-xl p-8 ${
               isFuturistic 
-                ? 'bg-gradient-to-br from-blue-900/30 to-indigo-900/30 border border-blue-500/20 backdrop-blur-sm shadow-lg' 
-                : 'bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200 shadow-xl'
+                ? 'bg-gradient-to-br from-blue-900/30 to-indigo-900/30 border border-blue-500/20 backdrop-blur-sm' 
+                : 'bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200'
             }`}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.5 }}
             viewport={{ once: true }}
           >
-            <div className="flex flex-col items-center text-center relative">
-              {/* Éléments décoratifs */}
-              <div className="absolute top-0 left-10 w-20 h-20 rounded-full bg-blue-500/5 backdrop-blur-xl"></div>
-              <div className="absolute bottom-0 right-10 w-16 h-16 rounded-full bg-indigo-500/5 backdrop-blur-xl"></div>
+            <div className="flex flex-col items-center text-center">
+              <QuoteIcon className={`h-12 w-12 mb-6 ${isFuturistic ? 'text-blue-400/60' : 'text-blue-400/40'}`} />
               
-              <div className={`relative p-3 rounded-full mb-8 ${
-                isFuturistic
-                  ? 'bg-blue-800/30 border border-blue-500/20'
-                  : 'bg-blue-100/70 border border-blue-200'
-              }`}>
-                <QuoteIcon className={`h-12 w-12 ${
-                  isFuturistic
-                    ? 'text-cyan-300'
-                    : 'text-blue-600'
-                }`} />
-              </div>
-              
-              <blockquote className="mb-8 relative">
-                <p className={`text-2xl italic font-light leading-relaxed ${
-                  isFuturistic
-                    ? 'text-blue-100'
-                    : 'text-gray-700'
-                }`}>
+              <blockquote className="mb-6">
+                <p className={`text-xl italic ${isFuturistic ? 'text-white' : 'text-gray-700'}`}>
                   "L'intelligence artificielle ne remplace pas l'intelligence humaine, elle l'augmente. Notre plateforme combine le meilleur des deux pour créer une expérience d'apprentissage inégalée."
                 </p>
               </blockquote>
               
-              <div className={`font-semibold ${
-                isFuturistic
-                  ? 'text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400'
-                  : 'text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-700'
-              }`}>
+              <div className={`font-semibold ${isFuturistic ? 'text-cyan-300' : 'text-blue-700'}`}>
                 Direction de l'Innovation
               </div>
               <div className={`text-sm ${isFuturistic ? 'text-blue-200/60' : 'text-gray-500'}`}>
