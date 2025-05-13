@@ -4747,6 +4747,9 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   app.post('/api/amoa/imposteur-simulation/start', startImposteurSimulation);
   app.post('/api/amoa/imposteur-simulation/message', processImposteurMessage);
   app.post('/api/amoa/imposteur-simulation/complete', completeImposteurSimulation);
+  
+  // Route pour le générateur de livrables
+  app.post('/api/mc2i/generateur-livrables', generateLivrable);
 
   // Fin des routes API
 
