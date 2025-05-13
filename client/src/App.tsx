@@ -173,6 +173,15 @@ function App() {
                   );
                 }} />
                 
+                <Route path="/amoa/imposteur-simulation" component={() => {
+                  const ImposteurSimulation = lazy(() => import('./pages/amoa/imposteur-simulation'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <ImposteurSimulation />
+                    </Suspense>
+                  );
+                }} />
+                
                 {/* Routes pour les modules mc2i qui ne fonctionnaient pas */}
                 <Route path="/amoa/test-reflexes" component={() => {
                   const TestReflexesComponent = lazy(() => import('./pages/amoa/test-reflexes-fixed'));
