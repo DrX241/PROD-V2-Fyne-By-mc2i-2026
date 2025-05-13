@@ -297,8 +297,8 @@ export default function ImposteurSimulation() {
       <div className="mx-auto container max-w-5xl py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Préparation d'audition</h1>
-            <p className="text-lg text-muted-foreground mt-1">
+            <h1 className="text-3xl font-bold text-gray-900">Préparation d'audition</h1>
+            <p className="text-lg text-blue-800 mt-1">
               Simulation d'entretien avec analyse détaillée de vos réponses
             </p>
           </div>
