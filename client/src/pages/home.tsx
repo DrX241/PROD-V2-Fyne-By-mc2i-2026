@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useLocation } from 'wouter';
 import HomeLayout from "@/components/layout/HomeLayout";
-import { ArrowRight, Layers, BookOpen, GraduationCap, Lock, ShieldCheck, AlertTriangle, Sparkles, ChevronDown, Clock, Book, Zap, GamepadIcon, RocketIcon, Brain, Target, BarChart2 } from "lucide-react";
+import { ArrowRight, Layers, BookOpen, GraduationCap, Lock, ShieldCheck, AlertTriangle, Sparkles, ChevronDown, Clock, Book, Zap, GamepadIcon, RocketIcon, Brain, Target, BarChart2, Cpu, LineChart, PenTool, Check, Quote as QuoteIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -1279,7 +1279,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Section Scénarios AMOA - Générés automatiquement par IA */}
+      {/* Section Technologies d'IA utilisées */}
       <div className={`relative ${isFuturistic ? 'bg-gradient-to-b from-blue-950 to-gray-900' : 'bg-white'} py-16 lg:py-24 relative overflow-hidden`}>
         {/* Fond étoilé subtil - uniquement en mode futuriste */}
         {isFuturistic && (
@@ -1308,7 +1308,144 @@ export default function Home() {
           </div>
         )}
         
-        {/* Section des scénarios supprimée - Maintenant disponible uniquement dans GAMIFICATION AVANCÉE de I AM mc2i */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Titre de la section */}
+          <div className="text-center mb-16">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              viewport={{ once: true }}
+            >
+              <div className="inline-block mb-4">
+                <span className={`px-4 py-1 rounded-full text-sm font-semibold ${isFuturistic ? 'bg-blue-900/60 text-cyan-300 border-blue-500/30' : 'bg-blue-600/80 text-white border-blue-400/50'} font-cyber-accent tracking-wide border backdrop-blur-sm`}>
+                  Propulsé par l'IA
+                </span>
+              </div>
+              <h2 className={`text-3xl sm:text-4xl font-bold ${isFuturistic ? 'text-white' : 'text-blue-900'} mb-4 font-cyber-title tracking-wide`}>
+                Technologies <span className={`${isFuturistic ? 'text-cyan-400' : 'text-blue-600'} relative`}>
+                  avancées
+                  <svg className="absolute bottom-0 left-0 w-full" height="5" viewBox="0 0 200 5" preserveAspectRatio="none">
+                    <path d="M0 5 Q 40 0, 80 2 T 160 3 T 200 0 V 5 H 0 Z" fill={isFuturistic ? "rgba(34, 211, 238, 0.4)" : "rgba(37, 99, 235, 0.4)"} />
+                  </svg>
+                </span>
+              </h2>
+              <p className={`text-xl ${isFuturistic ? 'text-blue-100/90' : 'text-slate-700'} max-w-3xl mx-auto font-cyber-body`}>
+                Découvrez les modèles d'intelligence artificielle qui alimentent notre plateforme
+              </p>
+            </motion.div>
+          </div>
+          
+          {/* Cartes de technologie */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                title: "Azure OpenAI GPT-4o",
+                description: "Notre modèle principal de génération de contenu, capable de comprendre et créer du texte avancé avec une compréhension nuancée du contexte professionnel.",
+                icon: <Cpu className="h-8 w-8" />,
+                features: ["Compréhension contextuelle", "Personnalisation avancée", "Support multilingue"]
+              },
+              {
+                title: "Analyse comportementale",
+                description: "Algorithmes qui évaluent vos interactions pour adapter automatiquement la difficulté et le contenu en fonction de votre progression et vos points forts.",
+                icon: <LineChart className="h-8 w-8" />,
+                features: ["Adaptation intelligente", "Analyse personnalisée", "Progression optimisée"]
+              },
+              {
+                title: "Génération de scénarios",
+                description: "Moteur créatif qui produit des cas d'usage, simulations et questionnaires uniques pour chaque session d'apprentissage.",
+                icon: <PenTool className="h-8 w-8" />,
+                features: ["Cas pratiques réalistes", "Variété infinie", "Pertinence sectorielle"]
+              }
+            ].map((tech, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.2 }}
+                viewport={{ once: true }}
+                className={`rounded-xl overflow-hidden ${
+                  isFuturistic 
+                    ? 'bg-blue-900/20 border border-blue-500/30 backdrop-blur-sm' 
+                    : 'bg-white border border-gray-200 shadow-md'
+                }`}
+              >
+                <div className="p-6">
+                  <div className={`mb-5 inline-flex rounded-xl p-3 ${
+                    isFuturistic
+                      ? 'bg-blue-800/50 text-cyan-300'
+                      : 'bg-blue-100 text-blue-700'
+                  }`}>
+                    {tech.icon}
+                  </div>
+                  
+                  <h3 className={`text-xl font-bold mb-3 ${
+                    isFuturistic ? 'text-cyan-300 font-cyber-accent' : 'text-blue-700'
+                  }`}>
+                    {tech.title}
+                  </h3>
+                  
+                  <p className={`mb-5 ${
+                    isFuturistic ? 'text-blue-100/90' : 'text-gray-600'
+                  }`}>
+                    {tech.description}
+                  </p>
+                  
+                  <div className="space-y-2">
+                    {tech.features.map((feature, i) => (
+                      <div 
+                        key={i} 
+                        className={`flex items-center ${
+                          isFuturistic ? 'text-blue-200/70' : 'text-gray-700'
+                        }`}
+                      >
+                        <Check className={`h-4 w-4 mr-2 ${
+                          isFuturistic ? 'text-cyan-400' : 'text-blue-500'
+                        }`} />
+                        <span className="text-sm">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Effet de bordure animée - uniquement en mode futuriste */}
+                {isFuturistic && (
+                  <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 opacity-70"></div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+          
+          {/* Citation ou témoignage */}
+          <motion.div 
+            className={`mt-16 rounded-xl p-8 ${
+              isFuturistic 
+                ? 'bg-gradient-to-br from-blue-900/30 to-indigo-900/30 border border-blue-500/20 backdrop-blur-sm' 
+                : 'bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200'
+            }`}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.5 }}
+            viewport={{ once: true }}
+          >
+            <div className="flex flex-col items-center text-center">
+              <QuoteIcon className={`h-12 w-12 mb-6 ${isFuturistic ? 'text-blue-400/60' : 'text-blue-400/40'}`} />
+              
+              <blockquote className="mb-6">
+                <p className={`text-xl italic ${isFuturistic ? 'text-white' : 'text-gray-700'}`}>
+                  "L'intelligence artificielle ne remplace pas l'intelligence humaine, elle l'augmente. Notre plateforme combine le meilleur des deux pour créer une expérience d'apprentissage inégalée."
+                </p>
+              </blockquote>
+              
+              <div className={`font-semibold ${isFuturistic ? 'text-cyan-300' : 'text-blue-700'}`}>
+                Direction de l'Innovation
+              </div>
+              <div className={`text-sm ${isFuturistic ? 'text-blue-200/60' : 'text-gray-500'}`}>
+                mc2i
+              </div>
+            </div>
+          </motion.div>
+        </div>
       </div>
       
       {/* Section Caracteristiques */}
