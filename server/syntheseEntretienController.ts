@@ -50,24 +50,47 @@ Pour le format de réponse, tu dois fournir uniquement un objet JSON sans texte 
       content: `Voici mes notes d'entretien. Analyse-les et génère une synthèse structurée selon le format demandé :\n\n${notes}`
     };
 
-    // Appel à l'API OpenAI via notre service
+    // Appel à l'API OpenAI via notre service - en demandant un format JSON
     const responseText = await openAIService.getChatCompletionWithCache(
       [systemMessage, userMessage],
       0.7,
       2000,
-      true // Utiliser le modèle secondaire (plus rapide)
+      true, // Utiliser le modèle secondaire (plus rapide)
+      { responseFormat: 'json_object' } // Demander explicitement un format JSON
     );
 
-    // Parsing de la réponse
+    // Nettoyage et parsing de la réponse
     let synthese;
+    let cleanedResponse = responseText;
+
+    // Extraction du JSON si réponse entourée de backticks ou commentaires
+    const jsonRegex = /```json\s*([\s\S]*?)\s*```|```\s*([\s\S]*?)\s*```|\{[\s\S]*\}/gm;
+    const match = jsonRegex.exec(responseText);
+    if (match) {
+      cleanedResponse = match[1] || match[2] || match[0];
+    }
+
+    console.log('Réponse reçue de l\'API:', responseText);
+    console.log('Réponse nettoyée:', cleanedResponse);
 
     try {
-      synthese = JSON.parse(responseText);
+      synthese = JSON.parse(cleanedResponse);
+      console.log('Objet JSON parsé avec succès');
     } catch (error) {
       console.error('Erreur de parsing JSON:', error);
-      return res.status(500).json({
+      console.error('Texte brut reçu:', responseText);
+      
+      // Fallback: créer un objet synthèse basique avec le texte brut
+      synthese = {
+        synthese: "Impossible de générer une synthèse structurée. Veuillez réessayer avec des notes plus détaillées.",
+        error: "Erreur de format dans la réponse"
+      };
+      
+      // Informer le client de l'erreur mais ne pas bloquer complètement la réponse
+      return res.status(200).json({
         success: false,
-        message: 'Erreur lors du traitement de la réponse'
+        message: 'La réponse n\'a pas pu être structurée correctement',
+        synthese
       });
     }
 

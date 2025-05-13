@@ -188,7 +188,8 @@ class OpenAIService {
     messages: ChatCompletionRequestMessage[],
     temperature: number = 0.7,
     maxTokens: number = 2000,
-    usePrimaryModel: boolean = false
+    usePrimaryModel: boolean = false,
+    options: { responseFormat?: string } = {}
   ): Promise<string> {
     try {
       // Utiliser le modèle principal (GPT-4o) ou secondaire (GPT-4o-mini) selon le paramètre
@@ -209,11 +210,17 @@ class OpenAIService {
       console.log(`Nombre de messages: ${messages.length}, Premier role: ${messages[0]?.role}`);
       
       // Formater la requête pour l'API
-      const requestBody = {
+      const requestBody: any = {
         messages: messages,
         temperature: temperature,
         max_tokens: maxTokens
       };
+      
+      // Ajouter le format de réponse JSON si demandé
+      if (options.responseFormat === 'json_object') {
+        requestBody.response_format = { type: "json_object" };
+        console.log('Format de réponse JSON demandé');
+      }
       
       console.log(`Requête formatée pour ${config.deploymentName}`);
 
