@@ -204,7 +204,7 @@ const CyberExpertLearning: React.FC = () => {
     try {
       // Si le mode décision est activé, envoyer à l'API appropriée
       if (decision.isInDecisionMode) {
-        decision.submitDecision(inputMessage);
+        decision.submitDecision(userId, inputMessage);
         setIsLoading(false);
         return;
       }
@@ -245,7 +245,7 @@ const CyberExpertLearning: React.FC = () => {
       
       // Si le bot suggère de passer en mode décision, l'activer
       if (data.sessionStatus?.readyForDecisionMode) {
-        decision.startDecisionFlow("Gestion de crise cyber");
+        decision.startDecisionFlow(userId, "Gestion de crise cyber");
       }
       
     } catch (error) {
