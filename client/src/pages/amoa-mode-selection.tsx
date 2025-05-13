@@ -150,6 +150,15 @@ export default function AmoaModeSelection() {
       comingSoon: false
     },
     {
+      id: 'synthese-entretien',
+      title: 'SYNTHÈSE D\'ENTRETIEN IA',
+      description: 'Générez automatiquement une synthèse structurée à partir de vos notes d\'entretien de recrutement.',
+      icon: <BsClipboardData className="h-5 w-5 text-emerald-200" />,
+      destination: '/amoa/synthese-entretien',
+      difficulty: 'intermédiaire',
+      comingSoon: false
+    },
+    {
       id: 'generateur-livrables',
       title: 'GÉNÉRATEUR DE LIVRABLES',
       description: 'Assistant IA pour créer des livrables AMOA professionnels.',
@@ -193,7 +202,7 @@ export default function AmoaModeSelection() {
       description: "Testez vos compétences dans des conditions réelles d'examen ou d'entretien",
       icon: <IoTrophyOutline className="h-6 w-6 text-purple-100" />,
       gradient: 'from-purple-700 to-purple-900',
-      modules: ['interview-simulation', 'test-reflexes']
+      modules: ['interview-simulation', 'test-reflexes', 'synthese-entretien']
     },
     {
       id: 'creer',

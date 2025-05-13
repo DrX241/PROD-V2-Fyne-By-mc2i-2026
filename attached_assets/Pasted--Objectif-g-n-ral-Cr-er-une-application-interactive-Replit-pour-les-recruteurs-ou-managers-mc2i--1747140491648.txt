@@ -1,0 +1,82 @@
+🧠 Objectif général :
+Créer une application interactive Replit pour les recruteurs ou managers mc2i, permettant de :
+
+Générer automatiquement une synthèse post-entretien à partir de notes libres.
+
+Simuler un entretien IA de 10 minutes, avec retour sur les points forts et les réserves du candidat.
+
+👋 Accueil et choix utilisateur
+Dès le lancement, l’utilisateur choisit entre deux options :
+
+Générer une synthèse d’entretien à partir de ses notes.
+
+Lancer une simulation d’entretien IA selon le profil du candidat.
+
+🧩 Fonctionnalité 1 — Synthèse post-entretien
+📝 Objectif : transformer automatiquement des notes RH (copiées-collées par l’utilisateur) en une fiche de synthèse structurée, conforme aux attendus mc2i.
+
+🔁 Déroulé :
+L’utilisateur colle ses notes libres issues d’un entretien (par exemple : "bonne posture, motivé, quelques lacunes techniques, TOEIC 875…").
+
+L’IA analyse et extrait automatiquement les informations pertinentes pour remplir les champs suivants :
+
+Présentation générale du profil (formation, expériences, trous éventuels)
+
+Premières impressions / posture
+
+Motivations pour le conseil, les SI et mc2i
+
+Compréhension de nos métiers / niveau de renseignement sur mc2i
+
+Projet professionnel (court / moyen / long terme)
+
+Potentiel vs ambition
+
+Autres processus en cours & planning de décision
+
+Critères de choix du candidat
+
+Forces et faiblesses de la candidature
+
+Niveau d’anglais (déclaré ou estimé)
+
+Spécificités si stagiaire ou alternant (synthèse écrite, rythme, départ à l’étranger)
+
+Raison principale de la décision & points à approfondir
+
+Synthèse globale
+
+✅ Sortie : une fiche structurée, lisible et prête à être copiée ou exportée (.txt/.pdf) si besoin.
+
+🤖 Fonctionnalité 2 — Simulation d’entretien IA (10 min)
+🧪 Objectif : tester en conditions simulées un candidat selon son profil.
+
+🔁 Déroulé :
+L’utilisateur renseigne :
+
+Le nombre d’années d’expérience
+
+Le secteur aligné avec sa dernière mission (transport, banque, industrie, etc.)
+
+La spécialité choisie (Data & IA, Cyber, UX/UI, Change, Agilité, Marketing…)
+
+L’IA enchaîne des questions dynamiques, personnalisées :
+
+Présentation orale
+
+Questions ouvertes et de posture
+
+Mini cas d’usage
+
+QCM (culture métier ou techno)
+
+Question réflexe ou test de personnalité
+
+Au bout de 10 minutes, l’IA arrête la simulation et génère :
+
+✅ Points forts
+
+⚠️ Réserves / fragilités
+
+🧭 Recommandations pour un 2e entretien ou une décision RH
+
