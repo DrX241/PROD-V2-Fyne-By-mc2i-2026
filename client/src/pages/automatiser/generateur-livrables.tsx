@@ -772,7 +772,7 @@ export default function GenerateurLivrables() {
               Générateur de Livrables
             </h1>
           </div>
-          <p className="text-muted-foreground max-w-3xl">
+          <p className="text-gray-900 dark:text-gray-100 max-w-3xl">
             Transformez vos idées en livrables professionnels. Sélectionnez un type de livrable, 
             fournissez les informations nécessaires et notre IA générera un document structuré et prêt à l'emploi.
           </p>
@@ -806,7 +806,7 @@ export default function GenerateurLivrables() {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold">{generator.title}</h2>
-                  <p className="text-muted-foreground">{generator.description}</p>
+                  <p className="text-gray-900 dark:text-gray-100">{generator.description}</p>
                 </div>
               </div>
 
@@ -836,19 +836,19 @@ export default function GenerateurLivrables() {
                           {generator.icon}
                         </div>
                         <h3 className="text-lg font-medium mb-2">Prêt à générer votre livrable ?</h3>
-                        <p className="text-muted-foreground mb-6 max-w-sm">
+                        <p className="text-gray-900 dark:text-gray-100 mb-6 max-w-sm">
                           Remplissez le formulaire à gauche et cliquez sur "Générer le livrable" pour créer votre document.
                         </p>
                         <div className="flex flex-col items-center gap-3">
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2 text-sm text-gray-800 dark:text-gray-200">
                             <Check className="h-4 w-4 text-green-500" />
                             <span>Génération rapide en quelques secondes</span>
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2 text-sm text-gray-800 dark:text-gray-200">
                             <Check className="h-4 w-4 text-green-500" />
                             <span>Format professionnel prêt à l'emploi</span>
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2 text-sm text-gray-800 dark:text-gray-200">
                             <Check className="h-4 w-4 text-green-500" />
                             <span>Personnalisé selon vos informations</span>
                           </div>
