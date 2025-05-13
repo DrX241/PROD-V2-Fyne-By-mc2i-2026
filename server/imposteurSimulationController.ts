@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createChatCompletion, createSystemPrompt } from './services/openai';
+import { openAIService } from './services/openai';
 
 /**
  * Interface pour stocker les sessions de simulation "Qui est l'imposteur"
@@ -56,9 +56,12 @@ export async function startImposteurSimulation(req: Request, res: Response) {
     const systemPrompt = generateSystemPrompt(candidateProfile);
     
     // Initialise la conversation avec l'API
-    const initialMessage = await createChatCompletion([
-      { role: 'system', content: systemPrompt },
-    ]);
+    const initialMessage = await openAIService.getChatCompletion(
+      [{ role: 'system', content: systemPrompt }],
+      false,
+      0.7,
+      2000
+    );
 
     // Stocke la session
     userSessions.set(sessionId, {
@@ -104,7 +107,12 @@ export async function processImposteurMessage(req: Request, res: Response) {
     }
 
     // Obtient la réponse de l'API
-    const responseMessage = await createChatCompletion(session.messages);
+    const responseMessage = await openAIService.getChatCompletion(
+      session.messages,
+      false,
+      0.7,
+      1500
+    );
 
     // Ajoute la réponse à l'historique
     session.messages.push({ role: 'assistant', content: responseMessage });
@@ -152,7 +160,12 @@ Réponds uniquement en format JSON structuré comme décrit ci-dessus.`;
     session.messages.push({ role: 'system', content: evaluationPrompt });
 
     // Obtient l'évaluation de l'API
-    const evaluationResponse = await createChatCompletion(session.messages, true);
+    const evaluationResponse = await openAIService.getChatCompletion(
+      session.messages,
+      true,
+      0.7,
+      2000
+    );
 
     // Tente de parser la réponse JSON
     let evaluationData;
