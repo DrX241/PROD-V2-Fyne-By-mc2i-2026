@@ -294,12 +294,12 @@ export default function ImposteurSimulation() {
 
   return (
     <HomeLayout>
-      <div className="container max-w-6xl py-8">
+      <div className="mx-auto container max-w-5xl py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Qui est l'imposteur ?</h1>
+            <h1 className="text-3xl font-bold">Préparation d'audition</h1>
             <p className="text-lg text-muted-foreground mt-1">
-              Simulation d'entretien avec analyse des réponses
+              Simulation d'entretien avec analyse détaillée de vos réponses
             </p>
           </div>
           <Button
