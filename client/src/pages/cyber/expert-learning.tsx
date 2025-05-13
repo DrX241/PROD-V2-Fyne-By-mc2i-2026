@@ -1,3 +1,13 @@
+/**
+ * Module Expert Cybersécurité - Interface immersive
+ * 
+ * Notes sur les sources d'images:
+ * - Toutes les images de fond sont issues de Unsplash.com (licence libre)
+ * - Images sélectionnées pour leur pertinence avec les thèmes cybersécurité
+ * - Pour utiliser d'autres images similaires, rechercher sur Unsplash avec les termes:
+ *   "cybersecurity", "network", "server room", "data center", "circuit", "technology"
+ */
+
 import React, { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -296,7 +306,7 @@ const CyberExpertLearning: React.FC = () => {
             {!isSessionActive && !sessionSummary ? (
               // Page d'accueil plein écran sans bordures, vraiment immersive
               <div className="w-full h-full flex flex-col">
-                <div className="bg-gradient-to-b from-[#050a15] to-[#091525] text-white min-h-screen">
+                <div className="bg-gradient-to-b from-[#050a15] to-[#091525] text-white min-h-screen pb-40">
                   {/* Barre de navigation fixe en haut sans bordures */}
                   <div className="bg-gradient-to-r from-[#091525]/90 to-[#112641]/90 p-4 lg:p-6 backdrop-blur-md fixed top-0 w-full z-40 shadow-lg shadow-[#00b4d8]/10">
                     <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -352,7 +362,7 @@ const CyberExpertLearning: React.FC = () => {
                           startSession();
                         }}
                       >
-                        {/* Image de fond avec effet parallaxe */}
+                        {/* Image de fond avec effet parallaxe - Source: Unsplash.com (image de réseau/SOC) */}
                         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1574586798873-51420e12bdc8?q=80&w=1470&auto=format&fit=crop')] bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700"></div>
                         
                         {/* Overlay pour améliorer la lisibilité */}
@@ -414,7 +424,7 @@ const CyberExpertLearning: React.FC = () => {
                           startSession();
                         }}
                       >
-                        {/* Image de fond avec effet parallaxe */}
+                        {/* Image de fond avec effet parallaxe - Source: Unsplash.com (image de code/technologie) */}
                         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1470&auto=format&fit=crop')] bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700"></div>
                         
                         {/* Overlay pour améliorer la lisibilité */}
@@ -470,7 +480,7 @@ const CyberExpertLearning: React.FC = () => {
                           startSession();
                         }}
                       >
-                        {/* Image de fond avec effet parallaxe */}
+                        {/* Image de fond avec effet parallaxe - Source: Unsplash.com (image de circuit/cyber) */}
                         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1470&auto=format&fit=crop')] bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700"></div>
                         
                         {/* Overlay pour améliorer la lisibilité */}
@@ -529,7 +539,7 @@ const CyberExpertLearning: React.FC = () => {
                           startSession();
                         }}
                       >
-                        {/* Image de fond avec effet parallaxe */}
+                        {/* Image de fond avec effet parallaxe - Source: Unsplash.com (image de salle serveur/datacenter) */}
                         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1544890225-2f3faec4cd60?q=80&w=1625&auto=format&fit=crop')] bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700"></div>
                         
                         {/* Overlay pour améliorer la lisibilité */}
