@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useLocation } from 'wouter';
 import HomeLayout from "@/components/layout/HomeLayout";
-import { ArrowRight, Layers, BookOpen, GraduationCap, Lock, ShieldCheck, AlertTriangle, Sparkles, ChevronDown, Clock, Book } from "lucide-react";
+import { ArrowRight, Layers, BookOpen, GraduationCap, Lock, ShieldCheck, AlertTriangle, Sparkles, ChevronDown, Clock, Book, Zap, GamepadIcon, RocketIcon, Brain, Target, BarChart2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -874,9 +874,9 @@ export default function Home() {
                 Découvrez une nouvelle dimension d'apprentissage interactif avec nos modules IA innovants qui s'adaptent parfaitement à votre progression.
               </motion.p>
               
-              {/* Boutons d'action avec animation et effet avancé */}
+              {/* Bouton d'action centré avec animation et effet avancé */}
               <motion.div
-                className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 justify-center items-center"
+                className="flex justify-center"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.6 }}
@@ -884,7 +884,7 @@ export default function Home() {
                 <Link href="/cyber">
                   <Button 
                     size="lg" 
-                    className={`relative px-8 py-6 shadow-lg group font-medium text-lg overflow-hidden transition-all duration-300 ${
+                    className={`relative px-10 py-6 shadow-lg group font-medium text-lg overflow-hidden transition-all duration-300 ${
                       isFuturistic 
                         ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white border border-blue-400/20 hover:shadow-blue-500/30 hover:shadow-xl' 
                         : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800'
@@ -916,23 +916,114 @@ export default function Home() {
                     </span>
                   </Button>
                 </Link>
-                
-                <Link href="#modules">
-                  <Button 
-                    variant="outline"
-                    size="lg" 
-                    className={`px-8 py-6 group font-medium text-lg ${
+              </motion.div>
+              
+              {/* Arguments en faveur de la formation IA avec effets d'animation */}
+              <motion.div
+                className="mt-16 mb-8 grid grid-cols-1 md:grid-cols-3 gap-5 max-w-6xl mx-auto"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.7 }}
+              >
+                {[
+                  {
+                    title: "Apprentissage personnalisé",
+                    description: "Expérience adaptée à votre rythme et à vos besoins spécifiques",
+                    icon: <Sparkles className="h-6 w-6" />,
+                    delay: 0
+                  },
+                  {
+                    title: "Engagement maximal",
+                    description: "Contenu dynamique et interactif qui stimule la participation active",
+                    icon: <Target className="h-6 w-6" />,
+                    delay: 0.2
+                  },
+                  {
+                    title: "Cas d'usage illimités",
+                    description: "Scénarios variés générés à la demande pour une pratique concrète",
+                    icon: <BookOpen className="h-6 w-6" />,
+                    delay: 0.4
+                  },
+                  {
+                    title: "Apprentissage par le jeu",
+                    description: "Mémorisation améliorée grâce à une approche ludique et immersive",
+                    icon: <GamepadIcon className="h-6 w-6" />,
+                    delay: 0.6
+                  },
+                  {
+                    title: "Mesure de progression",
+                    description: "Analyse détaillée de vos performances et axes d'amélioration",
+                    icon: <BarChart2 className="h-6 w-6" />,
+                    delay: 0.8
+                  },
+                  {
+                    title: "Innovation continue",
+                    description: "Formation évolutive qui intègre les dernières avancées technologiques",
+                    icon: <RocketIcon className="h-6 w-6" />,
+                    delay: 1.0
+                  }
+                ].map((arg, index) => (
+                  <motion.div
+                    key={index}
+                    className={`rounded-xl overflow-hidden ${
                       isFuturistic 
-                        ? 'border-cyan-500/30 text-cyan-300 hover:bg-blue-900/30 hover:border-cyan-400/50'
-                        : 'border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300'
+                        ? 'bg-blue-900/30 border border-blue-600/20 backdrop-blur-sm' 
+                        : 'bg-white border border-blue-100 shadow-sm'
                     }`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.8 + arg.delay }}
+                    whileHover={{ scale: 1.05, 
+                      boxShadow: isFuturistic 
+                        ? '0 0 25px rgba(59, 130, 246, 0.3)' 
+                        : '0 10px 25px rgba(0, 0, 0, 0.08)' 
+                    }}
                   >
-                    <span className="flex items-center">
-                      Découvrir nos modules
-                      <ChevronDown className="ml-2 h-5 w-5 transition-transform group-hover:translate-y-1" />
-                    </span>
-                  </Button>
-                </Link>
+                    <motion.div 
+                      className="p-5"
+                      initial={{ background: "transparent" }}
+                      whileHover={{ 
+                        background: isFuturistic 
+                          ? "linear-gradient(to bottom right, rgba(37, 99, 235, 0.1), rgba(79, 70, 229, 0.1))" 
+                          : "linear-gradient(to bottom right, rgba(239, 246, 255, 0.7), rgba(219, 234, 254, 0.7))" 
+                      }}
+                    >
+                      <div className="mb-3">
+                        <motion.div
+                          className={`inline-flex items-center justify-center p-2 rounded-lg ${
+                            isFuturistic 
+                              ? 'bg-blue-800/50 text-cyan-300' 
+                              : 'bg-blue-100 text-blue-600'
+                          }`}
+                          whileHover={{ 
+                            rotate: [0, 5, -5, 0],
+                            scale: [1, 1.1, 1],
+                          }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          {arg.icon}
+                        </motion.div>
+                      </div>
+                      <h3 className={`text-lg font-bold mb-2 ${isFuturistic ? 'text-cyan-300' : 'text-blue-700'}`}>
+                        {arg.title}
+                      </h3>
+                      <p className={`text-sm ${isFuturistic ? 'text-blue-100' : 'text-gray-600'}`}>
+                        {arg.description}
+                      </p>
+                      <motion.div
+                        className={`w-16 h-1 mt-4 rounded-full ${
+                          isFuturistic 
+                            ? 'bg-gradient-to-r from-blue-500 to-cyan-400' 
+                            : 'bg-blue-500'
+                        }`}
+                        initial={{ width: 0 }}
+                        whileInView={{ width: 64 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        viewport={{ once: true }}
+                      />
+                    </motion.div>
+                  </motion.div>
+                ))}
               </motion.div>
             </div>
             
