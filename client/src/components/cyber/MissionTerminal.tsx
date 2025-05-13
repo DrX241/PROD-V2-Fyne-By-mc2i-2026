@@ -586,12 +586,12 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
         ) : (
           <div className="space-y-2">
             {messages.map((message, index) => (
-              <React.Fragment key={index}>
+              <div key={index} className="message-wrapper">
                 {renderMessage(message, index)}
                 {terminalMode && index === messages.length - 1 && message.type === 'system' && (
                   <div className="blinking-cursor"></div>
                 )}
-              </React.Fragment>
+              </div>
             ))}
             <div ref={messagesEndRef} />
           </div>
