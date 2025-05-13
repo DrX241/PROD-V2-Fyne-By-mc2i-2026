@@ -557,9 +557,9 @@ export default function GenerateurLivrables() {
         {showExamples[generator.id] && generator.examples.length > 0 && (
           <div className="mb-6 p-4 rounded-lg bg-muted/30 border">
             <h4 className="font-medium mb-2">Exemples</h4>
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
               {generator.examples.map((example, index) => (
-                <Card key={index} className="overflow-hidden">
+                <Card key={index} className="overflow-hidden w-full">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base">{example.title}</CardTitle>
                     <CardDescription className="text-xs">{example.description}</CardDescription>
