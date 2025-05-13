@@ -836,8 +836,8 @@ export default function Home() {
                 transition={{ duration: 0.9, delay: 0.3 }}
               >
                 <div className="flex flex-col sm:block text-center">
-                  <span className="inline-block">Améliorez </span>
-                  <span className="inline-block my-2 sm:my-0 relative mx-1">
+                  <span className="inline-block mb-4 sm:mb-0">Améliorez </span>
+                  <span className="inline-block my-4 sm:my-0 relative mx-3">
                     <span className={isFuturistic 
                       ? "bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 relative z-10"
                       : "text-blue-600 relative z-10"
@@ -856,7 +856,7 @@ export default function Home() {
                       />
                     )}
                   </span>
-                  <span className="inline-block">avec FYNE</span>
+                  <span className="inline-block mt-4 sm:mt-0">avec FYNE</span>
                 </div>
               </motion.h1>
               
