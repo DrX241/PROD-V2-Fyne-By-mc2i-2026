@@ -920,7 +920,7 @@ export default function Home() {
               
               {/* Arguments avec animations et descriptions visibles */}
               <div className="mt-20 mb-12">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto px-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 max-w-7xl mx-auto px-4">
                   {[
                     {
                       title: "Apprentissage personnalisé",
@@ -1035,10 +1035,10 @@ export default function Home() {
                         initial={initialAnimation}
                         animate={animateAnimation}
                         transition={{ delay: arg.delay }}
-                        className="flex flex-col items-center"
+                        className={`flex flex-col items-center p-6 rounded-xl ${isFuturistic ? 'bg-blue-900/20 backdrop-blur-sm border border-blue-500/20' : 'bg-white shadow-md border border-gray-100'}`}
                       >
                         <motion.div
-                          className={`flex items-center justify-center mb-3 p-3.5 rounded-full ${
+                          className={`flex items-center justify-center mb-4 p-4 rounded-full ${
                             isFuturistic 
                               ? 'bg-blue-800/50 backdrop-blur-sm border border-blue-500/30 text-cyan-300' 
                               : 'bg-blue-100 border border-blue-200 text-blue-700'
@@ -1070,14 +1070,14 @@ export default function Home() {
                           whileHover={{ y: -3 }}
                         >
                           <motion.h3 
-                            className={`text-lg font-bold mb-2 ${
+                            className={`text-lg font-bold mb-3 ${
                               isFuturistic ? 'text-cyan-300 font-cyber-accent' : 'text-blue-700'
                             }`}
                           >
                             {arg.title}
                           </motion.h3>
                           <motion.p 
-                            className={`text-sm max-w-xs mx-auto ${
+                            className={`text-sm ${
                               isFuturistic ? 'text-blue-100' : 'text-gray-600'
                             }`}
                             initial={{ opacity: 0, y: 10 }}
@@ -1086,18 +1086,6 @@ export default function Home() {
                           >
                             {arg.description}
                           </motion.p>
-                          
-                          <motion.div
-                            className={`w-16 h-1 mt-3 mx-auto rounded-full ${
-                              isFuturistic 
-                                ? 'bg-gradient-to-r from-blue-500 to-cyan-400' 
-                                : 'bg-blue-500'
-                            }`}
-                            initial={{ width: 0, opacity: 0 }}
-                            whileInView={{ width: 64, opacity: 1 }}
-                            transition={{ duration: 0.6, delay: 0.2 }}
-                            viewport={{ once: true }}
-                          />
                         </motion.div>
                       </motion.div>
                     );
@@ -1336,7 +1324,7 @@ export default function Home() {
                         
                         {/* Contenu textuel */}
                         <div className="flex-grow">
-                          <p className="text-gray-600 text-sm mb-6 line-clamp-3">
+                          <p className="text-gray-600 text-sm mb-6 h-auto max-h-32 overflow-y-auto pr-2 custom-scrollbar module-description">
                             {module.description}
                           </p>
                         </div>

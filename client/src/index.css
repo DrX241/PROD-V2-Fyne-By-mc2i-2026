@@ -501,6 +501,25 @@
   .custom-scrollbar::-webkit-scrollbar-thumb {
     @apply bg-gray-300 rounded-full hover:bg-gray-400 transition-colors;
   }
+  
+  /* Scrollbar pour les descriptions de modules */
+  .custom-scrollbar.module-description::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .custom-scrollbar.module-description::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar.module-description::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.5);
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar.module-description::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 130, 246, 0.7);
+  }
 
   /* Classes pour optimiser l'espace */
   .full-width-container {
