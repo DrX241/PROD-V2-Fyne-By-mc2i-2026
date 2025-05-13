@@ -338,7 +338,7 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
     if (message.type === 'system') {
       // Applique un style de terminal plus réaliste pour les messages système
       return (
-        <div key={index} className={`whitespace-pre-wrap text-green-400 mb-2 font-mono leading-tight ${terminalMode ? '' : 'bg-gray-800 p-3 rounded-md'}`} style={{
+        <div key={`message-${index}-${message.type}`} className={`whitespace-pre-wrap text-green-400 mb-2 font-mono leading-tight ${terminalMode ? '' : 'bg-gray-800 p-3 rounded-md'}`} style={{
           textShadow: terminalMode ? '0 0 5px rgba(0, 255, 0, 0.5)' : 'none'
         }}>
           {message.content}
@@ -351,7 +351,7 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
     
     if (message.type === 'user') {
       return (
-        <div key={index} className="flex justify-end mb-4">
+        <div key={`message-${index}-${message.type}`} className="flex justify-end mb-4">
           <div className="bg-blue-600 text-white p-3 rounded-md max-w-[80%]">
             <div className="flex items-center mb-1">
               <UserRound className="w-4 h-4 mr-2" />
@@ -367,7 +367,7 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
       const pnj = missionData.pnjs.find(p => p.id === message.pnjId);
       
       return (
-        <div key={index} className="flex justify-start mb-4">
+        <div key={`message-${index}-${message.type}-${message.pnjId}`} className="flex justify-start mb-4">
           <div className={`p-3 rounded-md max-w-[80%] ${
             pnj?.attitude === 'favorable' ? 'bg-green-700 text-white' :
             pnj?.attitude === 'hostile' ? 'bg-red-700 text-white' :
@@ -385,7 +385,8 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
       );
     }
     
-    return null;
+    // Si aucun des types de message ne correspond
+    return <div key={`message-${index}-unknown`}></div>;
   };
   
   // Rendu des choix disponibles
@@ -620,11 +621,7 @@ const MissionTerminal: React.FC<MissionTerminalProps> = ({ onExit }) => {
         ) : (
           <div className="space-y-2">
             {messages.length > 0 ? 
-              messages.map((message, index) => (
-                <React.Fragment key={`message-${index}`}>
-                  {renderMessage(message, index)}
-                </React.Fragment>
-              ))
+              messages.map((message, index) => renderMessage(message, index))
               : 
               <div className="text-gray-400 italic">
                 Aucun message
