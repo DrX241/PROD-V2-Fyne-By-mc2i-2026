@@ -308,20 +308,42 @@ export async function processRoleSelection(req: Request, res: Response) {
  */
 export async function processMissionDecision(req: Request, res: Response) {
   try {
+    console.log("Traitement décision - Requête reçue:", req.body);
     const { userId, etapeId, choixId } = req.body;
     
     if (!userId || !etapeId || !choixId) {
+      console.log("Paramètres manquants:", { userId, etapeId, choixId });
       return res.status(400).json({ error: "Paramètres manquants" });
     }
     
     // Récupérer la session de mission
     const session = missionSessions.get(userId);
+    console.log("Session trouvée:", !!session, "userId:", userId);
+    
     if (!session) {
       return res.status(404).json({ error: "Session de mission non trouvée" });
     }
     
-    // Vérifier que l'étape correspond bien à l'étape actuelle
+    console.log("Étapes dans la session:", session.etapes?.length || 0);
+    console.log("Étape actuelle:", session.etapeActuelle);
+    
+    // Vérifier que les étapes existent
+    if (!session.etapes || session.etapes.length === 0) {
+      return res.status(400).json({ error: "Aucune étape trouvée dans la mission" });
+    }
+    
+    // Vérifier que l'index de l'étape actuelle est valide
+    if (session.etapeActuelle < 0 || session.etapeActuelle >= session.etapes.length) {
+      return res.status(400).json({ error: "Index d'étape invalide" });
+    }
+    
+    // Vérifier que l'étape actuelle existe
     const etapeActuelle = session.etapes[session.etapeActuelle];
+    if (!etapeActuelle) {
+      return res.status(400).json({ error: "Étape actuelle introuvable" });
+    }
+    
+    // Vérifier que l'étape correspond bien à l'étape actuelle
     if (etapeActuelle.id !== etapeId) {
       return res.status(400).json({ error: "Étape invalide" });
     }
