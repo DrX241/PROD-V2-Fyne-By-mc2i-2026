@@ -164,6 +164,14 @@ function App() {
                 <Route path="/cyber/interview-simulation" component={NotYetImplemented} />
                 <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
                 <Route path="/amoa/expert-learning" component={AmoaExpertLearningPage} />
+                <Route path="/amoa/synthese-entretien" component={() => {
+                  const SyntheseEntretien = lazy(() => import('./pages/amoa/synthese-entretien'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <SyntheseEntretien />
+                    </Suspense>
+                  );
+                }} />
                 
                 {/* Routes pour les modules mc2i qui ne fonctionnaient pas */}
                 <Route path="/amoa/test-reflexes" component={() => {

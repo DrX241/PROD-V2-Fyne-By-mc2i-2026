@@ -284,7 +284,7 @@ export default function SyntheseEntretien() {
                   Effacer
                 </Button>
                 <Button 
-                  onClick={process.env.NODE_ENV === 'production' ? generateSynthese : generateDemoSynthese}
+                  onClick={generateSynthese}
                   disabled={!inputNotes || isGenerating}
                   className="bg-emerald-600 hover:bg-emerald-700"
                 >
