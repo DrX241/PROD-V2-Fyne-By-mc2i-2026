@@ -282,7 +282,8 @@ class OpenAIService {
     messages: ChatCompletionRequestMessage[],
     useSecondaryKey: boolean,
     temperature: number,
-    maxTokens: number
+    maxTokens: number,
+    options?: { responseFormat?: string }
   ): Promise<string>;
   
   // Surcharge de la méthode pour compatibilité avec l'interface d'origine
@@ -290,12 +291,14 @@ class OpenAIService {
     messages: ChatCompletionRequestMessage[],
     temperatureOrUseSecondary?: number | boolean,
     maxTokensOrTemperature?: number,
-    maxTokens?: number
+    maxTokens?: number,
+    options?: { responseFormat?: string }
   ): Promise<string> {
     // Déterminer les paramètres en fonction de la signature utilisée
     let useSecondaryKey: boolean = false;
     let temperature: number = 0.7;
     let actualMaxTokens: number = 2000;
+    let responseFormat: string | undefined = options?.responseFormat;
     
     if (typeof temperatureOrUseSecondary === 'boolean') {
       // Si le second paramètre est un booléen, c'est useSecondaryKey
@@ -331,11 +334,17 @@ class OpenAIService {
       console.log(`Nombre de messages: ${messages.length}, Premier role: ${messages[0]?.role}`);
       
       // Formater la requête pour l'API
-      const requestBody = {
+      const requestBody: any = {
         messages: messages,
         temperature: temperature,
-        max_tokens: maxTokens
+        max_tokens: actualMaxTokens
       };
+      
+      // Ajouter le format de réponse JSON si demandé
+      if (responseFormat === 'json_object') {
+        requestBody.response_format = { type: "json_object" };
+        console.log('Format de réponse JSON demandé');
+      }
       
       console.log(`Requête formatée pour ${config.deploymentName}`);
 
@@ -571,7 +580,8 @@ class OpenAIService {
       messages, 
       actualUseSecondaryKey,
       actualTemperature, 
-      actualMaxTokens
+      actualMaxTokens,
+      { responseFormat: responseFormat }
     );
 
     // Mettre en cache la réponse
