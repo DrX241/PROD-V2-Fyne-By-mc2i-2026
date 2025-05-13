@@ -63,7 +63,7 @@ Génère un document complet et structuré d'expression de besoin fonctionnel à
     { role: "user", content: userPrompt }
   ];
 
-  const content = await openAIService.getChatCompletion(messages, 0.7, 2500);
+  const content = await openAIService.getChatCompletion(messages, false, 0.7, 2500);
 
   // Extraction des sections pour l'interface accordéon
   const sections: DocumentSection[] = [];
@@ -139,7 +139,7 @@ Génère un plan de test fonctionnel complet et structuré à partir de ces info
     { role: "user", content: userPrompt }
   ];
 
-  const content = await openAIService.getChatCompletion(messages, 0.7, 2500);
+  const content = await openAIService.getChatCompletion(messages, false, 0.7, 2500);
 
   // Extraction des sections pour l'interface accordéon
   const sections: DocumentSection[] = [];
@@ -222,7 +222,7 @@ Génère un compte-rendu de réunion professionnel et structuré à partir de ce
     { role: "user", content: userPrompt }
   ];
 
-  const content = await openAIService.getChatCompletion(messages, 0.7, 2000);
+  const content = await openAIService.getChatCompletion(messages, false, 0.7, 2000);
 
   // Extraction des sections pour l'interface accordéon
   const sections: DocumentSection[] = [];
@@ -304,7 +304,7 @@ Génère un backlog initial Agile à partir de ces informations.`;
     { role: "user", content: userPrompt }
   ];
 
-  const content = await openAIService.getChatCompletion(messages, 0.7, 2500);
+  const content = await openAIService.getChatCompletion(messages, false, 0.7, 2500);
 
   // Extraction des sections pour l'interface accordéon
   const sections: DocumentSection[] = [];
@@ -395,7 +395,7 @@ Génère une politique de sécurité adaptée à partir de ces informations.`;
     { role: "user", content: userPrompt }
   ];
 
-  const content = await openAIService.getChatCompletion(messages, 0.7, 2500);
+  const content = await openAIService.getChatCompletion(messages, false, 0.7, 2500);
 
   // Extraction des sections pour l'interface accordéon
   const sections: DocumentSection[] = [];
