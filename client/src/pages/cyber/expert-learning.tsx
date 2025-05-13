@@ -480,7 +480,7 @@ function ExpertLearningPageContent() {
                     {/* Zone de chat avec messages */}
                     <div 
                       ref={chatContainerRef}
-                      className="flex-1 overflow-y-auto bg-[#091525]/80 border border-[#00b4d8]/30 rounded-t-md shadow-[0_0_20px_rgba(0,180,216,0.15)] h-[calc(100vh-300px)] min-h-[500px]"
+                      className="flex-1 overflow-y-auto custom-scrollbar cyber-expert bg-[#091525]/80 border border-[#00b4d8]/30 rounded-t-md shadow-[0_0_20px_rgba(0,180,216,0.15)] h-[calc(100vh-300px)] min-h-[500px]"
                     >
                       <div className="p-6 space-y-6">
                         {messages.map((message) => (
@@ -611,7 +611,7 @@ function ExpertLearningPageContent() {
                       <X className="h-5 w-5" />
                     </Button>
                   </CardHeader>
-                  <CardContent className="py-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                  <CardContent className="py-6 max-h-[60vh] overflow-y-auto custom-scrollbar cyber-expert">
                     <div 
                       className="prose prose-invert max-w-none text-[#c3d9ee] text-base" 
                       dangerouslySetInnerHTML={{ 
