@@ -157,6 +157,41 @@ export async function processCyberExpertMessage(req: Request, res: Response) {
 }
 
 /**
+ * Génère un guide d'aide interactif pour l'utilisateur
+ */
+function generateHelpGuide(): string {
+  return `## 🔍 GUIDE D'AIDE INTERACTIF - CYBER EXPERT
+
+### 🔹 Commandes disponibles:
+- **aide** ou **help** : Affiche ce guide d'aide
+- **exercice** : Demande un exercice pratique sur le sujet en cours
+- **scénario** : Lance un scénario de décision en cybersécurité
+- **résumé** : Demande un résumé des points clés abordés
+- **niveau [débutant/intermédiaire/avancé]** : Ajuste le niveau des explications
+
+### 🔹 Types d'apprentissage disponibles:
+- **académique** : Explications détaillées et théoriques
+- **pratique** : Exemples concrets et cas d'usage
+- **défi** : Exercices de réflexion et mises en situation
+
+### 🔹 Astuces pour une expérience optimale:
+- 💡 **Soyez précis** dans vos questions pour des réponses plus adaptées
+- 💡 **Spécifiez votre niveau** de connaissances (débutant, intermédiaire, avancé)
+- 💡 **Demandez des exemples concrets** pour illustrer les concepts
+- 💡 **N'hésitez pas à interrompre** une explication si elle est trop complexe
+
+### 🔹 Sujets populaires à explorer:
+- 🔒 **Phishing et ingénierie sociale** : Techniques de manipulation et protection
+- 🔑 **Gestion des mots de passe** : Bonnes pratiques et outils recommandés
+- 🛡️ **Ransomware** : Prévention et réponse aux attaques
+- 🌐 **Sécurité des réseaux** : Wi-Fi, VPN, pare-feu
+- 📱 **Protection des appareils mobiles** : Risques et solutions
+- 📊 **RGPD et conformité** : Exigences légales et mise en œuvre
+
+Que souhaitez-vous explorer maintenant ?`;
+}
+
+/**
  * Vérifie si une question est hors sujet (non liée à la cybersécurité)
  */
 function isNonCyberQuestion(message: string): boolean {
