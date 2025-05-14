@@ -82,40 +82,37 @@ interface GameState {
   gameAnalysis?: any;
 }
 
-// Fonction utilitaire pour formater le texte de façon épurée et élégante
+// Fonction utilitaire pour formater le texte de façon totalement épurée, sans Markdown
 const formatTextWithStructure = (text: string): string => {
-  // Simplification: utiliser seulement les formatages essentiels pour un rendu épuré
+  // Conservation du texte brut avec seulement quelques formatages HTML minimaux
   let formattedText = text
-    // Formatage léger des titres
-    .replace(/#{3} (.+)/g, '<h3 class="text-lg font-semibold mt-4 mb-2 text-white">$1</h3>')
-    .replace(/#{2} (.+)/g, '<h2 class="text-xl font-semibold mt-4 mb-2 text-white">$1</h2>')
-    .replace(/# (.+)/g, '<h1 class="text-xl font-semibold mt-4 mb-3 text-white">$1</h1>')
+    // Remplacer ** par du texte normal (pas de gras)
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
     
-    // Simplification des listes
-    .replace(/^\s*[\-\*]\s+(.+)$/gm, '<div class="flex mb-1.5"><span class="mr-2">•</span><span>$1</span></div>')
-    .replace(/^\s*(\d+)\.\s+(.+)$/gm, '<div class="flex mb-1.5"><span class="mr-2">$1.</span><span>$2</span></div>')
+    // Remplacer # par du texte normal (pas de titres)
+    .replace(/^#+\s+(.+)$/gm, '$1')
     
-    // Mise en forme minimaliste pour le code
-    .replace(/```([\s\S]+?)```/g, '<div class="bg-gray-800/60 p-3 rounded-md my-3 text-sm">$1</div>')
-    .replace(/`([^`]+)`/g, '<span class="bg-gray-800/50 px-1 rounded text-white">$1</span>')
+    // Convertir les listes en texte simple
+    .replace(/^\s*[\-\*]\s+(.+)$/gm, '<div class="mb-1">• $1</div>')
+    .replace(/^\s*(\d+)\.\s+(.+)$/gm, '<div class="mb-1">$1. $2</div>')
     
-    // Séparateur simple
-    .replace(/^\s*---\s*$/gm, '<div class="border-t border-gray-700 my-4"></div>')
+    // Conserver le texte à l'intérieur des blocs de code sans formatage spécial
+    .replace(/```([\s\S]+?)```/g, '<div class="bg-gray-800/40 p-2 rounded my-2 text-sm">$1</div>')
+    .replace(/`([^`]+)`/g, '$1')
     
-    // Suppression des balises spéciales et simplification des formats complexes
-    .replace(/\[DÉFI\]([\s\S]*?)\[\/DÉFI\]/g, '<div class="bg-gray-800/50 p-3 rounded-md my-3">$1</div>')
-    .replace(/\[INFO\]([\s\S]*?)\[\/INFO\]/g, '<div class="bg-gray-800/50 p-3 rounded-md my-3">$1</div>')
-    .replace(/\[ALERTE\]([\s\S]*?)\[\/ALERTE\]/g, '<div class="bg-gray-800/50 p-3 rounded-md my-3">$1</div>')
+    // Remplacer les séparateurs par une ligne simple
+    .replace(/^\s*---\s*$/gm, '<div class="border-t border-gray-700/40 my-3"></div>')
     
-    // Conserver les liens simples
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-400 hover:underline" target="_blank">$1</a>');
+    // Convertir les liens en texte cliquable simple
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="underline" target="_blank">$1</a>')
+    
+    // Remplacer les balises personnalisées par du texte simple
+    .replace(/\[DÉFI\]([\s\S]*?)\[\/DÉFI\]/g, '$1')
+    .replace(/\[INFO\]([\s\S]*?)\[\/INFO\]/g, '$1')
+    .replace(/\[ALERTE\]([\s\S]*?)\[\/ALERTE\]/g, '$1');
 
-  // Convertir les sauts de ligne en paragraphes simples
-  formattedText = formattedText.replace(/\n\n/g, '</p><p class="mb-3">');
-  formattedText = '<p class="mb-3">' + formattedText + '</p>';
-  
-  // Nettoyage des paragraphes vides
-  formattedText = formattedText.replace(/<p class="mb-3">\s*<\/p>/g, '');
+  // Préserver les sauts de ligne
+  formattedText = formattedText.replace(/\n/g, '<br>');
   
   return formattedText;
 };
