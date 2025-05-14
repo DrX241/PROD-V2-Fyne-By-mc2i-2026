@@ -87,9 +87,9 @@ const CyberHomePage: React.FC = () => {
       title: 'I AM DATA & IA',
       description: 'Maîtrisez les technologies IA et l\'analyse de données',
       icon: <Brain size={24} />,
-      color: 'text-purple-400',
-      bgColor: 'bg-purple-900/20',
-      accentColor: 'border-purple-500/50',
+      color: 'text-cyan-400',
+      bgColor: 'bg-blue-900/20',
+      accentColor: 'border-cyan-500/50',
       route: '/data-ia-mode-selection'
     },
     {
@@ -97,9 +97,9 @@ const CyberHomePage: React.FC = () => {
       title: 'I AM mc2i',
       description: 'Simulation d\'entretiens et gestion de projets innovants',
       icon: <RocketIcon size={24} />,
-      color: 'text-purple-300',
-      bgColor: 'bg-purple-900/20',
-      accentColor: 'border-purple-400/50',
+      color: 'text-cyan-400',
+      bgColor: 'bg-blue-900/20',
+      accentColor: 'border-cyan-500/50',
       route: '/amoa-mode-selection-fixed'
     },
     {
@@ -107,9 +107,9 @@ const CyberHomePage: React.FC = () => {
       title: 'SOYEZ QUI VOUS VOULEZ',
       description: 'Créez vos propres modules de formation personnalisés',
       icon: <Zap size={24} />,
-      color: 'text-amber-400',
-      bgColor: 'bg-amber-900/20',
-      accentColor: 'border-amber-500/50',
+      color: 'text-cyan-400',
+      bgColor: 'bg-blue-900/20',
+      accentColor: 'border-cyan-500/50',
       route: '/playground/module-generator-new'
     }
   ];
@@ -328,23 +328,11 @@ const CyberHomePage: React.FC = () => {
                   onMouseLeave={() => handleModuleHover(null)}
                   whileHover={{ 
                     scale: 1.03,
-                    boxShadow: module.id === 'mc2i' 
-                      ? '0 0 25px rgba(168, 85, 247, 0.3)' 
-                      : module.id === 'data'
-                        ? '0 0 25px rgba(168, 85, 247, 0.3)'
-                        : module.id === 'generator'
-                          ? '0 0 25px rgba(251, 191, 36, 0.3)'
-                          : '0 0 25px rgba(0, 255, 255, 0.3)'
+                    boxShadow: '0 0 25px rgba(0, 255, 255, 0.3)'
                   }}
                   animate={{
                     boxShadow: hoveredModule === module.id 
-                      ? module.id === 'mc2i' 
-                        ? '0 0 25px rgba(168, 85, 247, 0.3)' 
-                        : module.id === 'data'
-                          ? '0 0 25px rgba(168, 85, 247, 0.3)'
-                          : module.id === 'generator'
-                            ? '0 0 25px rgba(251, 191, 36, 0.3)'
-                            : '0 0 25px rgba(0, 255, 255, 0.3)'
+                      ? '0 0 25px rgba(0, 255, 255, 0.3)'
                       : '0 0 5px rgba(0, 255, 255, 0.1)'
                   }}
                 >
@@ -386,12 +374,7 @@ const CyberHomePage: React.FC = () => {
                   {/* Button */}
                   <div className="mt-auto pt-4">
                     <CyberButton 
-                      variant={
-                        module.id === 'cyber' ? 'primary' :
-                        module.id === 'data' ? 'secondary' :
-                        module.id === 'mc2i' ? 'secondary' :
-                        'danger'
-                      }
+                      variant="primary"
                       onClick={() => setLocation(module.route)}
                       className="w-full"
                     >
