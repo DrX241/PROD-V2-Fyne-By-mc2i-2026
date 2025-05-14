@@ -108,46 +108,45 @@ export async function generateModule(req: Request, res: Response) {
  */
 function constructSystemPrompt(config: ModuleConfig): string {
   return `Vous êtes un expert en conception de modules de formation interactifs.
-Vous allez créer une structure complète pour un module de formation nommé "${config.iamName}" dans le domaine ${config.domain}.
+Vous allez créer une structure complète pour un module de formation nommé "I AM ${config.domain.toUpperCase()}" dans le domaine ${config.domain}.
 
 ## VOTRE TÂCHE
 
-Générez une structure de module complet avec des sous-modules cohérents, riches en contenu et immédiatement utilisables.
+Générez une structure de module complet avec quatre sections principales: se former, s'entraîner, s'évaluer et automatiser.
+Chaque section doit être riche en contenu et immédiatement utilisable. 
 La réponse doit être formatée en JSON selon le schéma spécifié, sans aucun texte avant ou après.
 
 ## STRUCTURE DE LA RÉPONSE (JSON) :
 
 {
-  "iamName": "Nom du module principal (I AM XXX)",
+  "iamName": "I AM ${config.domain.toUpperCase()}",
   "description": "Description générale du module et de son objectif",
   
-  // Si inclus dans la configuration
-  "trainerModule": {
-    "name": "${config.domain}TRAINER",
-    "description": "Description détaillée du module d'apprentissage",
-    "features": ["Caractéristique 1", "Caractéristique 2", ...],
-    "contentOutline": ["Section 1", "Section 2", ...],
-    "sections": [
+  "seFormer": {
+    "description": "Description détaillée de la section Se Former",
+    "features": ["Caractéristique 1", "Caractéristique 2", "Caractéristique 3"],
+    "modules": [
       {
-        "title": "Titre de la section 1",
-        "type": "text | interactive | quiz",
-        "content": "Contenu détaillé de la section avec explications complètes, exemples et concepts clés. Ce contenu doit être immédiatement utilisable.",
-        "quiz": {
-          "question": "Question du quiz",
-          "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
-          "correctAnswer": "Option correcte",
-          "explanation": "Explication de la réponse correcte"
-        }
+        "title": "Titre du module de formation 1",
+        "type": "lecture | interactive | vidéo",
+        "description": "Description détaillée du module",
+        "content": "Contenu détaillé avec explications complètes, exemples et concepts clés",
+        "points_clés": ["Point clé 1", "Point clé 2", "Point clé 3"]
       },
-      // Plus de sections pour ce module...
+      {
+        "title": "Titre du module de formation 2",
+        "type": "lecture | interactive | vidéo", 
+        "description": "Description détaillée du module",
+        "content": "Contenu détaillé avec explications complètes, exemples et concepts clés",
+        "points_clés": ["Point clé 1", "Point clé 2", "Point clé 3"]  
+      }
     ]
   },
   
-  // Si inclus dans la configuration
-  "opsModule": {
-    "name": "${config.domain}OPS",
-    "description": "Description détaillée du module opérationnel",
-    "features": ["Caractéristique 1", "Caractéristique 2", ...],
+  "sEntrainer": {
+    "description": "Description détaillée de la section S'Entraîner",
+    "features": ["Caractéristique 1", "Caractéristique 2", "Caractéristique 3"],
+    "exercices": [
     "contentOutline": ["Section 1", "Section 2", ...],
     "sections": [
       {
