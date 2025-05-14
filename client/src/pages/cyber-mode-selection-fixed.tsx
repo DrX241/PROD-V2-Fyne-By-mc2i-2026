@@ -742,25 +742,10 @@ export default function CyberModeSelectionRedesign() {
                     }}
                     data-id={`objective-${objective.id}`}
                   >
-                    {/* Ligne scan verticale */}
+                    {/* Bordure légère du côté gauche */}
                     {!highContrastMode && (
                       <div 
-                        className={`absolute top-0 left-0 h-full w-px bg-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-400`}
-                        style={{
-                          opacity: 0.8,
-                          animation: 'scanLine 2s linear infinite'
-                        }}
-                      />
-                    )}
-                    
-                    {/* Ligne scan horizontale */}
-                    {!highContrastMode && (
-                      <div 
-                        className={`absolute top-0 left-0 w-full h-px bg-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-400`}
-                        style={{
-                          opacity: 0.8,
-                          animation: 'scanLineHorizontal 2s linear infinite'
-                        }}
+                        className={`absolute top-0 left-0 h-full w-1 bg-gradient-to-b from-transparent via-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-500/30 to-transparent`}
                       />
                     )}
                     
