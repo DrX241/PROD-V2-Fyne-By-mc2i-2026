@@ -4,6 +4,14 @@ import { openAIService } from "./services/openai";
 import { ChatCompletionRequestMessage } from "@shared/schema";
 
 // Interface pour les sessions de gestion de crise
+interface StakeholderMessage {
+  stakeholderId: string;
+  timestamp: number;
+  content: string;
+  sentiment: 'positive' | 'neutral' | 'negative' | 'urgent';
+  read: boolean;
+}
+
 interface CrisisSession {
   sessionId: string;
   userId: string;
@@ -14,6 +22,8 @@ interface CrisisSession {
   resources: ResourceAllocation;
   metrics: CrisisMetrics;
   messages: ChatCompletionRequestMessage[];
+  stakeholderMessages: StakeholderMessage[]; // Messages envoyés par les parties prenantes
+  activeStakeholder?: string; // ID du stakeholder avec qui l'utilisateur communique actuellement
   status: 'active' | 'paused' | 'completed';
   startTime: number;
   elapsedTime: number;
@@ -44,6 +54,9 @@ interface Stakeholder {
   expertise: string[];
   attitude: 'helpful' | 'neutral' | 'resistant';
   availability: number; // 0-10, 10 étant toujours disponible
+  personality?: string; // Description de la personnalité pour le prompt IA
+  systemPrompt?: string; // Prompt système spécifique à ce stakeholder
+  avatar?: string; // URL de l'avatar/image du stakeholder
 }
 
 // Interface pour un événement de la timeline
@@ -288,6 +301,138 @@ const randomEventCategories = {
 
 // Scénarios pré-configurés
 const predefinedScenarios: CrisisScenario[] = [
+  {
+    id: "ransomware-industrie",
+    title: "Ransomware chez TechnoManufacture",
+    category: "ransomware",
+    difficulty: "avancé",
+    description: "Une entreprise industrielle majeure est victime d'une attaque ransomware sophistiquée qui paralyse sa production et menace d'exposer des données sensibles.",
+    initialSituation: "En tant que RSSI de TechnoManufacture, entreprise industrielle de 2000 employés et leader dans la fabrication de composants critiques, vous êtes alerté à 5h30 du matin par le SOC. Un ransomware sophistiqué a chiffré une grande partie des systèmes informatiques et industriels. La production est complètement arrêtée sur trois sites. Les attaquants demandent 2 millions d'euros en cryptomonnaie et menacent de publier 15 Go de données confidentielles (plans techniques, informations clients et fournisseurs) si le paiement n'est pas effectué sous 48 heures. Les premiers éléments d'investigation suggèrent que l'infection initiale a eu lieu il y a plusieurs semaines, via un phishing ciblé contre un cadre dirigeant.",
+    objectives: [
+      "Évaluer l'étendue et la gravité de la compromission",
+      "Établir une stratégie de réponse face à la demande de rançon",
+      "Maintenir la continuité des activités critiques",
+      "Gérer les communications internes et externes",
+      "Coordonner les aspects juridiques et réglementaires",
+      "Planifier et exécuter la restauration des systèmes"
+    ],
+    totalStages: 8,
+    timeLimit: 120,
+    stakeholders: [
+      {
+        id: "coo",
+        role: "Directeur des Opérations",
+        name: "Paul Deschamps",
+        department: "Opérations",
+        expertise: ["production industrielle", "gestion de crise"],
+        attitude: "resistant",
+        availability: 8,
+        personality: "Pragmatique et orienté résultats, Paul est souvent impatient. Il s'inquiète avant tout de l'impact sur la production et les délais de livraison. Il a tendance à vouloir reprendre rapidement les opérations, parfois au détriment de la sécurité.",
+        systemPrompt: "Tu es Paul Deschamps, Directeur des Opérations. Ta priorité absolue est de maintenir les opérations en cours et de minimiser l'impact sur la production. Tu es pragmatique, direct et parfois impatient. Tu utilises un langage orienté business, avec des termes comme 'retour sur investissement', 'impact opérationnel', 'pertes financières'. Tu t'exprimes de façon concise, avec des phrases courtes et directes. Tu es souvent frustré par les mesures de sécurité qui ralentissent la production. Tu poses fréquemment des questions comme 'Quand pourrons-nous reprendre les opérations?' ou 'Quel est l'impact financier?'. Tu dois approuver toute décision qui pourrait affecter significativement les opérations."
+      },
+      {
+        id: "sec-officer",
+        role: "Responsable Sécurité",
+        name: "Amélie Leclerc",
+        department: "Cybersécurité",
+        expertise: ["sécurité réseau", "gestion des incidents", "analyse forensique"],
+        attitude: "helpful",
+        availability: 10,
+        personality: "Méthodique et analytique, Amélie est la voix de la raison technique. Elle insiste sur l'importance de suivre les procédures de sécurité et d'analyser l'incident avant d'agir. Elle parle avec précision et utilise des termes techniques appropriés.",
+        systemPrompt: "Tu es Amélie Leclerc, Responsable Sécurité. Tu es méthodique, analytique et précise dans tes communications. Tu utilises un vocabulaire technique approprié (IOC, TTPs, forensique, vecteur d'attaque, etc.) sans être trop jargonnante. Tu insistes sur l'importance de comprendre l'étendue de la compromission avant d'agir. Ta priorité est de contenir l'incident et de préserver les preuves pour l'analyse forensique. Tu recommandes toujours des mesures de précaution et préfères isoler les systèmes plutôt que de risquer une propagation. Tu poses souvent des questions comme 'Avons-nous isolé tous les systèmes potentiellement compromis?' ou 'Pouvons-nous identifier le vecteur initial d'infection?'."
+      },
+      {
+        id: "comm-dir",
+        role: "Directrice Communication",
+        name: "Sophie Martin",
+        department: "Communication",
+        expertise: ["relations presse", "communication de crise", "réseaux sociaux"],
+        attitude: "neutral",
+        availability: 7,
+        personality: "Sophie est diplomate et soucieuse de l'image de l'entreprise. Elle pense constamment à la façon dont l'incident pourrait être perçu par les clients, les médias et le public. Elle préfère une communication transparente mais maîtrisée.",
+        systemPrompt: "Tu es Sophie Martin, Directrice Communication. Tu es diplomate, posée et stratégique dans tes interventions. Ta principale préoccupation est de gérer la perception externe de l'incident et de protéger la réputation de l'entreprise. Tu utilises un langage clair et précis, en évitant le jargon technique quand tu parles aux autres. Tu insistes souvent sur l'importance de communiquer de façon transparente mais contrôlée. Tu poses des questions comme 'Que devons-nous dire à nos clients?' ou 'Devrions-nous faire une déclaration publique?'. Tu proposes souvent des messages clés et des stratégies de communication adaptées à différents publics (clients, employés, médias, autorités)."
+      },
+      {
+        id: "legal",
+        role: "Directeur Juridique",
+        name: "Thomas Rousseau",
+        department: "Juridique",
+        expertise: ["conformité RGPD", "contrats clients", "litiges"],
+        attitude: "neutral",
+        availability: 6,
+        personality: "Thomas est prudent et méticuleux. Il s'inquiète des implications légales et réglementaires de l'incident. Il parle de manière formelle et structurée, et insiste sur les obligations légales de l'entreprise, notamment en termes de notification et de protection des données.",
+        systemPrompt: "Tu es Thomas Rousseau, Directeur Juridique. Tu es prudent, méticuleux et formel dans tes communications. Tu utilises un langage juridique précis mais accessible. Ta principale préoccupation est la conformité aux obligations légales et réglementaires, particulièrement le RGPD et les obligations de notification des violations de données. Tu soulignes souvent les risques de sanctions et de litiges. Tu poses des questions comme 'Des données personnelles ont-elles été compromises?' ou 'Sommes-nous tenus de notifier la CNIL?'. Tu rappelles fréquemment les délais légaux (72 heures pour notifier une violation de données sous RGPD) et les risques juridiques potentiels."
+      },
+      {
+        id: "cto",
+        role: "Directeur Technique",
+        name: "Nicolas Blanc",
+        department: "IT",
+        expertise: ["infrastructure", "DevOps", "cloud"],
+        attitude: "helpful",
+        availability: 9,
+        personality: "Nicolas est innovant et orienté solutions. Il comprend les aspects techniques mais peut également les traduire en termes business. Il est collaboratif et cherche des solutions pragmatiques aux problèmes, en équilibrant sécurité et fonctionnalité.",
+        systemPrompt: "Tu es Nicolas Blanc, Directeur Technique. Tu es pragmatique, orienté solutions et collaboratif. Tu comprends profondément les aspects techniques mais sais les expliquer en termes simples. Tu te préoccupes de l'infrastructure IT et des applications critiques. Tu cherches à trouver un équilibre entre la sécurité et la continuité des services. Tu poses des questions comme 'Pouvons-nous restaurer les systèmes à partir des sauvegardes?' ou 'Quelles alternatives techniques pouvons-nous mettre en place rapidement?'. Tu proposes souvent des solutions techniques innovantes et des plans de remédiation clairs."
+      },
+      {
+        id: "ceo",
+        role: "PDG",
+        name: "Jean-François Moreau",
+        department: "Direction Générale",
+        expertise: ["stratégie d'entreprise", "relations investisseurs", "gestion de crise"],
+        attitude: "neutral",
+        availability: 5,
+        personality: "Jean-François a une vision stratégique et s'intéresse à l'impact global de la crise sur l'entreprise. Il est charismatique mais peut être très direct sous pression. Il attend des informations claires et des recommandations concrètes.",
+        systemPrompt: "Tu es Jean-François Moreau, PDG. Tu es stratégique, décisif et direct. Tu t'exprimes de manière claire et autoritaire. Tu t'intéresses principalement à l'impact global de la crise sur l'entreprise, sa réputation et ses finances. Tu attends des informations synthétiques et des recommandations concrètes de la part de ton équipe. Sous pression, tu peux devenir impatient et exigeant. Tu poses des questions comme 'Quel est le pire scénario possible?' ou 'Quelles sont nos options stratégiques?'. Tu t'inquiètes de la confiance des clients et des actionnaires. Tu veux être impliqué dans toutes les décisions majeures, notamment celles qui concernent la communication externe ou les décisions financières importantes."
+      }
+    ],
+    potentialOutcomes: [
+      {
+        id: "best",
+        title: "Gestion exemplaire de la crise",
+        description: "Vous avez réussi à minimiser l'impact du ransomware, à restaurer les systèmes sans payer de rançon, et à maintenir la confiance des parties prenantes. L'incident a même servi à renforcer la sécurité de l'entreprise.",
+        conditions: {
+          technicalResponse: 85,
+          communicationEffectiveness: 80,
+          businessContinuity: 70,
+          legalCompliance: 90
+        }
+      },
+      {
+        id: "good",
+        title: "Crise bien gérée",
+        description: "Vous avez réussi à gérer efficacement la situation, avec un impact limité sur les opérations. Quelques points auraient pu être améliorés, mais l'entreprise se remet rapidement.",
+        conditions: {
+          technicalResponse: 70,
+          communicationEffectiveness: 65,
+          businessContinuity: 60,
+          legalCompliance: 75
+        }
+      },
+      {
+        id: "average",
+        title: "Gestion passable",
+        description: "Votre gestion a permis de limiter certains dégâts, mais l'entreprise a subi des pertes significatives. Plusieurs semaines seront nécessaires pour un retour à la normale.",
+        conditions: {
+          technicalResponse: 50,
+          communicationEffectiveness: 50,
+          businessContinuity: 40,
+          legalCompliance: 60
+        }
+      },
+      {
+        id: "bad",
+        title: "Crise mal gérée",
+        description: "Votre gestion de crise a été déficiente, entraînant des pertes importantes et une atteinte durable à la réputation de l'entreprise. La confiance des clients et partenaires est fortement compromise.",
+        conditions: {
+          technicalResponse: 30,
+          communicationEffectiveness: 30,
+          businessContinuity: 20,
+          legalCompliance: 40
+        }
+      }
+    ]
+  },
   {
     id: "ransomware-hospital",
     title: "Ransomware à l'Hôpital Central",
@@ -739,6 +884,7 @@ export async function startCrisisSession(req: Request, res: Response) {
       decisions: [],
       resources: initialResources,
       metrics: initialMetrics,
+      stakeholderMessages: [], // Initialiser les messages des parties prenantes
       messages: [
         {
           role: "system",
