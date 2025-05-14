@@ -58,6 +58,15 @@
   }
 }
 
+@keyframes scanLineHorizontal {
+  0% {
+    top: -10%;
+  }
+  100% {
+    top: 110%;
+  }
+}
+
 /* Effet de flicker pour les éléments néon */
 .neon-flicker {
   animation: flicker 5s infinite alternate;

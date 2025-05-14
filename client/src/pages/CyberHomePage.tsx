@@ -80,7 +80,7 @@ const CyberHomePage: React.FC = () => {
       color: 'text-cyan-400',
       bgColor: 'bg-blue-900/20',
       accentColor: 'border-cyan-500/50',
-      route: '/cyber'
+      route: '/cyber-mode-selection-fixed'
     },
     {
       id: 'data',
@@ -319,7 +319,7 @@ const CyberHomePage: React.FC = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
               {modules.map((module) => (
                 <motion.div
                   key={module.id}
@@ -351,7 +351,7 @@ const CyberHomePage: React.FC = () => {
                     {module.description}
                   </p>
                   
-                  {/* Ligne scan */}
+                  {/* Ligne scan - Ajustée pour tous les modules */}
                   <div 
                     className={`absolute top-0 left-0 h-full w-px ${module.color.replace('text', 'bg')}`}
                     style={{
@@ -361,10 +361,25 @@ const CyberHomePage: React.FC = () => {
                     }}
                   />
                   
+                  {/* Ligne scan horizontale pour tous les modules */}
+                  <div 
+                    className={`absolute top-0 left-0 w-full h-px ${module.color.replace('text', 'bg')}`}
+                    style={{
+                      opacity: hoveredModule === module.id ? 0.8 : 0,
+                      transform: 'translateY(-100%)',
+                      animation: hoveredModule === module.id ? 'scanLineHorizontal 1.5s linear infinite' : 'none'
+                    }}
+                  />
+                  
                   {/* Button */}
                   <div className="mt-auto pt-4">
                     <CyberButton 
-                      variant={module.id === 'cyber' ? 'primary' : module.id === 'data' ? 'secondary' : 'primary'}
+                      variant={
+                        module.id === 'cyber' ? 'primary' :
+                        module.id === 'data' ? 'secondary' :
+                        module.id === 'mc2i' ? 'primary' :
+                        'danger'
+                      }
                       onClick={() => setLocation(module.route)}
                       className="w-full"
                     >
