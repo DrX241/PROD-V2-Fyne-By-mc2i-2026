@@ -82,8 +82,48 @@ interface GameState {
   gameAnalysis?: any;
 }
 
-// Fonction utilitaire pour formater le texte de façon totalement épurée, sans Markdown
-const formatTextWithStructure = (text: string): string => {
+// Types pour les boutons interactifs
+interface QuizButton {
+  text: string;
+  action: 'answer' | 'end' | 'challenge';
+  value?: string;
+  isCorrect?: boolean;
+}
+
+// Fonction utilitaire pour formater le texte et extraire les boutons interactifs
+const formatTextWithStructure = (text: string): { formattedText: string, buttons: QuizButton[] } => {
+  const buttons: QuizButton[] = [];
+  
+  // Extraire les boutons [Oui] [Non] et autres boutons de réponse
+  const buttonRegex = /\[(Oui|Non|A|B|C|D|Terminer la session|Voir résumé|Continuer)\]/g;
+  const buttonMatches = text.match(buttonRegex);
+  
+  if (buttonMatches) {
+    buttonMatches.forEach(match => {
+      const buttonText = match.replace(/[\[\]]/g, '');
+      
+      // Déterminer le type de bouton
+      let actionType: 'answer' | 'end' | 'challenge' = 'answer';
+      let isCorrect = undefined;
+      
+      if (buttonText === 'Terminer la session' || buttonText === 'Voir résumé') {
+        actionType = 'end';
+      } else if (buttonText === 'Continuer') {
+        actionType = 'challenge';
+      } else if (buttonText === 'A') {
+        // Par défaut, considérer A comme la bonne réponse pour les quiz
+        isCorrect = true;
+      }
+      
+      buttons.push({
+        text: buttonText,
+        action: actionType,
+        value: buttonText,
+        isCorrect
+      });
+    });
+  }
+  
   // Conservation du texte brut avec seulement quelques formatages HTML minimaux
   let formattedText = text
     // Remplacer ** par du texte normal (pas de gras)
@@ -109,12 +149,19 @@ const formatTextWithStructure = (text: string): string => {
     // Remplacer les balises personnalisées par du texte simple
     .replace(/\[DÉFI\]([\s\S]*?)\[\/DÉFI\]/g, '$1')
     .replace(/\[INFO\]([\s\S]*?)\[\/INFO\]/g, '$1')
-    .replace(/\[ALERTE\]([\s\S]*?)\[\/ALERTE\]/g, '$1');
+    .replace(/\[ALERTE\]([\s\S]*?)\[\/ALERTE\]/g, '$1')
+    
+    // Supprimer les boutons du texte (ils seront ajoutés séparément)
+    .replace(/\[(Oui|Non|A|B|C|D|Terminer la session|Voir résumé|Continuer)\]/g, '');
 
   // Préserver les sauts de ligne
   formattedText = formattedText.replace(/\n/g, '<br>');
   
-  return formattedText;
+  // Mettre en évidence le score quand il est mentionné
+  formattedText = formattedText.replace(/Score\s*:\s*(\d+)\s*points/g, 
+    '<div class="text-green-400 font-bold my-1">Score : $1 points</div>');
+  
+  return { formattedText, buttons };
 };
 
 // Composant principal
@@ -307,12 +354,23 @@ export default function CyberPulseGame() {
   };
   
   // Génération d'un nouveau défi cyber
-  const handleGenerateChallenge = async (type?: string) => {
+  // Améliorée pour supporter le système de score et les boutons de réponse
+  const handleGenerateChallenge = async (type?: string, answer?: string, isCorrect?: boolean) => {
     if (!sessionId || isLoading) return;
     
     setIsLoading(true);
     
     try {
+      // Si c'est une réponse à un quiz, l'afficher d'abord comme message utilisateur
+      if (answer && (isCorrect !== undefined)) {
+        setMessages(prev => [...prev, {
+          id: Math.random().toString(36).substring(2, 11),
+          type: 'user',
+          content: `Réponse: ${answer}`,
+          timestamp: Date.now()
+        }]);
+      }
+      
       const response = await fetch('/api/cyber-pulse/challenge', {
         method: 'POST',
         headers: {
@@ -320,7 +378,9 @@ export default function CyberPulseGame() {
         },
         body: JSON.stringify({
           sessionId,
-          challengeType: type
+          challengeType: type,
+          answer,
+          isCorrect
         }),
       });
       
@@ -335,7 +395,7 @@ export default function CyberPulseGame() {
         setMessages(prev => [...prev, {
           id: Math.random().toString(36).substring(2, 11),
           type: 'bot',
-          content: data.challenge,
+          content: data.message || data.challenge,
           timestamp: Date.now()
         }]);
         
@@ -707,12 +767,40 @@ export default function CyberPulseGame() {
                           }`}
                         >
                           {message.type === "bot" ? (
-                            <div 
-                              className="prose prose-invert max-w-none text-gray-200 text-base prose-headings:text-cyan-300 prose-li:marker:text-cyan-400 prose-strong:text-white" 
-                              dangerouslySetInnerHTML={{ 
-                                __html: DOMPurify.sanitize(formatTextWithStructure(message.content)) 
-                              }}
-                            />
+                            <div>
+                              <div 
+                                className="prose prose-invert max-w-none text-gray-200 text-base prose-headings:text-cyan-300 prose-li:marker:text-cyan-400 prose-strong:text-white" 
+                                dangerouslySetInnerHTML={{ 
+                                  __html: DOMPurify.sanitize(formatTextWithStructure(message.content).formattedText) 
+                                }}
+                              />
+                              
+                              {/* Boutons interactifs */}
+                              {formatTextWithStructure(message.content).buttons.length > 0 && (
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                  {formatTextWithStructure(message.content).buttons.map((button, index) => (
+                                    <Button
+                                      key={index}
+                                      variant={button.action === 'end' ? 'destructive' : button.action === 'challenge' ? 'default' : 'outline'}
+                                      size="sm"
+                                      className={button.action === 'answer' ? `border ${getBorderColor()} hover:bg-gray-800` : ''}
+                                      onClick={() => {
+                                        if (button.action === 'end') {
+                                          handleGenerateChallenge('summary');
+                                        } else if (button.action === 'challenge') {
+                                          handleGenerateChallenge();
+                                        } else {
+                                          // Pour les réponses de quiz
+                                          handleGenerateChallenge(undefined, button.value, button.isCorrect);
+                                        }
+                                      }}
+                                    >
+                                      {button.text}
+                                    </Button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                           ) : (
                             <p className="text-gray-200 text-base">{message.content}</p>
                           )}
