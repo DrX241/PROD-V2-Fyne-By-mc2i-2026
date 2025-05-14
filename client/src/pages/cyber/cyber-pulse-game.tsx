@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "wouter";
+import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import DOMPurify from "dompurify";
 import { 
@@ -15,7 +15,7 @@ import {
   ChevronRight,
   Settings,
   X,
-  Lightning,
+  Zap as Lightning,
   Target,
   Gamepad2,
   Star,
@@ -51,7 +51,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue
-} from "@/components/ui";
+} from "@/components/ui/index";
 import { useToast } from "@/hooks/use-toast";
 
 // Types
@@ -130,7 +130,7 @@ const formatTextWithStructure = (text: string): string => {
 
 // Composant principal
 export default function CyberPulseGame() {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');

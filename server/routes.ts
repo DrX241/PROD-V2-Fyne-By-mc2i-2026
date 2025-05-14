@@ -37,6 +37,7 @@ import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearn
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
 import * as amoaExpertController from "./amoaExpertController";
+import { initCyberPulseSession, processCyberPulseMessage, generateCyberChallenge, checkInactivity, updateCyberPulsePreferences, updatePlayerScore } from "./cyberPulseGameController";
 import { startImposteurSimulation, processImposteurMessage, completeImposteurSimulation } from "./imposteurSimulationController";
 import { simulateTargetResponse, analyzePerformance } from "./brainHackerController";
 import { analyzeDefenseStrategy, generateAttackScenario, generateTacticalTip } from "./firewallTactiqueController";
@@ -781,6 +782,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber-expert/init', initCyberExpertSession);
   app.post('/api/cyber-expert/message', processCyberExpertMessage);
   app.post('/api/cyber-expert/terminate', terminateCyberExpertSession);
+  
+  // Routes pour CyberPULSE - chatbot ludique et interactif
+  app.post('/api/cyber-pulse/init', initCyberPulseSession);
+  app.post('/api/cyber-pulse/message', processCyberPulseMessage);
+  app.post('/api/cyber-pulse/challenge', generateCyberChallenge);
+  app.post('/api/cyber-pulse/check-inactivity', checkInactivity);
+  app.post('/api/cyber-pulse/preferences', updateCyberPulsePreferences);
+  app.post('/api/cyber-pulse/score', updatePlayerScore);
   
   // Routes pour le flux de décision de l'expert cyber
   app.post('/api/cyber-expert/decisions/start', startDecisionFlow);
