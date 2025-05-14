@@ -192,6 +192,23 @@ export default function CyberPulseGame() {
   
   // Effet pour initialiser la session
   useEffect(() => {
+    // Récupérer les préférences sauvegardées
+    const savedVisualStyle = localStorage.getItem('cyberpulse-visualstyle');
+    const savedFocusArea = localStorage.getItem('cyberpulse-focusarea');
+    const savedPlayerName = localStorage.getItem('cyberpulse-playername');
+    
+    // Appliquer les préférences sauvegardées
+    if (savedVisualStyle) {
+      setVisualStyle(savedVisualStyle);
+    }
+    if (savedFocusArea) {
+      setFocusArea(savedFocusArea);
+    }
+    if (savedPlayerName) {
+      setPlayerName(savedPlayerName);
+    }
+    
+    // Initialiser la session
     initializeSession();
     
     // Cleanup
@@ -421,10 +438,26 @@ export default function CyberPulseGame() {
   };
   
   // Mise à jour des préférences de l'utilisateur
+  // Version améliorée qui réinitialise la session lorsque le domaine change
   const handleUpdatePreferences = async () => {
     if (!sessionId) return;
     
+    // Sauvegarde de l'ancien domaine pour comparaison
+    const oldFocusArea = localStorage.getItem('cyberpulse-focusarea') || '';
+    const shouldResetSession = focusArea && focusArea !== oldFocusArea;
+    
+    setIsLoading(true);
+    
     try {
+      // Sauvegarder les préférences
+      localStorage.setItem('cyberpulse-visualstyle', visualStyle);
+      if (focusArea) {
+        localStorage.setItem('cyberpulse-focusarea', focusArea);
+      }
+      if (playerName) {
+        localStorage.setItem('cyberpulse-playername', playerName);
+      }
+      
       const response = await fetch('/api/cyber-pulse/preferences', {
         method: 'POST',
         headers: {
@@ -434,7 +467,8 @@ export default function CyberPulseGame() {
           sessionId,
           preferences: {
             visualStyle,
-            focusArea: focusArea ? [focusArea] : undefined
+            focusArea: focusArea ? [focusArea] : undefined,
+            playerName: playerName || undefined
           }
         }),
       });
@@ -447,10 +481,23 @@ export default function CyberPulseGame() {
       
       if (data.success) {
         setIsSettingsOpen(false);
-        toast({
-          title: 'Préférences mises à jour',
-          description: 'Vos préférences ont été enregistrées avec succès.',
-        });
+        
+        // Si le domaine a changé, réinitialiser la session
+        if (shouldResetSession) {
+          toast({
+            title: 'Domaine mis à jour',
+            description: 'La conversation va être réinitialisée avec le nouveau domaine.',
+          });
+          
+          // Effacer les messages et réinitialiser la session
+          setMessages([]);
+          initializeSession();
+        } else {
+          toast({
+            title: 'Préférences mises à jour',
+            description: 'Vos préférences ont été enregistrées avec succès.',
+          });
+        }
       } else {
         throw new Error(data.error || 'Échec de la mise à jour des préférences');
       }
@@ -461,6 +508,8 @@ export default function CyberPulseGame() {
         description: `Impossible de mettre à jour les préférences: ${error instanceof Error ? error.message : 'Erreur inconnue'}`,
         variant: 'destructive',
       });
+    } finally {
+      setIsLoading(false);
     }
   };
   
