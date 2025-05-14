@@ -72,8 +72,13 @@ export default function Header({ isFeny = false }) {
             <img src={mclogo} alt="mc2i Logo" className="h-7 sm:h-9" />
           </a>
         </div>
-        <div className="flex items-center">
-          {/* Affichage de l'utilisateur existant uniquement */}
+        <div className="flex items-center gap-2 sm:gap-5">
+          {/* Indicateur OpenAI pour la connectivité */}
+          <div className="flex items-center">
+            <OpenAIStatusIndicator position="in-header" showModelToggle={true} />
+          </div>
+          
+          {/* Affichage de l'utilisateur existant */}
           {userName && (
             <div className="flex items-center gap-1 sm:gap-2">
               <div className={`h-6 w-6 sm:h-8 sm:w-8 rounded-full ${userInitialBgClass} flex items-center justify-center font-medium text-xs sm:text-base`}>
