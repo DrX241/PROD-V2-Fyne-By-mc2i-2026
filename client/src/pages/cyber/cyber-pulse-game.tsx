@@ -451,10 +451,11 @@ export default function CyberPulseGame() {
       clearTimeout(inactivityTimerRef.current);
     }
     
-    // Vérifier l'inactivité après 30 secondes
+    // Vérifier l'inactivité après 2 minutes (120 secondes) au lieu de 30 secondes
+    // Cela réduit les erreurs et les interruptions trop fréquentes
     inactivityTimerRef.current = setTimeout(() => {
       checkInactivity();
-    }, 30000);
+    }, 120000);
   };
   
   // Gestion du défilement vers le bas de la conversation
