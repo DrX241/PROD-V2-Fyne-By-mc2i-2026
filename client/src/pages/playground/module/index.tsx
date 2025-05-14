@@ -181,10 +181,94 @@ export default function LearningModulePage() {
   const [showHint, setShowHint] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   
-  // Charger le module
+  // Charger le module (depuis les exemples statiques ou l'API)
   useEffect(() => {
-    if (modules[moduleId]) {
-      setCurrentModule(modules[moduleId]);
+    const loadModule = async () => {
+      // 1. Essayer de charger depuis les modules statiques d'exemple
+      if (modules[moduleId]) {
+        setCurrentModule(modules[moduleId]);
+      } 
+      // 2. Sinon, essayer de charger depuis l'API
+      else {
+        try {
+          // Faire une requête à l'API pour récupérer le module personnalisé
+          const response = await fetch(`/api/module-generator/module/${moduleId}`);
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.module) {
+              // Adapter le format du module personnalisé au format attendu
+              const customModule: LearningModule = {
+                id: data.module.id.toString(),
+                title: data.module.name || data.module.iamName,
+                description: data.module.description,
+                level: data.module.difficulty === 'beginner' ? 1 : data.module.difficulty === 'intermediate' ? 2 : 3,
+                xp: 200,
+                cards: []
+              };
+              
+              // Extraire les cartes des données moduleData selon la structure
+              const moduleData = data.module.moduleData;
+              
+              if (moduleData) {
+                // Ajouter des cartes d'explication pour chaque section
+                customModule.cards.push({
+                  id: 'intro-card',
+                  type: 'explanation',
+                  content: moduleData.description || data.module.description
+                });
+                
+                // Ajouter d'autres cartes selon les sections du module
+                if (moduleData.seFormer || moduleData.trainerModule) {
+                  const trainingContent = moduleData.seFormer || moduleData.trainerModule;
+                  customModule.cards.push({
+                    id: 'training-card',
+                    type: 'explanation',
+                    content: `<h3>Formation</h3><p>${trainingContent.content || JSON.stringify(trainingContent)}</p>`
+                  });
+                }
+                
+                if (moduleData.sEntrainer || moduleData.opsModule) {
+                  const practiceContent = moduleData.sEntrainer || moduleData.opsModule;
+                  customModule.cards.push({
+                    id: 'practice-card',
+                    type: 'explanation',
+                    content: `<h3>Pratique</h3><p>${practiceContent.content || JSON.stringify(practiceContent)}</p>`
+                  });
+                }
+                
+                if (moduleData.sEvaluer || moduleData.testModule) {
+                  const evalContent = moduleData.sEvaluer || moduleData.testModule;
+                  customModule.cards.push({
+                    id: 'eval-card',
+                    type: 'explanation',
+                    content: `<h3>Évaluation</h3><p>${evalContent.content || JSON.stringify(evalContent)}</p>`
+                  });
+                }
+                
+                if (moduleData.automatiser || moduleData.ascensionModule) {
+                  const autoContent = moduleData.automatiser || moduleData.ascensionModule;
+                  customModule.cards.push({
+                    id: 'auto-card',
+                    type: 'explanation',
+                    content: `<h3>Automatisation</h3><p>${autoContent.content || JSON.stringify(autoContent)}</p>`
+                  });
+                }
+              }
+              
+              setCurrentModule(customModule);
+            }
+          }
+        } catch (error) {
+          console.error("Erreur lors du chargement du module:", error);
+          toast({
+            title: "Erreur",
+            description: "Impossible de charger le module personnalisé",
+            variant: "destructive"
+          });
+        }
+      }
+      
       // Réinitialiser les états si on change de module
       setCurrentCardIndex(0);
       setCompletedCards([]);
@@ -194,8 +278,10 @@ export default function LearningModulePage() {
       setShowTerminalResponse(false);
       setShowHint(false);
       setIsCorrect(null);
-    }
-  }, [moduleId]);
+    };
+    
+    loadModule();
+  }, [moduleId, toast]);
   
   // Obtenir la carte actuelle
   const currentCard = currentModule?.cards[currentCardIndex];
