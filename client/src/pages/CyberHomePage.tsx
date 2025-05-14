@@ -90,7 +90,7 @@ const CyberHomePage: React.FC = () => {
       color: 'text-purple-400',
       bgColor: 'bg-purple-900/20',
       accentColor: 'border-purple-500/50',
-      route: '/data'
+      route: '/data-ia-mode-selection'
     },
     {
       id: 'mc2i',
@@ -100,7 +100,17 @@ const CyberHomePage: React.FC = () => {
       color: 'text-emerald-400',
       bgColor: 'bg-emerald-900/20',
       accentColor: 'border-emerald-500/50',
-      route: '/mc2i'
+      route: '/amoa-mode-selection-fixed'
+    },
+    {
+      id: 'generator',
+      title: 'SOYEZ QUI VOUS VOULEZ',
+      description: 'Créez vos propres modules de formation personnalisés',
+      icon: <Zap size={24} />,
+      color: 'text-amber-400',
+      bgColor: 'bg-amber-900/20',
+      accentColor: 'border-amber-500/50',
+      route: '/playground/module-generator-new'
     }
   ];
 
@@ -236,7 +246,7 @@ const CyberHomePage: React.FC = () => {
                   variant="primary"
                   size="lg"
                   glowIntensity="high"
-                  onClick={() => setLocation('/modules')}
+                  onClick={() => setLocation('/cyber')}
                 >
                   Explorer les modules
                 </CyberButton>
@@ -244,9 +254,9 @@ const CyberHomePage: React.FC = () => {
                 <CyberButton 
                   variant="secondary"
                   size="lg"
-                  onClick={() => {}}
+                  onClick={() => setLocation('/cyber/cyber-pulse')}
                 >
-                  Voir la démo
+                  CyberPULSE Game
                 </CyberButton>
               </div>
               
@@ -429,9 +439,9 @@ const CyberHomePage: React.FC = () => {
                     variant="primary"
                     size="lg"
                     glowIntensity="high"
-                    onClick={() => {}}
+                    onClick={() => setLocation('/playground/module-generator-new')}
                   >
-                    Démarrer Maintenant
+                    Créer votre Module
                   </CyberButton>
                 </div>
                 
