@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Shield, BookOpen, Terminal, CheckSquare, Database, ChevronRight, ArrowRight } from 'lucide-react';
+import { ArrowLeft, BookOpen, Terminal, CheckCircle, Database, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import HomeLayout from '@/components/layout/HomeLayout';
 import DOMPurify from 'dompurify';
 
@@ -48,58 +45,20 @@ interface CustomModule {
 }
 
 // Fonction pour sanitizer et rendre du texte simple
-function sanitizeText(text: string): string {
+function sanitizeText(text: string | undefined): string {
   if (!text) return '';
   const sanitized = DOMPurify.sanitize(text);
   return typeof sanitized === 'string' ? sanitized : '';
 }
 
-// Badge de difficulté
-function renderDifficultyBadge(difficulty: string) {
-  const difficultyMap: Record<string, { bg: string, text: string, label: string }> = {
-    'beginner': { 
-      bg: 'bg-green-600', 
-      text: 'text-white',
-      label: 'Débutant'
-    },
-    'débutant': { 
-      bg: 'bg-green-600', 
-      text: 'text-white',
-      label: 'Débutant'
-    },
-    'intermediate': { 
-      bg: 'bg-blue-600', 
-      text: 'text-white',
-      label: 'Intermédiaire'
-    },
-    'intermédiaire': { 
-      bg: 'bg-blue-600', 
-      text: 'text-white',
-      label: 'Intermédiaire'
-    },
-    'advanced': { 
-      bg: 'bg-purple-600', 
-      text: 'text-white',
-      label: 'Avancé'
-    },
-    'avancé': { 
-      bg: 'bg-purple-600', 
-      text: 'text-white',
-      label: 'Avancé'
-    }
+// Pour convertir la difficulté en texte français
+function difficultyText(difficulty: string): string {
+  const map: Record<string, string> = {
+    'beginner': 'Débutant',
+    'intermediate': 'Intermédiaire',
+    'advanced': 'Avancé'
   };
-
-  const diffInfo = difficultyMap[difficulty?.toLowerCase()] || { 
-    bg: 'bg-gray-600', 
-    text: 'text-white',
-    label: 'Tous niveaux'
-  };
-
-  return (
-    <Badge variant="secondary" className={`${diffInfo.bg} ${diffInfo.text} px-2 py-1`}>
-      {diffInfo.label}
-    </Badge>
-  );
+  return map[difficulty?.toLowerCase()] || 'Tous niveaux';
 }
 
 export default function ModuleDetailPage() {
@@ -108,8 +67,7 @@ export default function ModuleDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("seFormer");
-  const [highContrastMode] = useState(false); // Option pour un mode haut contraste
+  const [selectedSection, setSelectedSection] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchModuleData() {
@@ -163,13 +121,207 @@ export default function ModuleDetailPage() {
     }
   }, [id, toast]);
 
+  // Afficher le détail d'une section spécifique
+  const renderSectionDetail = () => {
+    if (!selectedSection || !module) return null;
+
+    const sectionData: ModuleSection = module[selectedSection as keyof CustomModule] as ModuleSection;
+    if (!sectionData) return null;
+
+    const getSectionColor = (section: string) => {
+      switch(section) {
+        case 'seFormer': return 'bg-blue-700';
+        case 'sEntrainer': return 'bg-indigo-700';
+        case 'sEvaluer': return 'bg-purple-700';
+        case 'automatiser': return 'bg-teal-700';
+        default: return 'bg-gray-700';
+      }
+    };
+
+    const getSectionIcon = (section: string) => {
+      switch(section) {
+        case 'seFormer': return <BookOpen className="h-6 w-6 text-white" />;
+        case 'sEntrainer': return <Terminal className="h-6 w-6 text-white" />;
+        case 'sEvaluer': return <CheckCircle className="h-6 w-6 text-white" />;
+        case 'automatiser': return <Database className="h-6 w-6 text-white" />;
+        default: return null;
+      }
+    };
+
+    const getSectionTitle = (section: string) => {
+      switch(section) {
+        case 'seFormer': return 'SE FORMER';
+        case 'sEntrainer': return 'S\'ENTRAÎNER';
+        case 'sEvaluer': return 'S\'ÉVALUER';
+        case 'automatiser': return 'AUTOMATISER';
+        default: return section;
+      }
+    };
+
+    return (
+      <div className="mt-8">
+        <div className="mb-6 flex justify-between items-center">
+          <Button 
+            variant="outline"
+            className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30"
+            onClick={() => setSelectedSection(null)}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Retour
+          </Button>
+        </div>
+
+        <div className={`p-6 rounded-lg ${getSectionColor(selectedSection)} mb-6`}>
+          <div className="flex items-center">
+            <div className="bg-white/10 p-3 rounded-md mr-4">
+              {getSectionIcon(selectedSection)}
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-white">{getSectionTitle(selectedSection)}</h2>
+              {sectionData.description && (
+                <p className="text-white/80 mt-1">{sectionData.description}</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-8 bg-white/5 border border-white/10 rounded-lg p-6">
+          <div className="text-white">
+            {sectionData.content && (
+              <div className="mb-6 whitespace-pre-line">
+                {sanitizeText(sectionData.content)}
+              </div>
+            )}
+
+            {selectedSection === 'seFormer' && sectionData.modules && sectionData.modules.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-xl font-bold mb-4">Modules d'apprentissage</h3>
+                <div className="space-y-3">
+                  {sectionData.modules.map((item, index) => (
+                    <div 
+                      key={index} 
+                      className="p-4 rounded-lg bg-blue-900/30 border border-blue-700/50 hover:bg-blue-800/40 transition-colors"
+                    >
+                      <div className="flex items-center">
+                        <div className="bg-blue-800/70 p-2 rounded-lg mr-3">
+                          <BookOpen className="h-5 w-5 text-blue-200" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-white">{item.title}</h4>
+                          {item.description && (
+                            <p className="text-blue-200 text-sm mt-1">{item.description}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedSection === 'sEntrainer' && sectionData.exercices && sectionData.exercices.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-xl font-bold mb-4">Exercices pratiques</h3>
+                <div className="space-y-3">
+                  {sectionData.exercices.map((item, index) => (
+                    <div 
+                      key={index} 
+                      className="p-4 rounded-lg bg-indigo-900/30 border border-indigo-700/50 hover:bg-indigo-800/40 transition-colors"
+                    >
+                      <div className="flex items-center">
+                        <div className="bg-indigo-800/70 p-2 rounded-lg mr-3">
+                          <Terminal className="h-5 w-5 text-indigo-200" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-white">{item.title}</h4>
+                          {item.description && (
+                            <p className="text-indigo-200 text-sm mt-1">{item.description}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedSection === 'sEvaluer' && sectionData.objectives && sectionData.objectives.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-xl font-bold mb-4">Objectifs d'évaluation</h3>
+                <div className="space-y-3">
+                  {sectionData.objectives.map((objective, index) => (
+                    <div 
+                      key={index} 
+                      className="p-4 rounded-lg bg-purple-900/30 border border-purple-700/50"
+                    >
+                      <div className="flex items-start">
+                        <div className="bg-purple-800/70 p-2 rounded-lg mr-3 mt-0.5">
+                          <CheckCircle className="h-5 w-5 text-purple-200" />
+                        </div>
+                        <p className="text-white">{objective}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedSection === 'automatiser' && sectionData.tools && sectionData.tools.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-xl font-bold mb-4">Outils d'automatisation</h3>
+                <div className="space-y-3">
+                  {sectionData.tools.map((tool, index) => (
+                    <div 
+                      key={index} 
+                      className="p-4 rounded-lg bg-teal-900/30 border border-teal-700/50 hover:bg-teal-800/40 transition-colors"
+                    >
+                      <div className="flex items-center">
+                        <div className="bg-teal-800/70 p-2 rounded-lg mr-3">
+                          <Database className="h-5 w-5 text-teal-200" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-white">{tool.name}</h4>
+                          {tool.description && (
+                            <p className="text-teal-200 text-sm mt-1">{tool.description}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center">
+          <Button 
+            variant="outline"
+            className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30"
+            onClick={() => setSelectedSection(null)}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Retour
+          </Button>
+          <Button 
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+            onClick={() => window.location.href = '/playground'}
+          >
+            <span>Continuer</span>
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <HomeLayout>
         <div className="flex items-center justify-center min-h-[calc(100vh-100px)]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <h3 className="text-xl font-medium font-rajdhani">Chargement du module...</h3>
+            <h3 className="text-xl font-medium">Chargement du module...</h3>
           </div>
         </div>
       </HomeLayout>
@@ -181,8 +333,8 @@ export default function ModuleDetailPage() {
       <HomeLayout>
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-100px)]">
           <div className="text-center">
-            <Shield className="h-16 w-16 text-red-500 mx-auto mb-4" />
-            <h3 className="text-xl font-medium mb-2 font-rajdhani">Erreur de chargement</h3>
+            <div className="text-red-500 text-4xl mb-4">⚠️</div>
+            <h3 className="text-xl font-medium mb-2">Erreur de chargement</h3>
             <p className="text-gray-600 dark:text-gray-400 mb-4">{error || "Impossible de charger le module demandé"}</p>
             <Button onClick={() => window.history.back()}>
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -194,44 +346,16 @@ export default function ModuleDetailPage() {
     );
   }
 
-  // Récupérer l'icône en fonction du domaine
-  const getDomainIcon = () => {
-    const domain = module.domain?.toLowerCase() || '';
-    
-    if (domain.includes('cyber') || domain.includes('hack') || domain.includes('security')) {
-      return <Shield className="h-6 w-6 text-white" />;
-    } else if (domain.includes('data') || domain.includes('analytics') || domain.includes('ia')) {
-      return <Database className="h-6 w-6 text-white" />;
-    } else {
-      return <Shield className="h-6 w-6 text-white" />;
-    }
-  };
-
-  // Récupérer le gradient en fonction du domaine
-  const getDomainGradient = () => {
-    const domain = module.domain?.toLowerCase() || '';
-    
-    if (domain.includes('cyber') || domain.includes('hack') || domain.includes('security')) {
-      return 'from-blue-700 to-blue-900';
-    } else if (domain.includes('data') || domain.includes('analytics') || domain.includes('ia')) {
-      return 'from-indigo-700 to-indigo-900';
-    } else if (domain.includes('client') || domain.includes('amoa') || domain.includes('projet')) {
-      return 'from-green-700 to-green-900';
-    } else {
-      return 'from-purple-700 to-purple-900';
-    }
-  };
-
   return (
     <HomeLayout>
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black pb-16">
-        <div className="relative container mx-auto px-4 pt-10">
+      <div className="min-h-screen bg-gradient-to-b from-blue-950 to-black pb-16">
+        <div className="container mx-auto px-4 pt-10">
           {/* Bouton retour */}
           <div className="mb-10">
             <Link href="/playground">
               <Button 
                 variant="outline" 
-                className="bg-gray-800/60 border-gray-700 text-white hover:bg-gray-700/60 hover:text-white"
+                className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Retour
@@ -239,424 +363,185 @@ export default function ModuleDetailPage() {
             </Link>
           </div>
 
-          {/* En-tête du module */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className={`w-full rounded-xl p-8 shadow-xl mb-10 bg-gradient-to-br ${getDomainGradient()}`}
-          >
-            <div className="flex flex-col md:flex-row md:items-start gap-6">
-              <div className={`p-4 rounded-xl ${highContrastMode ? 'bg-gray-800' : 'bg-white/10'} self-start hidden md:block`}>
-                {getDomainIcon()}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-4 mb-2 md:hidden">
-                  <div className={`p-3 rounded-xl ${highContrastMode ? 'bg-gray-800' : 'bg-white/10'}`}>
-                    {getDomainIcon()}
-                  </div>
-                  <h1 className="text-2xl font-extrabold text-white font-exo tracking-wide">{module.iamName || module.title}</h1>
-                </div>
-                <h1 className="text-3xl font-extrabold text-white font-exo tracking-wide hidden md:block mb-3">{module.iamName || module.title}</h1>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {renderDifficultyBadge(module.difficulty)}
-                  <Badge variant="secondary" className="bg-white/20 text-white px-2 py-1">
-                    {module.domain}
-                  </Badge>
-                </div>
-                <p className="text-lg text-white/90 mb-5 max-w-4xl">{module.description}</p>
-                
-                {module.contentStructure && (
-                  <div className="bg-white/10 rounded-lg p-4 border border-white/20">
-                    <h3 className="font-medium text-white mb-2">Structure du module</h3>
-                    <p className="text-white/80">{module.contentStructure}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </motion.div>
+          {/* Titre central du style I AM CYBER */}
+          {!selectedSection && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center mb-16"
+            >
+              <h1 className="text-5xl font-bold mb-4 text-white">
+                {module.iamName || module.title}
+              </h1>
+              <p className="max-w-3xl mx-auto text-xl text-blue-200">
+                {module.description}
+              </p>
+            </motion.div>
+          )}
 
-          {/* Système d'onglets */}
-          <Tabs 
-            value={activeTab} 
-            onValueChange={setActiveTab}
-            className="w-full"
-          >
-            <TabsList className="grid grid-cols-4 mb-8 bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden p-0">
-              <TabsTrigger 
-                value="seFormer" 
-                className="data-[state=active]:bg-blue-900/60 rounded-none border-r border-gray-700 py-3 px-3"
+          {/* Afficher soit la grille des 4 sections, soit le détail d'une section */}
+          {!selectedSection ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {/* Section SE FORMER */}
+              <Card 
+                className="rounded-xl p-8 shadow-lg bg-gradient-to-br from-blue-700 to-blue-900 border-0"
+                onClick={() => module.seFormer && setSelectedSection('seFormer')}
               >
-                <BookOpen className="h-5 w-5 mr-2" />
-                <span className="hidden sm:inline">Se Former</span>
-                <span className="sm:hidden">Former</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="sEntrainer" 
-                className="data-[state=active]:bg-green-900/60 rounded-none border-r border-gray-700 py-3 px-3"
-              >
-                <Terminal className="h-5 w-5 mr-2" />
-                <span className="hidden sm:inline">S'Entraîner</span>
-                <span className="sm:hidden">Entraîner</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="sEvaluer" 
-                className="data-[state=active]:bg-amber-900/60 rounded-none border-r border-gray-700 py-3 px-3"
-              >
-                <CheckSquare className="h-5 w-5 mr-2" />
-                <span className="hidden sm:inline">S'Évaluer</span>
-                <span className="sm:hidden">Évaluer</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="automatiser" 
-                className="data-[state=active]:bg-purple-900/60 rounded-none py-3 px-3"
-              >
-                <Database className="h-5 w-5 mr-2" />
-                <span className="hidden sm:inline">Automatiser</span>
-                <span className="sm:hidden">Auto</span>
-              </TabsTrigger>
-            </TabsList>
-            
-            {/* Contenu des sections */}
-            <TabsContent value="seFormer" className="mt-0">
-              <div className="space-y-6">
-                {/* En-tête de section */}
-                <div className={`p-6 rounded-xl border shadow-lg bg-gradient-to-br from-blue-700 to-blue-900 border-blue-600`}>
+                <div className="flex flex-col h-full">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="p-3 rounded-lg bg-white/10">
+                    <div className="p-3 rounded-full bg-white/10">
                       <BookOpen className="h-6 w-6 text-white" />
                     </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-white font-exo">Se Former</h2>
-                      {module.seFormer?.description && (
-                        <p className="text-blue-100 mt-1">{module.seFormer.description}</p>
-                      )}
-                    </div>
+                    <h2 className="text-2xl font-bold text-white">
+                      SE FORMER
+                    </h2>
                   </div>
-                </div>
-
-                {/* Contenu principal */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {/* Colonne gauche pour le texte */}
-                  <div className="md:col-span-2">
-                    <Card className="bg-gray-800/50 border-gray-700 shadow-lg h-full">
-                      <CardHeader>
-                        <CardTitle className="text-white text-xl">Contenu du module</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ScrollArea className="h-[60vh] pr-4">
-                          {module.seFormer?.content ? (
-                            <div className="text-gray-200 whitespace-pre-line">
-                              {sanitizeText(module.seFormer.content)}
+                  
+                  <p className="mb-6 text-blue-100">
+                    {module.seFormer?.description || 
+                    'Acquérir des connaissances théoriques et comprendre les concepts fondamentaux'}
+                  </p>
+                  
+                  {module.seFormer?.modules && module.seFormer.modules.length > 0 && (
+                    <div className="mt-auto">
+                      <h3 className="text-white font-medium mb-3">Modules recommandés:</h3>
+                      <ul className="space-y-3">
+                        {module.seFormer.modules.slice(0, 3).map((item, index) => (
+                          <li key={index}>
+                            <div className="block p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium">{item.title}</span>
+                                <ArrowRight className="h-5 w-5" />
+                              </div>
                             </div>
-                          ) : (
-                            <p className="text-gray-400">Aucun contenu disponible pour cette section.</p>
-                          )}
-                        </ScrollArea>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Colonne droite pour les modules d'apprentissage */}
-                  <div>
-                    <Card className="bg-gray-800/50 border-gray-700 shadow-lg h-full">
-                      <CardHeader>
-                        <CardTitle className="text-white">Modules d'apprentissage</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ScrollArea className="h-[60vh] pr-4">
-                          <div className="space-y-4">
-                            {module.seFormer?.modules && module.seFormer.modules.length > 0 ? (
-                              module.seFormer.modules.map((item, index) => (
-                                <div 
-                                  key={index} 
-                                  className="p-4 rounded-lg bg-blue-900/30 border border-blue-700/50 hover:bg-blue-900/40 transition-colors cursor-pointer"
-                                >
-                                  <div className="flex items-start">
-                                    <div className="bg-blue-800/70 p-2 rounded-lg mr-3 flex-shrink-0">
-                                      <BookOpen className="h-4 w-4 text-blue-200" />
-                                    </div>
-                                    <div>
-                                      <h4 className="font-medium text-white">{item.title}</h4>
-                                      {item.description && (
-                                        <p className="text-blue-200 text-sm mt-1">{item.description}</p>
-                                      )}
-                                    </div>
-                                    <ChevronRight className="ml-auto text-blue-300 h-5 w-5 flex-shrink-0" />
-                                  </div>
-                                </div>
-                              ))
-                            ) : (
-                              <p className="text-gray-400">Aucun module d'apprentissage disponible.</p>
-                            )}
-                          </div>
-                        </ScrollArea>
-                      </CardContent>
-                    </Card>
-                  </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </TabsContent>
+              </Card>
 
-            {/* ONGLET S'ENTRAÎNER */}
-            <TabsContent value="sEntrainer" className="mt-0">
-              <div className="space-y-6">
-                {/* En-tête de section */}
-                <div className={`p-6 rounded-xl border shadow-lg bg-gradient-to-br from-green-700 to-green-900 border-green-600`}>
+              {/* Section S'ENTRAÎNER */}
+              <Card 
+                className="rounded-xl p-8 shadow-lg bg-gradient-to-br from-indigo-700 to-indigo-900 border-0"
+                onClick={() => module.sEntrainer && setSelectedSection('sEntrainer')}
+              >
+                <div className="flex flex-col h-full">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="p-3 rounded-lg bg-white/10">
+                    <div className="p-3 rounded-full bg-white/10">
                       <Terminal className="h-6 w-6 text-white" />
                     </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-white font-exo">S'Entraîner</h2>
-                      {module.sEntrainer?.description && (
-                        <p className="text-green-100 mt-1">{module.sEntrainer.description}</p>
-                      )}
-                    </div>
+                    <h2 className="text-2xl font-bold text-white">
+                      S'ENTRAÎNER
+                    </h2>
                   </div>
-                </div>
-
-                {/* Contenu principal */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {/* Colonne gauche pour le texte */}
-                  <div className="md:col-span-2">
-                    <Card className="bg-gray-800/50 border-gray-700 shadow-lg h-full">
-                      <CardHeader>
-                        <CardTitle className="text-white text-xl">Exercices et pratiques</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ScrollArea className="h-[60vh] pr-4">
-                          {module.sEntrainer?.content ? (
-                            <div className="text-gray-200 whitespace-pre-line">
-                              {sanitizeText(module.sEntrainer.content)}
+                  
+                  <p className="mb-6 text-indigo-100">
+                    {module.sEntrainer?.description || 
+                    'Mettre en pratique vos connaissances avec des exercices interactifs et des simulations'}
+                  </p>
+                  
+                  {module.sEntrainer?.exercices && module.sEntrainer.exercices.length > 0 && (
+                    <div className="mt-auto">
+                      <h3 className="text-white font-medium mb-3">Exercices recommandés:</h3>
+                      <ul className="space-y-3">
+                        {module.sEntrainer.exercices.slice(0, 3).map((item, index) => (
+                          <li key={index}>
+                            <div className="block p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium">{item.title}</span>
+                                <ArrowRight className="h-5 w-5" />
+                              </div>
                             </div>
-                          ) : (
-                            <p className="text-gray-400">Aucun contenu disponible pour cette section.</p>
-                          )}
-                        </ScrollArea>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Colonne droite pour les exercices */}
-                  <div>
-                    <Card className="bg-gray-800/50 border-gray-700 shadow-lg h-full">
-                      <CardHeader>
-                        <CardTitle className="text-white">Exercices pratiques</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ScrollArea className="h-[60vh] pr-4">
-                          <div className="space-y-4">
-                            {module.sEntrainer?.exercices && module.sEntrainer.exercices.length > 0 ? (
-                              module.sEntrainer.exercices.map((item, index) => (
-                                <div 
-                                  key={index} 
-                                  className="p-4 rounded-lg bg-green-900/30 border border-green-700/50 hover:bg-green-900/40 transition-colors cursor-pointer"
-                                >
-                                  <div className="flex items-start">
-                                    <div className="bg-green-800/70 p-2 rounded-lg mr-3 flex-shrink-0">
-                                      <Terminal className="h-4 w-4 text-green-200" />
-                                    </div>
-                                    <div>
-                                      <h4 className="font-medium text-white">{item.title}</h4>
-                                      {item.description && (
-                                        <p className="text-green-200 text-sm mt-1">{item.description}</p>
-                                      )}
-                                    </div>
-                                    <ChevronRight className="ml-auto text-green-300 h-5 w-5 flex-shrink-0" />
-                                  </div>
-                                </div>
-                              ))
-                            ) : (
-                              <p className="text-gray-400">Aucun exercice pratique disponible.</p>
-                            )}
-                          </div>
-                        </ScrollArea>
-                      </CardContent>
-                    </Card>
-                  </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </TabsContent>
+              </Card>
 
-            {/* ONGLET S'ÉVALUER */}
-            <TabsContent value="sEvaluer" className="mt-0">
-              <div className="space-y-6">
-                {/* En-tête de section */}
-                <div className={`p-6 rounded-xl border shadow-lg bg-gradient-to-br from-amber-700 to-amber-900 border-amber-600`}>
+              {/* Section S'ÉVALUER */}
+              <Card 
+                className="rounded-xl p-8 shadow-lg bg-gradient-to-br from-purple-700 to-purple-900 border-0"
+                onClick={() => module.sEvaluer && setSelectedSection('sEvaluer')}
+              >
+                <div className="flex flex-col h-full">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="p-3 rounded-lg bg-white/10">
-                      <CheckSquare className="h-6 w-6 text-white" />
+                    <div className="p-3 rounded-full bg-white/10">
+                      <CheckCircle className="h-6 w-6 text-white" />
                     </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-white font-exo">S'Évaluer</h2>
-                      {module.sEvaluer?.description && (
-                        <p className="text-amber-100 mt-1">{module.sEvaluer.description}</p>
-                      )}
+                    <h2 className="text-2xl font-bold text-white">
+                      S'ÉVALUER
+                    </h2>
+                  </div>
+                  
+                  <p className="mb-6 text-purple-100">
+                    {module.sEvaluer?.description || 
+                    'Tester vos compétences dans des conditions réelles d\'examen ou d\'entretien'}
+                  </p>
+                  
+                  {module.sEvaluer?.objectives && module.sEvaluer.objectives.length > 0 && (
+                    <div className="mt-auto">
+                      <h3 className="text-white font-medium mb-3">Objectifs d'évaluation:</h3>
+                      <ul className="space-y-2">
+                        {module.sEvaluer.objectives.slice(0, 3).map((objective, index) => (
+                          <li key={index} className="flex items-start">
+                            <CheckCircle className="shrink-0 h-5 w-5 text-purple-300 mr-2 mt-0.5" />
+                            <span className="text-purple-100 text-sm">{objective}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                  </div>
+                  )}
                 </div>
+              </Card>
 
-                {/* Contenu principal */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {/* Colonne gauche pour le texte */}
-                  <div className="md:col-span-2">
-                    <Card className="bg-gray-800/50 border-gray-700 shadow-lg h-full">
-                      <CardHeader>
-                        <CardTitle className="text-white text-xl">Évaluations et quiz</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ScrollArea className="h-[60vh] pr-4">
-                          {module.sEvaluer?.content ? (
-                            <div className="text-gray-200 whitespace-pre-line">
-                              {sanitizeText(module.sEvaluer.content)}
-                            </div>
-                          ) : (
-                            <p className="text-gray-400">Aucun contenu disponible pour cette section.</p>
-                          )}
-                        </ScrollArea>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Colonne droite pour les objectifs d'évaluation */}
-                  <div>
-                    <Card className="bg-gray-800/50 border-gray-700 shadow-lg h-full">
-                      <CardHeader>
-                        <CardTitle className="text-white">Objectifs d'évaluation</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ScrollArea className="h-[60vh] pr-4">
-                          {module.sEvaluer?.objectives && module.sEvaluer.objectives.length > 0 ? (
-                            <div className="space-y-3">
-                              {module.sEvaluer.objectives.map((objective, index) => (
-                                <div 
-                                  key={index} 
-                                  className="p-4 rounded-lg bg-amber-900/30 border border-amber-700/50"
-                                >
-                                  <div className="flex items-start">
-                                    <div className="bg-amber-800/70 p-2 rounded-lg mr-3 flex-shrink-0">
-                                      <CheckSquare className="h-4 w-4 text-amber-200" />
-                                    </div>
-                                    <div>
-                                      <p className="text-white">{objective}</p>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-gray-400">Aucun objectif d'évaluation disponible.</p>
-                          )}
-                        </ScrollArea>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* ONGLET AUTOMATISER */}
-            <TabsContent value="automatiser" className="mt-0">
-              <div className="space-y-6">
-                {/* En-tête de section */}
-                <div className={`p-6 rounded-xl border shadow-lg bg-gradient-to-br from-purple-700 to-purple-900 border-purple-600`}>
+              {/* Section AUTOMATISER */}
+              <Card 
+                className="rounded-xl p-8 shadow-lg bg-gradient-to-br from-teal-700 to-teal-900 border-0"
+                onClick={() => module.automatiser && setSelectedSection('automatiser')}
+              >
+                <div className="flex flex-col h-full">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="p-3 rounded-lg bg-white/10">
+                    <div className="p-3 rounded-full bg-white/10">
                       <Database className="h-6 w-6 text-white" />
                     </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-white font-exo">Automatiser</h2>
-                      {module.automatiser?.description && (
-                        <p className="text-purple-100 mt-1">{module.automatiser.description}</p>
-                      )}
-                    </div>
+                    <h2 className="text-2xl font-bold text-white">
+                      AUTOMATISER
+                    </h2>
                   </div>
-                </div>
-
-                {/* Contenu principal */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {/* Colonne gauche pour le texte */}
-                  <div className="md:col-span-2">
-                    <Card className="bg-gray-800/50 border-gray-700 shadow-lg h-full">
-                      <CardHeader>
-                        <CardTitle className="text-white text-xl">Outils et automatisation</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ScrollArea className="h-[60vh] pr-4">
-                          {module.automatiser?.content ? (
-                            <div className="text-gray-200 whitespace-pre-line">
-                              {sanitizeText(module.automatiser.content)}
+                  
+                  <p className="mb-6 text-teal-100">
+                    {module.automatiser?.description || 
+                    'Utiliser des outils pour générer du contenu et automatiser des tâches'}
+                  </p>
+                  
+                  {module.automatiser?.tools && module.automatiser.tools.length > 0 && (
+                    <div className="mt-auto">
+                      <h3 className="text-white font-medium mb-3">Outils recommandés:</h3>
+                      <ul className="space-y-3">
+                        {module.automatiser.tools.slice(0, 3).map((tool, index) => (
+                          <li key={index}>
+                            <div className="block p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium">{tool.name}</span>
+                                <ArrowRight className="h-5 w-5" />
+                              </div>
                             </div>
-                          ) : (
-                            <p className="text-gray-400">Aucun contenu disponible pour cette section.</p>
-                          )}
-                        </ScrollArea>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Colonne droite pour les outils */}
-                  <div>
-                    <Card className="bg-gray-800/50 border-gray-700 shadow-lg h-full">
-                      <CardHeader>
-                        <CardTitle className="text-white">Outils d'automatisation</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ScrollArea className="h-[60vh] pr-4">
-                          <div className="space-y-4">
-                            {module.automatiser?.tools && module.automatiser.tools.length > 0 ? (
-                              module.automatiser.tools.map((tool, index) => (
-                                <div 
-                                  key={index} 
-                                  className="p-4 rounded-lg bg-purple-900/30 border border-purple-700/50 hover:bg-purple-900/40 transition-colors cursor-pointer"
-                                >
-                                  <div className="flex items-start">
-                                    <div className="bg-purple-800/70 p-2 rounded-lg mr-3 flex-shrink-0">
-                                      <Database className="h-4 w-4 text-purple-200" />
-                                    </div>
-                                    <div>
-                                      <h4 className="font-medium text-white">{tool.name}</h4>
-                                      {tool.description && (
-                                        <p className="text-purple-200 text-sm mt-1">{tool.description}</p>
-                                      )}
-                                    </div>
-                                    <ChevronRight className="ml-auto text-purple-300 h-5 w-5 flex-shrink-0" />
-                                  </div>
-                                </div>
-                              ))
-                            ) : (
-                              <p className="text-gray-400">Aucun outil d'automatisation disponible.</p>
-                            )}
-                          </div>
-                        </ScrollArea>
-                      </CardContent>
-                    </Card>
-                  </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-          
-          {/* Navigation entre sections */}
-          <div className="flex justify-between mt-12">
-            <Button 
-              variant="outline" 
-              className="bg-gray-800/60 border-gray-700 text-white hover:bg-gray-700/60"
-              onClick={() => window.history.back()}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Retour
-            </Button>
-            
-            <Button 
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-              onClick={() => window.location.href = '/playground'}
-            >
-              Continuer
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          </div>
+              </Card>
+            </div>
+          ) : (
+            renderSectionDetail()
+          )}
         </div>
       </div>
     </HomeLayout>
