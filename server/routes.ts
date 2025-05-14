@@ -71,7 +71,8 @@ import {
   evaluatePerformance,
   generateLearningRecommendations
 } from "./cyberAscensionController";
-import { generateModule, saveCustomModule, getCustomModules, getCustomModuleById, deleteCustomModule } from "./moduleGeneratorController";
+import { generateModule as generateModuleOld, saveCustomModule as saveCustomModuleOld, getCustomModules, getCustomModuleById, deleteCustomModule } from "./moduleGeneratorController";
+import { generateModule, saveCustomModule } from "./moduleGeneratorControllerNew";
 import { analyzeEvidence, getInvestigationHints, evaluateInvestigationResult, generateInvestigationScenario, generateInvestigationNotes } from "./cyberInvestigatorController";
 import { getInvestigationProgress, saveInvestigationProgress, evaluateUserNotes } from "./investigationProgressController";
 // importation du controller CyberEscape supprimée
