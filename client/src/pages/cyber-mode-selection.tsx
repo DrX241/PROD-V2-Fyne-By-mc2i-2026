@@ -69,6 +69,14 @@ export default function CyberModeSelection() {
           comingSoon: false
         },
         {
+          id: 'cyber-pulse',
+          title: 'CYBERPULSE',
+          icon: null,
+          destination: '/cyber/cyber-pulse',
+          comingSoon: false,
+          isNew: true
+        },
+        {
           id: 'cyber-arcade',
           title: 'CYBERARCADE',
           icon: null,

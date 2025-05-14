@@ -22,36 +22,46 @@ import {
   Brain,
   Flame
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { 
-  Button, 
   Card, 
   CardContent, 
   CardDescription, 
   CardFooter, 
   CardHeader, 
-  CardTitle,
+  CardTitle 
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
+} from "@/components/ui/dialog";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
+import {
   Tabs,
   TabsContent,
   TabsList,
-  TabsTrigger,
+  TabsTrigger
+} from "@/components/ui/tabs";
+import {
   RadioGroup,
-  RadioGroupItem,
-  Label,
+  RadioGroupItem
+} from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from "@/components/ui/index";
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
 // Types

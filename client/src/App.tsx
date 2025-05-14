@@ -73,6 +73,8 @@ import Mc2iInterviewPreparation from "@/pages/amoa/mc2i-interview-preparation-fi
 // Module Apprendre en échangeant
 import ExpertLearningPage from "@/pages/cyber/expert-learning";
 import AmoaExpertLearningPage from "@/pages/amoa/expert-learning";
+// Nouveau jeu CyberPULSE
+import CyberPulseGame from "@/pages/cyber/cyber-pulse-game";
 // Ancien jeu Cyber Snake (supprimé)
 // Suppression des imports existants de CyberForge
 // Autres pages
@@ -227,6 +229,7 @@ function App() {
                 <Route path="/cyber/cyber-agent-old" component={CyberAgentRedirectPage} /> {/* Ancienne version (redirection) */}
                 <Route path="/cyber/cyber-agent-new" component={CyberAgentNewPage} /> {/* Nouvelle version du module Cyber Agent */}
                 <Route path="/cyber/expert-learning" component={ExpertLearningPage} /> {/* Module Apprendre en échangeant */}
+                <Route path="/cyber/cyber-pulse" component={CyberPulseGame} /> {/* Nouveau jeu CyberPULSE */}
                 <Route path="/cyber/learning/cyber-mastery" component={() => {
                   // Import dynamique de la nouvelle page Cyber Mastery
                   const CyberMasteryPage = lazy(() => import('./pages/cyber/learning/cyber-mastery'));
