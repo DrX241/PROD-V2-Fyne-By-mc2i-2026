@@ -1216,13 +1216,13 @@ export default function Home() {
                       
                       {/* Le module personnalisé */}
                       <ModuleCard 
-                        title={customModule.iamName || customModule.name}
+                        title={customModule.moduleData.title || customModule.iamName || customModule.name}
                         description={customModule.description}
                         icon={<GraduationCap size={36} />}
                         color="bg-purple-600"
                         bgColor="bg-gradient-to-br from-purple-50 to-purple-100"
                         accentColor="bg-purple-500"
-                        linkTo={`/modules/${customModule.id}`}
+                        linkTo={customModule.moduleData.destination || `/playground/module/${customModule.id}`}
                       />
                       
                       {/* Accent line galactique */}

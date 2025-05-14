@@ -277,6 +277,25 @@ export async function saveCustomModule(req: Request, res: Response) {
     const userId = 'user-' + Math.random().toString(36).substring(2, 8);
     const userName = 'Utilisateur mc2i';
     
+    // Transformation de la difficulté au format attendu par l'interface Module
+    let moduleDifficulty: 'débutant' | 'intermédiaire' | 'avancé' | 'tous niveaux' = 'intermédiaire';
+    
+    // Conversion des niveaux de difficulté
+    if (req.body.difficulty === 'beginner') {
+      moduleDifficulty = 'débutant';
+    } else if (req.body.difficulty === 'intermediate') {
+      moduleDifficulty = 'intermédiaire';
+    } else if (req.body.difficulty === 'advanced') {
+      moduleDifficulty = 'avancé';
+    }
+    
+    // Détermination de la durée estimée en fonction de la complexité et de la quantité de contenu
+    const estimatedDuration = req.body.difficulty === 'beginner' 
+      ? '15-20 min' 
+      : req.body.difficulty === 'intermediate' 
+        ? '25-30 min' 
+        : '35-45 min';
+    
     const moduleToSave: InsertCustomModule = {
       userId: userId,
       userName: userName,
@@ -293,12 +312,49 @@ export async function saveCustomModule(req: Request, res: Response) {
       includeOpsModule: true,
       includeTestModule: true,
       includeAscensionModule: true,
-      moduleData: req.body.moduleData,
+      moduleData: {
+        ...req.body.moduleData,
+        // Ajout des propriétés nécessaires pour l'affichage dans le format attendu
+        title: req.body.iamName || `I AM ${req.body.domain.toUpperCase()}`,
+        destination: `/playground/module/`,  // Le chemin sera complété avec l'ID après création
+        difficulty: moduleDifficulty,
+        duration: estimatedDuration,
+        isNew: true,
+        comingSoon: false,
+        icon: "<BsShieldCheck className=\"h-5 w-5\" />" // Icône par défaut, sera rendu côté client
+      },
       iconPath: getIconPath(req.body.domain),
       isActive: true
     };
 
     const result = await db.insert(customModules).values(moduleToSave).returning();
+    
+    // Mise à jour de la destination avec l'ID du module nouvellement créé
+    const createdModule = result[0];
+    if (createdModule) {
+      // Mettre à jour la destination dans moduleData
+      const updatedModuleData = {
+        ...createdModule.moduleData,
+        destination: `/playground/module/${createdModule.id}`
+      };
+      
+      // Mise à jour du module avec la destination complète
+      await db.update(customModules)
+        .set({ 
+          moduleData: updatedModuleData 
+        })
+        .where(eq(customModules.id, createdModule.id));
+        
+      // Récupérer le module mis à jour
+      const updatedModule = await db.select().from(customModules)
+        .where(eq(customModules.id, createdModule.id))
+        .then(results => results[0]);
+        
+      return res.json({
+        success: true,
+        module: updatedModule,
+      });
+    }
 
     return res.json({
       success: true,
