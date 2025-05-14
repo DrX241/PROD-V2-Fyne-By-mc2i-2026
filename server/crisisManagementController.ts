@@ -1013,7 +1013,7 @@ export async function sendCrisisMessage(req: Request, res: Response) {
     }
     
     // Générer une réponse avec l'IA
-    const response = await openAIService.getChatCompletion(session.messages);
+    const response = await openAIService.getChatCompletion(session.messages, false, 0.7, 2000);
     
     // Ajouter la réponse à la session
     session.messages.push({
@@ -1160,7 +1160,7 @@ async function generateStakeholderMessage(session: CrisisSession, stakeholderId:
     ];
     
     // Obtenir la réponse de l'IA
-    const content = await openAIService.getChatCompletion(messages);
+    const content = await openAIService.getChatCompletion(messages, false, 0.7, 2000);
     
     if (!content) return null;
     

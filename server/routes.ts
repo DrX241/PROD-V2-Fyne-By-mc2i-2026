@@ -4806,6 +4806,8 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   app.post('/api/crisis-management/end', endCrisisSession);
   app.post('/api/crisis-management/resources', updateResourceAllocation);
   app.post('/api/crisis-management/decision', recordDecision);
+  app.post('/api/crisis-management/stakeholder/mark-read', markStakeholderMessagesAsRead);
+  app.post('/api/crisis-management/stakeholder/respond', respondToStakeholder);
   
   // Route pour le générateur de livrables
   app.post('/api/mc2i/generateur-livrables', generateLivrable);
