@@ -287,7 +287,7 @@ export async function saveCustomModule(req: Request, res: Response) {
       displayOrder: 100,
       difficulty: req.body.difficulty,
       topics: req.body.topics || [],
-      gamificationLevel: req.body.gamificationLevel || 'medium',
+      gamificationLevel: req.body.gamificationLevel || 'modere',
       learningStyle: req.body.learningStyle || 'mixed',
       includeTrainerModule: true,
       includeOpsModule: true,
