@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'wouter';
-import { ArrowLeft, BookOpen, Terminal, CheckSquare, Database, Lightbulb, Shield, BrainCircuit } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useTheme } from '@/contexts/ThemeContext';
-import { Badge } from '@/components/ui/badge';
 import HomeLayout from '@/components/layout/HomeLayout';
-import PageTitle from '@/components/utils/PageTitle';
-import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ArrowLeft, BookOpen, Terminal, CheckSquare, Database, ChevronRight, Shield } from 'lucide-react';
 import DOMPurify from 'dompurify';
-import { marked } from 'marked';
 
 // Interface pour les sections du module
 interface ModuleSection {
@@ -50,11 +44,11 @@ interface CustomModule {
   moduleData?: any;
 }
 
-// Rendu du contenu markdown
-function renderMarkdown(content: string): string {
-  if (!content) return '';
-  const sanitizedContent = DOMPurify.sanitize(marked.parse(content));
-  return sanitizedContent;
+// Fonction pour sanitizer et rendre du texte simple
+function sanitizeText(text: string): string {
+  if (!text) return '';
+  const sanitized = DOMPurify.sanitize(text);
+  return typeof sanitized === 'string' ? sanitized : '';
 }
 
 export default function ModuleDetailPage() {
@@ -63,7 +57,6 @@ export default function ModuleDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  const { isDark } = useTheme();
   const [activeTab, setActiveTab] = useState("seFormer");
 
   useEffect(() => {
@@ -124,7 +117,7 @@ export default function ModuleDetailPage() {
         <div className="flex items-center justify-center min-h-[calc(100vh-100px)]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <h3 className="text-xl font-medium">Chargement du module...</h3>
+            <h3 className="text-xl font-medium font-rajdhani">Chargement du module...</h3>
           </div>
         </div>
       </HomeLayout>
@@ -137,7 +130,7 @@ export default function ModuleDetailPage() {
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-100px)]">
           <div className="text-center">
             <Shield className="h-16 w-16 text-red-500 mx-auto mb-4" />
-            <h3 className="text-xl font-medium mb-2">Erreur de chargement</h3>
+            <h3 className="text-xl font-medium mb-2 font-rajdhani">Erreur de chargement</h3>
             <p className="text-gray-600 dark:text-gray-400 mb-4">{error || "Impossible de charger le module demandé"}</p>
             <Button onClick={() => window.history.back()}>
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -149,178 +142,125 @@ export default function ModuleDetailPage() {
     );
   }
 
-  // Déterminer les couleurs en fonction du domaine
-  const getDomainColors = () => {
-    const domain = module.domain?.toLowerCase() || '';
-    
-    if (domain.includes('cyber') || domain.includes('hack') || domain.includes('security')) {
-      return {
-        bgGradient: 'from-blue-950 to-slate-950',
-        borderColor: 'border-blue-800',
-        textColor: 'text-blue-400',
-        tabBgActive: 'bg-blue-900/30',
-        tabBgHover: 'hover:bg-blue-900/20',
-      };
-    } else if (domain.includes('data') || domain.includes('analytics') || domain.includes('ia')) {
-      return {
-        bgGradient: 'from-indigo-950 to-slate-950',
-        borderColor: 'border-indigo-800',
-        textColor: 'text-indigo-400',
-        tabBgActive: 'bg-indigo-900/30',
-        tabBgHover: 'hover:bg-indigo-900/20',
-      };
-    } else if (domain.includes('client') || domain.includes('amoa') || domain.includes('projet')) {
-      return {
-        bgGradient: 'from-green-950 to-slate-950',
-        borderColor: 'border-green-800',
-        textColor: 'text-green-400',
-        tabBgActive: 'bg-green-900/30',
-        tabBgHover: 'hover:bg-green-900/20',
-      };
-    } else {
-      return {
-        bgGradient: 'from-purple-950 to-slate-950',
-        borderColor: 'border-purple-800',
-        textColor: 'text-purple-400',
-        tabBgActive: 'bg-purple-900/30',
-        tabBgHover: 'hover:bg-purple-900/20',
-      };
-    }
-  };
-
-  const colors = getDomainColors();
-
   return (
     <HomeLayout>
-      <div className={`min-h-[calc(100vh-64px)] bg-gradient-to-b ${colors.bgGradient} pb-12`}>
-        <div className="container mx-auto px-4 py-8">
-          {/* En-tête du module */}
-          <div className="mb-8">
-            <div className="flex items-center mb-4">
-              <Link href="/playground">
-                <Button 
-                  variant="outline" 
-                  className={`${isDark ? 'bg-gray-900/40' : 'bg-gray-900/20'} border-gray-700 text-white hover:bg-gray-800/40`}
+      <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-blue-950 to-slate-950">
+        <div className="absolute top-4 left-4 z-20">
+          <Link href="/playground">
+            <Button 
+              variant="outline" 
+              className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30 hover:text-white"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Retour
+            </Button>
+          </Link>
+        </div>
+        
+        <div className="container py-12 px-4 mx-auto flex flex-col items-center justify-center">
+          <div className="w-full max-w-5xl bg-gradient-to-b from-blue-950 to-slate-950 rounded-lg overflow-hidden shadow-xl border border-blue-800">
+            {/* En-tête du module */}
+            <div className="p-6 border-b border-blue-800">
+              <h2 className="text-2xl md:text-3xl font-semibold text-white font-[Exo]">{module.iamName || module.title}</h2>
+              <p className="text-blue-200 mt-2 font-[Rajdhani]">
+                {module.description}
+              </p>
+              
+              {module.contentStructure && (
+                <div className="bg-blue-900/50 border border-blue-700 p-4 rounded-lg mt-4">
+                  <h3 className="font-medium text-blue-100 font-[Rajdhani]">Structure du module</h3>
+                  <p className="text-sm text-blue-300 mt-2">
+                    {module.contentStructure}
+                  </p>
+                </div>
+              )}
+            </div>
+            
+            {/* Système d'onglets */}
+            <Tabs 
+              defaultValue={activeTab} 
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
+              <TabsList className="grid grid-cols-4 bg-blue-950/60 border-b border-blue-800 p-0 rounded-none">
+                <TabsTrigger 
+                  value="seFormer" 
+                  className="data-[state=active]:bg-blue-900/30 hover:bg-blue-900/20 data-[state=active]:text-white text-blue-300 rounded-none border-r border-blue-800 py-3"
                 >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Retour
-                </Button>
-              </Link>
-            </div>
-            
-            <h1 className="text-3xl sm:text-4xl font-bold text-white font-[Exo] tracking-wide">
-              {module.iamName || module.title}
-            </h1>
-            
-            <div className="flex items-center mt-3 flex-wrap gap-2">
-              <Badge className="bg-blue-900/50 text-blue-200 hover:bg-blue-800/50 border border-blue-700/50">
-                {module.difficulty === 'beginner' ? 'Débutant' : 
-                 module.difficulty === 'intermediate' ? 'Intermédiaire' : 
-                 module.difficulty === 'advanced' ? 'Avancé' : 
-                 'Tous niveaux'}
-              </Badge>
-              <Badge className="bg-purple-900/50 text-purple-200 hover:bg-purple-800/50 border border-purple-700/50">
-                {module.domain}
-              </Badge>
-            </div>
-            
-            <p className="text-gray-300 mt-4 max-w-3xl">
-              {module.description}
-            </p>
-            
-            {module.contentStructure && (
-              <div className={`mt-6 p-4 rounded-md bg-slate-900/50 border ${colors.borderColor}`}>
-                <h3 className="font-semibold text-white mb-2">Structure du module</h3>
-                <p className="text-gray-300">{module.contentStructure}</p>
-              </div>
-            )}
-          </div>
-          
-          {/* Système d'onglets */}
-          <Tabs 
-            defaultValue={activeTab} 
-            onValueChange={setActiveTab}
-            className="max-w-4xl mx-auto"
-          >
-            <TabsList className={`grid grid-cols-4 mb-8 bg-slate-900/30 border ${colors.borderColor}`}>
-              <TabsTrigger 
-                value="seFormer" 
-                className={`data-[state=active]:${colors.tabBgActive} ${colors.tabBgHover} data-[state=active]:text-white text-gray-300`}
-              >
-                <BookOpen className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Se Former</span>
-                <span className="sm:hidden">Former</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="sEntrainer" 
-                className={`data-[state=active]:${colors.tabBgActive} ${colors.tabBgHover} data-[state=active]:text-white text-gray-300`}
-              >
-                <Terminal className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">S'Entraîner</span>
-                <span className="sm:hidden">Entraîner</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="sEvaluer" 
-                className={`data-[state=active]:${colors.tabBgActive} ${colors.tabBgHover} data-[state=active]:text-white text-gray-300`}
-              >
-                <CheckSquare className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">S'Évaluer</span>
-                <span className="sm:hidden">Évaluer</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="automatiser" 
-                className={`data-[state=active]:${colors.tabBgActive} ${colors.tabBgHover} data-[state=active]:text-white text-gray-300`}
-              >
-                <Database className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Automatiser</span>
-                <span className="sm:hidden">Auto</span>
-              </TabsTrigger>
-            </TabsList>
-            
-            {/* Contenu des onglets */}
-            <div className="bg-slate-900/30 rounded-lg border border-gray-800 overflow-hidden">
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Se Former</span>
+                  <span className="sm:hidden">Former</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="sEntrainer" 
+                  className="data-[state=active]:bg-blue-900/30 hover:bg-blue-900/20 data-[state=active]:text-white text-blue-300 rounded-none border-r border-blue-800 py-3"
+                >
+                  <Terminal className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">S'Entraîner</span>
+                  <span className="sm:hidden">Entraîner</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="sEvaluer" 
+                  className="data-[state=active]:bg-blue-900/30 hover:bg-blue-900/20 data-[state=active]:text-white text-blue-300 rounded-none border-r border-blue-800 py-3"
+                >
+                  <CheckSquare className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">S'Évaluer</span>
+                  <span className="sm:hidden">Évaluer</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="automatiser" 
+                  className="data-[state=active]:bg-blue-900/30 hover:bg-blue-900/20 data-[state=active]:text-white text-blue-300 rounded-none py-3"
+                >
+                  <Database className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Automatiser</span>
+                  <span className="sm:hidden">Auto</span>
+                </TabsTrigger>
+              </TabsList>
+              
               {/* Onglet Se Former */}
               <TabsContent value="seFormer" className="p-0 m-0">
                 <div className="p-6">
                   <div className="flex items-center mb-4">
-                    <BookOpen className={`${colors.textColor} h-6 w-6 mr-3`} />
-                    <h2 className="text-2xl font-bold text-white">Se Former</h2>
+                    <BookOpen className="text-blue-400 h-6 w-6 mr-3" />
+                    <h2 className="text-2xl font-bold text-white font-[Rajdhani]">Se Former</h2>
                   </div>
                   
                   {module.seFormer?.description && (
-                    <p className="text-gray-300 mb-6">{module.seFormer.description}</p>
+                    <p className="text-blue-200 mb-6 font-[Rajdhani]">{module.seFormer.description}</p>
                   )}
                   
                   <ScrollArea className="h-[calc(100vh-400px)] pr-4">
-                    {module.seFormer?.content && (
-                      <div 
-                        className="prose prose-invert max-w-none prose-headings:text-blue-300 prose-a:text-blue-400 prose-strong:text-white prose-code:bg-slate-800 prose-code:text-blue-300"
-                        dangerouslySetInnerHTML={{ __html: renderMarkdown(module.seFormer.content) }}
-                      />
-                    )}
-                    
-                    {module.seFormer?.modules && module.seFormer.modules.length > 0 && (
-                      <div className="mt-6">
-                        <h3 className="text-xl font-semibold text-white mb-4">Modules d'apprentissage</h3>
-                        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-                          {module.seFormer.modules.map((item, index) => (
-                            <Card key={index} className="bg-slate-800/50 border-gray-700 hover:border-blue-700/50 transition-all">
-                              <CardHeader className="pb-2">
-                                <div className="flex items-start">
-                                  <Lightbulb className="h-5 w-5 text-blue-400 mt-1 mr-2 flex-shrink-0" />
-                                  <CardTitle className="text-lg text-white">{item.title}</CardTitle>
-                                </div>
-                              </CardHeader>
-                              {item.description && (
-                                <CardContent>
-                                  <p className="text-gray-300 text-sm">{item.description}</p>
-                                </CardContent>
-                              )}
-                            </Card>
-                          ))}
+                    <div className="space-y-4">
+                      {module.seFormer?.content && (
+                        <div className="text-blue-100 whitespace-pre-line">
+                          {sanitizeText(module.seFormer.content)}
                         </div>
-                      </div>
-                    )}
+                      )}
+                      
+                      {module.seFormer?.modules && module.seFormer.modules.length > 0 && (
+                        <div className="mt-6">
+                          <h3 className="text-xl font-semibold text-white mb-4 font-[Rajdhani]">Modules d'apprentissage</h3>
+                          <div className="space-y-3">
+                            {module.seFormer.modules.map((item, index) => (
+                              <div key={index} className="bg-blue-900/40 border border-blue-700 rounded-lg p-4 hover:bg-blue-900/50 transition-colors">
+                                <div className="flex items-start">
+                                  <div className="bg-blue-800/50 p-2 rounded mr-3 flex-shrink-0">
+                                    <BookOpen className="h-5 w-5 text-blue-300" />
+                                  </div>
+                                  <div>
+                                    <h4 className="text-white font-medium font-[Rajdhani]">{item.title}</h4>
+                                    {item.description && (
+                                      <p className="text-blue-200 text-sm mt-1">{item.description}</p>
+                                    )}
+                                  </div>
+                                  <ChevronRight className="ml-auto text-blue-400 h-5 w-5 flex-shrink-0" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </ScrollArea>
                 </div>
               </TabsContent>
@@ -330,43 +270,45 @@ export default function ModuleDetailPage() {
                 <div className="p-6">
                   <div className="flex items-center mb-4">
                     <Terminal className="text-green-400 h-6 w-6 mr-3" />
-                    <h2 className="text-2xl font-bold text-white">S'Entraîner</h2>
+                    <h2 className="text-2xl font-bold text-white font-[Rajdhani]">S'Entraîner</h2>
                   </div>
                   
                   {module.sEntrainer?.description && (
-                    <p className="text-gray-300 mb-6">{module.sEntrainer.description}</p>
+                    <p className="text-blue-200 mb-6 font-[Rajdhani]">{module.sEntrainer.description}</p>
                   )}
                   
                   <ScrollArea className="h-[calc(100vh-400px)] pr-4">
-                    {module.sEntrainer?.content && (
-                      <div 
-                        className="prose prose-invert max-w-none prose-headings:text-green-300 prose-a:text-green-400 prose-strong:text-white prose-code:bg-slate-800 prose-code:text-green-300"
-                        dangerouslySetInnerHTML={{ __html: renderMarkdown(module.sEntrainer.content) }}
-                      />
-                    )}
-                    
-                    {module.sEntrainer?.exercices && module.sEntrainer.exercices.length > 0 && (
-                      <div className="mt-6">
-                        <h3 className="text-xl font-semibold text-white mb-4">Exercices pratiques</h3>
-                        <div className="space-y-4">
-                          {module.sEntrainer.exercices.map((exercice, index) => (
-                            <Card key={index} className="bg-slate-800/50 border-gray-700 hover:border-green-700/50 transition-all">
-                              <CardHeader className="pb-2">
-                                <div className="flex items-start">
-                                  <Terminal className="h-5 w-5 text-green-400 mt-1 mr-2 flex-shrink-0" />
-                                  <CardTitle className="text-lg text-white">{exercice.title}</CardTitle>
-                                </div>
-                              </CardHeader>
-                              {exercice.description && (
-                                <CardContent>
-                                  <p className="text-gray-300 text-sm">{exercice.description}</p>
-                                </CardContent>
-                              )}
-                            </Card>
-                          ))}
+                    <div className="space-y-4">
+                      {module.sEntrainer?.content && (
+                        <div className="text-blue-100 whitespace-pre-line">
+                          {sanitizeText(module.sEntrainer.content)}
                         </div>
-                      </div>
-                    )}
+                      )}
+                      
+                      {module.sEntrainer?.exercices && module.sEntrainer.exercices.length > 0 && (
+                        <div className="mt-6">
+                          <h3 className="text-xl font-semibold text-white mb-4 font-[Rajdhani]">Exercices pratiques</h3>
+                          <div className="space-y-3">
+                            {module.sEntrainer.exercices.map((exercice, index) => (
+                              <div key={index} className="bg-blue-900/40 border border-blue-700 rounded-lg p-4 hover:bg-blue-900/50 transition-colors">
+                                <div className="flex items-start">
+                                  <div className="bg-green-800/50 p-2 rounded mr-3 flex-shrink-0">
+                                    <Terminal className="h-5 w-5 text-green-300" />
+                                  </div>
+                                  <div>
+                                    <h4 className="text-white font-medium font-[Rajdhani]">{exercice.title}</h4>
+                                    {exercice.description && (
+                                      <p className="text-blue-200 text-sm mt-1">{exercice.description}</p>
+                                    )}
+                                  </div>
+                                  <ChevronRight className="ml-auto text-green-400 h-5 w-5 flex-shrink-0" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </ScrollArea>
                 </div>
               </TabsContent>
@@ -376,36 +318,37 @@ export default function ModuleDetailPage() {
                 <div className="p-6">
                   <div className="flex items-center mb-4">
                     <CheckSquare className="text-amber-400 h-6 w-6 mr-3" />
-                    <h2 className="text-2xl font-bold text-white">S'Évaluer</h2>
+                    <h2 className="text-2xl font-bold text-white font-[Rajdhani]">S'Évaluer</h2>
                   </div>
                   
                   {module.sEvaluer?.description && (
-                    <p className="text-gray-300 mb-6">{module.sEvaluer.description}</p>
+                    <p className="text-blue-200 mb-6 font-[Rajdhani]">{module.sEvaluer.description}</p>
                   )}
                   
                   <ScrollArea className="h-[calc(100vh-400px)] pr-4">
-                    {module.sEvaluer?.content && (
-                      <div 
-                        className="prose prose-invert max-w-none prose-headings:text-amber-300 prose-a:text-amber-400 prose-strong:text-white prose-code:bg-slate-800 prose-code:text-amber-300"
-                        dangerouslySetInnerHTML={{ __html: renderMarkdown(module.sEvaluer.content) }}
-                      />
-                    )}
-                    
-                    {module.sEvaluer?.objectives && module.sEvaluer.objectives.length > 0 && (
-                      <div className="mt-6">
-                        <h3 className="text-xl font-semibold text-white mb-4">Objectifs d'évaluation</h3>
-                        <div className="bg-slate-800/50 border border-gray-700 rounded-lg p-4">
-                          <ul className="space-y-2">
-                            {module.sEvaluer.objectives.map((objective, index) => (
-                              <li key={index} className="flex items-start">
-                                <CheckSquare className="h-5 w-5 text-amber-400 mr-2 flex-shrink-0 mt-0.5" />
-                                <span className="text-gray-200">{objective}</span>
-                              </li>
-                            ))}
-                          </ul>
+                    <div className="space-y-4">
+                      {module.sEvaluer?.content && (
+                        <div className="text-blue-100 whitespace-pre-line">
+                          {sanitizeText(module.sEvaluer.content)}
                         </div>
-                      </div>
-                    )}
+                      )}
+                      
+                      {module.sEvaluer?.objectives && module.sEvaluer.objectives.length > 0 && (
+                        <div className="mt-6">
+                          <h3 className="text-xl font-semibold text-white mb-4 font-[Rajdhani]">Objectifs d'évaluation</h3>
+                          <div className="bg-blue-900/40 border border-blue-700 rounded-lg p-5">
+                            <ul className="space-y-3">
+                              {module.sEvaluer.objectives.map((objective, index) => (
+                                <li key={index} className="flex items-start">
+                                  <CheckSquare className="h-5 w-5 text-amber-400 mr-2 flex-shrink-0 mt-0.5" />
+                                  <span className="text-blue-100">{objective}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </ScrollArea>
                 </div>
               </TabsContent>
@@ -415,48 +358,65 @@ export default function ModuleDetailPage() {
                 <div className="p-6">
                   <div className="flex items-center mb-4">
                     <Database className="text-purple-400 h-6 w-6 mr-3" />
-                    <h2 className="text-2xl font-bold text-white">Automatiser</h2>
+                    <h2 className="text-2xl font-bold text-white font-[Rajdhani]">Automatiser</h2>
                   </div>
                   
                   {module.automatiser?.description && (
-                    <p className="text-gray-300 mb-6">{module.automatiser.description}</p>
+                    <p className="text-blue-200 mb-6 font-[Rajdhani]">{module.automatiser.description}</p>
                   )}
                   
                   <ScrollArea className="h-[calc(100vh-400px)] pr-4">
-                    {module.automatiser?.content && (
-                      <div 
-                        className="prose prose-invert max-w-none prose-headings:text-purple-300 prose-a:text-purple-400 prose-strong:text-white prose-code:bg-slate-800 prose-code:text-purple-300"
-                        dangerouslySetInnerHTML={{ __html: renderMarkdown(module.automatiser.content) }}
-                      />
-                    )}
-                    
-                    {module.automatiser?.tools && module.automatiser.tools.length > 0 && (
-                      <div className="mt-6">
-                        <h3 className="text-xl font-semibold text-white mb-4">Outils d'automatisation</h3>
-                        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-                          {module.automatiser.tools.map((tool, index) => (
-                            <Card key={index} className="bg-slate-800/50 border-gray-700 hover:border-purple-700/50 transition-all">
-                              <CardHeader className="pb-2">
-                                <div className="flex items-start">
-                                  <BrainCircuit className="h-5 w-5 text-purple-400 mt-1 mr-2 flex-shrink-0" />
-                                  <CardTitle className="text-lg text-white">{tool.name}</CardTitle>
-                                </div>
-                              </CardHeader>
-                              {tool.description && (
-                                <CardContent>
-                                  <p className="text-gray-300 text-sm">{tool.description}</p>
-                                </CardContent>
-                              )}
-                            </Card>
-                          ))}
+                    <div className="space-y-4">
+                      {module.automatiser?.content && (
+                        <div className="text-blue-100 whitespace-pre-line">
+                          {sanitizeText(module.automatiser.content)}
                         </div>
-                      </div>
-                    )}
+                      )}
+                      
+                      {module.automatiser?.tools && module.automatiser.tools.length > 0 && (
+                        <div className="mt-6">
+                          <h3 className="text-xl font-semibold text-white mb-4 font-[Rajdhani]">Outils d'automatisation</h3>
+                          <div className="space-y-3">
+                            {module.automatiser.tools.map((tool, index) => (
+                              <div key={index} className="bg-blue-900/40 border border-blue-700 rounded-lg p-4 hover:bg-blue-900/50 transition-colors">
+                                <div className="flex items-start">
+                                  <div className="bg-purple-800/50 p-2 rounded mr-3 flex-shrink-0">
+                                    <Database className="h-5 w-5 text-purple-300" />
+                                  </div>
+                                  <div>
+                                    <h4 className="text-white font-medium font-[Rajdhani]">{tool.name}</h4>
+                                    {tool.description && (
+                                      <p className="text-blue-200 text-sm mt-1">{tool.description}</p>
+                                    )}
+                                  </div>
+                                  <ChevronRight className="ml-auto text-purple-400 h-5 w-5 flex-shrink-0" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </ScrollArea>
                 </div>
               </TabsContent>
+            </Tabs>
+            
+            {/* Pied de page */}
+            <div className="p-6 border-t border-blue-800 flex justify-between">
+              <Button 
+                variant="outline" 
+                className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30"
+                onClick={() => window.history.back()}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Retour
+              </Button>
+              <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white">
+                Continuer la formation
+              </Button>
             </div>
-          </Tabs>
+          </div>
         </div>
       </div>
     </HomeLayout>
