@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, Terminal, CheckCircle, Database, ArrowRight } from 'lucide-react';
+import { ArrowLeft, BookOpen, Terminal, CheckCircle, Database, ArrowRight, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -350,8 +350,8 @@ export default function ModuleDetailPage() {
     <HomeLayout>
       <div className="min-h-screen bg-gradient-to-b from-blue-950 to-black pb-16">
         <div className="container mx-auto px-4 pt-10">
-          {/* Bouton retour */}
-          <div className="mb-10">
+          {/* Navigation et actions */}
+          <div className="mb-10 flex justify-between items-center">
             <Link href="/playground">
               <Button 
                 variant="outline" 
@@ -361,6 +361,42 @@ export default function ModuleDetailPage() {
                 Retour
               </Button>
             </Link>
+            
+            {/* Bouton de suppression pour les modules personnalisés */}
+            {module && module.id && Number(module.id) > 6 && (
+              <Button 
+                variant="destructive"
+                className="bg-red-600 hover:bg-red-700"
+                onClick={async () => {
+                  if (window.confirm("Êtes-vous sûr de vouloir supprimer ce module personnalisé ?")) {
+                    try {
+                      const response = await fetch(`/api/module-generator/modules/${module.id}`, {
+                        method: 'DELETE',
+                      });
+                      
+                      if (response.ok) {
+                        toast({
+                          title: "Module supprimé",
+                          description: "Le module personnalisé a été supprimé avec succès.",
+                        });
+                        window.location.href = '/playground';
+                      } else {
+                        throw new Error("Erreur lors de la suppression du module");
+                      }
+                    } catch (err) {
+                      toast({
+                        title: "Erreur",
+                        description: "Impossible de supprimer le module.",
+                        variant: "destructive",
+                      });
+                    }
+                  }
+                }}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Supprimer ce module personnalisé
+              </Button>
+            )}
           </div>
 
           {/* Titre central du style I AM CYBER */}

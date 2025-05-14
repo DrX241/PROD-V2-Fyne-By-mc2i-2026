@@ -401,9 +401,8 @@ export async function getCustomModules(req: Request, res: Response) {
   }
 }
 
-/**
- * Récupère un module personnalisé par son ID
- */
+
+
 export async function getCustomModuleById(req: Request, res: Response) {
   try {
     const { id } = req.params;
@@ -476,32 +475,5 @@ function getIconComponent(domain: string): string {
   }
 }
 
-/**
- * Supprime un module personnalisé par son ID
- */
-export async function deleteCustomModule(req: Request, res: Response) {
-  try {
-    const { id } = req.params;
-    const moduleId = parseInt(id);
-    
-    if (isNaN(moduleId)) {
-      return res.status(400).json({
-        success: false,
-        message: 'ID de module invalide',
-      });
-    }
-    
-    await db.delete(customModules).where(eq(customModules.id, moduleId));
-    
-    return res.json({
-      success: true,
-      message: 'Module supprimé avec succès',
-    });
-  } catch (error) {
-    console.error('Erreur de suppression du module:', error);
-    return res.status(500).json({
-      success: false,
-      message: error instanceof Error ? error.message : 'Une erreur est survenue lors de la suppression du module',
-    });
-  }
-}
+// La fonction deleteCustomModule a été déplacée vers moduleGeneratorController.ts
+// pour éviter les conflits de déclarations
