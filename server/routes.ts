@@ -38,6 +38,7 @@ import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpert
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
 import * as amoaExpertController from "./amoaExpertController";
 import { initCyberPulseSession, processCyberPulseMessage, generateCyberChallenge, checkInactivity, updateCyberPulsePreferences, updatePlayerScore } from "./cyberPulseGameController";
+import { terminateCyberPulseSession } from "./cyberPulseSessionManager";
 import { startImposteurSimulation, processImposteurMessage, completeImposteurSimulation } from "./imposteurSimulationController";
 import { simulateTargetResponse, analyzePerformance } from "./brainHackerController";
 import { analyzeDefenseStrategy, generateAttackScenario, generateTacticalTip } from "./firewallTactiqueController";
@@ -790,6 +791,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cyber-pulse/check-inactivity', checkInactivity);
   app.post('/api/cyber-pulse/preferences', updateCyberPulsePreferences);
   app.post('/api/cyber-pulse/score', updatePlayerScore);
+  app.post('/api/cyber-pulse/terminate', terminateCyberPulseSession);
   
   // Routes pour le flux de décision de l'expert cyber
   app.post('/api/cyber-expert/decisions/start', startDecisionFlow);

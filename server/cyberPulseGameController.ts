@@ -3,6 +3,11 @@ import { openAIService } from "./services/openai";
 import { ChatCompletionRequestMessage } from "@shared/schema";
 import { v4 as uuidv4 } from "uuid";
 
+// Type d'erreur pour le typage strict
+interface ApiError {
+  message: string;
+}
+
 /**
  * Interface pour les sessions de jeu CyberPULSE
  * Représente une session de chatbot immersive avec fonctionnalités ludiques
@@ -32,7 +37,7 @@ interface CyberPulseSession {
 }
 
 // Map pour stocker les sessions actives des joueurs
-const cyberPulseSessions = new Map<string, CyberPulseSession>();
+export const cyberPulseSessions = new Map<string, CyberPulseSession>();
 
 // Intervalles d'inactivité en millisecondes
 const INACTIVITY_REMINDER_THRESHOLD = 30000; // 30 secondes - demande si l'utilisateur est toujours là
