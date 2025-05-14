@@ -488,6 +488,14 @@ export async function deleteCustomModule(req: Request, res: Response) {
       });
     }
     
+    // Protection pour ne pas supprimer les modules du système (IDs 1-6 sont réservés)
+    if (moduleId <= 6) {
+      return res.status(403).json({
+        success: false,
+        message: 'Impossible de supprimer un module système. Seuls les modules personnalisés peuvent être supprimés.',
+      });
+    }
+    
     // Supprimer le module
     await db.delete(customModules).where(eq(customModules.id, moduleId));
     
