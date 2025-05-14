@@ -52,7 +52,9 @@ import {
   resumeCrisisSession,
   endCrisisSession,
   updateResourceAllocation,
-  recordDecision
+  recordDecision,
+  markStakeholderMessagesAsRead,
+  respondToStakeholder
 } from "./crisisManagementController";
 import { 
   generateCode, 

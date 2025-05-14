@@ -1063,6 +1063,27 @@ export async function sendCrisisMessage(req: Request, res: Response) {
       }
     }
     
+    // Potentiellement générer des messages de stakeholders
+    await generateStakeholderMessages(session);
+    
+    // Obtenir les messages non lus des stakeholders
+    const unreadMessages = session.stakeholderMessages
+      .filter(msg => !msg.read)
+      .map(msg => {
+        // Trouver les infos du stakeholder
+        const stakeholder = session.scenario.stakeholders.find(s => s.id === msg.stakeholderId);
+        return {
+          id: uuidv4(), // Générer un ID unique pour ce message côté client
+          stakeholderId: msg.stakeholderId,
+          stakeholderName: stakeholder?.name || "Inconnu",
+          stakeholderRole: stakeholder?.role || "Inconnu",
+          department: stakeholder?.department || "Inconnu",
+          content: msg.content,
+          timestamp: msg.timestamp,
+          sentiment: msg.sentiment
+        };
+      });
+    
     return res.status(200).json({
       success: true,
       message: response,
@@ -1072,11 +1093,170 @@ export async function sendCrisisMessage(req: Request, res: Response) {
       currentStage: session.currentStage,
       elapsedTime: session.elapsedTime,
       status: session.status,
-      isCompleted: false
+      isCompleted: false,
+      stakeholderMessages: unreadMessages
     });
   } catch (error) {
     console.error("Erreur lors de l'envoi du message:", error);
     return res.status(500).json({ error: "Erreur lors du traitement du message" });
+  }
+}
+
+/**
+ * Génère un message d'un stakeholder en fonction de la situation actuelle
+ */
+async function generateStakeholderMessage(session: CrisisSession, stakeholderId: string): Promise<StakeholderMessage | null> {
+  try {
+    const stakeholder = session.scenario.stakeholders.find(s => s.id === stakeholderId);
+    if (!stakeholder) return null;
+    
+    // Vérifier si le stakeholder est disponible (basé sur son niveau de disponibilité)
+    const availabilityFactor = stakeholder.availability / 10; // Convertir en probabilité (0-1)
+    if (Math.random() > availabilityFactor) return null;
+    
+    // Construire le prompt pour l'IA
+    const systemPrompt = stakeholder.systemPrompt || 
+      `Tu es ${stakeholder.name}, ${stakeholder.role} chez TechnoManufacture. Tu dois réagir à la situation de crise actuelle en fonction de ton expertise et de ta personnalité. Réponds de manière concise en quelques phrases seulement.`;
+    
+    // Construire un contexte basé sur les métriques actuelles
+    let situationContext = `Situation actuelle:\n`;
+    situationContext += `- Impact opérationnel: ${session.metrics.operationalImpact}%\n`;
+    situationContext += `- Impact financier: ${session.metrics.financialImpact}k€\n`;
+    situationContext += `- Impact client: ${session.metrics.customerImpact}%\n`;
+    situationContext += `- Pression des dirigeants: ${session.metrics.executivePressure}/10\n`;
+    situationContext += `- Efficacité technique: ${session.metrics.technicalResponse}/100\n`;
+    situationContext += `- Efficacité de communication: ${session.metrics.communicationEffectiveness}/100\n`;
+    situationContext += `- Continuité d'activité: ${session.metrics.businessContinuity}/100\n`;
+    situationContext += `- Conformité légale: ${session.metrics.legalCompliance}/100\n\n`;
+    
+    // Ajouter le dernier événement de la timeline
+    const latestEvents = session.timeline.slice(-3).reverse();
+    if (latestEvents.length > 0) {
+      situationContext += `Derniers événements:\n`;
+      latestEvents.forEach(event => {
+        situationContext += `- ${event.title}: ${event.description}\n`;
+      });
+    }
+    
+    // Liste des dernières décisions
+    const latestDecisions = session.decisions.slice(-2).reverse();
+    if (latestDecisions.length > 0) {
+      situationContext += `\nDernières décisions prises:\n`;
+      latestDecisions.forEach(decision => {
+        situationContext += `- ${decision.decisionPoint}: Option choisie - ${decision.selectedOption}\n`;
+      });
+    }
+    
+    // Créer la requête pour l'IA
+    const messages: ChatCompletionRequestMessage[] = [
+      { 
+        role: "system", 
+        content: systemPrompt
+      },
+      { 
+        role: "user", 
+        content: `${situationContext}\n\nEn tant que ${stakeholder.role}, quelle est ta réaction à la situation actuelle? Réponds à la première personne en 1-3 phrases. Sois concis.`
+      }
+    ];
+    
+    // Obtenir la réponse de l'IA
+    const content = await openAIService.getChatCompletion(messages);
+    
+    if (!content) return null;
+    
+    // Déterminer le sentiment du message
+    let sentiment: 'positive' | 'neutral' | 'negative' | 'urgent' = 'neutral';
+    
+    // Analyse simple basée sur des mots-clés
+    const lowerContent = content.toLowerCase();
+    const positiveKeywords = ['bien', 'excellent', 'progrès', 'confiant', 'amélioration', 'solution'];
+    const negativeKeywords = ['inquiet', 'problème', 'critique', 'grave', 'échec', 'risque'];
+    const urgentKeywords = ['immédiatement', 'urgent', 'critique', 'crucial', 'sans délai', 'alarme'];
+    
+    const positiveScore = positiveKeywords.filter(word => lowerContent.includes(word)).length;
+    const negativeScore = negativeKeywords.filter(word => lowerContent.includes(word)).length;
+    const urgentScore = urgentKeywords.filter(word => lowerContent.includes(word)).length;
+    
+    if (urgentScore > 0) {
+      sentiment = 'urgent';
+    } else if (negativeScore > positiveScore) {
+      sentiment = 'negative';
+    } else if (positiveScore > negativeScore) {
+      sentiment = 'positive';
+    }
+    
+    // Créer le message du stakeholder
+    const stakeholderMessage: StakeholderMessage = {
+      stakeholderId,
+      timestamp: Date.now(),
+      content,
+      sentiment,
+      read: false
+    };
+    
+    return stakeholderMessage;
+  } catch (error) {
+    console.error("Erreur lors de la génération du message stakeholder:", error);
+    return null;
+  }
+}
+
+/**
+ * Génère potentiellement des messages de stakeholders après une interaction
+ */
+async function generateStakeholderMessages(session: CrisisSession) {
+  // Limiter le nombre de messages générés pour ne pas surcharger l'utilisateur
+  const maxNewMessages = 2;
+  let newMessagesCount = 0;
+  
+  // Mesurer le niveau de crise global
+  const crisisLevel = (
+    session.metrics.operationalImpact +
+    session.metrics.customerImpact +
+    session.metrics.executivePressure * 10 +
+    (100 - session.metrics.technicalResponse) +
+    (100 - session.metrics.communicationEffectiveness)
+  ) / 5; // Moyenne pondérée
+  
+  // Probabilité de message augmente avec le niveau de crise
+  const baseMessageProbability = 0.3 + (crisisLevel / 500); // Entre 0.3 et 0.5
+  
+  // Parcourir les stakeholders aléatoirement
+  const stakeholders = [...session.scenario.stakeholders];
+  
+  // Mélanger les stakeholders pour ajouter de l'aléatoire
+  for (let i = stakeholders.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [stakeholders[i], stakeholders[j]] = [stakeholders[j], stakeholders[i]];
+  }
+  
+  // Essayer de générer des messages pour chaque stakeholder
+  for (const stakeholder of stakeholders) {
+    if (newMessagesCount >= maxNewMessages) break;
+    
+    // Probabilité ajustée en fonction du niveau de crise et des centres d'intérêt du stakeholder
+    let adjustedProbability = baseMessageProbability;
+    
+    // Ajuster en fonction du department et de l'état actuel
+    if (stakeholder.department === "IT" && session.metrics.technicalResponse < 50) {
+      adjustedProbability += 0.2;
+    } else if (stakeholder.department === "Communication" && session.metrics.communicationEffectiveness < 50) {
+      adjustedProbability += 0.2;
+    } else if (stakeholder.department === "Opérations" && session.metrics.operationalImpact > 50) {
+      adjustedProbability += 0.2;
+    } else if (stakeholder.department === "Juridique" && session.metrics.legalCompliance < 50) {
+      adjustedProbability += 0.2;
+    } else if (stakeholder.department === "Direction Générale" && session.metrics.executivePressure > 7) {
+      adjustedProbability += 0.3;
+    }
+    
+    if (Math.random() < adjustedProbability) {
+      const message = await generateStakeholderMessage(session, stakeholder.id);
+      if (message) {
+        session.stakeholderMessages.push(message);
+        newMessagesCount++;
+      }
+    }
   }
 }
 
@@ -1532,6 +1712,150 @@ export async function endCrisisSession(req: Request, res: Response) {
   } catch (error) {
     console.error("Erreur lors de la fin de la session:", error);
     return res.status(500).json({ error: "Erreur lors de la fin de session" });
+  }
+}
+
+/**
+ * Marque les messages des stakeholders comme lus
+ */
+export async function markStakeholderMessagesAsRead(req: Request, res: Response) {
+  try {
+    const { sessionId } = req.body;
+    
+    if (!sessionId) {
+      return res.status(400).json({ error: "SessionID requis" });
+    }
+    
+    const session = activeCrisisSessions.get(sessionId);
+    if (!session) {
+      return res.status(404).json({ error: "Session non trouvée" });
+    }
+    
+    // Mettre à jour le statut de lecture des messages
+    let updatedCount = 0;
+    
+    // Marquer tous les messages comme lus
+    session.stakeholderMessages.forEach(msg => {
+      if (!msg.read) {
+        msg.read = true;
+        updatedCount++;
+      }
+    });
+    
+    return res.status(200).json({
+      success: true,
+      updatedCount
+    });
+  } catch (error) {
+    console.error("Erreur lors du marquage des messages comme lus:", error);
+    return res.status(500).json({ error: "Erreur interne du serveur" });
+  }
+}
+
+/**
+ * Répond à un message spécifique d'un stakeholder
+ */
+export async function respondToStakeholder(req: Request, res: Response) {
+  try {
+    const { sessionId, stakeholderId, message } = req.body;
+    
+    if (!sessionId || !stakeholderId || !message) {
+      return res.status(400).json({ error: "SessionID, stakeholderId et message requis" });
+    }
+    
+    const session = activeCrisisSessions.get(sessionId);
+    if (!session) {
+      return res.status(404).json({ error: "Session non trouvée" });
+    }
+    
+    // Trouver le stakeholder
+    const stakeholder = session.scenario.stakeholders.find(s => s.id === stakeholderId);
+    if (!stakeholder) {
+      return res.status(404).json({ error: "Stakeholder non trouvé" });
+    }
+    
+    // Mettre à jour le stakeholder actif
+    session.activeStakeholder = stakeholderId;
+    
+    // Construire le système prompt pour le stakeholder
+    const systemPrompt = stakeholder.systemPrompt || 
+      `Tu es ${stakeholder.name}, ${stakeholder.role} chez TechnoManufacture. Tu dois répondre au RSSI dans le contexte d'une crise ransomware en fonction de ton expertise, tes préoccupations et ta personnalité. Ta priorité est ${stakeholder.department}.`;
+    
+    // Construire le contexte de la situation
+    let situationContext = `Situation actuelle de la crise ransomware:\n`;
+    situationContext += `- Impact opérationnel: ${session.metrics.operationalImpact}%\n`;
+    situationContext += `- Impact financier: ${session.metrics.financialImpact}k€\n`;
+    situationContext += `- Impact client: ${session.metrics.customerImpact}%\n`;
+    situationContext += `- Efficacité technique: ${session.metrics.technicalResponse}/100\n`;
+    situationContext += `- Efficacité de communication: ${session.metrics.communicationEffectiveness}/100\n`;
+    situationContext += `- Continuité d'activité: ${session.metrics.businessContinuity}/100\n`;
+    situationContext += `- Conformité légale: ${session.metrics.legalCompliance}/100\n\n`;
+    
+    // Créer des messages pour l'IA
+    const chatMessages: ChatCompletionRequestMessage[] = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: `${situationContext}\n\nLe RSSI me dit: "${message}"\n\nJe dois répondre en tant que ${stakeholder.role}, avec ma personnalité et mes préoccupations. Ma réponse doit être concise (1-3 phrases).` }
+    ];
+    
+    // Obtenir la réponse de l'IA
+    const response = await openAIService.getChatCompletion(chatMessages);
+    
+    if (!response) {
+      return res.status(500).json({ error: "Erreur lors de la génération de la réponse" });
+    }
+    
+    // Impact sur les métriques en fonction du département du stakeholder
+    if (stakeholder.department === "Opérations") {
+      session.metrics.businessContinuity = Math.min(100, session.metrics.businessContinuity + 3);
+      session.metrics.operationalImpact = Math.max(0, session.metrics.operationalImpact - 2);
+    } else if (stakeholder.department === "Communication") {
+      session.metrics.communicationEffectiveness = Math.min(100, session.metrics.communicationEffectiveness + 3);
+      session.metrics.reputationProtection = Math.min(100, session.metrics.reputationProtection + 2);
+    } else if (stakeholder.department === "IT") {
+      session.metrics.technicalResponse = Math.min(100, session.metrics.technicalResponse + 3);
+    } else if (stakeholder.department === "Juridique") {
+      session.metrics.legalCompliance = Math.min(100, session.metrics.legalCompliance + 3);
+    } else if (stakeholder.department === "Direction Générale") {
+      session.metrics.executivePressure = Math.max(0, session.metrics.executivePressure - 1);
+      // Amélioration globale plus petite
+      session.metrics.overallEffectiveness = Math.min(100, session.metrics.overallEffectiveness + 1);
+    }
+    
+    // Mettre à jour les métriques globales
+    session.metrics.overallEffectiveness = Math.round(
+      (session.metrics.technicalResponse * 0.3) +
+      (session.metrics.communicationEffectiveness * 0.25) +
+      (session.metrics.businessContinuity * 0.25) +
+      (session.metrics.legalCompliance * 0.2)
+    );
+    
+    // Créer un nouveau message du stakeholder
+    const newMessage: StakeholderMessage = {
+      stakeholderId,
+      timestamp: Date.now(),
+      content: response,
+      sentiment: 'neutral', // Une analyse plus sophistiquée pourrait déterminer le sentiment
+      read: true // Marquer comme lu immédiatement puisque c'est une réponse directe
+    };
+    
+    // Ajouter à la liste des messages
+    session.stakeholderMessages.push(newMessage);
+    
+    // Retourner la réponse
+    return res.status(200).json({
+      success: true,
+      stakeholder: {
+        id: stakeholder.id,
+        name: stakeholder.name,
+        role: stakeholder.role,
+        department: stakeholder.department
+      },
+      response,
+      metrics: session.metrics
+    });
+  } catch (error) {
+    console.error("Erreur lors de la réponse au stakeholder:", error);
+    return res.status(500).json({ error: "Erreur lors de la réponse au stakeholder" });
   }
 }
 
