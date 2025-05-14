@@ -22,7 +22,7 @@ interface ModuleConfig {
   description: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   topics: string[];
-  gamificationLevel: 'low' | 'medium' | 'high';
+  gamificationLevel: 'aucun' | 'leger' | 'modere' | 'eleve' | 'intense';
   learningStyle: 'interactive' | 'reading' | 'mixed';
   additionalContext: string;
   iamName?: string; // Format "I AM XXX"

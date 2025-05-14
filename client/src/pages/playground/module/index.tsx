@@ -192,7 +192,7 @@ export default function LearningModulePage() {
       else {
         try {
           // Faire une requête à l'API pour récupérer le module personnalisé
-          const response = await fetch(`/api/module-generator/module/${moduleId}`);
+          const response = await fetch(`/api/module-generator/modules/${moduleId}`);
           
           if (response.ok) {
             const data = await response.json();
