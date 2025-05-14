@@ -100,6 +100,10 @@ interface CrisisMetrics {
   overallEffectiveness: number; // 0-100
   timeEfficiency: number; // 0-100
   reputationProtection: number; // 0-100
+  financialImpact: number; // Impact financier en milliers d'euros
+  operationalImpact: number; // % des opérations affectées (0-100)
+  customerImpact: number; // % des clients affectés (0-100)
+  executivePressure: number; // Niveau de pression de la direction (0-10)
 }
 
 // Interface pour les résultats potentiels
