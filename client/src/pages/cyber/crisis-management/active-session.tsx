@@ -1137,8 +1137,8 @@ export default function ActiveCrisisSession() {
         {sidebarOpen && (
           <div className="w-full md:w-80 shrink-0 space-y-4">
             <Card className="bg-blue-950/70 border-blue-800">
-              <CardHeader className="pb-2">
-                <Tabs defaultValue="situation" className="w-full" onValueChange={setActiveTab}>
+              <Tabs defaultValue="situation" className="w-full" onValueChange={setActiveTab}>
+                <CardHeader className="pb-2">
                   <TabsList className="w-full bg-blue-900/50">
                     <TabsTrigger 
                       value="situation" 
@@ -1159,10 +1159,9 @@ export default function ActiveCrisisSession() {
                       Métriques
                     </TabsTrigger>
                   </TabsList>
-                </Tabs>
-              </CardHeader>
-              <CardContent className="pt-2">
-                <TabsContent value="situation" className="mt-2">
+                </CardHeader>
+                <CardContent className="pt-2">
+                  <TabsContent value="situation" className="mt-2">
                   <ScrollArea className="h-[calc(100vh-280px)] pr-2">
                     <div className="space-y-4">
                       <div>
@@ -1546,6 +1545,7 @@ export default function ActiveCrisisSession() {
                   </ScrollArea>
                 </TabsContent>
               </CardContent>
+              </Tabs>
             </Card>
           </div>
         )}
