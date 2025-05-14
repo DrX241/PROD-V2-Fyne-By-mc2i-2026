@@ -66,26 +66,16 @@ export default function Header({ isFeny = false }) {
     <header className={`w-full max-w-[100vw] overflow-hidden fixed top-0 left-0 right-0 z-50 ${headerBgClass}`}>
       <div className="w-full px-3 sm:px-5 md:px-8 py-3 sm:py-4 flex items-center justify-between">
         <div className="flex items-center">
-          {/* Switch de thème classique/futuriste - rendu bien visible */}
-          <div className="flex items-center mr-6">
-            <ThemeSwitch className="z-20" />
-          </div>
-
           <a href="/"
             className="flex items-center cursor-pointer"
           >
             <img src={mclogo} alt="mc2i Logo" className="h-7 sm:h-9" />
           </a>
         </div>
-        <div className="flex items-center gap-2 sm:gap-5">
-          {/* Indicateur OpenAI affiché dans tous les cas */}
-          <div className="flex items-center">
-            <OpenAIStatusIndicator position="in-header" showModelToggle={true} />
-          </div>
-          
-          {/* Affichage de l'utilisateur existant */}
+        <div className="flex items-center">
+          {/* Affichage de l'utilisateur existant uniquement */}
           {userName && (
-            <div className="flex items-center gap-1 sm:gap-2 mr-3">
+            <div className="flex items-center gap-1 sm:gap-2">
               <div className={`h-6 w-6 sm:h-8 sm:w-8 rounded-full ${userInitialBgClass} flex items-center justify-center font-medium text-xs sm:text-base`}>
                 {userInitial}
               </div>
