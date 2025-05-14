@@ -313,7 +313,14 @@ export async function saveCustomModule(req: Request, res: Response) {
       includeTestModule: true,
       includeAscensionModule: true,
       moduleData: {
-        ...req.body.moduleData,
+        // Assurer que moduleData est un objet
+        ...(typeof req.body.moduleData === 'object' ? req.body.moduleData : {}),
+        // Propriétés pour le format de cyber-mode-selection-fixed.tsx
+        routes: req.body.moduleData?.routes || {},
+        seFormer: req.body.moduleData?.seFormer || {},
+        sEntrainer: req.body.moduleData?.sEntrainer || {},
+        sEvaluer: req.body.moduleData?.sEvaluer || {},
+        automatiser: req.body.moduleData?.automatiser || {},
         // Ajout des propriétés nécessaires pour l'affichage dans le format attendu
         title: req.body.iamName || `I AM ${req.body.domain.toUpperCase()}`,
         destination: `/playground/module/`,  // Le chemin sera complété avec l'ID après création
@@ -321,7 +328,7 @@ export async function saveCustomModule(req: Request, res: Response) {
         duration: estimatedDuration,
         isNew: true,
         comingSoon: false,
-        icon: "<BsShieldCheck className=\"h-5 w-5\" />" // Icône par défaut, sera rendu côté client
+        icon: "BsShieldCheck" // Nom de l'icône, à traiter côté client
       },
       iconPath: getIconPath(req.body.domain),
       isActive: true
@@ -331,10 +338,14 @@ export async function saveCustomModule(req: Request, res: Response) {
     
     // Mise à jour de la destination avec l'ID du module nouvellement créé
     const createdModule = result[0];
-    if (createdModule) {
+    if (createdModule && createdModule.moduleData) {
       // Mettre à jour la destination dans moduleData
+      const currentModuleData = typeof createdModule.moduleData === 'object' 
+        ? createdModule.moduleData
+        : {};
+        
       const updatedModuleData = {
-        ...createdModule.moduleData,
+        ...currentModuleData,
         destination: `/playground/module/${createdModule.id}`
       };
       

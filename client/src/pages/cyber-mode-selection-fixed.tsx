@@ -107,7 +107,53 @@ export default function CyberModeSelectionRedesign() {
     };
   }, [isTutorialActive]);
 
-  // Tous les modules disponibles
+  // État pour stocker les modules personnalisés
+  const [customModules, setCustomModules] = useState<Module[]>([]);
+  
+  // Fonction pour charger les modules personnalisés
+  useEffect(() => {
+    const fetchCustomModules = async () => {
+      try {
+        const response = await fetch('/api/module-generator/modules');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && Array.isArray(data.modules)) {
+            // Conversion des modules personnalisés au format Module[]
+            const formattedModules = data.modules.map((customModule: any) => {
+              // Utiliser le nom de l'icône pour créer le composant React
+              let iconComponent;
+              if (customModule.moduleData?.icon === "BsShieldCheck") {
+                iconComponent = <BsShieldCheck className="h-5 w-5" />;
+              } else {
+                iconComponent = <BsBookmarkCheck className="h-5 w-5" />;
+              }
+              
+              return {
+                id: `custom-${customModule.id}`,
+                title: customModule.moduleData?.title || customModule.iamName || customModule.name,
+                description: customModule.description,
+                icon: iconComponent,
+                destination: customModule.moduleData?.destination || `/playground/module/${customModule.id}`,
+                difficulty: customModule.moduleData?.difficulty || 'intermédiaire',
+                duration: customModule.moduleData?.duration || '20-30 min',
+                isNew: customModule.moduleData?.isNew || true
+              };
+            });
+            
+            setCustomModules(formattedModules);
+          }
+        } else {
+          console.error('Erreur lors du chargement des modules personnalisés:', await response.text());
+        }
+      } catch (error) {
+        console.error('Exception lors du chargement des modules personnalisés:', error);
+      }
+    };
+    
+    fetchCustomModules();
+  }, []);
+  
+  // Tous les modules disponibles (statiques + personnalisés)
   const allModules: Module[] = [
     {
       id: 'profil-pro',
