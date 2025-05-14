@@ -35,7 +35,8 @@ interface CyberPulseSession {
 const cyberPulseSessions = new Map<string, CyberPulseSession>();
 
 // Intervalle d'inactivité (en ms) avant que CyberPULSE propose automatiquement une activité
-const INACTIVITY_THRESHOLD = 30000; // 30 secondes
+// Augmenté à 2 minutes pour éviter les erreurs fréquentes
+const INACTIVITY_THRESHOLD = 120000; // 2 minutes
 
 /**
  * Initialise une nouvelle session CyberPULSE
