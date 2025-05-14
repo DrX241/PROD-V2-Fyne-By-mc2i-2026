@@ -185,6 +185,16 @@ export default function CyberModeSelectionRedesign() {
     },
 
     {
+      id: 'entree',
+      title: 'L\'ENTRÉE',
+      description: "Module de formation au premier contact avec le client et simulations d'entretiens",
+      icon: <BsPersonCheck className="h-5 w-5" />,
+      destination: '/cyber/interview-preparation',
+      difficulty: 'intermédiaire',
+      duration: '20-40 min',
+    },
+
+    {
       id: 'cyber-pulse',
       title: 'CYBERPULSE',
       description: "Jouez avec un chatbot ludique et immersif qui génère des défis et des jeux en cybersécurité",
