@@ -34,7 +34,7 @@ interface ModuleConfig {
   description: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   topics: string[];
-  gamificationLevel: 'low' | 'medium' | 'high';
+  gamificationLevel: 'aucun' | 'leger' | 'modere' | 'eleve' | 'intense';
   learningStyle: 'interactive' | 'reading' | 'mixed';
   additionalContext: string;
 }
@@ -51,7 +51,7 @@ export default function ModuleGenerator() {
     description: '',
     difficulty: 'intermediate',
     topics: [],
-    gamificationLevel: 'medium',
+    gamificationLevel: 'modere',
     learningStyle: 'mixed',
     additionalContext: '',
   });
@@ -282,9 +282,11 @@ export default function ModuleGenerator() {
                         <SelectValue placeholder="Sélectionnez un niveau" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="low">Faible</SelectItem>
-                        <SelectItem value="medium">Moyen</SelectItem>
-                        <SelectItem value="high">Élevé</SelectItem>
+                        <SelectItem value="aucun">Aucun</SelectItem>
+                        <SelectItem value="leger">Léger</SelectItem>
+                        <SelectItem value="modere">Modéré</SelectItem>
+                        <SelectItem value="eleve">Élevé</SelectItem>
+                        <SelectItem value="intense">Intense</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
