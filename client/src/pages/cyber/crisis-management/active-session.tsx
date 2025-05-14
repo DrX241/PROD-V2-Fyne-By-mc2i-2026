@@ -603,7 +603,17 @@ export default function ActiveCrisisSession() {
         };
         
         // Mettre à jour les métriques en fonction de la décision
-        const updatedMetrics = { ...(sessionData?.metrics || {}) };
+        const updatedMetrics: CrisisMetrics = { 
+          ...(sessionData?.metrics || {
+            technicalResponse: 50,
+            communicationEffectiveness: 50,
+            businessContinuity: 50,
+            legalCompliance: 50,
+            overallEffectiveness: 50,
+            timeEfficiency: 50,
+            reputationProtection: 50
+          })
+        };
         if (newDecision.impact.technical > 0) updatedMetrics.technicalResponse = Math.min(100, (updatedMetrics.technicalResponse || 50) + newDecision.impact.technical * 2);
         if (newDecision.impact.communication > 0) updatedMetrics.communicationEffectiveness = Math.min(100, (updatedMetrics.communicationEffectiveness || 50) + newDecision.impact.communication * 2);
         if (newDecision.impact.business > 0) updatedMetrics.businessContinuity = Math.min(100, (updatedMetrics.businessContinuity || 50) + newDecision.impact.business * 2);
@@ -676,7 +686,17 @@ export default function ActiveCrisisSession() {
           financial: 20
         };
         
-        const updatedMetrics = { ...(sessionData?.metrics || {}) };
+        const updatedMetrics: CrisisMetrics = { 
+          ...(sessionData?.metrics || {
+            technicalResponse: 50,
+            communicationEffectiveness: 50,
+            businessContinuity: 50,
+            legalCompliance: 50,
+            overallEffectiveness: 50,
+            timeEfficiency: 50,
+            reputationProtection: 50
+          })
+        };
         
         // Impact sur la réponse technique
         if (resourcesForm.technical > oldResources.technical) {
@@ -1163,7 +1183,13 @@ export default function ActiveCrisisSession() {
                           OBJECTIFS
                         </h3>
                         <ul className="mt-1 space-y-1">
-                          {sessionData.scenario.initialSituation?.objectives?.map((objective, index) => (
+                          {/* Objectifs simulés pour la démonstration */}
+                          {[
+                            "Contenir la propagation du ransomware",
+                            "Restaurer les services critiques",
+                            "Communiquer efficacement avec les parties prenantes",
+                            "Prévenir les risques juridiques et réglementaires"
+                          ].map((objective, index) => (
                             <li key={index} className="text-sm text-blue-100 flex items-start">
                               <span className="text-blue-400 mr-2">•</span>
                               <span>{objective}</span>
