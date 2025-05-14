@@ -7,7 +7,7 @@ import { IoHome, IoSearchOutline, IoBookOutline, IoDesktopOutline, IoTrophyOutli
 import { IoMdArrowForward } from 'react-icons/io';
 import { BsShieldCheck, BsBarChartFill, BsEye, BsCpu, BsCodeSlash, BsCloud, BsPeopleFill, 
          BsBookmarkCheck, BsBriefcase, BsGearFill, BsChevronRight, BsFilterLeft, 
-         BsLightningCharge, BsExclamationCircleFill } from 'react-icons/bs';
+         BsLightningCharge, BsExclamationCircleFill, BsDatabaseCheck, BsPersonCheck } from 'react-icons/bs';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
 import { RiLockFill, RiFilterLine } from 'react-icons/ri';
