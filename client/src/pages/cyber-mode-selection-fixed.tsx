@@ -318,6 +318,7 @@ export default function CyberModeSelectionRedesign() {
       icon: <IoBookOutline className="h-6 w-6 text-blue-100" />,
       modules: [
         'agent-ia',                // Assistant IA pour répondre aux questions
+        'entree',                  // L'ENTRÉE - Formation au premier contact
         'ascension-progression',   // Parcours structuré de formation
         'centre-apprentissage'     // Nouveau module centralisant les ressources de formation
       ],
