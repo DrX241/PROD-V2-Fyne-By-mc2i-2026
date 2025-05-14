@@ -211,9 +211,9 @@ const CyberHomePage: React.FC = () => {
               className="max-w-4xl mx-auto text-center"
               style={{ opacity, y, scale }}
             >
-              <div className="text-3xl md:text-5xl text-cyan-500 font-cyber-title mb-6 tracking-widest">
+              <div className="text-3xl md:text-5xl text-cyan-500 font-cyber-title mb-8 tracking-widest">
                 <CyberGlitchText 
-                  text="F O R   Y O U R   N E X T   E X P E R I E N C E" 
+                  text="FOR - YOUR - NEXT - EXPERIENCE" 
                   textSize="text-3xl md:text-5xl" 
                   color="text-cyan-500"
                   highlightColor="text-pink-400" 
@@ -221,16 +221,6 @@ const CyberHomePage: React.FC = () => {
                   className="tracking-widest"
                 />
               </div>
-              
-              <h1 className="font-cyber-title mb-8 tracking-wider">
-                <CyberGlitchText 
-                  text="NEXT-GEN SIMULATION" 
-                  textSize="text-4xl md:text-6xl" 
-                  color="text-white"
-                  highlightColor="text-cyan-400" 
-                  glitchIntensity="low"
-                />
-              </h1>
               
               <p className="text-xl md:text-2xl text-gray-300 mb-8 font-cyber leading-relaxed max-w-3xl mx-auto">
                 Transformez votre <span className="text-pink-400">expérience de formation</span> avec notre plateforme immersive alimentée par l'IA. <span className="text-cyan-400">FYNE</span> redéfinit l'apprentissage pour l'adapter à vos besoins.
