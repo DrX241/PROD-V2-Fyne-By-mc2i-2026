@@ -1007,9 +1007,11 @@ export default function Home() {
       </div>
       
       {/* Section Modules d'Excellence - Mise en avant en utilisant un nouveau design inspiré de Dribbble */}
-      <div className={`relative ${isFuturistic ? 'bg-gradient-to-b from-gray-900 to-blue-950' : 'bg-gradient-to-b from-gray-100 to-slate-200'} py-16 lg:py-24 overflow-hidden`}>
-        {/* Éléments décoratifs - uniquement en mode futuriste */}
-        {isFuturistic && (
+      {/* Section Caractéristiques (Features) avec design moderne */}
+      {isFuturistic ? (
+        // Version futuriste originale
+        <div className="relative bg-gradient-to-b from-gray-900 to-blue-950 py-16 lg:py-24 overflow-hidden">
+          {/* Éléments décoratifs - uniquement en mode futuriste */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
             <div className="absolute top-10 left-10 w-64 h-64 bg-blue-800/30 rounded-full mix-blend-overlay filter blur-xl opacity-30 animate-blob"></div>
             <div className="absolute top-10 right-10 w-72 h-72 bg-indigo-900/30 rounded-full mix-blend-overlay filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
@@ -1034,8 +1036,94 @@ export default function Home() {
               ))}
             </div>
           </div>
-        )}
-        
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            {/* Contenu de la version futuriste que je laisse inchangé */}
+          </div>
+        </div>
+      ) : (
+        // Nouvelle version classique avec design inspiré de Dribbble
+        <div className="relative py-24 bg-gradient-to-b from-white to-blue-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <motion.h2 
+                className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+              >
+                Une approche <span className="text-blue-600">différente</span> de l'apprentissage
+              </motion.h2>
+              <motion.p 
+                className="text-xl text-gray-600 max-w-3xl mx-auto"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                viewport={{ once: true }}
+              >
+                FYNE combine intelligence artificielle et pédagogie avancée pour créer une expérience d'apprentissage personnalisée
+              </motion.p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {/* Feature 1 */}
+              <motion.div 
+                className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+              >
+                <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center mb-6">
+                  <Brain className="h-7 w-7 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">IA Adaptative</h3>
+                <p className="text-gray-600">Le contenu évolue en fonction de vos réponses et de votre niveau, offrant un parcours sur mesure.</p>
+              </motion.div>
+              
+              {/* Feature 2 */}
+              <motion.div 
+                className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                viewport={{ once: true }}
+              >
+                <div className="w-14 h-14 rounded-full bg-indigo-100 flex items-center justify-center mb-6">
+                  <Gamepad2 className="h-7 w-7 text-indigo-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Apprentissage Immersif</h3>
+                <p className="text-gray-600">Des simulations de crise et des scénarios réels pour développer vos compétences en situation.</p>
+              </motion.div>
+              
+              {/* Feature 3 */}
+              <motion.div 
+                className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                viewport={{ once: true }}
+              >
+                <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mb-6">
+                  <LineChart className="h-7 w-7 text-green-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Suivi de Progression</h3>
+                <p className="text-gray-600">Visualisez votre évolution et identifiez précisément vos points forts et axes d'amélioration.</p>
+              </motion.div>
+            </div>
+          </div>
+          
+          {/* Effet de vague subtil en bas de section */}
+          <div className="absolute bottom-0 left-0 w-full overflow-hidden" style={{ height: "4rem" }}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="absolute bottom-0" style={{ left: 0 }}>
+              <path fill="#ffffff" fillOpacity="1" d="M0,288L48,272C96,256,192,224,288,213.3C384,203,480,213,576,208C672,203,768,181,864,170.7C960,160,1056,160,1152,176C1248,192,1344,224,1392,240L1440,256L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+            </svg>
+          </div>
+        </div>
+      )}
+      
+      {/* Section Modules d'Excellence - version originale */}
+      <div className="relative bg-gradient-to-b from-gray-100 to-slate-200 py-16 lg:py-24 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
             <motion.div
