@@ -935,6 +935,141 @@ export async function sendCrisisMessage(req: Request, res: Response) {
 }
 
 /**
+ * Génère un événement aléatoire pour augmenter la tension et le réalisme de la simulation
+ */
+function generateRandomEvent(session: CrisisSession): TimelineEvent | null {
+  // Vérifier si on doit générer un événement (probabilité calculée en fonction du temps et de la difficulté)
+  const difficultyFactor = session.scenario.difficulty === 'expert' ? 0.3 : 
+                          session.scenario.difficulty === 'avancé' ? 0.25 : 
+                          session.scenario.difficulty === 'intermédiaire' ? 0.2 : 0.15;
+  
+  const timeElapsedMinutes = session.elapsedTime / 60000;
+  const timeProgressFactor = Math.min(1, timeElapsedMinutes / (session.scenario.timeLimit * 0.5));
+  const randomChance = Math.random();
+  
+  // Plus le temps avance et plus la difficulté est élevée, plus la chance d'avoir un événement augmente
+  if (randomChance > (0.4 - (difficultyFactor * timeProgressFactor))) {
+    return null; // Pas d'événement cette fois
+  }
+  
+  // Sélectionner une catégorie d'événement
+  const categoryKeys = ['technical', 'business', 'communication', 'executive', 'legal'];
+  // Ajuster les poids en fonction de la situation actuelle
+  const weights = [
+    0.3 + (session.metrics.technicalResponse < 50 ? 0.1 : 0),   // Technique
+    0.2 + (session.metrics.businessContinuity < 50 ? 0.1 : 0),  // Business
+    0.2 + (session.metrics.communicationEffectiveness < 50 ? 0.1 : 0), // Communication
+    0.15 + (session.metrics.executivePressure > 5 ? 0.1 : 0),    // Exécutif
+    0.15 + (session.metrics.legalCompliance < 50 ? 0.1 : 0)      // Légal
+  ];
+  
+  // Normaliser les poids
+  const totalWeight = weights.reduce((a, b) => a + b, 0);
+  const normalizedWeights = weights.map(w => w / totalWeight);
+  
+  // Sélectionner une catégorie basée sur les poids
+  let cumulativeWeight = 0;
+  const randomValue = Math.random();
+  let selectedCategoryIndex = 0;
+  
+  for (let i = 0; i < normalizedWeights.length; i++) {
+    cumulativeWeight += normalizedWeights[i];
+    if (randomValue <= cumulativeWeight) {
+      selectedCategoryIndex = i;
+      break;
+    }
+  }
+  
+  const selectedCategory = categoryKeys[selectedCategoryIndex] as "technical" | "business" | "communication" | "executive" | "legal";
+  
+  // Utiliser une assertion de type pour indiquer à TypeScript que l'index est valide
+  const events = randomEventCategories[selectedCategory];
+  
+  // Choisir un événement aléatoire dans la catégorie
+  const selectedEvent = events[Math.floor(Math.random() * events.length)];
+  
+  // Créer l'événement timeline
+  const timelineEvent: TimelineEvent = {
+    id: uuidv4(),
+    timestamp: Date.now(),
+    type: 'incident',
+    title: selectedEvent.title,
+    description: selectedEvent.description,
+    severity: selectedEvent.severity as 'low' | 'medium' | 'high' | 'critical',
+    impact: selectedEvent.impact
+  };
+  
+  // Mettre à jour les métriques en fonction de l'événement
+  updateMetricsBasedOnEvent(session, selectedCategory, selectedEvent.severity as 'low' | 'medium' | 'high' | 'critical');
+  
+  return timelineEvent;
+}
+
+/**
+ * Met à jour les métriques basées sur l'événement généré
+ */
+function updateMetricsBasedOnEvent(session: CrisisSession, eventCategory: "technical" | "business" | "communication" | "executive" | "legal", severity: 'low' | 'medium' | 'high' | 'critical') {
+  // Facteur d'impact basé sur la sévérité
+  const severityFactor = severity === 'critical' ? 0.15 : 
+                         severity === 'high' ? 0.1 : 
+                         severity === 'medium' ? 0.05 : 0.02;
+  
+  // Appliquer des impacts différents selon la catégorie
+  switch (eventCategory) {
+    case 'technical':
+      // Les événements techniques affectent principalement la réponse technique et la continuité business
+      session.metrics.technicalResponse = Math.max(0, session.metrics.technicalResponse - Math.round(severityFactor * 100));
+      session.metrics.operationalImpact = Math.min(100, session.metrics.operationalImpact + Math.round(severityFactor * 100));
+      // Augmenter l'impact financier de façon proportionnelle à la sévérité
+      session.metrics.financialImpact += severity === 'critical' ? 150 : 
+                                        severity === 'high' ? 100 : 
+                                        severity === 'medium' ? 50 : 20;
+      break;
+      
+    case 'business':
+      // Les événements business affectent principalement la continuité et l'impact client
+      session.metrics.businessContinuity = Math.max(0, session.metrics.businessContinuity - Math.round(severityFactor * 100));
+      session.metrics.customerImpact = Math.min(100, session.metrics.customerImpact + Math.round(severityFactor * 150));
+      session.metrics.financialImpact += severity === 'critical' ? 300 : 
+                                        severity === 'high' ? 200 : 
+                                        severity === 'medium' ? 100 : 50;
+      break;
+      
+    case 'communication':
+      // Les événements de communication affectent principalement la communication et la réputation
+      session.metrics.communicationEffectiveness = Math.max(0, session.metrics.communicationEffectiveness - Math.round(severityFactor * 100));
+      session.metrics.reputationProtection = Math.max(0, session.metrics.reputationProtection - Math.round(severityFactor * 100));
+      // Une crise médiatique augmente la pression de la direction
+      session.metrics.executivePressure = Math.min(10, session.metrics.executivePressure + Math.round(severityFactor * 20));
+      break;
+      
+    case 'executive':
+      // Les événements exécutifs augmentent fortement la pression et diminuent légèrement l'efficacité de la communication
+      session.metrics.executivePressure = Math.min(10, session.metrics.executivePressure + Math.round(severityFactor * 30));
+      session.metrics.communicationEffectiveness = Math.max(0, session.metrics.communicationEffectiveness - Math.round(severityFactor * 50));
+      break;
+      
+    case 'legal':
+      // Les événements légaux affectent principalement la conformité légale et la réputation
+      session.metrics.legalCompliance = Math.max(0, session.metrics.legalCompliance - Math.round(severityFactor * 100));
+      session.metrics.reputationProtection = Math.max(0, session.metrics.reputationProtection - Math.round(severityFactor * 70));
+      // Une problématique légale peut avoir un gros impact financier
+      session.metrics.financialImpact += severity === 'critical' ? 500 : 
+                                        severity === 'high' ? 300 : 
+                                        severity === 'medium' ? 150 : 50;
+      break;
+  }
+  
+  // Recalculer l'efficacité globale
+  session.metrics.overallEffectiveness = Math.round(
+    (session.metrics.technicalResponse * 0.3) +
+    (session.metrics.communicationEffectiveness * 0.25) +
+    (session.metrics.businessContinuity * 0.25) +
+    (session.metrics.legalCompliance * 0.2)
+  );
+}
+
+/**
  * Simule la mise à jour des métriques basée sur les interactions
  */
 function simulateMetricsUpdate(session: CrisisSession, userMessage: string, aiResponse: string) {
@@ -948,24 +1083,34 @@ function simulateMetricsUpdate(session: CrisisSession, userMessage: string, aiRe
   if (lowerUserMsg.includes('isoler') || lowerUserMsg.includes('contenir') || 
       lowerUserMsg.includes('sécuriser') || lowerUserMsg.includes('patch')) {
     session.metrics.technicalResponse = Math.min(100, session.metrics.technicalResponse + 5);
+    // Diminuer l'impact opérationnel si des mesures techniques sont prises
+    session.metrics.operationalImpact = Math.max(0, session.metrics.operationalImpact - 3);
   }
   
   // Simuler l'impact sur l'efficacité de la communication
   if (lowerUserMsg.includes('communiquer') || lowerUserMsg.includes('informer') || 
       lowerUserMsg.includes('notification') || lowerUserMsg.includes('transparence')) {
     session.metrics.communicationEffectiveness = Math.min(100, session.metrics.communicationEffectiveness + 5);
+    // Améliorer la réputation et réduire la pression exécutive avec une bonne communication
+    session.metrics.reputationProtection = Math.min(100, session.metrics.reputationProtection + 3);
+    session.metrics.executivePressure = Math.max(0, session.metrics.executivePressure - 0.5);
   }
   
   // Simuler l'impact sur la continuité des activités
   if (lowerUserMsg.includes('continuité') || lowerUserMsg.includes('reprise') || 
       lowerUserMsg.includes('backup') || lowerUserMsg.includes('alternative')) {
     session.metrics.businessContinuity = Math.min(100, session.metrics.businessContinuity + 5);
+    // Réduire l'impact client et financier
+    session.metrics.customerImpact = Math.max(0, session.metrics.customerImpact - 3);
+    session.metrics.financialImpact = Math.max(0, session.metrics.financialImpact - 20);
   }
   
   // Simuler l'impact sur la conformité légale
   if (lowerUserMsg.includes('rgpd') || lowerUserMsg.includes('légal') || 
       lowerUserMsg.includes('réglementaire') || lowerUserMsg.includes('notification')) {
     session.metrics.legalCompliance = Math.min(100, session.metrics.legalCompliance + 5);
+    // Réduire les risques financiers liés aux sanctions
+    session.metrics.financialImpact = Math.max(0, session.metrics.financialImpact - 30);
   }
   
   // Simuler des pénalités pour certains mots-clés
@@ -975,6 +1120,11 @@ function simulateMetricsUpdate(session: CrisisSession, userMessage: string, aiRe
     session.metrics.communicationEffectiveness = Math.max(0, session.metrics.communicationEffectiveness - 5);
     session.metrics.businessContinuity = Math.max(0, session.metrics.businessContinuity - 3);
     session.metrics.legalCompliance = Math.max(0, session.metrics.legalCompliance - 7);
+    // Augmenter les impacts négatifs
+    session.metrics.financialImpact += 50;
+    session.metrics.operationalImpact = Math.min(100, session.metrics.operationalImpact + 5);
+    session.metrics.customerImpact = Math.min(100, session.metrics.customerImpact + 5);
+    session.metrics.executivePressure = Math.min(10, session.metrics.executivePressure + 1);
   }
   
   // Calculer l'efficacité globale comme une moyenne pondérée
@@ -1003,6 +1153,15 @@ function simulateMetricsUpdate(session: CrisisSession, userMessage: string, aiRe
     (session.metrics.legalCompliance * 0.3) +
     (session.metrics.technicalResponse * 0.2)
   );
+  
+  // Potentiellement générer un événement aléatoire
+  // Plus la simulation avance, plus la probabilité augmente
+  if (Math.random() < 0.15 + (timePercentUsed * 0.2)) {
+    const randomEvent = generateRandomEvent(session);
+    if (randomEvent) {
+      session.timeline.push(randomEvent);
+    }
+  }
 }
 
 /**
