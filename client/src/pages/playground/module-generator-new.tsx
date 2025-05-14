@@ -405,15 +405,15 @@ export default function ModuleGenerator() {
                       {generatedModules.description}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-6">
+                  <CardContent className="space-y-6 text-gray-800 dark:text-white">
                     <div className="border rounded-lg p-4">
-                      <h3 className="text-lg font-semibold mb-2">Structure du module</h3>
+                      <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">Structure du module</h3>
                       <p className="text-sm text-gray-700 dark:text-gray-300">
                         {generatedModules.contentStructure || "Structure non disponible"}
                       </p>
                     </div>
                     
-                    <h3 className="text-lg font-semibold">Sections du module</h3>
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Sections du module</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Section Se Former */}
                       {generatedModules.seFormer && (
@@ -423,7 +423,7 @@ export default function ModuleGenerator() {
                             Se Former
                           </div>
                           <div className="p-4 space-y-2">
-                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                            <p className="text-sm text-gray-700 dark:text-white">
                               {generatedModules.seFormer.description || "Description non disponible"}
                             </p>
                             <div className="flex flex-wrap gap-1 mt-2 mb-3">
@@ -435,16 +435,16 @@ export default function ModuleGenerator() {
                             </div>
                             {generatedModules.seFormer.modules && (
                               <div className="mt-3 border-t pt-3">
-                                <h5 className="text-xs font-semibold mb-2">Modules de formation</h5>
-                                <ul className="text-xs space-y-1.5">
+                                <h5 className="text-xs font-semibold mb-2 text-gray-800 dark:text-white">Modules de formation</h5>
+                                <ul className="text-xs space-y-1.5 text-gray-700 dark:text-gray-200">
                                   {generatedModules.seFormer.modules.slice(0, 3).map((module: any, idx: number) => (
                                     <li key={idx} className="flex items-start">
-                                      <Lightbulb className="h-3.5 w-3.5 text-blue-600 mr-1.5 mt-0.5 flex-shrink-0" />
+                                      <Lightbulb className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 mr-1.5 mt-0.5 flex-shrink-0" />
                                       <span>{module.title}</span>
                                     </li>
                                   ))}
                                   {generatedModules.seFormer.modules.length > 3 && (
-                                    <li className="text-xs text-gray-500">+{generatedModules.seFormer.modules.length - 3} autres modules</li>
+                                    <li className="text-xs text-gray-500 dark:text-gray-400">+{generatedModules.seFormer.modules.length - 3} autres modules</li>
                                   )}
                                 </ul>
                               </div>
@@ -461,7 +461,7 @@ export default function ModuleGenerator() {
                             S'Entraîner
                           </div>
                           <div className="p-4 space-y-2">
-                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                            <p className="text-sm text-gray-700 dark:text-white">
                               {generatedModules.sEntrainer.description || "Description non disponible"}
                             </p>
                             <div className="flex flex-wrap gap-1 mt-2 mb-3">
@@ -473,16 +473,16 @@ export default function ModuleGenerator() {
                             </div>
                             {generatedModules.sEntrainer.exercices && (
                               <div className="mt-3 border-t pt-3">
-                                <h5 className="text-xs font-semibold mb-2">Exercices pratiques</h5>
-                                <ul className="text-xs space-y-1.5">
+                                <h5 className="text-xs font-semibold mb-2 text-gray-800 dark:text-white">Exercices pratiques</h5>
+                                <ul className="text-xs space-y-1.5 text-gray-700 dark:text-gray-200">
                                   {generatedModules.sEntrainer.exercices.slice(0, 3).map((exercice: any, idx: number) => (
                                     <li key={idx} className="flex items-start">
-                                      <Briefcase className="h-3.5 w-3.5 text-green-600 mr-1.5 mt-0.5 flex-shrink-0" />
+                                      <Briefcase className="h-3.5 w-3.5 text-green-600 dark:text-green-400 mr-1.5 mt-0.5 flex-shrink-0" />
                                       <span>{exercice.title}</span>
                                     </li>
                                   ))}
                                   {generatedModules.sEntrainer.exercices.length > 3 && (
-                                    <li className="text-xs text-gray-500">+{generatedModules.sEntrainer.exercices.length - 3} autres exercices</li>
+                                    <li className="text-xs text-gray-500 dark:text-gray-400">+{generatedModules.sEntrainer.exercices.length - 3} autres exercices</li>
                                   )}
                                 </ul>
                               </div>
@@ -499,7 +499,7 @@ export default function ModuleGenerator() {
                             S'Évaluer
                           </div>
                           <div className="p-4 space-y-2">
-                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                            <p className="text-sm text-gray-700 dark:text-white">
                               {generatedModules.sEvaluer.description || "Description non disponible"}
                             </p>
                             <div className="flex flex-wrap gap-1 mt-2 mb-3">
@@ -511,16 +511,16 @@ export default function ModuleGenerator() {
                             </div>
                             {generatedModules.sEvaluer.evaluations && (
                               <div className="mt-3 border-t pt-3">
-                                <h5 className="text-xs font-semibold mb-2">Méthodes d'évaluation</h5>
-                                <ul className="text-xs space-y-1.5">
+                                <h5 className="text-xs font-semibold mb-2 text-gray-800 dark:text-white">Méthodes d'évaluation</h5>
+                                <ul className="text-xs space-y-1.5 text-gray-700 dark:text-gray-200">
                                   {generatedModules.sEvaluer.evaluations.slice(0, 3).map((evaluation: any, idx: number) => (
                                     <li key={idx} className="flex items-start">
-                                      <Sparkles className="h-3.5 w-3.5 text-amber-600 mr-1.5 mt-0.5 flex-shrink-0" />
+                                      <Sparkles className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 mr-1.5 mt-0.5 flex-shrink-0" />
                                       <span>{evaluation.title}</span>
                                     </li>
                                   ))}
                                   {generatedModules.sEvaluer.evaluations.length > 3 && (
-                                    <li className="text-xs text-gray-500">+{generatedModules.sEvaluer.evaluations.length - 3} autres évaluations</li>
+                                    <li className="text-xs text-gray-500 dark:text-gray-400">+{generatedModules.sEvaluer.evaluations.length - 3} autres évaluations</li>
                                   )}
                                 </ul>
                               </div>
@@ -537,7 +537,7 @@ export default function ModuleGenerator() {
                             Automatiser
                           </div>
                           <div className="p-4 space-y-2">
-                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                            <p className="text-sm text-gray-700 dark:text-white">
                               {generatedModules.automatiser.description || "Description non disponible"}
                             </p>
                             <div className="flex flex-wrap gap-1 mt-2 mb-3">
@@ -549,16 +549,16 @@ export default function ModuleGenerator() {
                             </div>
                             {generatedModules.automatiser.outils && (
                               <div className="mt-3 border-t pt-3">
-                                <h5 className="text-xs font-semibold mb-2">Outils d'automatisation</h5>
-                                <ul className="text-xs space-y-1.5">
+                                <h5 className="text-xs font-semibold mb-2 text-gray-800 dark:text-white">Outils d'automatisation</h5>
+                                <ul className="text-xs space-y-1.5 text-gray-700 dark:text-gray-200">
                                   {generatedModules.automatiser.outils.slice(0, 3).map((outil: any, idx: number) => (
                                     <li key={idx} className="flex items-start">
-                                      <Trophy className="h-3.5 w-3.5 text-purple-600 mr-1.5 mt-0.5 flex-shrink-0" />
+                                      <Trophy className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400 mr-1.5 mt-0.5 flex-shrink-0" />
                                       <span>{outil.title}</span>
                                     </li>
                                   ))}
                                   {generatedModules.automatiser.outils.length > 3 && (
-                                    <li className="text-xs text-gray-500">+{generatedModules.automatiser.outils.length - 3} autres outils</li>
+                                    <li className="text-xs text-gray-500 dark:text-gray-400">+{generatedModules.automatiser.outils.length - 3} autres outils</li>
                                   )}
                                 </ul>
                               </div>
@@ -596,9 +596,9 @@ export default function ModuleGenerator() {
                   </CardFooter>
                 </Card>
                 
-                <div className="mt-6 text-sm text-gray-500 bg-gray-50 dark:bg-gray-900 p-4 rounded-md">
+                <div className="mt-6 text-sm text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 p-4 rounded-md">
                   <p>
-                    <strong>Note :</strong> Le module {generatedModules.iamName || `I AM ${moduleConfig.domain.toUpperCase()}`} 
+                    <strong className="text-gray-900 dark:text-white">Note :</strong> Le module {generatedModules.iamName || `I AM ${moduleConfig.domain.toUpperCase()}`} 
                     contient les sections Se former, S'entraîner, S'évaluer et Automatiser avec leur contenu généré par IA.
                   </p>
                   <p className="mt-2">
