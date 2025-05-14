@@ -535,13 +535,25 @@ export default function CyberPulseGame() {
       const data = await response.json();
       
       if (data.success && data.inactivity) {
-        // Ajouter le message de relance du bot
+        // Ajouter le message approprié selon l'action (rappel ou fermeture)
         setMessages(prev => [...prev, {
           id: Math.random().toString(36).substring(2, 11),
           type: 'bot',
           content: data.message,
           timestamp: Date.now()
         }]);
+        
+        // Si action "close", rediriger vers la page cyber
+        if (data.action === 'close') {
+          // Attendre 3 secondes pour que l'utilisateur puisse voir le message de fermeture
+          setTimeout(() => {
+            toast({
+              title: 'Session terminée',
+              description: 'Votre session a été automatiquement fermée après 3 minutes d\'inactivité.',
+            });
+            navigate('/cyber');
+          }, 3000);
+        }
         
         // Mettre à jour l'état du jeu
         if (data.gameState) {
@@ -560,11 +572,11 @@ export default function CyberPulseGame() {
       clearTimeout(inactivityTimerRef.current);
     }
     
-    // Vérifier l'inactivité après 2 minutes (120 secondes) au lieu de 30 secondes
-    // Cela réduit les erreurs et les interruptions trop fréquentes
+    // Vérifier l'inactivité toutes les 20 secondes pour pouvoir détecter 
+    // le seuil de 30 secondes et celui de 3 minutes correctement
     inactivityTimerRef.current = setTimeout(() => {
       checkInactivity();
-    }, 120000);
+    }, 20000); // 20 secondes
   };
   
   // Gestion du défilement vers le bas de la conversation
