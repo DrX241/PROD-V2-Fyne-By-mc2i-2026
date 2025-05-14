@@ -110,8 +110,8 @@ Vous allez créer une structure complète pour un module de formation nommé "${
 
 ## VOTRE TÂCHE
 
-Générez une structure de module complet avec des sous-modules cohérents et détaillés basés sur les spécifications fournies.
-La réponse doit être formatée en JSON selon le schéma ci-dessous, sans aucun texte avant ou après.
+Générez une structure de module complet avec des sous-modules cohérents, riches en contenu et immédiatement utilisables.
+La réponse doit être formatée en JSON selon le schéma spécifié, sans aucun texte avant ou après.
 
 ## STRUCTURE DE LA RÉPONSE (JSON) :
 
@@ -124,7 +124,21 @@ La réponse doit être formatée en JSON selon le schéma ci-dessous, sans aucun
     "name": "${config.domain}TRAINER",
     "description": "Description détaillée du module d'apprentissage",
     "features": ["Caractéristique 1", "Caractéristique 2", ...],
-    "contentOutline": ["Section 1", "Section 2", ...]
+    "contentOutline": ["Section 1", "Section 2", ...],
+    "sections": [
+      {
+        "title": "Titre de la section 1",
+        "type": "text | interactive | quiz",
+        "content": "Contenu détaillé de la section avec explications complètes, exemples et concepts clés. Ce contenu doit être immédiatement utilisable.",
+        "quiz": {
+          "question": "Question du quiz",
+          "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+          "correctAnswer": "Option correcte",
+          "explanation": "Explication de la réponse correcte"
+        }
+      },
+      // Plus de sections pour ce module...
+    ]
   },
   
   // Si inclus dans la configuration
@@ -132,7 +146,18 @@ La réponse doit être formatée en JSON selon le schéma ci-dessous, sans aucun
     "name": "${config.domain}OPS",
     "description": "Description détaillée du module opérationnel",
     "features": ["Caractéristique 1", "Caractéristique 2", ...],
-    "contentOutline": ["Section 1", "Section 2", ...]
+    "contentOutline": ["Section 1", "Section 2", ...],
+    "sections": [
+      {
+        "title": "Titre de la section 1",
+        "type": "scenario | challenge | interactive",
+        "content": "Description détaillée du scénario pratique ou du défi, avec contexte, objectifs et instructions.",
+        "steps": ["Étape 1 détaillée", "Étape 2 détaillée", ...],
+        "outcomes": ["Résultat attendu 1", "Résultat attendu 2", ...],
+        "tools": ["Outil ou technique 1", "Outil ou technique 2", ...]
+      },
+      // Plus de sections pour ce module...
+    ]
   },
   
   // Si inclus dans la configuration
@@ -140,7 +165,27 @@ La réponse doit être formatée en JSON selon le schéma ci-dessous, sans aucun
     "name": "${config.domain}TEST",
     "description": "Description détaillée du module de test/évaluation",
     "features": ["Caractéristique 1", "Caractéristique 2", ...],
-    "contentOutline": ["Section 1", "Section 2", ...]
+    "contentOutline": ["Section 1", "Section 2", ...],
+    "evaluations": [
+      {
+        "title": "Titre de l'évaluation 1",
+        "type": "questionnaire | cas pratique | mini-projet",
+        "description": "Description détaillée de cette évaluation",
+        "questions": [
+          {
+            "question": "Question d'évaluation",
+            "type": "multiple_choice | open_ended | practical",
+            "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+            "correctAnswer": "Option correcte",
+            "explanation": "Explication de la réponse correcte",
+            "difficulty": "débutant | intermédiaire | avancé"
+          },
+          // Plus de questions...
+        ],
+        "rubric": ["Critère d'évaluation 1", "Critère d'évaluation 2", ...]
+      },
+      // Plus d'évaluations...
+    ]
   },
   
   // Si inclus dans la configuration
@@ -148,30 +193,50 @@ La réponse doit être formatée en JSON selon le schéma ci-dessous, sans aucun
     "name": "${config.domain}ASCENSION",
     "description": "Description détaillée du module de progression avancée",
     "features": ["Caractéristique 1", "Caractéristique 2", ...],
-    "contentOutline": ["Section 1", "Section 2", ...]
+    "contentOutline": ["Section 1", "Section 2", ...],
+    "challenges": [
+      {
+        "title": "Titre du défi avancé 1",
+        "level": "expert | maître | élite",
+        "description": "Description détaillée du défi de niveau expert",
+        "scenario": "Scénario complet et contextualisé du défi",
+        "objectives": ["Objectif 1", "Objectif 2", ...],
+        "requirements": ["Prérequis 1", "Prérequis 2", ...],
+        "success_criteria": ["Critère de réussite 1", "Critère de réussite 2", ...]
+      },
+      // Plus de défis...
+    ]
   },
   
-  "contentStructure": "Structure globale et progression pédagogique suggérée entre les modules"
+  "contentStructure": "Description détaillée de la structure globale et progression pédagogique entre les modules",
+  
+  "routes": {
+    "trainer": "/module/${config.domain.toLowerCase()}/trainer",
+    "ops": "/module/${config.domain.toLowerCase()}/ops",
+    "test": "/module/${config.domain.toLowerCase()}/test",
+    "ascension": "/module/${config.domain.toLowerCase()}/ascension"
+  }
 }
 
 ## DIRECTIVES SPÉCIFIQUES :
 
-1. Adaptez le contenu au niveau de difficulté "${config.difficulty}" en créant une progression pédagogique appropriée.
-2. Intégrez un niveau de gamification "${config.gamificationLevel}" avec des éléments ludiques pertinents.
-3. Adoptez un style d'apprentissage "${config.learningStyle}" dans la conception des activités.
-4. Chaque module doit couvrir tous les sujets spécifiés de manière équilibrée.
-5. Créez une cohérence entre les modules pour une expérience d'apprentissage fluide.
-6. Chaque module doit avoir entre 5 et 8 caractéristiques clés.
-7. Chaque module doit avoir au moins 5 sections de contenu principales.
+1. Créez un contenu substantiel et immédiatement utilisable, pas seulement des descriptions génériques.
+2. Écrivez en style conversationnel et engageant, évitez le format académique ou trop structuré.
+3. Adaptez le contenu au niveau de difficulté "${config.difficulty}" avec une progression logique.
+4. Intégrez un niveau de gamification "${config.gamificationLevel}" avec des mécaniques ludiques pertinentes.
+5. Concevez selon le style d'apprentissage "${config.learningStyle}".
+6. Couvrez tous les sujets spécifiés de manière équilibrée et approfondie.
+7. Créez une cohérence solide entre les modules pour une expérience d'apprentissage fluide.
+8. Chaque module doit avoir entre 5 et 8 caractéristiques clés et au moins 3 sections complètes.
 
 ### DESCRIPTION DES MODULES STANDARDS :
 
-- XXXXTrainer : Module théorique qui fournit des connaissances de base et des explications pédagogiques.
-- XXXXOPS : Module pratique où l'apprenant met en œuvre des compétences dans des scénarios opérationnels.
-- XXXXTest : Module d'évaluation pour tester les connaissances et compétences acquises.
-- XXXXAscension : Module avancé avec des défis complexes et du contenu de niveau expert.
+- XXXXTrainer : Module théorique fournissant connaissances fondamentales et concepts clés, avec approche pédagogique interactive.
+- XXXXOPS : Module pratique d'application des compétences dans des scénarios réalistes et des exercices concrets.
+- XXXXTest : Module d'évaluation pour valider les acquis avec feedback personnalisé et recommandations d'amélioration.
+- XXXXAscension : Module avancé proposant des défis complexes et du contenu expert pour maîtrise complète du domaine.
 
-Votre réponse doit être directement utilisable pour développer un module d'apprentissage complet et cohérent.`;
+Le contenu généré doit être suffisamment riche et structuré pour être directement utilisable dans une application web interactive.`;
 }
 
 /**
@@ -180,13 +245,14 @@ Votre réponse doit être directement utilisable pour développer un module d'ap
 function constructUserPrompt(config: ModuleConfig): string {
   // Construction de la liste des modules à inclure
   const modulesToInclude = [];
-  if (config.includeTrainerModule) modulesToInclude.push(`${config.domain}TRAINER`);
-  if (config.includeOpsModule) modulesToInclude.push(`${config.domain}OPS`);
-  if (config.includeTestModule) modulesToInclude.push(`${config.domain}TEST`);
-  if (config.includeAscensionModule) modulesToInclude.push(`${config.domain}ASCENSION`);
+  if (config.includeTrainerModule) modulesToInclude.push(`${config.domain}TRAINER (Se former)`);
+  if (config.includeOpsModule) modulesToInclude.push(`${config.domain}OPS (S'exercer)`);
+  if (config.includeTestModule) modulesToInclude.push(`${config.domain}TEST (S'évaluer)`);
+  if (config.includeAscensionModule) modulesToInclude.push(`${config.domain}ASCENSION (Se perfectionner)`);
 
-  return `Je souhaite créer un module complet nommé "${config.iamName}" avec les caractéristiques suivantes :
+  return `Créez un module d'apprentissage complet de type "I AM XXX" nommé "${config.iamName}" avec toutes ces caractéristiques :
 
+## INFORMATIONS DE BASE
 - Nom: "${config.name}"
 - Domaine principal: ${config.domain}
 - Description: "${config.description}"
@@ -196,12 +262,25 @@ function constructUserPrompt(config: ModuleConfig): string {
 - Niveau de gamification: ${config.gamificationLevel}
 - Style d'apprentissage préféré: ${config.learningStyle}
 
-${config.additionalContext ? `Informations additionnelles: ${config.additionalContext}` : ''}
+${config.additionalContext ? `## CONTEXTE SUPPLÉMENTAIRE\n${config.additionalContext}` : ''}
 
-Veuillez créer une structure complète pour ce module d'apprentissage incluant tous les sous-modules spécifiés. 
-Chaque sous-module devrait avoir une approche pédagogique cohérente, adaptée au domaine ${config.domain} et aux sujets mentionnés.
+## INSTRUCTIONS SPÉCIFIQUES
+1. Créez un module complet formaté exactement comme les modules "I AM CYBER" ou "I AM AMOA" existants
+2. Chaque section doit contenir au minimum 3 composants complets avec contenu détaillé et interactif
+3. Le contenu doit être en français, engageant et conversationnel (PAS de style académique ou avec formatage markdown excessif)
+4. Incluez des scénarios réalistes, études de cas et exercices pratiques adaptés au monde professionnel
+5. Assurez-vous que le contenu soit immédiatement utilisable, sans placeholders ou éléments génériques
+6. Pour chaque module, fournissez un parcours d'apprentissage structuré avec progression claire
+7. Intégrez des éléments de gamification adaptés au niveau spécifié (${config.gamificationLevel})
+8. Les sections doivent être cohérentes entre elles et former un parcours d'apprentissage complet
 
-Générez la réponse au format JSON comme spécifié, avec des descriptions riches et une progression pédagogique logique.`;
+## STRUCTURE SOUHAITÉE
+- Trainer (Apprentissage théorique): Concepts fondamentaux, explications, exemples concrets et quiz interactifs
+- Ops (Application pratique): Scénarios professionnels, exercices étape par étape, outils et méthodes
+- Test (Évaluation): Questionnaires variés, cas pratiques, critères d'évaluation clairs et feedback personnalisé
+- Ascension (Défis experts): Challenges complexes, projets avancés, missions spécialisées de niveau professionnel
+
+Générez un contenu riche, détaillé et prêt à l'emploi dans le format JSON spécifié, qui puisse être immédiatement intégré à la plateforme.`;
 }
 
 /**

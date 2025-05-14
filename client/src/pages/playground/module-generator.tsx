@@ -14,7 +14,10 @@ import {
   PuzzleIcon, 
   SettingsIcon,
   Trophy,
-  Loader2
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+  Play
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -552,19 +555,38 @@ export default function ModuleGenerator() {
                             <div className="border rounded-md overflow-hidden">
                               <div className="bg-gray-100 dark:bg-gray-900 px-4 py-2 font-medium flex items-center">
                                 <BookOpen className="h-5 w-5 mr-2 text-gray-600 dark:text-gray-400" />
-                                {moduleConfig.domain}TRAINER
+                                {moduleConfig.domain}TRAINER - Se former
                               </div>
                               <div className="p-4 space-y-2">
                                 <p className="text-sm text-gray-700 dark:text-gray-300">
                                   {generatedModules.trainerModule.description || "Description non disponible"}
                                 </p>
-                                <div className="flex flex-wrap gap-1 mt-2">
+                                <div className="flex flex-wrap gap-1 mt-2 mb-3">
                                   {generatedModules.trainerModule.features?.map((feature: string, index: number) => (
                                     <Badge key={index} className="bg-gray-50 text-gray-700 dark:bg-gray-950 dark:text-gray-300">
                                       {feature}
                                     </Badge>
                                   ))}
                                 </div>
+                                {generatedModules.trainerModule.sections && (
+                                  <div className="mt-3 border-t pt-3">
+                                    <h5 className="text-xs font-semibold mb-2">Sections de contenu</h5>
+                                    <ul className="text-xs space-y-1.5">
+                                      {generatedModules.trainerModule.sections && 
+                                        generatedModules.trainerModule.sections.slice(0, 3).map((section: any, idx: number) => (
+                                          <li key={idx} className="flex items-start">
+                                            <CheckCircle className="h-3.5 w-3.5 text-gray-600 mr-1.5 mt-0.5 flex-shrink-0" />
+                                            <span>{section.title}</span>
+                                          </li>
+                                        ))
+                                      }
+                                      {generatedModules.trainerModule.sections && 
+                                       generatedModules.trainerModule.sections.length > 3 && (
+                                        <li className="text-xs text-gray-500">+{generatedModules.trainerModule.sections.length - 3} autres sections</li>
+                                      )}
+                                    </ul>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           )}
@@ -573,19 +595,38 @@ export default function ModuleGenerator() {
                             <div className="border rounded-md overflow-hidden">
                               <div className="bg-green-100 dark:bg-green-900 px-4 py-2 font-medium flex items-center">
                                 <SettingsIcon className="h-5 w-5 mr-2 text-green-600 dark:text-green-400" />
-                                {moduleConfig.domain}OPS
+                                {moduleConfig.domain}OPS - S'exercer
                               </div>
                               <div className="p-4 space-y-2">
                                 <p className="text-sm text-gray-700 dark:text-gray-300">
                                   {generatedModules.opsModule.description || "Description non disponible"}
                                 </p>
-                                <div className="flex flex-wrap gap-1 mt-2">
+                                <div className="flex flex-wrap gap-1 mt-2 mb-3">
                                   {generatedModules.opsModule.features?.map((feature: string, index: number) => (
                                     <Badge key={index} className="bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300">
                                       {feature}
                                     </Badge>
                                   ))}
                                 </div>
+                                {generatedModules.opsModule.sections && (
+                                  <div className="mt-3 border-t pt-3">
+                                    <h5 className="text-xs font-semibold mb-2">Activités pratiques</h5>
+                                    <ul className="text-xs space-y-1.5">
+                                      {generatedModules.opsModule.sections && 
+                                        generatedModules.opsModule.sections.slice(0, 3).map((section: any, idx: number) => (
+                                          <li key={idx} className="flex items-start">
+                                            <Play className="h-3.5 w-3.5 text-green-600 mr-1.5 mt-0.5 flex-shrink-0" />
+                                            <span>{section.title}</span>
+                                          </li>
+                                        ))
+                                      }
+                                      {generatedModules.opsModule.sections && 
+                                       generatedModules.opsModule.sections.length > 3 && (
+                                        <li className="text-xs text-gray-500">+{generatedModules.opsModule.sections.length - 3} autres exercices</li>
+                                      )}
+                                    </ul>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           )}
@@ -594,19 +635,35 @@ export default function ModuleGenerator() {
                             <div className="border rounded-md overflow-hidden">
                               <div className="bg-amber-100 dark:bg-amber-900 px-4 py-2 font-medium flex items-center">
                                 <Layers className="h-5 w-5 mr-2 text-amber-600 dark:text-amber-400" />
-                                {moduleConfig.domain}TEST
+                                {moduleConfig.domain}TEST - S'évaluer
                               </div>
                               <div className="p-4 space-y-2">
                                 <p className="text-sm text-gray-700 dark:text-gray-300">
                                   {generatedModules.testModule.description || "Description non disponible"}
                                 </p>
-                                <div className="flex flex-wrap gap-1 mt-2">
+                                <div className="flex flex-wrap gap-1 mt-2 mb-3">
                                   {generatedModules.testModule.features?.map((feature: string, index: number) => (
                                     <Badge key={index} className="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
                                       {feature}
                                     </Badge>
                                   ))}
                                 </div>
+                                {generatedModules.testModule.evaluations && (
+                                  <div className="mt-3 border-t pt-3">
+                                    <h5 className="text-xs font-semibold mb-2">Méthodes d'évaluation</h5>
+                                    <ul className="text-xs space-y-1.5">
+                                      {generatedModules.testModule.evaluations.map((eval: any, idx: number) => (
+                                        <li key={idx} className="flex items-start">
+                                          <AlertCircle className="h-3.5 w-3.5 text-amber-600 mr-1.5 mt-0.5 flex-shrink-0" />
+                                          <span>{eval.title}</span>
+                                        </li>
+                                      )).slice(0, 3)}
+                                      {(generatedModules.testModule.evaluations?.length || 0) > 3 && (
+                                        <li className="text-xs text-gray-500">+{generatedModules.testModule.evaluations.length - 3} autres évaluations</li>
+                                      )}
+                                    </ul>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           )}
@@ -615,19 +672,35 @@ export default function ModuleGenerator() {
                             <div className="border rounded-md overflow-hidden">
                               <div className="bg-purple-100 dark:bg-purple-900 px-4 py-2 font-medium flex items-center">
                                 <Trophy className="h-5 w-5 mr-2 text-purple-600 dark:text-purple-400" />
-                                {moduleConfig.domain}ASCENSION
+                                {moduleConfig.domain}ASCENSION - Se perfectionner
                               </div>
                               <div className="p-4 space-y-2">
                                 <p className="text-sm text-gray-700 dark:text-gray-300">
                                   {generatedModules.ascensionModule.description || "Description non disponible"}
                                 </p>
-                                <div className="flex flex-wrap gap-1 mt-2">
+                                <div className="flex flex-wrap gap-1 mt-2 mb-3">
                                   {generatedModules.ascensionModule.features?.map((feature: string, index: number) => (
                                     <Badge key={index} className="bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300">
                                       {feature}
                                     </Badge>
                                   ))}
                                 </div>
+                                {generatedModules.ascensionModule.challenges && (
+                                  <div className="mt-3 border-t pt-3">
+                                    <h5 className="text-xs font-semibold mb-2">Défis avancés</h5>
+                                    <ul className="text-xs space-y-1.5">
+                                      {generatedModules.ascensionModule.challenges.map((challenge: any, idx: number) => (
+                                        <li key={idx} className="flex items-start">
+                                          <Trophy className="h-3.5 w-3.5 text-purple-600 mr-1.5 mt-0.5 flex-shrink-0" />
+                                          <span>{challenge.title}</span>
+                                        </li>
+                                      )).slice(0, 3)}
+                                      {(generatedModules.ascensionModule.challenges?.length || 0) > 3 && (
+                                        <li className="text-xs text-gray-500">+{generatedModules.ascensionModule.challenges.length - 3} autres défis</li>
+                                      )}
+                                    </ul>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           )}
@@ -679,6 +752,10 @@ export default function ModuleGenerator() {
                           
                           try {
                             setIsSaving(true);
+                            toast({
+                              title: 'Publication en cours...',
+                              description: 'Création de votre module personnalisé avec toutes les sections...',
+                            });
                             
                             // Préparation des données à envoyer conformément à l'API
                             console.log("Generated Modules Type:", typeof generatedModules);
@@ -691,6 +768,7 @@ export default function ModuleGenerator() {
                                 name: moduleConfig.name,
                                 domain: moduleConfig.domain,
                                 description: moduleConfig.description,
+                                iamName: `I AM ${moduleConfig.domain.toUpperCase()}`,
                                 difficulty: moduleConfig.difficulty,
                                 topics: moduleConfig.topics,
                                 gamificationLevel: moduleConfig.gamificationLevel,
@@ -721,13 +799,27 @@ export default function ModuleGenerator() {
                             }
                             
                             toast({
-                              title: 'Module créé et publié avec succès !',
-                              description: 'Votre module a été ajouté à la page d\'accueil',
+                              title: '🎉 Module créé et publié avec succès !',
+                              description: `Votre module ${moduleToSave.moduleConfig.iamName} est maintenant disponible sur la page d'accueil`,
+                              variant: 'default',
                             });
                             
-                            // Redirection vers la page d'accueil après 1 seconde
-                            setTimeout(() => {
-                              window.location.href = '/';
+                            // Créer une animation de chargement avant la redirection
+                            const redirectCountdown = 3;
+                            let counter = redirectCountdown;
+                            
+                            const countdownInterval = setInterval(() => {
+                              counter--;
+                              if (counter <= 0) {
+                                clearInterval(countdownInterval);
+                                // Redirection vers la page d'accueil
+                                setLocation('/');
+                              } else {
+                                toast({
+                                  title: 'Redirection vers la page d\'accueil',
+                                  description: `Redirection dans ${counter} secondes...`,
+                                });
+                              }
                             }, 1000);
                             
                           } catch (error) {
