@@ -211,19 +211,14 @@ const CyberHomePage: React.FC = () => {
               className="max-w-4xl mx-auto text-center"
               style={{ opacity, y, scale }}
             >
-              <div className="flex justify-center mb-6">
-                <div className="cyber-badge mb-2 mx-auto">
-                  v2.5 - Ultra Intelligence
-                </div>
-              </div>
-              
-              <div className="text-3xl md:text-5xl text-cyan-500 font-cyber-title mb-6 tracking-wider">
+              <div className="text-3xl md:text-5xl text-cyan-500 font-cyber-title mb-6 tracking-widest">
                 <CyberGlitchText 
-                  text="FOR YOUR NEXT EXPERIENCE" 
+                  text="F O R   Y O U R   N E X T   E X P E R I E N C E" 
                   textSize="text-3xl md:text-5xl" 
                   color="text-cyan-500"
                   highlightColor="text-pink-400" 
                   glitchIntensity="medium"
+                  className="tracking-widest"
                 />
               </div>
               
@@ -235,16 +230,6 @@ const CyberHomePage: React.FC = () => {
                   highlightColor="text-cyan-400" 
                   glitchIntensity="low"
                 />
-                <div className="mt-2">
-                  <CyberGlitchText 
-                    text="TRAINING PLATFORM" 
-                    textSize="text-4xl md:text-6xl" 
-                    color="text-cyan-300"
-                    highlightColor="text-pink-400" 
-                    glitchIntensity="low"
-                    delay={500}
-                  />
-                </div>
               </h1>
               
               <p className="text-xl md:text-2xl text-gray-300 mb-8 font-cyber leading-relaxed max-w-3xl mx-auto">
