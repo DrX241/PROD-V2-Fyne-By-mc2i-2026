@@ -60,8 +60,10 @@ export async function generateModule(req: Request, res: Response) {
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
+      false, // useSecondaryKey - utiliser le modèle principal
       0.7, // temperature
-      2000 // max_tokens
+      2000, // max_tokens
+      { responseFormat: "json" } // format de réponse souhaité
     );
 
     // Tentative de parser la réponse JSON

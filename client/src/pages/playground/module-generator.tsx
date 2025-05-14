@@ -652,12 +652,14 @@ export default function ModuleGenerator() {
                                   <div className="mt-3 border-t pt-3">
                                     <h5 className="text-xs font-semibold mb-2">Méthodes d'évaluation</h5>
                                     <ul className="text-xs space-y-1.5">
-                                      {generatedModules.testModule.evaluations.map((eval: any, idx: number) => (
-                                        <li key={idx} className="flex items-start">
-                                          <AlertCircle className="h-3.5 w-3.5 text-amber-600 mr-1.5 mt-0.5 flex-shrink-0" />
-                                          <span>{eval.title}</span>
-                                        </li>
-                                      )).slice(0, 3)}
+                                      {generatedModules.testModule.evaluations && 
+                                        generatedModules.testModule.evaluations.slice(0, 3).map((evaluation: any, idx: number) => (
+                                          <li key={idx} className="flex items-start">
+                                            <AlertCircle className="h-3.5 w-3.5 text-amber-600 mr-1.5 mt-0.5 flex-shrink-0" />
+                                            <span>{evaluation.title}</span>
+                                          </li>
+                                        ))
+                                      }
                                       {(generatedModules.testModule.evaluations?.length || 0) > 3 && (
                                         <li className="text-xs text-gray-500">+{generatedModules.testModule.evaluations.length - 3} autres évaluations</li>
                                       )}
@@ -689,13 +691,16 @@ export default function ModuleGenerator() {
                                   <div className="mt-3 border-t pt-3">
                                     <h5 className="text-xs font-semibold mb-2">Défis avancés</h5>
                                     <ul className="text-xs space-y-1.5">
-                                      {generatedModules.ascensionModule.challenges.map((challenge: any, idx: number) => (
-                                        <li key={idx} className="flex items-start">
-                                          <Trophy className="h-3.5 w-3.5 text-purple-600 mr-1.5 mt-0.5 flex-shrink-0" />
-                                          <span>{challenge.title}</span>
-                                        </li>
-                                      )).slice(0, 3)}
-                                      {(generatedModules.ascensionModule.challenges?.length || 0) > 3 && (
+                                      {generatedModules.ascensionModule.challenges && 
+                                        generatedModules.ascensionModule.challenges.slice(0, 3).map((challenge: any, idx: number) => (
+                                          <li key={idx} className="flex items-start">
+                                            <Trophy className="h-3.5 w-3.5 text-purple-600 mr-1.5 mt-0.5 flex-shrink-0" />
+                                            <span>{challenge.title}</span>
+                                          </li>
+                                        ))
+                                      }
+                                      {generatedModules.ascensionModule.challenges && 
+                                       generatedModules.ascensionModule.challenges.length > 3 && (
                                         <li className="text-xs text-gray-500">+{generatedModules.ascensionModule.challenges.length - 3} autres défis</li>
                                       )}
                                     </ul>
