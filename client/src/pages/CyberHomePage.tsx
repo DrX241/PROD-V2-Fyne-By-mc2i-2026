@@ -80,7 +80,7 @@ const CyberHomePage: React.FC = () => {
       color: 'text-cyan-400',
       bgColor: 'bg-blue-900/20',
       accentColor: 'border-cyan-500/50',
-      route: '/cyber-mode-selection-fixed'
+      route: '/cyber'
     },
     {
       id: 'data',
@@ -90,7 +90,7 @@ const CyberHomePage: React.FC = () => {
       color: 'text-cyan-400',
       bgColor: 'bg-blue-900/20',
       accentColor: 'border-cyan-500/50',
-      route: '/data-ia-mode-selection'
+      route: '/data-ia'
     },
     {
       id: 'mc2i',
@@ -256,7 +256,7 @@ const CyberHomePage: React.FC = () => {
                   variant="primary"
                   size="lg"
                   glowIntensity="high"
-                  onClick={() => setLocation('/cyber-mode-selection-fixed')}
+                  onClick={() => setLocation('/cyber')}
                 >
                   ACCÉDER À I AM CYBER
                 </CyberButton>
@@ -359,9 +359,9 @@ const CyberHomePage: React.FC = () => {
                       onClick={() => {
                         // Utiliser les routes directes pour s'assurer que les liens fonctionnent
                         if (module.id === 'cyber') {
-                          setLocation('/cyber-mode-selection-fixed');
+                          setLocation('/cyber');
                         } else if (module.id === 'data') {
-                          setLocation('/data-ia-mode-selection');
+                          setLocation('/data-ia');
                         } else if (module.id === 'mc2i') {
                           setLocation('/amoa-mode-selection-fixed');
                         } else {
@@ -491,8 +491,8 @@ const CyberHomePage: React.FC = () => {
                     <li key={module.id}>
                       <Link 
                         href={
-                          module.id === 'cyber' ? '/cyber-mode-selection-fixed' :
-                          module.id === 'data' ? '/data-ia-mode-selection' :
+                          module.id === 'cyber' ? '/cyber' :
+                          module.id === 'data' ? '/data-ia' :
                           module.id === 'mc2i' ? '/amoa-mode-selection-fixed' :
                           '/playground/module-generator-new'
                         }
@@ -500,9 +500,9 @@ const CyberHomePage: React.FC = () => {
                         onClick={(e) => {
                           e.preventDefault();
                           if (module.id === 'cyber') {
-                            setLocation('/cyber-mode-selection-fixed');
+                            setLocation('/cyber');
                           } else if (module.id === 'data') {
-                            setLocation('/data-ia-mode-selection');
+                            setLocation('/data-ia');
                           } else if (module.id === 'mc2i') {
                             setLocation('/amoa-mode-selection-fixed');
                           } else {
