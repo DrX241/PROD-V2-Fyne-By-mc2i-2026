@@ -217,34 +217,38 @@ const CyberHomePage: React.FC = () => {
                 </div>
               </div>
               
-              <h1 className="font-cyber-title mb-4 tracking-wider">
+              <div className="text-3xl md:text-5xl text-cyan-500 font-cyber-title mb-6 tracking-wider">
+                <CyberGlitchText 
+                  text="FOR YOUR NEXT EXPERIENCE" 
+                  textSize="text-3xl md:text-5xl" 
+                  color="text-cyan-500"
+                  highlightColor="text-pink-400" 
+                  glitchIntensity="medium"
+                />
+              </div>
+              
+              <h1 className="font-cyber-title mb-8 tracking-wider">
                 <CyberGlitchText 
                   text="NEXT-GEN SIMULATION" 
-                  textSize="text-5xl md:text-7xl" 
+                  textSize="text-4xl md:text-6xl" 
                   color="text-white"
                   highlightColor="text-cyan-400" 
-                  glitchIntensity="medium"
+                  glitchIntensity="low"
                 />
                 <div className="mt-2">
                   <CyberGlitchText 
                     text="TRAINING PLATFORM" 
-                    textSize="text-5xl md:text-7xl" 
+                    textSize="text-4xl md:text-6xl" 
                     color="text-cyan-300"
                     highlightColor="text-pink-400" 
-                    glitchIntensity="high"
+                    glitchIntensity="low"
                     delay={500}
                   />
                 </div>
               </h1>
               
-              <div className="text-2xl md:text-3xl text-cyan-500 font-cyber-title my-4">
-                <span className="border-b-2 border-cyan-500 pb-1">
-                  FOR YOUR NEXT EXPERIENCE
-                </span>
-              </div>
-              
               <p className="text-xl md:text-2xl text-gray-300 mb-8 font-cyber leading-relaxed max-w-3xl mx-auto">
-                Plongez dans <span className="text-cyan-400">l'univers FYNE</span>, où l'intelligence artificielle rencontre la simulation immersive pour créer une expérience d'apprentissage <span className="text-pink-400">révolutionnaire</span>.
+                Transformez votre <span className="text-pink-400">expérience de formation</span> avec notre plateforme immersive alimentée par l'IA. <span className="text-cyan-400">FYNE</span> redéfinit l'apprentissage pour l'adapter à vos besoins.
               </p>
               
               <div className="flex items-center justify-center mt-10">
@@ -353,6 +357,7 @@ const CyberHomePage: React.FC = () => {
                     <CyberButton 
                       variant="primary"
                       onClick={() => {
+                        // Utiliser les routes directes pour s'assurer que les liens fonctionnent
                         if (module.id === 'cyber') {
                           setLocation('/cyber-mode-selection-fixed');
                         } else if (module.id === 'data') {
@@ -492,6 +497,18 @@ const CyberHomePage: React.FC = () => {
                           '/playground/module-generator-new'
                         }
                         className="text-gray-400 hover:text-cyan-400 transition-colors duration-300 text-sm"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (module.id === 'cyber') {
+                            setLocation('/cyber-mode-selection-fixed');
+                          } else if (module.id === 'data') {
+                            setLocation('/data-ia-mode-selection');
+                          } else if (module.id === 'mc2i') {
+                            setLocation('/amoa-mode-selection-fixed');
+                          } else {
+                            setLocation('/playground/module-generator-new');
+                          }
+                        }}
                       >
                         {module.title}
                       </Link>
