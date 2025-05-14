@@ -184,6 +184,16 @@ export default function CyberModeSelectionRedesign() {
       duration: '15-30 min'
     },
 
+    {
+      id: 'cyber-pulse',
+      title: 'CYBERPULSE',
+      description: "Jouez avec un chatbot ludique et immersif qui génère des défis et des jeux en cybersécurité",
+      icon: <BsLightningCharge className="h-5 w-5" />,
+      destination: '/cyber/cyber-pulse',
+      difficulty: 'débutant',
+      duration: '10-20 min',
+      isNew: true
+    },
 
     {
       id: 'cyber-arcade',
