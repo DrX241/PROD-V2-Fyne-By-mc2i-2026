@@ -34,9 +34,9 @@ interface CyberPulseSession {
 // Map pour stocker les sessions actives des joueurs
 const cyberPulseSessions = new Map<string, CyberPulseSession>();
 
-// Intervalle d'inactivité (en ms) avant que CyberPULSE propose automatiquement une activité
-// Augmenté à 2 minutes pour éviter les erreurs fréquentes
-const INACTIVITY_THRESHOLD = 120000; // 2 minutes
+// Intervalles d'inactivité en millisecondes
+const INACTIVITY_REMINDER_THRESHOLD = 30000; // 30 secondes - demande si l'utilisateur est toujours là
+const INACTIVITY_CLOSE_THRESHOLD = 180000; // 3 minutes - ferme la session
 
 /**
  * Initialise une nouvelle session CyberPULSE
@@ -402,39 +402,36 @@ export async function checkInactivity(req: Request, res: Response) {
     const currentTime = Date.now();
     const inactiveTime = currentTime - session.gameState.lastInteractionTime;
     
-    // Si l'utilisateur est inactif depuis plus longtemps que le seuil défini
-    if (inactiveTime >= INACTIVITY_THRESHOLD) {
-      // Construire le prompt pour générer une relance
-      // Prompt simplifié pour réduire les erreurs et raccourcir les réponses
-      const promptIdleUser = `Propose une activité ou un défi de cybersécurité simple à l'utilisateur.
-        
-Ta relance doit:
-1. Être directe et concise (max 50 mots)
-2. Proposer un quiz simple ou une astuce cyber
-3. Se terminer par une question courte
-4. Être facile à comprendre
-
-IMPORTANT: Évite toute introduction ou contexte inutile. Va droit au but.`;
+    // Si l'utilisateur est inactif depuis 3 minutes ou plus: fermer la session
+    if (inactiveTime >= INACTIVITY_CLOSE_THRESHOLD) {
+      // Message de fermeture automatique de session
+      const closeSessionMessage = "Votre session a été automatiquement fermée après 3 minutes d'inactivité. Actualisez la page si vous souhaitez reprendre.";
       
-      // Générer la relance via l'IA avec paramètres optimisés
-      const reengagementMessage = await openAIService.getChatCompletion(
-        [
-          { role: "system", content: "Tu es CyberPULSE, un chatbot ludique de cybersécurité. Sois extrêmement bref et direct." },
-          { role: "user", content: promptIdleUser }
-        ],
-        true, // Utiliser le modèle GPT-4o-mini
-        0.7, // Température réduite pour plus de fiabilité
-        350 // Longueur maximale réduite pour des réponses concises
-      );
+      return res.status(200).json({
+        success: true,
+        inactivity: true,
+        action: "close",
+        message: closeSessionMessage,
+        gameState: {
+          active: false,
+          score: session.gameState.score
+        },
+        visualStyle: session.preferences.visualStyle
+      });
+    } 
+    // Si l'utilisateur est inactif depuis 30 secondes: simplement demander s'il est toujours là
+    else if (inactiveTime >= INACTIVITY_REMINDER_THRESHOLD) {
+      // Message simple de vérification de présence
+      const reminderMessage = "Êtes-vous toujours là? Je suis prêt à continuer notre session de cybersécurité quand vous l'êtes.";
       
-      // Ajouter la relance aux messages
+      // Ajouter le message de rappel
       session.messages.push({
         role: "assistant",
-        content: reengagementMessage
+        content: reminderMessage
       });
       
-      // Mettre à jour le timestamp de dernière interaction
-      session.gameState.lastInteractionTime = currentTime;
+      // Ne pas mettre à jour le timestamp de dernière interaction pour permettre la détection à 3 minutes
+      // si l'utilisateur ne répond pas
       
       // Mettre à jour la session
       cyberPulseSessions.set(sessionId, session);
@@ -442,7 +439,8 @@ IMPORTANT: Évite toute introduction ou contexte inutile. Va droit au but.`;
       return res.status(200).json({
         success: true,
         inactivity: true,
-        message: reengagementMessage,
+        action: "remind",
+        message: reminderMessage,
         gameState: {
           active: session.gameState.active,
           currentGameType: session.gameState.currentGameType,
@@ -456,7 +454,8 @@ IMPORTANT: Évite toute introduction ou contexte inutile. Va droit au but.`;
         success: true,
         inactivity: false,
         inactiveTime: inactiveTime,
-        threshold: INACTIVITY_THRESHOLD
+        reminderThreshold: INACTIVITY_REMINDER_THRESHOLD,
+        closeThreshold: INACTIVITY_CLOSE_THRESHOLD
       });
     }
     
