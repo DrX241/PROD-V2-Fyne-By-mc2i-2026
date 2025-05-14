@@ -94,8 +94,8 @@ const formatTextWithStructure = (text: string): string => {
     .replace(/^\s*[\-\*]\s+(.+)$/gm, '<li class="flex items-start mb-2"><span class="text-cyan-400 mr-2">•</span><span>$1</span></li>')
     .replace(/^\s*(\d+)\.\s+(.+)$/gm, '<li class="flex items-start mb-2"><span class="text-cyan-400 mr-2">$1.</span><span>$2</span></li>')
     
-    // Remplacer les sections de code
-    .replace(/```(.+?)```/gs, '<pre class="bg-blue-950/50 p-3 rounded-md my-3 overflow-x-auto text-sm border border-blue-800/50"><code>$1</code></pre>')
+    // Remplacer les sections de code (sans utiliser le drapeau s)
+    .replace(/```([\s\S]+?)```/g, '<pre class="bg-blue-950/50 p-3 rounded-md my-3 overflow-x-auto text-sm border border-blue-800/50"><code>$1</code></pre>')
     .replace(/`([^`]+)`/g, '<code class="bg-blue-900/30 px-1 py-0.5 rounded text-cyan-300 text-sm">$1</code>')
     
     // Remplacer les séparateurs
@@ -107,10 +107,10 @@ const formatTextWithStructure = (text: string): string => {
     // Remplacer les liens
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-cyan-400 hover:underline" target="_blank">$1</a>')
     
-    // Créer des blocs de fond pour les sections importantes
-    .replace(/\[DÉFI\](.*?)\[\/DÉFI\]/gs, '<div class="bg-gradient-to-r from-blue-900/50 to-purple-900/50 p-4 rounded-lg my-4 border border-blue-600/30 shadow-inner">$1</div>')
-    .replace(/\[INFO\](.*?)\[\/INFO\]/gs, '<div class="bg-blue-950/50 p-4 rounded-lg my-4 border border-blue-800/30">$1</div>')
-    .replace(/\[ALERTE\](.*?)\[\/ALERTE\]/gs, '<div class="bg-red-900/40 p-4 rounded-lg my-4 border border-red-500/30">$1</div>')
+    // Créer des blocs de fond pour les sections importantes (sans utiliser le drapeau s)
+    .replace(/\[DÉFI\]([\s\S]*?)\[\/DÉFI\]/g, '<div class="bg-gradient-to-r from-blue-900/50 to-purple-900/50 p-4 rounded-lg my-4 border border-blue-600/30 shadow-inner">$1</div>')
+    .replace(/\[INFO\]([\s\S]*?)\[\/INFO\]/g, '<div class="bg-blue-950/50 p-4 rounded-lg my-4 border border-blue-800/30">$1</div>')
+    .replace(/\[ALERTE\]([\s\S]*?)\[\/ALERTE\]/g, '<div class="bg-red-900/40 p-4 rounded-lg my-4 border border-red-500/30">$1</div>')
     
     // Mise en forme des tables pour un rendu cohérent
     .replace(/\|(.+)\|/g, (match) => {
@@ -122,12 +122,15 @@ const formatTextWithStructure = (text: string): string => {
       return `<thead><tr>${headerRow.replace(/<td/g, '<th').replace(/td>/g, 'th>')}</tr></thead><tbody>`;
     });
 
-  // Assembler les listes
-  formattedText = formattedText.replace(/<li(.+?)<\/li>(\s*<li)/g, '<li$1</li>$2');
-  formattedText = formattedText.replace(/(^|[^>])\s*(<li.*<\/li>)\s*(?![^<]*<\/ul>)/gs, '$1<ul class="list-none space-y-1 my-3">$2</ul>');
+  // Assembler les listes simplement
+  if (formattedText.includes('<li')) {
+    formattedText = '<ul class="list-none space-y-1 my-3">' + formattedText + '</ul>';
+  }
   
-  // Assembler les tableaux
-  formattedText = formattedText.replace(/(^|[^>])\s*(<tr>.+<\/tr>)\s*(?![^<]*<\/tbody>)/gs, '$1<table class="w-full my-4 border-collapse">$2</tbody></table>');
+  // Assembler les tableaux simplement
+  if (formattedText.includes('<tr>')) {
+    formattedText = '<table class="w-full my-4 border-collapse">' + formattedText + '</tbody></table>';
+  }
   
   // Convertir les sauts de ligne restants en paragraphes
   formattedText = formattedText.replace(/^(?!<[uo]l|<[hpt]|<div|<block|<pre)(.+)$/gm, (match, p1) => {
