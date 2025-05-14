@@ -281,8 +281,9 @@ Réponse à analyser: "${aiResponse}"`;
 }
 
 /**
- * Génère un nouveau défi ou question cyber aléatoire
+ * Génère un nouveau défi ou question cyber aléatoire 
  * Utile pour relancer l'engagement après une période d'inactivité
+ * La nouvelle version inclut des options pour les boutons-réponses cliquables
  */
 export async function generateCyberChallenge(req: Request, res: Response) {
   try {
@@ -296,6 +297,13 @@ export async function generateCyberChallenge(req: Request, res: Response) {
     const session = cyberPulseSessions.get(sessionId);
     if (!session) {
       return res.status(404).json({ error: "Session non trouvée. Veuillez initialiser une nouvelle session." });
+    }
+    
+    // Ajouter +10 points si c'est une bonne réponse à un quiz précédent
+    const isCorrectAnswer = req.body.answer === "correct" || req.body.isCorrect === true;
+    if (isCorrectAnswer && session.gameState.currentGameType === 'quiz') {
+      session.gameState.score += 10;
+      session.gameState.streak += 1;
     }
     
     // Types de défis disponibles
@@ -397,31 +405,26 @@ export async function checkInactivity(req: Request, res: Response) {
     // Si l'utilisateur est inactif depuis plus longtemps que le seuil défini
     if (inactiveTime >= INACTIVITY_THRESHOLD) {
       // Construire le prompt pour générer une relance
-      const promptIdleUser = `L'utilisateur est inactif depuis ${Math.floor(inactiveTime / 1000)} secondes. 
-      
-Génère une relance proactive pour le réengager dans l'expérience CyberPULSE.
+      // Prompt simplifié pour réduire les erreurs et raccourcir les réponses
+      const promptIdleUser = `Propose une activité ou un défi de cybersécurité simple à l'utilisateur.
+        
+Ta relance doit:
+1. Être directe et concise (max 50 mots)
+2. Proposer un quiz simple ou une astuce cyber
+3. Se terminer par une question courte
+4. Être facile à comprendre
 
-Cette relance doit:
-1. Être surprenante et attirer immédiatement l'attention
-2. Proposer une activité intéressante (mini-jeu, défi, question intrigante)
-3. Être ludique et dynamique sans être agressive
-4. Utiliser une mise en forme visuelle captivante
-5. Faire référence à la cybersécurité de manière pertinente
-6. Se terminer par une question directe qui incite à répondre
-7. Être concise (max 100-150 mots)
-
-IMPORTANT: Ne mentionne PAS que l'utilisateur est inactif ou que c'est une relance automatique. 
-Agis comme si c'était une initiative naturelle de ta part pour proposer quelque chose d'intéressant.`;
+IMPORTANT: Évite toute introduction ou contexte inutile. Va droit au but.`;
       
-      // Générer la relance via l'IA
+      // Générer la relance via l'IA avec paramètres optimisés
       const reengagementMessage = await openAIService.getChatCompletion(
         [
-          { role: "system", content: getCyberPulseSystemPrompt(session) },
+          { role: "system", content: "Tu es CyberPULSE, un chatbot ludique de cybersécurité. Sois extrêmement bref et direct." },
           { role: "user", content: promptIdleUser }
         ],
-        true, // Utiliser le modèle GPT-4o-mini pour une réponse rapide
-        0.9, // Température élevée pour la créativité et la surprise
-        700 // Longueur maximale
+        true, // Utiliser le modèle GPT-4o-mini
+        0.7, // Température réduite pour plus de fiabilité
+        350 // Longueur maximale réduite pour des réponses concises
       );
       
       // Ajouter la relance aux messages
@@ -569,45 +572,43 @@ export async function updatePlayerScore(req: Request, res: Response) {
 
 /**
  * Construit le prompt système pour CyberPULSE en fonction de la session
+ * Version améliorée : réponses plus courtes, renforcement du système de score
  */
 function getCyberPulseSystemPrompt(session: CyberPulseSession): string {
-  return `Tu es CyberPULSE, une IA de cybersécurité ultra-interactive conçue pour maintenir un engagement constant via des interactions ludiques.
+  return `Tu es CyberPULSE, un chatbot de cybersécurité direct et concis qui crée une expérience ludique d'apprentissage.
 
-## PHILOSOPHIE & COMPORTEMENT:
-- Ne JAMAIS rester inactif: toujours proposer une action, un défi, une question
-- Terminer CHAQUE message par une relance directe qui incite à répondre
-- Adapter dynamiquement la difficulté: ${session.playerLevel}
-- Utiliser un style visuel captivant: ${session.preferences.visualStyle}
-- Être proactif: initier des conversations et des mini-jeux
-- Maintenir un rythme dynamique et une énergie constante
+## PRINCIPES CLÉS:
+- Être EXTRÊMEMENT CONCIS: maximum 2-3 phrases par section
+- Réponses COURTES et directes, toujours sous forme de paragraphes courts
+- Difficulté: ${session.playerLevel}
+- Style: ${session.preferences.visualStyle}
+- Toujours inclure des boutons de réponse pour les quiz
 
-## MÉCANIQUES D'ENGAGEMENT:
-- Proposer régulièrement des défis cyber variés (quiz, mises en situation)
-- Utiliser des éléments de gamification (points, streaks, progression)
-- Créer des expériences immersives avec une narration légère
-- Personnaliser le contenu en fonction des intérêts et du niveau
-- Maintenir un équilibre entre apprentissage et divertissement
+## INTERACTION ET ENGAGEMENT:
+- Proposer des défis simples (quiz à choix multiples, questions oui/non)
+- Attribuer clairement des points après chaque bonne réponse (+10, +20, etc.)
+- Féliciter explicitement pour les bonnes réponses
+- Proposer fréquemment de terminer la session et voir un résumé
 
-## STRUCTURE DES MESSAGES:
-1. Une réponse directe au message de l'utilisateur
-2. Un élément d'apprentissage concret en cybersécurité
-3. Une proposition d'action/défi avec question directe
+## STRUCTURE DE MESSAGE (stricte):
+1. Une réponse courte et directe (1-2 phrases maximum)
+2. Une information cyber utile (1 phrase)
+3. Une question directe ou proposition d'action (1 phrase)
 
-## DESIGN & MISE EN FORME:
-- Structure visuelle aérée et lisible
-- Sections bien délimitées
-- Utiliser la mise en forme pour créer un effet d'interface interactive
+## FORMAT:
+- Structure simple et épurée
+- Phrases courtes, jamais plus de 15 mots
 - Style ${session.preferences.visualStyle}: ${getVisualStyleGuide(session.preferences.visualStyle)}
-- Quelques emojis pertinents pour dynamiser (sans excès)
+- Maximum 1-2 emojis par message
 
-## RÈGLES CRITIQUES:
-- TOUJOURS terminer par une question directe ou une invitation à agir
-- JAMAIS de fin passive ou de simple information
-- TOUT message doit inciter à une réponse
-- CONSTAMMENT alterner entre informer et challenger
-- IMPÉRATIVEMENT respecter le style visuel demandé
+## RÈGLES STRICTES:
+- LIMITER la longueur totale à 100 mots maximum
+- SYSTÉMATIQUEMENT afficher le score quand il change: "Score: X points"
+- AJOUTER 10 points pour chaque bonne réponse (avec message explicite)
+- OFFRIR des boutons cliquables [Oui] [Non] pour les quiz simples
+- PROPOSER régulièrement un bouton [Terminer la session] pour obtenir un résumé
 
-IMPORTANT: Tu es un agent conversationnel hyper-proactif, expert en cybersécurité, avec une personnalité dynamique qui ne laisse jamais retomber l'engagement. Ta mission est de créer une expérience d'apprentissage addictive par des interactions constantes et un format ludique.`;
+CRUCIAL: Tourne-toi vers l'essentiel. Évite toute verbosité. Sois précis et concis.`;
 }
 
 /**
