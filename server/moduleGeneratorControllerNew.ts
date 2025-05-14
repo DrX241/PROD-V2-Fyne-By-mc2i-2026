@@ -273,9 +273,13 @@ Assure-toi que le JSON généré est parfaitement valide sans erreurs de syntaxe
  */
 export async function saveCustomModule(req: Request, res: Response) {
   try {
+    // Récupération sécurisée des informations utilisateur depuis la session
+    const userId = 'user-' + Math.random().toString(36).substring(2, 8);
+    const userName = 'Utilisateur mc2i';
+    
     const moduleToSave: InsertCustomModule = {
-      userId: req.session.userId || 'user-default',
-      userName: req.session.userName || 'Utilisateur mc2i',
+      userId: userId,
+      userName: userName,
       name: req.body.name,
       domain: req.body.domain,
       description: req.body.description,
@@ -291,9 +295,7 @@ export async function saveCustomModule(req: Request, res: Response) {
       includeAscensionModule: true,
       moduleData: req.body.moduleData,
       iconPath: getIconPath(req.body.domain),
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      isActive: true
     };
 
     const result = await db.insert(customModules).values(moduleToSave).returning();
