@@ -26,6 +26,7 @@ import CyberAgentNewPage from "./pages/cyber/cyber-agent-new";
 import PlaygroundPage from "./pages/playground";
 import ModuleDetailPage from "./pages/playground/module";
 import ModuleGeneratorPage from "./pages/playground/module-generator";
+import ModuleGeneratorNewPage from "./pages/playground/module-generator-new";
 // Suppression de l'import CyberForge
 
 // Import de la page mc2i AI Learning

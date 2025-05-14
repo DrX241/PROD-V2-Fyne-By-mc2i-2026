@@ -38,10 +38,7 @@ interface ModuleConfig {
   description: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   topics: string[];
-  includeTestModule: boolean;
-  includeTrainerModule: boolean;
-  includeOpsModule: boolean;
-  includeAscensionModule: boolean;
+  // Modules toujours inclus, pas besoin de les activer/désactiver
   gamificationLevel: 'low' | 'medium' | 'high';
   learningStyle: 'interactive' | 'reading' | 'mixed';
   additionalContext: string;
@@ -59,10 +56,6 @@ export default function ModuleGenerator() {
     description: '',
     difficulty: 'intermediate',
     topics: [],
-    includeTestModule: true,
-    includeTrainerModule: true,
-    includeOpsModule: true,
-    includeAscensionModule: true,
     gamificationLevel: 'medium',
     learningStyle: 'mixed',
     additionalContext: '',
