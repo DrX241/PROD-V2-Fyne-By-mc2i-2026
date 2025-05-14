@@ -1693,7 +1693,7 @@ export async function endCrisisSession(req: Request, res: Response) {
       }
     ];
     
-    const reportContent = await openAIService.getChatCompletion(reportMessages);
+    const reportContent = await openAIService.getChatCompletion(reportMessages, false, 0.7, 2000);
     
     return res.status(200).json({
       success: true,
@@ -1798,7 +1798,7 @@ export async function respondToStakeholder(req: Request, res: Response) {
     ];
     
     // Obtenir la réponse de l'IA
-    const response = await openAIService.getChatCompletion(chatMessages);
+    const response = await openAIService.getChatCompletion(chatMessages, false, 0.7, 2000);
     
     if (!response) {
       return res.status(500).json({ error: "Erreur lors de la génération de la réponse" });
