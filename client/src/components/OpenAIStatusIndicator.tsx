@@ -131,9 +131,22 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
   
   // Fonction pour basculer entre les modèles
   const toggleModel = async () => {
+    if (isToggling) return; // Évite les doubles clics
+    
+    // Basculer directement l'état visuel pour une réponse immédiate
+    const newEconomyMode = !economyMode;
+    const newKeyType = newEconomyMode ? 'secondary' : 'primary';
+    const newModelName = newEconomyMode ? 'gpt-4o-mini' : 'gpt-4o';
+    
+    // Mettre à jour l'interface immédiatement
+    setApiKeyType(newKeyType);
+    setCurrentModel(newModelName);
+    
+    // Démarrer l'animation de chargement
     setIsToggling(true);
+    
     try {
-      const newKeyType = apiKeyType === 'primary' ? 'secondary' : 'primary';
+      // Appeler l'API pour effectuer le changement réel
       const response = await fetch('/api/cyber/switch-api-key', {
         method: 'POST',
         headers: {
@@ -145,23 +158,43 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
       if (response.ok) {
         const data = await response.json();
         
-        // Récupérer le nom du modèle depuis la réponse ou utiliser une valeur par défaut
-        const modelName = data.modelName || (newKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini');
-        setCurrentModel(modelName);
-        setApiKeyType(newKeyType);
-        setStatus(data.connectionStatus || 'checking');
-        
         console.log('Changement de modèle réussi:', {
           newKeyType,
-          modelName,
+          modelName: newModelName,
           data
         });
         
-        // Vérifier le statut après le changement
+        // Vérifier le statut après le changement pour s'assurer que tout est cohérent
         setTimeout(checkStatus, 1000);
+        
+        toast({
+          title: `Mode ${newEconomyMode ? 'Éco' : 'Standard'} activé`,
+          description: `Utilisation du modèle ${newEconomyMode ? 'GPT-4o-mini' : 'GPT-4o'} ${newEconomyMode ? '(plus rapide, moins puissant)' : '(plus puissant)'}`,
+          variant: 'default',
+        });
+      } else {
+        // En cas d'échec, revenir à l'état précédent
+        setApiKeyType(economyMode ? 'secondary' : 'primary');
+        setCurrentModel(economyMode ? 'gpt-4o-mini' : 'gpt-4o');
+        
+        toast({
+          title: 'Échec du changement de modèle',
+          description: 'Impossible de changer de modèle. Veuillez réessayer.',
+          variant: 'destructive',
+        });
       }
     } catch (error) {
       console.error('Erreur lors du changement de modèle OpenAI:', error);
+      
+      // En cas d'erreur, revenir à l'état précédent
+      setApiKeyType(economyMode ? 'secondary' : 'primary');
+      setCurrentModel(economyMode ? 'gpt-4o-mini' : 'gpt-4o');
+      
+      toast({
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors du changement de modèle.',
+        variant: 'destructive',
+      });
     } finally {
       setIsToggling(false);
     }
