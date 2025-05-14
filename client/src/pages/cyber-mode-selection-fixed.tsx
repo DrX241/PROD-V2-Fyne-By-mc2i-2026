@@ -318,7 +318,7 @@ export default function CyberModeSelectionRedesign() {
       icon: <IoBookOutline className="h-6 w-6 text-blue-100" />,
       modules: [
         'agent-ia',                // Assistant IA pour répondre aux questions
-        'entree',                  // L'ENTRÉE - Formation au premier contact
+        'cyber-pulse',            // CyberPULSE - Générateur de jeux et scenarios
         'ascension-progression',   // Parcours structuré de formation
         'centre-apprentissage'     // Nouveau module centralisant les ressources de formation
       ],
@@ -337,6 +337,7 @@ export default function CyberModeSelectionRedesign() {
       icon: <IoDesktopOutline className="h-6 w-6 text-indigo-100" />,
       modules: [
         'cyber-arcade',            // Jeux interactifs d'apprentissage
+        'entree',                  // Check List Audition
         'gestion-crise',           // Gestion de crise en temps réel
         'plan-continuité'          // Plan de Continuité d'Activité
       ],

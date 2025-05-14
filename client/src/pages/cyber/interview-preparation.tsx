@@ -51,7 +51,7 @@ const InterviewPreparationGuide: React.FC = () => {
             onClick={() => navigate("/cyber-mode-selection-fixed")}
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Retour
+            Retour à I AM CYBER
           </Button>
         </div>
         
@@ -605,7 +605,7 @@ const InterviewPreparationGuide: React.FC = () => {
               className="border-gray-600 text-gray-300 hover:bg-gray-700"
               onClick={() => navigate("/cyber-mode-selection-fixed")}
             >
-              Retour au menu
+              Retour à I AM CYBER
             </Button>
             <Button
               className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 opacity-50 cursor-not-allowed"
