@@ -82,61 +82,40 @@ interface GameState {
   gameAnalysis?: any;
 }
 
-// Fonction utilitaire pour formater le texte avec structure
+// Fonction utilitaire pour formater le texte de façon épurée et élégante
 const formatTextWithStructure = (text: string): string => {
+  // Simplification: utiliser seulement les formatages essentiels pour un rendu épuré
   let formattedText = text
-    // Remplacer les titres
-    .replace(/#{3} (.+)/g, '<h3 class="text-lg font-semibold mt-4 mb-2 text-cyan-300">$1</h3>')
-    .replace(/#{2} (.+)/g, '<h2 class="text-xl font-bold mt-5 mb-3 text-cyan-400">$1</h2>')
-    .replace(/# (.+)/g, '<h1 class="text-2xl font-bold mt-6 mb-3 text-cyan-300">$1</h1>')
+    // Formatage léger des titres
+    .replace(/#{3} (.+)/g, '<h3 class="text-lg font-semibold mt-4 mb-2 text-white">$1</h3>')
+    .replace(/#{2} (.+)/g, '<h2 class="text-xl font-semibold mt-4 mb-2 text-white">$1</h2>')
+    .replace(/# (.+)/g, '<h1 class="text-xl font-semibold mt-4 mb-3 text-white">$1</h1>')
     
-    // Remplacer les listes
-    .replace(/^\s*[\-\*]\s+(.+)$/gm, '<li class="flex items-start mb-2"><span class="text-cyan-400 mr-2">•</span><span>$1</span></li>')
-    .replace(/^\s*(\d+)\.\s+(.+)$/gm, '<li class="flex items-start mb-2"><span class="text-cyan-400 mr-2">$1.</span><span>$2</span></li>')
+    // Simplification des listes
+    .replace(/^\s*[\-\*]\s+(.+)$/gm, '<div class="flex mb-1.5"><span class="mr-2">•</span><span>$1</span></div>')
+    .replace(/^\s*(\d+)\.\s+(.+)$/gm, '<div class="flex mb-1.5"><span class="mr-2">$1.</span><span>$2</span></div>')
     
-    // Remplacer les sections de code (sans utiliser le drapeau s)
-    .replace(/```([\s\S]+?)```/g, '<pre class="bg-blue-950/50 p-3 rounded-md my-3 overflow-x-auto text-sm border border-blue-800/50"><code>$1</code></pre>')
-    .replace(/`([^`]+)`/g, '<code class="bg-blue-900/30 px-1 py-0.5 rounded text-cyan-300 text-sm">$1</code>')
+    // Mise en forme minimaliste pour le code
+    .replace(/```([\s\S]+?)```/g, '<div class="bg-gray-800/60 p-3 rounded-md my-3 text-sm">$1</div>')
+    .replace(/`([^`]+)`/g, '<span class="bg-gray-800/50 px-1 rounded text-white">$1</span>')
     
-    // Remplacer les séparateurs
-    .replace(/^\s*---\s*$/gm, '<hr class="my-4 border-blue-800/50">')
+    // Séparateur simple
+    .replace(/^\s*---\s*$/gm, '<div class="border-t border-gray-700 my-4"></div>')
     
-    // Mettre en évidence les blocs d'alertes ou d'info
-    .replace(/^\s*>\s*(.+)$/gm, '<blockquote class="border-l-4 border-cyan-500 pl-4 py-2 my-4 bg-blue-900/20 rounded-r-md">$1</blockquote>')
+    // Suppression des balises spéciales et simplification des formats complexes
+    .replace(/\[DÉFI\]([\s\S]*?)\[\/DÉFI\]/g, '<div class="bg-gray-800/50 p-3 rounded-md my-3">$1</div>')
+    .replace(/\[INFO\]([\s\S]*?)\[\/INFO\]/g, '<div class="bg-gray-800/50 p-3 rounded-md my-3">$1</div>')
+    .replace(/\[ALERTE\]([\s\S]*?)\[\/ALERTE\]/g, '<div class="bg-gray-800/50 p-3 rounded-md my-3">$1</div>')
     
-    // Remplacer les liens
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-cyan-400 hover:underline" target="_blank">$1</a>')
-    
-    // Créer des blocs de fond pour les sections importantes (sans utiliser le drapeau s)
-    .replace(/\[DÉFI\]([\s\S]*?)\[\/DÉFI\]/g, '<div class="bg-gradient-to-r from-blue-900/50 to-purple-900/50 p-4 rounded-lg my-4 border border-blue-600/30 shadow-inner">$1</div>')
-    .replace(/\[INFO\]([\s\S]*?)\[\/INFO\]/g, '<div class="bg-blue-950/50 p-4 rounded-lg my-4 border border-blue-800/30">$1</div>')
-    .replace(/\[ALERTE\]([\s\S]*?)\[\/ALERTE\]/g, '<div class="bg-red-900/40 p-4 rounded-lg my-4 border border-red-500/30">$1</div>')
-    
-    // Mise en forme des tables pour un rendu cohérent
-    .replace(/\|(.+)\|/g, (match) => {
-      const cells = match.split('|').filter(cell => cell.trim() !== '');
-      const row = cells.map(cell => `<td class="border border-blue-800/30 px-4 py-2">${cell.trim()}</td>`).join('');
-      return `<tr>${row}</tr>`;
-    })
-    .replace(/<tr>(.+)<\/tr>\s*\n\s*\|[\-\|]+\|\s*\n/g, (match, headerRow) => {
-      return `<thead><tr>${headerRow.replace(/<td/g, '<th').replace(/td>/g, 'th>')}</tr></thead><tbody>`;
-    });
+    // Conserver les liens simples
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-400 hover:underline" target="_blank">$1</a>');
 
-  // Assembler les listes simplement
-  if (formattedText.includes('<li')) {
-    formattedText = '<ul class="list-none space-y-1 my-3">' + formattedText + '</ul>';
-  }
+  // Convertir les sauts de ligne en paragraphes simples
+  formattedText = formattedText.replace(/\n\n/g, '</p><p class="mb-3">');
+  formattedText = '<p class="mb-3">' + formattedText + '</p>';
   
-  // Assembler les tableaux simplement
-  if (formattedText.includes('<tr>')) {
-    formattedText = '<table class="w-full my-4 border-collapse">' + formattedText + '</tbody></table>';
-  }
-  
-  // Convertir les sauts de ligne restants en paragraphes
-  formattedText = formattedText.replace(/^(?!<[uo]l|<[hpt]|<div|<block|<pre)(.+)$/gm, (match, p1) => {
-    if (p1.trim() === '') return '';
-    return `<p class="mb-3">${p1}</p>`;
-  });
+  // Nettoyage des paragraphes vides
+  formattedText = formattedText.replace(/<p class="mb-3">\s*<\/p>/g, '');
   
   return formattedText;
 };
@@ -963,7 +942,7 @@ export default function CyberPulseGame() {
                       <SelectValue placeholder="Choisir un domaine..." />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-800 text-white border-gray-700">
-                      <SelectItem value="">Cybersécurité générale</SelectItem>
+                      <SelectItem value="general">Cybersécurité générale</SelectItem>
                       <SelectItem value="phishing">Phishing</SelectItem>
                       <SelectItem value="ransomware">Ransomware</SelectItem>
                       <SelectItem value="network">Sécurité réseau</SelectItem>
