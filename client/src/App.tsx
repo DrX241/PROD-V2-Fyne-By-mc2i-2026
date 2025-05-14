@@ -763,6 +763,7 @@ function App() {
                 <Route path="/playground" component={PlaygroundPage} />
                 <Route path="/playground/module/:id" component={ModuleDetailPage} />
                 <Route path="/playground/module-generator" component={ModuleGeneratorNewPage} />
+                <Route path="/playground/module-generator-new" component={ModuleGeneratorNewPage} />
                 <Route path="/modules/:id" component={ModuleDetailPage} />
                 <Route path="/custom-module/:id" component={ModuleDetailPage} />
                 
