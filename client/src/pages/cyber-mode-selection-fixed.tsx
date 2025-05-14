@@ -122,10 +122,19 @@ export default function CyberModeSelectionRedesign() {
             const formattedModules = data.modules.map((customModule: any) => {
               // Utiliser le nom de l'icône pour créer le composant React
               let iconComponent;
-              if (customModule.moduleData?.icon === "BsShieldCheck") {
-                iconComponent = <BsShieldCheck className="h-5 w-5" />;
+              const iconName = customModule.moduleData?.icon || "BsBookmarkCheck";
+              
+              // Choix de l'icône en fonction du nom défini ou du domaine
+              if (iconName === "BsShieldCheck" || customModule.domain?.toLowerCase().includes('cyber') || customModule.iamName?.toLowerCase().includes('cyber')) {
+                iconComponent = <BsShieldCheck className="h-5 w-5 text-cyan-100" />;
+              } else if (iconName === "BsDatabaseCheck" || customModule.domain?.toLowerCase().includes('data') || customModule.iamName?.toLowerCase().includes('data')) {
+                iconComponent = <BsDatabaseCheck className="h-5 w-5 text-blue-100" />;
+              } else if (iconName === "BsPersonCheck" || customModule.domain?.toLowerCase().includes('client') || customModule.iamName?.toLowerCase().includes('client')) {
+                iconComponent = <BsPersonCheck className="h-5 w-5 text-green-100" />;
+              } else if (iconName === "BsCodeSlash" || customModule.domain?.toLowerCase().includes('dev') || customModule.iamName?.toLowerCase().includes('dev')) {
+                iconComponent = <BsCodeSlash className="h-5 w-5 text-yellow-100" />;
               } else {
-                iconComponent = <BsBookmarkCheck className="h-5 w-5" />;
+                iconComponent = <BsBookmarkCheck className="h-5 w-5 text-purple-100" />;
               }
               
               return {
@@ -415,7 +424,11 @@ export default function CyberModeSelectionRedesign() {
   ];
 
   // Filtrer les modules par recherche
-  const filteredModules = allModules.filter(module => {
+  // Combiner les modules standard et personnalisés
+  const combinedModules = [...allModules, ...customModules];
+  
+  // Filtrer les modules selon les critères
+  const filteredModules = combinedModules.filter(module => {
     const matchesSearch = searchTerm === '' || 
       module.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       module.description.toLowerCase().includes(searchTerm.toLowerCase());

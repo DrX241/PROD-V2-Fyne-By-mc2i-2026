@@ -328,7 +328,7 @@ export async function saveCustomModule(req: Request, res: Response) {
         duration: estimatedDuration,
         isNew: true,
         comingSoon: false,
-        icon: "BsShieldCheck" // Nom de l'icône, à traiter côté client
+        icon: getIconComponent(req.body.domain) // Nom de l'icône déterminé en fonction du domaine
       },
       iconPath: getIconPath(req.body.domain),
       isActive: true
@@ -448,10 +448,31 @@ function getIconPath(domain: string): string {
     return '/assets/icons/module-cyber.svg';
   } else if (lowerDomain.includes('data') || lowerDomain.includes('ia') || lowerDomain.includes('ai') || lowerDomain.includes('analytics')) {
     return '/assets/icons/module-data.svg';
-  } else if (lowerDomain.includes('amoa') || lowerDomain.includes('projet') || lowerDomain.includes('mc2i')) {
+  } else if (lowerDomain.includes('amoa') || lowerDomain.includes('projet') || lowerDomain.includes('mc2i') || lowerDomain.includes('client')) {
     return '/assets/icons/module-mc2i.svg';
+  } else if (lowerDomain.includes('dev') || lowerDomain.includes('code') || lowerDomain.includes('program')) {
+    return '/assets/icons/module-dev.svg';
   } else {
     return '/assets/icons/module-generic.svg';
+  }
+}
+
+/**
+ * Détermine l'icône React Bootstrap à utiliser en fonction du domaine
+ */
+function getIconComponent(domain: string): string {
+  const lowerDomain = domain.toLowerCase();
+  
+  if (lowerDomain.includes('cyber') || lowerDomain.includes('secur') || lowerDomain.includes('hack')) {
+    return 'BsShieldCheck';
+  } else if (lowerDomain.includes('data') || lowerDomain.includes('ia') || lowerDomain.includes('ai') || lowerDomain.includes('analytics')) {
+    return 'BsDatabaseCheck';
+  } else if (lowerDomain.includes('amoa') || lowerDomain.includes('projet') || lowerDomain.includes('mc2i') || lowerDomain.includes('client')) {
+    return 'BsPersonCheck';
+  } else if (lowerDomain.includes('dev') || lowerDomain.includes('code') || lowerDomain.includes('program')) {
+    return 'BsCodeSlash';
+  } else {
+    return 'BsBookmarkCheck';
   }
 }
 
