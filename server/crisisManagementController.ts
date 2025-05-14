@@ -122,6 +122,170 @@ interface Outcome {
 // Map pour stocker les sessions actives
 const activeCrisisSessions = new Map<string, CrisisSession>();
 
+// Catégories d'événements aléatoires pour dynamiser la simulation
+const randomEventCategories = {
+  technical: [
+    {
+      title: "Nouvelle variante de ransomware détectée",
+      description: "Une analyse plus approfondie révèle que l'attaque utilise une variante avancée du ransomware, capable d'échapper à certaines de nos mesures de détection.",
+      severity: "high",
+      impact: "Les systèmes précédemment considérés comme sécurisés pourraient être compromis."
+    },
+    {
+      title: "Propagation accélérée",
+      description: "Le ransomware se propage plus rapidement que prévu et atteint maintenant des systèmes dans un autre réseau isolé.",
+      severity: "critical",
+      impact: "La portée de l'infection s'étend, compromettant davantage de données et de systèmes."
+    },
+    {
+      title: "Défaillance des sauvegardes",
+      description: "Certaines sauvegardes considérées comme sûres semblent avoir été corrompues ou sont inaccessibles.",
+      severity: "critical",
+      impact: "La stratégie de restauration doit être révisée d'urgence."
+    },
+    {
+      title: "Vulnérabilité zero-day exploitée",
+      description: "L'analyse des logs révèle que les attaquants ont exploité une vulnérabilité zero-day dans notre infrastructure.",
+      severity: "high",
+      impact: "Nos défenses standard n'ont pas pu bloquer cette attaque sophistiquée."
+    },
+    {
+      title: "Suppression des journaux d'événements",
+      description: "Les attaquants ont tenté d'effacer leurs traces en supprimant les journaux d'événements sur plusieurs serveurs.",
+      severity: "medium",
+      impact: "L'investigation forensique devient plus complexe et limitée."
+    }
+  ],
+  business: [
+    {
+      title: "Arrêt de la production",
+      description: "La ligne de production principale est maintenant complètement à l'arrêt en raison de l'indisponibilité des systèmes de contrôle.",
+      severity: "critical",
+      impact: "Chaque heure d'arrêt représente une perte estimée à 50 000€."
+    },
+    {
+      title: "Impossible de traiter les commandes clients",
+      description: "Le système de gestion des commandes est hors service, empêchant le traitement des nouvelles commandes et l'expédition des commandes en cours.",
+      severity: "high",
+      impact: "Les clients sont informés de retards indéterminés."
+    },
+    {
+      title: "Services clients affectés",
+      description: "Les équipes du service client n'ont plus accès aux dossiers et à l'historique des clients.",
+      severity: "medium",
+      impact: "Augmentation du temps de résolution des problèmes et du mécontentement client."
+    },
+    {
+      title: "Contrats en suspens",
+      description: "Des négociations contractuelles importantes sont en suspens car les documents nécessaires sont inaccessibles.",
+      severity: "high",
+      impact: "Risque de perdre des opportunités commerciales significatives."
+    },
+    {
+      title: "Systèmes de facturation hors service",
+      description: "Le système de facturation automatisé est inopérant, empêchant l'émission de nouvelles factures et le suivi des paiements.",
+      severity: "medium",
+      impact: "Retards dans le cycle de revenus et problèmes de trésorerie potentiels."
+    }
+  ],
+  communication: [
+    {
+      title: "Fuite dans la presse",
+      description: "Un média national a publié un article sur notre incident de cybersécurité avec des détails précis.",
+      severity: "high",
+      impact: "L'information est maintenant publique, créant une pression médiatique supplémentaire."
+    },
+    {
+      title: "Inquiétudes des actionnaires",
+      description: "Plusieurs actionnaires majeurs ont contacté la direction pour exprimer leurs inquiétudes sur l'impact financier de l'incident.",
+      severity: "medium",
+      impact: "Le cours de l'action pourrait être affecté dans les prochaines heures."
+    },
+    {
+      title: "Questions des autorités de régulation",
+      description: "L'autorité de régulation du secteur demande des clarifications officielles sur la nature et l'étendue de l'incident.",
+      severity: "high",
+      impact: "Une réponse officielle documentée est requise sous 24 heures."
+    },
+    {
+      title: "Inquiétudes des employés",
+      description: "Des rumeurs circulent parmi les employés, certains craignant pour la sécurité de leurs données personnelles.",
+      severity: "medium",
+      impact: "Baisse de la productivité et risque de fuites d'informations supplémentaires."
+    },
+    {
+      title: "Message des attaquants",
+      description: "Un nouveau message des attaquants indique qu'ils ont commencé à exfiltrer des données sensibles.",
+      severity: "critical",
+      impact: "La menace évolue d'un ransomware pur vers une double extorsion."
+    }
+  ],
+  executive: [
+    {
+      title: "Intervention du PDG",
+      description: "Le PDG exige une résolution rapide et un briefing toutes les 2 heures sur l'avancement de la situation.",
+      severity: "high",
+      impact: "Pression accrue sur les équipes de gestion de crise."
+    },
+    {
+      title: "Conseil d'administration extraordinaire",
+      description: "Un conseil d'administration extraordinaire est convoqué pour discuter de la crise et de ses implications.",
+      severity: "high",
+      impact: "La direction doit préparer un rapport détaillé sur la situation et les actions entreprises."
+    },
+    {
+      title: "Pressions du conseil d'administration",
+      description: "Le conseil d'administration exprime son mécontentement quant à la préparation de l'entreprise face aux cybermenaces.",
+      severity: "medium",
+      impact: "La position du RSSI et du DSI pourrait être remise en question."
+    },
+    {
+      title: "Demande d'explication du comité d'audit",
+      description: "Le comité d'audit demande une explication détaillée sur les contrôles de sécurité en place avant l'incident.",
+      severity: "medium",
+      impact: "Un audit complet des mesures de cybersécurité sera probablement mandaté."
+    },
+    {
+      title: "Ultimatum de la direction",
+      description: "La direction générale donne 12 heures pour rétablir les systèmes critiques avant d'envisager des mesures plus drastiques.",
+      severity: "critical",
+      impact: "L'équipe de gestion de crise est sous pression maximale."
+    }
+  ],
+  legal: [
+    {
+      title: "Notification obligatoire CNIL",
+      description: "L'analyse juridique confirme l'obligation de notifier la CNIL de la violation dans les 72 heures.",
+      severity: "high",
+      impact: "Une documentation précise de l'incident et des mesures prises est requise d'urgence."
+    },
+    {
+      title: "Risques contractuels",
+      description: "Les clauses SLA de plusieurs contrats majeurs pourraient être violées en raison de l'indisponibilité prolongée des services.",
+      severity: "high",
+      impact: "Exposition à des pénalités potentiellement significatives."
+    },
+    {
+      title: "Action collective potentielle",
+      description: "Un cabinet d'avocats a contacté l'entreprise concernant une possible action collective au nom des clients affectés.",
+      severity: "medium",
+      impact: "Risque de litige à long terme et de réputation."
+    },
+    {
+      title: "Analyse des implications RGPD",
+      description: "L'équipe juridique a identifié que des données personnelles sensibles ont probablement été compromises.",
+      severity: "high",
+      impact: "Les amendes RGPD peuvent atteindre 4% du chiffre d'affaires mondial annuel."
+    },
+    {
+      title: "Assurance cyber questionnable",
+      description: "L'assureur demande des preuves que toutes les mesures de sécurité déclarées étaient effectivement en place.",
+      severity: "high",
+      impact: "La couverture d'assurance pourrait être refusée en cas de négligence prouvée."
+    }
+  ]
+};
+
 // Scénarios pré-configurés
 const predefinedScenarios: CrisisScenario[] = [
   {
@@ -540,7 +704,11 @@ export async function startCrisisSession(req: Request, res: Response) {
       legalCompliance: 50,
       overallEffectiveness: 50,
       timeEfficiency: 50,
-      reputationProtection: 50
+      reputationProtection: 50,
+      financialImpact: 0,
+      operationalImpact: 10,
+      customerImpact: 5,
+      executivePressure: 3
     };
     
     // Initialiser l'allocation des ressources
@@ -984,12 +1152,15 @@ export async function endCrisisSession(req: Request, res: Response) {
       return res.status(404).json({ error: "Session non trouvée" });
     }
     
+    // Sauvegarder le statut précédent
+    const previousStatus = session.status;
+    
     // Mettre à jour le statut et calculer le temps total
     session.status = 'completed';
     
-    if (session.status === 'active') {
+    if (previousStatus === 'active') {
       session.elapsedTime += Date.now() - session.startTime;
-    } else if (session.status === 'paused' && session.pausedAt) {
+    } else if (previousStatus === 'paused' && session.pausedAt) {
       session.elapsedTime += session.pausedAt - session.startTime;
     }
     
