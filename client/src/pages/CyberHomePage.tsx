@@ -217,7 +217,7 @@ const CyberHomePage: React.FC = () => {
                 </div>
               </div>
               
-              <h1 className="font-cyber-title mb-6 tracking-wider">
+              <h1 className="font-cyber-title mb-4 tracking-wider">
                 <CyberGlitchText 
                   text="NEXT-GEN SIMULATION" 
                   textSize="text-5xl md:text-7xl" 
@@ -237,48 +237,25 @@ const CyberHomePage: React.FC = () => {
                 </div>
               </h1>
               
+              <div className="text-2xl md:text-3xl text-cyan-500 font-cyber-title my-4">
+                <span className="border-b-2 border-cyan-500 pb-1">
+                  FOR YOUR NEXT EXPERIENCE
+                </span>
+              </div>
+              
               <p className="text-xl md:text-2xl text-gray-300 mb-8 font-cyber leading-relaxed max-w-3xl mx-auto">
                 Plongez dans <span className="text-cyan-400">l'univers FYNE</span>, où l'intelligence artificielle rencontre la simulation immersive pour créer une expérience d'apprentissage <span className="text-pink-400">révolutionnaire</span>.
               </p>
               
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
+              <div className="flex items-center justify-center mt-10">
                 <CyberButton 
                   variant="primary"
                   size="lg"
                   glowIntensity="high"
-                  onClick={() => setLocation('/cyber')}
+                  onClick={() => setLocation('/cyber-mode-selection-fixed')}
                 >
-                  Explorer les modules
+                  ACCÉDER À I AM CYBER
                 </CyberButton>
-                
-                <CyberButton 
-                  variant="secondary"
-                  size="lg"
-                  onClick={() => setLocation('/cyber/cyber-pulse')}
-                >
-                  CyberPULSE Game
-                </CyberButton>
-              </div>
-              
-              {/* Stats en style HUD */}
-              <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-                {[
-                  { value: "99.8%", label: "Satisfaction" },
-                  { value: "3800+", label: "Scénarios" },
-                  { value: "300%", label: "ROI Moyen" }
-                ].map((stat, i) => (
-                  <div key={i} className="cyber-hud-frame text-center">
-                    <div className="text-3xl font-cyber-title text-cyan-400 mb-2">
-                      {stat.value}
-                    </div>
-                    <div className="text-sm uppercase tracking-wider text-gray-400">
-                      {stat.label}
-                    </div>
-                    <div className="absolute top-0 right-2 text-xs text-cyan-500/50">
-                      {i+1}.0
-                    </div>
-                  </div>
-                ))}
               </div>
             </motion.div>
             
@@ -375,7 +352,17 @@ const CyberHomePage: React.FC = () => {
                   <div className="mt-auto pt-4">
                     <CyberButton 
                       variant="primary"
-                      onClick={() => setLocation(module.route)}
+                      onClick={() => {
+                        if (module.id === 'cyber') {
+                          setLocation('/cyber-mode-selection-fixed');
+                        } else if (module.id === 'data') {
+                          setLocation('/data-ia-mode-selection');
+                        } else if (module.id === 'mc2i') {
+                          setLocation('/amoa-mode-selection-fixed');
+                        } else {
+                          setLocation('/playground/module-generator-new');
+                        }
+                      }}
                       className="w-full"
                     >
                       Accéder
@@ -498,7 +485,12 @@ const CyberHomePage: React.FC = () => {
                   {modules.map(module => (
                     <li key={module.id}>
                       <Link 
-                        href={module.route}
+                        href={
+                          module.id === 'cyber' ? '/cyber-mode-selection-fixed' :
+                          module.id === 'data' ? '/data-ia-mode-selection' :
+                          module.id === 'mc2i' ? '/amoa-mode-selection-fixed' :
+                          '/playground/module-generator-new'
+                        }
                         className="text-gray-400 hover:text-cyan-400 transition-colors duration-300 text-sm"
                       >
                         {module.title}
