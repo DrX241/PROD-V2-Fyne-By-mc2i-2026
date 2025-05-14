@@ -760,6 +760,7 @@ function App() {
                 
                 {/* Playground et modules personnalisés */}
                 <Route path="/playground" component={PlaygroundPage} />
+                <Route path="/playground/module/:id" component={ModuleDetailPage} />
                 <Route path="/playground/module-generator" component={ModuleGeneratorPage} />
                 <Route path="/modules/:id" component={ModuleDetailPage} />
                 <Route path="/custom-module/:id" component={ModuleDetailPage} />
