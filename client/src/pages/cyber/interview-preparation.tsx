@@ -57,7 +57,7 @@ const InterviewPreparationGuide: React.FC = () => {
         
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-indigo-500">
-            Guide de préparation d'audition client
+            CHECK LIST AUDITION
           </h1>
           <p className="text-gray-300 max-w-3xl mx-auto">
             Ce guide vous aide à préparer vos auditions auprès de clients, avec des conseils sur la tenue, l'attitude professionnelle et les bonnes pratiques avant, pendant et après l'entretien.
