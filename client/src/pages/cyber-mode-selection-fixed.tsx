@@ -527,9 +527,41 @@ export default function CyberModeSelectionRedesign() {
 
   return (
     <HomeLayout gradientBg={true}>
-      <div id="cyber-mode-selection" className={`min-h-screen pb-20 w-full ${
-        highContrastMode ? 'bg-black text-white' : 'bg-gradient-to-b from-blue-950 to-black text-white'
-      }`} style={{ fontSize: `${textSize}rem` }}>
+      <div id="cyber-mode-selection" className="min-h-screen pb-20 w-full relative text-white" style={{ fontSize: `${textSize}rem` }}>
+        {/* Background amélioré avec plusieurs couches */}
+        <div className="absolute inset-0 z-0">
+          {/* Overlay gradient principal */}
+          <div className={`absolute inset-0 ${
+            highContrastMode 
+              ? 'bg-black' 
+              : 'bg-gradient-to-b from-blue-950 via-indigo-950/90 to-black'
+          }`}></div>
+          
+          {/* Grille de fond cyberpunk inclinée */}
+          {!highContrastMode && (
+            <>
+              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcGF0dGVyblRyYW5zZm9ybT0icm90YXRlKDMwKSI+PHBhdGggZD0iTSAxMDAgMCBMIDAgMCAwIDEwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMWQ0ZWQ4IiBzdHJva2Utd2lkdGg9IjAuNSIvPjwvcGF0dGVybj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPjwvc3ZnPg==')]" style={{ opacity: 0.07 }}></div>
+
+              {/* Circuit patterns cybernétiques */}
+              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXR0ZXJuIGlkPSJjaXJjdWl0IiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMGgxMDB2MTAwSDIwMHYxMDBoLTEwMHYtMTAwSDB6IiBmaWxsPSJub25lIiBzdHJva2U9IiMwZmIzZDEiIHN0cm9rZS13aWR0aD0iMSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIwIiByPSIzIiBmaWxsPSIjMGZiM2QxIi8+PGNpcmNsZSBjeD0iMjAwIiBjeT0iMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIyMDAiIHI9IjMiIGZpbGw9IiMwZmIzZDEiLz48L3BhdHRlcm4+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNjaXJjdWl0KSIgb3BhY2l0eT0iMC4xNSIvPjwvc3ZnPg==')]" style={{ opacity: 0.05 }}></div>
+              
+              {/* Scanlines animées */}
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="w-full h-full bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent bg-repeat-y" 
+                    style={{ 
+                      backgroundSize: '100% 8px', 
+                      animation: 'moveVertical 8s linear infinite',
+                      opacity: 0.2
+                    }}>
+                </div>
+              </div>
+              
+              {/* Points lumineux */}
+              <div className="absolute top-1/5 right-1/4 w-2 h-2 bg-cyan-300 rounded-full opacity-70 animate-pulse shadow-[0_0_30px_15px_rgba(34,211,238,0.5)]"></div>
+              <div className="absolute bottom-1/3 left-1/5 w-1 h-1 bg-pink-300 rounded-full opacity-60 animate-pulse shadow-[0_0_20px_10px_rgba(236,72,153,0.4)]"></div>
+            </>
+          )}
+        </div>
         {/* Navigation et contrôles */}
         <div className="px-4 md:px-8 py-8 relative w-full">
           <div className="flex justify-between items-center mb-10">
@@ -645,17 +677,37 @@ export default function CyberModeSelectionRedesign() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-center mb-16"
+            className="text-center mb-16 relative z-10"
             data-id="main-title"
           >
-            <h1 className="text-5xl font-bold mb-4">
-              Centre de Formation Cybersécurité - I AM CYBER
+            <div className="inline-block">
+              <span className="px-4 py-1 rounded-full text-sm font-semibold bg-cyan-900/30 text-cyan-300 font-cyber-accent tracking-wide border border-cyan-500/30 backdrop-blur-sm">
+                Centre de Formation Avancée
+              </span>
+            </div>
+            
+            <h1 className="text-5xl font-cyber-title font-bold mb-4 mt-4 relative">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-500 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">
+                I AM CYBER
+              </span>
+              
+              {/* Ligne de décoration */}
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
             </h1>
-            <p className={`max-w-3xl mx-auto text-xl ${
-              highContrastMode ? 'text-gray-300' : 'text-blue-200' 
-            }`}>
+            
+            <p className={`max-w-3xl mx-auto text-xl font-cyber ${
+              highContrastMode ? 'text-gray-300' : 'text-blue-200'
+            } mt-8`}>
               Trouvez votre parcours d'apprentissage personnalisé en cybersécurité
+              <span className="block mt-1 text-cyan-400/80">Simulations immersives · Formation adaptative · Scénarios réels</span>
             </p>
+            
+            {/* Élément décoratif */}
+            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-30 pointer-events-none" style={{ display: highContrastMode ? 'none' : 'block' }}>
+              <div className="h-px w-[200px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+              <div className="h-px w-[150px] mx-auto mt-2 bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+              <div className="h-px w-[100px] mx-auto mt-2 bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+            </div>
           </motion.div>
 
           {/* Onglets principaux - TabsList masqué et remplacé par une marge minimale */}
@@ -679,47 +731,104 @@ export default function CyberModeSelectionRedesign() {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4 }}
-                    className={`rounded-xl p-8 shadow-lg ${
+                    className={`cyber-edge-distort relative overflow-hidden p-8 ${
                       highContrastMode 
                         ? 'bg-gray-800 border border-gray-700' 
-                        : `bg-gradient-to-br ${objective.gradient}`
+                        : `bg-gradient-to-br from-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-900/80 to-black border border-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-500/20`
                     }`}
+                    whileHover={{ 
+                      boxShadow: highContrastMode ? 'none' : '0 0 15px rgba(6, 182, 212, 0.3)',
+                      scale: 1.02
+                    }}
                     data-id={`objective-${objective.id}`}
                   >
-                    <div className="flex flex-col h-full">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className={`p-3 rounded-full ${
-                          highContrastMode ? 'bg-blue-900' : 'bg-white/10'
+                    {/* Ligne scan verticale */}
+                    {!highContrastMode && (
+                      <div 
+                        className={`absolute top-0 left-0 h-full w-px bg-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-400`}
+                        style={{
+                          opacity: 0.8,
+                          animation: 'scanLine 2s linear infinite'
+                        }}
+                      />
+                    )}
+                    
+                    {/* Ligne scan horizontale */}
+                    {!highContrastMode && (
+                      <div 
+                        className={`absolute top-0 left-0 w-full h-px bg-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-400`}
+                        style={{
+                          opacity: 0.8,
+                          animation: 'scanLineHorizontal 2s linear infinite'
+                        }}
+                      />
+                    )}
+                    
+                    <div className="flex flex-col h-full relative z-10">
+                      {/* Header avec nombre futuriste */}
+                      <div className="flex items-start gap-4 mb-6">
+                        <div className={`p-3 rounded-md shadow-lg ${
+                          highContrastMode 
+                            ? 'bg-blue-900 border border-blue-800' 
+                            : `bg-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-900/70 border border-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-500/40`
                         }`}>
                           {objective.icon}
                         </div>
-                        <h2 className="text-2xl font-bold text-white">
-                          {objective.title}
-                        </h2>
+                        <div>
+                          <div className={`text-xs uppercase tracking-wider mb-1 font-cyber-accent ${
+                            highContrastMode ? 'text-gray-400' : `text-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-400`
+                          }`}>
+                            Parcours {objective.id === 'avancee' ? 'avancé' : objective.id}
+                          </div>
+                          <h2 className={`text-2xl font-cyber-title ${
+                            highContrastMode ? 'text-white' : `text-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-300`
+                          }`}>
+                            {objective.title}
+                          </h2>
+                        </div>
                       </div>
                       
-                      <p className={`mb-6 ${
+                      <p className={`mb-6 leading-relaxed ${
                         highContrastMode ? 'text-gray-300' : 'text-blue-100'
                       }`}>
                         {objective.description}
                       </p>
                       
                       <div className="mt-auto">
-                        <h3 className="text-white font-medium mb-3">Modules recommandés:</h3>
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className={`h-px flex-1 ${highContrastMode ? 'bg-gray-700' : `bg-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-500/30`}`}></div>
+                          <h3 className={`text-sm uppercase tracking-wider font-cyber-accent ${
+                            highContrastMode ? 'text-gray-300' : `text-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-400`
+                          }`}>
+                            Modules recommandés
+                          </h3>
+                          <div className={`h-px flex-1 ${highContrastMode ? 'bg-gray-700' : `bg-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-500/30`}`}></div>
+                        </div>
+                        
                         <ul className="space-y-3">
                           {getModulesForObjective(objective.id).map(module => (
                             <li key={module.id}>
                               <Link 
                                 href={module.destination}
-                                className={`block p-3 rounded-lg ${
+                                className={`group block p-3 rounded-lg transition-all border ${
                                   highContrastMode 
-                                    ? 'bg-gray-700 hover:bg-gray-600' 
-                                    : 'bg-white/10 hover:bg-white/20'
-                                } transition-colors`}
+                                    ? 'bg-gray-700 hover:bg-gray-600 border-gray-600' 
+                                    : `bg-black/30 hover:bg-black/50 border-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-500/20 hover:border-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-400/40`
+                                }`}
                               >
                                 <div className="flex justify-between items-center">
-                                  <span className="font-medium">{module.title}</span>
-                                  <IoMdArrowForward className="h-5 w-5" />
+                                  <span className={`font-medium ${
+                                    highContrastMode ? '' : `group-hover:text-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-300`
+                                  }`}>
+                                    {module.title}
+                                  </span>
+                                  <div className={`flex items-center justify-center h-6 w-6 rounded-full ${
+                                    highContrastMode 
+                                      ? 'bg-gray-600 group-hover:bg-gray-500' 
+                                      : `bg-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-900/70 group-hover:bg-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-700/70`
+                                  } transition-colors`}>
+                                    <IoMdArrowForward className="h-4 w-4" />
+                                  </div>
                                 </div>
                               </Link>
                             </li>
