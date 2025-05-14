@@ -1,0 +1,324 @@
+/* Styles Cyberpunk pour FYNE */
+
+/* Police futuriste */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+/* Variables CSS */
+:root {
+  --cyber-primary: #00ffff;
+  --cyber-secondary: #ff00ff;
+  --cyber-accent: #ffff00;
+  --cyber-dark: #0a0a1f;
+  --cyber-darker: #05051a;
+  --cyber-light: #2a2a4f;
+  
+  --glow-primary: 0 0 5px rgba(0, 255, 255, 0.7), 0 0 10px rgba(0, 255, 255, 0.5);
+  --glow-secondary: 0 0 5px rgba(255, 0, 255, 0.7), 0 0 10px rgba(255, 0, 255, 0.5);
+  --glow-accent: 0 0 5px rgba(255, 255, 0, 0.7), 0 0 10px rgba(255, 255, 0, 0.5);
+}
+
+/* Éléments de base */
+.font-cyber {
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.font-cyber-title {
+  font-family: 'Orbitron', sans-serif;
+}
+
+.font-cyber-accent {
+  font-family: 'Exo 2', sans-serif;
+}
+
+/* Effet de scan horizontal pour texte */
+.scan-line-text {
+  position: relative;
+  overflow: hidden;
+}
+
+.scan-line-text::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 5px;
+  background: rgba(0, 255, 255, 0.3);
+  left: -10%;
+  animation: scanLine 3s linear infinite;
+}
+
+@keyframes scanLine {
+  0% {
+    left: -10%;
+  }
+  100% {
+    left: 110%;
+  }
+}
+
+/* Effet de flicker pour les éléments néon */
+.neon-flicker {
+  animation: flicker 5s infinite alternate;
+}
+
+@keyframes flicker {
+  0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% {
+    opacity: 1;
+  }
+  20%, 21.999%, 63%, 63.999%, 65%, 69.999% {
+    opacity: 0.5;
+  }
+}
+
+/* Effet de grille futuriste */
+.cyber-grid {
+  background-image: 
+    linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Bordure néon cyberpunk */
+.cyber-border {
+  position: relative;
+  border: 1px solid var(--cyber-primary);
+  box-shadow: var(--glow-primary);
+}
+
+.cyber-border::before,
+.cyber-border::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: var(--cyber-primary);
+  box-shadow: var(--glow-primary);
+}
+
+.cyber-border::before {
+  top: -2px;
+  left: -2px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+
+.cyber-border::after {
+  bottom: -2px;
+  right: -2px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+}
+
+/* Animation de glitch pour texte */
+.glitch-text {
+  position: relative;
+  animation: glitch 3s infinite;
+}
+
+@keyframes glitch {
+  0% {
+    text-shadow: 0.05em 0 0 rgba(255, 0, 255, 0.75), -0.05em -0.025em 0 rgba(0, 255, 255, 0.75);
+  }
+  14% {
+    text-shadow: 0.05em 0 0 rgba(255, 0, 255, 0.75), -0.05em -0.025em 0 rgba(0, 255, 255, 0.75);
+  }
+  15% {
+    text-shadow: -0.05em -0.025em 0 rgba(255, 0, 255, 0.75), 0.025em 0.025em 0 rgba(0, 255, 255, 0.75);
+  }
+  49% {
+    text-shadow: -0.05em -0.025em 0 rgba(255, 0, 255, 0.75), 0.025em 0.025em 0 rgba(0, 255, 255, 0.75);
+  }
+  50% {
+    text-shadow: 0.025em 0.05em 0 rgba(255, 0, 255, 0.75), 0.05em 0 0 rgba(0, 255, 255, 0.75);
+  }
+  99% {
+    text-shadow: 0.025em 0.05em 0 rgba(255, 0, 255, 0.75), 0.05em 0 0 rgba(0, 255, 255, 0.75);
+  }
+  100% {
+    text-shadow: -0.025em 0 0 rgba(255, 0, 255, 0.75), -0.025em -0.025em 0 rgba(0, 255, 255, 0.75);
+  }
+}
+
+/* Faded Background */
+.cyber-bg-fade {
+  background: linear-gradient(to bottom, var(--cyber-darker), rgba(10, 10, 31, 0.9), var(--cyber-dark));
+}
+
+/* Effet de distorsion d'image */
+.cyber-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.cyber-image img {
+  position: relative;
+  z-index: 1;
+}
+
+.cyber-image::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 255, 0.2));
+  z-index: 2;
+  pointer-events: none;
+}
+
+.cyber-image::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(10, 10, 31, 0.3) 3px,
+    rgba(10, 10, 31, 0.3) 3px
+  );
+  z-index: 3;
+  pointer-events: none;
+  animation: scanEffect 8s linear infinite;
+}
+
+@keyframes scanEffect {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+/* HUD Frame - effet d'interface futuriste */
+.cyber-hud-frame {
+  position: relative;
+  padding: 20px;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  background-color: rgba(10, 10, 31, 0.8);
+  box-shadow: inset 0 0 20px rgba(0, 255, 255, 0.2);
+}
+
+.cyber-hud-frame::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: -5px;
+  left: -5px;
+  border-top: 2px solid var(--cyber-primary);
+  border-left: 2px solid var(--cyber-primary);
+}
+
+.cyber-hud-frame::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  bottom: -5px;
+  right: -5px;
+  border-bottom: 2px solid var(--cyber-primary);
+  border-right: 2px solid var(--cyber-primary);
+}
+
+/* Badges HUD */
+.cyber-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  background-color: rgba(10, 10, 31, 0.7);
+  border: 1px solid var(--cyber-primary);
+  box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+  color: var(--cyber-primary);
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+/* Terminal-style text effect */
+.cyber-terminal {
+  font-family: 'Rajdhani', monospace;
+  background-color: rgba(10, 10, 31, 0.9);
+  color: var(--cyber-primary);
+  padding: 20px;
+  border: 1px solid var(--cyber-primary);
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.cyber-terminal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(to right, var(--cyber-primary), var(--cyber-secondary), var(--cyber-accent));
+  opacity: 0.7;
+}
+
+/* Lignes diagonales dans les coins */
+.cyber-corner-lines {
+  position: relative;
+}
+
+.cyber-corner-lines::before,
+.cyber-corner-lines::after {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 1px;
+  background-color: var(--cyber-primary);
+}
+
+.cyber-corner-lines::before {
+  top: 10px;
+  left: -15px;
+  transform: rotate(45deg);
+}
+
+.cyber-corner-lines::after {
+  top: 10px;
+  right: -15px;
+  transform: rotate(-45deg);
+}
+
+/* Pulsation néon */
+.neon-pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.7), 0 0 10px rgba(0, 255, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.9), 0 0 25px rgba(0, 255, 255, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.7), 0 0 10px rgba(0, 255, 255, 0.5);
+  }
+}
+
+/* Effet de distorsion de bord */
+.cyber-edge-distort {
+  clip-path: polygon(
+    0% 5%, 
+    5% 0%, 
+    95% 0%, 
+    100% 5%, 
+    100% 95%, 
+    95% 100%, 
+    5% 100%, 
+    0% 95%
+  );
+}
