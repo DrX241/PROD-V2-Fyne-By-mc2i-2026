@@ -97,9 +97,9 @@ const CyberHomePage: React.FC = () => {
       title: 'I AM mc2i',
       description: 'Simulation d\'entretiens et gestion de projets innovants',
       icon: <RocketIcon size={24} />,
-      color: 'text-emerald-400',
-      bgColor: 'bg-emerald-900/20',
-      accentColor: 'border-emerald-500/50',
+      color: 'text-purple-300',
+      bgColor: 'bg-purple-900/20',
+      accentColor: 'border-purple-400/50',
       route: '/amoa-mode-selection-fixed'
     },
     {
@@ -328,11 +328,23 @@ const CyberHomePage: React.FC = () => {
                   onMouseLeave={() => handleModuleHover(null)}
                   whileHover={{ 
                     scale: 1.03,
-                    boxShadow: '0 0 25px rgba(0, 255, 255, 0.3)'
+                    boxShadow: module.id === 'mc2i' 
+                      ? '0 0 25px rgba(168, 85, 247, 0.3)' 
+                      : module.id === 'data'
+                        ? '0 0 25px rgba(168, 85, 247, 0.3)'
+                        : module.id === 'generator'
+                          ? '0 0 25px rgba(251, 191, 36, 0.3)'
+                          : '0 0 25px rgba(0, 255, 255, 0.3)'
                   }}
                   animate={{
                     boxShadow: hoveredModule === module.id 
-                      ? '0 0 25px rgba(0, 255, 255, 0.3)' 
+                      ? module.id === 'mc2i' 
+                        ? '0 0 25px rgba(168, 85, 247, 0.3)' 
+                        : module.id === 'data'
+                          ? '0 0 25px rgba(168, 85, 247, 0.3)'
+                          : module.id === 'generator'
+                            ? '0 0 25px rgba(251, 191, 36, 0.3)'
+                            : '0 0 25px rgba(0, 255, 255, 0.3)'
                       : '0 0 5px rgba(0, 255, 255, 0.1)'
                   }}
                 >
@@ -377,7 +389,7 @@ const CyberHomePage: React.FC = () => {
                       variant={
                         module.id === 'cyber' ? 'primary' :
                         module.id === 'data' ? 'secondary' :
-                        module.id === 'mc2i' ? 'primary' :
+                        module.id === 'mc2i' ? 'secondary' :
                         'danger'
                       }
                       onClick={() => setLocation(module.route)}
