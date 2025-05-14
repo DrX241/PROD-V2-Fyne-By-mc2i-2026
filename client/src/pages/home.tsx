@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useLocation } from 'wouter';
 import HomeLayout from "@/components/layout/HomeLayout";
-import { ArrowRight, Layers, BookOpen, GraduationCap, Lock, ShieldCheck, AlertTriangle, Sparkles, ChevronDown, Clock, Book, Zap, GamepadIcon, RocketIcon, Brain, Target, BarChart2, Cpu, LineChart, PenTool, Check, Quote as QuoteIcon } from "lucide-react";
+import { ArrowRight, Layers, BookOpen, GraduationCap, Lock, ShieldCheck, AlertTriangle, Sparkles, ChevronDown, Clock, Book, Zap, GamepadIcon, RocketIcon, Brain, Target, BarChart2, Cpu, LineChart, PenTool, Check, Quote as QuoteIcon, PlayCircle, Phone, TrendingUp, Award, Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -692,43 +692,37 @@ export default function Home() {
           </motion.div>
 
           {/* Structure principale avec une disposition en deux colonnes équilibrées */}
-          <div className="max-w-screen-2xl mx-auto px-4 py-12 md:py-24 lg:py-32">
-            {/* En-tête centré pour attirer l'attention */}
-            <div className="text-center mb-16 max-w-4xl mx-auto">
-              {/* Badge innovant */}
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="mb-6"
-              >
-                {isFuturistic ? (
+          {isFuturistic ? (
+            // Ancienne version futuriste
+            <div className="max-w-screen-2xl mx-auto px-4 py-12 md:py-24 lg:py-32">
+              {/* En-tête centré pour attirer l'attention */}
+              <div className="text-center mb-16 max-w-4xl mx-auto">
+                {/* Badge innovant */}
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  className="mb-6"
+                >
                   <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-900/80 to-indigo-900/80 border border-blue-500/40 text-blue-200 text-sm font-medium backdrop-blur-md shadow-lg">
                     <Sparkles className="h-4 w-4 mr-2 text-cyan-300" />
                     <span>Propulsé par l'Intelligence Artificielle</span>
                   </div>
-                ) : (
-                  <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 text-blue-700 text-sm font-medium shadow-sm">
-                    <Sparkles className="h-4 w-4 mr-2 text-blue-500" />
-                    <span>Formation Assistée par IA</span>
-                  </div>
-                )}
-              </motion.div>
-              
-              {/* Slogan FYNE animé avec un design élégant */}
-              <motion.div
-                className="mb-4 sm:mb-6 relative"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8 }}
-              >
+                </motion.div>
+                
+                {/* Slogan FYNE animé avec un design élégant */}
                 <motion.div
-                  className={`text-4xl font-bold ${isFuturistic ? 'font-cyber-title text-white' : 'text-gray-800'} tracking-tight`}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.7 }}
+                  className="mb-4 sm:mb-6 relative"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.8 }}
                 >
-                  {isFuturistic ? (
+                  <motion.div
+                    className="text-4xl font-bold font-cyber-title text-white tracking-tight"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.7 }}
+                  >
                     <div className="inline-flex justify-center tracking-tight">
                       <motion.span 
                         className="text-cyan-300"
@@ -763,86 +757,40 @@ export default function Home() {
                       >E</motion.span>
                       <span>xperience</span>
                     </div>
-                  ) : (
-                    <div className="inline-flex justify-center tracking-tight">
-                      <motion.span 
-                        className="text-blue-600"
-                        animate={{ 
-                          color: ["#2563eb", "#1d4ed8", "#2563eb"]
-                        }} 
-                        transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
-                      >F</motion.span>
-                      <span className="mr-1">or</span>
-                      <motion.span 
-                        className="text-blue-600"
-                        animate={{ 
-                          color: ["#2563eb", "#1d4ed8", "#2563eb"]
-                        }} 
-                        transition={{ duration: 3, delay: 0.5, repeat: Infinity, repeatType: "reverse" }}
-                      >Y</motion.span>
-                      <span className="mr-1">our</span>
-                      <motion.span 
-                        className="text-blue-600"
-                        animate={{ 
-                          color: ["#2563eb", "#1d4ed8", "#2563eb"]
-                        }} 
-                        transition={{ duration: 3, delay: 1, repeat: Infinity, repeatType: "reverse" }}
-                      >N</motion.span>
-                      <span className="mr-1">ext</span>
-                      <motion.span 
-                        className="text-blue-600"
-                        animate={{ 
-                          color: ["#2563eb", "#1d4ed8", "#2563eb"]
-                        }} 
-                        transition={{ duration: 3, delay: 1.5, repeat: Infinity, repeatType: "reverse" }}
-                      >E</motion.span>
-                      <span>xperience</span>
-                    </div>
-                  )}
-                </motion.div>
-                
-                {/* Ligne décorative animée */}
-                <motion.div 
-                  className="mx-auto w-48 h-[3px] mt-3 overflow-hidden rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: "12rem" }}
-                  transition={{ duration: 1, delay: 0.8 }}
-                >
+                  </motion.div>
+                  
+                  {/* Ligne décorative animée */}
                   <motion.div 
-                    className={`w-full h-full ${isFuturistic 
-                      ? 'bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500' 
-                      : 'bg-gradient-to-r from-blue-400 via-blue-600 to-blue-400'}`}
-                    animate={{ 
-                      x: ["-100%", "100%"]
-                    }} 
-                    transition={{ 
-                      duration: 3, 
-                      repeat: Infinity, 
-                      ease: "linear"
-                    }}
-                  />
+                    className="mx-auto w-48 h-[3px] mt-3 overflow-hidden rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: "12rem" }}
+                    transition={{ duration: 1, delay: 0.8 }}
+                  >
+                    <motion.div 
+                      className="w-full h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500"
+                      animate={{ 
+                        x: ["-100%", "100%"]
+                      }} 
+                      transition={{ 
+                        duration: 3, 
+                        repeat: Infinity, 
+                        ease: "linear"
+                      }}
+                    />
+                  </motion.div>
                 </motion.div>
-              </motion.div>
 
-              {/* Titre principal avec animation et design moderne */}
-              <motion.h1 
-                className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 ${
-                  isFuturistic 
-                    ? 'text-white font-cyber-title tracking-wide' 
-                    : 'text-gray-800 tracking-tight'
-                }`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.9, delay: 0.3 }}
-              >
-                <div className="flex flex-col sm:block text-center">
-                  <span className="inline-block mb-4 sm:mb-0">Améliorez </span>
-                  <span className="inline-block my-4 sm:my-0 relative mx-3">
-                    <span className={isFuturistic 
-                      ? "bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 relative z-10"
-                      : "text-blue-600 relative z-10"
-                    }>votre expertise</span>
-                    {isFuturistic && (
+                {/* Titre principal avec animation et design moderne */}
+                <motion.h1 
+                  className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 text-white font-cyber-title tracking-wide"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.9, delay: 0.3 }}
+                >
+                  <div className="flex flex-col sm:block text-center">
+                    <span className="inline-block mb-4 sm:mb-0">Améliorez </span>
+                    <span className="inline-block my-4 sm:my-0 relative mx-3">
+                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 relative z-10">votre expertise</span>
                       <motion.div 
                         className="absolute inset-0 blur-sm"
                         animate={{ 
@@ -854,43 +802,33 @@ export default function Home() {
                           repeatType: "reverse"
                         }}
                       />
-                    )}
-                  </span>
-                  <span className="inline-block mt-4 sm:mt-0">avec FYNE</span>
-                </div>
-              </motion.h1>
-              
-              {/* Description engageante */}
-              <motion.p 
-                className={`text-lg sm:text-xl lg:text-2xl mb-10 max-w-3xl mx-auto leading-relaxed ${
-                  isFuturistic 
-                    ? 'text-blue-100 font-cyber-body' 
-                    : 'text-gray-600'
-                }`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.5 }}
-              >
-                Découvrez une nouvelle dimension d'apprentissage interactif avec nos modules IA innovants qui s'adaptent parfaitement à votre progression.
-              </motion.p>
-              
-              {/* Bouton d'action centré avec animation et effet avancé */}
-              <motion.div
-                className="flex justify-center"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.6 }}
-              >
-                <Link href="/cyber">
-                  <Button 
-                    size="lg" 
-                    className={`relative px-10 py-6 shadow-lg group font-medium text-lg overflow-hidden transition-all duration-300 ${
-                      isFuturistic 
-                        ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white border border-blue-400/20 hover:shadow-blue-500/30 hover:shadow-xl' 
-                        : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800'
-                    }`}
-                  >
-                    {isFuturistic && (
+                    </span>
+                    <span className="inline-block mt-4 sm:mt-0">avec FYNE</span>
+                  </div>
+                </motion.h1>
+                
+                {/* Description engageante */}
+                <motion.p 
+                  className="text-lg sm:text-xl lg:text-2xl mb-10 max-w-3xl mx-auto leading-relaxed text-blue-100 font-cyber-body"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay: 0.5 }}
+                >
+                  Découvrez une nouvelle dimension d'apprentissage interactif avec nos modules IA innovants qui s'adaptent parfaitement à votre progression.
+                </motion.p>
+                
+                {/* Bouton d'action centré avec animation et effet avancé */}
+                <motion.div
+                  className="flex justify-center"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay: 0.6 }}
+                >
+                  <Link href="/cyber">
+                    <Button 
+                      size="lg" 
+                      className="relative px-10 py-6 shadow-lg group font-medium text-lg overflow-hidden transition-all duration-300 bg-gradient-to-r from-blue-600 to-indigo-700 text-white border border-blue-400/20 hover:shadow-blue-500/30 hover:shadow-xl"
+                    >
                       <motion.div 
                         className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-blue-500/0 to-indigo-400/20"
                         animate={{ 
@@ -903,56 +841,172 @@ export default function Home() {
                           ease: "linear"
                         }}
                       />
-                    )}
-                    <span className="relative z-10 flex items-center">
-                      Démarrer une expérience
-                      <motion.div 
-                        animate={{ x: [0, 5, 0] }} 
-                        transition={{ duration: 1.5, repeat: Infinity, repeatType: "loop" }}
-                        className="ml-2"
-                      >
-                        <ArrowRight className="h-5 w-5" />
-                      </motion.div>
-                    </span>
-                  </Button>
-                </Link>
-              </motion.div>
-              
-              {/* Section d'arguments supprimée à la demande de l'utilisateur */}
-            </div>
-            
-            {/* Section de statistiques supprimée à la demande de l'utilisateur */}
-            
-            {/* Séparateur élégant */}
-            <div className="mt-24 mb-12">
-              <div className={`h-px max-w-sm mx-auto ${
-                isFuturistic ? 'bg-gradient-to-r from-transparent via-blue-500/40 to-transparent' : 'bg-gradient-to-r from-transparent via-blue-200 to-transparent'
-              }`}></div>
-            </div>
-            
-            {/* Icône de défilement pour indiquer de continuer */}
-            <motion.div 
-              className="flex justify-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1, y: [0, 10, 0] }}
-              transition={{ 
-                opacity: { duration: 0.5, delay: 1 },
-                y: { duration: 2, repeat: Infinity, repeatType: "loop" }
-              }}
-            >
-              <div className={`rounded-full p-2 ${
-                isFuturistic 
-                  ? 'bg-blue-900/30 text-blue-300 border border-blue-700/30' 
-                  : 'bg-blue-50 text-blue-600 border border-blue-100'
-              }`}>
-                <ChevronDown className="h-6 w-6" />
+                      <span className="relative z-10 flex items-center">
+                        Démarrer une expérience
+                        <motion.div 
+                          animate={{ x: [0, 5, 0] }} 
+                          transition={{ duration: 1.5, repeat: Infinity, repeatType: "loop" }}
+                          className="ml-2"
+                        >
+                          <ArrowRight className="h-5 w-5" />
+                        </motion.div>
+                      </span>
+                    </Button>
+                  </Link>
+                </motion.div>
               </div>
-            </motion.div>
-          </div>
+              
+              {/* Séparateur élégant */}
+              <div className="mt-24 mb-12">
+                <div className="h-px max-w-sm mx-auto bg-gradient-to-r from-transparent via-blue-500/40 to-transparent"></div>
+              </div>
+              
+              {/* Icône de défilement pour indiquer de continuer */}
+              <motion.div 
+                className="flex justify-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, y: [0, 10, 0] }}
+                transition={{ 
+                  opacity: { duration: 0.5, delay: 1 },
+                  y: { duration: 2, repeat: Infinity, repeatType: "loop" }
+                }}
+              >
+                <div className="rounded-full p-2 bg-blue-900/30 text-blue-300 border border-blue-700/30">
+                  <ChevronDown className="h-6 w-6" />
+                </div>
+              </motion.div>
+            </div>
+          ) : (
+            // Version classique repensée avec layout moderne façon Dribbble
+            <div className="max-w-screen-2xl mx-auto px-4 py-12 md:py-24 lg:py-32">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                {/* Colonne de gauche: texte et CTA */}
+                <div className="max-w-2xl">
+                  <motion.div 
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="mb-6"
+                  >
+                    <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-50/80 backdrop-blur-sm border border-blue-100 text-blue-700 text-sm font-medium shadow-sm">
+                      <Sparkles className="h-4 w-4 mr-2 text-blue-500" />
+                      <span>Formation Nouvelle Génération</span>
+                    </div>
+                  </motion.div>
+                  
+                  <motion.h1 
+                    className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.9, delay: 0.3 }}
+                  >
+                    Transformez votre <span className="text-blue-600 relative inline-block">expertise<div className="absolute -bottom-1 left-0 w-full h-1 bg-blue-500/30 rounded-full"></div></span> avec l'IA
+                  </motion.h1>
+                  
+                  <motion.p 
+                    className="text-xl text-gray-600 mb-8 leading-relaxed"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.5 }}
+                  >
+                    Une plateforme d'apprentissage immersive qui s'adapte à votre niveau et à vos objectifs, avec des simulations réalistes générées par IA.
+                  </motion.p>
+                  
+                  <motion.div
+                    className="flex flex-col sm:flex-row gap-4"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.6 }}
+                  >
+                    <Link href="/cyber">
+                      <Button 
+                        size="lg" 
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-medium shadow-lg hover:shadow-blue-500/20 transition-all"
+                      >
+                        <span className="flex items-center">
+                          Découvrir FYNE
+                          <ArrowRight className="ml-2 h-5 w-5" />
+                        </span>
+                      </Button>
+                    </Link>
+                    <Button 
+                      variant="outline" 
+                      size="lg"
+                      className="border-blue-200 text-blue-700 hover:bg-blue-50 px-8 py-3 rounded-lg text-lg font-medium"
+                    >
+                      <span className="flex items-center">
+                        <PlayCircle className="mr-2 h-5 w-5" />
+                        Voir la démo
+                      </span>
+                    </Button>
+                  </motion.div>
+                  
+                  {/* Sociale proof */}
+                  <motion.div 
+                    className="mt-12"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.7, delay: 0.8 }}
+                  >
+                    <p className="text-sm font-medium text-gray-500 mb-3">Déjà adopté par :</p>
+                    <div className="flex flex-wrap items-center gap-6">
+                      {/* Logo mc2i */}
+                      <img src={mcLogoPath} alt="mc2i" className="h-8 opacity-70 grayscale hover:grayscale-0 transition-all" />
+                    </div>
+                  </motion.div>
+                </div>
+                
+                {/* Colonne de droite: visuel */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.8, delay: 0.5 }}
+                  className="relative"
+                >
+                  <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 mix-blend-overlay"></div>
+                    <img 
+                      src={fyneAvatarPath}
+                      alt="FYNE Platform" 
+                      className="w-full h-auto rounded-2xl z-10 relative"
+                    />
+                    
+                    {/* Éléments flottants */}
+                    <div className="absolute -top-4 -right-4 bg-white rounded-xl shadow-lg p-4 border border-gray-100">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                          <TrendingUp className="h-5 w-5 text-green-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">Performance</p>
+                          <p className="text-green-600 font-bold">+48%</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg p-4 border border-gray-100">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                          <Award className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">Certification</p>
+                          <p className="text-blue-600 font-bold">En 6 semaines</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Fond décoratif */}
+                  <div className="absolute -z-10 w-full h-full rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 blur-3xl opacity-70 -bottom-1/3 -right-1/3"></div>
+                </motion.div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       
-      {/* Section Modules d'Excellence - Mise en avant */}
+      {/* Section Modules d'Excellence - Mise en avant en utilisant un nouveau design inspiré de Dribbble */}
       <div className={`relative ${isFuturistic ? 'bg-gradient-to-b from-gray-900 to-blue-950' : 'bg-gradient-to-b from-gray-100 to-slate-200'} py-16 lg:py-24 overflow-hidden`}>
         {/* Éléments décoratifs - uniquement en mode futuriste */}
         {isFuturistic && (
