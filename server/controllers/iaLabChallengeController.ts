@@ -185,20 +185,36 @@ export async function generateChallenge(req: Request, res: Response) {
         6. Arnaud GAUTHIER (Président)
         7. Olivier HERVO (Directeur Général)
       
-      Structure ta réponse en JSON valide STRICTEMENT avec le format suivant, sans aucun texte avant ou après:
+      CONSIGNES DE FORMATAGE POUR TA RÉPONSE:
+      1. Ta réponse doit être UNIQUEMENT un objet JSON VALIDE, sans texte avant ou après, similaire à :
       {
-        "title": "Titre court et concis sur le cas d'usage professionnel",
-        "description": "La description doit être structurée en trois parties clairement séparées:\n\n## CONTEXTE\nPrésentation détaillée du contexte professionnel avec les 3 personnages sélectionnés, leur rôle dans le projet, l'entreprise (mc2i, DIXIT ou IMPULSE) et la problématique métier spécifique au secteur.\n\n## DONNÉES\nDescription précise des données disponibles (format, structure, source) avec des exemples concrets. Ces données doivent être pertinentes pour le secteur et la catégorie choisie.\n\n## OBJECTIF\nExplication claire et précise de la tâche à accomplir, avec les critères de réussite bien définis et les livrables attendus.",
-        "initialCode": "Code initial que l'utilisateur pourra modifier pour résoudre le problème. Ce code doit inclure:\n- L'import des bibliothèques nécessaires\n- Des commentaires explicatifs sur les données\n- Un squelette de fonction avec des TODO clairs\n- Des exemples de valeurs/structures de données",
-        "expectedOutput": "Description précise du format de sortie attendu avec un exemple concret",
-        "hints": ["Un indice précis sur la structure/algorithme à utiliser", "Un indice sur un aspect technique particulier de la solution", "Un indice sur une approche métier pour résoudre le problème"],
-        "solution": "Solution complète et bien commentée. Inclure: \n- Des commentaires expliquant chaque étape importante\n- Des explications sur les choix méthodologiques\n- La gestion des cas particuliers",
+        "title": "Titre court",
+        "description": "Description structurée en sections",
+        "initialCode": "Code de départ",
+        "expectedOutput": "Format de sortie attendu",
+        "hints": ["Indice 1", "Indice 2", "Indice 3"],
+        "solution": "Solution complète",
         "difficulty": "${difficulty}",
         "category": "${category}",
         "language": "${language}"
       }
+
+      2. Pour la description, utilise exactement cette structure:
+      "description": "## CONTEXTE\\nContexte professionnel avec les 3 personnages.\\n\\n## DONNÉES\\nDonnées disponibles avec exemples.\\n\\n## OBJECTIF\\nTâche à accomplir."
       
-      IMPORTANT: Ta réponse NE DOIT CONTENIR QUE le JSON VALIDE, sans aucun autre texte, markdown ou formatage. Veille à ce que toutes les guillemets soient correctement échappées dans les chaînes de caractères.
+      3. Pour l'initialCode, inclus:
+      - Import des bibliothèques 
+      - Commentaires explicatifs
+      - Squelette de fonction avec TODO
+      - Échantillon de données d'exemple
+      
+      4. PROBLÈMES COURANTS À ÉVITER:
+      - N'utilise pas d'échappements complexes comme \\\\n (utilise \\n)
+      - N'utilise pas de triple guillemets
+      - Assure-toi que les guillemets dans les chaînes sont correctement échappés
+      - Vérifie qu'il n'y a pas de virgule après le dernier élément d'un objet/tableau
+      
+      IMPORTANT: NE réponds qu'avec le JSON pur. PAS de texte avant, pas de texte après, pas de ```json```, juste l'objet JSON.
       
       Pour Python:
       - Crée un cas d'usage réaliste d'entreprise (analyse de données clients, automatisation, prédiction, etc.)
@@ -223,16 +239,18 @@ export async function generateChallenge(req: Request, res: Response) {
       role: 'user' as 'user',
       content: `Génère un cas pratique professionnel de programmation ${language} de niveau ${difficulty} dans la catégorie ${category}${sector ? ` pour le secteur "${sector}"` : ''}. 
       
-      IMPORTANT:
-      - Utilise EXACTEMENT 3 personnages sélectionnés selon la formule mathématique fournie dans le prompt système (avec les nombres ${personnajesSeed} et ${contexteSeed}).
-      - Respecte strictement la sélection aléatoire des personnages sans exception.
-      - Assure-toi que le contenu est parfaitement adapté à la catégorie "${category}" et ${sector ? `au secteur "${sector}"` : 'au contexte général'}.
-      - Respecte le niveau de difficulté ${difficulty}.
-      - La description DOIT être structurée en trois parties distinctes et très claires: CONTEXTE, DONNÉES, OBJECTIF.
-      - Les DONNÉES doivent inclure des exemples concrets et précis des données disponibles.
-      - L'OBJECTIF doit expliquer clairement ce qui est attendu et comment le résultat sera évalué.
+      INSTRUCTIONS IMPÉRATIVES:
+      1. Sélectionne EXACTEMENT 3 personnages selon la formule fournie avec les nombres ${personnajesSeed} et ${contexteSeed}.
+      2. Adapte le contenu à la catégorie "${category}" et ${sector ? `au secteur "${sector}"` : 'au contexte général'}.
+      3. Structure la description en 3 parties clairement séparées: CONTEXTE, DONNÉES, OBJECTIF.
       
-      ${sector ? `Le scénario doit traiter de problématiques métier spécifiques et réalistes du secteur "${sector}".` : ''}`
+      RAPPEL DE FORMATAGE:
+      - Ta réponse doit être un objet JSON VALIDE pur, sans texte additionnel.
+      - Évite les structures complexes qui pourraient causer des erreurs de parsing JSON.
+      - Échappe correctement les guillemets et sauts de ligne.
+      - N'utilise que des guillemets doubles pour les noms de propriétés et les chaînes.
+      
+      ${sector ? `Le scénario doit traiter de problématiques professionnelles réalistes du secteur "${sector}".` : ''}`
     };
 
     // Appel à l'API Azure OpenAI
