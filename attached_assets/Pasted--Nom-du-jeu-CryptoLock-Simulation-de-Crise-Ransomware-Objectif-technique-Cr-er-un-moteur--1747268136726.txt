@@ -1,0 +1,101 @@
+🎮 Nom du jeu : CryptoLock - Simulation de Crise Ransomware
+🔧 Objectif technique :
+Créer un moteur de jeu narratif dans lequel :
+
+L’IA (Azure OpenAI) est le maître du jeu (MJ) : elle orchestre la crise, incarne les PNJ, annonce les événements, évalue les décisions.
+
+Chaque joueur incarne un rôle spécifique.
+
+L’IA s’adapte au nombre de participants (solo ou groupe), en jouant les rôles manquants.
+
+Les joueurs prennent des décisions par tours, et l’IA simule les conséquences.
+
+Un score de gestion de crise est affiché à la fin (disponibilité, conformité, confiance, coût).
+
+🧩 Fonctionnalités principales
+1. ⚙️ Écran d’introduction
+L’IA demande :
+
+Nombre de participants (1 à 6)
+
+Pour chaque joueur : prénom + rôle choisi parmi :
+
+DSI
+
+RSSI
+
+DG
+
+Juriste
+
+Responsable Communication
+
+Expert Forensic
+
+Si rôle non attribué → joué par l’IA.
+
+2. 📆 Déroulé en 6 tours
+L’IA annonce à chaque tour :
+
+Le contexte actualisé (temps écoulé, nouveaux événements, alertes).
+
+Les actions prioritaires à prendre.
+
+Les réponses de chaque joueur sont saisies (via formulaire ou prompt).
+
+L’IA :
+
+Simule les conséquences.
+
+Donne un résumé narratif des impacts.
+
+Met à jour les indicateurs clés :
+
+🔐 Intégrité des données
+
+🏭 Disponibilité des systèmes
+
+👥 Confiance des utilisateurs
+
+⚖️ Conformité légale
+
+💰 Coût estimé
+
+3. 🎭 PNJ IA joués dynamiquement
+L’IA incarne les rôles absents et répond automatiquement :
+
+DG : décisions de haut niveau, validation du paiement
+
+Juriste : RGPD, CNIL, communication externe
+
+Com : rédaction des messages de crise
+
+Forensic : analyse technique, état du SI
+
+Les décisions de ces rôles sont réalistes et peuvent influencer les joueurs.
+
+4. 🧠 Logique d’impact IA
+Chaque action est analysée selon des règles définies :
+
+Trop attendre = propagation du ransomware.
+
+Trop couper = arrêt de production.
+
+Mauvaise com = panique ou perte de clients.
+
+Restauration non testée = réinfection.
+
+5. 🏁 Fin de partie & scoring
+À la fin du 6e tour :
+
+Récapitulatif des événements.
+
+Score global de gestion de crise.
+
+Résumé personnalisé pour chaque joueur :
+
+Décisions prises
+
+Ce qui a bien/mal fonctionné
+
+Suggestions d’amélioration

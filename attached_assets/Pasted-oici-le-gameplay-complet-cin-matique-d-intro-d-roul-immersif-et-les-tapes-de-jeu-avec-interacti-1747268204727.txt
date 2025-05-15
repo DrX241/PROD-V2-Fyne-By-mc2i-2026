@@ -1,0 +1,180 @@
+oici le gameplay complet, cinématique d’intro, déroulé immersif, et les étapes de jeu avec interactions centrées sur l’expérience utilisateur. Ce document servira de référence pour le développement et le design narratif du jeu.
+
+🎮 Nom du jeu : CryptoLock - 72H de Tension
+🎬 CINÉMATIQUE D’INTRODUCTION
+(voix off IA ou texte narré)
+
+Lundi, 7h58.
+
+Les premiers employés ouvrent leurs ordinateurs. Quelques secondes plus tard, les premiers appels tombent.
+
+"Je n’arrive plus à accéder à mes fichiers..."
+
+Une fenêtre rouge s’ouvre sur les écrans :
+
+🔒 "Vos fichiers ont été chiffrés. Payez 3 bitcoins dans les 72h. Chaque heure compte."
+
+Le réseau ralentit. Les sauvegardes sont inaccessibles.
+
+La panique monte. Vous êtes la cellule de crise. Chaque décision comptera.
+
+Saurez-vous reprendre le contrôle ?
+
+🎯 BUT DU JEU
+Gérer une crise ransomware en 6 tours de jeu.
+Chaque joueur incarne un rôle (ou est joué par l’IA).
+L’IA (Maître du Jeu) : pose des défis, incarne les PNJ, simule les impacts des choix.
+Les décisions modifient la courbe d’impact :
+🔐 Intégrité | 🏭 Disponibilité | ⚖️ Conformité | 💰 Coût | 👥 Confiance
+
+🧩 STRUCTURE DU JEU
+▶️ Étape 0 – Lancement
+L’IA demande :
+
+Nombre de joueurs humains
+
+Pour chaque joueur :
+
+Prénom
+
+Rôle choisi :
+
+🧠 RSSI
+
+💻 DSI
+
+🧑‍⚖️ Juriste
+
+👔 DG
+
+📣 Communication
+
+🔍 Expert Forensic
+
+Les rôles non pris sont automatiquement joués par l’IA.
+
+⏱️ TOURS DE JEU (1 à 6)
+Chaque tour représente 1h à 6h de crise.
+Le MJ (IA) décrit la situation, les enjeux et pose une décision à chaque joueur.
+
+🌀 TOUR 1 – Détection et mobilisation
+Le ransomware est détecté.
+
+Faut-il alerter tout le monde ?
+
+Qui doit être coupé du réseau ?
+
+Active-t-on immédiatement la cellule de crise ?
+
+(Ex : La DSI veut attendre, la DG panique, la Com veut contrôler l’info…)
+
+🌀 TOUR 2 – Containment
+Choisir ce qu’on coupe ou isole.
+
+VPN, postes, serveurs : quel périmètre ?
+
+Risque d’interrompre la production.
+
+Risque d’élargir l’attaque.
+
+🌀 TOUR 3 – Investigation
+Analyse forensique lancée ou non ?
+
+Vecteur d’entrée identifié ?
+
+Risque d’un attaquant encore dans le SI.
+
+Sauvegardes analysées ? Fiables ?
+
+🌀 TOUR 4 – Décisions critiques
+Payer ou non la rançon ?
+
+Alerter la CNIL ?
+
+Communiquer aux clients ou temporiser ?
+
+Révéler publiquement l’incident ?
+
+🌀 TOUR 5 – Remédiation
+Relancer les serveurs ?
+
+Restaurer les sauvegardes ?
+
+Créer des environnements parallèles ?
+
+Réinitialiser tous les mots de passe ?
+
+🌀 TOUR 6 – Résolution
+Le SI redémarre partiellement.
+
+Évaluation des dommages.
+
+Décision sur les suites : audit, sanctions, plan de renforcement.
+
+Réflexion collective sur l’après-crise.
+
+🤖 INTERACTIONS À CHAQUE TOUR
+L’IA expose la situation :
+
+Texte narratif immersif
+
+Affichage des indicateurs actuels
+
+L’IA pose une question personnalisée par rôle
+
+Ex : « Que décide le RSSI concernant les accès distants ? »
+
+Chaque joueur répond
+
+Saisie texte libre ou sélection parmi 2-4 options
+
+L’IA évalue toutes les décisions
+
+Modifie les indicateurs
+
+Affiche les conséquences immédiates
+
+Transition vers le tour suivant
+
+🏁 FIN DU JEU
+Récapitulatif narratif :
+
+Chronologie des événements
+
+Décisions clés
+
+Résultats techniques et humains
+
+Score final par indicateur :
+
+🔐 Intégrité (0–100)
+
+🏭 Disponibilité (0–100)
+
+⚖️ Conformité (0–100)
+
+💰 Coût (0–100)
+
+👥 Confiance (0–100)
+
+Débrief personnalisé par joueur :
+
+Ce que tu as bien fait
+
+Ce que tu aurais pu mieux faire
+
+Leçon à retenir pour ton rôle
+
+🧠 Focus narratif
+L’IA adapte le ton :
+
+Si les joueurs paniquent → IA recentre
+
+Si les joueurs n’agissent pas → IA dramatise
+
+Si désaccords → IA propose arbitrages
+
+Le temps de réaction influe : chaque tour raté empire la situation
+
+L’IA garde une trace des décisions pour le final
+
