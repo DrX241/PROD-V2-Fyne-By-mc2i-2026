@@ -849,7 +849,7 @@ const IALabTrainer: React.FC = () => {
                   editorValue={code}
                   setEditorValue={setCode}
                   executeCode={executeCode}
-                  executionResult={output}
+                  executionResult={result}
                   isProcessing={isProcessing}
                 />
               </TabsContent>
