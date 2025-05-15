@@ -20,11 +20,12 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { ArrowLeft, CheckCircle, Copy, RefreshCw, Rocket, Brain, Image, Code, MessageSquare, Search, Wand, Robot } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Copy, RefreshCw, Rocket, Brain, Image, Code, MessageSquare, Search, Wand, Bot } from 'lucide-react';
+import { Switch } from "@/components/ui/switch";
 import axios from 'axios';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { useTheme } from '@/hooks/use-theme';
+import { useTheme } from '@/components/theme-provider';
 
 interface PromptTemplate {
   id: string;
@@ -474,7 +475,7 @@ En maîtrisant ces principes, vous pourrez exploiter pleinement le potentiel de 
                   <div className="flex justify-between items-center">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400 flex items-center justify-center">
-                        <RiRobot2Line className="text-white text-xl" />
+                        <Bot className="text-white h-6 w-6" />
                       </div>
                       <div>
                         <CardTitle className="text-xl">AI Explorer</CardTitle>
@@ -623,12 +624,12 @@ En maîtrisant ces principes, vous pourrez exploiter pleinement le potentiel de 
                         >
                           {isGenerating ? (
                             <>
-                              <IoRefresh className="mr-2 animate-spin" />
+                              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                               Génération en cours...
                             </>
                           ) : (
                             <>
-                              <IoRocket className="mr-2" />
+                              <Rocket className="mr-2 h-4 w-4" />
                               Générer
                             </>
                           )}
@@ -657,7 +658,7 @@ En maîtrisant ces principes, vous pourrez exploiter pleinement le potentiel de 
                               onClick={handleCopyToClipboard}
                               className="text-gray-400 hover:text-white hover:bg-blue-800/30"
                             >
-                              {showCopied ? <IoCheckmarkCircle className="text-green-500" /> : <IoCopy />}
+                              {showCopied ? <CheckCircle className="text-green-500 h-4 w-4" /> : <Copy className="h-4 w-4" />}
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -705,7 +706,7 @@ En maîtrisant ces principes, vous pourrez exploiter pleinement le potentiel de 
                     </CardContent>
                     <CardFooter>
                       <Alert className="bg-blue-900/30 border-blue-500/30">
-                        <LuWand2 className="h-4 w-4" />
+                        <Wand className="h-4 w-4" />
                         <AlertTitle>Conseil</AlertTitle>
                         <AlertDescription>
                           Pour améliorer vos résultats, essayez d'être plus spécifique dans vos prompts et d'inclure des exemples concrets.
@@ -719,7 +720,7 @@ En maîtrisant ces principes, vous pourrez exploiter pleinement le potentiel de 
           </div>
         </div>
       </div>
-    </HomeLayout>
+    </div>
   );
 };
 
