@@ -3,7 +3,13 @@ import { exec } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import { openAIService } from '../services/openai';
+
+// Obtenir l'équivalent de __dirname pour ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Fonction pour exécuter du code Python
 export async function executePythonCode(req: Request, res: Response) {
@@ -126,8 +132,9 @@ export async function executeSQLCode(req: Request, res: Response) {
 async function analyzeCodeWithAI(code: string, output: string, language: 'python' | 'sql' = 'python'): Promise<string> {
   try {
     // La prompt pour l'analyse par l'IA
+    // Définir le message système pour l'analyse du code
     const systemMessage = {
-      role: 'system',
+      role: 'system' as 'system', // Type explicite pour éviter les erreurs
       content: 
         `Tu es un assistant expert en ${language === 'python' ? 'programmation Python' : 'SQL'}, spécialisé dans l'analyse et l'amélioration de code.
         Analyse le code fourni et donne des conseils utiles, clairs et concis.
@@ -141,15 +148,17 @@ async function analyzeCodeWithAI(code: string, output: string, language: 'python
     };
 
     const userMessage = {
-      role: 'user',
+      role: 'user' as 'user', // Type explicite pour éviter les erreurs
       content: 
         `Voici le code ${language === 'python' ? 'Python' : 'SQL'} à analyser:\n\n${code}\n\nVoici le résultat de l'exécution:\n\n${output}`
     };
 
     // Appel à l'API Azure OpenAI
+    const messages = [systemMessage, userMessage];
     const response = await openAIService.getChatCompletion(
-      [systemMessage, userMessage],
-      0.5, // temperature
+      messages,
+      true, // useSecondaryKey
+      0.5,  // temperature
       500   // max_tokens
     );
 
