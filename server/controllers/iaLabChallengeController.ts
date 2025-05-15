@@ -178,7 +178,7 @@ export async function generateChallenge(req: Request, res: Response) {
       - Assure-toi que les guillemets dans les chaînes sont correctement échappés
       - Vérifie qu'il n'y a pas de virgule après le dernier élément d'un objet/tableau
       
-      IMPORTANT: NE réponds qu'avec le JSON pur. PAS de texte avant, pas de texte après, pas de ```json```, juste l'objet JSON.
+      IMPORTANT: NE réponds qu'avec le JSON pur. PAS de texte avant, pas de texte après, PAS de balises de code.
       
       Pour Python:
       - Crée un cas d'usage réaliste d'entreprise (analyse de données clients, automatisation, prédiction, etc.)
