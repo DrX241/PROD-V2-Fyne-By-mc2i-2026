@@ -512,33 +512,8 @@ const ChallengeMode: React.FC<{
             <div className="space-y-4 mx-auto max-w-7xl">
               <div>
                 <h3 className="text-white font-medium mb-2">Description</h3>
-                <div className="bg-black/30 rounded-md p-3 text-gray-300 text-sm overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <tbody>
-                      {currentChallenge.description.replace(/##\s+/g, '')
-                        .split('\n\n')
-                        .map((section, index) => {
-                          // Vérifier si la section commence par un titre en majuscules (ex: "MISSION:")
-                          const sectionMatch = section.match(/^([A-Z]+)\s*:?\s*([\s\S]*)$/);
-                          
-                          if (sectionMatch) {
-                            const [, title, content] = sectionMatch;
-                            return (
-                              <tr key={index} className="border-b border-gray-800 last:border-0">
-                                <td className="text-cyan-400 font-medium py-2 pr-4 align-top w-1/5">{title}</td>
-                                <td className="py-2 text-gray-300 align-top">{content.trim()}</td>
-                              </tr>
-                            );
-                          }
-                          
-                          return (
-                            <tr key={index} className="border-b border-gray-800 last:border-0">
-                              <td colSpan={2} className="py-2">{section}</td>
-                            </tr>
-                          );
-                        })}
-                    </tbody>
-                  </table>
+                <div className="bg-black/30 rounded-md p-3 text-gray-300 text-sm whitespace-pre-wrap overflow-x-auto">
+                  {currentChallenge.description}
                 </div>
               </div>
               

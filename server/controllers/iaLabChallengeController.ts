@@ -163,8 +163,8 @@ export async function generateChallenge(req: Request, res: Response) {
         "language": "${language}"
       }
 
-      2. Pour la description, utilise exactement cette structure (sans markdown, juste avec les titres en majuscules):
-      "description": "MISSION:\\nDécrivez la mission de manière concise et professionnelle.\\n\\nDONNEES:\\nDétaillez les données disponibles avec des exemples concrets.\\n\\nOBJECTIF:\\nExpliquez clairement ce qui est attendu comme résultat."
+      2. Pour la description, utilise exactement cette structure:
+      "description": "## CONTEXTE\\nContexte professionnel avec les 3 personnages.\\n\\n## DONNÉES\\nDonnées disponibles avec exemples.\\n\\n## OBJECTIF\\nTâche à accomplir."
       
       3. Pour l'initialCode, inclus:
       - Import des bibliothèques 
@@ -205,9 +205,8 @@ export async function generateChallenge(req: Request, res: Response) {
       
       INSTRUCTIONS:
       1. Crée un exercice technique direct sans histoire complexe ni personnages.
-      2. Structure la description en 3 parties avec les titres en MAJUSCULES: MISSION, DONNÉES, OBJECTIF.
+      2. Structure la description en 3 parties: MISSION, DONNÉES, OBJECTIF.
       3. Utilise un contexte professionnel réaliste et concis.
-      4. Ne pas utiliser de markdown (pas de ##, *, _, etc.)
       
       RAPPEL DE FORMATAGE:
       - Ta réponse doit être un objet JSON VALIDE pur, sans texte additionnel.
