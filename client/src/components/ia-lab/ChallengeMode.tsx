@@ -163,8 +163,8 @@ const ChallengeMode: React.FC<{
         difficulty: selectedDifficulty,
       };
       
-      // Ajouter le secteur d'activité s'il est sélectionné
-      if (selectedSector) {
+      // Ajouter le secteur d'activité s'il est sélectionné et différent de "tous"
+      if (selectedSector && selectedSector !== 'tous') {
         requestData.sector = selectedSector;
       }
       
@@ -410,7 +410,7 @@ const ChallengeMode: React.FC<{
                   <SelectValue placeholder="Tous les secteurs" />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-blue-500/30 text-white">
-                  <SelectItem value="">Tous les secteurs</SelectItem>
+                  <SelectItem value="tous">Tous les secteurs</SelectItem>
                   {sectors.map((sector) => (
                     <SelectItem key={sector} value={sector}>
                       {sector}
