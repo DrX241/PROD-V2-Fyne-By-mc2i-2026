@@ -5,7 +5,7 @@ import { IoChevronBack, IoHome, IoSettings } from 'react-icons/io5';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { useTheme } from '@/hooks/use-theme';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const DataTopNavigation: React.FC = () => {
   const [, setLocation] = useLocation();
