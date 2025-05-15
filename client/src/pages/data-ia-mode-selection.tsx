@@ -445,8 +445,7 @@ export default function DataIaModeSelection() {
                     <TooltipTrigger asChild>
                       <DataButton 
                         variant="outline"
-                        dataEffect="pulse"
-                        className="w-10 h-10 p-0 flex items-center justify-center rounded-full bg-[#0e0936]/80 border-[#7b2ff7]/40 text-[#00c6ff] hover:bg-[#1a0f53]/80"
+                        className="w-10 h-10 p-0 flex items-center justify-center rounded-full text-blue-300 border-blue-300/30 hover:bg-blue-900/20"
                         onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
                         data-id="text-smaller-button"
                       >
@@ -464,8 +463,7 @@ export default function DataIaModeSelection() {
                     <TooltipTrigger asChild>
                       <DataButton 
                         variant="outline"
-                        dataEffect="pulse"
-                        className="w-10 h-10 p-0 flex items-center justify-center rounded-full bg-[#0e0936]/80 border-[#7b2ff7]/40 text-[#00c6ff] hover:bg-[#1a0f53]/80"
+                        className="w-10 h-10 p-0 flex items-center justify-center rounded-full text-blue-300 border-blue-300/30 hover:bg-blue-900/20"
                         onClick={() => setTextSize(Math.min(1.2, textSize + 0.1))}
                         data-id="text-larger-button"
                       >
@@ -490,17 +488,13 @@ export default function DataIaModeSelection() {
             data-id="main-title"
           >
             <h1 className="text-5xl font-bold mb-4 font-data-title relative">
-              <span className="text-white">Centre de Formation Data & IA</span>
+              <span className="text-white">Centre de Formation</span>
               <br />
-              <DataGlitchText 
-                text="I AM DATA" 
-                className="text-6xl mt-2 block tracking-wider text-blue-300" 
-                binary={false}
-                intense={false}
-                repeatInterval={20000}
-              />
+              <span className="text-6xl mt-2 block tracking-wider bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
+                I AM DATA & IA
+              </span>
             </h1>
-            <div className="w-20 h-1 bg-[#384095] mx-auto my-6"></div>
+            <div className="w-40 h-1 bg-gradient-to-r from-blue-400 to-indigo-500 mx-auto my-6 rounded-full"></div>
             <p className={`max-w-3xl mx-auto text-xl ${
               highContrastMode ? 'text-gray-300' : 'text-blue-100' 
             }`}>
