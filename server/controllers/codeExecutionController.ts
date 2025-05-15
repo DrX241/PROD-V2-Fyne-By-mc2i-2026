@@ -11,12 +11,20 @@ import { openAIService } from '../services/openai';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Fonction pour exécuter du code Python
+// Fonction pour exécuter du code Python avec stockage de variables de session
 export async function executePythonCode(req: Request, res: Response) {
-  const { code } = req.body;
+  const { code, sessionId = 'default' } = req.body;
   
   if (!code) {
     return res.status(400).json({ error: 'Le code est requis' });
+  }
+
+  // Initialiser la session si elle n'existe pas
+  if (!sessions[sessionId]) {
+    sessions[sessionId] = {
+      python: {},
+      sql: { tempTables: [] }
+    };
   }
 
   try {
@@ -24,6 +32,7 @@ export async function executePythonCode(req: Request, res: Response) {
     const fileId = crypto.randomBytes(16).toString('hex');
     const tempFilePath = path.join(__dirname, `../temp/code_${fileId}.py`);
     const outputFilePath = path.join(__dirname, `../temp/output_${fileId}.txt`);
+    const sessionFilePath = path.join(__dirname, `../temp/session_${sessionId}.json`);
     
     // Créer le répertoire temp s'il n'existe pas
     const tempDir = path.join(__dirname, '../temp');
@@ -31,43 +40,132 @@ export async function executePythonCode(req: Request, res: Response) {
       fs.mkdirSync(tempDir, { recursive: true });
     }
 
-    // Écrire le code dans un fichier temporaire
-    fs.writeFileSync(tempFilePath, code);
+    // Écrire le fichier de session pour que Python puisse y accéder
+    fs.writeFileSync(sessionFilePath, JSON.stringify(sessions[sessionId].python));
+
+    // Préparer le code Python avec le chargement et la sauvegarde de la session
+    const sessionCode = `
+import json
+import os
+import sys
+
+# Charger les données de session précédentes
+session_file = '${sessionFilePath.replace(/\\/g, '\\\\')}'
+session_data = {}
+if os.path.exists(session_file):
+    try:
+        with open(session_file, 'r') as f:
+            session_data = json.load(f)
+            # Ajouter les variables de session à l'espace global
+            for key, value in session_data.items():
+                globals()[key] = value
+    except:
+        print("Erreur lors du chargement des données de session.")
+
+# Rediriger stdout pour capturer les sorties du code
+class Capture:
+    def __init__(self):
+        self.stdout = sys.stdout
+        self.data = []
     
-    // Exécuter le code Python avec timeout (5 secondes max)
+    def write(self, text):
+        self.data.append(text)
+        self.stdout.write(text)
+    
+    def flush(self):
+        self.stdout.flush()
+    
+    def get_output(self):
+        return "".join(self.data)
+
+# Utiliser notre captureur
+capture = Capture()
+sys.stdout = capture
+
+# Exécuter le code utilisateur
+try:
+${code.split('\n').map(line => '    ' + line).join('\n')}
+except Exception as e:
+    print(f"Erreur: {str(e)}")
+
+# Rétablir stdout
+sys.stdout = sys.__stdout__
+
+# Sauvegarder les variables de session (sauf les fonctions, modules, etc.)
+try:
+    session_vars = {}
+    for key, value in globals().items():
+        if not key.startswith('__') and key not in ['json', 'os', 'sys', 'session_file', 'session_data', 'Capture', 'capture', 'session_vars', 'key', 'value']:
+            try:
+                # Tester si la variable est sérialisable
+                json.dumps({key: value})
+                session_vars[key] = value
+            except:
+                # Si non sérialisable (comme les objets complexes), on les ignore
+                continue
+    
+    with open(session_file, 'w') as f:
+        json.dump(session_vars, f)
+except Exception as e:
+    print(f"Erreur lors de la sauvegarde de session: {str(e)}")
+`;
+
+    // Écrire le code dans un fichier temporaire
+    fs.writeFileSync(tempFilePath, sessionCode);
+    
+    // Exécuter le code Python avec timeout (10 secondes max)
     const command = `python3 ${tempFilePath} > ${outputFilePath} 2>&1`;
     
-    exec(command, { timeout: 5000 }, (error, stdout, stderr) => {
+    exec(command, { timeout: 10000 }, async (error, stdout, stderr) => {
       // Lire le résultat (même en cas d'erreur, pour afficher les erreurs)
       const output = fs.existsSync(outputFilePath) 
         ? fs.readFileSync(outputFilePath, 'utf8') 
         : (error ? error.message : 'Aucune sortie');
       
+      // Mise à jour des variables de session
+      if (fs.existsSync(sessionFilePath)) {
+        try {
+          const sessionData = JSON.parse(fs.readFileSync(sessionFilePath, 'utf8'));
+          sessions[sessionId].python = sessionData;
+        } catch (sessionError) {
+          console.error('Erreur lors de la lecture des données de session:', sessionError);
+        }
+      }
+      
       // Nettoyer les fichiers temporaires
       if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
       if (fs.existsSync(outputFilePath)) fs.unlinkSync(outputFilePath);
+      // Ne pas supprimer le fichier de session pour le garder entre les exécutions
       
       if (error && error.killed) {
         return res.status(400).json({ 
-          result: 'Exécution interrompue : le délai maximum a été dépassé (5 secondes)',
+          result: 'Exécution interrompue : le délai maximum a été dépassé (10 secondes)',
           error: true
         });
       }
       
       // Analyser le code avec IA
-      analyzeCodeWithAI(code, output).then(analysis => {
+      try {
+        const analysis = await analyzeCodeWithAI(code, output);
+        
         return res.json({ 
           result: output,
           analysis,
-          error: !!error
+          error: !!error,
+          sessionVariables: Object.keys(sessions[sessionId].python).length > 0 
+            ? `Variables sauvegardées: ${Object.keys(sessions[sessionId].python).join(', ')}` 
+            : null
         });
-      }).catch(err => {
+      } catch (analysisError) {
         return res.json({ 
           result: output,
           analysis: "L'analyse IA n'est pas disponible pour le moment.",
-          error: !!error
+          error: !!error,
+          sessionVariables: Object.keys(sessions[sessionId].python).length > 0 
+            ? `Variables sauvegardées: ${Object.keys(sessions[sessionId].python).join(', ')}` 
+            : null
         });
-      });
+      }
     });
   } catch (error: any) {
     console.error('Erreur d\'exécution Python:', error);
@@ -78,37 +176,87 @@ export async function executePythonCode(req: Request, res: Response) {
   }
 }
 
-// Fonction pour exécuter du SQL (simulation)
+// Importer le pool PostgreSQL
+import { pool } from '../db';
+
+// Objets pour stocker temporairement les données des sessions
+interface SessionData {
+  python: {
+    [variableName: string]: any;
+  };
+  sql: {
+    tempTables: string[];
+  };
+}
+
+// Stockage des données de session (en mémoire)
+const sessions: { [sessionId: string]: SessionData } = {};
+
+// Fonction pour exécuter du SQL (réel)
 export async function executeSQLCode(req: Request, res: Response) {
-  const { code } = req.body;
+  const { code, sessionId = 'default' } = req.body;
   
   if (!code) {
     return res.status(400).json({ error: 'Le code est requis' });
   }
 
+  // Initialiser la session si elle n'existe pas
+  if (!sessions[sessionId]) {
+    sessions[sessionId] = {
+      python: {},
+      sql: { tempTables: [] }
+    };
+  }
+
+  const client = await pool.connect();
+  
   try {
-    // Pour simplifier, nous allons simuler l'exécution SQL pour l'instant
-    // Mais nous pourrions intégrer une vraie base de données ici
-    let result = '';
-    let error = false;
+    // Créer un schéma temporaire spécifique à la session si nécessaire
+    const schemaName = `session_${sessionId.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    await client.query(`CREATE SCHEMA IF NOT EXISTS ${schemaName}`);
     
-    // Quelques règles simples pour simuler une réponse SQL
-    if (code.toLowerCase().includes('select')) {
-      result = "| id | nom      | valeur  | date       |\n";
-      result += "|---:|----------|--------:|------------|\n";
-      result += "| 1  | Exemple1 | 425.50  | 2025-01-15 |\n";
-      result += "| 2  | Exemple2 | 128.75  | 2025-02-20 |\n";
-      result += "| 3  | Exemple3 | 975.00  | 2025-03-05 |\n";
-    } else if (code.toLowerCase().includes('insert')) {
-      result = "Insertion réussie. 1 ligne affectée.";
-    } else if (code.toLowerCase().includes('update')) {
-      result = "Mise à jour réussie. 3 lignes affectées.";
-    } else if (code.toLowerCase().includes('delete')) {
-      result = "Suppression réussie. 2 lignes affectées.";
-    } else if (code.toLowerCase().includes('create')) {
-      result = "Table/Index créé avec succès.";
+    // Exécution de la requête SQL
+    const sqlQuery = code.trim();
+    let result = '';
+    let rowCount = 0;
+    
+    // Détecter si c'est une requête SELECT pour formater correctement le résultat
+    const isSelect = sqlQuery.toLowerCase().trim().startsWith('select');
+    
+    // Détecter si c'est une requête CREATE TABLE pour suivre les tables temporaires
+    const isCreateTable = sqlQuery.toLowerCase().includes('create table');
+    if (isCreateTable) {
+      // Extraire le nom de la table créée (analyse simplifiée)
+      const tableNameMatch = sqlQuery.toLowerCase().match(/create\s+table\s+(?:if\s+not\s+exists\s+)?([a-zA-Z0-9_]+)/i);
+      if (tableNameMatch && tableNameMatch[1]) {
+        const tableName = tableNameMatch[1];
+        sessions[sessionId].sql.tempTables.push(tableName);
+      }
+    }
+    
+    // Exécuter la requête
+    const queryResult = await client.query(sqlQuery);
+    rowCount = queryResult.rowCount || 0;
+    
+    if (isSelect && queryResult.rows && queryResult.rows.length > 0) {
+      // Formater le résultat en tableau pour les requêtes SELECT
+      const columns = Object.keys(queryResult.rows[0]);
+      
+      // En-tête du tableau
+      result += "| " + columns.join(" | ") + " |\n";
+      result += "|" + columns.map(() => "---").join("|") + "|\n";
+      
+      // Données
+      queryResult.rows.forEach(row => {
+        result += "| " + columns.map(col => row[col] !== null ? String(row[col]) : "NULL").join(" | ") + " |\n";
+      });
     } else {
-      result = "Commande exécutée avec succès.";
+      // Message pour les autres types de requêtes
+      if (rowCount > 0) {
+        result = `Opération réussie. ${rowCount} ligne(s) affectée(s).`;
+      } else {
+        result = "Commande exécutée avec succès.";
+      }
     }
     
     // Analyse par IA
@@ -117,14 +265,21 @@ export async function executeSQLCode(req: Request, res: Response) {
     return res.json({ 
       result,
       analysis,
-      error
+      error: false
     });
   } catch (error: any) {
     console.error('Erreur d\'exécution SQL:', error);
-    return res.status(500).json({ 
-      error: 'Erreur lors de l\'exécution du code', 
-      details: error.message 
+    
+    // Analyse de l'erreur par IA
+    const analysis = await analyzeCodeWithAI(code, `Erreur: ${error.message}`, 'sql');
+    
+    return res.status(200).json({ 
+      result: `Erreur SQL: ${error.message}`,
+      analysis,
+      error: true
     });
+  } finally {
+    client.release();
   }
 }
 

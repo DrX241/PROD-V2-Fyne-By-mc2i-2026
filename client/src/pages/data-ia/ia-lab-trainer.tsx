@@ -370,10 +370,17 @@ const IALabTrainer: React.FC = () => {
   const [result, setResult] = useState<string>('');
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [executionHistory, setExecutionHistory] = useState<CodeExecution[]>([]);
+  const [sessionVariables, setSessionVariables] = useState<string | null>(null);
   
   // État pour le titre et la description du code actuel
   const [codeTitle, setCodeTitle] = useState('');
   const [codeDescription, setCodeDescription] = useState('');
+  
+  // ID de session unique pour l'utilisateur
+  const [sessionId] = useState<string>(() => {
+    // Générer un ID de session unique
+    return `session_${Math.random().toString(36).substring(2, 15)}`;
+  });
   
   // Effet pour charger un exemple par défaut au chargement
   useEffect(() => {
@@ -450,7 +457,10 @@ const IALabTrainer: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ 
+          code,
+          sessionId // Inclure l'ID de session pour maintenir le contexte entre les appels
+        }),
       });
       
       if (!response.ok) {
