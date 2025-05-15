@@ -24,8 +24,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Sparkles, Brain, Code, PlayCircle, Book, Trophy, ArrowLeft, RefreshCw, RotateCw, Lightbulb, Clock3, Terminal } from 'lucide-react';
-import Editor from 'react-simple-code-editor';
-import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -834,116 +832,7 @@ const ReadMeIfYouCan = () => {
     }
   };
 
-  // Exécuter le code avec l'IA
-  const executeCode = async () => {
-    if (!userCodeInput.trim()) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez entrer du code avant d'exécuter.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setIsExecutingCode(true);
-    setCodeExecutionResult('');
-    
-    try {
-      // Simuler un traitement IA avec un délai
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Préparer prompt pour l'IA
-      const language = selectedLanguage;
-      const promptStart = language === 'python' 
-        ? "Exécute ce code Python et affiche le résultat. Si des erreurs sont présentes, explique-les de façon pédagogique:" 
-        : "Analyse cette requête SQL et explique ce qu'elle fait. Indique le résultat attendu et d'éventuelles optimisations:";
-      
-      // Ici nous simulons la réponse de l'IA, mais dans une version réelle 
-      // nous enverrions le code à l'API d'IA pour exécution
-      let result = '';
-      
-      if (language === 'python') {
-        if (userCodeInput.includes('print')) {
-          result = "Exécution réussie!\n\n";
-          
-          // Extraire les prints pour simuler l'output
-          const printMatches = userCodeInput.match(/print\s*\((.*?)\)/g);
-          if (printMatches) {
-            printMatches.forEach(match => {
-              const content = match.match(/print\s*\((.*?)\)/)[1];
-              result += `> ${content}\n`;
-            });
-          }
-          
-          result += "\n🔍 Analyse: Votre code s'exécute correctement. Il utilise des fonctions d'impression pour afficher les résultats.";
-          
-          // Suggestions d'amélioration
-          if (userCodeInput.includes('for') && !userCodeInput.includes('enumerate')) {
-            result += "\n\n💡 Suggestion: Pour les boucles for sur des indices, envisagez d'utiliser `enumerate()` pour plus de lisibilité.";
-          }
-        } else if (userCodeInput.includes('def ')) {
-          result = "Fonction définie avec succès, mais non exécutée.\n\n🔍 Analyse: Vous avez défini une fonction mais ne l'avez pas appelée. Pour voir le résultat, ajoutez un appel à la fonction à la fin du code.";
-        } else if (userCodeInput.includes('import') && (userCodeInput.includes('pandas') || userCodeInput.includes('numpy'))) {
-          result = "Bibliothèques importées avec succès.\n\n🔍 Analyse: Vous avez importé des bibliothèques de data science, mais le code ne contient pas d'opérations sur des données.";
-        } else {
-          result = "Code analysé.\n\n🔍 Analyse: Ce code définit des variables ou des structures de données, mais n'affiche aucun résultat. Essayez d'ajouter des instructions `print()` pour voir les résultats.";
-        }
-      } else if (language === 'sql') {
-        if (userCodeInput.toLowerCase().includes('select')) {
-          result = "Requête SQL analysée.\n\n";
-          
-          if (userCodeInput.toLowerCase().includes('join')) {
-            result += "Cette requête effectue une jointure entre tables. ";
-          }
-          
-          if (userCodeInput.toLowerCase().includes('where')) {
-            result += "Elle filtre les résultats avec une clause WHERE. ";
-          }
-          
-          if (userCodeInput.toLowerCase().includes('group by')) {
-            result += "Elle groupe les résultats. ";
-          }
-          
-          result += "\n\n🔍 Résultats simulés (échantillon):\n";
-          result += "| id | nom     | valeur |\n";
-          result += "|---:|---------|-------:|\n";
-          result += "| 1  | Exemple | 42.5   |\n";
-          result += "| 2  | Test    | 18.3   |\n";
-          result += "| 3  | Demo    | 75.0   |\n";
-          
-          // Suggestions d'optimisation
-          if (!userCodeInput.toLowerCase().includes('index') && userCodeInput.toLowerCase().includes('where')) {
-            result += "\n\n💡 Suggestion: Cette requête pourrait bénéficier d'un index sur les colonnes utilisées dans la clause WHERE.";
-          }
-        } else {
-          result = "Requête SQL analysée, mais n'est pas une requête SELECT.\n\n";
-          
-          if (userCodeInput.toLowerCase().includes('insert')) {
-            result += "Cette requête insère des données dans une table.";
-          } else if (userCodeInput.toLowerCase().includes('update')) {
-            result += "Cette requête met à jour des données existantes.";
-          } else if (userCodeInput.toLowerCase().includes('delete')) {
-            result += "Cette requête supprime des données d'une table.";
-          } else if (userCodeInput.toLowerCase().includes('create table')) {
-            result += "Cette requête crée une nouvelle table dans la base de données.";
-          }
-        }
-      }
-      
-      setCodeExecutionResult(result);
-    } catch (error) {
-      setCodeExecutionResult("Erreur lors de l'exécution: " + (error.message || "Une erreur inconnue est survenue"));
-    } finally {
-      setIsExecutingCode(false);
-    }
-  };
-  
-  // Initialiser l'éditeur de code quand on charge un nouveau défi en mode exécution
-  useEffect(() => {
-    if (selectedMode === 'exécution' && currentChallenge) {
-      setUserCodeInput(currentChallenge.code);
-    }
-  }, [currentChallenge, selectedMode]);
+
 
   // Récupérer un indice pour le challenge actuel
   const getHint = () => {
@@ -1162,7 +1051,7 @@ const ReadMeIfYouCan = () => {
                   <Label htmlFor="mode" className="text-white mb-2 block">Mode de jeu</Label>
                   <Select 
                     value={selectedMode} 
-                    onValueChange={(val) => setSelectedMode(val as 'normal' | 'analyse' | 'défense' | 'vitesse' | 'exécution')}
+                    onValueChange={(val) => setSelectedMode(val as 'normal' | 'analyse' | 'défense' | 'vitesse')}
                     disabled={isLoading}
                   >
                     <SelectTrigger 
@@ -1291,8 +1180,7 @@ const ReadMeIfYouCan = () => {
                     Mode : {selectedMode === 'normal' ? '"Lis et devine"' : 
                            selectedMode === 'analyse' ? '"Explique ce que tu lis"' :
                            selectedMode === 'défense' ? '"Revue de code"' : 
-                           selectedMode === 'vitesse' ? '"Contre la montre"' :
-                           '"Code interactif"'}
+                           '"Contre la montre"'}
                   </CardDescription>
                 </CardHeader>
                 
