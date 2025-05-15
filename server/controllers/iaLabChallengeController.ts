@@ -116,19 +116,7 @@ const CHALLENGE_CATEGORIES = {
   ]
 };
 
-// Secteurs d'activité pour les défis
-export const INDUSTRY_SECTORS = [
-  'Énergie',
-  'Banque & Finance',
-  'Assurance',
-  'Transport & Logistique',
-  'Santé',
-  'Secteur Public',
-  'Télécommunications',
-  'Industrie',
-  'Distribution & Commerce',
-  'Services'
-];
+// Secteurs d'activité supprimés selon les instructions
 
 // Fonction pour générer un défi via l'IA
 export async function generateChallenge(req: Request, res: Response) {
@@ -430,21 +418,7 @@ export function getChallengeCategories(req: Request, res: Response) {
   }
 }
 
-// Fonction pour obtenir les secteurs d'activité
-export function getIndustrySectors(req: Request, res: Response) {
-  try {
-    return res.status(200).json({
-      success: true,
-      sectors: INDUSTRY_SECTORS
-    });
-  } catch (error) {
-    console.error('Erreur lors de la récupération des secteurs:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Erreur serveur'
-    });
-  }
-}
+// Fonction pour obtenir les secteurs d'activité supprimée selon les instructions
 
 // Fonction pour obtenir un indice supplémentaire
 export async function getAdditionalHint(req: Request, res: Response) {
