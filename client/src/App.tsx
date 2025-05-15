@@ -67,6 +67,7 @@ import AmoaModeSelectionFixed from "@/pages/amoa-mode-selection-fixed";
 import DataIaModeSelection from "@/pages/data-ia-mode-selection";
 import ReadMeIfYouCan from "@/pages/data-ia/read-me-if-you-can";
 import DataOpsSimulation from "@/pages/data-ia/data-ops-simulation";
+import AIPlayground from "@/pages/data-ia/ai-playground";
 // Modules Simulation d'Entretien
 import CyberInterviewSimulation from "@/pages/cyber/interview-simulation";
 import CyberInterviewPreparation from "@/pages/cyber/interview-preparation";
@@ -762,6 +763,7 @@ function App() {
                 <Route path="/data-ia" component={DataIaModeSelection} />
                 <Route path="/data-ia/read-me-if-you-can" component={ReadMeIfYouCan} />
                 <Route path="/data-ia/data-ops-simulation" component={DataOpsSimulation} />
+                <Route path="/data-ia/ai-playground" component={AIPlayground} />
                 <Route path="/data-ia/data-academie" component={() => {
                   const DataAcademie = lazy(() => import('./pages/data-ia/data-academie-ai'));
                   return (
