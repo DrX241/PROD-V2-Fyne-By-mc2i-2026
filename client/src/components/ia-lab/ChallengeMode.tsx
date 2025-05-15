@@ -167,37 +167,78 @@ const ChallengeMode: React.FC<{
       if (selectedSector && selectedSector !== 'tous') {
         requestData.sector = selectedSector;
       }
-      
-      const response = await fetch('/api/ia-lab/challenge/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.challenge) {
-          setCurrentChallenge(data.challenge);
-          setEditorValue(data.challenge.initialCode);
-          
-          toast({
-            title: "Défi généré",
-            description: "Un nouveau défi a été généré. Bonne chance !",
-            variant: "default",
-          });
-        } else {
-          throw new Error("Format de réponse incorrect");
+      // Vérifier la connexion à l'API OpenAI
+      let openAIStatus;
+      try {
+        const statusResponse = await fetch('/api/openai/status');
+        if (statusResponse.ok) {
+          openAIStatus = await statusResponse.json();
+          if (openAIStatus.connectionStatus !== 'connected') {
+            throw new Error(`Problème de connexion AI: ${openAIStatus.connectionStatus}`);
+          }
         }
-      } else {
-        throw new Error("Erreur lors de la génération du défi");
+      } catch (statusError) {
+        console.error("Erreur lors de la vérification du statut AI:", statusError);
+        // Continuer quand même, on affichera une erreur détaillée plus tard si nécessaire
       }
-    } catch (error) {
+
+      // Appel de l'API avec un timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 secondes timeout
+      
+      try {
+        // Appel de l'API avec timeout
+        const response = await fetch('/api/ia-lab/challenge/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestData),
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId); // Annuler le timeout
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`Erreur HTTP ${response.status}:`, errorText);
+          throw new Error(`Erreur ${response.status}: ${errorText || "Erreur serveur inconnue"}`);
+        }
+        
+        let data;
+        try {
+          data = await response.json();
+        } catch (jsonError) {
+          console.error("Erreur de parsing JSON:", jsonError);
+          throw new Error("Le serveur a renvoyé une réponse incorrecte");
+        }
+        
+        if (!data.success || !data.challenge) {
+          console.error("Réponse invalide:", data);
+          throw new Error(data.error || "Le format de la réponse est incorrect");
+        }
+        
+        // Tout est bon, on met à jour l'état
+        setCurrentChallenge(data.challenge);
+        setEditorValue(data.challenge.initialCode);
+        
+        toast({
+          title: "Défi généré",
+          description: "Un nouveau défi a été généré. Bonne chance !",
+          variant: "default",
+        });
+      } catch (fetchError: any) {
+        if (fetchError.name === 'AbortError') {
+          throw new Error("La requête a pris trop de temps. Veuillez réessayer.");
+        }
+        throw fetchError;
+      }
+    } catch (error: any) {
       console.error('Erreur lors de la génération du défi:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de générer un défi. Veuillez réessayer.",
+        description: error.message || "Impossible de générer un défi. Veuillez réessayer.",
         variant: "destructive",
       });
     } finally {

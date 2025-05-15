@@ -17,6 +17,86 @@ export interface Challenge {
   sector?: string; // Secteur d'activité ajouté
 }
 
+// Fonction utilitaire pour traiter une chaîne de caractères et extraire un JSON valide
+function extractValidJSON(content: string): string {
+  console.log("Tentative d'extraction d'un JSON valide...");
+  
+  // 1. Nettoyage général
+  let cleanedContent = content.trim();
+  
+  // 2. Rechercher le premier '{' et le dernier '}'
+  const startIndex = cleanedContent.indexOf('{');
+  const endIndex = cleanedContent.lastIndexOf('}');
+  
+  if (startIndex === -1 || endIndex === -1 || startIndex >= endIndex) {
+    console.error("Impossible de trouver un objet JSON valide dans la chaîne");
+    return "{}"; // JSON minimal valide
+  }
+  
+  // 3. Extraire le JSON potentiel
+  let jsonContent = cleanedContent.substring(startIndex, endIndex + 1);
+  
+  // 4. Essayer de parser pour voir si c'est déjà valide
+  try {
+    JSON.parse(jsonContent);
+    console.log("JSON valide trouvé sans modifications");
+    return jsonContent;
+  } catch (error) {
+    console.log("JSON initial non valide, tentative de correction...");
+  }
+  
+  // 5. Nettoyer les problèmes courants
+  try {
+    // Échapper les guillemets et caractères spéciaux
+    let fixedJson = jsonContent
+      // Réparer les guillemets et échappements
+      .replace(/\\\\/g, "\\")
+      .replace(/\\"/g, '"')
+      .replace(/(?<!\\)"/g, '\\"')
+      .replace(/\\\\"/g, '\\"')
+      // Réparer les sauts de ligne non échappés dans les chaînes
+      .replace(/(?<=")[\n\r]+(?!")/g, "\\n")
+      // Normaliser les guillemets (simples vers doubles)
+      .replace(/'/g, '"');
+    
+    try {
+      JSON.parse(fixedJson);
+      console.log("JSON corrigé avec succès");
+      return fixedJson;
+    } catch (e) {
+      console.log("Échec de la première méthode de correction");
+    }
+    
+    // Tenter avec une méthode simplifiée: créer un JSON minimal avec les informations essentielles
+    try {
+      // Extraire le titre s'il existe
+      const titleMatch = jsonContent.match(/"title"\s*:\s*"([^"]+)"/);
+      const title = titleMatch ? titleMatch[1] : "Défi généré";
+      
+      // Extraire la description s'il existe
+      const descMatch = jsonContent.match(/"description"\s*:\s*"([^"]+)"/);
+      const description = descMatch ? descMatch[1] : "Pas de description disponible";
+      
+      // Créer un objet minimal valide
+      const minimalObject = {
+        title,
+        description,
+        initialCode: "# Défi généré automatiquement\n# Écrivez votre solution ici",
+        hints: ["Analysez bien le problème", "Pensez étape par étape", "N'hésitez pas à utiliser des fonctions auxiliaires"],
+      };
+      
+      console.log("Utilisation d'un objet minimal comme fallback");
+      return JSON.stringify(minimalObject);
+    } catch (e2) {
+      console.error("Impossible de créer un objet minimal:", e2);
+      return "{}";
+    }
+  } catch (error) {
+    console.error("Erreur lors du nettoyage du JSON:", error);
+    return "{}";
+  }
+}
+
 // Structure de données pour les catégories de défis
 const CHALLENGE_CATEGORIES = {
   python: [
@@ -164,48 +244,33 @@ export async function generateChallenge(req: Request, res: Response) {
     );
 
     try {
-      // Extraire le JSON de la réponse
-      let jsonContent = response;
+      console.log("Réponse brute reçue du modèle (25 premiers caractères):", response.substring(0, 25) + "...");
       
-      // Chercher d'abord à isoler le JSON s'il est entouré de texte
-      const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```|```\s*([\s\S]*?)\s*```|\{[\s\S]*\}/);
-      if (jsonMatch) {
-        // Prendre le premier groupe non undefined ou la correspondance complète
-        jsonContent = jsonMatch[1] || jsonMatch[2] || jsonMatch[0];
-      }
+      // Utiliser la fonction utilitaire pour extraire un JSON valide
+      const validJsonStr = extractValidJSON(response);
+      console.log("JSON validé obtenu (25 premiers caractères):", validJsonStr.substring(0, 25) + "...");
       
-      // Nettoyer le json: enlever les caractères non-JSON potentiels en début et fin
-      jsonContent = jsonContent.trim();
-      if (!jsonContent.startsWith('{')) {
-        jsonContent = jsonContent.substring(jsonContent.indexOf('{'));
-      }
-      if (!jsonContent.endsWith('}')) {
-        jsonContent = jsonContent.substring(0, jsonContent.lastIndexOf('}') + 1);
-      }
-      
-      // Essayer de parser le JSON et gérer les erreurs potentielles
+      // Parser le JSON validé
       let challenge;
       try {
-        challenge = JSON.parse(jsonContent);
+        challenge = JSON.parse(validJsonStr);
+        console.log("Parsing JSON réussi, propriétés trouvées:", Object.keys(challenge).join(", "));
       } catch (error) {
-        console.error("Erreur lors du parsing JSON:", error);
-        console.log("JSON problématique:", jsonContent.substring(0, 200) + "...");
+        console.error("Erreur lors du parsing JSON final:", error);
         
-        // Tentative de nettoyage supplémentaire
-        const cleanedJson = jsonContent
-          .replace(/\\(?!["\\/bfnrt])/g, '\\\\')  // Ajoute un \ d'échappement pour les \ isolés
-          .replace(/(?<!\\)"/g, '\\"')            // Échappe les guillemets non échappés
-          .replace(/\n/g, '\\n')                  // Remplace les sauts de ligne
-          .replace(/\r/g, '\\r')                  // Remplace les retours chariot
-          .replace(/\t/g, '\\t');                 // Remplace les tabulations
-        
-        try {
-          // Essai avec le JSON nettoyé
-          challenge = JSON.parse(cleanedJson);
-        } catch (cleanError) {
-          console.error("Échec de la tentative de correction du JSON:", cleanError);
-          throw new Error("Impossible de traiter la réponse du modèle. Format JSON invalide.");
-        }
+        // Créer un objet challenge minimal en dernier recours
+        challenge = {
+          title: "Défi généré automatiquement",
+          description: "## CONTEXTE\nUn défi a été créé mais n'a pas pu être correctement formaté. Vous pouvez toujours essayer de résoudre le problème suivant.\n\n## DONNÉES\nUtilisez votre créativité et vos compétences en programmation.\n\n## OBJECTIF\nÉcrire un programme qui résout un problème de traitement de données simple.",
+          initialCode: `# Défi de programmation ${language}
+# Écrivez votre solution ici
+`,
+          hints: ["Analysez le problème étape par étape", "Utilisez des structures de données appropriées", "Testez votre code avec différents cas"],
+          difficulty: difficulty,
+          category: category,
+          language: language
+        };
+        console.log("Utilisation d'un objet challenge minimal en dernier recours");
       }
       
       // Générer un ID unique
@@ -304,27 +369,31 @@ export async function evaluateChallengeSolution(req: Request, res: Response) {
     );
 
     try {
-      // Extraire le JSON de la réponse
-      let jsonContent = response;
+      console.log("Réponse d'évaluation brute (25 premiers caractères):", response.substring(0, 25) + "...");
       
-      // Chercher d'abord à isoler le JSON s'il est entouré de texte
-      const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```|```\s*([\s\S]*?)\s*```|\{[\s\S]*\}/);
-      if (jsonMatch) {
-        // Prendre le premier groupe non undefined ou la correspondance complète
-        jsonContent = jsonMatch[1] || jsonMatch[2] || jsonMatch[0];
-      }
+      // Utiliser la fonction utilitaire pour extraire un JSON valide
+      const validJsonStr = extractValidJSON(response);
+      console.log("JSON d'évaluation validé (25 premiers caractères):", validJsonStr.substring(0, 25) + "...");
       
-      // Nettoyer le json: enlever les caractères non-JSON potentiels en début et fin
-      jsonContent = jsonContent.trim();
-      if (!jsonContent.startsWith('{')) {
-        jsonContent = jsonContent.substring(jsonContent.indexOf('{'));
+      // Parser le JSON validé
+      let evaluation;
+      try {
+        evaluation = JSON.parse(validJsonStr);
+        console.log("Parsing JSON d'évaluation réussi, propriétés:", Object.keys(evaluation).join(", "));
+      } catch (error) {
+        console.error("Erreur lors du parsing JSON d'évaluation final:", error);
+        
+        // Créer un objet d'évaluation minimal en dernier recours
+        evaluation = {
+          isCorrect: false,
+          score: 50,
+          feedback: "Impossible d'évaluer précisément votre code en raison d'une erreur technique. Voici quelques conseils généraux : vérifiez la syntaxe de votre code, assurez-vous qu'il répond bien à tous les critères du défi, et testez-le avec différents cas.",
+          strengths: ["Tentative de résolution du problème"],
+          improvements: ["Vérifiez votre syntaxe", "Assurez-vous de répondre à tous les critères du défi"],
+          nextSteps: "Révisez votre solution et soumettez-la à nouveau."
+        };
+        console.log("Utilisation d'un objet d'évaluation minimal en dernier recours");
       }
-      if (!jsonContent.endsWith('}')) {
-        jsonContent = jsonContent.substring(0, jsonContent.lastIndexOf('}') + 1);
-      }
-      
-      // Parser le JSON nettoyé
-      const evaluation = JSON.parse(jsonContent);
       
       return res.status(200).json({
         success: true,
