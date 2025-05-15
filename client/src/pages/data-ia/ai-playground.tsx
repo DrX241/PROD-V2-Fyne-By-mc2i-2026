@@ -864,6 +864,224 @@ plt.show()`,
       setTimeout(() => setShowCopied(false), 2000);
     }
   };
+  
+  // Fonctions pour les fonctionnalités d'apprentissage interactif
+  const handleSelectCodeExample = (example: CodeExample) => {
+    setSelectedCodeExample(example);
+    setUserCode(example.code);
+  };
+  
+  const handleShowConcept = (conceptId: string) => {
+    const concept = conceptExplanations.find(c => c.id === conceptId);
+    if (concept) {
+      setSelectedConcept(concept);
+      setShowConceptExplanation(true);
+    }
+  };
+  
+  const handleRunCode = () => {
+    if (!userCode.trim()) {
+      toast({
+        title: "Code vide",
+        description: "Veuillez entrer du code avant d'exécuter",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsRunningCode(true);
+    
+    // Simuler l'exécution du code via l'API
+    setTimeout(() => {
+      if (selectedCodeExample?.hasError) {
+        setCodeOutput("Erreur d'exécution:\n\nAttributeError: 'KMeans' object has no attribute 'fix'\nDid you mean: 'fit'?\n\nLe code contient plusieurs erreurs à corriger.");
+      } else if (selectedCodeExample?.expectedOutput) {
+        setCodeOutput(selectedCodeExample.expectedOutput);
+      } else {
+        setCodeOutput("Exécution terminée avec succès.\n\nRésultat:\n" + 
+          (selectedCodeExample?.language === 'python' 
+            ? "DataFrame créé avec succès.\nLes visualisations seraient affichées dans un environnement Python interactif."
+            : "Requête exécutée avec succès. 10 lignes retournées.")
+        );
+      }
+      
+      // Ajouter à l'historique d'exécution
+      setExecutionHistory(prev => [
+        { 
+          code: userCode, 
+          output: codeOutput, 
+          timestamp: new Date() 
+        },
+        ...prev.slice(0, 9) // Garder les 10 dernières exécutions max
+      ]);
+      
+      setIsRunningCode(false);
+      
+      // Incrémenter le score si ce n'est pas un exemple avec erreur
+      if (!selectedCodeExample?.hasError) {
+        setUserScore(prev => prev + 5);
+        setStreak(prev => prev + 1);
+        
+        toast({
+          title: "Exécution réussie !",
+          description: "Vous avez gagné 5 points",
+          variant: "success"
+        });
+      }
+    }, 1500);
+  };
+  
+  const handleAnalyzeCode = async () => {
+    if (!userCode.trim()) {
+      toast({
+        title: "Code vide",
+        description: "Veuillez entrer du code à analyser",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsGenerating(true);
+    
+    try {
+      const prompt = `Analyse ce code ${selectedCodeExample?.language || 'Python'} et aide-moi à le comprendre:
+      
+\`\`\`${selectedCodeExample?.language || 'python'}
+${userCode}
+\`\`\`
+
+1. Explique ce que fait ce code, étape par étape
+2. Identifie les bonnes pratiques utilisées
+3. Suggère des améliorations ou optimisations possibles
+4. Y a-t-il des erreurs ou des problèmes potentiels à corriger?
+
+Réponds de manière claire et pédagogique, comme si tu expliquais à quelqu'un qui apprend la data science.`;
+
+      // Utiliser l'API d'IA existante pour l'analyse
+      const response = await fetch('/api/openai/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt,
+          model: selectedModel
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        const newResponse: GeneratedResponse = {
+          content: data.text,
+          timestamp: new Date(),
+          model: selectedModel,
+          promptType: 'code'
+        };
+        
+        setGeneratedResponses([newResponse, ...generatedResponses]);
+        
+        // Augmenter le score pour avoir analysé le code
+        setUserScore(prev => prev + 10);
+        setStreak(prev => prev + 1);
+        
+        toast({
+          title: "Analyse terminée !",
+          description: "Vous avez gagné 10 points pour cette analyse de code",
+          variant: "success"
+        });
+      } else {
+        throw new Error(data.error || "Erreur lors de la génération de l'analyse");
+      }
+    } catch (error) {
+      toast({
+        title: "Erreur d'analyse",
+        description: error.message || "Une erreur est survenue lors de l'analyse du code",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+  
+  const handleFixCode = async () => {
+    if (!selectedCodeExample?.hasError) {
+      toast({
+        title: "Aucune erreur détectée",
+        description: "Ce code ne contient pas d'erreurs connues à corriger",
+        variant: "default"
+      });
+      return;
+    }
+    
+    setIsGenerating(true);
+    
+    try {
+      const prompt = `Ce code ${selectedCodeExample.language} contient des erreurs. Identifie-les et corrige-les:
+      
+\`\`\`${selectedCodeExample.language}
+${userCode}
+\`\`\`
+
+Pour chaque erreur:
+1. Identifie précisément l'erreur
+2. Explique pourquoi c'est une erreur
+3. Propose une correction
+
+À la fin, fournis la version complète et corrigée du code.`;
+
+      // Utiliser l'API d'IA pour la correction
+      const response = await fetch('/api/openai/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt,
+          model: selectedModel
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        const newResponse: GeneratedResponse = {
+          content: data.text,
+          timestamp: new Date(),
+          model: selectedModel,
+          promptType: 'code'
+        };
+        
+        setGeneratedResponses([newResponse, ...generatedResponses]);
+        
+        // Extraire le code corrigé si possible
+        const codeMatch = data.text.match(/```python([\s\S]*?)```/);
+        if (codeMatch && codeMatch[1]) {
+          setUserCode(codeMatch[1].trim());
+        }
+        
+        // Augmenter le score pour avoir corrigé le code
+        setUserScore(prev => prev + 15);
+        setStreak(prev => prev + 1);
+        
+        toast({
+          title: "Correction terminée !",
+          description: "Bravo! Vous avez identifié et corrigé les erreurs (+15 points)",
+          variant: "success"
+        });
+      } else {
+        throw new Error(data.error || "Erreur lors de la génération des corrections");
+      }
+    } catch (error) {
+      toast({
+        title: "Erreur de correction",
+        description: error.message || "Une erreur est survenue lors de la correction du code",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!promptText.trim()) {
@@ -1342,7 +1560,7 @@ En maîtrisant ces principes, vous pourrez exploiter pleinement le potentiel de 
                         value="data-scenarios"
                         className="data-[state=active]:bg-blue-700 data-[state=active]:text-white"
                       >
-                        <BarChart2 className="h-4 w-4 mr-2" />
+                        <BarChart className="h-4 w-4 mr-2" />
                         Scénarios
                       </TabsTrigger>
                       <TabsTrigger 
