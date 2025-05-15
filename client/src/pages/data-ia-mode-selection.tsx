@@ -486,42 +486,40 @@ export default function DataIaModeSelection() {
             className="text-center mb-16 relative"
             data-id="main-title"
           >
-            <div className="data-wave absolute inset-0 -z-10"></div>
             <h1 className="text-5xl font-bold mb-4 font-data-title relative">
-              <span className="data-gradient-text">Centre de Formation Data & IA</span>
+              <span className="text-white">Centre de Formation Data & IA</span>
               <br />
               <DataGlitchText 
                 text="I AM DATA" 
-                className="text-6xl mt-2 block tracking-wider" 
-                binary={true}
-                intense={true}
-                repeatInterval={7000}
+                className="text-6xl mt-2 block tracking-wider text-blue-300" 
+                binary={false}
+                intense={false}
+                repeatInterval={20000}
               />
             </h1>
-            <div className="w-20 h-1 bg-gradient-to-r from-[#00c6ff] to-[#7b2ff7] mx-auto my-6"></div>
+            <div className="w-20 h-1 bg-[#384095] mx-auto my-6"></div>
             <p className={`max-w-3xl mx-auto text-xl ${
               highContrastMode ? 'text-gray-300' : 'text-blue-100' 
             }`}>
-              Trouvez votre parcours d'apprentissage personnalisé en <span className="font-semibold text-[#4bf2a2]">Data Science</span> et <span className="font-semibold text-[#ff36d0]">Intelligence Artificielle</span>
+              Trouvez votre parcours d'apprentissage personnalisé en <span className="font-semibold text-blue-300">Data Science</span> et <span className="font-semibold text-purple-300">Intelligence Artificielle</span>
             </p>
-            <div className="data-binary-bg absolute inset-0 -z-20 opacity-30"></div>
           </motion.div>
 
           {/* Onglets principaux */}
           <Tabs defaultValue="objectifs" className="w-full" data-id="main-tabs">
-            <TabsList className={`w-full mb-8 p-1.5 data-border data-module-frame ${
-              highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-[#0a0a2e]/80'
+            <TabsList className={`w-full mb-8 p-1.5 ${
+              highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-[#141440]/80 border border-purple-900/30'
             }`}>
               <TabsTrigger 
                 value="objectifs" 
                 className={`flex-1 flex items-center justify-center py-3 transition-all duration-300 font-data ${
                   highContrastMode 
                     ? 'data-[state=active]:bg-purple-900 text-white' 
-                    : 'data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600/40 data-[state=active]:to-blue-600/30 data-[state=active]:border-t-2 data-[state=active]:border-[#00c6ff] data-[state=active]:text-white'
+                    : 'data-[state=active]:bg-[#242470]/80 data-[state=active]:text-white data-[state=active]:shadow-md'
                 }`}
                 data-id="objectives-tab"
               >
-                <div className={`mr-3 p-1 rounded-full ${highContrastMode ? 'bg-purple-800/50' : 'data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-700 data-[state=active]:to-blue-900 data-[state=active]:shadow-lg'}`}>
+                <div className={`mr-3 p-1 rounded-full ${highContrastMode ? 'bg-purple-800/50' : 'bg-[#1a1a50]/80 text-blue-300'}`}>
                   <IoBookOutline className="h-5 w-5" />
                 </div>
                 Par objectif d'apprentissage
@@ -531,11 +529,11 @@ export default function DataIaModeSelection() {
                 className={`flex-1 flex items-center justify-center py-3 transition-all duration-300 font-data ${
                   highContrastMode 
                     ? 'data-[state=active]:bg-purple-900 text-white' 
-                    : 'data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600/40 data-[state=active]:to-blue-600/30 data-[state=active]:border-t-2 data-[state=active]:border-[#00c6ff] data-[state=active]:text-white'
+                    : 'data-[state=active]:bg-[#242470]/80 data-[state=active]:text-white data-[state=active]:shadow-md'
                 }`}
                 data-id="careers-tab"
               >
-                <div className={`mr-3 p-1 rounded-full ${highContrastMode ? 'bg-purple-800/50' : 'data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-700 data-[state=active]:to-blue-900 data-[state=active]:shadow-lg'}`}>
+                <div className={`mr-3 p-1 rounded-full ${highContrastMode ? 'bg-purple-800/50' : 'bg-[#1a1a50]/80 text-blue-300'}`}>
                   <BsBriefcase className="h-5 w-5" />
                 </div>
                 Par métier
@@ -545,11 +543,11 @@ export default function DataIaModeSelection() {
                 className={`flex-1 flex items-center justify-center py-3 transition-all duration-300 font-data ${
                   highContrastMode 
                     ? 'data-[state=active]:bg-purple-900 text-white' 
-                    : 'data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600/40 data-[state=active]:to-blue-600/30 data-[state=active]:border-t-2 data-[state=active]:border-[#00c6ff] data-[state=active]:text-white'
+                    : 'data-[state=active]:bg-[#242470]/80 data-[state=active]:text-white data-[state=active]:shadow-md'
                 }`}
                 data-id="all-modules-tab"
               >
-                <div className={`mr-3 p-1 rounded-full ${highContrastMode ? 'bg-purple-800/50' : 'data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-700 data-[state=active]:to-blue-900 data-[state=active]:shadow-lg'}`}>
+                <div className={`mr-3 p-1 rounded-full ${highContrastMode ? 'bg-purple-800/50' : 'bg-[#1a1a50]/80 text-blue-300'}`}>
                   <BsGearFill className="h-5 w-5" />
                 </div>
                 Tous les modules
@@ -565,28 +563,22 @@ export default function DataIaModeSelection() {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4 }}
-                    className={`rounded-xl p-8 shadow-lg data-card data-module-frame relative overflow-hidden ${
+                    className={`rounded-xl p-8 shadow-lg relative overflow-hidden ${
                       highContrastMode 
                         ? 'bg-gray-800 border border-gray-700' 
-                        : `bg-gradient-to-br ${objective.gradient}`
+                        : 'bg-[#141440]/80 border border-[#354095]/30'
                     }`}
                     data-id={`objective-${objective.id}`}
                   >
-                    <div className="data-flow absolute top-0 left-0 w-full"></div>
-                    <div className="flex flex-col h-full relative z-10">
+                    <div className="flex flex-col h-full">
                       <div className="flex items-center gap-4 mb-4">
-                        <div className={`p-3 rounded-full data-hover-glow ${
-                          highContrastMode ? 'bg-purple-900' : 'bg-[#0e0936]/80 border border-[#7b2ff7]/50'
+                        <div className={`p-3 rounded-full ${
+                          highContrastMode ? 'bg-purple-900' : 'bg-[#1a1a50]/80 text-blue-300'
                         }`}>
                           {objective.icon}
                         </div>
                         <h2 className="text-2xl font-bold font-data-title text-white">
-                          <DataGlitchText 
-                            text={objective.title}
-                            className="text-transparent bg-clip-text bg-gradient-to-r from-[#00c6ff] to-[#7b2ff7]"
-                            intense={false}
-                            repeatInterval={15000 + Math.random() * 10000}
-                          />
+                          {objective.title}
                         </h2>
                       </div>
                       
@@ -598,18 +590,17 @@ export default function DataIaModeSelection() {
                       
                       <div className="mt-auto">
                         <h3 className="text-white font-medium mb-3 font-data flex items-center">
-                          <div className="w-2 h-2 rounded-full bg-[#4bf2a2] mr-2"></div>
+                          <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
                           Modules:
                         </h3>
-                        <div className="p-4 rounded-lg bg-[#0e0936]/60 text-center border border-[#7b2ff7]/30 data-viz-container">
-                          <Badge className="px-3 py-1.5 bg-gradient-to-r from-amber-500/20 to-amber-700/20 border-amber-500/40 text-amber-400 text-md mb-2">
+                        <div className="p-4 rounded-lg bg-[#1a1a50]/80 text-center border border-[#354095]/30">
+                          <Badge className="px-3 py-1.5 bg-amber-800/20 border-amber-500/30 text-amber-400 text-md mb-2">
                             Bientôt disponible
                           </Badge>
                           <p className="text-blue-100 text-sm">Les modules de cette section seront disponibles prochainement.</p>
                         </div>
                       </div>
                     </div>
-                    <div className="absolute -bottom-10 -right-10 w-32 h-32 rounded-full bg-gradient-to-tl from-transparent to-[#7b2ff7]/20 blur-xl"></div>
                   </motion.div>
                 ))}
               </div>
