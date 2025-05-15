@@ -329,7 +329,7 @@ Il est ${game.gameState.simulatedTimeHour}:${game.gameState.simulatedTimeMinute.
       content: prompt
     });
     
-    const completion = await openaiService.getChatCompletion(game.aiContext);
+    const completion = await openAIService.getChatCompletion(game.aiContext);
     
     if (completion) {
       // Ajouter la réponse au contexte
@@ -385,7 +385,7 @@ Format: un paragraphe court, urgent et immersif.`;
         content: prompt
       });
       
-      const completion = await openaiService.getChatCompletion(game.aiContext);
+      const completion = await openAIService.getChatCompletion(game.aiContext);
       
       if (completion) {
         // Ajouter la réponse au contexte
@@ -439,7 +439,7 @@ N'oublie pas que les PNJ sont autonomes, peuvent avoir leur propre agenda, et pa
         content: prompt
       });
       
-      const completion = await openaiService.getChatCompletion(game.aiContext);
+      const completion = await openAIService.getChatCompletion(game.aiContext);
       
       if (completion) {
         // Ajouter la réponse au contexte
@@ -507,7 +507,7 @@ Assure-toi que les options soient pertinentes pour le rôle ${player.role} et po
         content: prompt
       });
       
-      const completion = await openaiService.getChatCompletionAsJson(game.aiContext);
+      const completion = await openAIService.getChatCompletionAsJson(game.aiContext);
       
       if (completion && completion.prompt && completion.options) {
         // Ajouter la réponse au contexte
@@ -585,7 +585,7 @@ Format: Si c'est un PNJ qui répond, commence par son nom et son rôle. Si c'est
       content: prompt
     });
     
-    const completion = await openaiService.getChatCompletion(game.aiContext);
+    const completion = await openAIService.getChatCompletion(game.aiContext);
     
     if (completion) {
       // Ajouter la réponse au contexte
@@ -725,7 +725,7 @@ Format attendu: JSON avec cette structure:
       content: prompt
     });
     
-    const completion = await openaiService.getChatCompletionAsJson(game.aiContext);
+    const completion = await openAIService.getChatCompletionAsJson(game.aiContext);
     
     if (completion && completion.consequence && completion.metrics) {
       // Ajouter la réponse au contexte
@@ -861,7 +861,7 @@ Format: Un texte structuré avec des titres clairs et des paragraphes.`;
       content: prompt
     });
     
-    const completion = await openaiService.getChatCompletion(game.aiContext);
+    const completion = await openAIService.getChatCompletion(game.aiContext);
     
     if (completion) {
       // Ajouter la réponse au contexte

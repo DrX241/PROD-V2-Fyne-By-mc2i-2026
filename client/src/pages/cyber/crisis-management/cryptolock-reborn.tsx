@@ -8,7 +8,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { CyberButton } from '@/components/CyberButton';
+import CyberButton from '@/components/CyberButton';
 import { Loader2, Clock, AlertCircle, Send, ArrowRight, FileText, MessageCircle, BarChart3, Users, Brain, ShieldAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
