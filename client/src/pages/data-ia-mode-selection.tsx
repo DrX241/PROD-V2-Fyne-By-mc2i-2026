@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
+import '../styles/data-ia.css';
 import { motion } from 'framer-motion';
 import { 
   ArrowRight, 
@@ -36,6 +37,8 @@ import { AiOutlineZoomIn, AiOutlineZoomOut, AiOutlineCloudServer } from 'react-i
 import { FiMoon, FiSun } from 'react-icons/fi';
 
 import { Button } from '@/components/ui/button';
+import DataGlitchText from '@/components/DataGlitchText';
+import { DataButton } from '@/components/DataButton';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
 import { Input } from "@/components/ui/input";
@@ -359,20 +362,23 @@ export default function DataIaModeSelection() {
 
   return (
     <HomeLayout>
-      <div id="data-ia-mode-selection" className={`min-h-screen pb-20 ${
-        highContrastMode ? 'bg-black text-white' : 'bg-gradient-to-b from-purple-900 via-indigo-950 to-black text-white'
+      <div id="data-ia-mode-selection" className={`min-h-screen pb-20 data-particles-bg data-connections ${
+        highContrastMode ? 'bg-black text-white' : 'bg-gradient-to-b from-[#1f0a3a] via-[#120540] to-black text-white'
       }`} style={{ fontSize: `${textSize}rem` }}>
         {/* Navigation et contrôles */}
         <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">
           <div className="flex justify-between items-center mb-10">
             <div className="flex items-center">
               <Link href="/">
-                <Button 
-                  className="bg-gradient-to-r from-purple-600 to-indigo-800 text-white hover:from-purple-700 hover:to-indigo-900 text-lg px-6 py-2 h-auto rounded-xl shadow-lg hover:shadow-purple-800/30 transition-all"
+                <DataButton 
+                  variant="glow"
+                  size="lg"
+                  dataEffect="flow"
+                  className="font-data-title"
+                  startIcon={<IoHome className="h-6 w-6" />}
                 >
-                  <IoHome className="mr-3 h-6 w-6" />
                   Accueil
-                </Button>
+                </DataButton>
               </Link>
               <PageTitle title="I AM DATA & IA" />
             </div>
