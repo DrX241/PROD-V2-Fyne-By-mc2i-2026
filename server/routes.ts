@@ -4838,6 +4838,12 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   
   // Route pour le générateur de livrables
   app.post('/api/mc2i/generateur-livrables', generateLivrable);
+  
+  // Routes pour les défis du IA Lab Trainer
+  app.get('/api/ia-lab/challenge/categories/:language', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.getChallengeCategories(req, res)));
+  app.post('/api/ia-lab/challenge/generate', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.generateChallenge(req, res)));
+  app.post('/api/ia-lab/challenge/evaluate', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.evaluateChallengeSolution(req, res)));
+  app.post('/api/ia-lab/challenge/hint', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.getAdditionalHint(req, res)));
 
   // Fin des routes API
 
