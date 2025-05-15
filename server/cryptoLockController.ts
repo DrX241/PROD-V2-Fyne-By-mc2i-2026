@@ -477,10 +477,11 @@ shouldAdvanceTurn doit être true pour ce type de décision majeure.`;
 
       // Envoyer la requête à l'API Azure OpenAI
       const aiResponse = await openAIService.getChatCompletion(
-        [{ role: 'system', content: systemPrompt }],
+        [{ role: 'system' as const, content: systemPrompt }],
         true, // useSecondaryModel
         0.7,  // temperature
-        true  // formatAsJson
+        2000, // maxTokens
+        { responseFormat: 'json_object' } // format JSON
       );
 
       let parsedResponse;
