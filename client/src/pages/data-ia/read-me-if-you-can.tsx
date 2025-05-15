@@ -1182,7 +1182,9 @@ const ReadMeIfYouCan = () => {
                   <CardDescription className="text-gray-300">
                     Mode : {selectedMode === 'normal' ? '"Lis et devine"' : 
                            selectedMode === 'analyse' ? '"Explique ce que tu lis"' :
-                           selectedMode === 'défense' ? '"Revue de code"' : '"Contre la montre"'}
+                           selectedMode === 'défense' ? '"Revue de code"' : 
+                           selectedMode === 'vitesse' ? '"Contre la montre"' :
+                           '"Code interactif"'}
                   </CardDescription>
                 </CardHeader>
                 
