@@ -66,6 +66,13 @@ export async function generateChallenge(req: Request, res: Response) {
     
     // Le secteur est optionnel
     
+    // Générer une graine aléatoire pour la sélection des personnages
+    const generateRandomSeed = (minVal = 1, maxVal = 1000) => Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+    
+    // Créer un système pour forcer la diversité des personnages
+    const personnajesSeed = generateRandomSeed();
+    const contexteSeed = generateRandomSeed();
+    
     // Créer la prompt pour l'IA
     const systemMessage = {
       role: 'system' as 'system',
@@ -79,20 +86,24 @@ export async function generateChallenge(req: Request, res: Response) {
       ${sector ? `- Le scénario doit OBLIGATOIREMENT être adapté au secteur "${sector}" avec des problématiques métier spécifiques à ce secteur` : ''}
       
       INSTRUCTIONS IMPORTANTES:
-      - CHOISIS DE FAÇON ALÉATOIRE ENTRE UN CLIENT DIXIT ET UN CLIENT IMPULSE
-      - SÉLECTIONNE DE FAÇON ALÉATOIRE DEUX OU TROIS PERSONNAGES PARMI LA LISTE CI-DESSOUS
-      - VARIE LES RÔLES ET LES INTERACTIONS ENTRE LES PERSONNAGES
-      - NE FAVORISE PAS CERTAINS PERSONNAGES, ASSURE UNE DISTRIBUTION ÉQUITABLE
+      - UTILISE LE NOMBRE ALÉATOIRE ${contexteSeed} POUR CHOISIR ENTRE DIXIT ET IMPULSE. SI LE NOMBRE EST PAIR, UTILISE DIXIT. SI LE NOMBRE EST IMPAIR, UTILISE IMPULSE.
+      - UTILISE LE NOMBRE ALÉATOIRE ${personnajesSeed} POUR SÉLECTIONNER EXACTEMENT 3 PERSONNAGES DE LA LISTE CI-DESSOUS AVEC LA FORMULE SUIVANTE:
+        * PERSONNAGE 1: PERSONNE À LA POSITION (${personnajesSeed} % 8) DE LA LISTE
+        * PERSONNAGE 2: PERSONNE À LA POSITION ((${personnajesSeed} + 2) % 8) DE LA LISTE
+        * PERSONNAGE 3: PERSONNE À LA POSITION ((${personnajesSeed} + 5) % 8) DE LA LISTE
+      - LES POSITIONS VONT DE 0 À 7, SI LE RÉSULTAT EST 8, UTILISE 0
+      - VARIE LES RÔLES ET LES INTERACTIONS ENTRE LES PERSONNAGES SÉLECTIONNÉS
+      - RESPECTE STRICTEMENT CETTE SÉLECTION ALÉATOIRE SANS EXCEPTION
       
-      PERSONNAGES DISPONIBLES (CHOISIS-EN ALÉATOIREMENT 2 OU 3):
-        * Eddy MISSONI (consultant data)
-        * Neil LEVIN (data scientist senior)
-        * Yousra SAIDANI (cheffe de projet)
-        * Fares SAYADI (consultant BI)
-        * Guillaume LECHEVALLIER (Directeur IMPULSE)
-        * Nosing DOEUK (Directeur IMPULSE)
-        * Arnaud GAUTHIER (Président)
-        * Olivier HERVO (Directeur Général)
+      PERSONNAGES DISPONIBLES (LISTE ORDONNÉE DE 0 À 7, UTILISE EXACTEMENT 3 PERSONNAGES SÉLECTIONNÉS SELON LA FORMULE CI-DESSUS):
+        0. Eddy MISSONI (consultant data)
+        1. Neil LEVIN (data scientist senior)
+        2. Yousra SAIDANI (cheffe de projet)
+        3. Fares SAYADI (consultant BI)
+        4. Guillaume LECHEVALLIER (Directeur IMPULSE)
+        5. Nosing DOEUK (Directeur IMPULSE)
+        6. Arnaud GAUTHIER (Président)
+        7. Olivier HERVO (Directeur Général)
       
       Structure ta réponse en JSON valide STRICTEMENT avec le format suivant, sans aucun texte avant ou après:
       {
@@ -125,7 +136,15 @@ export async function generateChallenge(req: Request, res: Response) {
 
     const userMessage = {
       role: 'user' as 'user',
-      content: `Génère un cas pratique professionnel de programmation ${language} de niveau ${difficulty} dans la catégorie ${category}${sector ? ` pour le secteur "${sector}"` : ''}. Choisis aléatoirement entre DIXIT et IMPULSE, et sélectionne aléatoirement 2 ou 3 personnages parmi la liste fournie. Assure-toi de bien varier les personnages et les rôles d'un scénario à l'autre.${sector ? ` Le scénario doit traiter de problématiques métier spécifiques au secteur "${sector}".` : ''}`
+      content: `Génère un cas pratique professionnel de programmation ${language} de niveau ${difficulty} dans la catégorie ${category}${sector ? ` pour le secteur "${sector}"` : ''}. 
+      
+      IMPORTANT:
+      - Utilise EXACTEMENT 3 personnages sélectionnés selon la formule mathématique fournie dans le prompt système (avec les nombres ${personnajesSeed} et ${contexteSeed}).
+      - Respecte strictement la sélection aléatoire des personnages sans exception.
+      - Assure-toi que le contenu est parfaitement adapté à la catégorie "${category}" et ${sector ? `au secteur "${sector}"` : 'au contexte général'}.
+      - Respecte le niveau de difficulté ${difficulty}.
+      
+      ${sector ? `Le scénario doit traiter de problématiques métier spécifiques et réalistes du secteur "${sector}".` : ''}`
     };
 
     // Appel à l'API Azure OpenAI
