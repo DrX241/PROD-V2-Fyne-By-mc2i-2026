@@ -234,7 +234,9 @@ export default function CryptoLockGame() {
         // Progression du jeu - simulons une réponse adaptée au tour
         if (game.currentTurn === 0) {
           // Premier tour - l'incident vient d'être détecté
-          addSystemMessage("⚠️ **Alerte de sécurité** ⚠️\\n\\nPlusieurs utilisateurs signalent l'impossibilité d'accéder à leurs fichiers. Un message de rançon s'affiche sur certains écrans. Le système de monitoring détecte une activité anormale sur le réseau.");
+          addSystemMessage(`⚠️ **Alerte de sécurité** ⚠️
+
+Plusieurs utilisateurs signalent l'impossibilité d'accéder à leurs fichiers. Un message de rançon s'affiche sur certains écrans. Le système de monitoring détecte une activité anormale sur le réseau.`);
           
           // L'IA joue le rôle du DSI si non pris par un humain
           if (!game.players.some(p => p.role === 'DSI' && !p.isAI)) {
@@ -248,7 +250,9 @@ export default function CryptoLockGame() {
           }));
         } else if (game.currentTurn === 1) {
           // Deuxième tour - décision de confinement
-          addSystemMessage("**Tour 2: Confinement**\\n\\nLa propagation du ransomware continue. Des décisions de confinement doivent être prises rapidement pour limiter les dégâts.", true, [
+          addSystemMessage(`**Tour 2: Confinement**
+
+La propagation du ransomware continue. Des décisions de confinement doivent être prises rapidement pour limiter les dégâts.`, true, [
             { id: "isolate-all", text: "Isoler complètement le réseau (impact majeur sur les opérations)" },
             { id: "isolate-affected", text: "Isoler uniquement les systèmes affectés (risque de propagation)" },
             { id: "continue-monitoring", text: "Continuer à surveiller sans isoler (risque très élevé)" }
@@ -366,7 +370,19 @@ export default function CryptoLockGame() {
     }));
     
     // Message d'introduction
-    addSystemMessage("🎮 **CryptoLock - 72H de Tension** 🎮\\n\\nLundi, 7h58.\\n\\nLes premiers employés ouvrent leurs ordinateurs. Quelques secondes plus tard, les premiers appels tombent.\\n\\n\"Je n'arrive plus à accéder à mes fichiers...\"\\n\\nUne fenêtre rouge s'ouvre sur les écrans : 🔒 \"Vos fichiers ont été chiffrés. Payez 3 bitcoins dans les 72h. Chaque heure compte.\"\\n\\nLe réseau ralentit. Les sauvegardes sont inaccessibles.\\n\\nLa panique monte. Vous êtes la cellule de crise. Chaque décision comptera.");
+    addSystemMessage(`🎮 **CryptoLock - 72H de Tension** 🎮
+
+Lundi, 7h58.
+
+Les premiers employés ouvrent leurs ordinateurs. Quelques secondes plus tard, les premiers appels tombent.
+
+"Je n'arrive plus à accéder à mes fichiers..."
+
+Une fenêtre rouge s'ouvre sur les écrans : 🔒 "Vos fichiers ont été chiffrés. Payez 3 bitcoins dans les 72h. Chaque heure compte."
+
+Le réseau ralentit. Les sauvegardes sont inaccessibles.
+
+La panique monte. Vous êtes la cellule de crise. Chaque décision comptera.`);
     
     // Focus sur l'input de message
     setTimeout(() => {
@@ -416,7 +432,7 @@ export default function CryptoLockGame() {
       // Ajouter les joueurs IA
       setGame(prev => ({
         ...prev,
-        players: [...prev.players, newPlayer, ...aiPlayers]
+        players: [...prev.players, ...aiPlayers]
       }));
       
       // Passer à l'étape suivante
@@ -469,23 +485,46 @@ export default function CryptoLockGame() {
   
   // Composant pour les indicateurs de métriques
   const MetricIndicator = ({ label, value, icon, color }: { label: string, value: number, icon: React.ReactNode, color: string }) => {
-    const getColor = () => {
-      if (value > 66) return `bg-${color}-500`;
-      if (value > 33) return `bg-${color}-600`;
-      return `bg-${color}-800`;
+    // Définir des classes de couleur statiques par couleur au lieu de dynamiques
+    const getColorClass = () => {
+      const colorMap: Record<string, { bg: string, text: string }> = {
+        'cyan': { 
+          bg: value > 66 ? 'bg-cyan-500' : value > 33 ? 'bg-cyan-600' : 'bg-cyan-800',
+          text: 'text-cyan-400'
+        },
+        'blue': { 
+          bg: value > 66 ? 'bg-blue-500' : value > 33 ? 'bg-blue-600' : 'bg-blue-800',
+          text: 'text-blue-400'
+        },
+        'purple': { 
+          bg: value > 66 ? 'bg-purple-500' : value > 33 ? 'bg-purple-600' : 'bg-purple-800',
+          text: 'text-purple-400'
+        },
+        'amber': { 
+          bg: value > 66 ? 'bg-amber-500' : value > 33 ? 'bg-amber-600' : 'bg-amber-800',
+          text: 'text-amber-400'
+        },
+        'green': { 
+          bg: value > 66 ? 'bg-green-500' : value > 33 ? 'bg-green-600' : 'bg-green-800',
+          text: 'text-green-400'
+        },
+      };
+      return colorMap[color] || { bg: 'bg-slate-500', text: 'text-slate-400' };
     };
+    
+    const colorClass = getColorClass();
     
     return (
       <div className="flex flex-col items-center bg-slate-900/60 p-2 rounded-md border border-slate-800">
         <div className="flex items-center gap-1 text-xs text-slate-300 mb-1">
-          <span className={`text-${color}-400`}>{icon}</span>
+          <span className={colorClass.text}>{icon}</span>
           <span>{label}</span>
         </div>
         <Progress 
           value={value} 
-          className={`h-1.5 w-full ${getColor()}`}
+          className={`h-1.5 w-full ${colorClass.bg}`}
         />
-        <span className={`text-xs font-bold mt-1 text-${color}-400`}>{value}%</span>
+        <span className={`text-xs font-bold mt-1 ${colorClass.text}`}>{value}%</span>
       </div>
     );
   };
