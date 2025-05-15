@@ -1,10 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'wouter';
 import { IoMdArrowBack, IoMdTimer, IoMdNotifications } from 'react-icons/io';
 import { BsExclamationCircleFill, BsShieldCheck, BsLightningCharge, BsPeopleFill, BsCalendarCheck } from 'react-icons/bs';
 import { FiLock, FiUsers, FiServer, FiDatabase, FiGlobe, FiMessageSquare, FiArrowRight, FiPlay } from 'react-icons/fi';
 import { RiRobot2Line, RiTeamLine } from 'react-icons/ri';
+
+// Interface pour les scénarios de crise
+interface CrisisScenario {
+  id: string;
+  title: string;
+  description: string;
+  icon: ReactNode;
+  difficulty: string;
+  duration: string;
+}
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -25,7 +35,7 @@ export default function CrisisManagement() {
   const [, navigate] = useLocation();
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [availableScenarios, setAvailableScenarios] = useState<any[]>([]);
+  const [availableScenarios, setAvailableScenarios] = useState<CrisisScenario[]>([]);
   const [startingSession, setStartingSession] = useState(false);
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
 
@@ -85,13 +95,16 @@ export default function CrisisManagement() {
     setSelectedScenarioId(scenarioId);
     setStartingSession(true);
     try {
-      // Utilisation temporaire d'un ID de session simple pour la démo
-      // Dans une implémentation réelle, cet ID viendrait du backend
-      const demoSessionId = `session-${Math.random().toString(36).substring(2, 9)}`;
-      
+      // Rediriger vers le scénario approprié
       setTimeout(() => {
-        // Rediriger vers la page de session active
-        navigate(`/cyber/crisis-management/session/${demoSessionId}`);
+        if (scenarioId === "cryptolock") {
+          // Rediriger vers la simulation CryptoLock
+          navigate(`/cyber/crisis-management/cryptolock-game`);
+        } else {
+          // Pour les autres scénarios, générer une session générique
+          const demoSessionId = `session-${Math.random().toString(36).substring(2, 9)}`;
+          navigate(`/cyber/crisis-management/session/${demoSessionId}`);
+        }
         
         toast({
           title: "Session démarrée",
@@ -125,15 +138,15 @@ export default function CrisisManagement() {
 
   const scenarios = [
     {
-      id: 1,
-      title: "Ransomware en cours",
-      description: "Un ransomware se propage dans votre infrastructure critique",
+      id: "cryptolock",
+      title: "CryptoLock",
+      description: "Simulation de crise ransomware avec impacts métiers et décisions critiques",
       icon: <FiLock className="h-6 w-6 text-red-500" />,
       difficulty: "Expert",
-      duration: "60 min"
+      duration: "45 min"
     },
     {
-      id: 2,
+      id: "identity-compromise",
       title: "Compromission d'identités",
       description: "Détection d'activités suspectes sur plusieurs comptes VIP",
       icon: <FiUsers className="h-6 w-6 text-yellow-500" />,
@@ -141,7 +154,7 @@ export default function CrisisManagement() {
       duration: "45 min"
     },
     {
-      id: 3,
+      id: "zero-day",
       title: "Vulnérabilité Zero-Day",
       description: "Une faille critique est découverte sur vos serveurs exposés",
       icon: <FiServer className="h-6 w-6 text-orange-500" />,
@@ -149,7 +162,7 @@ export default function CrisisManagement() {
       duration: "50 min"
     },
     {
-      id: 4,
+      id: "data-exfiltration",
       title: "Exfiltration de données",
       description: "Détection d'un transfert massif de données sensibles",
       icon: <FiDatabase className="h-6 w-6 text-blue-500" />,
@@ -157,7 +170,7 @@ export default function CrisisManagement() {
       duration: "40 min"
     },
     {
-      id: 5,
+      id: "ddos-attack",
       title: "Attaque DDoS",
       description: "Vos services en ligne subissent une attaque par déni de service",
       icon: <FiGlobe className="h-6 w-6 text-purple-500" />,
@@ -165,7 +178,7 @@ export default function CrisisManagement() {
       duration: "30 min"
     },
     {
-      id: 6,
+      id: "crisis-communication",
       title: "Communication de crise",
       description: "Gérer la communication interne et externe lors d'un incident majeur",
       icon: <FiMessageSquare className="h-6 w-6 text-green-500" />,
