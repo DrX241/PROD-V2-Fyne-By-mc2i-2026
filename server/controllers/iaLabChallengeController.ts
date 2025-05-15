@@ -14,6 +14,7 @@ export interface Challenge {
   hints: string[];
   solution?: string;
   category: string;
+  sector?: string; // Secteur d'activité ajouté
 }
 
 // Structure de données pour les catégories de défis
@@ -36,10 +37,24 @@ const CHALLENGE_CATEGORIES = {
   ]
 };
 
+// Secteurs d'activité pour les défis
+export const INDUSTRY_SECTORS = [
+  'Énergie',
+  'Banque & Finance',
+  'Assurance',
+  'Transport & Logistique',
+  'Santé',
+  'Secteur Public',
+  'Télécommunications',
+  'Industrie',
+  'Distribution & Commerce',
+  'Services'
+];
+
 // Fonction pour générer un défi via l'IA
 export async function generateChallenge(req: Request, res: Response) {
   try {
-    const { language, difficulty, category } = req.body;
+    const { language, difficulty, category, sector } = req.body;
     
     // Validation
     if (!language || !difficulty || !category) {
@@ -48,6 +63,8 @@ export async function generateChallenge(req: Request, res: Response) {
         error: 'Les paramètres language, difficulty et category sont requis'
       });
     }
+    
+    // Le secteur est optionnel
     
     // Créer la prompt pour l'IA
     const systemMessage = {
