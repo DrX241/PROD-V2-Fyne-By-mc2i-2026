@@ -108,12 +108,11 @@ export async function generateChallenge(req: Request, res: Response) {
       Structure ta réponse en JSON valide STRICTEMENT avec le format suivant, sans aucun texte avant ou après:
       {
         "title": "Titre court et concis sur le cas d'usage professionnel",
-        "description": "Mise en situation professionnelle détaillée incluant le contexte, les personnages nommés ci-dessus, le cabinet mc2i, et les entités DIXIT ou IMPULSE selon le cas. Décris précisément les objectifs métier, les contraintes techniques et les livrables attendus.",
-        "initialCode": "Code de départ que l'utilisateur pourra modifier",
-        "expectedOutput": "Description ou exemple de la sortie attendue",
-        "validationCriteria": ["Critère 1", "Critère 2"],
-        "hints": ["Indice 1", "Indice 2"],
-        "solution": "Code solution complète de référence",
+        "description": "La description doit être structurée en trois parties clairement séparées:\n\n## CONTEXTE\nPrésentation détaillée du contexte professionnel avec les 3 personnages sélectionnés, leur rôle dans le projet, l'entreprise (mc2i, DIXIT ou IMPULSE) et la problématique métier spécifique au secteur.\n\n## DONNÉES\nDescription précise des données disponibles (format, structure, source) avec des exemples concrets. Ces données doivent être pertinentes pour le secteur et la catégorie choisie.\n\n## OBJECTIF\nExplication claire et précise de la tâche à accomplir, avec les critères de réussite bien définis et les livrables attendus.",
+        "initialCode": "Code initial que l'utilisateur pourra modifier pour résoudre le problème. Ce code doit inclure:\n- L'import des bibliothèques nécessaires\n- Des commentaires explicatifs sur les données\n- Un squelette de fonction avec des TODO clairs\n- Des exemples de valeurs/structures de données",
+        "expectedOutput": "Description précise du format de sortie attendu avec un exemple concret",
+        "hints": ["Un indice précis sur la structure/algorithme à utiliser", "Un indice sur un aspect technique particulier de la solution", "Un indice sur une approche métier pour résoudre le problème"],
+        "solution": "Solution complète et bien commentée. Inclure: \n- Des commentaires expliquant chaque étape importante\n- Des explications sur les choix méthodologiques\n- La gestion des cas particuliers",
         "difficulty": "${difficulty}",
         "category": "${category}",
         "language": "${language}"
@@ -123,14 +122,20 @@ export async function generateChallenge(req: Request, res: Response) {
       
       Pour Python:
       - Crée un cas d'usage réaliste d'entreprise (analyse de données clients, automatisation, prédiction, etc.)
-      - Assure-toi que le code initial est fonctionnel mais incomplet
-      - Inclus des commentaires pédagogiques
+      - La section DONNÉES doit inclure des exemples précis et concrets des données disponibles (DataFrame, dictionnaires, listes, etc.)
+      - La section OBJECTIF doit expliquer clairement ce que l'utilisateur doit accomplir et les critères d'évaluation
+      - Assure-toi que le code initial est fonctionnel mais incomplet, avec des commentaires TODO explicites
+      - Inclus des commentaires pédagogiques expliquant le format des données et les attentes
       - Si c'est un exercice de Data Science, utilise des bibliothèques standard (pandas, numpy, matplotlib)
+      - Fournis un exemple clair du résultat attendu
       
       Pour SQL:
       - Crée un cas d'usage réaliste d'entreprise (analyse de base client, reporting, optimisation de requêtes, etc.)
-      - Inclus des commentaires expliquant le schéma de la base de données
+      - La section DONNÉES doit décrire précisément les tables, leurs colonnes et les relations entre elles
+      - La section OBJECTIF doit expliquer clairement quelles informations doivent être extraites et pourquoi
+      - Inclus des commentaires expliquant le schéma de la base de données avec des exemples de données
       - Utilise des noms de tables et colonnes intuitifs liés au contexte métier
+      - Fournis un exemple de résultat attendu avec la structure des colonnes
       - Si le niveau est avancé, inclus des considérations de performance`
     };
 
@@ -143,6 +148,9 @@ export async function generateChallenge(req: Request, res: Response) {
       - Respecte strictement la sélection aléatoire des personnages sans exception.
       - Assure-toi que le contenu est parfaitement adapté à la catégorie "${category}" et ${sector ? `au secteur "${sector}"` : 'au contexte général'}.
       - Respecte le niveau de difficulté ${difficulty}.
+      - La description DOIT être structurée en trois parties distinctes et très claires: CONTEXTE, DONNÉES, OBJECTIF.
+      - Les DONNÉES doivent inclure des exemples concrets et précis des données disponibles.
+      - L'OBJECTIF doit expliquer clairement ce qui est attendu et comment le résultat sera évalué.
       
       ${sector ? `Le scénario doit traiter de problématiques métier spécifiques et réalistes du secteur "${sector}".` : ''}`
     };
