@@ -406,6 +406,15 @@ function App() {
                     </Suspense>
                   );
                 }} />
+
+                <Route path="/cyber/crisis-management/cryptolock-game" component={() => {
+                  const CryptoLockGameComponent = lazy(() => import('./pages/cyber/crisis-management/cryptolock-game'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CryptoLockGameComponent />
+                    </Suspense>
+                  );
+                }} />
                 
                 <Route path="/cyber/arcade/code-shield" component={() => {
                   const CodeShieldComponent = lazy(() => import('./pages/cyber/arcade/code-shield'));
