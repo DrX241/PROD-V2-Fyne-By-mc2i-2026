@@ -574,7 +574,7 @@ const ChallengeMode: React.FC<{
               </div>
               
               {/* Solution (conditionnellement visible) */}
-              {showSolution && currentChallenge.solution && (
+              {showSolution && currentChallenge && currentChallenge.solution && (
                 <div>
                   <h3 className="text-white font-medium mb-2">Solution</h3>
                   <div className="bg-emerald-900/20 border border-emerald-500/20 rounded-md p-3">
