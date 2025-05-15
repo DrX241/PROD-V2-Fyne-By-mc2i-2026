@@ -395,8 +395,8 @@ const IALabTrainer: React.FC = () => {
   const handleLanguageChange = (language: 'python' | 'sql') => {
     if (language === selectedLanguage) return;
     
-    // Demander confirmation si le code a été modifié
-    if (code.trim() !== '') {
+    // Demander confirmation si le code a été modifié et n'est pas undefined
+    if (code && code.trim() !== '') {
       const defaultCode = selectedLanguage === 'python' 
         ? pythonExamples[2].code 
         : sqlExamples[0].code;
