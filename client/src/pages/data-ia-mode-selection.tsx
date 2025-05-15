@@ -362,19 +362,24 @@ export default function DataIaModeSelection() {
 
   return (
     <HomeLayout>
-      <div id="data-ia-mode-selection" className={`min-h-screen pb-20 data-particles-bg data-connections ${
-        highContrastMode ? 'bg-black text-white' : 'bg-gradient-to-b from-[#1f0a3a] via-[#120540] to-black text-white'
-      }`} style={{ fontSize: `${textSize}rem` }}>
+      <div id="data-ia-mode-selection" className={`min-h-screen pb-20 ${
+        highContrastMode 
+          ? 'bg-black text-white' 
+          : 'bg-gradient-to-b from-[#1e3a5f] to-[#102848] text-white'
+      }`} style={{ 
+        fontSize: `${textSize}rem`,
+        backgroundImage: highContrastMode ? 'none' : 'url("data:image/svg+xml,%3Csvg width="20" height="20" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M1 1h18v18H1V1z" fill="none" stroke="rgba(100,149,237,0.05)" stroke-width="0.2"/%3E%3C/svg%3E")',
+        backgroundRepeat: 'repeat',
+      }}>
         {/* Navigation et contrôles */}
         <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">
           <div className="flex justify-between items-center mb-10">
             <div className="flex items-center">
               <Link href="/">
                 <DataButton 
-                  variant="glow"
+                  variant="outline"
                   size="lg"
-                  dataEffect="flow"
-                  className="font-data-title"
+                  className="text-blue-300 border-blue-300/30 hover:bg-blue-900/20"
                   startIcon={<IoHome className="h-6 w-6" />}
                 >
                   Accueil
@@ -390,8 +395,7 @@ export default function DataIaModeSelection() {
                   <TooltipTrigger asChild>
                     <DataButton 
                       variant="outline"
-                      dataEffect="flow"
-                      className="w-11 h-11 p-0 flex items-center justify-center rounded-full bg-[#0e0936]/80 border-[#7b2ff7]/40 text-[#00c6ff] hover:bg-[#1a0f53]/80"
+                      className="w-11 h-11 p-0 flex items-center justify-center rounded-full text-blue-300 border-blue-300/30 hover:bg-blue-900/20"
                       onClick={() => {
                         setCurrentTour('data-ia-mode-selection');
                         startTutorial();
@@ -413,11 +417,10 @@ export default function DataIaModeSelection() {
                   <TooltipTrigger asChild>
                     <DataButton 
                       variant="outline"
-                      dataEffect="border"
                       className={`w-11 h-11 p-0 flex items-center justify-center rounded-full ${
                         highContrastMode 
-                          ? 'bg-purple-700 border-purple-600 text-white hover:bg-purple-600' 
-                          : 'bg-[#0e0936]/80 border-[#7b2ff7]/40 text-[#00c6ff] hover:bg-[#1a0f53]/80'
+                          ? 'bg-gray-800 border-gray-700 text-white hover:bg-gray-700' 
+                          : 'text-blue-300 border-blue-300/30 hover:bg-blue-900/20'
                       }`}
                       onClick={() => setHighContrastMode(!highContrastMode)}
                       data-id="contrast-button"
@@ -505,425 +508,122 @@ export default function DataIaModeSelection() {
             </p>
           </motion.div>
 
-          {/* Onglets principaux */}
-          <Tabs defaultValue="objectifs" className="w-full" data-id="main-tabs">
-            <TabsList className={`w-full mb-8 p-1.5 ${
-              highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-[#141440]/80 border border-purple-900/30'
-            }`}>
-              <TabsTrigger 
-                value="objectifs" 
-                className={`flex-1 flex items-center justify-center py-3 transition-all duration-300 font-data ${
-                  highContrastMode 
-                    ? 'data-[state=active]:bg-purple-900 text-white' 
-                    : 'data-[state=active]:bg-[#242470]/80 data-[state=active]:text-white data-[state=active]:shadow-md'
-                }`}
-                data-id="objectives-tab"
-              >
-                <div className={`mr-3 p-1 rounded-full ${highContrastMode ? 'bg-purple-800/50' : 'bg-[#1a1a50]/80 text-blue-300'}`}>
-                  <IoBookOutline className="h-5 w-5" />
-                </div>
-                Par objectif d'apprentissage
-              </TabsTrigger>
-              <TabsTrigger 
-                value="metiers" 
-                className={`flex-1 flex items-center justify-center py-3 transition-all duration-300 font-data ${
-                  highContrastMode 
-                    ? 'data-[state=active]:bg-purple-900 text-white' 
-                    : 'data-[state=active]:bg-[#242470]/80 data-[state=active]:text-white data-[state=active]:shadow-md'
-                }`}
-                data-id="careers-tab"
-              >
-                <div className={`mr-3 p-1 rounded-full ${highContrastMode ? 'bg-purple-800/50' : 'bg-[#1a1a50]/80 text-blue-300'}`}>
-                  <BsBriefcase className="h-5 w-5" />
-                </div>
-                Par métier
-              </TabsTrigger>
-              <TabsTrigger 
-                value="tous" 
-                className={`flex-1 flex items-center justify-center py-3 transition-all duration-300 font-data ${
-                  highContrastMode 
-                    ? 'data-[state=active]:bg-purple-900 text-white' 
-                    : 'data-[state=active]:bg-[#242470]/80 data-[state=active]:text-white data-[state=active]:shadow-md'
-                }`}
-                data-id="all-modules-tab"
-              >
-                <div className={`mr-3 p-1 rounded-full ${highContrastMode ? 'bg-purple-800/50' : 'bg-[#1a1a50]/80 text-blue-300'}`}>
-                  <BsGearFill className="h-5 w-5" />
-                </div>
-                Tous les modules
-              </TabsTrigger>
-            </TabsList>
-
-            {/* Contenu des onglets */}
-            <TabsContent value="objectifs" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {learningObjectives.map((objective) => (
-                  <motion.div
-                    key={objective.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className={`rounded-xl p-8 shadow-lg relative overflow-hidden ${
+          {/* Modules Data & IA */}
+          <div className="mt-8 px-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Section SE FORMER */}
+              <Card className={`h-full ${
+                highContrastMode 
+                  ? 'bg-gray-800 border border-gray-700' 
+                  : 'bg-gradient-to-br from-blue-50/10 to-blue-100/5 border border-blue-300/20 backdrop-blur-sm'
+              } hover:shadow-lg transition-shadow`}>
+                <CardHeader>
+                  <div className="flex items-start justify-center">
+                    <div className={`p-3 rounded-lg ${
                       highContrastMode 
-                        ? 'bg-gray-800 border border-gray-700' 
-                        : 'bg-[#141440]/80 border border-[#354095]/30'
-                    }`}
-                    data-id={`objective-${objective.id}`}
-                  >
-                    <div className="flex flex-col h-full">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className={`p-3 rounded-full ${
-                          highContrastMode ? 'bg-purple-900' : 'bg-[#1a1a50]/80 text-blue-300'
-                        }`}>
-                          {objective.icon}
-                        </div>
-                        <h2 className="text-2xl font-bold font-data-title text-white">
-                          {objective.title}
-                        </h2>
-                      </div>
-                      
-                      <p className={`mb-6 ${
-                        highContrastMode ? 'text-gray-300' : 'text-blue-100'
-                      }`}>
-                        {objective.description}
-                      </p>
-                      
-                      <div className="mt-auto">
-                        <h3 className="text-white font-medium mb-3 font-data flex items-center">
-                          <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
-                          Modules:
-                        </h3>
-                        <div className="p-4 rounded-lg bg-[#1a1a50]/80 text-center border border-[#354095]/30">
-                          <Badge className="px-3 py-1.5 bg-amber-800/20 border-amber-500/30 text-amber-400 text-md mb-2">
-                            Bientôt disponible
-                          </Badge>
-                          <p className="text-blue-100 text-sm">Les modules de cette section seront disponibles prochainement.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="metiers" className="mt-0">
-              <div className="flex flex-col gap-6">
-                {/* Sélection du parcours métier */}
-                <div className={`p-4 rounded-lg ${
-                  highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-white/10'
-                }`}>
-                  <h2 className="text-xl font-bold mb-4">Parcours métiers en Data & IA</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                    {careerPaths.map(career => (
-                      <Button
-                        key={career.id}
-                        variant={highContrastMode ? "outline" : "secondary"}
-                        className={`h-auto py-3 justify-start min-h-[52px] ${
-                          selectedCareerPath === career.id 
-                            ? highContrastMode 
-                              ? 'bg-purple-900 border-purple-700' 
-                              : 'bg-purple-600 text-white' 
-                            : highContrastMode 
-                              ? 'bg-gray-800 border-gray-700' 
-                              : ''
-                        }`}
-                        onClick={() => setSelectedCareerPath(career.id)}
-                        data-id={`career-${career.id}`}
-                      >
-                        <div className="flex items-start gap-2 w-full">
-                          <div className={`p-1.5 rounded-full shrink-0 ${
-                            highContrastMode 
-                              ? 'bg-gray-700' 
-                              : 'bg-white/20'
-                          }`}>
-                            {career.icon}
-                          </div>
-                          <span className="text-sm font-medium text-left line-clamp-2">{career.title}</span>
-                        </div>
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Détails du parcours métier sélectionné */}
-                {selectedCareerPath && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`p-6 rounded-lg ${
-                      highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-white/10'
-                    }`}
-                  >
-                    {careerPaths
-                      .filter(career => career.id === selectedCareerPath)
-                      .map(career => (
-                        <div key={career.id}>
-                          <div className="flex items-start gap-4 mb-6">
-                            <div className={`p-3 rounded-full ${
-                              highContrastMode ? 'bg-purple-900' : `bg-gradient-to-br ${career.gradient}`
-                            }`}>
-                              {career.icon}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h2 className="text-2xl font-bold line-clamp-2">{career.title}</h2>
-                              <p className={`${highContrastMode ? 'text-gray-300' : 'text-purple-200'} line-clamp-2`}>
-                                {career.description}
-                              </p>
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Compétences clés */}
-                            <div>
-                              <h3 className="text-lg font-semibold mb-3">Compétences clés</h3>
-                              <ul className="space-y-2">
-                                {career.skills.map((skill, index) => (
-                                  <li 
-                                    key={index}
-                                    className={`px-3 py-2 rounded-lg ${
-                                      highContrastMode ? 'bg-gray-700' : 'bg-white/10'
-                                    }`}
-                                  >
-                                    {skill}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                            
-                            {/* Modules recommandés */}
-                            <div className="lg:col-span-2">
-                              <h3 className="text-lg font-semibold mb-3">Parcours d'apprentissage</h3>
-                              <div className="p-6 rounded-lg bg-white/10 text-center">
-                                <Badge variant="outline" className="px-3 py-1.5 border-amber-500 text-amber-400 text-md mb-3">
-                                  Bientôt disponible
-                                </Badge>
-                                <p className="text-purple-100">Les modules pour ce parcours métier seront disponibles prochainement.</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                  </motion.div>
-                )}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="tous" className="mt-0">
-              {/* Filtres de difficulté */}
-              {difficulty.length > 0 && (
-                <div className="flex flex-wrap gap-3 mb-6 px-2">
-                  <div className="text-sm py-1 font-medium">Filtres actifs:</div>
-                  {difficulty.map(level => (
-                    <Badge 
-                      key={level}
-                      variant="outline"
-                      className={`${
-                        highContrastMode 
-                          ? 'bg-purple-900 text-white border-purple-700' 
-                          : 'bg-purple-100 text-purple-800'
-                      } cursor-pointer px-3 py-1 text-sm`}
-                      onClick={() => setDifficulty(difficulty.filter(d => d !== level))}
-                    >
-                      {level}
-                      <button className="ml-2 text-xs">×</button>
-                    </Badge>
-                  ))}
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-xs h-8"
-                    onClick={() => setDifficulty([])}
-                  >
-                    Effacer tous les filtres
-                  </Button>
-                </div>
-              )}
-
-              {/* Sélection des filtres */}
-              <div className={`mb-10 p-6 rounded-xl shadow-lg ${
-                highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-white/10'
-              }`}>
-                <div className="flex flex-wrap items-center gap-6">
-                  <div className="flex-1 relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Search className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <Input
-                      placeholder="Rechercher un module..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className={`pl-12 py-6 h-12 text-base ${
-                        highContrastMode 
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-400' 
-                          : 'bg-white/10 border-white/20 text-white placeholder:text-gray-300'
-                      }`}
-                      data-id="search-input"
-                    />
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <RiFilterLine className="h-5 w-5 text-gray-400" />
-                    <span className="text-base font-medium">Difficulté:</span>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant={difficulty.includes('débutant') ? 'default' : 'outline'}
-                        className={`h-9 px-4 text-sm ${
-                          difficulty.includes('débutant')
-                            ? highContrastMode 
-                              ? 'bg-green-900 hover:bg-green-800' 
-                              : 'bg-green-600 hover:bg-green-700'
-                            : highContrastMode 
-                              ? 'border-gray-600 text-white' 
-                              : 'border-white/20'
-                        }`}
-                        onClick={() => toggleDifficultyFilter('débutant')}
-                        data-id="beginner-filter"
-                      >
-                        Débutant
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={difficulty.includes('intermédiaire') ? 'default' : 'outline'}
-                        className={`h-9 px-4 text-sm ${
-                          difficulty.includes('intermédiaire')
-                            ? highContrastMode 
-                              ? 'bg-blue-900 hover:bg-blue-800' 
-                              : 'bg-blue-600 hover:bg-blue-700'
-                            : highContrastMode 
-                              ? 'border-gray-600 text-white' 
-                              : 'border-white/20'
-                        }`}
-                        onClick={() => toggleDifficultyFilter('intermédiaire')}
-                        data-id="intermediate-filter"
-                      >
-                        Intermédiaire
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={difficulty.includes('avancé') ? 'default' : 'outline'}
-                        className={`h-9 px-4 text-sm ${
-                          difficulty.includes('avancé')
-                            ? highContrastMode 
-                              ? 'bg-purple-900 hover:bg-purple-800' 
-                              : 'bg-purple-600 hover:bg-purple-700'
-                            : highContrastMode 
-                              ? 'border-gray-600 text-white' 
-                              : 'border-white/20'
-                        }`}
-                        onClick={() => toggleDifficultyFilter('avancé')}
-                        data-id="advanced-filter"
-                      >
-                        Avancé
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={difficulty.includes('tous niveaux') ? 'default' : 'outline'}
-                        className={`h-9 px-4 text-sm ${
-                          difficulty.includes('tous niveaux')
-                            ? highContrastMode 
-                              ? 'bg-yellow-900 hover:bg-yellow-800' 
-                              : 'bg-yellow-600 hover:bg-yellow-700'
-                            : highContrastMode 
-                              ? 'border-gray-600 text-white' 
-                              : 'border-white/20'
-                        }`}
-                        onClick={() => toggleDifficultyFilter('tous niveaux')}
-                        data-id="all-levels-filter"
-                      >
-                        Tous niveaux
-                      </Button>
+                        ? 'bg-purple-900' 
+                        : 'bg-gradient-to-r from-blue-500 to-purple-500 shadow-md'
+                    }`}>
+                      <IoBookOutline className="h-6 w-6 text-white" />
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Affichage du message "Bientôt disponible" pour tous les modules */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Section SE FORMER */}
-                <Card className={`h-full border ${highContrastMode ? 'bg-gray-800 border-gray-700' : 'bg-white/10 border-white/20'}`}>
-                  <CardHeader>
-                    <div className="flex items-start justify-center">
-                      <div className={`p-3 rounded-lg ${highContrastMode ? 'bg-purple-900' : 'bg-gradient-to-br from-purple-600 to-indigo-800'}`}>
-                        <IoBookOutline className="h-6 w-6 text-purple-100" />
-                      </div>
+                  <CardTitle className="text-center text-xl mt-2 font-data-title">SE FORMER</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <Badge className="px-3 py-1.5 bg-amber-400/10 border border-amber-500/30 text-amber-400 text-md mb-3">
+                    Bientôt disponible
+                  </Badge>
+                  <p className={highContrastMode ? 'text-gray-300' : 'text-gray-200'}>
+                    Modules de formation en Data Science et Intelligence Artificielle
+                  </p>
+                </CardContent>
+              </Card>
+              
+              {/* Section S'ENTRAÎNER */}
+              <Card className={`h-full ${
+                highContrastMode 
+                  ? 'bg-gray-800 border border-gray-700' 
+                  : 'bg-gradient-to-br from-blue-50/10 to-blue-100/5 border border-blue-300/20 backdrop-blur-sm'
+              } hover:shadow-lg transition-shadow`}>
+                <CardHeader>
+                  <div className="flex items-start justify-center">
+                    <div className={`p-3 rounded-lg ${
+                      highContrastMode 
+                        ? 'bg-blue-900' 
+                        : 'bg-gradient-to-r from-cyan-500 to-blue-600 shadow-md'
+                    }`}>
+                      <IoDesktopOutline className="h-6 w-6 text-white" />
                     </div>
-                    <CardTitle className="text-center text-xl mt-2">SE FORMER</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <Badge variant="outline" className="px-3 py-1.5 border-amber-500 text-amber-400 text-md mb-3">
-                      Bientôt disponible
-                    </Badge>
-                    <p className={highContrastMode ? 'text-gray-300' : 'text-purple-100'}>
-                      Modules de formation Data & IA à venir prochainement.
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                {/* Section S'ENTRAÎNER */}
-                <Card className={`h-full border ${highContrastMode ? 'bg-gray-800 border-gray-700' : 'bg-white/10 border-white/20'}`}>
-                  <CardHeader>
-                    <div className="flex items-start justify-center">
-                      <div className={`p-3 rounded-lg ${highContrastMode ? 'bg-blue-900' : 'bg-gradient-to-br from-blue-600 to-indigo-800'}`}>
-                        <IoDesktopOutline className="h-6 w-6 text-blue-100" />
-                      </div>
+                  </div>
+                  <CardTitle className="text-center text-xl mt-2 font-data-title">S'ENTRAÎNER</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <Badge className="px-3 py-1.5 bg-amber-400/10 border border-amber-500/30 text-amber-400 text-md mb-3">
+                    Bientôt disponible
+                  </Badge>
+                  <p className={highContrastMode ? 'text-gray-300' : 'text-gray-200'}>
+                    Exercices pratiques et projets guidés en Data Science
+                  </p>
+                </CardContent>
+              </Card>
+              
+              {/* Section S'ÉVALUER */}
+              <Card className={`h-full ${
+                highContrastMode 
+                  ? 'bg-gray-800 border border-gray-700' 
+                  : 'bg-gradient-to-br from-blue-50/10 to-blue-100/5 border border-blue-300/20 backdrop-blur-sm'
+              } hover:shadow-lg transition-shadow`}>
+                <CardHeader>
+                  <div className="flex items-start justify-center">
+                    <div className={`p-3 rounded-lg ${
+                      highContrastMode 
+                        ? 'bg-pink-900' 
+                        : 'bg-gradient-to-r from-pink-500 to-rose-500 shadow-md'
+                    }`}>
+                      <IoTrophyOutline className="h-6 w-6 text-white" />
                     </div>
-                    <CardTitle className="text-center text-xl mt-2">S'ENTRAÎNER</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <Badge variant="outline" className="px-3 py-1.5 border-amber-500 text-amber-400 text-md mb-3">
-                      Bientôt disponible
-                    </Badge>
-                    <p className={highContrastMode ? 'text-gray-300' : 'text-purple-100'}>
-                      Modules d'entraînement Data & IA à venir prochainement.
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                {/* Section S'ÉVALUER */}
-                <Card className={`h-full border ${highContrastMode ? 'bg-gray-800 border-gray-700' : 'bg-white/10 border-white/20'}`}>
-                  <CardHeader>
-                    <div className="flex items-start justify-center">
-                      <div className={`p-3 rounded-lg ${highContrastMode ? 'bg-pink-900' : 'bg-gradient-to-br from-pink-600 to-purple-800'}`}>
-                        <IoTrophyOutline className="h-6 w-6 text-pink-100" />
-                      </div>
+                  </div>
+                  <CardTitle className="text-center text-xl mt-2 font-data-title">S'ÉVALUER</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <Badge className="px-3 py-1.5 bg-amber-400/10 border border-amber-500/30 text-amber-400 text-md mb-3">
+                    Bientôt disponible
+                  </Badge>
+                  <p className={highContrastMode ? 'text-gray-300' : 'text-gray-200'}>
+                    Tests et certifications pour valider vos compétences
+                  </p>
+                </CardContent>
+              </Card>
+              
+              {/* Section AUTOMATISER */}
+              <Card className={`h-full ${
+                highContrastMode 
+                  ? 'bg-gray-800 border border-gray-700' 
+                  : 'bg-gradient-to-br from-blue-50/10 to-blue-100/5 border border-blue-300/20 backdrop-blur-sm'
+              } hover:shadow-lg transition-shadow`}>
+                <CardHeader>
+                  <div className="flex items-start justify-center">
+                    <div className={`p-3 rounded-lg ${
+                      highContrastMode 
+                        ? 'bg-cyan-900' 
+                        : 'bg-gradient-to-r from-blue-400 to-cyan-500 shadow-md'
+                    }`}>
+                      <IoConstructOutline className="h-6 w-6 text-white" />
                     </div>
-                    <CardTitle className="text-center text-xl mt-2">S'ÉVALUER</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <Badge variant="outline" className="px-3 py-1.5 border-amber-500 text-amber-400 text-md mb-3">
-                      Bientôt disponible
-                    </Badge>
-                    <p className={highContrastMode ? 'text-gray-300' : 'text-purple-100'}>
-                      Modules d'évaluation Data & IA à venir prochainement.
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                {/* Section AUTOMATISER */}
-                <Card className={`h-full border ${highContrastMode ? 'bg-gray-800 border-gray-700' : 'bg-white/10 border-white/20'}`}>
-                  <CardHeader>
-                    <div className="flex items-start justify-center">
-                      <div className={`p-3 rounded-lg ${highContrastMode ? 'bg-cyan-900' : 'bg-gradient-to-br from-cyan-600 to-blue-800'}`}>
-                        <IoConstructOutline className="h-6 w-6 text-cyan-100" />
-                      </div>
-                    </div>
-                    <CardTitle className="text-center text-xl mt-2">AUTOMATISER</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <Badge variant="outline" className="px-3 py-1.5 border-amber-500 text-amber-400 text-md mb-3">
-                      Bientôt disponible
-                    </Badge>
-                    <p className={highContrastMode ? 'text-gray-300' : 'text-purple-100'}>
-                      Modules d'automatisation Data & IA à venir prochainement.
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Ce message n'est plus nécessaire car tous les modules sont remplacés par les cartes "Bientôt disponible" */}
-            </TabsContent>
-          </Tabs>
+                  </div>
+                  <CardTitle className="text-center text-xl mt-2 font-data-title">AUTOMATISER</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <Badge className="px-3 py-1.5 bg-amber-400/10 border border-amber-500/30 text-amber-400 text-md mb-3">
+                    Bientôt disponible
+                  </Badge>
+                  <p className={highContrastMode ? 'text-gray-300' : 'text-gray-200'}>
+                    Outils d'automatisation et bonnes pratiques en IA
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
     </HomeLayout>
