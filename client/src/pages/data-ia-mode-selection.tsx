@@ -603,6 +603,28 @@ export default function DataIaModeSelection() {
                 <CardContent className="text-center flex flex-col items-center space-y-3">
                   <div className="space-y-3 w-full">
                     <div 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/data-ia/ai-playground');
+                      }}
+                      className={`px-3 py-3 rounded-md mb-3 ${
+                        highContrastMode 
+                          ? 'bg-cyan-900/50 hover:bg-cyan-800 border border-cyan-700' 
+                          : 'bg-gradient-to-r from-blue-400/20 to-cyan-500/20 hover:from-blue-400/30 hover:to-cyan-500/30 border border-cyan-300/30'
+                      } transition-colors cursor-pointer`}
+                    >
+                      <div className="font-bold text-white mb-1 flex items-center justify-center">
+                        <span className="bg-gradient-to-r from-blue-300 to-cyan-400 text-transparent bg-clip-text">AI PLAYGROUND</span>
+                      </div>
+                      <p className="text-xs text-gray-300 mb-2">
+                        Générez du contenu Data & IA avec l'intelligence artificielle
+                      </p>
+                      <Badge className="bg-blue-600/30 text-cyan-300 border-cyan-500/50 hover:bg-blue-600/50">
+                        Nouveau
+                      </Badge>
+                    </div>
+                    
+                    <div 
                       className={`px-3 py-3 rounded-md ${
                         highContrastMode 
                           ? 'bg-blue-900/50 hover:bg-blue-800 border border-blue-700' 
