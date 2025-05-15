@@ -41,7 +41,10 @@ import {
   Download,
   Share2,
   Copy,
+  Trophy,
+  Award,
 } from 'lucide-react';
+import ChallengeMode from '@/components/ia-lab/ChallengeMode';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import DataTopNavigation from '@/components/DataTopNavigation';
 
@@ -752,6 +755,10 @@ const IALabTrainer: React.FC = () => {
                     <Terminal className="h-4 w-4 mr-2" />
                     Historique
                   </TabsTrigger>
+                  <TabsTrigger value="challenges" className="data-[state=active]:bg-purple-800/40 rounded-md px-4">
+                    <Trophy className="h-4 w-4 mr-2" />
+                    Défis IA
+                  </TabsTrigger>
                 </TabsList>
               </div>
               
@@ -833,6 +840,18 @@ const IALabTrainer: React.FC = () => {
                     </div>
                   )}
                 </div>
+              </TabsContent>
+              
+              {/* Contenu pour l'onglet Défis IA */}
+              <TabsContent value="challenges" className="flex-grow overflow-auto p-4">
+                <ChallengeMode 
+                  language={selectedLanguage}
+                  editorValue={code}
+                  setEditorValue={setCode}
+                  executeCode={executeCode}
+                  executionResult={output}
+                  isProcessing={isProcessing}
+                />
               </TabsContent>
             </Tabs>
           </Card>
