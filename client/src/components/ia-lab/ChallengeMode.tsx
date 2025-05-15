@@ -374,7 +374,7 @@ const ChallengeMode: React.FC<{
         </CardHeader>
         
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="text-sm font-medium text-gray-300 mb-1 block">
                 Catégorie
@@ -391,6 +391,29 @@ const ChallengeMode: React.FC<{
                   {categories.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium text-gray-300 mb-1 block">
+                Secteur d'activité
+              </label>
+              <Select 
+                value={selectedSector} 
+                onValueChange={setSelectedSector}
+                disabled={isGeneratingChallenge}
+              >
+                <SelectTrigger className="w-full bg-slate-800/80 border-blue-500/30 text-white">
+                  <SelectValue placeholder="Tous les secteurs" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-blue-500/30 text-white">
+                  <SelectItem value="">Tous les secteurs</SelectItem>
+                  {sectors.map((sector) => (
+                    <SelectItem key={sector} value={sector}>
+                      {sector}
                     </SelectItem>
                   ))}
                 </SelectContent>
