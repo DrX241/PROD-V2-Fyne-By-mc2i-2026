@@ -404,11 +404,11 @@ const ChallengeMode: React.FC<{
                   <SelectValue placeholder="Sélectionner une catégorie" />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-blue-500/30 text-white">
-                  {categories.map((category) => (
+                  {categories && categories.length > 0 ? categories.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
                     </SelectItem>
-                  ))}
+                  )) : null}
                 </SelectContent>
               </Select>
             </div>
@@ -548,11 +548,12 @@ const ChallengeMode: React.FC<{
                 </div>
                 
                 <div className="space-y-2">
-                  {currentChallenge.hints.map((hint, index) => (
+                  {currentChallenge && currentChallenge.hints && currentChallenge.hints.length > 0 ? 
+                    currentChallenge.hints.map((hint, index) => (
                     <div 
                       key={index} 
                       className="bg-amber-900/20 border border-amber-500/20 rounded-md p-2 text-gray-300 text-sm"
-                    >
+                    >)
                       <div className="flex items-start">
                         <Lightbulb className="h-4 w-4 text-amber-400 mr-2 mt-0.5 flex-shrink-0" />
                         <span className="break-words">{hint}</span>
