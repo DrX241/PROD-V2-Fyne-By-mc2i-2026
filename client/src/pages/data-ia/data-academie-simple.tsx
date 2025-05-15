@@ -4,7 +4,76 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { IoArrowBack, IoBookOutline, IoDesktopOutline, IoStatsChartOutline } from 'react-icons/io5';
+import { 
+  IoArrowBack, IoBookOutline, IoDesktopOutline, IoStatsChartOutline, 
+  IoCodeSlashOutline, IoServer as IoServerOutline, IoBarChart as IoBarChartOutline,
+  IoFlask as IoFlaskOutline, IoLaptop as IoLaptopOutline, IoLayers as IoLayersOutline, IoCloud as IoCloudOutline
+} from 'react-icons/io5';
+import { FaBrain as IoBrainOutline } from 'react-icons/fa';
+
+// Composant pour les modules
+interface ModuleCardProps {
+  title: string;
+  description: string;
+  duration: string;
+  difficulty: 'débutant' | 'intermédiaire' | 'avancé';
+  icon: React.ReactNode;
+  color: string;
+}
+
+const ModuleCard: React.FC<ModuleCardProps> = ({ title, description, duration, difficulty, icon, color }) => {
+  const difficultyColorMap = {
+    'débutant': 'border-green-500/50 text-green-400',
+    'intermédiaire': 'border-yellow-500/50 text-yellow-400',
+    'avancé': 'border-red-500/50 text-red-400'
+  };
+  
+  // Définir les classes en fonction de la couleur
+  const getBgClass = (color: string) => {
+    if (color === 'blue') return 'bg-blue-500/20 text-blue-400';
+    if (color === 'purple') return 'bg-purple-500/20 text-purple-400';
+    if (color === 'cyan') return 'bg-cyan-500/20 text-cyan-400';
+    if (color === 'emerald') return 'bg-emerald-500/20 text-emerald-400';
+    return 'bg-blue-500/20 text-blue-400';
+  };
+  
+  const getBorderClass = (color: string) => {
+    if (color === 'blue') return 'border-blue-400/20 hover:border-blue-400/40';
+    if (color === 'purple') return 'border-purple-400/20 hover:border-purple-400/40';
+    if (color === 'cyan') return 'border-cyan-400/20 hover:border-cyan-400/40';
+    if (color === 'emerald') return 'border-emerald-400/20 hover:border-emerald-400/40';
+    return 'border-blue-400/20 hover:border-blue-400/40';
+  };
+
+  return (
+    <Card className={`bg-gradient-to-br from-[#1a3a60]/90 to-[#152a40]/90 border ${getBorderClass(color)} hover:shadow-lg transition-all cursor-pointer`}>
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start">
+          <div className="flex items-center space-x-2">
+            <div className={`p-2 rounded-lg ${getBgClass(color)}`}>
+              {icon}
+            </div>
+            <CardTitle className="text-xl">{title}</CardTitle>
+          </div>
+          <Badge variant="outline" className={difficultyColorMap[difficulty]}>
+            {difficulty}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <CardDescription className="text-gray-400 mb-4">
+          {description}
+        </CardDescription>
+        <div className="flex justify-between items-center text-sm">
+          <div className="flex items-center space-x-1">
+            <IoBookOutline className="h-4 w-4 text-gray-500" />
+            <span className="text-gray-400">{duration}</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default function DataAcademie() {
   const [, setLocation] = useLocation();
@@ -47,65 +116,253 @@ export default function DataAcademie() {
                   Data Engineering
                 </TabsTrigger>
               </TabsList>
-            </Tabs>
-          </div>
-          
-          <div className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="bg-gradient-to-br from-[#1a3a60]/90 to-[#152a40]/90 border border-blue-400/20 hover:border-blue-400/40 hover:shadow-lg transition-all cursor-pointer">
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center space-x-2">
-                      <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400">
-                        <IoStatsChartOutline className="h-5 w-5" />
-                      </div>
-                      <CardTitle className="text-xl">Introduction à la Data Science</CardTitle>
-                    </div>
-                    <Badge variant="outline" className="border-green-500/50 text-green-400">
-                      débutant
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-gray-400 mb-4">
-                    Comprendre les bases de la Data Science et les types d'analyses
-                  </CardDescription>
-                  <div className="flex justify-between items-center text-sm">
-                    <div className="flex items-center space-x-1">
-                      <IoBookOutline className="h-4 w-4 text-gray-500" />
-                      <span className="text-gray-400">20 min</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
               
-              <Card className="bg-gradient-to-br from-[#1a3a60]/90 to-[#152a40]/90 border border-blue-400/20 hover:border-blue-400/40 hover:shadow-lg transition-all cursor-pointer">
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center space-x-2">
-                      <div className="p-2 rounded-lg bg-purple-500/20 text-purple-400">
-                        <IoDesktopOutline className="h-5 w-5" />
-                      </div>
-                      <CardTitle className="text-xl">Statistiques Fondamentales</CardTitle>
-                    </div>
-                    <Badge variant="outline" className="border-green-500/50 text-green-400">
-                      débutant
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-gray-400 mb-4">
-                    Maîtriser les concepts statistiques essentiels pour l'analyse de données
-                  </CardDescription>
-                  <div className="flex justify-between items-center text-sm">
-                    <div className="flex items-center space-x-1">
-                      <IoBookOutline className="h-4 w-4 text-gray-500" />
-                      <span className="text-gray-400">30 min</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+              {/* Contenu des onglets */}
+              <TabsContent value="fondamentaux" className="pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <ModuleCard
+                    title="Introduction à la Data Science"
+                    description="Comprendre les bases de la Data Science et les types d'analyses"
+                    duration="20 min"
+                    difficulty="débutant"
+                    icon={<IoStatsChartOutline className="h-5 w-5" />}
+                    color="blue"
+                  />
+                  
+                  <ModuleCard
+                    title="Statistiques Fondamentales"
+                    description="Maîtriser les concepts statistiques essentiels pour l'analyse de données"
+                    duration="30 min"
+                    difficulty="débutant"
+                    icon={<IoBarChartOutline className="h-5 w-5" />}
+                    color="blue"
+                  />
+                  
+                  <ModuleCard
+                    title="Visualisation de Données"
+                    description="Techniques et outils pour créer des visualisations efficaces"
+                    duration="25 min"
+                    difficulty="intermédiaire"
+                    icon={<IoDesktopOutline className="h-5 w-5" />}
+                    color="blue"
+                  />
+                  
+                  <ModuleCard
+                    title="Collecte et Préparation des Données"
+                    description="Méthodologies pour acquérir et nettoyer vos données"
+                    duration="35 min"
+                    difficulty="intermédiaire"
+                    icon={<IoLayersOutline className="h-5 w-5" />}
+                    color="blue"
+                  />
+                  
+                  <ModuleCard
+                    title="Éthique et Protection des Données"
+                    description="Conformité RGPD et enjeux éthiques du traitement des données"
+                    duration="40 min"
+                    difficulty="avancé"
+                    icon={<IoServerOutline className="h-5 w-5" />}
+                    color="blue"
+                  />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="intelligence_artificielle" className="pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <ModuleCard
+                    title="Fondamentaux du Machine Learning"
+                    description="Les différents types d'apprentissage automatique et leurs applications"
+                    duration="45 min"
+                    difficulty="débutant"
+                    icon={<IoBrainOutline className="h-5 w-5" />}
+                    color="purple"
+                  />
+                  
+                  <ModuleCard
+                    title="Deep Learning : Réseaux de Neurones"
+                    description="Architecture et principes des réseaux neuronaux profonds"
+                    duration="50 min"
+                    difficulty="intermédiaire"
+                    icon={<IoLaptopOutline className="h-5 w-5" />}
+                    color="purple"
+                  />
+                  
+                  <ModuleCard
+                    title="NLP : Traitement du Langage Naturel"
+                    description="Techniques d'analyse et de génération de texte"
+                    duration="40 min"
+                    difficulty="intermédiaire"
+                    icon={<IoCodeSlashOutline className="h-5 w-5" />}
+                    color="purple"
+                  />
+                  
+                  <ModuleCard
+                    title="Vision par Ordinateur"
+                    description="Reconnaissance d'images et traitement vidéo"
+                    duration="45 min"
+                    difficulty="avancé"
+                    icon={<IoDesktopOutline className="h-5 w-5" />}
+                    color="purple"
+                  />
+                  
+                  <ModuleCard
+                    title="Déploiement de Modèles IA"
+                    description="De l'expérimentation à la production : MLOps et bonnes pratiques"
+                    duration="55 min"
+                    difficulty="avancé"
+                    icon={<IoCloudOutline className="h-5 w-5" />}
+                    color="purple"
+                  />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="sql" className="pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <ModuleCard
+                    title="Fondamentaux SQL"
+                    description="Les bases du langage SQL et requêtes simples (SELECT, INSERT, UPDATE, DELETE)"
+                    duration="30 min"
+                    difficulty="débutant"
+                    icon={<IoCodeSlashOutline className="h-5 w-5" />}
+                    color="cyan"
+                  />
+                  
+                  <ModuleCard
+                    title="Jointures et Relations"
+                    description="Maîtriser les différents types de jointures et comprendre les relations entre tables"
+                    duration="35 min"
+                    difficulty="intermédiaire"
+                    icon={<IoLayersOutline className="h-5 w-5" />}
+                    color="cyan"
+                  />
+                  
+                  <ModuleCard
+                    title="Requêtes Avancées"
+                    description="Sous-requêtes, CTE, fonctions d'agrégation et fenêtrage"
+                    duration="45 min"
+                    difficulty="intermédiaire"
+                    icon={<IoStatsChartOutline className="h-5 w-5" />}
+                    color="cyan"
+                  />
+                  
+                  <ModuleCard
+                    title="Optimisation des Performances"
+                    description="Indexation, plans d'exécution et optimisation des requêtes"
+                    duration="40 min"
+                    difficulty="avancé"
+                    icon={<IoBarChartOutline className="h-5 w-5" />}
+                    color="cyan"
+                  />
+                  
+                  <ModuleCard
+                    title="SQL pour Data Science"
+                    description="Applications avancées de SQL dans les projets de Data Science"
+                    duration="50 min"
+                    difficulty="avancé"
+                    icon={<IoServerOutline className="h-5 w-5" />}
+                    color="cyan"
+                  />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="python" className="pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <ModuleCard
+                    title="Python pour Data Science"
+                    description="Les bases de Python orientées analyse de données"
+                    duration="30 min"
+                    difficulty="débutant"
+                    icon={<IoCodeSlashOutline className="h-5 w-5" />}
+                    color="blue"
+                  />
+                  
+                  <ModuleCard
+                    title="NumPy et Pandas"
+                    description="Manipulation de tableaux multidimensionnels et traitement de données tabulaires"
+                    duration="40 min"
+                    difficulty="intermédiaire"
+                    icon={<IoLayersOutline className="h-5 w-5" />}
+                    color="blue"
+                  />
+                  
+                  <ModuleCard
+                    title="Visualisation avec Matplotlib et Seaborn"
+                    description="Création de graphiques et visualisations statistiques"
+                    duration="35 min"
+                    difficulty="intermédiaire"
+                    icon={<IoBarChartOutline className="h-5 w-5" />}
+                    color="blue"
+                  />
+                  
+                  <ModuleCard
+                    title="Scikit-Learn pour Machine Learning"
+                    description="Implémentation d'algorithmes de ML avec Scikit-Learn"
+                    duration="45 min"
+                    difficulty="avancé"
+                    icon={<IoBrainOutline className="h-5 w-5" />}
+                    color="blue"
+                  />
+                  
+                  <ModuleCard
+                    title="Python pour le Deep Learning"
+                    description="TensorFlow, PyTorch et implémentation de réseaux de neurones"
+                    duration="50 min"
+                    difficulty="avancé"
+                    icon={<IoLaptopOutline className="h-5 w-5" />}
+                    color="blue"
+                  />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="data_engineering" className="pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <ModuleCard
+                    title="Introduction au Data Engineering"
+                    description="Rôle et responsabilités d'un Data Engineer"
+                    duration="25 min"
+                    difficulty="débutant"
+                    icon={<IoServerOutline className="h-5 w-5" />}
+                    color="emerald"
+                  />
+                  
+                  <ModuleCard
+                    title="Architectures Data"
+                    description="Conception d'architectures de traitement de données scalables"
+                    duration="40 min"
+                    difficulty="intermédiaire"
+                    icon={<IoLayersOutline className="h-5 w-5" />}
+                    color="emerald"
+                  />
+                  
+                  <ModuleCard
+                    title="ETL et Pipelines de Données"
+                    description="Extraction, transformation et chargement de données"
+                    duration="45 min"
+                    difficulty="intermédiaire"
+                    icon={<IoCodeSlashOutline className="h-5 w-5" />}
+                    color="emerald"
+                  />
+                  
+                  <ModuleCard
+                    title="Systèmes de Stockage et Bases de Données"
+                    description="Types de bases de données et leurs cas d'usage (SQL, NoSQL, data lakes)"
+                    duration="50 min"
+                    difficulty="avancé"
+                    icon={<IoCloudOutline className="h-5 w-5" />}
+                    color="emerald"
+                  />
+                  
+                  <ModuleCard
+                    title="Big Data Technologies"
+                    description="Hadoop, Spark et outils de traitement distribué"
+                    duration="55 min"
+                    difficulty="avancé"
+                    icon={<IoDesktopOutline className="h-5 w-5" />}
+                    color="emerald"
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
