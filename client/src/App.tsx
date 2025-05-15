@@ -747,6 +747,18 @@ function App() {
                 <Route path="/centre-crise-evolutif" component={CentreDeCriseEvolutifPage} />
                 <Route path="/cyber-defense-session" component={CyberDefenseSessionPage} />
                 <Route path="/cyber-defense-mission" component={CyberDefenseMissionPage} />
+                
+                {/* CryptoLock - Simulation de gestion de crise */}
+                <Route path="/cyber/crisis-management" component={CrisisManagementPage} />
+                <Route path="/cyber/crisis-management/cryptolock-reborn" component={() => {
+                  const CryptoLockRebornComponent = lazy(() => import('./pages/cyber/crisis-management/cryptolock-reborn'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CryptoLockRebornComponent />
+                    </Suspense>
+                  );
+                }} />
+                
                 <Route path="/cyber-crisis-center" component={() => {
                   const CyberCrisisCenter = lazy(() => import('./pages/cyber-crisis-center'));
                   return (
