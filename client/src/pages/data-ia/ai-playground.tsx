@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import { 
   Card,
@@ -9,7 +9,6 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -22,10 +21,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ArrowLeft, CheckCircle, Copy, RefreshCw, Rocket, Brain, Image, Code, MessageSquare, Search, Wand, Bot } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
-import axios from 'axios';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { useTheme } from '@/components/theme-provider';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface PromptTemplate {
   id: string;
@@ -42,7 +40,7 @@ interface GeneratedResponse {
   promptType: string;
 }
 
-const AI_PLAYGROUND: React.FC = () => {
+const AIPlayground: React.FC = () => {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { themeMode, setThemeMode } = useTheme();
@@ -412,20 +410,48 @@ En maîtrisant ces principes, vous pourrez exploiter pleinement le potentiel de 
         toast({
           title: "Génération réussie",
           description: "Votre prompt a été traité avec succès.",
+          variant: "default"
         });
         
         setIsGenerating(false);
-      }, 2000);
-
+      }, 1500);
     } catch (error) {
-      console.error("Erreur lors de la génération:", error);
+      setIsGenerating(false);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de la génération. Veuillez réessayer.",
+        description: "Une erreur est survenue lors de la génération.",
         variant: "destructive"
       });
-      setIsGenerating(false);
     }
+  };
+
+  // Fonction auxiliaire pour formater le code dans les réponses générées
+  const formatResponseContent = (content: string) => {
+    // Support pour formatage Markdown
+    if (content.includes('```')) {
+      return (
+        <div 
+          dangerouslySetInnerHTML={{ 
+            __html: content
+              .replace(/```(python|javascript|html|css|sql|json)?([\s\S]*?)```/g, (match, lang, code) => {
+                if (lang) {
+                  return `<div style="margin: 16px 0;"><pre style="margin: 0;"><code class="language-${lang}">${code.trim()}</code></pre></div>`;
+                } else {
+                  return `<div style="margin: 16px 0;"><pre style="margin: 0;"><code>${code.trim()}</code></pre></div>`;
+                }
+              })
+              .replace(/`([^`]+)`/g, '<code style="background-color: rgba(0,0,0,0.1); padding: 2px 4px; border-radius: 3px;">$1</code>')
+              .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+              .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+              .replace(/# (.*?)$/gm, '<h1 style="font-size: 1.5rem; font-weight: bold; margin: 24px 0 12px 0;">$1</h1>')
+              .replace(/## (.*?)$/gm, '<h2 style="font-size: 1.25rem; font-weight: bold; margin: 16px 0 8px 0;">$2</h2>')
+              .replace(/^- (.*?)$/gm, '<li style="margin-left: 16px;">$1</li>')
+              .replace(/\n\n/g, '<br><br>')
+          }} />
+      );
+    }
+    
+    return <p className="whitespace-pre-wrap">{content}</p>;
   };
 
   return (
@@ -442,22 +468,30 @@ En maîtrisant ces principes, vous pourrez exploiter pleinement le potentiel de 
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Retour
               </Button>
-              <h1 className="text-2xl font-bold text-white ml-4 font-data-title flex items-center">
-                <Brain className="mr-2 h-6 w-6 text-cyan-400" />
-                AI PLAYGROUND
-              </h1>
+              <h1 className="text-2xl font-bold text-white">AI Playground</h1>
+              <Badge variant="outline" className="bg-blue-500/20 text-blue-200 border-blue-400/30 ml-2">
+                BETA
+              </Badge>
             </div>
             
             <div className="flex items-center gap-4">
               <div className="flex items-center space-x-2">
-                <Label htmlFor="high-contrast-mode" className="text-gray-400 text-sm">Mode contraste</Label>
+                <Label htmlFor="theme-toggle" className="text-sm text-blue-200">Mode sombre</Label>
                 <Switch
-                  id="high-contrast-mode"
-                  checked={themeMode === 'dark'}
-                  onCheckedChange={(checked) => 
-                    checked ? setThemeMode('dark') : setThemeMode('futuristic')
-                  }
+                  id="theme-toggle"
+                  checked={highContrastMode}
+                  onCheckedChange={(checked) => setThemeMode(checked ? 'dark' : 'futuristic')}
                 />
+              </div>
+              
+              <div className="bg-blue-900/50 px-3 py-1 rounded-md border border-blue-400/20 flex items-center gap-2">
+                <span className="text-xs text-blue-200">Score:</span>
+                <span className="text-sm font-medium text-blue-100">{userScore}</span>
+                {streak > 1 && (
+                  <Badge variant="outline" className="bg-amber-500/20 text-amber-200 border-amber-400/30 ml-1 text-xs">
+                    Streak x{streak}
+                  </Badge>
+                )}
               </div>
             </div>
           </div>
@@ -465,242 +499,230 @@ En maîtrisant ces principes, vous pourrez exploiter pleinement le potentiel de 
       </header>
       
       <div className="container mx-auto px-4 py-8">
-
+        <div className="flex flex-col">
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-            {/* Barre latérale */}
+            {/* Sidebar avec templates de prompts */}
             <div className="xl:col-span-3 space-y-6">
-              {/* Carte de profil */}
-              <Card className="bg-[#121a2c]/60 border-blue-800/40 text-white">
+              <Card className="bg-blue-950/50 border-blue-800/50">
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-center">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400 flex items-center justify-center">
-                        <Bot className="text-white h-6 w-6" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-xl">AI Explorer</CardTitle>
-                      </div>
-                    </div>
-                    <Badge variant="outline" className="bg-blue-900/30 text-cyan-300 border-cyan-500/50 whitespace-nowrap">
-                      Niveau 1
+                    <CardTitle className="text-lg text-white">Templates</CardTitle>
+                    <Badge variant="secondary" className="bg-blue-700/30 text-blue-200 border-none">
+                      {getFilteredTemplates().length}
                     </Badge>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-5">
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-gray-400">Progression</span>
-                        <span className="text-cyan-300">{userScore} / 100 XP</span>
-                      </div>
-                      <Progress value={userScore} className="h-2 bg-blue-950" indicatorClassName="bg-gradient-to-r from-blue-500 to-cyan-400" />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-3 text-center">
-                      <div className="bg-[#1a233a] rounded-md p-2">
-                        <div className="font-bold text-cyan-300 text-lg">{generatedResponses.length}</div>
-                        <div className="text-xs text-gray-400">Génération(s)</div>
-                      </div>
-                      <div className="bg-[#1a233a] rounded-md p-2">
-                        <div className="font-bold text-cyan-300 text-lg">{streak}</div>
-                        <div className="text-xs text-gray-400">Série</div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Sélection de modèle */}
-              <Card className="bg-[#121a2c]/60 border-blue-800/40 text-white">
-                <CardHeader>
-                  <CardTitle className="text-lg">Modèle IA</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Select 
-                    value={selectedModel} 
-                    onValueChange={setSelectedModel}
-                  >
-                    <SelectTrigger className="bg-[#1a233a] border-blue-800/40 text-white">
-                      <SelectValue placeholder="Sélectionner un modèle" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#1a233a] border-blue-800/40 text-white">
-                      <SelectItem value="gpt-4o-mini">Azure OpenAI GPT-4o-mini</SelectItem>
-                      <SelectItem value="gpt-4o">Azure OpenAI GPT-4o</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="mt-2 text-xs text-gray-400">
-                    Le modèle sélectionné détermine les capacités et la qualité des réponses générées.
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Templates de prompts */}
-              <Card className="bg-[#121a2c]/60 border-blue-800/40 text-white">
-                <CardHeader>
-                  <CardTitle className="text-lg">Templates de prompts</CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Sélectionnez un template pour commencer
+                  <CardDescription className="text-blue-400">
+                    Modèles de prompts prédéfinis pour vous aider à démarrer
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {getFilteredTemplates().map(template => (
-                      <div 
-                        key={template.id}
+                  <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                    {getFilteredTemplates().map((template) => (
+                      <Card 
+                        key={template.id} 
+                        className={`bg-blue-900/30 border border-blue-700/30 hover:border-blue-400/50 transition-all cursor-pointer ${
+                          selectedPromptTemplate?.id === template.id ? 'border-blue-400 bg-blue-800/50' : ''
+                        }`}
                         onClick={() => handleSelectTemplate(template)}
-                        className={`p-3 rounded-md cursor-pointer transition-colors
-                          ${selectedPromptTemplate?.id === template.id 
-                            ? 'bg-blue-600/20 border border-blue-500/50' 
-                            : 'bg-[#1a233a] hover:bg-[#202a45] border border-transparent'
-                          }`}
                       >
-                        <div className="font-medium">{template.title}</div>
-                        <div className="text-xs text-gray-400">{template.description}</div>
-                      </div>
+                        <CardHeader className="py-3 px-4">
+                          <CardTitle className="text-sm text-white">{template.title}</CardTitle>
+                          <CardDescription className="text-xs text-blue-300">
+                            {template.description}
+                          </CardDescription>
+                        </CardHeader>
+                      </Card>
                     ))}
                   </div>
                 </CardContent>
               </Card>
+              
+              <Card className="bg-blue-950/50 border-blue-800/50">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg text-white">Configuration</CardTitle>
+                  <CardDescription className="text-blue-400">
+                    Paramètres de génération
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm text-blue-200" htmlFor="model-select">Modèle</Label>
+                    <Select 
+                      value={selectedModel} 
+                      onValueChange={setSelectedModel}
+                    >
+                      <SelectTrigger id="model-select" className="bg-blue-900/30 border-blue-700/50 text-white">
+                        <SelectValue placeholder="Sélectionner un modèle" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-blue-900 border-blue-700 text-white">
+                        <SelectItem value="gpt-4o">GPT-4o</SelectItem>
+                        <SelectItem value="gpt-4o-mini">GPT-4o Mini</SelectItem>
+                        <SelectItem value="claude-3.5-sonnet">Claude 3.5 Sonnet</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="pt-2">
+                    <Progress value={60} className="h-2 bg-blue-900/50" indicatorClassName="bg-blue-400" />
+                    <div className="flex justify-between mt-1">
+                      <span className="text-xs text-blue-400">Crédits: 60%</span>
+                      <span className="text-xs text-blue-300">3000/5000</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-
-            {/* Zone principale */}
-            <div className="xl:col-span-9 space-y-6">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <div className="flex justify-between items-center mb-4">
-                  <TabsList className="bg-[#1a233a] p-1">
-                    <TabsTrigger value="text-generation" className="data-[state=active]:bg-blue-600">
-                      <MessageSquare className="mr-2 h-4 w-4" />
-                      Texte
-                    </TabsTrigger>
-                    <TabsTrigger value="code-generation" className="data-[state=active]:bg-blue-600">
-                      <Code className="mr-2 h-4 w-4" />
-                      Code
-                    </TabsTrigger>
-                    <TabsTrigger value="ml-models" className="data-[state=active]:bg-blue-600">
-                      <Brain className="mr-2 h-4 w-4" />
-                      ML
-                    </TabsTrigger>
-                    <TabsTrigger value="vision-analysis" className="data-[state=active]:bg-blue-600">
-                      <Image className="mr-2 h-4 w-4" />
-                      Vision
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
-
-                {/* Zone de prompt commune à tous les onglets */}
-                <Card className="bg-[#121a2c]/60 border-blue-800/40 text-white">
-                  <CardHeader>
-                    <CardTitle className="text-xl">
-                      {activeTab === 'text-generation' && "Génération de texte"}
-                      {activeTab === 'code-generation' && "Génération de code"}
-                      {activeTab === 'ml-models' && "Modèles de Machine Learning"}
-                      {activeTab === 'vision-analysis' && "Analyse d'images"}
-                    </CardTitle>
-                    <CardDescription className="text-gray-400">
-                      {activeTab === 'text-generation' && "Générez des contenus textuels éducatifs et explicatifs sur des sujets Data & IA"}
-                      {activeTab === 'code-generation' && "Générez du code Python pour des tâches de Data Science et Machine Learning"}
-                      {activeTab === 'ml-models' && "Expérimentez avec différents modèles d'apprentissage automatique"}
-                      {activeTab === 'vision-analysis' && "Analysez des images et graphiques de données"}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="prompt" className="text-gray-300">Votre prompt</Label>
-                        <Textarea 
-                          id="prompt"
+            
+            {/* Espace principal de génération */}
+            <div className="xl:col-span-9">
+              <Card className="bg-blue-950/50 border-blue-800/50">
+                <CardHeader>
+                  <CardTitle className="text-xl text-white">Terrain de jeu IA</CardTitle>
+                  <CardDescription className="text-blue-400">
+                    Expérimentez avec différents types de prompts pour comprendre le potentiel de l'IA
+                  </CardDescription>
+                  
+                  <Tabs 
+                    defaultValue="text-generation" 
+                    value={activeTab}
+                    onValueChange={setActiveTab}
+                    className="mt-4"
+                  >
+                    <TabsList className="bg-blue-900/50 text-blue-300">
+                      <TabsTrigger 
+                        value="text-generation"
+                        className="data-[state=active]:bg-blue-700 data-[state=active]:text-white"
+                      >
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Texte
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="code-generation"
+                        className="data-[state=active]:bg-blue-700 data-[state=active]:text-white"
+                      >
+                        <Code className="h-4 w-4 mr-2" />
+                        Code
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="ml-models"
+                        className="data-[state=active]:bg-blue-700 data-[state=active]:text-white"
+                      >
+                        <Brain className="h-4 w-4 mr-2" />
+                        ML/IA
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="vision-analysis"
+                        className="data-[state=active]:bg-blue-700 data-[state=active]:text-white"
+                      >
+                        <Image className="h-4 w-4 mr-2" />
+                        Vision
+                      </TabsTrigger>
+                    </TabsList>
+                    
+                    <div className="mt-4">
+                      <Label className="text-sm text-blue-200" htmlFor="prompt-input">Prompt</Label>
+                      <div className="relative mt-1.5">
+                        <Textarea
+                          id="prompt-input"
+                          placeholder={
+                            activeTab === 'text-generation' 
+                              ? "Entrez votre prompt ici... Par exemple: 'Explique-moi le concept de l'apprentissage par renforcement'"
+                              : activeTab === 'code-generation'
+                                ? "Entrez votre prompt ici... Par exemple: 'Écris une fonction Python qui trie une liste de dictionnaires par valeur'"
+                                : activeTab === 'ml-models'
+                                  ? "Entrez votre prompt ici... Par exemple: 'Comment implémenter un modèle de classification pour détecter des fraudes'"
+                                  : "Entrez votre prompt ici... Vous pourrez bientôt télécharger des images pour analyse"
+                          }
                           value={promptText}
                           onChange={(e) => setPromptText(e.target.value)}
-                          placeholder="Décrivez ce que vous souhaitez générer..."
-                          className="min-h-[150px] bg-[#1a233a] border-blue-800/40 text-white placeholder:text-gray-500"
+                          className="min-h-40 text-white bg-blue-900/30 border-blue-700/50 focus:border-blue-400"
                         />
-                      </div>
-                      
-                      <div className="flex justify-end">
-                        <Button 
-                          onClick={handleGenerate}
-                          disabled={isGenerating || !promptText.trim()}
-                          className="bg-blue-600 hover:bg-blue-700"
-                        >
-                          {isGenerating ? (
-                            <>
-                              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                              Génération en cours...
-                            </>
-                          ) : (
-                            <>
-                              <Rocket className="mr-2 h-4 w-4" />
-                              Générer
-                            </>
+                        <div className="absolute right-3 bottom-3 flex space-x-2">
+                          {promptText && (
+                            <Button 
+                              variant="outline" 
+                              size="icon"
+                              className="h-8 w-8 bg-blue-950/70 border-blue-700/50 text-blue-300 hover:bg-blue-800 hover:text-white"
+                              onClick={() => setPromptText('')}
+                            >
+                              <RefreshCw className="h-4 w-4" />
+                            </Button>
                           )}
-                        </Button>
+                          <Button 
+                            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700"
+                            onClick={handleGenerate}
+                            disabled={isGenerating || !promptText.trim()}
+                          >
+                            {isGenerating ? (
+                              <>
+                                <span className="animate-pulse">Génération en cours...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Rocket className="mr-2 h-4 w-4" />
+                                Générer
+                              </>
+                            )}
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* Résultats de génération */}
+                  </Tabs>
+                </CardHeader>
+                
+                <Separator className="bg-blue-800/30" />
+                
                 {generatedResponses.length > 0 && (
-                  <Card className="bg-[#121a2c]/60 border-blue-800/40 text-white">
-                    <CardHeader className="flex flex-row items-center justify-between">
+                  <Card className="m-6 bg-blue-900/30 border-blue-700/50">
+                    <CardHeader className="pb-2 flex flex-row justify-between items-start">
                       <div>
-                        <CardTitle className="text-xl">Résultat</CardTitle>
-                        <CardDescription className="text-gray-400">
-                          Généré avec {generatedResponses[0].model} • {generatedResponses[0].promptType}
+                        <CardTitle className="text-white flex items-center">
+                          <Bot className="h-5 w-5 mr-2 text-cyan-400" />
+                          Réponse
+                          <Badge className="ml-3 bg-blue-700/50 text-blue-200">
+                            {generatedResponses[0].model}
+                          </Badge>
+                        </CardTitle>
+                        <CardDescription className="text-blue-400">
+                          Généré le {generatedResponses[0].timestamp.toLocaleTimeString()} • Type: {generatedResponses[0].promptType}
                         </CardDescription>
                       </div>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button 
-                              variant="ghost" 
+                              variant="outline" 
                               size="icon"
+                              className="h-8 w-8 bg-blue-950/70 border-blue-700/50 text-blue-300 hover:bg-blue-800 hover:text-white"
                               onClick={handleCopyToClipboard}
-                              className="text-gray-400 hover:text-white hover:bg-blue-800/30"
                             >
-                              {showCopied ? <CheckCircle className="text-green-500 h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                              {showCopied ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Copier dans le presse-papier</p>
+                            <p>Copier la réponse</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </CardHeader>
                     <CardContent>
-                      <div className="rounded-md bg-[#1a233a] p-4 text-gray-200">
+                      <div className="prose prose-invert max-w-none prose-headings:text-blue-100 prose-a:text-cyan-400 text-blue-100">
                         {activeTab === 'code-generation' ? (
-                          <div className="markdown-content" dangerouslySetInnerHTML={{ 
-                            __html: generatedResponses[0].content
-                              .replace(/```python([\s\S]*?)```/g, (match, code) => {
-                                return `<div style="margin: 16px 0;"><pre style="margin: 0;"><code class="language-python">${code.trim()}</code></pre></div>`;
-                              })
-                              .replace(/```([\s\S]*?)```/g, (match, code) => {
-                                return `<div style="margin: 16px 0;"><pre style="margin: 0;"><code>${code.trim()}</code></pre></div>`;
-                              })
-                              .replace(/\n\n/g, '<br><br>')
-                          }} />
-                        ) : activeTab === 'ml-models' ? (
-                          <div className="markdown-content" dangerouslySetInnerHTML={{ 
-                            __html: generatedResponses[0].content
-                              .replace(/```python([\s\S]*?)```/g, (match, code) => {
-                                return `<div style="margin: 16px 0;"><pre style="margin: 0;"><code class="language-python">${code.trim()}</code></pre></div>`;
-                              })
-                              .replace(/```([\s\S]*?)```/g, (match, code) => {
-                                return `<div style="margin: 16px 0;"><pre style="margin: 0;"><code>${code.trim()}</code></pre></div>`;
-                              })
-                              .replace(/\n\n/g, '<br><br>')
-                              .replace(/^# (.*?)$/gm, '<h1 style="font-size: 1.5rem; font-weight: bold; margin: 16px 0 8px 0;">$1</h1>')
-                              .replace(/^## (.*?)$/gm, '<h2 style="font-size: 1.25rem; font-weight: bold; margin: 16px 0 8px 0;">$1</h2>')
-                          }} />
+                          <SyntaxHighlighter
+                            language="python"
+                            style={atomDark}
+                            showLineNumbers
+                            customStyle={{
+                              backgroundColor: 'rgba(13, 20, 46, 0.6)',
+                              borderRadius: '0.375rem',
+                              padding: '1rem',
+                              marginBottom: '1rem'
+                            }}
+                          >
+                            {generatedResponses[0].content.match(/```python([\s\S]*?)```/)?.[1] || generatedResponses[0].content}
+                          </SyntaxHighlighter>
                         ) : (
-                          <div className="markdown-content" dangerouslySetInnerHTML={{ 
-                            __html: generatedResponses[0].content
-                              .replace(/^# (.*?)$/gm, '<h1 style="font-size: 1.5rem; font-weight: bold; margin: 16px 0 8px 0;">$1</h1>')
-                              .replace(/^## (.*?)$/gm, '<h2 style="font-size: 1.25rem; font-weight: bold; margin: 16px 0 8px 0;">$1</h2>')
-                              .replace(/^- (.*?)$/gm, '<li style="margin-left: 16px;">$1</li>')
-                              .replace(/\n\n/g, '<br><br>')
-                          }} />
+                          formatResponseContent(generatedResponses[0].content)
                         )}
                       </div>
                     </CardContent>
@@ -715,7 +737,7 @@ En maîtrisant ces principes, vous pourrez exploiter pleinement le potentiel de 
                     </CardFooter>
                   </Card>
                 )}
-              </Tabs>
+              </Card>
             </div>
           </div>
         </div>
@@ -724,4 +746,4 @@ En maîtrisant ces principes, vous pourrez exploiter pleinement le potentiel de 
   );
 };
 
-export default AI_PLAYGROUND;
+export default AIPlayground;

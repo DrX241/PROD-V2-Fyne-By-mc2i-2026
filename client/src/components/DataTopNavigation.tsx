@@ -9,7 +9,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 
 const DataTopNavigation: React.FC = () => {
   const [, setLocation] = useLocation();
-  const { theme, setTheme } = useTheme();
+  const { themeMode, setThemeMode } = useTheme();
   
   return (
     <header className="bg-[#121a2c]/80 backdrop-blur-sm border-b border-blue-900/40 sticky top-0 z-50">
@@ -47,8 +47,8 @@ const DataTopNavigation: React.FC = () => {
             <Label htmlFor="high-contrast" className="text-xs text-gray-400">Mode contraste</Label>
             <Switch 
               id="high-contrast" 
-              checked={theme === 'high-contrast'}
-              onCheckedChange={(checked) => setTheme(checked ? 'high-contrast' : 'futuristic')}
+              checked={themeMode === 'dark'}
+              onCheckedChange={(checked) => setThemeMode(checked ? 'dark' : 'futuristic')}
             />
           </div>
           
