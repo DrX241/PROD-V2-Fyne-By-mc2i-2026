@@ -68,6 +68,7 @@ import DataIaModeSelection from "@/pages/data-ia-mode-selection";
 import ReadMeIfYouCan from "@/pages/data-ia/read-me-if-you-can";
 import DataOpsSimulation from "@/pages/data-ia/data-ops-simulation";
 import AIPlayground from "@/pages/data-ia/ai-playground";
+import IALabTrainer from "@/pages/data-ia/ia-lab-trainer";
 // Modules Simulation d'Entretien
 import CyberInterviewSimulation from "@/pages/cyber/interview-simulation";
 import CyberInterviewPreparation from "@/pages/cyber/interview-preparation";
@@ -764,6 +765,7 @@ function App() {
                 <Route path="/data-ia/read-me-if-you-can" component={ReadMeIfYouCan} />
                 <Route path="/data-ia/data-ops-simulation" component={DataOpsSimulation} />
                 <Route path="/data-ia/ai-playground" component={AIPlayground} />
+                <Route path="/data-ia/ia-lab-trainer" component={IALabTrainer} />
 
                 
                 <Route path="/amoa/academie" component={() => {
