@@ -148,41 +148,18 @@ export async function generateChallenge(req: Request, res: Response) {
     // Générer une graine aléatoire pour la sélection des personnages
     const generateRandomSeed = (minVal = 1, maxVal = 1000) => Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
     
-    // Créer un système pour forcer la diversité des personnages
-    const personnajesSeed = generateRandomSeed();
-    const contexteSeed = generateRandomSeed();
-    
     // Créer la prompt pour l'IA
     const systemMessage = {
       role: 'system' as 'system',
-      content: `Tu es un expert en création de cas pratiques professionnels de programmation ${language === 'python' ? 'Python' : 'SQL'}.
-      Génère un cas d'usage professionnel de difficulté ${difficulty} dans la catégorie "${category}"${sector ? ` pour le secteur "${sector}"` : ''}.
+      content: `Tu es un expert en création d'exercices et défis de programmation ${language === 'python' ? 'Python' : 'SQL'}.
+      Génère un défi concis de difficulté ${difficulty} dans la catégorie "${category}".
       
-      CONTEXTE PROFESSIONNEL À CHOISIR ALÉATOIREMENT:
-      - Utilise toujours le cabinet de conseil mc2i comme employeur ou prestataire
-      - Pour un scénario impliquant une direction Data & IA, utilise le nom DIXIT
-      - Pour un scénario impliquant une entité dans l'industrie, transport, service public ou santé, utilise le nom IMPULSE
-      ${sector ? `- Le scénario doit OBLIGATOIREMENT être adapté au secteur "${sector}" avec des problématiques métier spécifiques à ce secteur` : ''}
-      
-      INSTRUCTIONS IMPORTANTES:
-      - UTILISE LE NOMBRE ALÉATOIRE ${contexteSeed} POUR CHOISIR ENTRE DIXIT ET IMPULSE. SI LE NOMBRE EST PAIR, UTILISE DIXIT. SI LE NOMBRE EST IMPAIR, UTILISE IMPULSE.
-      - UTILISE LE NOMBRE ALÉATOIRE ${personnajesSeed} POUR SÉLECTIONNER EXACTEMENT 3 PERSONNAGES DE LA LISTE CI-DESSOUS AVEC LA FORMULE SUIVANTE:
-        * PERSONNAGE 1: PERSONNE À LA POSITION (${personnajesSeed} % 8) DE LA LISTE
-        * PERSONNAGE 2: PERSONNE À LA POSITION ((${personnajesSeed} + 2) % 8) DE LA LISTE
-        * PERSONNAGE 3: PERSONNE À LA POSITION ((${personnajesSeed} + 5) % 8) DE LA LISTE
-      - LES POSITIONS VONT DE 0 À 7, SI LE RÉSULTAT EST 8, UTILISE 0
-      - VARIE LES RÔLES ET LES INTERACTIONS ENTRE LES PERSONNAGES SÉLECTIONNÉS
-      - RESPECTE STRICTEMENT CETTE SÉLECTION ALÉATOIRE SANS EXCEPTION
-      
-      PERSONNAGES DISPONIBLES (LISTE ORDONNÉE DE 0 À 7, UTILISE EXACTEMENT 3 PERSONNAGES SÉLECTIONNÉS SELON LA FORMULE CI-DESSUS):
-        0. Eddy MISSONI (consultant data)
-        1. Neil LEVIN (data scientist senior)
-        2. Yousra SAIDANI (cheffe de projet)
-        3. Fares SAYADI (consultant BI)
-        4. Guillaume LECHEVALLIER (Directeur IMPULSE)
-        5. Nosing DOEUK (Directeur IMPULSE)
-        6. Arnaud GAUTHIER (Président)
-        7. Olivier HERVO (Directeur Général)
+      FORMAT SIMPLIFIÉ:
+      - Crée un défi court et précis, sans noms de personnes ou d'entreprises spécifiques
+      - Privilégie le format direct: "Voici votre mission... Voici les données dont vous disposez..."
+      - Évite les situations narratives complexes avec des personnages
+      - Utilise un maximum de 3-4 paragraphes pour l'ensemble de la description
+      - Focalise-toi sur les compétences techniques plutôt que sur le contexte
       
       CONSIGNES DE FORMATAGE POUR TA RÉPONSE:
       1. Ta réponse doit être UNIQUEMENT un objet JSON VALIDE, sans texte avant ou après, similaire à :
@@ -236,20 +213,18 @@ export async function generateChallenge(req: Request, res: Response) {
 
     const userMessage = {
       role: 'user' as 'user',
-      content: `Génère un cas pratique professionnel de programmation ${language} de niveau ${difficulty} dans la catégorie ${category}${sector ? ` pour le secteur "${sector}"` : ''}. 
+      content: `Génère un défi concis de programmation ${language} de niveau ${difficulty} dans la catégorie ${category}.
       
-      INSTRUCTIONS IMPÉRATIVES:
-      1. Sélectionne EXACTEMENT 3 personnages selon la formule fournie avec les nombres ${personnajesSeed} et ${contexteSeed}.
-      2. Adapte le contenu à la catégorie "${category}" et ${sector ? `au secteur "${sector}"` : 'au contexte général'}.
-      3. Structure la description en 3 parties clairement séparées: CONTEXTE, DONNÉES, OBJECTIF.
+      INSTRUCTIONS:
+      1. Crée un exercice technique direct sans histoire complexe ni personnages.
+      2. Structure la description en 3 parties: MISSION, DONNÉES, OBJECTIF.
+      3. Utilise un contexte professionnel réaliste et concis.
       
       RAPPEL DE FORMATAGE:
       - Ta réponse doit être un objet JSON VALIDE pur, sans texte additionnel.
       - Évite les structures complexes qui pourraient causer des erreurs de parsing JSON.
       - Échappe correctement les guillemets et sauts de ligne.
-      - N'utilise que des guillemets doubles pour les noms de propriétés et les chaînes.
-      
-      ${sector ? `Le scénario doit traiter de problématiques professionnelles réalistes du secteur "${sector}".` : ''}`
+      - N'utilise que des guillemets doubles pour les noms de propriétés et les chaînes.`
     };
 
     // Appel à l'API Azure OpenAI
@@ -278,7 +253,7 @@ export async function generateChallenge(req: Request, res: Response) {
         // Créer un objet challenge minimal en dernier recours
         challenge = {
           title: "Défi généré automatiquement",
-          description: "## CONTEXTE\nUn défi a été créé mais n'a pas pu être correctement formaté. Vous pouvez toujours essayer de résoudre le problème suivant.\n\n## DONNÉES\nUtilisez votre créativité et vos compétences en programmation.\n\n## OBJECTIF\nÉcrire un programme qui résout un problème de traitement de données simple.",
+          description: "## MISSION\nUn défi a été créé mais n'a pas pu être correctement formaté. Vous pouvez toujours essayer de résoudre le problème suivant.\n\n## DONNÉES\nUtilisez votre créativité et vos compétences en programmation.\n\n## OBJECTIF\nÉcrire un programme qui résout un problème de traitement de données simple.",
           initialCode: `# Défi de programmation ${language}
 # Écrivez votre solution ici
 `,
@@ -293,10 +268,7 @@ export async function generateChallenge(req: Request, res: Response) {
       // Générer un ID unique
       challenge.id = `challenge-${language}-${Date.now()}`;
       
-      // Ajouter le secteur s'il est défini
-      if (sector) {
-        challenge.sector = sector;
-      }
+      // Section secteur supprimée selon les instructions
       
       return res.status(200).json({
         success: true,
