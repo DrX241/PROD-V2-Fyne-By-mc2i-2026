@@ -93,6 +93,7 @@ import {
   processAmoaDecision,
   checkDecisionModeStatus
 } from "./amoaExpertController";
+import dataAcademieController from "./controllers/dataAcademieController";
 
 
 import {
@@ -477,6 +478,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post("/api/module-generator/save", (req: Request, res: Response) => {
     saveCustomModule(req, res);
+  });
+  
+  // Routes pour DATA ACADÉMIE
+  app.get("/api/data-academie/modules", (req: Request, res: Response) => {
+    dataAcademieController.getModules(req, res);
+  });
+  
+  app.post("/api/data-academie/modules/generate", (req: Request, res: Response) => {
+    dataAcademieController.generateNewModule(req, res);
+  });
+  
+  app.get("/api/data-academie/modules/:id", (req: Request, res: Response) => {
+    dataAcademieController.getOrGenerateModule(req, res);
+  });
+  
+  app.post("/api/data-academie/quiz/feedback", (req: Request, res: Response) => {
+    dataAcademieController.generateQuizFeedback(req, res);
+  });
+  
+  app.post("/api/data-academie/code/evaluate", (req: Request, res: Response) => {
+    dataAcademieController.evaluateCodeSubmission(req, res);
   });
   
   app.get("/api/module-generator/modules", (req: Request, res: Response) => {
