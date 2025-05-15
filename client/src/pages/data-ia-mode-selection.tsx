@@ -97,6 +97,9 @@ interface CareerPath {
 }
 
 export default function DataIaModeSelection() {
+  // Hook de navigation
+  const [, setLocation] = useLocation();
+  
   // États pour les contrôles d'accessibilité
   const [highContrastMode, setHighContrastMode] = useState<boolean>(false);
   const [textSize, setTextSize] = useState<number>(1);
