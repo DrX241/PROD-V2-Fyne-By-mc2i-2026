@@ -239,21 +239,24 @@ Fixe shouldAdvanceTurn à true si le tour doit avancer suite à cette interactio
 Les choices sont optionnels - n'en mets que si un choix critique doit être fait.`;
 
       // Préparer le contexte de la conversation
-      const conversationContext = gameState.messages.map(msg => ({
-        role: msg.isSystem ? 'system' : msg.isAI ? 'assistant' : 'user',
-        content: msg.content,
-        name: !msg.isSystem ? msg.senderRole.toLowerCase().replace(/\s+/g, '_') : undefined
-      }));
+      const conversationContext = gameState.messages.map(msg => {
+        return {
+          role: msg.isSystem ? 'system' as const : msg.isAI ? 'assistant' as const : 'user' as const,
+          content: msg.content,
+          name: !msg.isSystem ? msg.senderRole.toLowerCase().replace(/\s+/g, '_') : undefined
+        };
+      });
 
       // Envoyer la requête à l'API Azure OpenAI
       const aiResponse = await openAIService.getChatCompletion(
         [
-          { role: 'system', content: systemPrompt },
+          { role: 'system' as const, content: systemPrompt },
           ...conversationContext.slice(-10) // Limiter le contexte aux 10 derniers messages pour éviter un contexte trop long
         ],
         true, // useSecondaryModel - utilise le modèle économique pour les réponses rapides 
-        0.7, // temperature - un peu de créativité
-        true // formatAsJson - pour s'assurer que la réponse soit en JSON
+        0.7,  // temperature - un peu de créativité
+        2000, // maxTokens 
+        { responseFormat: 'json_object' } // format JSON
       );
 
       let parsedResponse;
@@ -671,7 +674,8 @@ L'overallScore doit être un nombre entre 0 et 100 calculé en fonction des mét
       const aiResponse = await openAIService.getChatCompletion(
         [{ role: 'system', content: systemPrompt }],
         false, // Utiliser le modèle principal pour générer un résumé détaillé
-        0.7    // temperature
+        0.7,   // temperature
+        true   // formatAsJson
       );
 
       let parsedResponse;
