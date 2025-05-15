@@ -775,10 +775,8 @@ const ReadMeIfYouCan = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<'python' | 'sql'>('python');
   const [selectedDifficulty, setSelectedDifficulty] = useState<'débutant' | 'intermédiaire' | 'avancé'>('intermédiaire');
-  const [selectedMode, setSelectedMode] = useState<'normal' | 'analyse' | 'défense' | 'vitesse' | 'exécution'>('normal');
-  const [userCodeInput, setUserCodeInput] = useState<string>('');
-  const [codeExecutionResult, setCodeExecutionResult] = useState<string>('');
-  const [isExecutingCode, setIsExecutingCode] = useState<boolean>(false);
+  const [selectedMode, setSelectedMode] = useState<'normal' | 'analyse' | 'défense' | 'vitesse'>('normal');
+
   const [currentChallenge, setCurrentChallenge] = useState<CodeChallenge | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [userJustification, setUserJustification] = useState('');
@@ -1178,7 +1176,6 @@ const ReadMeIfYouCan = () => {
                       <SelectItem value="analyse">Analyse - "Explique ce que tu lis"</SelectItem>
                       <SelectItem value="défense">Défense - "Revue de code"</SelectItem>
                       <SelectItem value="vitesse">Vitesse - "Contre la montre"</SelectItem>
-                      <SelectItem value="exécution">Exécution - "Code interactif"</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -1240,10 +1237,7 @@ const ReadMeIfYouCan = () => {
                       <span className="font-semibold text-orange-400 mr-2">Vitesse:</span> 
                       <span>Répondez en moins de 30 secondes.</span>
                     </li>
-                    <li className="flex items-start">
-                      <span className="font-semibold text-green-400 mr-2">Exécution:</span> 
-                      <span>Modifiez et exécutez le code avec retour IA.</span>
-                    </li>
+
                   </ul>
                 </div>
                 
@@ -1258,13 +1252,6 @@ const ReadMeIfYouCan = () => {
                     <li>• Pour SQL: analysez jointures et filtres</li>
                     <li>• Pour Python: suivez le flux d'exécution</li>
                     <li>• Après 2 erreurs consécutives, le jeu s'arrête</li>
-                    <li className="pt-2 border-t border-blue-500/20 mt-2">
-                      <span className="font-semibold text-green-400">Mode exécution:</span>
-                    </li>
-                    <li>• Modifiez le code pour résoudre le problème posé</li>
-                    <li>• L'IA analyse votre code sans l'exécuter réellement</li>
-                    <li>• Recevez des suggestions d'améliorations</li>
-                    <li>• Testez différentes approches et solutions</li>
                   </ul>
                 </div>
               </CardContent>
@@ -1310,227 +1297,127 @@ const ReadMeIfYouCan = () => {
                 </CardHeader>
                 
                 <CardContent>
-                  {selectedMode === 'exécution' ? (
-                    <div className="space-y-4">
-                      {/* Mode exécution avec éditeur de code */}
-                      <div className="bg-blue-900/40 p-4 rounded-md border border-blue-700/40">
-                        <h3 className="text-white text-lg font-semibold mb-2 flex items-center">
-                          <Terminal className="mr-2 h-5 w-5 text-green-400" />
-                          Éditeur de code {currentChallenge.language === 'python' ? 'Python' : 'SQL'}:
-                        </h3>
-                        <p className="text-gray-200 mb-4">{currentChallenge.question}</p>
-                        
-                        <div className="rounded-md overflow-hidden border border-blue-500/30 mt-2">
-                          <div className="bg-black/90 font-mono text-sm">
-                            <Editor
-                              value={userCodeInput}
-                              onValueChange={code => setUserCodeInput(code)}
-                              highlight={code => 
-                                code
-                                  .split('\n')
-                                  .map((line, i) => {
-                                    const highlighted = currentChallenge.language === 'python'
-                                      ? hljs.highlight(line, { language: 'python' }).value
-                                      : hljs.highlight(line, { language: 'sql' }).value;
-                                    return `<span style="color: #aaa; width: 2em; display: inline-block; text-align: right; margin-right: 1em;">${i + 1}</span><span>${highlighted}</span>`;
-                                  })
-                                  .join('\n')
-                              }
-                              padding={10}
-                              style={{
-                                fontFamily: '"Fira Code", "Courier New", monospace',
-                                fontSize: '14px',
-                                minHeight: '250px',
-                                backgroundColor: '#1a1a1a',
-                                color: '#f8f8f2',
-                              }}
-                              disabled={isExecutingCode}
+                  <div className="space-y-4">
+                    {/* Affichage du code */}
+                    <CodeDisplay code={currentChallenge.code} language={currentChallenge.language} />
+                    
+                    {/* Question */}
+                    <div className="bg-blue-900/40 p-4 rounded-md border border-blue-700/40">
+                      <h3 className="text-white text-lg font-semibold mb-2 flex items-center">
+                        <Brain className="mr-2 h-5 w-5 text-purple-400" />
+                        Question:
+                      </h3>
+                      <p className="text-gray-200">{currentChallenge.question}</p>
+                    </div>
+                    
+                    {/* Réponses possibles */}
+                    <div className="mt-4">
+                      <h3 className="text-white font-semibold mb-3">Sélectionnez votre réponse:</h3>
+                      <RadioGroup 
+                        value={selectedAnswer || ""} 
+                        onValueChange={setSelectedAnswer}
+                        className="space-y-2"
+                        disabled={showResult}
+                      >
+                        {currentChallenge.responses.map((response) => (
+                          <div 
+                            key={response.id} 
+                            className={`flex items-start space-x-3 p-3 rounded-md ${
+                              showResult && response.isCorrect 
+                                ? 'bg-green-900/30 border border-green-500/50' 
+                                : showResult && selectedAnswer === response.id && !response.isCorrect
+                                  ? 'bg-red-900/30 border border-red-500/50'
+                                  : highContrastMode
+                                    ? 'bg-gray-700 border border-gray-600 hover:bg-gray-600'
+                                    : 'bg-blue-900/40 border border-blue-700/30 hover:bg-blue-800/50'
+                            } transition-colors`}
+                          >
+                            <RadioGroupItem 
+                              value={response.id} 
+                              id={`answer-${response.id}`} 
+                              className="mt-1"
+                              disabled={showResult}
                             />
-                          </div>
-                        </div>
-                        
-                        <div className="flex justify-between mt-4">
-                          <Button
-                            onClick={() => setUserCodeInput(currentChallenge.code)}
-                            variant="outline"
-                            className="bg-blue-900/40 border-blue-700/40 text-white hover:bg-blue-800/60"
-                            disabled={isExecutingCode}
-                          >
-                            <RefreshCw className="mr-2 h-4 w-4" />
-                            Réinitialiser
-                          </Button>
-                          
-                          <Button
-                            onClick={executeCode}
-                            className={`${
-                              highContrastMode 
-                                ? 'bg-green-600 hover:bg-green-700' 
-                                : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
-                            } text-white`}
-                            disabled={isExecutingCode}
-                          >
-                            {isExecutingCode ? (
-                              <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Exécution...
-                              </>
-                            ) : (
-                              <>
-                                <Terminal className="mr-2 h-4 w-4" />
-                                Exécuter le code
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      {/* Résultat de l'exécution */}
-                      {codeExecutionResult && (
-                        <div className={`p-4 rounded-md border ${
-                          highContrastMode
-                            ? 'bg-gray-800 border-gray-600'
-                            : 'bg-blue-900/20 border-blue-700/40'
-                        }`}>
-                          <h3 className="text-white text-lg font-semibold mb-2 flex items-center">
-                            <Brain className="mr-2 h-5 w-5 text-purple-400" />
-                            Résultat:
-                          </h3>
-                          <pre className="text-gray-200 whitespace-pre-wrap font-mono text-sm bg-black/30 p-3 rounded-md max-h-60 overflow-auto">
-                            {codeExecutionResult}
-                          </pre>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {/* Affichage du code pour les autres modes */}
-                      <CodeDisplay code={currentChallenge.code} language={currentChallenge.language} />
-                      
-                      {/* Question */}
-                      <div className="bg-blue-900/40 p-4 rounded-md border border-blue-700/40">
-                        <h3 className="text-white text-lg font-semibold mb-2 flex items-center">
-                          <Brain className="mr-2 h-5 w-5 text-purple-400" />
-                          Question:
-                        </h3>
-                        <p className="text-gray-200">{currentChallenge.question}</p>
-                      </div>
-                      
-                      {/* Réponses possibles */}
-                      <div className="mt-4">
-                        <h3 className="text-white font-semibold mb-3">Sélectionnez votre réponse:</h3>
-                        <RadioGroup 
-                          value={selectedAnswer || ""} 
-                          onValueChange={setSelectedAnswer}
-                          className="space-y-2"
-                          disabled={showResult}
-                        >
-                          {currentChallenge.responses.map((response) => (
-                            <div 
-                              key={response.id} 
-                              className={`flex items-start space-x-3 p-3 rounded-md ${
-                                showResult && response.isCorrect 
-                                  ? 'bg-green-900/30 border border-green-500/50' 
+                            <Label 
+                              htmlFor={`answer-${response.id}`} 
+                              className={`text-sm flex-grow ${
+                                showResult && response.isCorrect
+                                  ? 'text-green-300'
                                   : showResult && selectedAnswer === response.id && !response.isCorrect
-                                    ? 'bg-red-900/30 border border-red-500/50'
-                                    : highContrastMode
-                                      ? 'bg-gray-700 border border-gray-600 hover:bg-gray-600'
-                                      : 'bg-blue-900/40 border border-blue-700/30 hover:bg-blue-800/50'
-                              } transition-colors`}
+                                    ? 'text-red-300'
+                                    : 'text-gray-200'
+                              }`}
                             >
-                              <RadioGroupItem 
-                                value={response.id} 
-                                id={`answer-${response.id}`} 
-                                className="mt-1"
-                                disabled={showResult}
-                              />
-                              <Label 
-                                htmlFor={`answer-${response.id}`} 
-                                className={`text-sm flex-grow ${
-                                  showResult && response.isCorrect
-                                    ? 'text-green-300'
-                                    : showResult && selectedAnswer === response.id && !response.isCorrect
-                                      ? 'text-red-300'
-                                      : 'text-gray-200'
-                                }`}
-                              >
-                                <span className="font-semibold">{response.id.toUpperCase()}:</span> {response.text}
-                                
-                                {showResult && response.isCorrect && (
-                                  <span className="ml-2 text-green-400 text-xs font-semibold">
-                                    ✓ CORRECT
-                                  </span>
-                                )}
-                                
-                                {showResult && selectedAnswer === response.id && !response.isCorrect && (
-                                  <span className="ml-2 text-red-400 text-xs font-semibold">
-                                    ✗ INCORRECT
-                                  </span>
-                                )}
-                              </Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
-                      </div>
-                      
-                      {/* Justification (sauf pour les débutants et mode vitesse) */}
-                      {selectedDifficulty !== 'débutant' && selectedMode !== 'vitesse' && (
-                        <div className="mt-4">
-                          <Label htmlFor="justification" className="text-white font-semibold mb-2 block">
-                            Justifiez votre réponse:
-                          </Label>
-                          <Textarea 
-                            id="justification" 
-                            placeholder="Expliquez votre raisonnement..."
-                            value={userJustification}
-                            onChange={(e) => setUserJustification(e.target.value)}
-                            disabled={showResult}
-                            className={`h-24 ${
-                              highContrastMode 
-                                ? 'bg-gray-700 border-gray-600' 
-                                : 'bg-blue-900/50 border-blue-700/30'
-                            }`}
-                          />
-                        </div>
-                      )}
-                      
-                      {/* Explication (visible après soumission) */}
-                      {showResult && (
-                        <div className="mt-6 bg-blue-900/40 p-4 rounded-md border border-blue-500/40">
-                          <h3 className="text-white text-lg font-semibold mb-2 flex items-center">
-                            <Sparkles className="mr-2 h-5 w-5 text-yellow-400" />
-                            Explication:
-                          </h3>
-                          <p className="text-gray-200">{currentChallenge.explanation}</p>
-                        </div>
-                      )}
+                              <span className="font-semibold">{response.id.toUpperCase()}:</span> {response.text}
+                              
+                              {showResult && response.isCorrect && (
+                                <span className="ml-2 text-green-400 text-xs font-semibold">
+                                  ✓ CORRECT
+                                </span>
+                              )}
+                              
+                              {showResult && selectedAnswer === response.id && !response.isCorrect && (
+                                <span className="ml-2 text-red-400 text-xs font-semibold">
+                                  ✗ INCORRECT
+                                </span>
+                              )}
+                            </Label>
+                          </div>
+                        ))}
+                      </RadioGroup>
                     </div>
-                  )}
+                    
+                    {/* Justification (sauf pour les débutants et mode vitesse) */}
+                    {selectedDifficulty !== 'débutant' && selectedMode !== 'vitesse' && (
+                      <div className="mt-4">
+                        <Label htmlFor="justification" className="text-white font-semibold mb-2 block">
+                          Justifiez votre réponse:
+                        </Label>
+                        <Textarea 
+                          id="justification" 
+                          placeholder="Expliquez votre raisonnement..."
+                          value={userJustification}
+                          onChange={(e) => setUserJustification(e.target.value)}
+                          disabled={showResult}
+                          className={`h-24 ${
+                            highContrastMode 
+                              ? 'bg-gray-700 border-gray-600' 
+                              : 'bg-blue-900/50 border-blue-700/30'
+                          }`}
+                        />
+                      </div>
+                    )}
+                    
+                    {/* Explication (visible après soumission) */}
+                    {showResult && (
+                      <div className="mt-6 bg-blue-900/40 p-4 rounded-md border border-blue-500/40">
+                        <h3 className="text-white text-lg font-semibold mb-2 flex items-center">
+                          <Sparkles className="mr-2 h-5 w-5 text-yellow-400" />
+                          Explication:
+                        </h3>
+                        <p className="text-gray-200">{currentChallenge.explanation}</p>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
                 
                 <CardFooter className="flex justify-between">
-                  {/* Bouton d'indice - caché en mode exécution */}
-                  {selectedMode !== 'exécution' && (
-                    <Button
-                      variant="outline"
-                      onClick={getHint}
-                      disabled={isLoading || hintRequested || showResult}
-                      className={`${
-                        highContrastMode
-                          ? 'bg-gray-700 border-gray-600 hover:bg-gray-600'
-                          : 'bg-blue-900/20 border-blue-600/20 hover:bg-blue-800/40'
-                      } text-blue-300 hover:text-blue-200`}
-                    >
-                      <Lightbulb className="mr-2 h-4 w-4" />
-                      Indice
-                    </Button>
-                  )}
-                  
-                  {/* Espace vide en mode exécution pour maintenir l'alignement */}
-                  {selectedMode === 'exécution' && <div></div>}
+                  <Button
+                    variant="outline"
+                    onClick={getHint}
+                    disabled={isLoading || hintRequested || showResult}
+                    className={`${
+                      highContrastMode
+                        ? 'bg-gray-700 border-gray-600 hover:bg-gray-600'
+                        : 'bg-blue-900/20 border-blue-600/20 hover:bg-blue-800/40'
+                    } text-blue-300 hover:text-blue-200`}
+                  >
+                    <Lightbulb className="mr-2 h-4 w-4" />
+                    Indice
+                  </Button>
                   
                   <div className="space-x-3">
-                    {/* Bouton de question suivante (tous les modes) */}
-                    {(showResult || selectedMode === 'exécution') ? (
+                    {showResult ? (
                       <Button
                         onClick={fetchNewChallenge}
                         disabled={isLoading}
@@ -1541,10 +1428,9 @@ const ReadMeIfYouCan = () => {
                         } text-white`}
                       >
                         <PlayCircle className="mr-2 h-4 w-4" />
-                        {selectedMode === 'exécution' ? 'Nouveau défi de code' : 'Question suivante'}
+                        Question suivante
                       </Button>
                     ) : (
-                      /* Bouton de validation (modes standard uniquement) */
                       <Button
                         onClick={submitAnswer}
                         disabled={isLoading || !selectedAnswer}
