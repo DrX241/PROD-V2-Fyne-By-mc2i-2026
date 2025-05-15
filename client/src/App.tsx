@@ -763,7 +763,7 @@ function App() {
                 <Route path="/data-ia/read-me-if-you-can" component={ReadMeIfYouCan} />
                 <Route path="/data-ia/data-ops-simulation" component={DataOpsSimulation} />
                 <Route path="/data-ia/data-academie" component={() => {
-                  const DataAcademie = lazy(() => import('./pages/data-ia/data-academie'));
+                  const DataAcademie = lazy(() => import('./pages/data-ia/data-academie-fixed'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
                       <DataAcademie />
