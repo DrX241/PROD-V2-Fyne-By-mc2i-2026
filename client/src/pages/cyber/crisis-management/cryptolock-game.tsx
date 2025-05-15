@@ -947,7 +947,7 @@ export default function CryptoLockGame() {
               </AlertDialogCancel>
               <AlertDialogAction 
                 className="bg-red-600 hover:bg-red-700 text-white"
-                onClick={() => navigate('/cyber/crisis-management')}
+                onClick={() => setLocation('/cyber/crisis-management')}
               >
                 Quitter
               </AlertDialogAction>
@@ -988,7 +988,7 @@ export default function CryptoLockGame() {
                 <AlertDialogFooter>
                   <AlertDialogAction 
                     className="bg-cyan-600 hover:bg-cyan-700 text-white"
-                    onClick={() => navigate('/cyber/crisis-management')}
+                    onClick={() => setLocation('/cyber/crisis-management')}
                   >
                     Retour au menu
                   </AlertDialogAction>

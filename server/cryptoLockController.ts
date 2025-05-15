@@ -246,7 +246,7 @@ Les choices sont optionnels - n'en mets que si un choix critique doit être fait
       }));
 
       // Envoyer la requête à l'API Azure OpenAI
-      const aiResponse = await openAIService.generateChatCompletion(
+      const aiResponse = await openAIService.getChatCompletion(
         [
           { role: 'system', content: systemPrompt },
           ...conversationContext.slice(-10) // Limiter le contexte aux 10 derniers messages pour éviter un contexte trop long
@@ -473,10 +473,11 @@ Les metricChanges sont des ajustements entre -20 et +20 pour chaque métrique.
 shouldAdvanceTurn doit être true pour ce type de décision majeure.`;
 
       // Envoyer la requête à l'API Azure OpenAI
-      const aiResponse = await openAIService.generateChatCompletion(
+      const aiResponse = await openAIService.getChatCompletion(
         [{ role: 'system', content: systemPrompt }],
         true, // useSecondaryModel
-        0.7  // temperature
+        0.7,  // temperature
+        true  // formatAsJson
       );
 
       let parsedResponse;
@@ -667,7 +668,7 @@ Ton format de réponse doit être JSON avec cette structure:
 L'overallScore doit être un nombre entre 0 et 100 calculé en fonction des métriques finales.`;
 
       // Envoyer la requête à l'API OpenAI
-      const aiResponse = await openAIService.generateChatCompletion(
+      const aiResponse = await openAIService.getChatCompletion(
         [{ role: 'system', content: systemPrompt }],
         false, // Utiliser le modèle principal pour générer un résumé détaillé
         0.7    // temperature
