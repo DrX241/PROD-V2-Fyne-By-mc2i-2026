@@ -55,6 +55,7 @@ interface CodeExecution {
   result: string;
   analysis: string | null;
   timestamp: number;
+  sessionVariables?: string | null;
 }
 
 interface CodeExample {
@@ -474,13 +475,19 @@ const IALabTrainer: React.FC = () => {
       setResult(data.result || 'Exécution terminée sans résultat');
       setAnalysis(data.analysis || 'Aucune analyse disponible');
       
+      // Mettre à jour les variables de session si disponibles
+      if (data.sessionVariables) {
+        setSessionVariables(data.sessionVariables);
+      }
+      
       // Ajouter à l'historique
       const newExecution: CodeExecution = {
         code,
         language: selectedLanguage,
         result: data.result || 'Aucun résultat',
         analysis: data.analysis || 'Aucune analyse',
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        sessionVariables: data.sessionVariables
       };
       
       setExecutionHistory(prev => [newExecution, ...prev].slice(0, 10));
@@ -675,6 +682,25 @@ const IALabTrainer: React.FC = () => {
                       {result}
                     </pre>
                   )}
+                </div>
+              )}
+              
+              {/* Variables de session stockées */}
+              {sessionVariables && !isProcessing && (
+                <div className="p-4 bg-gradient-to-r from-gray-900/80 to-purple-900/30 border-t border-purple-500/20">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-white font-semibold flex items-center">
+                      <Database className="mr-2 h-4 w-4 text-purple-400" />
+                      Variables de session
+                    </h3>
+                    <Badge variant="outline" className="bg-purple-900/40 text-purple-300 border-purple-500/30">
+                      Persistantes
+                    </Badge>
+                  </div>
+                  
+                  <div className="text-gray-300 text-sm bg-black/30 p-3 rounded-md">
+                    {sessionVariables}
+                  </div>
                 </div>
               )}
               
