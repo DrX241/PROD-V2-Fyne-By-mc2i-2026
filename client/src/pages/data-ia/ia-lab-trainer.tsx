@@ -611,28 +611,26 @@ const IALabTrainer: React.FC = () => {
           </div>
           
           <div className="flex space-x-3">
-            <TabsList className="rounded-lg border border-blue-500/30 bg-blue-900/20">
-              <TabsTrigger
-                value="python"
-                className={`rounded px-4 py-1.5 ${
+            <div className="flex items-center rounded-lg border border-blue-500/30 bg-blue-900/20 px-1">
+              <button
+                className={`flex items-center rounded px-4 py-1.5 ${
                   selectedLanguage === 'python' ? 'bg-blue-800 text-white' : 'text-blue-300'
                 }`}
                 onClick={() => handleLanguageChange('python')}
               >
                 <Code className="mr-2 h-4 w-4" />
                 Python
-              </TabsTrigger>
-              <TabsTrigger
-                value="sql"
-                className={`rounded px-4 py-1.5 ${
+              </button>
+              <button
+                className={`flex items-center rounded px-4 py-1.5 ${
                   selectedLanguage === 'sql' ? 'bg-blue-800 text-white' : 'text-blue-300'
                 }`}
                 onClick={() => handleLanguageChange('sql')}
               >
                 <Database className="mr-2 h-4 w-4" />
                 SQL
-              </TabsTrigger>
-            </TabsList>
+              </button>
+            </div>
           </div>
         </div>
         
