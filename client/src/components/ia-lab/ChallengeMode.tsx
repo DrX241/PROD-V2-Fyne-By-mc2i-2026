@@ -53,7 +53,7 @@ interface Challenge {
   hints: string[];
   solution?: string;
   category: string;
-  sector?: string; // Secteur d'activité ajouté
+  // Attribut sector supprimé selon les instructions
 }
 
 interface Evaluation {
