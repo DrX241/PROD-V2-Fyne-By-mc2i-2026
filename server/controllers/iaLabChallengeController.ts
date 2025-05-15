@@ -55,7 +55,7 @@ export async function generateChallenge(req: Request, res: Response) {
       content: `Tu es un expert en création d'exercices de programmation ${language === 'python' ? 'Python' : 'SQL'}.
       Génère un exercice de difficulté ${difficulty} dans la catégorie "${category}".
       
-      Structure ta réponse en JSON valide avec le format suivant:
+      Structure ta réponse en JSON valide STRICTEMENT avec le format suivant, sans aucun texte avant ou après:
       {
         "title": "Titre court et concis",
         "description": "Description détaillée du problème, incluant toutes les contraintes et objectifs",
@@ -68,6 +68,8 @@ export async function generateChallenge(req: Request, res: Response) {
         "category": "${category}",
         "language": "${language}"
       }
+      
+      IMPORTANT: Ta réponse NE DOIT CONTENIR QUE le JSON VALIDE, sans aucun autre texte, markdown ou formatage. Veille à ce que toutes les guillemets soient correctement échappées dans les chaînes de caractères.
       
       Pour Python:
       - Assure-toi que le code initial est fonctionnel mais incomplet
@@ -95,12 +97,26 @@ export async function generateChallenge(req: Request, res: Response) {
 
     try {
       // Extraire le JSON de la réponse
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error("Format JSON non détecté dans la réponse");
+      let jsonContent = response;
+      
+      // Chercher d'abord à isoler le JSON s'il est entouré de texte
+      const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```|```\s*([\s\S]*?)\s*```|\{[\s\S]*\}/);
+      if (jsonMatch) {
+        // Prendre le premier groupe non undefined ou la correspondance complète
+        jsonContent = jsonMatch[1] || jsonMatch[2] || jsonMatch[0];
       }
       
-      const challenge = JSON.parse(jsonMatch[0]);
+      // Nettoyer le json: enlever les caractères non-JSON potentiels en début et fin
+      jsonContent = jsonContent.trim();
+      if (!jsonContent.startsWith('{')) {
+        jsonContent = jsonContent.substring(jsonContent.indexOf('{'));
+      }
+      if (!jsonContent.endsWith('}')) {
+        jsonContent = jsonContent.substring(0, jsonContent.lastIndexOf('}') + 1);
+      }
+      
+      // Parser le JSON nettoyé
+      const challenge = JSON.parse(jsonContent);
       
       // Générer un ID unique
       challenge.id = `challenge-${language}-${Date.now()}`;
@@ -145,7 +161,7 @@ export async function evaluateChallengeSolution(req: Request, res: Response) {
       content: `Tu es un évaluateur expert en programmation ${language === 'python' ? 'Python' : 'SQL'}.
       Analyse la solution proposée par l'utilisateur pour un exercice et évalue sa qualité.
       
-      Réponds en JSON avec le format suivant:
+      Réponds UNIQUEMENT en JSON valide avec le format suivant, sans aucun texte avant ou après:
       {
         "isCorrect": boolean (true si la solution est correcte),
         "score": nombre entre 0 et 100,
@@ -154,6 +170,8 @@ export async function evaluateChallengeSolution(req: Request, res: Response) {
         "improvements": ["Suggestion d'amélioration 1", "Suggestion d'amélioration 2"],
         "nextSteps": "Suggestion pour aller plus loin"
       }
+      
+      IMPORTANT: Ta réponse NE DOIT CONTENIR QUE le JSON VALIDE, sans aucun autre texte, markdown ou formatage. Veille à ce que toutes les guillemets soient correctement échappées dans les chaînes de caractères.
       
       Sois encourageant dans ton feedback, même si la solution n'est pas parfaite.
       Si le code ne répond pas du tout au problème, explique pourquoi et donne des indices.
@@ -192,12 +210,26 @@ export async function evaluateChallengeSolution(req: Request, res: Response) {
 
     try {
       // Extraire le JSON de la réponse
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error("Format JSON non détecté dans la réponse");
+      let jsonContent = response;
+      
+      // Chercher d'abord à isoler le JSON s'il est entouré de texte
+      const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```|```\s*([\s\S]*?)\s*```|\{[\s\S]*\}/);
+      if (jsonMatch) {
+        // Prendre le premier groupe non undefined ou la correspondance complète
+        jsonContent = jsonMatch[1] || jsonMatch[2] || jsonMatch[0];
       }
       
-      const evaluation = JSON.parse(jsonMatch[0]);
+      // Nettoyer le json: enlever les caractères non-JSON potentiels en début et fin
+      jsonContent = jsonContent.trim();
+      if (!jsonContent.startsWith('{')) {
+        jsonContent = jsonContent.substring(jsonContent.indexOf('{'));
+      }
+      if (!jsonContent.endsWith('}')) {
+        jsonContent = jsonContent.substring(0, jsonContent.lastIndexOf('}') + 1);
+      }
+      
+      // Parser le JSON nettoyé
+      const evaluation = JSON.parse(jsonContent);
       
       return res.status(200).json({
         success: true,
