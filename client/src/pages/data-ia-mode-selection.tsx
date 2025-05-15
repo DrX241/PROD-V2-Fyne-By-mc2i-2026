@@ -442,7 +442,7 @@ export default function DataIaModeSelection() {
                     <TooltipTrigger asChild>
                       <DataButton 
                         variant="outline"
-                        dataEffect="flash"
+                        dataEffect="pulse"
                         className="w-10 h-10 p-0 flex items-center justify-center rounded-full bg-[#0e0936]/80 border-[#7b2ff7]/40 text-[#00c6ff] hover:bg-[#1a0f53]/80"
                         onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
                         data-id="text-smaller-button"
@@ -461,7 +461,7 @@ export default function DataIaModeSelection() {
                     <TooltipTrigger asChild>
                       <DataButton 
                         variant="outline"
-                        dataEffect="flash"
+                        dataEffect="pulse"
                         className="w-10 h-10 p-0 flex items-center justify-center rounded-full bg-[#0e0936]/80 border-[#7b2ff7]/40 text-[#00c6ff] hover:bg-[#1a0f53]/80"
                         onClick={() => setTextSize(Math.min(1.2, textSize + 0.1))}
                         data-id="text-larger-button"
