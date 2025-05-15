@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import '../styles/data-ia.css';
 import { motion } from 'framer-motion';
 import { 
@@ -566,7 +566,9 @@ export default function DataIaModeSelection() {
                 highContrastMode 
                   ? 'bg-gray-800 border border-gray-700' 
                   : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
-              } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}>
+              } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
+              onClick={() => setLocation('/data-ia/read-me-if-you-can')}
+              >
                 <CardHeader>
                   <div className="flex items-start justify-center">
                     <div className={`p-3 rounded-lg ${
@@ -579,10 +581,23 @@ export default function DataIaModeSelection() {
                   </div>
                   <CardTitle className="text-center text-xl mt-2 font-data-title">S'ÉVALUER</CardTitle>
                 </CardHeader>
-                <CardContent className="text-center">
-                  <Badge className="px-3 py-1.5 bg-amber-400/10 border border-amber-500/30 text-amber-400 text-md mb-3">
-                    Bientôt disponible
-                  </Badge>
+                <CardContent className="text-center flex flex-col items-center space-y-3">
+                  <div className="space-y-3 w-full">
+                    <div 
+                      className={`px-3 py-3 rounded-md ${
+                        highContrastMode 
+                          ? 'bg-blue-900/50 hover:bg-blue-800 border border-blue-700' 
+                          : 'bg-gradient-to-r from-pink-600/20 to-rose-600/20 hover:from-pink-600/30 hover:to-rose-600/30 border border-pink-400/30'
+                      } transition-colors cursor-pointer`}
+                    >
+                      <div className="font-bold text-white mb-1 flex items-center justify-center">
+                        <span className="bg-gradient-to-r from-blue-400 to-cyan-400 text-transparent bg-clip-text">READ ME IF YOU CAN</span>
+                      </div>
+                      <p className="text-xs text-gray-300">
+                        Testez votre compréhension du code Python et SQL
+                      </p>
+                    </div>
+                  </div>
                   <p className={highContrastMode ? 'text-gray-300' : 'text-gray-200'}>
                     Tests et certifications pour valider vos compétences
                   </p>
