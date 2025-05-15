@@ -238,7 +238,8 @@ export default function CryptoLockReborn() {
         setElapsedTime(now - game.startTime!);
         
         // Calcul du temps restant pour le tour actuel
-        const currentTurnStartTime = game.turns[game.currentTurn]?.startTime || game.startTime;
+        // Utilise la valeur du temps actuel comme fallback pour éviter undefined
+        const currentTurnStartTime: number = game.turns[game.currentTurn]?.startTime ?? game.startTime ?? now;
         const turnElapsed = now - currentTurnStartTime;
         const turnTimeLeftSeconds = Math.max(0, 300 - Math.floor(turnElapsed / 1000));
         setTurnTimeLeft(turnTimeLeftSeconds);
