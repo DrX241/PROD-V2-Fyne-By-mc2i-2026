@@ -587,6 +587,10 @@ export default function DataIaModeSelection() {
                 <CardContent className="text-center flex flex-col items-center space-y-3">
                   <div className="space-y-3 w-full">
                     <div 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/data-ia/read-me-if-you-can');
+                      }}
                       className={`px-3 py-3 rounded-md ${
                         highContrastMode 
                           ? 'bg-blue-900/50 hover:bg-blue-800 border border-blue-700' 
@@ -598,6 +602,25 @@ export default function DataIaModeSelection() {
                       </div>
                       <p className="text-xs text-gray-300">
                         Testez votre compréhension du code Python et SQL
+                      </p>
+                    </div>
+                    
+                    <div 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/data-ia/data-ops-simulation');
+                      }}
+                      className={`px-3 py-3 rounded-md ${
+                        highContrastMode 
+                          ? 'bg-emerald-900/50 hover:bg-emerald-800 border border-emerald-700' 
+                          : 'bg-gradient-to-r from-indigo-600/20 to-blue-600/20 hover:from-indigo-600/30 hover:to-blue-600/30 border border-blue-400/30'
+                      } transition-colors cursor-pointer`}
+                    >
+                      <div className="font-bold text-white mb-1 flex items-center justify-center">
+                        <span className="bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text">DATA OPS</span>
+                      </div>
+                      <p className="text-xs text-gray-300">
+                        Simulation de missions data en conditions réelles
                       </p>
                     </div>
                   </div>
