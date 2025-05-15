@@ -1,13 +1,8 @@
-import OpenAI from 'openai';
-import { config } from '../config';
+// Utiliser le service Azure OpenAI existant
+import { openAIService } from './openai';
 
-// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const MODEL = 'gpt-4o';
-
-// Initialiser le client OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+// the newest model available is gpt-4o in the Azure OpenAI service
+// nous utilisons le service Azure OpenAI existant au lieu de l'API OpenAI standard
 
 // Types pour les données générées
 export interface GeneratedSection {
@@ -93,22 +88,23 @@ export async function generateModuleContent(
 
     console.log(`Génération de contenu pour un module sur: ${topic} (niveau ${difficulty})`);
 
-    const response = await openai.chat.completions.create({
-      model: MODEL,
-      messages: [
+    // Utilisation du service Azure OpenAI existant au lieu de l'API OpenAI standard
+    const response = await openAIService.createChatCompletion(
+      [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
-      temperature: 0.7,
-      response_format: { type: 'json_object' }
-    });
+      0.7, // temperature
+      3000, // max_tokens
+      true, // utiliser le modèle secondaire pour éviter de surcharger le modèle principal
+      { responseFormat: 'json_object' } // demander une réponse en format JSON
+    );
 
-    const content = response.choices[0].message.content;
-    if (!content) {
+    if (!response.content) {
       throw new Error('Aucun contenu généré');
     }
 
-    const parsedContent = JSON.parse(content);
+    const parsedContent = JSON.parse(response.content);
     
     // Validation de base du contenu reçu
     if (!parsedContent.title || !parsedContent.introduction || 
