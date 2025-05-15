@@ -70,12 +70,13 @@ export async function generateChallenge(req: Request, res: Response) {
     const systemMessage = {
       role: 'system' as 'system',
       content: `Tu es un expert en création de cas pratiques professionnels de programmation ${language === 'python' ? 'Python' : 'SQL'}.
-      Génère un cas d'usage professionnel de difficulté ${difficulty} dans la catégorie "${category}".
+      Génère un cas d'usage professionnel de difficulté ${difficulty} dans la catégorie "${category}"${sector ? ` pour le secteur "${sector}"` : ''}.
       
       CONTEXTE PROFESSIONNEL À CHOISIR ALÉATOIREMENT:
       - Utilise toujours le cabinet de conseil mc2i comme employeur ou prestataire
       - Pour un scénario impliquant une direction Data & IA, utilise le nom DIXIT
       - Pour un scénario impliquant une entité dans l'industrie, transport, service public ou santé, utilise le nom IMPULSE
+      ${sector ? `- Le scénario doit OBLIGATOIREMENT être adapté au secteur "${sector}" avec des problématiques métier spécifiques à ce secteur` : ''}
       
       INSTRUCTIONS IMPORTANTES:
       - CHOISIS DE FAÇON ALÉATOIRE ENTRE UN CLIENT DIXIT ET UN CLIENT IMPULSE
@@ -124,7 +125,7 @@ export async function generateChallenge(req: Request, res: Response) {
 
     const userMessage = {
       role: 'user' as 'user',
-      content: `Génère un cas pratique professionnel de programmation ${language} de niveau ${difficulty} dans la catégorie ${category}. Choisis aléatoirement entre DIXIT et IMPULSE, et sélectionne aléatoirement 2 ou 3 personnages parmi la liste fournie. Assure-toi de bien varier les personnages et les rôles d'un scénario à l'autre.`
+      content: `Génère un cas pratique professionnel de programmation ${language} de niveau ${difficulty} dans la catégorie ${category}${sector ? ` pour le secteur "${sector}"` : ''}. Choisis aléatoirement entre DIXIT et IMPULSE, et sélectionne aléatoirement 2 ou 3 personnages parmi la liste fournie. Assure-toi de bien varier les personnages et les rôles d'un scénario à l'autre.${sector ? ` Le scénario doit traiter de problématiques métier spécifiques au secteur "${sector}".` : ''}`
     };
 
     // Appel à l'API Azure OpenAI
@@ -160,6 +161,11 @@ export async function generateChallenge(req: Request, res: Response) {
       
       // Générer un ID unique
       challenge.id = `challenge-${language}-${Date.now()}`;
+      
+      // Ajouter le secteur s'il est défini
+      if (sector) {
+        challenge.sector = sector;
+      }
       
       return res.status(200).json({
         success: true,

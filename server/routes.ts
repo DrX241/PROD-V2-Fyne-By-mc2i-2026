@@ -4841,6 +4841,12 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   
   // Routes pour les défis du IA Lab Trainer
   app.get('/api/ia-lab/challenge/categories/:language', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.getChallengeCategories(req, res)));
+  app.get('/api/ia-lab/challenge/sectors', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => {
+    res.status(200).json({
+      success: true,
+      sectors: m.INDUSTRY_SECTORS
+    });
+  }));
   app.post('/api/ia-lab/challenge/generate', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.generateChallenge(req, res)));
   app.post('/api/ia-lab/challenge/evaluate', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.evaluateChallengeSolution(req, res)));
   app.post('/api/ia-lab/challenge/hint', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.getAdditionalHint(req, res)));
