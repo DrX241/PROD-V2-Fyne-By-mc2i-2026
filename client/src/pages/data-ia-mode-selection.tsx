@@ -526,12 +526,54 @@ export default function DataIaModeSelection() {
                   </div>
                   <CardTitle className="text-center text-xl mt-2 font-data-title">SE FORMER</CardTitle>
                 </CardHeader>
-                <CardContent className="text-center">
-                  <Badge className="px-3 py-1.5 bg-amber-400/10 border border-amber-500/30 text-amber-400 text-md mb-3">
-                    Bientôt disponible
-                  </Badge>
+                <CardContent className="text-center flex flex-col items-center space-y-3">
+                  <div className="space-y-3 w-full">
+                    <div 
+                      className={`px-3 py-3 rounded-md ${
+                        highContrastMode 
+                          ? 'bg-purple-900/50 hover:bg-purple-800 border border-purple-700' 
+                          : 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 hover:from-blue-500/30 hover:to-purple-500/30 border border-purple-300/30'
+                      } transition-colors cursor-pointer`}
+                    >
+                      <div className="font-bold text-white mb-1 flex items-center justify-center">
+                        <span className="bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">DATA ACADÉMIE</span>
+                      </div>
+                      <div className="grid grid-cols-1 gap-2 mt-2">
+                        <div className="text-xs text-left text-gray-300 flex items-start">
+                          <div className="min-w-4 h-4 rounded-full bg-blue-500/50 mr-2 mt-0.5 flex items-center justify-center">
+                            <span className="text-[10px] text-white">1</span>
+                          </div>
+                          <span>Fondamentaux Data Science - Statistiques et visualisation en mode interactif</span>
+                        </div>
+                        <div className="text-xs text-left text-gray-300 flex items-start">
+                          <div className="min-w-4 h-4 rounded-full bg-purple-500/50 mr-2 mt-0.5 flex items-center justify-center">
+                            <span className="text-[10px] text-white">2</span>
+                          </div>
+                          <span>Intelligence Artificielle - ML, Deep Learning et IA générative expliqués simplement</span>
+                        </div>
+                        <div className="text-xs text-left text-gray-300 flex items-start">
+                          <div className="min-w-4 h-4 rounded-full bg-cyan-500/50 mr-2 mt-0.5 flex items-center justify-center">
+                            <span className="text-[10px] text-white">3</span>
+                          </div>
+                          <span>Parcours SQL Avancé - Maîtrisez les requêtes complexes et l'optimisation</span>
+                        </div>
+                        <div className="text-xs text-left text-gray-300 flex items-start">
+                          <div className="min-w-4 h-4 rounded-full bg-indigo-500/50 mr-2 mt-0.5 flex items-center justify-center">
+                            <span className="text-[10px] text-white">4</span>
+                          </div>
+                          <span>Python Data Science - pandas, NumPy et Matplotlib en action</span>
+                        </div>
+                        <div className="text-xs text-left text-gray-300 flex items-start">
+                          <div className="min-w-4 h-4 rounded-full bg-pink-500/50 mr-2 mt-0.5 flex items-center justify-center">
+                            <span className="text-[10px] text-white">5</span>
+                          </div>
+                          <span>Data Engineering - Construisez et gérez des pipelines de données</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <p className={highContrastMode ? 'text-gray-300' : 'text-gray-200'}>
-                    Modules de formation en Data Science et Intelligence Artificielle
+                    Formations interactives et ludiques en Data Science et IA
                   </p>
                 </CardContent>
               </Card>
@@ -554,12 +596,54 @@ export default function DataIaModeSelection() {
                   </div>
                   <CardTitle className="text-center text-xl mt-2 font-data-title">S'ENTRAÎNER</CardTitle>
                 </CardHeader>
-                <CardContent className="text-center">
-                  <Badge className="px-3 py-1.5 bg-amber-400/10 border border-amber-500/30 text-amber-400 text-md mb-3">
-                    Bientôt disponible
-                  </Badge>
+                <CardContent className="text-center flex flex-col items-center space-y-3">
+                  <div className="space-y-3 w-full">
+                    <div 
+                      className={`px-3 py-3 rounded-md ${
+                        highContrastMode 
+                          ? 'bg-blue-900/50 hover:bg-blue-800 border border-blue-700' 
+                          : 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 border border-blue-300/30'
+                      } transition-colors cursor-pointer`}
+                    >
+                      <div className="font-bold text-white mb-1 flex items-center justify-center">
+                        <span className="bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text">DATA CHALLENGES</span>
+                      </div>
+                      <div className="grid grid-cols-1 gap-2 mt-2">
+                        <div className="text-xs text-left text-gray-300 flex items-start">
+                          <div className="min-w-4 h-4 rounded-full bg-cyan-500/50 mr-2 mt-0.5 flex items-center justify-center">
+                            <span className="text-[10px] text-white">1</span>
+                          </div>
+                          <span>Data Cleaning Arena - Nettoyez et transformez des données brutes en compétition</span>
+                        </div>
+                        <div className="text-xs text-left text-gray-300 flex items-start">
+                          <div className="min-w-4 h-4 rounded-full bg-blue-500/50 mr-2 mt-0.5 flex items-center justify-center">
+                            <span className="text-[10px] text-white">2</span>
+                          </div>
+                          <span>ML Battle - Développez et optimisez des modèles prédictifs en temps limité</span>
+                        </div>
+                        <div className="text-xs text-left text-gray-300 flex items-start">
+                          <div className="min-w-4 h-4 rounded-full bg-indigo-500/50 mr-2 mt-0.5 flex items-center justify-center">
+                            <span className="text-[10px] text-white">3</span>
+                          </div>
+                          <span>SQL Playground - Environnement pratique pour tester vos requêtes complexes</span>
+                        </div>
+                        <div className="text-xs text-left text-gray-300 flex items-start">
+                          <div className="min-w-4 h-4 rounded-full bg-teal-500/50 mr-2 mt-0.5 flex items-center justify-center">
+                            <span className="text-[10px] text-white">4</span>
+                          </div>
+                          <span>Dashboard Designer - Création interactive de tableaux de bord visuels</span>
+                        </div>
+                        <div className="text-xs text-left text-gray-300 flex items-start">
+                          <div className="min-w-4 h-4 rounded-full bg-sky-500/50 mr-2 mt-0.5 flex items-center justify-center">
+                            <span className="text-[10px] text-white">5</span>
+                          </div>
+                          <span>Projet Data Guidé - Résolvez un cas réel avec conseils pas à pas</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <p className={highContrastMode ? 'text-gray-300' : 'text-gray-200'}>
-                    Exercices pratiques et projets guidés en Data Science
+                    Défis pratiques et projets interactifs en Data Science
                   </p>
                 </CardContent>
               </Card>
@@ -631,12 +715,54 @@ export default function DataIaModeSelection() {
                   </div>
                   <CardTitle className="text-center text-xl mt-2 font-data-title">AUTOMATISER</CardTitle>
                 </CardHeader>
-                <CardContent className="text-center">
-                  <Badge className="px-3 py-1.5 bg-amber-400/10 border border-amber-500/30 text-amber-400 text-md mb-3">
-                    Bientôt disponible
-                  </Badge>
+                <CardContent className="text-center flex flex-col items-center space-y-3">
+                  <div className="space-y-3 w-full">
+                    <div 
+                      className={`px-3 py-3 rounded-md ${
+                        highContrastMode 
+                          ? 'bg-cyan-900/50 hover:bg-cyan-800 border border-cyan-700' 
+                          : 'bg-gradient-to-r from-blue-400/20 to-cyan-400/20 hover:from-blue-400/30 hover:to-cyan-400/30 border border-cyan-300/30'
+                      } transition-colors cursor-pointer`}
+                    >
+                      <div className="font-bold text-white mb-1 flex items-center justify-center">
+                        <span className="bg-gradient-to-r from-blue-300 to-cyan-300 text-transparent bg-clip-text">DATA BOTS & AUTOMATION</span>
+                      </div>
+                      <div className="grid grid-cols-1 gap-2 mt-2">
+                        <div className="text-xs text-left text-gray-300 flex items-start">
+                          <div className="min-w-4 h-4 rounded-full bg-cyan-600/50 mr-2 mt-0.5 flex items-center justify-center">
+                            <span className="text-[10px] text-white">1</span>
+                          </div>
+                          <span>AI Code Generator - Création automatique de scripts Python et SQL</span>
+                        </div>
+                        <div className="text-xs text-left text-gray-300 flex items-start">
+                          <div className="min-w-4 h-4 rounded-full bg-teal-600/50 mr-2 mt-0.5 flex items-center justify-center">
+                            <span className="text-[10px] text-white">2</span>
+                          </div>
+                          <span>AutoML Studio - Entraînement et déploiement de modèles sans code</span>
+                        </div>
+                        <div className="text-xs text-left text-gray-300 flex items-start">
+                          <div className="min-w-4 h-4 rounded-full bg-blue-600/50 mr-2 mt-0.5 flex items-center justify-center">
+                            <span className="text-[10px] text-white">3</span>
+                          </div>
+                          <span>DataBot Builder - Créez facilement des assistants IA spécialisés</span>
+                        </div>
+                        <div className="text-xs text-left text-gray-300 flex items-start">
+                          <div className="min-w-4 h-4 rounded-full bg-sky-600/50 mr-2 mt-0.5 flex items-center justify-center">
+                            <span className="text-[10px] text-white">4</span>
+                          </div>
+                          <span>ETL Pipeline Designer - Automatisez les flux de données</span>
+                        </div>
+                        <div className="text-xs text-left text-gray-300 flex items-start">
+                          <div className="min-w-4 h-4 rounded-full bg-emerald-600/50 mr-2 mt-0.5 flex items-center justify-center">
+                            <span className="text-[10px] text-white">5</span>
+                          </div>
+                          <span>Smart Reports - Génération automatique de rapports avec IA</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <p className={highContrastMode ? 'text-gray-300' : 'text-gray-200'}>
-                    Outils d'automatisation et bonnes pratiques en IA
+                    Outils pour automatiser vos workflows data et déployer l'IA
                   </p>
                 </CardContent>
               </Card>
