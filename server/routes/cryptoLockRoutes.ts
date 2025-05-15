@@ -6,7 +6,7 @@ import {
   makeChoice,
   getGameState,
   startNextTurn
-} from '../controllers/cryptoLockController';
+} from '../cryptoLockController';
 
 const router = express.Router();
 

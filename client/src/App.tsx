@@ -48,6 +48,9 @@ import CyberDefenseMissionPage from "@/pages/cyber-defense-mission"; // Ancienne
 // Import du nouveau module CYBERCHAOS
 import CyberChaos from "@/pages/cyber/CyberChaos"; // Nouveau module de simulation de crise
 
+// Import des modules de gestion de crise
+import CrisisManagementPage from "@/pages/cyber/crisis-management";
+
 // Arcade et mini-jeux
 import CyberArcade from "@/pages/cyber/arcade";
 // Les anciens jeux ont été supprimés

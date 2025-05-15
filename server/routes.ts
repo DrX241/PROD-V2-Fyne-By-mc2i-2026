@@ -12,6 +12,7 @@ import { openAIService } from "./services/openai";
 import attachmentRoutes from './routes/attachmentRoutes';
 import cyberForgeRoutes from './routes/cyberForgeRoutes';
 import cyberToolsRoutes from './routes/cyberToolsRoutes';
+import cryptoLockRoutes from './routes/cryptoLockRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { evaluateInterviewTest, generateAdaptiveQuestion } from './cyberInterviewTestController';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
@@ -4767,6 +4768,9 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   app.post('/api/cyber/adaptive-quiz/question', generateQuizQuestion);
   app.post('/api/cyber/adaptive-quiz/hint', generateQuizHint);
   app.post('/api/cyber/adaptive-quiz/full', generateFullQuiz);
+  
+  // Routes pour la simulation de crise CryptoLock
+  app.use('/api/cryptolock', cryptoLockRoutes);
   
   // Routes pour AMOA Expert
   app.post('/api/amoa-expert/init', amoaExpertController.initializeAmoaExpertSession);
