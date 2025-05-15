@@ -1,8 +1,8 @@
-// Utiliser le service Azure OpenAI existant
+// Utiliser le service Azure OpenAI existant qui est déjà configuré dans le projet
 import { openAIService } from './openai';
 
-// the newest model available is gpt-4o in the Azure OpenAI service
-// nous utilisons le service Azure OpenAI existant au lieu de l'API OpenAI standard
+// Note: Le service Azure OpenAI utilise les modèles gpt-4o et gpt-4o-mini
+// Nous utilisons le service existant au lieu de créer une nouvelle connexion
 
 // Types pour les données générées
 export interface GeneratedSection {
@@ -89,22 +89,22 @@ export async function generateModuleContent(
     console.log(`Génération de contenu pour un module sur: ${topic} (niveau ${difficulty})`);
 
     // Utilisation du service Azure OpenAI existant au lieu de l'API OpenAI standard
-    const response = await openAIService.createChatCompletion(
+    const response = await openAIService.getChatCompletion(
       [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
+      true, // utiliser le modèle secondaire pour éviter de surcharger le modèle principal
       0.7, // temperature
       3000, // max_tokens
-      true, // utiliser le modèle secondaire pour éviter de surcharger le modèle principal
       { responseFormat: 'json_object' } // demander une réponse en format JSON
     );
 
-    if (!response.content) {
+    if (!response) {
       throw new Error('Aucun contenu généré');
     }
 
-    const parsedContent = JSON.parse(response.content);
+    const parsedContent = JSON.parse(response);
     
     // Validation de base du contenu reçu
     if (!parsedContent.title || !parsedContent.introduction || 
@@ -137,9 +137,9 @@ export async function generateQuizFeedback(
   isCorrect: boolean
 ): Promise<string> {
   try {
-    const response = await openai.chat.completions.create({
-      model: MODEL,
-      messages: [
+    // Utilisation du service Azure OpenAI existant
+    const response = await openAIService.getChatCompletion(
+      [
         { 
           role: 'system', 
           content: 'Tu es un assistant pédagogique expert. Fournis des explications claires, encourageantes et informatives.' 
@@ -157,11 +157,12 @@ export async function generateQuizFeedback(
           Fournis un feedback personnalisé et éducatif qui explique pourquoi la réponse est ${isCorrect ? 'correcte' : 'incorrecte'} et approfondit le concept pour améliorer la compréhension de l'utilisateur.`
         }
       ],
-      temperature: 0.7,
-      max_tokens: 250
-    });
+      true,  // utiliser le modèle secondaire
+      0.7, // temperature
+      250 // max_tokens
+    );
 
-    return response.choices[0].message.content || 'Pas de feedback disponible.';
+    return response || 'Pas de feedback disponible.';
   } catch (error) {
     console.error('Erreur lors de la génération du feedback:', error);
     return 'Impossible de générer un feedback. Veuillez réessayer.';
@@ -182,9 +183,9 @@ export async function evaluateCodeSubmission(
   suggestions?: string;
 }> {
   try {
-    const response = await openai.chat.completions.create({
-      model: MODEL,
-      messages: [
+    // Utilisation du service Azure OpenAI existant
+    const response = await openAIService.getChatCompletion(
+      [
         { 
           role: 'system', 
           content: `Tu es un évaluateur de code expert. Évalue la solution soumise par rapport à la solution attendue.
@@ -212,16 +213,17 @@ export async function evaluateCodeSubmission(
           4. suggestions: suggestions d'amélioration (si nécessaire)`
         }
       ],
-      temperature: 0.7,
-      response_format: { type: 'json_object' }
-    });
+      true, // utiliser le modèle secondaire
+      0.7,  // temperature
+      1000, // max_tokens
+      { responseFormat: 'json_object' } // demander une réponse en format JSON
+    );
 
-    const content = response.choices[0].message.content;
-    if (!content) {
+    if (!response) {
       throw new Error('Aucune évaluation générée');
     }
 
-    const evaluation = JSON.parse(content);
+    const evaluation = JSON.parse(response);
     
     // Valeurs par défaut si certaines propriétés sont manquantes
     return {
