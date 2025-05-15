@@ -6,7 +6,7 @@ import { HelpCircle, Search, Circle } from 'lucide-react';
 import { IoHome, IoSearchOutline, IoBookOutline, IoDesktopOutline, IoTrophyOutline, IoConstructOutline } from 'react-icons/io5';
 import { IoMdArrowForward } from 'react-icons/io';
 import { BsShieldCheck, BsBarChartFill, BsEye, BsCpu, BsCodeSlash, BsCloud, BsPeopleFill, 
-         BsBookmarkCheck, BsBriefcase, BsGearFill, BsChevronRight, BsFilterLeft, 
+         BsBookmarkCheck, BsBriefcase, BsGearFill, BsChevronRight, BsFilterLeft,
          BsLightningCharge, BsExclamationCircleFill, BsDatabaseCheck, BsPersonCheck } from 'react-icons/bs';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
@@ -235,8 +235,17 @@ export default function CyberModeSelectionRedesign() {
       destination: '/cyber/crisis-management',
       difficulty: 'avancé',
       duration: '45-60 min',
-      isNew: true,
-      comingSoon: true
+      isNew: true
+    },
+    {
+      id: 'cryptolock',
+      title: 'CRYPTOLOCK',
+      description: "Simulation de crise ransomware: prenez des décisions stratégiques face à une cyberattaque",
+      icon: <RiLockFill className="h-5 w-5" />,
+      destination: '/cyber/crisis-management/cryptolock-game',
+      difficulty: 'avancé',
+      duration: '30-45 min',
+      isNew: true
     },
     {
       id: 'mode-entretien',
