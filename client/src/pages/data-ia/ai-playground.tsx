@@ -45,8 +45,8 @@ interface GeneratedResponse {
 const AI_PLAYGROUND: React.FC = () => {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { theme } = useTheme();
-  const highContrastMode = theme === 'high-contrast';
+  const { themeMode, setThemeMode } = useTheme();
+  const highContrastMode = themeMode === 'dark';
   const [activeTab, setActiveTab] = useState('text-generation');
   const [promptText, setPromptText] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -453,9 +453,9 @@ En maîtrisant ces principes, vous pourrez exploiter pleinement le potentiel de 
                 <Label htmlFor="high-contrast-mode" className="text-gray-400 text-sm">Mode contraste</Label>
                 <Switch
                   id="high-contrast-mode"
-                  checked={theme === 'high-contrast'}
+                  checked={themeMode === 'dark'}
                   onCheckedChange={(checked) => 
-                    checked ? useTheme().setTheme('high-contrast') : useTheme().setTheme('futuristic')
+                    checked ? setThemeMode('dark') : setThemeMode('futuristic')
                   }
                 />
               </div>
