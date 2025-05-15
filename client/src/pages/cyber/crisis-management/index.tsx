@@ -136,7 +136,7 @@ export default function CrisisManagement() {
     }, 0);
   };
 
-  const scenarios = [
+  const scenarios: CrisisScenario[] = [
     {
       id: "cryptolock",
       title: "CryptoLock",
