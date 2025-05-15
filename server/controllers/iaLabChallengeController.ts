@@ -52,13 +52,27 @@ export async function generateChallenge(req: Request, res: Response) {
     // Créer la prompt pour l'IA
     const systemMessage = {
       role: 'system' as 'system',
-      content: `Tu es un expert en création d'exercices de programmation ${language === 'python' ? 'Python' : 'SQL'}.
-      Génère un exercice de difficulté ${difficulty} dans la catégorie "${category}".
+      content: `Tu es un expert en création de cas pratiques professionnels de programmation ${language === 'python' ? 'Python' : 'SQL'}.
+      Génère un cas d'usage professionnel de difficulté ${difficulty} dans la catégorie "${category}".
+      
+      CONTEXTE PROFESSIONNEL:
+      - Utilise toujours le cabinet de conseil mc2i comme employeur ou prestataire
+      - Pour parler d'une direction Data & IA, utilise le nom DIXIT
+      - Pour parler d'une entité dans l'industrie, transport, service public ou santé, utilise le nom IMPULSE
+      - Inclus obligatoirement au moins un des personnages suivants dans ton scénario:
+        * Eddy MISSONI (consultant data)
+        * Neil LEVIN (data scientist senior)
+        * Yousra SAIDANI (cheffe de projet)
+        * Fares SAYADI (consultant BI)
+        * Guillaume LECHEVALLIER (Directeur IMPULSE)
+        * Nosing DOEUK (Directeur IMPULSE)
+        * Arnaud GAUTHIER (Président)
+        * Olivier HERVO (Directeur Général)
       
       Structure ta réponse en JSON valide STRICTEMENT avec le format suivant, sans aucun texte avant ou après:
       {
-        "title": "Titre court et concis",
-        "description": "Description détaillée du problème, incluant toutes les contraintes et objectifs",
+        "title": "Titre court et concis sur le cas d'usage professionnel",
+        "description": "Mise en situation professionnelle détaillée incluant le contexte, les personnages nommés ci-dessus, le cabinet mc2i, et les entités DIXIT ou IMPULSE selon le cas. Décris précisément les objectifs métier, les contraintes techniques et les livrables attendus.",
         "initialCode": "Code de départ que l'utilisateur pourra modifier",
         "expectedOutput": "Description ou exemple de la sortie attendue",
         "validationCriteria": ["Critère 1", "Critère 2"],
@@ -72,19 +86,21 @@ export async function generateChallenge(req: Request, res: Response) {
       IMPORTANT: Ta réponse NE DOIT CONTENIR QUE le JSON VALIDE, sans aucun autre texte, markdown ou formatage. Veille à ce que toutes les guillemets soient correctement échappées dans les chaînes de caractères.
       
       Pour Python:
+      - Crée un cas d'usage réaliste d'entreprise (analyse de données clients, automatisation, prédiction, etc.)
       - Assure-toi que le code initial est fonctionnel mais incomplet
       - Inclus des commentaires pédagogiques
       - Si c'est un exercice de Data Science, utilise des bibliothèques standard (pandas, numpy, matplotlib)
       
       Pour SQL:
+      - Crée un cas d'usage réaliste d'entreprise (analyse de base client, reporting, optimisation de requêtes, etc.)
       - Inclus des commentaires expliquant le schéma de la base de données
-      - Utilise des noms de tables et colonnes intuitifs
+      - Utilise des noms de tables et colonnes intuitifs liés au contexte métier
       - Si le niveau est avancé, inclus des considérations de performance`
     };
 
     const userMessage = {
       role: 'user' as 'user',
-      content: `Génère un exercice de programmation ${language} de niveau ${difficulty} dans la catégorie ${category}.`
+      content: `Génère un cas pratique professionnel de programmation ${language} de niveau ${difficulty} dans la catégorie ${category}. Inclus le contexte mc2i, DIXIT ou IMPULSE, et au moins un des personnages mentionnés.`
     };
 
     // Appel à l'API Azure OpenAI
