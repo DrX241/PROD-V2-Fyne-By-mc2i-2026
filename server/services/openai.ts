@@ -833,6 +833,56 @@ Tu es ${name}, ${description}. Tu es spécialisé dans le domaine: ${domain}.
       throw new Error("Failed to generate custom assistant prompt");
     }
   }
+  
+  /**
+   * Obtient une complétion de chat au format JSON.
+   * Ajoute automatiquement le format JSON dans la requête et parse le résultat.
+   */
+  async getChatCompletionAsJson<T = any>(
+    messages: ChatCompletionRequestMessage[],
+    temperature: number = 0.7,
+    useSecondaryKey: boolean = true,
+    max_tokens: number = 2000,
+  ): Promise<T> {
+    // Ajouter une instruction explicite dans le premier message système pour formater en JSON
+    let hasSystemMessage = false;
+    const messagesWithJsonInstruction = messages.map((message, index) => {
+      if (index === 0 && message.role === 'system') {
+        hasSystemMessage = true;
+        return {
+          ...message,
+          content: `${message.content}\n\nIl est IMPÉRATIF que tu répondes UNIQUEMENT avec un objet JSON valide, sans texte explicatif avant ou après.`
+        };
+      }
+      return message;
+    });
+    
+    // Si aucun message système n'a été trouvé, ajouter un en première position
+    if (!hasSystemMessage) {
+      messagesWithJsonInstruction.unshift({
+        role: 'system',
+        content: 'Tu dois répondre UNIQUEMENT avec un objet JSON valide, sans texte explicatif avant ou après.'
+      });
+    }
+    
+    // Récupérer la réponse avec le format JSON explicitement demandé
+    const jsonResponse = await this.getChatCompletion(
+      messagesWithJsonInstruction,
+      temperature,
+      useSecondaryKey,
+      max_tokens,
+      { responseFormat: 'json_object' }
+    );
+    
+    try {
+      // Parser la réponse en JSON
+      return JSON.parse(jsonResponse) as T;
+    } catch (error) {
+      console.error('Erreur lors du parsing de la réponse JSON:', error);
+      console.error('Réponse brute reçue:', jsonResponse);
+      throw new Error('La réponse du modèle n\'est pas un JSON valide');
+    }
+  }
 }
 
 export const openAIService = new OpenAIService();
