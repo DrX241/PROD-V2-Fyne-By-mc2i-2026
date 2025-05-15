@@ -772,7 +772,10 @@ const ReadMeIfYouCan = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<'python' | 'sql'>('python');
   const [selectedDifficulty, setSelectedDifficulty] = useState<'débutant' | 'intermédiaire' | 'avancé'>('intermédiaire');
-  const [selectedMode, setSelectedMode] = useState<'normal' | 'analyse' | 'défense' | 'vitesse'>('normal');
+  const [selectedMode, setSelectedMode] = useState<'normal' | 'analyse' | 'défense' | 'vitesse' | 'exécution'>('normal');
+  const [userCodeInput, setUserCodeInput] = useState<string>('');
+  const [codeExecutionResult, setCodeExecutionResult] = useState<string>('');
+  const [isExecutingCode, setIsExecutingCode] = useState<boolean>(false);
   const [currentChallenge, setCurrentChallenge] = useState<CodeChallenge | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [userJustification, setUserJustification] = useState('');
@@ -1047,7 +1050,7 @@ const ReadMeIfYouCan = () => {
                   <Label htmlFor="mode" className="text-white mb-2 block">Mode de jeu</Label>
                   <Select 
                     value={selectedMode} 
-                    onValueChange={(val) => setSelectedMode(val as 'normal' | 'analyse' | 'défense' | 'vitesse')}
+                    onValueChange={(val) => setSelectedMode(val as 'normal' | 'analyse' | 'défense' | 'vitesse' | 'exécution')}
                     disabled={isLoading}
                   >
                     <SelectTrigger 
@@ -1061,6 +1064,7 @@ const ReadMeIfYouCan = () => {
                       <SelectItem value="analyse">Analyse - "Explique ce que tu lis"</SelectItem>
                       <SelectItem value="défense">Défense - "Revue de code"</SelectItem>
                       <SelectItem value="vitesse">Vitesse - "Contre la montre"</SelectItem>
+                      <SelectItem value="exécution">Exécution - "Code interactif"</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -1121,6 +1125,10 @@ const ReadMeIfYouCan = () => {
                     <li className="flex items-start">
                       <span className="font-semibold text-orange-400 mr-2">Vitesse:</span> 
                       <span>Répondez en moins de 30 secondes.</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="font-semibold text-green-400 mr-2">Exécution:</span> 
+                      <span>Modifiez et exécutez le code avec retour IA.</span>
                     </li>
                   </ul>
                 </div>
