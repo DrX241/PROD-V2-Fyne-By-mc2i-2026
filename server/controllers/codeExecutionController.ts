@@ -192,6 +192,78 @@ interface SessionData {
 // Stockage des données de session (en mémoire)
 const sessions: { [sessionId: string]: SessionData } = {};
 
+// Fonction pour supprimer toutes les variables d'une session spécifique
+export async function resetSessionVariables(req: Request, res: Response) {
+  const { sessionId, language } = req.body;
+  
+  if (!sessionId) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'ID de session requis' 
+    });
+  }
+  
+  try {
+    // Si la session n'existe pas, rien à faire
+    if (!sessions[sessionId]) {
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Aucune session à réinitialiser' 
+      });
+    }
+    
+    if (language === 'python' || !language) {
+      // Réinitialiser les variables Python
+      sessions[sessionId].python = {};
+      
+      // Supprimer le fichier de session s'il existe
+      const sessionFilePath = path.join(__dirname, `../temp/session_${sessionId}.json`);
+      if (fs.existsSync(sessionFilePath)) {
+        fs.unlinkSync(sessionFilePath);
+      }
+    }
+    
+    if (language === 'sql' || !language) {
+      const client = await pool.connect();
+      
+      try {
+        // Supprimer les tables temporaires créées par cette session
+        const tempTables = sessions[sessionId].sql.tempTables;
+        const schemaName = `session_${sessionId.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        
+        // Supprimer chaque table temporaire
+        for (const tableName of tempTables) {
+          try {
+            await client.query(`DROP TABLE IF EXISTS ${schemaName}.${tableName} CASCADE`);
+          } catch (error) {
+            console.error(`Erreur lors de la suppression de la table ${tableName}:`, error);
+          }
+        }
+        
+        // Réinitialiser la liste des tables
+        sessions[sessionId].sql.tempTables = [];
+        
+      } catch (error) {
+        console.error('Erreur lors de la réinitialisation des tables SQL:', error);
+      } finally {
+        client.release();
+      }
+    }
+    
+    return res.status(200).json({
+      success: true,
+      message: `Variables de session ${language || 'toutes'} réinitialisées avec succès`
+    });
+    
+  } catch (error: any) {
+    console.error('Erreur lors de la réinitialisation de la session:', error);
+    return res.status(500).json({
+      success: false,
+      error: `Erreur lors de la réinitialisation: ${error.message}`
+    });
+  }
+}
+
 // Fonction pour exécuter du SQL (réel)
 export async function executeSQLCode(req: Request, res: Response) {
   const { code, sessionId = 'default' } = req.body;

@@ -701,6 +701,18 @@ const IALabTrainer: React.FC = () => {
                   <div className="text-gray-300 text-sm bg-black/30 p-3 rounded-md">
                     {sessionVariables}
                   </div>
+                  
+                  <div className="flex justify-end mt-3">
+                    <Button
+                      variant="outline" 
+                      size="sm"
+                      className="text-xs h-7 border-purple-500/30 text-purple-400 hover:text-purple-300 hover:bg-purple-900/20"
+                      onClick={resetSessionVariables}
+                    >
+                      <RefreshCw className="mr-1 h-3 w-3" />
+                      Réinitialiser les variables
+                    </Button>
+                  </div>
                 </div>
               )}
               
@@ -857,9 +869,24 @@ const IALabTrainer: React.FC = () => {
                               {new Date(item.timestamp).toLocaleTimeString()}
                             </Badge>
                           </div>
+                          
                           <pre className="text-gray-300 text-xs mt-2 line-clamp-2 font-mono">
                             {item.code.substring(0, 100)}{item.code.length > 100 ? '...' : ''}
                           </pre>
+                          
+                          {/* Afficher les variables de session si présentes */}
+                          {item.sessionVariables && (
+                            <div className="mt-2 text-xs">
+                              <Badge className="bg-purple-900/30 text-purple-300 text-xs">
+                                <Database className="h-3 w-3 mr-1" />
+                                Session
+                              </Badge>
+                              <span className="text-gray-400 ml-2">
+                                {item.sessionVariables}
+                              </span>
+                            </div>
+                          )}
+                          
                           <div className="flex mt-2 space-x-2">
                             <Button 
                               variant="outline" 
