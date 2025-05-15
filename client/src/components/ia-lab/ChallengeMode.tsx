@@ -612,7 +612,7 @@ const ChallengeMode: React.FC<{
               )}
               
               {/* Actions principales */}
-              <div className="flex flex-wrap gap-3 pt-2">
+              <div className="flex flex-wrap gap-3 pt-2 mx-auto max-w-7xl justify-center sm:justify-start">
                 <Button
                   className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
                   onClick={executeCode}
@@ -621,12 +621,12 @@ const ChallengeMode: React.FC<{
                   {isProcessing ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Exécution...
+                      <span className="truncate">Exécution...</span>
                     </>
                   ) : (
                     <>
                       <PlayCircle className="mr-2 h-4 w-4" />
-                      Exécuter le code
+                      <span className="truncate">Exécuter le code</span>
                     </>
                   )}
                 </Button>
@@ -639,12 +639,12 @@ const ChallengeMode: React.FC<{
                   {isEvaluating ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Évaluation...
+                      <span className="truncate">Évaluation...</span>
                     </>
                   ) : (
                     <>
                       <Brain className="mr-2 h-4 w-4" />
-                      Évaluer ma solution
+                      <span className="truncate">Évaluer ma solution</span>
                     </>
                   )}
                 </Button>
@@ -736,14 +736,14 @@ const ChallengeMode: React.FC<{
             </div>
             
             {/* Actions après évaluation */}
-            <div className="flex flex-wrap gap-3 pt-2">
+            <div className="flex flex-wrap gap-3 pt-2 mx-auto max-w-7xl">
               {evaluation.isCorrect ? (
                 <Button
                   className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
                   onClick={generateChallenge}
                 >
                   <Award className="mr-2 h-4 w-4" />
-                  Nouveau défi
+                  <span className="truncate">Nouveau défi</span>
                 </Button>
               ) : (
                 <Button
@@ -758,7 +758,7 @@ const ChallengeMode: React.FC<{
                   }}
                 >
                   <RefreshCw className="mr-2 h-4 w-4" />
-                  Continuer à coder
+                  <span className="truncate">Continuer à coder</span>
                 </Button>
               )}
             </div>
