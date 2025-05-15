@@ -529,6 +529,10 @@ export default function DataIaModeSelection() {
                 <CardContent className="text-center flex flex-col items-center space-y-3">
                   <div className="space-y-3 w-full">
                     <div 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/data-ia/data-academie');
+                      }}
                       className={`px-3 py-3 rounded-md ${
                         highContrastMode 
                           ? 'bg-purple-900/50 hover:bg-purple-800 border border-purple-700' 
