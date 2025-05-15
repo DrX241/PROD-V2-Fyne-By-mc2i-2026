@@ -42,17 +42,21 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
         const model = data.currentModel || 'Inconnu';
         setCurrentModel(model);
         
-        // Déterminer le type de clé API en fonction du modèle
-        // Si le modèle est 'gpt-4o-mini', nous sommes en mode économique
-        const keyType = (model === 'gpt-4o-mini') ? 'secondary' : 'primary';
-        setApiKeyType(keyType);
+        // Ne pas changer automatiquement le type de clé API si un changement est déjà en cours
+        // ou si l'utilisateur vient de changer le mode manuellement
+        if (!isToggling) {
+          // Déterminer le type de clé API en fonction du modèle
+          // Si le modèle est 'gpt-4o-mini', nous sommes en mode économique
+          const keyType = (model === 'gpt-4o-mini') ? 'secondary' : 'primary';
+          setApiKeyType(keyType);
+        }
         
         setLastCheck(data.lastCheck || Date.now());
         
         console.log('État mis à jour :', {
           status: data.connectionStatus,
           model,
-          keyType,
+          keyType: !isToggling ? (model === 'gpt-4o-mini' ? 'secondary' : 'primary') : 'inchangé',
           lastCheck: data.lastCheck
         });
       } else {
@@ -133,7 +137,13 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
   const toggleModel = async () => {
     setIsToggling(true);
     try {
+      // Récupérer le nouveau type de clé
       const newKeyType = apiKeyType === 'primary' ? 'secondary' : 'primary';
+      
+      // Définir d'abord localement le mode éco
+      setApiKeyType(newKeyType);
+      
+      // Puis faire la demande au serveur
       const response = await fetch('/api/cyber/switch-api-key', {
         method: 'POST',
         headers: {
@@ -148,7 +158,8 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
         // Récupérer le nom du modèle depuis la réponse ou utiliser une valeur par défaut
         const modelName = data.modelName || (newKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini');
         setCurrentModel(modelName);
-        setApiKeyType(newKeyType);
+        
+        // Ne pas changer apiKeyType ici, car il a déjà été défini au début
         setStatus(data.connectionStatus || 'checking');
         
         console.log('Changement de modèle réussi:', {
@@ -157,11 +168,19 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
           data
         });
         
-        // Vérifier le statut après le changement
-        setTimeout(checkStatus, 1000);
+        // Vérifier le statut après un délai plus long pour permettre au serveur de changer
+        setTimeout(checkStatus, 2000);
+        
+        // Ajouter une seconde vérification après un délai supplémentaire
+        setTimeout(checkStatus, 5000);
+      } else {
+        // En cas d'erreur, revenir à l'état précédent
+        setApiKeyType(apiKeyType);
       }
     } catch (error) {
       console.error('Erreur lors du changement de modèle OpenAI:', error);
+      // En cas d'erreur, revenir à l'état précédent
+      setApiKeyType(apiKeyType);
     } finally {
       setIsToggling(false);
     }
@@ -301,7 +320,15 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
                   </span>
                   <Switch
                     checked={economyMode}
-                    onCheckedChange={toggleModel}
+                    onCheckedChange={(checked) => {
+                      // Si l'utilisateur active le mode éco, on définit le type de clé comme 'secondary'
+                      // Si l'utilisateur désactive le mode éco, on définit le type de clé comme 'primary'
+                      setApiKeyType(checked ? 'secondary' : 'primary'); 
+                      
+                      // Puis on lance le changement côté serveur avec un petit délai
+                      // pour que l'UI reste cohérente
+                      setTimeout(toggleModel, 50);
+                    }}
                     disabled={isToggling || status === 'checking'}
                   />
                 </div>
