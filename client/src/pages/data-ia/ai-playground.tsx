@@ -19,15 +19,12 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { IoArrowBack, IoCheckmarkCircle, IoCloseCircle, IoCopy, IoRefresh, IoRocket, IoSend } from "react-icons/io5";
-import HomeLayout from '@/layouts/HomeLayout';
-import DataTopNavigation from '@/components/DataTopNavigation';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ArrowLeft, CheckCircle, Copy, RefreshCw, Rocket, Brain, Image, Code, MessageSquare, Search, Wand, Robot } from 'lucide-react';
 import axios from 'axios';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { LuBrain, LuImage, LuCode, LuMessageSquare, LuSearch, LuWand2 } from 'react-icons/lu';
-import { RiRobot2Line } from 'react-icons/ri';
+import { useTheme } from '@/hooks/use-theme';
 
 interface PromptTemplate {
   id: string;
@@ -47,6 +44,8 @@ interface GeneratedResponse {
 const AI_PLAYGROUND: React.FC = () => {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { theme } = useTheme();
+  const highContrastMode = theme === 'high-contrast';
   const [activeTab, setActiveTab] = useState('text-generation');
   const [promptText, setPromptText] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -429,25 +428,42 @@ En maîtrisant ces principes, vous pourrez exploiter pleinement le potentiel de 
   };
 
   return (
-    <HomeLayout>
-      <div className="min-h-screen bg-gradient-to-b from-[#0c1220] via-[#0e1629] to-[#0c1220]">
-        <DataTopNavigation />
-        
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center space-x-2 mb-6">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => setLocation('/data-ia')}
-              className="hover:bg-blue-900/20"
-            >
-              <IoArrowBack className="mr-1" />
-              Retour
-            </Button>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              AI Playground
-            </h1>
+    <div className={`min-h-screen ${highContrastMode ? 'bg-gray-900' : 'bg-gradient-to-b from-blue-900 to-blue-950'}`}>
+      <header className="py-6 border-b border-blue-700/30">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                onClick={() => setLocation('/data-ia')}
+                className="text-white hover:text-blue-300"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Retour
+              </Button>
+              <h1 className="text-2xl font-bold text-white ml-4 font-data-title flex items-center">
+                <Brain className="mr-2 h-6 w-6 text-cyan-400" />
+                AI PLAYGROUND
+              </h1>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="high-contrast-mode" className="text-gray-400 text-sm">Mode contraste</Label>
+                <Switch
+                  id="high-contrast-mode"
+                  checked={theme === 'high-contrast'}
+                  onCheckedChange={(checked) => 
+                    checked ? useTheme().setTheme('high-contrast') : useTheme().setTheme('futuristic')
+                  }
+                />
+              </div>
+            </div>
           </div>
+        </div>
+      </header>
+      
+      <div className="container mx-auto px-4 py-8">
 
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
             {/* Barre latérale */}
@@ -552,19 +568,19 @@ En maîtrisant ces principes, vous pourrez exploiter pleinement le potentiel de 
                 <div className="flex justify-between items-center mb-4">
                   <TabsList className="bg-[#1a233a] p-1">
                     <TabsTrigger value="text-generation" className="data-[state=active]:bg-blue-600">
-                      <LuMessageSquare className="mr-2" />
+                      <MessageSquare className="mr-2 h-4 w-4" />
                       Texte
                     </TabsTrigger>
                     <TabsTrigger value="code-generation" className="data-[state=active]:bg-blue-600">
-                      <LuCode className="mr-2" />
+                      <Code className="mr-2 h-4 w-4" />
                       Code
                     </TabsTrigger>
                     <TabsTrigger value="ml-models" className="data-[state=active]:bg-blue-600">
-                      <LuBrain className="mr-2" />
+                      <Brain className="mr-2 h-4 w-4" />
                       ML
                     </TabsTrigger>
                     <TabsTrigger value="vision-analysis" className="data-[state=active]:bg-blue-600">
-                      <LuImage className="mr-2" />
+                      <Image className="mr-2 h-4 w-4" />
                       Vision
                     </TabsTrigger>
                   </TabsList>
