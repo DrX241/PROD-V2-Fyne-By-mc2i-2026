@@ -548,18 +548,19 @@ const ChallengeMode: React.FC<{
                 </div>
                 
                 <div className="space-y-2">
-                  {currentChallenge && currentChallenge.hints && currentChallenge.hints.length > 0 ? 
+                  {currentChallenge && currentChallenge.hints && currentChallenge.hints.length > 0 && 
                     currentChallenge.hints.map((hint, index) => (
-                    <div 
-                      key={index} 
-                      className="bg-amber-900/20 border border-amber-500/20 rounded-md p-2 text-gray-300 text-sm"
-                    >)
-                      <div className="flex items-start">
-                        <Lightbulb className="h-4 w-4 text-amber-400 mr-2 mt-0.5 flex-shrink-0" />
-                        <span className="break-words">{hint}</span>
+                      <div 
+                        key={index} 
+                        className="bg-amber-900/20 border border-amber-500/20 rounded-md p-2 text-gray-300 text-sm"
+                      >
+                        <div className="flex items-start">
+                          <Lightbulb className="h-4 w-4 text-amber-400 mr-2 mt-0.5 flex-shrink-0" />
+                          <span className="break-words">{hint}</span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  }
                   
                   {additionalHint && (
                     <div className="bg-amber-900/20 border border-amber-500/20 rounded-md p-2 text-gray-300 text-sm">
@@ -694,31 +695,35 @@ const ChallengeMode: React.FC<{
             </div>
             
             {/* Points forts */}
-            {evaluation.strengths.length > 0 && (
+            {evaluation && evaluation.strengths && evaluation.strengths.length > 0 && (
               <div className="mx-auto max-w-7xl">
                 <h3 className="text-white font-medium mb-2">Points forts</h3>
                 <div className="space-y-2">
-                  {evaluation.strengths.map((strength, index) => (
-                    <div key={index} className="flex items-start bg-blue-900/20 border border-blue-500/20 rounded-md p-2 text-gray-300 text-sm">
-                      <CheckCircle className="h-4 w-4 text-blue-400 mr-2 mt-0.5 flex-shrink-0" />
-                      <span className="break-words">{strength}</span>
-                    </div>
-                  ))}
+                  {evaluation && evaluation.strengths && evaluation.strengths.length > 0 && 
+                    evaluation.strengths.map((strength, index) => (
+                      <div key={index} className="flex items-start bg-blue-900/20 border border-blue-500/20 rounded-md p-2 text-gray-300 text-sm">
+                        <CheckCircle className="h-4 w-4 text-blue-400 mr-2 mt-0.5 flex-shrink-0" />
+                        <span className="break-words">{strength}</span>
+                      </div>
+                    ))
+                  }
                 </div>
               </div>
             )}
             
             {/* Améliorations suggérées */}
-            {evaluation.improvements.length > 0 && (
+            {evaluation && evaluation.improvements && evaluation.improvements.length > 0 && (
               <div className="mx-auto max-w-7xl">
                 <h3 className="text-white font-medium mb-2">Pistes d'amélioration</h3>
                 <div className="space-y-2">
-                  {evaluation.improvements.map((improvement, index) => (
-                    <div key={index} className="flex items-start bg-amber-900/20 border border-amber-500/20 rounded-md p-2 text-gray-300 text-sm">
-                      <Lightbulb className="h-4 w-4 text-amber-400 mr-2 mt-0.5 flex-shrink-0" />
-                      <span className="break-words">{improvement}</span>
-                    </div>
-                  ))}
+                  {evaluation && evaluation.improvements && evaluation.improvements.length > 0 && 
+                    evaluation.improvements.map((improvement, index) => (
+                      <div key={index} className="flex items-start bg-amber-900/20 border border-amber-500/20 rounded-md p-2 text-gray-300 text-sm">
+                        <Lightbulb className="h-4 w-4 text-amber-400 mr-2 mt-0.5 flex-shrink-0" />
+                        <span className="break-words">{improvement}</span>
+                      </div>
+                    ))
+                  }
                 </div>
               </div>
             )}
