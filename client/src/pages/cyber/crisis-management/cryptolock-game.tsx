@@ -149,6 +149,8 @@ export default function CryptoLockGame() {
   const [showExitDialog, setShowExitDialog] = useState<boolean>(false);
   const [showGameOverDialog, setShowGameOverDialog] = useState<boolean>(false);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const [gameId, setGameId] = useState<string>('');
+  const [apiError, setApiError] = useState<string | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
