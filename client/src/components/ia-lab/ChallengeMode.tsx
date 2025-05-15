@@ -525,7 +525,7 @@ const ChallengeMode: React.FC<{
                             const [, title, content] = sectionMatch;
                             return (
                               <tr key={index} className="border-b border-gray-800 last:border-0">
-                                <td className="text-cyan-400 font-medium py-2 pr-4 align-top whitespace-nowrap w-1/5">{title}</td>
+                                <td className="text-cyan-400 font-medium py-2 pr-4 align-top w-1/5">{title}</td>
                                 <td className="py-2 text-gray-300 align-top">{content.trim()}</td>
                               </tr>
                             );

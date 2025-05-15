@@ -164,7 +164,7 @@ export async function generateChallenge(req: Request, res: Response) {
       }
 
       2. Pour la description, utilise exactement cette structure (sans markdown, juste avec les titres en majuscules):
-      "description": "MISSION:\\nDécrivez la mission de manière concise et professionnelle.\\n\\nDONNÉES:\\nDétaillez les données disponibles avec des exemples concrets.\\n\\nOBJECTIF:\\nExpliquez clairement ce qui est attendu comme résultat."
+      "description": "MISSION:\\nDécrivez la mission de manière concise et professionnelle.\\n\\nDONNEES:\\nDétaillez les données disponibles avec des exemples concrets.\\n\\nOBJECTIF:\\nExpliquez clairement ce qui est attendu comme résultat."
       
       3. Pour l'initialCode, inclus:
       - Import des bibliothèques 
