@@ -94,6 +94,7 @@ import {
   checkDecisionModeStatus
 } from "./amoaExpertController";
 import dataAcademieController from "./controllers/dataAcademieController";
+import { executePythonCode, executeSQLCode } from "./controllers/codeExecutionController";
 
 
 import {
@@ -588,6 +589,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Enregistrer les routes pour les outils cyber
   app.use('/api/cyber/tools', cyberToolsRoutes);
+  
+  // Routes pour l'exécution de code
+  app.post('/api/code/execute/python', executePythonCode);
+  app.post('/api/code/execute/sql', executeSQLCode);
   
   // Routes directes pour le simulateur de phishing (fallback en cas de problème d'importation)
   app.post('/api/cyber/tools/phishing-simulator', async (req: Request, res: Response) => {
