@@ -624,7 +624,7 @@ plt.show()`,
     switch (activeTab) {
       case 'text-generation':
         return promptTemplates.filter(t => t.category === 'text');
-      case 'code-generation':
+      case 'code-editor':
         return promptTemplates.filter(t => t.category === 'code');
       case 'ml-models':
         return promptTemplates.filter(t => t.category === 'ml');
@@ -632,6 +632,223 @@ plt.show()`,
         return promptTemplates.filter(t => t.category === 'vision');
       default:
         return promptTemplates;
+    }
+  };
+  
+  // Filtrer les exemples de code selon la difficulté ou le langage
+  const getFilteredCodeExamples = (difficulty?: 'débutant' | 'intermédiaire' | 'avancé', language?: 'python' | 'javascript' | 'sql' | 'r') => {
+    let filtered = [...codeExamples];
+    
+    if (difficulty) {
+      filtered = filtered.filter(ex => ex.difficulty === difficulty);
+    }
+    
+    if (language) {
+      filtered = filtered.filter(ex => ex.language === language);
+    }
+    
+    return filtered;
+  };
+  
+  // Obtenir le sidebar approprié selon l'onglet actif
+  const getSidebarContent = () => {
+    switch (activeTab) {
+      case 'code-editor':
+        return (
+          <div className="space-y-6">
+            <Card className="bg-blue-950/50 border-blue-800/50">
+              <CardHeader className="pb-3">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-lg text-white">Exemples de code</CardTitle>
+                  <Badge variant="secondary" className="bg-blue-700/30 text-blue-200 border-none">
+                    {codeExamples.length}
+                  </Badge>
+                </div>
+                <CardDescription className="text-blue-400">
+                  Sélectionnez un exemple pour commencer
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                  {codeExamples.map((example) => (
+                    <Card 
+                      key={example.id} 
+                      className={`bg-blue-900/30 border border-blue-700/30 hover:border-blue-400/50 transition-all cursor-pointer ${
+                        selectedCodeExample?.id === example.id ? 'border-blue-400 bg-blue-800/50' : ''
+                      }`}
+                      onClick={() => handleSelectCodeExample(example)}
+                    >
+                      <CardHeader className="py-3 px-4">
+                        <div className="flex justify-between items-center">
+                          <CardTitle className="text-sm text-white">{example.title}</CardTitle>
+                          <Badge 
+                            variant={example.difficulty === 'débutant' ? 'default' : example.difficulty === 'intermédiaire' ? 'secondary' : 'destructive'}
+                            className="text-[10px]"
+                          >
+                            {example.difficulty}
+                          </Badge>
+                        </div>
+                        <CardDescription className="text-xs text-blue-300">
+                          {example.description}
+                        </CardDescription>
+                        <div className="mt-2 flex items-center">
+                          <Badge variant="outline" className="text-[10px] bg-blue-900/50">
+                            {example.language}
+                          </Badge>
+                          {example.hasError && (
+                            <Badge variant="outline" className="text-[10px] bg-red-900/50 ml-2 text-red-200">
+                              avec erreurs
+                            </Badge>
+                          )}
+                        </div>
+                      </CardHeader>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-blue-950/50 border-blue-800/50">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg text-white">Concepts associés</CardTitle>
+                <CardDescription className="text-blue-400">
+                  Explorables en un clic
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {conceptExplanations.map(concept => (
+                    <Badge 
+                      key={concept.id}
+                      variant="outline" 
+                      className="bg-blue-900/40 hover:bg-blue-800/60 cursor-pointer transition-colors"
+                      onClick={() => handleShowConcept(concept.id)}
+                    >
+                      {concept.concept}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+        
+      case 'concept-explorer':
+        return (
+          <Card className="bg-blue-950/50 border-blue-800/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-white">Parcourir les concepts</CardTitle>
+              <CardDescription className="text-blue-400">
+                Explorer les fondamentaux de la Data Science
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                {conceptExplanations.map((concept) => (
+                  <Card 
+                    key={concept.id} 
+                    className={`bg-blue-900/30 border border-blue-700/30 hover:border-blue-400/50 transition-all cursor-pointer ${
+                      selectedConcept?.id === concept.id ? 'border-blue-400 bg-blue-800/50' : ''
+                    }`}
+                    onClick={() => setSelectedConcept(concept)}
+                  >
+                    <CardHeader className="py-3 px-4">
+                      <div className="flex justify-between items-center">
+                        <CardTitle className="text-sm text-white">{concept.concept}</CardTitle>
+                        <Badge 
+                          variant="outline"
+                          className="text-[10px] bg-blue-900/50"
+                        >
+                          {concept.category}
+                        </Badge>
+                      </div>
+                      <CardDescription className="text-xs text-blue-300 line-clamp-2">
+                        {concept.explanation.substring(0, 80)}...
+                      </CardDescription>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
+        
+      case 'data-scenarios':
+        return (
+          <Card className="bg-blue-950/50 border-blue-800/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-white">Scénarios Data Science</CardTitle>
+              <CardDescription className="text-blue-400">
+                Cas pratiques pour appliquer vos connaissances
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                {dataScenarios.map((scenario) => (
+                  <Card 
+                    key={scenario.id} 
+                    className={`bg-blue-900/30 border border-blue-700/30 hover:border-blue-400/50 transition-all cursor-pointer ${
+                      activeDataScenario?.id === scenario.id ? 'border-blue-400 bg-blue-800/50' : ''
+                    }`}
+                    onClick={() => setActiveDataScenario(scenario)}
+                  >
+                    <CardHeader className="py-3 px-4">
+                      <div className="flex justify-between items-center">
+                        <CardTitle className="text-sm text-white">{scenario.title}</CardTitle>
+                        <Badge 
+                          variant={scenario.difficulty === 'débutant' ? 'default' : scenario.difficulty === 'intermédiaire' ? 'secondary' : 'destructive'}
+                          className="text-[10px]"
+                        >
+                          {scenario.difficulty}
+                        </Badge>
+                      </div>
+                      <CardDescription className="text-xs text-blue-300 line-clamp-2">
+                        {scenario.description}
+                      </CardDescription>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
+        
+      default:
+        return (
+          <Card className="bg-blue-950/50 border-blue-800/50">
+            <CardHeader className="pb-3">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-lg text-white">Templates</CardTitle>
+                <Badge variant="secondary" className="bg-blue-700/30 text-blue-200 border-none">
+                  {getFilteredTemplates().length}
+                </Badge>
+              </div>
+              <CardDescription className="text-blue-400">
+                Modèles de prompts prédéfinis pour vous aider à démarrer
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                {getFilteredTemplates().map((template) => (
+                  <Card 
+                    key={template.id} 
+                    className={`bg-blue-900/30 border border-blue-700/30 hover:border-blue-400/50 transition-all cursor-pointer ${
+                      selectedPromptTemplate?.id === template.id ? 'border-blue-400 bg-blue-800/50' : ''
+                    }`}
+                    onClick={() => handleSelectTemplate(template)}
+                  >
+                    <CardHeader className="py-3 px-4">
+                      <CardTitle className="text-sm text-white">{template.title}</CardTitle>
+                      <CardDescription className="text-xs text-blue-300">
+                        {template.description}
+                      </CardDescription>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
     }
   };
 
@@ -1098,14 +1315,21 @@ En maîtrisant ces principes, vous pourrez exploiter pleinement le potentiel de 
                         className="data-[state=active]:bg-blue-700 data-[state=active]:text-white"
                       >
                         <MessageSquare className="h-4 w-4 mr-2" />
-                        Texte
+                        Génération
                       </TabsTrigger>
                       <TabsTrigger 
-                        value="code-generation"
+                        value="code-editor"
                         className="data-[state=active]:bg-blue-700 data-[state=active]:text-white"
                       >
                         <Code className="h-4 w-4 mr-2" />
-                        Code
+                        IA Lab Code
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="concept-explorer"
+                        className="data-[state=active]:bg-blue-700 data-[state=active]:text-white"
+                      >
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        Concepts
                       </TabsTrigger>
                       <TabsTrigger 
                         value="ml-models"
@@ -1113,6 +1337,13 @@ En maîtrisant ces principes, vous pourrez exploiter pleinement le potentiel de 
                       >
                         <Brain className="h-4 w-4 mr-2" />
                         ML/IA
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="data-scenarios"
+                        className="data-[state=active]:bg-blue-700 data-[state=active]:text-white"
+                      >
+                        <BarChart2 className="h-4 w-4 mr-2" />
+                        Scénarios
                       </TabsTrigger>
                       <TabsTrigger 
                         value="vision-analysis"
