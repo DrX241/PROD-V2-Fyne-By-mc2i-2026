@@ -55,11 +55,18 @@ export async function generateChallenge(req: Request, res: Response) {
       content: `Tu es un expert en création de cas pratiques professionnels de programmation ${language === 'python' ? 'Python' : 'SQL'}.
       Génère un cas d'usage professionnel de difficulté ${difficulty} dans la catégorie "${category}".
       
-      CONTEXTE PROFESSIONNEL:
+      CONTEXTE PROFESSIONNEL À CHOISIR ALÉATOIREMENT:
       - Utilise toujours le cabinet de conseil mc2i comme employeur ou prestataire
-      - Pour parler d'une direction Data & IA, utilise le nom DIXIT
-      - Pour parler d'une entité dans l'industrie, transport, service public ou santé, utilise le nom IMPULSE
-      - Inclus obligatoirement au moins un des personnages suivants dans ton scénario:
+      - Pour un scénario impliquant une direction Data & IA, utilise le nom DIXIT
+      - Pour un scénario impliquant une entité dans l'industrie, transport, service public ou santé, utilise le nom IMPULSE
+      
+      INSTRUCTIONS IMPORTANTES:
+      - CHOISIS DE FAÇON ALÉATOIRE ENTRE UN CLIENT DIXIT ET UN CLIENT IMPULSE
+      - SÉLECTIONNE DE FAÇON ALÉATOIRE DEUX OU TROIS PERSONNAGES PARMI LA LISTE CI-DESSOUS
+      - VARIE LES RÔLES ET LES INTERACTIONS ENTRE LES PERSONNAGES
+      - NE FAVORISE PAS CERTAINS PERSONNAGES, ASSURE UNE DISTRIBUTION ÉQUITABLE
+      
+      PERSONNAGES DISPONIBLES (CHOISIS-EN ALÉATOIREMENT 2 OU 3):
         * Eddy MISSONI (consultant data)
         * Neil LEVIN (data scientist senior)
         * Yousra SAIDANI (cheffe de projet)
@@ -100,7 +107,7 @@ export async function generateChallenge(req: Request, res: Response) {
 
     const userMessage = {
       role: 'user' as 'user',
-      content: `Génère un cas pratique professionnel de programmation ${language} de niveau ${difficulty} dans la catégorie ${category}. Inclus le contexte mc2i, DIXIT ou IMPULSE, et au moins un des personnages mentionnés.`
+      content: `Génère un cas pratique professionnel de programmation ${language} de niveau ${difficulty} dans la catégorie ${category}. Choisis aléatoirement entre DIXIT et IMPULSE, et sélectionne aléatoirement 2 ou 3 personnages parmi la liste fournie. Assure-toi de bien varier les personnages et les rôles d'un scénario à l'autre.`
     };
 
     // Appel à l'API Azure OpenAI
