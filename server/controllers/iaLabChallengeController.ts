@@ -14,7 +14,6 @@ export interface Challenge {
   hints: string[];
   solution?: string;
   category: string;
-  sector?: string; // Secteur d'activité ajouté
 }
 
 // Fonction utilitaire pour traiter une chaîne de caractères et extraire un JSON valide

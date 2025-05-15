@@ -76,9 +76,7 @@ const ChallengeMode: React.FC<{
 }> = ({ language, editorValue, setEditorValue, executeCode, executionResult, isProcessing }) => {
   const { toast } = useToast();
   const [categories, setCategories] = useState<string[]>([]);
-  const [sectors, setSectors] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedSector, setSelectedSector] = useState<string>('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('débutant');
   const [currentChallenge, setCurrentChallenge] = useState<Challenge | null>(null);
   const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
@@ -89,7 +87,7 @@ const ChallengeMode: React.FC<{
   const [additionalHint, setAdditionalHint] = useState<string>('');
   const [showSolution, setShowSolution] = useState<boolean>(false);
   
-  // Récupérer les catégories disponibles pour le langage sélectionné et les secteurs d'activité
+  // Récupérer les catégories disponibles pour le langage sélectionné
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -114,27 +112,7 @@ const ChallengeMode: React.FC<{
       }
     };
 
-    const fetchSectors = async () => {
-      try {
-        const response = await fetch('/api/ia-lab/challenge/sectors');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.sectors) {
-            setSectors(data.sectors);
-          }
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération des secteurs:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de récupérer les secteurs d'activité.",
-          variant: "destructive",
-        });
-      }
-    };
-
     fetchCategories();
-    fetchSectors();
   }, [language]);
 
   // Générer un défi
@@ -163,10 +141,7 @@ const ChallengeMode: React.FC<{
         difficulty: selectedDifficulty,
       };
       
-      // Ajouter le secteur d'activité s'il est sélectionné et différent de "tous"
-      if (selectedSector && selectedSector !== 'tous') {
-        requestData.sector = selectedSector;
-      }
+      // Section sector supprimée selon les instructions
 
       // Vérifier la connexion à l'API OpenAI
       let openAIStatus;
@@ -438,28 +413,7 @@ const ChallengeMode: React.FC<{
               </Select>
             </div>
             
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-1 block">
-                Secteur d'activité
-              </label>
-              <Select 
-                value={selectedSector} 
-                onValueChange={setSelectedSector}
-                disabled={isGeneratingChallenge}
-              >
-                <SelectTrigger className="w-full bg-slate-800/80 border-blue-500/30 text-white">
-                  <SelectValue placeholder="Tous les secteurs" />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-blue-500/30 text-white max-h-60 overflow-y-auto">
-                  <SelectItem value="tous">Tous les secteurs</SelectItem>
-                  {sectors.map((sector) => (
-                    <SelectItem key={sector} value={sector}>
-                      {sector}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Section secteur supprimée selon les instructions */}
             
             <div>
               <label className="text-sm font-medium text-gray-300 mb-1 block">
