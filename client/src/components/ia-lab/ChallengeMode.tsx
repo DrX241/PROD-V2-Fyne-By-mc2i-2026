@@ -53,6 +53,7 @@ interface Challenge {
   hints: string[];
   solution?: string;
   category: string;
+  sector?: string; // Secteur d'activité ajouté
 }
 
 interface Evaluation {
@@ -75,7 +76,9 @@ const ChallengeMode: React.FC<{
 }> = ({ language, editorValue, setEditorValue, executeCode, executionResult, isProcessing }) => {
   const { toast } = useToast();
   const [categories, setCategories] = useState<string[]>([]);
+  const [sectors, setSectors] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedSector, setSelectedSector] = useState<string>('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('débutant');
   const [currentChallenge, setCurrentChallenge] = useState<Challenge | null>(null);
   const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
@@ -86,7 +89,7 @@ const ChallengeMode: React.FC<{
   const [additionalHint, setAdditionalHint] = useState<string>('');
   const [showSolution, setShowSolution] = useState<boolean>(false);
   
-  // Récupérer les catégories disponibles pour le langage sélectionné
+  // Récupérer les catégories disponibles pour le langage sélectionné et les secteurs d'activité
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -111,7 +114,27 @@ const ChallengeMode: React.FC<{
       }
     };
 
+    const fetchSectors = async () => {
+      try {
+        const response = await fetch('/api/ia-lab/challenge/sectors');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.sectors) {
+            setSectors(data.sectors);
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des secteurs:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de récupérer les secteurs d'activité.",
+          variant: "destructive",
+        });
+      }
+    };
+
     fetchCategories();
+    fetchSectors();
   }, [language]);
 
   // Générer un défi
@@ -133,16 +156,24 @@ const ChallengeMode: React.FC<{
     setShowSolution(false);
 
     try {
+      // Préparation des données à envoyer
+      const requestData: any = {
+        language,
+        category: selectedCategory,
+        difficulty: selectedDifficulty,
+      };
+      
+      // Ajouter le secteur d'activité s'il est sélectionné
+      if (selectedSector) {
+        requestData.sector = selectedSector;
+      }
+      
       const response = await fetch('/api/ia-lab/challenge/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          language,
-          category: selectedCategory,
-          difficulty: selectedDifficulty,
-        }),
+        body: JSON.stringify(requestData),
       });
 
       if (response.ok) {
