@@ -539,6 +539,59 @@ const IALabTrainer: React.FC = () => {
     }
   };
   
+  // Fonction pour réinitialiser les variables de session
+  const resetSessionVariables = async () => {
+    if (!sessionId) return;
+    
+    const confirm = window.confirm(
+      "Voulez-vous vraiment réinitialiser toutes les variables de session ? " +
+      "Cela supprimera toutes les variables Python et tables SQL temporaires créées."
+    );
+    
+    if (!confirm) return;
+    
+    setIsProcessing(true);
+    
+    try {
+      const response = await fetch('/api/code/session/reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId,
+          language: selectedLanguage,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setSessionVariables(null);
+        toast({
+          title: "Variables réinitialisées",
+          description: data.message || "Toutes les variables de session ont été réinitialisées",
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Erreur",
+          description: data.error || "Une erreur est survenue lors de la réinitialisation",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la réinitialisation des variables:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la réinitialisation des variables",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800">
       <DataTopNavigation />
