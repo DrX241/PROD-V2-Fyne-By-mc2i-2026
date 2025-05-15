@@ -183,8 +183,30 @@ export async function generateChallenge(req: Request, res: Response) {
         jsonContent = jsonContent.substring(0, jsonContent.lastIndexOf('}') + 1);
       }
       
-      // Parser le JSON nettoyé
-      const challenge = JSON.parse(jsonContent);
+      // Essayer de parser le JSON et gérer les erreurs potentielles
+      let challenge;
+      try {
+        challenge = JSON.parse(jsonContent);
+      } catch (error) {
+        console.error("Erreur lors du parsing JSON:", error);
+        console.log("JSON problématique:", jsonContent.substring(0, 200) + "...");
+        
+        // Tentative de nettoyage supplémentaire
+        const cleanedJson = jsonContent
+          .replace(/\\(?!["\\/bfnrt])/g, '\\\\')  // Ajoute un \ d'échappement pour les \ isolés
+          .replace(/(?<!\\)"/g, '\\"')            // Échappe les guillemets non échappés
+          .replace(/\n/g, '\\n')                  // Remplace les sauts de ligne
+          .replace(/\r/g, '\\r')                  // Remplace les retours chariot
+          .replace(/\t/g, '\\t');                 // Remplace les tabulations
+        
+        try {
+          // Essai avec le JSON nettoyé
+          challenge = JSON.parse(cleanedJson);
+        } catch (cleanError) {
+          console.error("Échec de la tentative de correction du JSON:", cleanError);
+          throw new Error("Impossible de traiter la réponse du modèle. Format JSON invalide.");
+        }
+      }
       
       // Générer un ID unique
       challenge.id = `challenge-${language}-${Date.now()}`;
