@@ -373,8 +373,8 @@ const ChallengeMode: React.FC<{
           </div>
         </CardHeader>
         
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <CardContent className="px-4 sm:px-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mx-auto max-w-7xl">
             <div>
               <label className="text-sm font-medium text-gray-300 mb-1 block">
                 Catégorie
@@ -409,7 +409,7 @@ const ChallengeMode: React.FC<{
                 <SelectTrigger className="w-full bg-slate-800/80 border-blue-500/30 text-white">
                   <SelectValue placeholder="Tous les secteurs" />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-blue-500/30 text-white">
+                <SelectContent className="bg-slate-800 border-blue-500/30 text-white max-h-60 overflow-y-auto">
                   <SelectItem value="tous">Tous les secteurs</SelectItem>
                   {sectors.map((sector) => (
                     <SelectItem key={sector} value={sector}>
@@ -449,12 +449,12 @@ const ChallengeMode: React.FC<{
                 {isGeneratingChallenge ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Génération en cours...
+                    <span className="truncate">Génération en cours...</span>
                   </>
                 ) : (
                   <>
                     <Lightbulb className="mr-2 h-4 w-4" />
-                    Générer un défi
+                    <span className="truncate">Générer un défi</span>
                   </>
                 )}
               </Button>
@@ -513,11 +513,11 @@ const ChallengeMode: React.FC<{
             </div>
           </CardHeader>
           
-          <CardContent className="pt-4">
-            <div className="space-y-4">
+          <CardContent className="pt-4 px-4 sm:px-6">
+            <div className="space-y-4 mx-auto max-w-7xl">
               <div>
                 <h3 className="text-white font-medium mb-2">Description</h3>
-                <div className="bg-black/30 rounded-md p-3 text-gray-300 text-sm whitespace-pre-wrap">
+                <div className="bg-black/30 rounded-md p-3 text-gray-300 text-sm whitespace-pre-wrap overflow-x-auto">
                   {currentChallenge.description}
                 </div>
               </div>
@@ -525,7 +525,7 @@ const ChallengeMode: React.FC<{
               {currentChallenge.expectedOutput && (
                 <div>
                   <h3 className="text-white font-medium mb-2">Sortie attendue</h3>
-                  <div className="bg-black/30 rounded-md p-3 text-gray-300 text-sm font-mono">
+                  <div className="bg-black/30 rounded-md p-3 text-gray-300 text-sm font-mono overflow-x-auto">
                     {currentChallenge.expectedOutput}
                   </div>
                 </div>
@@ -560,7 +560,7 @@ const ChallengeMode: React.FC<{
                     >
                       <div className="flex items-start">
                         <Lightbulb className="h-4 w-4 text-amber-400 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>{hint}</span>
+                        <span className="break-words">{hint}</span>
                       </div>
                     </div>
                   ))}
@@ -569,7 +569,7 @@ const ChallengeMode: React.FC<{
                     <div className="bg-amber-900/20 border border-amber-500/20 rounded-md p-2 text-gray-300 text-sm">
                       <div className="flex items-start">
                         <Lightbulb className="h-4 w-4 text-amber-400 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>{additionalHint}</span>
+                        <span className="break-words">{additionalHint}</span>
                       </div>
                     </div>
                   )}
@@ -604,7 +604,7 @@ const ChallengeMode: React.FC<{
                       </Button>
                     </div>
                     
-                    <pre className="text-gray-300 text-sm font-mono overflow-auto p-2 bg-black/30 rounded">
+                    <pre className="text-gray-300 text-sm font-mono overflow-x-auto whitespace-pre-wrap p-2 bg-black/30 rounded">
                       {currentChallenge.solution}
                     </pre>
                   </div>
@@ -689,23 +689,23 @@ const ChallengeMode: React.FC<{
             </div>
           </CardHeader>
           
-          <CardContent className="pt-2 space-y-4">
-            <div>
+          <CardContent className="pt-2 space-y-4 px-4 sm:px-6">
+            <div className="mx-auto max-w-7xl">
               <h3 className="text-white font-medium mb-2">Feedback</h3>
-              <div className="bg-black/30 rounded-md p-3 text-gray-300 text-sm">
+              <div className="bg-black/30 rounded-md p-3 text-gray-300 text-sm break-words">
                 {evaluation.feedback}
               </div>
             </div>
             
             {/* Points forts */}
             {evaluation.strengths.length > 0 && (
-              <div>
+              <div className="mx-auto max-w-7xl">
                 <h3 className="text-white font-medium mb-2">Points forts</h3>
                 <div className="space-y-2">
                   {evaluation.strengths.map((strength, index) => (
                     <div key={index} className="flex items-start bg-blue-900/20 border border-blue-500/20 rounded-md p-2 text-gray-300 text-sm">
                       <CheckCircle className="h-4 w-4 text-blue-400 mr-2 mt-0.5 flex-shrink-0" />
-                      <span>{strength}</span>
+                      <span className="break-words">{strength}</span>
                     </div>
                   ))}
                 </div>
@@ -714,13 +714,13 @@ const ChallengeMode: React.FC<{
             
             {/* Améliorations suggérées */}
             {evaluation.improvements.length > 0 && (
-              <div>
+              <div className="mx-auto max-w-7xl">
                 <h3 className="text-white font-medium mb-2">Pistes d'amélioration</h3>
                 <div className="space-y-2">
                   {evaluation.improvements.map((improvement, index) => (
                     <div key={index} className="flex items-start bg-amber-900/20 border border-amber-500/20 rounded-md p-2 text-gray-300 text-sm">
                       <Lightbulb className="h-4 w-4 text-amber-400 mr-2 mt-0.5 flex-shrink-0" />
-                      <span>{improvement}</span>
+                      <span className="break-words">{improvement}</span>
                     </div>
                   ))}
                 </div>
@@ -728,9 +728,9 @@ const ChallengeMode: React.FC<{
             )}
             
             {/* Prochaines étapes */}
-            <div>
+            <div className="mx-auto max-w-7xl">
               <h3 className="text-white font-medium mb-2">Pour aller plus loin</h3>
-              <div className="bg-indigo-900/20 border border-indigo-500/20 rounded-md p-3 text-gray-300 text-sm">
+              <div className="bg-indigo-900/20 border border-indigo-500/20 rounded-md p-3 text-gray-300 text-sm break-words">
                 {evaluation.nextSteps}
               </div>
             </div>
