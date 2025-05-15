@@ -435,103 +435,37 @@ const IALabTrainer: React.FC = () => {
     setAnalysis(null);
     
     try {
-      // Simuler un traitement avec un délai (à remplacer par API réelle)
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Déterminer l'endpoint en fonction du langage sélectionné
+      const endpoint = selectedLanguage === 'python' 
+        ? '/api/code/execute/python'
+        : '/api/code/execute/sql';
       
-      // En production, envoyer à l'API d'IA pour analyse
-      let executionResult = '';
-      let analysisResult = '';
+      // Appeler l'API d'exécution de code
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code }),
+      });
       
-      if (selectedLanguage === 'python') {
-        // Simuler l'exécution Python
-        if (code.includes('print')) {
-          executionResult += "Sortie de l'exécution Python:\n\n";
-          
-          // Extraire tous les prints
-          const printMatches = code.match(/print\s*\((.*?)\)/g);
-          if (printMatches) {
-            printMatches.forEach(match => {
-              const content = match.match(/print\s*\((.*?)\)/)?.[1] || '';
-              const contentDisplay = content.replace(/["']/g, '');
-              executionResult += `> ${contentDisplay}\n`;
-            });
-          }
-          
-          executionResult += "\n";
-        } else {
-          executionResult = "Exécution réussie sans sortie visible.\n(Utilisez 'print()' pour voir les résultats)\n\n";
-        }
-        
-        // Analyse du code Python
-        analysisResult = "🔍 Analyse IA du code Python:\n\n";
-        
-        if (code.includes('pandas') || code.includes('numpy') || code.includes('matplotlib')) {
-          analysisResult += "✓ Utilisation de bibliothèques d'analyse de données (pandas, numpy, matplotlib)\n";
-        }
-        
-        if (code.includes('sklearn')) {
-          analysisResult += "✓ Utilisation de scikit-learn pour le machine learning\n";
-        }
-        
-        if (code.includes('for') && !code.includes('enumerate(') && code.includes('range(')) {
-          analysisResult += "💡 Suggestion: Utilisez enumerate() pour les itérations sur index quand c'est possible\n";
-        }
-        
-        analysisResult += "\nLe code est bien structuré et suit les conventions Python.";
-      } else {
-        // Simuler l'exécution SQL
-        executionResult = "Résultat de la requête SQL:\n\n";
-        
-        if (code.toLowerCase().includes('select')) {
-          // Simuler un résultat tabulaire
-          executionResult += "| id | nom      | valeur  | date       |\n";
-          executionResult += "|---:|----------|--------:|------------|\n";
-          executionResult += "| 1  | Exemple1 | 425.50  | 2025-01-15 |\n";
-          executionResult += "| 2  | Exemple2 | 128.75  | 2025-02-20 |\n";
-          executionResult += "| 3  | Exemple3 | 975.00  | 2025-03-05 |\n";
-          
-          if (!code.toLowerCase().includes('limit')) {
-            executionResult += "| 4  | Exemple4 | 346.25  | 2025-04-10 |\n";
-            executionResult += "| 5  | Exemple5 | 712.80  | 2025-05-22 |\n";
-            executionResult += "...plus de résultats (10 lignes au total)";
-          }
-        } else if (code.toLowerCase().includes('insert')) {
-          executionResult = "Insertion réussie. 1 ligne affectée.";
-        } else if (code.toLowerCase().includes('update')) {
-          executionResult = "Mise à jour réussie. 3 lignes affectées.";
-        } else if (code.toLowerCase().includes('delete')) {
-          executionResult = "Suppression réussie. 2 lignes affectées.";
-        } else if (code.toLowerCase().includes('create')) {
-          executionResult = "Table/Index créé avec succès.";
-        }
-        
-        // Analyse du code SQL
-        analysisResult = "🔍 Analyse IA de la requête SQL:\n\n";
-        
-        if (code.toLowerCase().includes('select') && !code.toLowerCase().includes('limit') && !code.toLowerCase().includes('top')) {
-          analysisResult += "💡 Suggestion: Ajoutez LIMIT à votre requête SELECT pour limiter le nombre de résultats\n";
-        }
-        
-        if (code.toLowerCase().includes('where') && code.toLowerCase().includes('like') && code.includes('%')) {
-          analysisResult += "⚠️ Attention: Les recherches avec LIKE et caractères génériques peuvent être coûteuses sur de grandes tables\n";
-        }
-        
-        if (code.toLowerCase().includes('join') && !code.toLowerCase().includes('inner join') && !code.toLowerCase().includes('left join')) {
-          analysisResult += "💡 Information: Spécifiez explicitement le type de JOIN (INNER, LEFT, RIGHT) pour plus de clarté\n";
-        }
-        
-        analysisResult += "\nLa requête est syntaxiquement correcte.";
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erreur lors de l\'exécution du code');
       }
       
-      setResult(executionResult);
-      setAnalysis(analysisResult);
+      const data = await response.json();
+      
+      // Mettre à jour les résultats avec la réponse de l'API
+      setResult(data.result || 'Exécution terminée sans résultat');
+      setAnalysis(data.analysis || 'Aucune analyse disponible');
       
       // Ajouter à l'historique
       const newExecution: CodeExecution = {
         code,
         language: selectedLanguage,
-        result: executionResult,
-        analysis: analysisResult,
+        result: data.result || 'Aucun résultat',
+        analysis: data.analysis || 'Aucune analyse',
         timestamp: Date.now()
       };
       

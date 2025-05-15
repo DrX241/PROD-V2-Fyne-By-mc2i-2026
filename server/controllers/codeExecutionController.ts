@@ -149,11 +149,8 @@ async function analyzeCodeWithAI(code: string, output: string, language: 'python
     // Appel à l'API Azure OpenAI
     const response = await openAIService.getChatCompletion(
       [systemMessage, userMessage],
-      {
-        max_tokens: 500,
-        temperature: 0.5
-      }, 
-      'secondary' // Utiliser le modèle secondaire (plus rapide et économique)
+      0.5, // temperature
+      500   // max_tokens
     );
 
     return response.trim();
