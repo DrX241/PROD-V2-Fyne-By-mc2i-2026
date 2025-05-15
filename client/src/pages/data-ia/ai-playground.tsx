@@ -19,7 +19,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { ArrowLeft, CheckCircle, Copy, RefreshCw, Rocket, Brain, Image, Code, MessageSquare, Search, Wand, Bot } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Copy, RefreshCw, Rocket, Brain, Image, Code, MessageSquare, Search, Wand, Bot, Trophy, Star, Zap, BookOpen, Lightbulb } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -40,6 +40,18 @@ interface GeneratedResponse {
   promptType: string;
 }
 
+interface Challenge {
+  id: number;
+  title: string;
+  description: string;
+  promptCategory: 'vision' | 'text' | 'code' | 'ml';
+  promptTemplate: string;
+  difficulty: 'débutant' | 'intermédiaire' | 'avancé';
+  expectedConcepts: string[];
+  explanation: string;
+  icon: React.ReactNode;
+}
+
 const AIPlayground: React.FC = () => {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -54,6 +66,68 @@ const AIPlayground: React.FC = () => {
   const [userScore, setUserScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [showCopied, setShowCopied] = useState(false);
+  const [currentChallenge, setCurrentChallenge] = useState<number>(0);
+  const [showExplanation, setShowExplanation] = useState<boolean>(false);
+  const [completedChallenges, setCompletedChallenges] = useState<number[]>([]);
+
+  // Challenges d'apprentissage interactifs
+  const learningChallenges: Challenge[] = [
+    {
+      id: 1,
+      title: "Introduction à l'IA conversationnelle",
+      description: "Apprenez à construire un prompt efficace pour obtenir une réponse précise et structurée sur un sujet technique.",
+      promptCategory: 'text',
+      promptTemplate: "Explique-moi le concept de [CONCEPT] en termes simples, comme si tu parlais à un débutant. Organise ta réponse avec des puces pour les points clés et donne un exemple concret.",
+      difficulty: 'débutant',
+      expectedConcepts: ["Structure de prompt", "Clarté des instructions", "Ciblage d'audience"],
+      explanation: "Ce prompt est efficace car il définit clairement (1) le sujet à expliquer, (2) le niveau de complexité souhaité, (3) la structure de réponse attendue et (4) la demande d'exemples concrets. Ces éléments permettent d'obtenir une réponse plus utile et mieux adaptée à vos besoins.",
+      icon: <MessageSquare className="h-5 w-5 text-blue-400" />
+    },
+    {
+      id: 2,
+      title: "Analyse de code Python",
+      description: "Découvrez comment demander à l'IA d'analyser, d'expliquer et d'améliorer du code.",
+      promptCategory: 'code',
+      promptTemplate: "Analyse ce code Python et aide-moi à l'améliorer :\n\n```python\n[CODE]\n```\n\n1. Explique ce que fait ce code\n2. Identifie les problèmes potentiels ou inefficacités\n3. Propose une version améliorée\n4. Explique les avantages de ta solution",
+      difficulty: 'intermédiaire',
+      expectedConcepts: ["Revue de code", "Optimisation", "Bonnes pratiques"],
+      explanation: "Cette approche structurée permet à l'IA de fournir une analyse complète: compréhension du code, diagnostic des problèmes, solution optimisée et justification. Pour des résultats optimaux avec l'analyse de code, toujours inclure le langage de programmation et demander une explication détaillée des changements proposés.",
+      icon: <Code className="h-5 w-5 text-violet-400" />
+    },
+    {
+      id: 3,
+      title: "Modèles de Machine Learning",
+      description: "Apprenez à demander des explications sur des concepts avancés de ML avec des exemples concrets.",
+      promptCategory: 'ml',
+      promptTemplate: "Explique-moi en détail le modèle de machine learning [MODÈLE]. Je veux comprendre:\n- Son principe de fonctionnement\n- Ses avantages et limitations\n- Ses cas d'usage typiques\n- Un exemple de code simple pour l'implémenter en Python\n- Comment évaluer ses performances",
+      difficulty: 'avancé',
+      expectedConcepts: ["Modèles de ML", "Évaluation de modèles", "Implémentation pratique"],
+      explanation: "Ce prompt permet d'obtenir une explication complète d'un modèle de ML spécifique, avec à la fois la théorie et la pratique. La structure en points précis guide l'IA pour couvrir tous les aspects importants, y compris l'implémentation concrète qui aide à passer de la théorie à la pratique.",
+      icon: <Brain className="h-5 w-5 text-pink-400" />
+    },
+    {
+      id: 4,
+      title: "Génération créative avec l'IA",
+      description: "Découvrez comment utiliser l'IA pour générer des idées créatives et du contenu original.",
+      promptCategory: 'text',
+      promptTemplate: "Aide-moi à développer [NOMBRE] idées créatives pour [PROJET/APPLICATION]. Pour chaque idée:\n1. Donne-lui un nom accrocheur\n2. Décris le concept en 2-3 phrases\n3. Explique sa valeur ajoutée/innovation\n4. Suggère une approche pour l'implémenter\n\nAssure-toi que les idées soient variées et couvrent différents aspects.",
+      difficulty: 'intermédiaire',
+      expectedConcepts: ["Brainstorming assisté", "Innovation", "Développement conceptuel"],
+      explanation: "Ce prompt est particulièrement efficace pour la génération d'idées car il combine (1) une demande claire de créativité, (2) un format structuré pour chaque idée, (3) une exigence de variété, et (4) une orientation pratique avec les suggestions d'implémentation. Cette structure permet d'obtenir des idées à la fois créatives et actionables.",
+      icon: <Lightbulb className="h-5 w-5 text-yellow-400" />
+    },
+    {
+      id: 5,
+      title: "Analyse de données et visualisation",
+      description: "Apprenez à formuler des requêtes pour l'analyse et la visualisation de données.",
+      promptCategory: 'code',
+      promptTemplate: "Je travaille sur un projet d'analyse de données concernant [SUJET/DOMAINE]. Aide-moi à:\n\n1. Définir 3-5 questions clés que je devrais explorer avec ces données\n2. Suggérer les meilleures visualisations pour chaque question (avec justification)\n3. Fournir un exemple de code Python utilisant pandas et matplotlib/seaborn pour créer une de ces visualisations\n4. Proposer des techniques d'analyse statistique appropriées",
+      difficulty: 'avancé',
+      expectedConcepts: ["Exploration de données", "Visualisation", "Analyse statistique"],
+      explanation: "Ce prompt guide l'IA pour fournir une analyse complète du processus d'exploration de données: de la formulation des questions initiales aux techniques de visualisation appropriées, en passant par l'implémentation code et les méthodes statistiques. Cette approche méthodique est essentielle pour une analyse de données rigoureuse.",
+      icon: <Search className="h-5 w-5 text-green-400" />
+    }
+  ];
 
   // Exemples de templates de prompts
   const promptTemplates: PromptTemplate[] = [

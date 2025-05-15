@@ -531,7 +531,7 @@ export default function DataIaModeSelection() {
                     <div 
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation('/data-ia/data-academie');
+                        setLocation('/data-ia/ai-playground');
                       }}
                       className={`px-3 py-3 rounded-md ${
                         highContrastMode 
@@ -540,40 +540,14 @@ export default function DataIaModeSelection() {
                       } transition-colors cursor-pointer`}
                     >
                       <div className="font-bold text-white mb-1 flex items-center justify-center">
-                        <span className="bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">DATA ACADÉMIE</span>
+                        <span className="bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">IA LAB TRAINER</span>
                       </div>
-                      <div className="grid grid-cols-1 gap-2 mt-2">
-                        <div className="text-xs text-left text-gray-300 flex items-start">
-                          <div className="min-w-4 h-4 rounded-full bg-blue-500/50 mr-2 mt-0.5 flex items-center justify-center">
-                            <span className="text-[10px] text-white">1</span>
-                          </div>
-                          <span>Fondamentaux Data Science - Statistiques et visualisation en mode interactif</span>
-                        </div>
-                        <div className="text-xs text-left text-gray-300 flex items-start">
-                          <div className="min-w-4 h-4 rounded-full bg-purple-500/50 mr-2 mt-0.5 flex items-center justify-center">
-                            <span className="text-[10px] text-white">2</span>
-                          </div>
-                          <span>Intelligence Artificielle - ML, Deep Learning et IA générative expliqués simplement</span>
-                        </div>
-                        <div className="text-xs text-left text-gray-300 flex items-start">
-                          <div className="min-w-4 h-4 rounded-full bg-cyan-500/50 mr-2 mt-0.5 flex items-center justify-center">
-                            <span className="text-[10px] text-white">3</span>
-                          </div>
-                          <span>Parcours SQL Avancé - Maîtrisez les requêtes complexes et l'optimisation</span>
-                        </div>
-                        <div className="text-xs text-left text-gray-300 flex items-start">
-                          <div className="min-w-4 h-4 rounded-full bg-indigo-500/50 mr-2 mt-0.5 flex items-center justify-center">
-                            <span className="text-[10px] text-white">4</span>
-                          </div>
-                          <span>Python Data Science - pandas, NumPy et Matplotlib en action</span>
-                        </div>
-                        <div className="text-xs text-left text-gray-300 flex items-start">
-                          <div className="min-w-4 h-4 rounded-full bg-pink-500/50 mr-2 mt-0.5 flex items-center justify-center">
-                            <span className="text-[10px] text-white">5</span>
-                          </div>
-                          <span>Data Engineering - Construisez et gérez des pipelines de données</span>
-                        </div>
-                      </div>
+                      <p className="text-xs text-gray-300 mb-2">
+                        Apprenez en pratiquant les concepts d'IA, Machine Learning et Data Science
+                      </p>
+                      <Badge className="bg-blue-600/30 text-cyan-300 border-cyan-500/50 hover:bg-blue-600/50">
+                        Nouveau
+                      </Badge>
                     </div>
                   </div>
                   <p className={highContrastMode ? 'text-gray-300' : 'text-gray-200'}>
@@ -602,27 +576,7 @@ export default function DataIaModeSelection() {
                 </CardHeader>
                 <CardContent className="text-center flex flex-col items-center space-y-3">
                   <div className="space-y-3 w-full">
-                    <div 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation('/data-ia/ai-playground');
-                      }}
-                      className={`px-3 py-3 rounded-md mb-3 ${
-                        highContrastMode 
-                          ? 'bg-cyan-900/50 hover:bg-cyan-800 border border-cyan-700' 
-                          : 'bg-gradient-to-r from-blue-400/20 to-cyan-500/20 hover:from-blue-400/30 hover:to-cyan-500/30 border border-cyan-300/30'
-                      } transition-colors cursor-pointer`}
-                    >
-                      <div className="font-bold text-white mb-1 flex items-center justify-center">
-                        <span className="bg-gradient-to-r from-blue-300 to-cyan-400 text-transparent bg-clip-text">AI PLAYGROUND</span>
-                      </div>
-                      <p className="text-xs text-gray-300 mb-2">
-                        Générez du contenu Data & IA avec l'intelligence artificielle
-                      </p>
-                      <Badge className="bg-blue-600/30 text-cyan-300 border-cyan-500/50 hover:bg-blue-600/50">
-                        Nouveau
-                      </Badge>
-                    </div>
+
                     
                     <div 
                       className={`px-3 py-3 rounded-md ${
