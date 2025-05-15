@@ -593,8 +593,8 @@ export default function DataIaModeSelection() {
               <Card className={`h-full ${
                 highContrastMode 
                   ? 'bg-gray-800 border border-gray-700' 
-                  : 'bg-gradient-to-br from-blue-50/10 to-blue-100/5 border border-blue-300/20 backdrop-blur-sm'
-              } hover:shadow-lg transition-shadow`}>
+                  : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
+              } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}>
                 <CardHeader>
                   <div className="flex items-start justify-center">
                     <div className={`p-3 rounded-lg ${
