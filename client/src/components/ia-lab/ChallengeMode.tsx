@@ -404,7 +404,7 @@ const ChallengeMode: React.FC<{
                   <SelectValue placeholder="Sélectionner une catégorie" />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-blue-500/30 text-white">
-                  {categories.map((category) => (
+                  {categories && categories.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
                     </SelectItem>
@@ -548,7 +548,7 @@ const ChallengeMode: React.FC<{
                 </div>
                 
                 <div className="space-y-2">
-                  {currentChallenge.hints.map((hint, index) => (
+                  {currentChallenge.hints && currentChallenge.hints.map((hint, index) => (
                     <div 
                       key={index} 
                       className="bg-amber-900/20 border border-amber-500/20 rounded-md p-2 text-gray-300 text-sm"
@@ -693,11 +693,11 @@ const ChallengeMode: React.FC<{
             </div>
             
             {/* Points forts */}
-            {evaluation.strengths.length > 0 && (
+            {evaluation && evaluation.strengths && evaluation.strengths.length > 0 && (
               <div className="mx-auto max-w-7xl">
                 <h3 className="text-white font-medium mb-2">Points forts</h3>
                 <div className="space-y-2">
-                  {evaluation.strengths.map((strength, index) => (
+                  {evaluation && evaluation.strengths && evaluation.strengths.map((strength, index) => (
                     <div key={index} className="flex items-start bg-blue-900/20 border border-blue-500/20 rounded-md p-2 text-gray-300 text-sm">
                       <CheckCircle className="h-4 w-4 text-blue-400 mr-2 mt-0.5 flex-shrink-0" />
                       <span className="break-words">{strength}</span>
@@ -708,11 +708,11 @@ const ChallengeMode: React.FC<{
             )}
             
             {/* Améliorations suggérées */}
-            {evaluation.improvements.length > 0 && (
+            {evaluation && evaluation.improvements && evaluation.improvements.length > 0 && (
               <div className="mx-auto max-w-7xl">
                 <h3 className="text-white font-medium mb-2">Pistes d'amélioration</h3>
                 <div className="space-y-2">
-                  {evaluation.improvements.map((improvement, index) => (
+                  {evaluation && evaluation.improvements && evaluation.improvements.map((improvement, index) => (
                     <div key={index} className="flex items-start bg-amber-900/20 border border-amber-500/20 rounded-md p-2 text-gray-300 text-sm">
                       <Lightbulb className="h-4 w-4 text-amber-400 mr-2 mt-0.5 flex-shrink-0" />
                       <span className="break-words">{improvement}</span>
