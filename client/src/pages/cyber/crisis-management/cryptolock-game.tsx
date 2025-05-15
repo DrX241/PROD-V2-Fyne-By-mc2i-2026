@@ -106,6 +106,16 @@ const formatTime = (timestamp: number): string => {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
+// Formatter le temps écoulé en HH:MM:SS
+const formatElapsedTime = (milliseconds: number): string => {
+  const totalSeconds = Math.floor(milliseconds / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+};
+
 const generateId = (): string => {
   return Math.random().toString(36).substring(2, 11);
 };
@@ -138,9 +148,27 @@ export default function CryptoLockGame() {
   const [messageInput, setMessageInput] = useState<string>('');
   const [showExitDialog, setShowExitDialog] = useState<boolean>(false);
   const [showGameOverDialog, setShowGameOverDialog] = useState<boolean>(false);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
+  
+  // Effet pour mettre à jour le compteur de temps toutes les secondes
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    
+    if (game.status === 'playing' && game.startTime) {
+      intervalId = setInterval(() => {
+        setElapsedTime(Date.now() - game.startTime!);
+      }, 1000);
+    }
+    
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [game.status, game.startTime]);
   
   // Défilement automatique des messages
   const scrollToBottom = () => {
@@ -228,62 +256,104 @@ export default function CryptoLockGame() {
     // Simuler une réponse de l'IA
     setTimeout(async () => {
       try {
-        // Ici, nous ferions normalement un appel API à Azure OpenAI
-        // Pour cet exemple, nous simulons une réponse
+        // Déterminer quel membre d'équipe IA répond en fonction du contexte
+        // Pour cet exemple, nous simulons des réponses prédéfinies
         
-        // Progression du jeu - simulons une réponse adaptée au tour
+        // Progression du jeu - réponses adaptées au tour actuel
         if (game.currentTurn === 0) {
-          // Premier tour - l'incident vient d'être détecté
-          addSystemMessage(`⚠️ **Alerte de sécurité** ⚠️
+          // Afficher un message système à propos de l'alerte
+          addSystemMessage(`⚠️ **Alerte de sécurité détectée** ⚠️
 
 Plusieurs utilisateurs signalent l'impossibilité d'accéder à leurs fichiers. Un message de rançon s'affiche sur certains écrans. Le système de monitoring détecte une activité anormale sur le réseau.`);
           
-          // L'IA joue le rôle du DSI si non pris par un humain
-          if (!game.players.some(p => p.role === 'DSI' && !p.isAI)) {
-            addAIMessage('DSI', "Je viens de recevoir plusieurs alertes du système de surveillance. Des postes de travail et certains serveurs de fichiers semblent inaccessibles. Les premiers rapports suggèrent un ransomware. Que devons-nous faire immédiatement ?");
-          }
-          
-          // Mise à jour du tour
-          setGame(prev => ({
-            ...prev,
-            currentTurn: prev.currentTurn + 1
-          }));
-        } else if (game.currentTurn === 1) {
-          // Deuxième tour - décision de confinement
-          addSystemMessage(`**Tour 2: Confinement**
+          // Simuler des réponses d'équipe
+          setTimeout(() => {
+            // L'IA joue le rôle du DSI si non pris par un humain
+            if (!game.players.some(p => p.role === 'DSI' && !p.isAI)) {
+              addAIMessage('DSI', "Je viens de recevoir plusieurs alertes du système de surveillance. Des postes de travail et certains serveurs de fichiers semblent inaccessibles. Les premiers rapports suggèrent un ransomware. Que devons-nous faire immédiatement ?");
+            }
+            
+            // Ajouter une réponse de l'expert forensic après quelques secondes
+            setTimeout(() => {
+              if (!game.players.some(p => p.role === 'Expert Forensic' && !p.isAI)) {
+                addAIMessage('Expert Forensic', "J'ai commencé l'analyse des logs. Il semble que l'attaque ait débuté il y a environ 3 heures. Je détecte des connexions suspectes sur les VPN. Procédons à une collecte des IOCs.");
+              }
+            }, 2000);
+            
+            // Ajouter une réponse du RSSI après quelques secondes de plus
+            setTimeout(() => {
+              if (!game.players.some(p => p.role === 'RSSI' && !p.isAI)) {
+                addAIMessage('RSSI', "Les procédures de crise doivent être activées immédiatement. Nous devons prendre une décision concernant l'isolation du réseau pour limiter la propagation.");
+              }
+              
+              // Après les messages de l'équipe, passer au tour suivant avec des choix
+              setTimeout(() => {
+                // Mise à jour du tour
+                setGame(prev => ({
+                  ...prev,
+                  currentTurn: prev.currentTurn + 1
+                }));
+                
+                // Deuxième tour - décision de confinement
+                addSystemMessage(`**Tour 2: Confinement**
 
 La propagation du ransomware continue. Des décisions de confinement doivent être prises rapidement pour limiter les dégâts.`, true, [
-            { id: "isolate-all", text: "Isoler complètement le réseau (impact majeur sur les opérations)" },
-            { id: "isolate-affected", text: "Isoler uniquement les systèmes affectés (risque de propagation)" },
-            { id: "continue-monitoring", text: "Continuer à surveiller sans isoler (risque très élevé)" }
-          ]);
+                  { id: "isolate-all", text: "Isoler complètement le réseau (impact majeur sur les opérations)" },
+                  { id: "isolate-affected", text: "Isoler uniquement les systèmes affectés (risque de propagation)" },
+                  { id: "continue-monitoring", text: "Continuer à surveiller sans isoler (risque très élevé)" }
+                ]);
+                
+                // Simuler un impact sur les métriques
+                setGame(prev => ({
+                  ...prev,
+                  metrics: {
+                    ...prev.metrics,
+                    integrity: prev.metrics.integrity - 15,
+                    availability: prev.metrics.availability - 20
+                  }
+                }));
+              }, 3000);
+            }, 4000);
+          }, 1000);
+        } else if (game.currentTurn > 3) {
+          // Tours plus avancés - simulation d'événements dynamiques
+          const dynamicEvents = [
+            "Une nouvelle variante du ransomware a été détectée sur les serveurs de sauvegarde.",
+            "Les attaquants ont contacté le PDG personnellement par téléphone.",
+            "Certains fichiers critiques semblent avoir été modifiés avant le chiffrement.",
+            "Des médias ont contacté le service de communication pour un commentaire."
+          ];
           
-          // Simuler un impact sur les métriques
-          setGame(prev => ({
-            ...prev,
-            metrics: {
-              ...prev.metrics,
-              integrity: prev.metrics.integrity - 15,
-              availability: prev.metrics.availability - 20
+          // Choisir un événement aléatoire
+          const randomEvent = dynamicEvents[Math.floor(Math.random() * dynamicEvents.length)];
+          addSystemMessage(`**Développement critique**\n\n${randomEvent}`);
+          
+          // Ajouter une réponse IA correspondante
+          setTimeout(() => {
+            if (!game.players.some(p => p.role === 'DG' && !p.isAI)) {
+              addAIMessage('DG', "La situation évolue rapidement. Nous devons adapter notre stratégie en conséquence. Quelles sont vos recommandations ?");
             }
-          }));
-        } else {
-          // Tours suivants - à compléter selon la logique du jeu
-          addSystemMessage(`Tour ${game.currentTurn + 1} : La simulation continue. Répondez aux défis qui se présentent.`);
-          setGame(prev => ({
-            ...prev,
-            currentTurn: prev.currentTurn + 1
-          }));
+          }, 2000);
           
           // Si c'est le dernier tour, préparer la fin du jeu
           if (game.currentTurn >= 5) {
             setTimeout(() => {
-              setShowGameOverDialog(true);
-              setGame(prev => ({
-                ...prev,
-                status: 'completed'
-              }));
-            }, 5000);
+              addSystemMessage("**Phase finale de la crise**\n\nLes 72 heures sont presque écoulées. Des décisions finales doivent être prises.");
+              
+              setTimeout(() => {
+                setShowGameOverDialog(true);
+                setGame(prev => ({
+                  ...prev,
+                  status: 'completed'
+                }));
+              }, 5000);
+            }, 7000);
+          } else {
+            // Avancer au tour suivant
+            setGame(prev => ({
+              ...prev,
+              currentTurn: prev.currentTurn + 1
+            }));
           }
         }
         
@@ -349,6 +419,27 @@ La propagation du ransomware continue. Des décisions de confinement doivent êt
           currentTurn: prev.currentTurn + 1
         }));
       }
+      
+      // Afficher un message de progression vers le prochain tour après un délai
+      setTimeout(() => {
+        const nextTurn = game.currentTurn + 1;
+        if (nextTurn <= game.totalTurns) {
+          addSystemMessage(`Progression vers le tour ${nextTurn}/${game.totalTurns} - Des développements importants se produisent...`);
+          
+          // Si nous sommes au tour 2, programmer les choix du tour 3
+          if (nextTurn === 3) {
+            setTimeout(() => {
+              addSystemMessage(`**Tour 3: Communication**
+
+La crise est maintenant connue des employés et des partenaires. Une stratégie de communication doit être définie.`, true, [
+                { id: "comm-transparent", text: "Communication transparente immédiate (risque de panique, mais rassure les parties prenantes)" },
+                { id: "comm-limited", text: "Communication limitée aux autorités et personnes clés (contrôle du message)" },
+                { id: "comm-delay", text: "Retarder toute communication externe (gain de temps mais risque de fuites)" }
+              ]);
+            }, 3000);
+          }
+        }
+      }, 2000);
     }, 1000);
   };
   
@@ -814,20 +905,30 @@ La panique monte. Vous êtes la cellule de crise. Chaque décision comptera.`);
             </Button>
             
             <div className="flex items-center gap-2">
-              <h1 className="text-lg md:text-xl font-cyber-title font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-                CryptoLock: 72H de Tension
-              </h1>
-              
-              <Badge className="bg-cyan-700/50 border-cyan-500/30 text-xs">
-                Tour {game.currentTurn}/{game.totalTurns}
-              </Badge>
+              <div className="flex flex-col items-center">
+                <h1 className="text-lg md:text-xl font-cyber-title font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                  CryptoLock: 72H de Tension
+                </h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge className="bg-cyan-700/50 border-cyan-500/30 text-xs">
+                    Tour {game.currentTurn}/{game.totalTurns}
+                  </Badge>
+                  <Badge className={`text-xs ${game.currentTurn <= 2 ? 'bg-green-700/50 border-green-500/30' : 
+                    game.currentTurn <= 4 ? 'bg-yellow-700/50 border-yellow-500/30' : 
+                    'bg-red-700/50 border-red-500/30'}`}>
+                    {game.currentTurn <= 2 ? 'Phase Initiale' : 
+                     game.currentTurn <= 4 ? 'Phase Critique' : 
+                     'Phase Finale'}
+                  </Badge>
+                </div>
+              </div>
             </div>
             
             <div className="flex items-center gap-2">
               <div className="flex items-center bg-slate-800/80 px-3 py-1 rounded-md border border-slate-700">
                 <Clock className="h-4 w-4 text-cyan-500 mr-2" />
                 <span className="text-sm font-mono">
-                  {game.startTime ? formatTime(Date.now() - game.startTime) : '00:00'}
+                  {game.startTime ? formatElapsedTime(elapsedTime) : '00:00:00'}
                 </span>
               </div>
               
