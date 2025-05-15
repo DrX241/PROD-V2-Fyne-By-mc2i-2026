@@ -673,10 +673,11 @@ L'overallScore doit être un nombre entre 0 et 100 calculé en fonction des mét
 
       // Envoyer la requête à l'API OpenAI
       const aiResponse = await openAIService.getChatCompletion(
-        [{ role: 'system', content: systemPrompt }],
+        [{ role: 'system' as const, content: systemPrompt }],
         false, // Utiliser le modèle principal pour générer un résumé détaillé
         0.7,   // temperature
-        true   // formatAsJson
+        2000,  // maxTokens
+        { responseFormat: 'json_object' } // format JSON
       );
 
       let parsedResponse;
