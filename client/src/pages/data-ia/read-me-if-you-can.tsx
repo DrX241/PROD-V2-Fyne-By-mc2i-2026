@@ -1258,6 +1258,13 @@ const ReadMeIfYouCan = () => {
                     <li>• Pour SQL: analysez jointures et filtres</li>
                     <li>• Pour Python: suivez le flux d'exécution</li>
                     <li>• Après 2 erreurs consécutives, le jeu s'arrête</li>
+                    <li className="pt-2 border-t border-blue-500/20 mt-2">
+                      <span className="font-semibold text-green-400">Mode exécution:</span>
+                    </li>
+                    <li>• Modifiez le code pour résoudre le problème posé</li>
+                    <li>• L'IA analyse votre code sans l'exécuter réellement</li>
+                    <li>• Recevez des suggestions d'améliorations</li>
+                    <li>• Testez différentes approches et solutions</li>
                   </ul>
                 </div>
               </CardContent>
@@ -1501,22 +1508,29 @@ const ReadMeIfYouCan = () => {
                 </CardContent>
                 
                 <CardFooter className="flex justify-between">
-                  <Button
-                    variant="outline"
-                    onClick={getHint}
-                    disabled={isLoading || hintRequested || showResult}
-                    className={`${
-                      highContrastMode
-                        ? 'bg-gray-700 border-gray-600 hover:bg-gray-600'
-                        : 'bg-blue-900/20 border-blue-600/20 hover:bg-blue-800/40'
-                    } text-blue-300 hover:text-blue-200`}
-                  >
-                    <Lightbulb className="mr-2 h-4 w-4" />
-                    Indice
-                  </Button>
+                  {/* Bouton d'indice - caché en mode exécution */}
+                  {selectedMode !== 'exécution' && (
+                    <Button
+                      variant="outline"
+                      onClick={getHint}
+                      disabled={isLoading || hintRequested || showResult}
+                      className={`${
+                        highContrastMode
+                          ? 'bg-gray-700 border-gray-600 hover:bg-gray-600'
+                          : 'bg-blue-900/20 border-blue-600/20 hover:bg-blue-800/40'
+                      } text-blue-300 hover:text-blue-200`}
+                    >
+                      <Lightbulb className="mr-2 h-4 w-4" />
+                      Indice
+                    </Button>
+                  )}
+                  
+                  {/* Espace vide en mode exécution pour maintenir l'alignement */}
+                  {selectedMode === 'exécution' && <div></div>}
                   
                   <div className="space-x-3">
-                    {showResult ? (
+                    {/* Bouton de question suivante (tous les modes) */}
+                    {(showResult || selectedMode === 'exécution') ? (
                       <Button
                         onClick={fetchNewChallenge}
                         disabled={isLoading}
@@ -1527,9 +1541,10 @@ const ReadMeIfYouCan = () => {
                         } text-white`}
                       >
                         <PlayCircle className="mr-2 h-4 w-4" />
-                        Question suivante
+                        {selectedMode === 'exécution' ? 'Nouveau défi de code' : 'Question suivante'}
                       </Button>
                     ) : (
+                      /* Bouton de validation (modes standard uniquement) */
                       <Button
                         onClick={submitAnswer}
                         disabled={isLoading || !selectedAnswer}
