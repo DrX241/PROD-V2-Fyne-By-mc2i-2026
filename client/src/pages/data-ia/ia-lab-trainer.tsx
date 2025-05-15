@@ -40,6 +40,7 @@ import {
   PanelRight,
   Download,
   Share2,
+  Copy,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import DataTopNavigation from '@/components/DataTopNavigation';
@@ -666,16 +667,42 @@ const IALabTrainer: React.FC = () => {
               
               {/* Analyse IA */}
               {analysis && !isProcessing && (
-                <div className="p-4 bg-gray-900/80 border-t border-blue-500/20">
+                <div className="p-4 bg-gradient-to-r from-gray-900/90 to-blue-900/30 border-t border-blue-500/20">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-white font-semibold flex items-center">
                       <Brain className="mr-2 h-4 w-4 text-purple-400" />
-                      Analyse IA
+                      Analyse IA du code
                     </h3>
+                    <Badge variant="outline" className="bg-purple-900/40 text-purple-300 border-purple-500/30">
+                      Intelligence artificielle
+                    </Badge>
                   </div>
                   
-                  <div className="text-gray-300 whitespace-pre-wrap text-sm bg-black/30 p-3 rounded-md max-h-56 overflow-auto">
-                    {analysis}
+                  <div className="text-gray-200 whitespace-pre-wrap text-sm bg-black/40 p-4 rounded-md max-h-60 overflow-auto shadow-inner border border-blue-500/10">
+                    {/* Utilisation d'un div avec des classes pour styliser le contenu de l'analyse */}
+                    <div className="prose prose-sm prose-invert max-w-none">
+                      {analysis}
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end mt-3">
+                    <Button
+                      variant="ghost" 
+                      size="sm"
+                      className="text-xs h-7 border-blue-500/30 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
+                      onClick={() => {
+                        // Copier l'analyse dans le presse-papier
+                        navigator.clipboard.writeText(analysis);
+                        toast({
+                          title: "Analyse copiée",
+                          description: "L'analyse IA a été copiée dans le presse-papier",
+                          variant: "default",
+                        });
+                      }}
+                    >
+                      <Copy className="mr-1 h-3 w-3" />
+                      Copier l'analyse
+                    </Button>
                   </div>
                 </div>
               )}
