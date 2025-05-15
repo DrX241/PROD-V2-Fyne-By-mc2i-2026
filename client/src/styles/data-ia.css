@@ -1,0 +1,422 @@
+/* Styles Data & IA pour FYNE */
+
+/* Variables CSS pour Data & IA */
+:root {
+  --data-primary: #7b2ff7;     /* Violet principal */
+  --data-secondary: #00c6ff;   /* Bleu clair pour accent */
+  --data-tertiary: #ff36d0;    /* Rose néon pour éléments importants */
+  --data-quaternary: #4bf2a2;  /* Vert néon pour succès/activité */
+  --data-dark: #0d0a1f;        /* Fond très sombre */
+  --data-darker: #07061a;      /* Fond encore plus sombre */
+  --data-light: #2c1b5a;       /* Teinte violette plus claire */
+  
+  --data-glow-primary: 0 0 5px rgba(123, 47, 247, 0.7), 0 0 10px rgba(123, 47, 247, 0.5);
+  --data-glow-secondary: 0 0 5px rgba(0, 198, 255, 0.7), 0 0 10px rgba(0, 198, 255, 0.5);
+  --data-glow-tertiary: 0 0 5px rgba(255, 54, 208, 0.7), 0 0 10px rgba(255, 54, 208, 0.5);
+}
+
+/* Éléments de base */
+.font-data {
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.font-data-title {
+  font-family: 'Orbitron', sans-serif;
+}
+
+.font-data-accent {
+  font-family: 'Exo 2', sans-serif;
+}
+
+/* Fond avec particules de données */
+.data-particles-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.data-particles-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle at 30% 20%, rgba(123, 47, 247, 0.1) 0%, transparent 30%),
+                    radial-gradient(circle at 70% 60%, rgba(0, 198, 255, 0.1) 0%, transparent 30%),
+                    radial-gradient(circle at 50% 50%, rgba(255, 54, 208, 0.05) 0%, transparent 50%);
+  z-index: 0;
+}
+
+/* Connexions de données animées */
+.data-connections {
+  position: relative;
+}
+
+.data-connections::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(90deg, rgba(123, 47, 247, 0.03) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(0, 198, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: center;
+  animation: dataGridMove 60s linear infinite;
+  z-index: 0;
+}
+
+@keyframes dataGridMove {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+
+/* Effet flux de données */
+.data-flow {
+  position: relative;
+  overflow: hidden;
+}
+
+.data-flow::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--data-secondary), var(--data-tertiary), transparent);
+  top: calc(100% - 2px);
+  left: -100%;
+  animation: dataFlow 3s ease-in-out infinite;
+}
+
+@keyframes dataFlow {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Vague de données */
+.data-wave {
+  position: relative;
+}
+
+.data-wave::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, 
+    rgba(123, 47, 247, 0), 
+    rgba(123, 47, 247, 0.1), 
+    rgba(123, 47, 247, 0));
+  opacity: 0.5;
+  transform: translateY(50%);
+  animation: waveAnimation 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes waveAnimation {
+  0% { transform: translateY(100%) scaleY(0.5); }
+  50% { transform: translateY(0%) scaleY(1); }
+  100% { transform: translateY(100%) scaleY(0.5); }
+}
+
+/* Bordure pulse Data */
+.data-border {
+  position: relative;
+  border: 1px solid rgba(123, 47, 247, 0.7);
+  box-shadow: var(--data-glow-primary);
+  animation: dataBorderPulse 4s infinite alternate;
+}
+
+@keyframes dataBorderPulse {
+  0% {
+    border-color: rgba(123, 47, 247, 0.7);
+    box-shadow: var(--data-glow-primary);
+  }
+  50% {
+    border-color: rgba(0, 198, 255, 0.7);
+    box-shadow: var(--data-glow-secondary);
+  }
+  100% {
+    border-color: rgba(255, 54, 208, 0.7);
+    box-shadow: var(--data-glow-tertiary);
+  }
+}
+
+/* Cadre de module data */
+.data-module-frame {
+  position: relative;
+  border-radius: 10px;
+  background: linear-gradient(145deg, var(--data-dark), var(--data-darker));
+  border: 1px solid rgba(123, 47, 247, 0.3);
+  overflow: hidden;
+}
+
+.data-module-frame::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--data-secondary), var(--data-primary), var(--data-tertiary));
+  opacity: 0.8;
+}
+
+/* Carte module avec effet de survol */
+.data-card {
+  position: relative;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.data-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, 
+    rgba(123, 47, 247, 0.1) 0%, 
+    rgba(0, 198, 255, 0.05) 50%, 
+    rgba(255, 54, 208, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.data-card:hover::before {
+  opacity: 1;
+}
+
+.data-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(123, 47, 247, 0.3);
+}
+
+/* Badge de module data */
+.data-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  background: linear-gradient(90deg, var(--data-primary), var(--data-secondary));
+  border-radius: 12px;
+  color: white;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+/* Texte avec effet highlight */
+.data-text-highlight {
+  background: linear-gradient(90deg, var(--data-primary), var(--data-tertiary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  animation: dataHighlightAnimation 5s infinite alternate;
+}
+
+@keyframes dataHighlightAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Visualisations de données stylisées */
+.data-viz-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: rgba(7, 6, 26, 0.8);
+  border: 1px solid rgba(123, 47, 247, 0.4);
+}
+
+.data-viz-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(0, 198, 255, 0.05),
+    rgba(0, 198, 255, 0.05) 10px,
+    rgba(123, 47, 247, 0.05) 10px,
+    rgba(123, 47, 247, 0.05) 20px
+  );
+  pointer-events: none;
+}
+
+/* Effet de surbrillance sur hover */
+.data-hover-glow {
+  transition: all 0.3s ease;
+}
+
+.data-hover-glow:hover {
+  box-shadow: 0 0 15px rgba(123, 47, 247, 0.7);
+}
+
+/* Bouton data avec effet de lueur */
+.data-button {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(45deg, var(--data-dark), var(--data-light));
+  border: 1px solid var(--data-primary);
+  color: white;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.data-button::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  background: linear-gradient(45deg, 
+    var(--data-primary), 
+    var(--data-secondary), 
+    var(--data-tertiary), 
+    var(--data-secondary),
+    var(--data-primary));
+  background-size: 400%;
+  z-index: -1;
+  animation: dataBorderAnimation 20s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 10px;
+}
+
+.data-button:hover::before {
+  opacity: 1;
+}
+
+@keyframes dataBorderAnimation {
+  0% { background-position: 0 0; }
+  50% { background-position: 400% 0; }
+  100% { background-position: 0 0; }
+}
+
+/* Background avec texture binaire en arrière-plan */
+.data-binary-bg {
+  position: relative;
+}
+
+.data-binary-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='5' y='15' fill='rgba(123, 47, 247, 0.04)' font-family='monospace' font-size='10'%3E10101%3C/text%3E%3Ctext x='25' y='35' fill='rgba(0, 198, 255, 0.04)' font-family='monospace' font-size='10'%3E01010%3C/text%3E%3Ctext x='10' y='55' fill='rgba(255, 54, 208, 0.04)' font-family='monospace' font-size='10'%3E00111%3C/text%3E%3C/svg%3E");
+  opacity: 0.3;
+  z-index: -1;
+}
+
+/* Loader avec particules de données */
+.data-loader {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.data-loader::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: var(--data-secondary);
+  border-bottom-color: var(--data-tertiary);
+  animation: dataLoaderSpin 1.2s linear infinite;
+}
+
+.data-loader::after {
+  content: '';
+  position: absolute;
+  width: 70%;
+  height: 70%;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-left-color: var(--data-primary);
+  border-right-color: var(--data-quaternary);
+  animation: dataLoaderSpin 0.8s linear infinite reverse;
+}
+
+@keyframes dataLoaderSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Onglets stylisés pour Data & IA */
+.data-tabs {
+  position: relative;
+  display: flex;
+  background: rgba(7, 6, 26, 0.6);
+  border-radius: 10px;
+  padding: 5px;
+}
+
+.data-tab-item {
+  position: relative;
+  padding: 10px 20px;
+  color: white;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.data-tab-item.active {
+  color: white;
+}
+
+.data-tab-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, var(--data-primary), var(--data-secondary));
+  border-radius: 8px;
+  z-index: -1;
+}
+
+/* Dégradé de texte data */
+.data-gradient-text {
+  background: linear-gradient(90deg, var(--data-secondary), var(--data-primary), var(--data-tertiary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  background-size: 200% auto;
+  animation: gradientTextAnimation 5s ease infinite;
+}
+
+@keyframes gradientTextAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
