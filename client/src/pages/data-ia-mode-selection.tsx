@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import { 
   ArrowRight, 
   HelpCircle, 
-  Search 
+  Search,
+  Code
 } from 'lucide-react';
 import { 
   IoHome, 
@@ -507,243 +508,42 @@ export default function DataIaModeSelection() {
 
           {/* Modules Data & IA */}
           <div className="mt-8 px-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Section SE FORMER */}
-              <Card className={`h-full ${
-                highContrastMode 
-                  ? 'bg-gray-800 border border-gray-700' 
-                  : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
-              } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}>
+            <div className="flex justify-center">
+              {/* READ ME IF YOU CAN - Module unique */}
+              <Card 
+                className={`w-full max-w-lg ${
+                  highContrastMode 
+                    ? 'bg-gray-800 border border-gray-700' 
+                    : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
+                } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
+                onClick={() => setLocation('/data-ia/read-me-if-you-can')}
+              >
                 <CardHeader>
-                  <div className="flex items-start justify-center">
-                    <div className={`p-3 rounded-lg ${
-                      highContrastMode 
-                        ? 'bg-purple-900' 
-                        : 'bg-gradient-to-r from-blue-500 to-purple-500 shadow-md'
-                    }`}>
-                      <IoBookOutline className="h-6 w-6 text-white" />
-                    </div>
-                  </div>
-                  <CardTitle className="text-center text-xl mt-2 font-data-title">SE FORMER</CardTitle>
-                </CardHeader>
-                <CardContent className="text-center flex flex-col items-center space-y-3">
-                  <div className="space-y-3 w-full">
-                    <div 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation('/data-ia/ai-playground');
-                      }}
-                      className={`px-3 py-3 rounded-md ${
-                        highContrastMode 
-                          ? 'bg-purple-900/50 hover:bg-purple-800 border border-purple-700' 
-                          : 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 hover:from-blue-500/30 hover:to-purple-500/30 border border-purple-300/30'
-                      } transition-colors cursor-pointer`}
-                    >
-                      <div className="font-bold text-white mb-1 flex items-center justify-center">
-                        <span className="bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">IA LAB TRAINER</span>
-                      </div>
-                      <p className="text-xs text-gray-300 mb-2">
-                        Apprenez en pratiquant les concepts d'IA, Machine Learning et Data Science
-                      </p>
-                      <Badge className="bg-blue-600/30 text-cyan-300 border-cyan-500/50 hover:bg-blue-600/50">
-                        Nouveau
-                      </Badge>
-                    </div>
-                  </div>
-                  <p className={highContrastMode ? 'text-gray-300' : 'text-gray-200'}>
-                    Formations interactives et ludiques en Data Science et IA
-                  </p>
-                </CardContent>
-              </Card>
-              
-              {/* Section S'ENTRAÎNER */}
-              <Card className={`h-full ${
-                highContrastMode 
-                  ? 'bg-gray-800 border border-gray-700' 
-                  : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
-              } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}>
-                <CardHeader>
-                  <div className="flex items-start justify-center">
+                  <div className="flex items-center justify-center mb-4">
                     <div className={`p-3 rounded-lg ${
                       highContrastMode 
                         ? 'bg-blue-900' 
-                        : 'bg-gradient-to-r from-cyan-500 to-blue-600 shadow-md'
+                        : 'bg-gradient-to-r from-blue-500 to-cyan-500 shadow-md'
                     }`}>
-                      <IoDesktopOutline className="h-6 w-6 text-white" />
+                      <Code className="h-8 w-8 text-white" />
                     </div>
                   </div>
-                  <CardTitle className="text-center text-xl mt-2 font-data-title">S'ENTRAÎNER</CardTitle>
+                  <CardTitle className="text-center text-2xl font-data-title">READ ME IF YOU CAN</CardTitle>
+                  <CardDescription className="text-center text-blue-300 mt-2">
+                    Testez votre compréhension du code Python et SQL dans un environnement interactif
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="text-center flex flex-col items-center space-y-3">
-                  <div className="space-y-3 w-full">
-
-                    
-                    <div 
-                      className={`px-3 py-3 rounded-md ${
-                        highContrastMode 
-                          ? 'bg-blue-900/50 hover:bg-blue-800 border border-blue-700' 
-                          : 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 border border-blue-300/30'
-                      } transition-colors cursor-pointer`}
-                    >
-                      <div className="font-bold text-white mb-1 flex items-center justify-center">
-                        <span className="bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text">DATA CHALLENGES</span>
-                      </div>
-                      <div className="grid grid-cols-1 gap-2 mt-2">
-                        <div className="text-xs text-left text-gray-300 flex items-start">
-                          <div className="min-w-4 h-4 rounded-full bg-cyan-500/50 mr-2 mt-0.5 flex items-center justify-center">
-                            <span className="text-[10px] text-white">1</span>
-                          </div>
-                          <span>Data Cleaning Arena - Nettoyez et transformez des données brutes en compétition</span>
-                        </div>
-                        <div className="text-xs text-left text-gray-300 flex items-start">
-                          <div className="min-w-4 h-4 rounded-full bg-blue-500/50 mr-2 mt-0.5 flex items-center justify-center">
-                            <span className="text-[10px] text-white">2</span>
-                          </div>
-                          <span>ML Battle - Développez et optimisez des modèles prédictifs en temps limité</span>
-                        </div>
-                        <div className="text-xs text-left text-gray-300 flex items-start">
-                          <div className="min-w-4 h-4 rounded-full bg-indigo-500/50 mr-2 mt-0.5 flex items-center justify-center">
-                            <span className="text-[10px] text-white">3</span>
-                          </div>
-                          <span>SQL Playground - Environnement pratique pour tester vos requêtes complexes</span>
-                        </div>
-                        <div className="text-xs text-left text-gray-300 flex items-start">
-                          <div className="min-w-4 h-4 rounded-full bg-teal-500/50 mr-2 mt-0.5 flex items-center justify-center">
-                            <span className="text-[10px] text-white">4</span>
-                          </div>
-                          <span>Dashboard Designer - Création interactive de tableaux de bord visuels</span>
-                        </div>
-                        <div className="text-xs text-left text-gray-300 flex items-start">
-                          <div className="min-w-4 h-4 rounded-full bg-sky-500/50 mr-2 mt-0.5 flex items-center justify-center">
-                            <span className="text-[10px] text-white">5</span>
-                          </div>
-                          <span>Projet Data Guidé - Résolvez un cas réel avec conseils pas à pas</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <p className={highContrastMode ? 'text-gray-300' : 'text-gray-200'}>
-                    Défis pratiques et projets interactifs en Data Science
+                <CardContent className="text-center flex flex-col items-center">
+                  <p className="text-gray-200 mb-4">
+                    Déchiffrez et interprétez du code complexe pour progresser dans vos compétences en Data Science
                   </p>
-                </CardContent>
-              </Card>
-              
-              {/* Section S'ÉVALUER */}
-              <Card className={`h-full ${
-                highContrastMode 
-                  ? 'bg-gray-800 border border-gray-700' 
-                  : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
-              } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
-              onClick={() => setLocation('/data-ia/read-me-if-you-can')}
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-center">
-                    <div className={`p-3 rounded-lg ${
-                      highContrastMode 
-                        ? 'bg-pink-900' 
-                        : 'bg-gradient-to-r from-pink-500 to-rose-500 shadow-md'
-                    }`}>
-                      <IoTrophyOutline className="h-6 w-6 text-white" />
-                    </div>
-                  </div>
-                  <CardTitle className="text-center text-xl mt-2 font-data-title">S'ÉVALUER</CardTitle>
-                </CardHeader>
-                <CardContent className="text-center flex flex-col items-center space-y-3">
-                  <div className="space-y-3 w-full">
-                    <div 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation('/data-ia/read-me-if-you-can');
-                      }}
-                      className={`px-3 py-3 rounded-md ${
-                        highContrastMode 
-                          ? 'bg-blue-900/50 hover:bg-blue-800 border border-blue-700' 
-                          : 'bg-gradient-to-r from-pink-600/20 to-rose-600/20 hover:from-pink-600/30 hover:to-rose-600/30 border border-pink-400/30'
-                      } transition-colors cursor-pointer`}
-                    >
-                      <div className="font-bold text-white mb-1 flex items-center justify-center">
-                        <span className="bg-gradient-to-r from-blue-400 to-cyan-400 text-transparent bg-clip-text">READ ME IF YOU CAN</span>
-                      </div>
-                      <p className="text-xs text-gray-300">
-                        Testez votre compréhension du code Python et SQL
-                      </p>
-                    </div>
-                    
-
-                  </div>
-                  <p className={highContrastMode ? 'text-gray-300' : 'text-gray-200'}>
-                    Tests et certifications pour valider vos compétences
-                  </p>
-                </CardContent>
-              </Card>
-              
-              {/* Section AUTOMATISER */}
-              <Card className={`h-full ${
-                highContrastMode 
-                  ? 'bg-gray-800 border border-gray-700' 
-                  : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
-              } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}>
-                <CardHeader>
-                  <div className="flex items-start justify-center">
-                    <div className={`p-3 rounded-lg ${
-                      highContrastMode 
-                        ? 'bg-cyan-900' 
-                        : 'bg-gradient-to-r from-blue-400 to-cyan-500 shadow-md'
-                    }`}>
-                      <IoConstructOutline className="h-6 w-6 text-white" />
-                    </div>
-                  </div>
-                  <CardTitle className="text-center text-xl mt-2 font-data-title">AUTOMATISER</CardTitle>
-                </CardHeader>
-                <CardContent className="text-center flex flex-col items-center space-y-3">
-                  <div className="space-y-3 w-full">
-                    <div 
-                      className={`px-3 py-3 rounded-md ${
-                        highContrastMode 
-                          ? 'bg-cyan-900/50 hover:bg-cyan-800 border border-cyan-700' 
-                          : 'bg-gradient-to-r from-blue-400/20 to-cyan-400/20 hover:from-blue-400/30 hover:to-cyan-400/30 border border-cyan-300/30'
-                      } transition-colors cursor-pointer`}
-                    >
-                      <div className="font-bold text-white mb-1 flex items-center justify-center">
-                        <span className="bg-gradient-to-r from-blue-300 to-cyan-300 text-transparent bg-clip-text">DATA BOTS & AUTOMATION</span>
-                      </div>
-                      <div className="grid grid-cols-1 gap-2 mt-2">
-                        <div className="text-xs text-left text-gray-300 flex items-start">
-                          <div className="min-w-4 h-4 rounded-full bg-cyan-600/50 mr-2 mt-0.5 flex items-center justify-center">
-                            <span className="text-[10px] text-white">1</span>
-                          </div>
-                          <span>AI Code Generator - Création automatique de scripts Python et SQL</span>
-                        </div>
-                        <div className="text-xs text-left text-gray-300 flex items-start">
-                          <div className="min-w-4 h-4 rounded-full bg-teal-600/50 mr-2 mt-0.5 flex items-center justify-center">
-                            <span className="text-[10px] text-white">2</span>
-                          </div>
-                          <span>AutoML Studio - Entraînement et déploiement de modèles sans code</span>
-                        </div>
-                        <div className="text-xs text-left text-gray-300 flex items-start">
-                          <div className="min-w-4 h-4 rounded-full bg-blue-600/50 mr-2 mt-0.5 flex items-center justify-center">
-                            <span className="text-[10px] text-white">3</span>
-                          </div>
-                          <span>DataBot Builder - Créez facilement des assistants IA spécialisés</span>
-                        </div>
-                        <div className="text-xs text-left text-gray-300 flex items-start">
-                          <div className="min-w-4 h-4 rounded-full bg-sky-600/50 mr-2 mt-0.5 flex items-center justify-center">
-                            <span className="text-[10px] text-white">4</span>
-                          </div>
-                          <span>ETL Pipeline Designer - Automatisez les flux de données</span>
-                        </div>
-                        <div className="text-xs text-left text-gray-300 flex items-start">
-                          <div className="min-w-4 h-4 rounded-full bg-emerald-600/50 mr-2 mt-0.5 flex items-center justify-center">
-                            <span className="text-[10px] text-white">5</span>
-                          </div>
-                          <span>Smart Reports - Génération automatique de rapports avec IA</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <p className={highContrastMode ? 'text-gray-300' : 'text-gray-200'}>
-                    Outils pour automatiser vos workflows data et déployer l'IA
-                  </p>
+                  <Button 
+                    className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-6 py-5"
+                    onClick={() => setLocation('/data-ia/read-me-if-you-can')}
+                  >
+                    Commencer le défi
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
                 </CardContent>
               </Card>
             </div>
