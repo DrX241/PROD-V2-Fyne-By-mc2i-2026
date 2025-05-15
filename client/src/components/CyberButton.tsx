@@ -5,7 +5,7 @@ interface CyberButtonProps {
   children: React.ReactNode;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   className?: string;
-  variant?: 'primary' | 'secondary' | 'danger' | 'glowing';
+  variant?: 'primary' | 'secondary' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   withGlitch?: boolean;
   disabled?: boolean;
@@ -49,13 +49,6 @@ const CyberButton: React.FC<CyberButtonProps> = ({
       border: 'border-red-500',
       glow: '0 0 5px rgba(239, 68, 68, 0.7), 0 0 10px rgba(239, 68, 68, 0.5)',
       hoverGlow: '0 0 10px rgba(239, 68, 68, 0.8), 0 0 20px rgba(239, 68, 68, 0.6), 0 0 30px rgba(239, 68, 68, 0.4)'
-    },
-    glowing: {
-      bg: 'bg-gradient-to-r from-blue-600 to-indigo-800',
-      text: 'text-white',
-      border: 'border-blue-400',
-      glow: '0 0 10px rgba(37, 99, 235, 0.8), 0 0 20px rgba(37, 99, 235, 0.6)',
-      hoverGlow: '0 0 15px rgba(37, 99, 235, 0.9), 0 0 30px rgba(37, 99, 235, 0.7), 0 0 45px rgba(37, 99, 235, 0.5)'
     }
   };
 
@@ -134,13 +127,8 @@ const CyberButton: React.FC<CyberButtonProps> = ({
       {/* Effet de scan horizontal */}
       {isHovered && (
         <motion.div
-          className={`absolute top-0 left-0 h-full opacity-20`}
-          style={{ 
-            width: '5px',
-            backgroundColor: variant === 'primary' ? '#0ff' : 
-                            variant === 'secondary' ? '#a855f7' : 
-                            variant === 'glowing' ? '#3b82f6' : '#ef4444'
-          }}
+          className={`absolute top-0 left-0 h-full bg-${variant === 'primary' ? 'cyan' : variant === 'secondary' ? 'purple' : 'red'}-400 opacity-20`}
+          style={{ width: '5px' }}
           animate={{
             x: ['-100%', '500%'],
             transition: {
@@ -157,22 +145,14 @@ const CyberButton: React.FC<CyberButtonProps> = ({
         <svg
           className="absolute inset-0 w-full h-full"
           style={{ 
-            filter: `drop-shadow(0 0 2px ${
-              variant === 'primary' ? '#0ff' : 
-              variant === 'secondary' ? '#a855f7' : 
-              variant === 'glowing' ? '#3b82f6' : '#ef4444'
-            })` 
+            filter: `drop-shadow(0 0 2px ${variant === 'primary' ? '#0ff' : variant === 'secondary' ? '#a855f7' : '#ef4444'})` 
           }}
         >
           <motion.rect
             width="100%"
             height="100%"
             fill="none"
-            stroke={
-              variant === 'primary' ? '#0ff' : 
-              variant === 'secondary' ? '#a855f7' : 
-              variant === 'glowing' ? '#3b82f6' : '#ef4444'
-            }
+            stroke={variant === 'primary' ? '#0ff' : variant === 'secondary' ? '#a855f7' : '#ef4444'}
             strokeWidth="2"
             strokeDasharray="0 1"
             initial="default"
@@ -186,14 +166,8 @@ const CyberButton: React.FC<CyberButtonProps> = ({
       {isHovered && (
         <div className="absolute left-0 w-full h-px" style={{ 
           top: '50%', 
-          backgroundColor: variant === 'primary' ? '#0ff' : 
-                          variant === 'secondary' ? '#a855f7' : 
-                          variant === 'glowing' ? '#3b82f6' : '#ef4444',
-          boxShadow: `0 0 5px ${
-            variant === 'primary' ? '#0ff' : 
-            variant === 'secondary' ? '#a855f7' : 
-            variant === 'glowing' ? '#3b82f6' : '#ef4444'
-          }`
+          backgroundColor: variant === 'primary' ? '#0ff' : variant === 'secondary' ? '#a855f7' : '#ef4444',
+          boxShadow: `0 0 5px ${variant === 'primary' ? '#0ff' : variant === 'secondary' ? '#a855f7' : '#ef4444'}`
         }} />
       )}
 

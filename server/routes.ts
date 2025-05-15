@@ -12,7 +12,6 @@ import { openAIService } from "./services/openai";
 import attachmentRoutes from './routes/attachmentRoutes';
 import cyberForgeRoutes from './routes/cyberForgeRoutes';
 import cyberToolsRoutes from './routes/cyberToolsRoutes';
-import cryptoLockRoutes from './routes/cryptoLockRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { evaluateInterviewTest, generateAdaptiveQuestion } from './cyberInterviewTestController';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
@@ -38,13 +37,6 @@ import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearn
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
 import * as amoaExpertController from "./amoaExpertController";
-import {
-  initCryptoLockGame,
-  startCryptoLockGame,
-  sendMessage,
-  makeChoice,
-  getGameState
-} from "./cryptoLockController";
 import { initCyberPulseSession, processCyberPulseMessage, generateCyberChallenge, checkInactivity, updateCyberPulsePreferences, updatePlayerScore } from "./cyberPulseGameController";
 import { terminateCyberPulseSession } from "./cyberPulseSessionManager";
 import { startImposteurSimulation, processImposteurMessage, completeImposteurSimulation } from "./imposteurSimulationController";
@@ -4769,9 +4761,6 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   app.post('/api/cyber/adaptive-quiz/hint', generateQuizHint);
   app.post('/api/cyber/adaptive-quiz/full', generateFullQuiz);
   
-  // Routes pour la simulation de crise CryptoLock
-  app.use('/api/cryptolock', cryptoLockRoutes);
-  
   // Routes pour AMOA Expert
   app.post('/api/amoa-expert/init', amoaExpertController.initializeAmoaExpertSession);
   app.post('/api/amoa-expert/message', amoaExpertController.processAmoaExpertMessage);
@@ -4819,13 +4808,6 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   app.post('/api/crisis-management/decision', recordDecision);
   app.post('/api/crisis-management/stakeholder/mark-read', markStakeholderMessagesAsRead);
   app.post('/api/crisis-management/stakeholder/respond', respondToStakeholder);
-  
-  // Routes pour le module CryptoLock - Simulation de crise ransomware
-  app.post('/api/cryptolock/init', initCryptoLockGame);
-  app.post('/api/cryptolock/:gameId/start', startCryptoLockGame);
-  app.post('/api/cryptolock/:gameId/message', sendMessage);
-  app.post('/api/cryptolock/:gameId/choice', makeChoice);
-  app.get('/api/cryptolock/:gameId', getGameState);
   
   // Route pour le générateur de livrables
   app.post('/api/mc2i/generateur-livrables', generateLivrable);

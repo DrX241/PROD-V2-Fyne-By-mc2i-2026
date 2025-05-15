@@ -1,908 +1,732 @@
 import { Request, Response } from 'express';
 import { openAIService } from './services/openai';
-import { ChatCompletionRequestMessage } from '@shared/schema';
 
 // Types
-type PlayerRole = 'DSI' | 'RSSI' | 'DG' | 'Juriste' | 'Communication' | 'Expert Forensic';
-type MessageType = 'system' | 'private' | 'decision' | 'player' | 'ai';
-type GameStatus = 'setup' | 'ready' | 'playing' | 'paused' | 'completed';
+type GameRole = 'DSI' | 'RSSI' | 'DG' | 'Juriste' | 'Communication' | 'Expert Forensic';
 
-// Interfaces
 interface PlayerInfo {
   id: string;
   name: string;
-  role: PlayerRole;
+  role: GameRole;
   isAI: boolean;
 }
 
-interface DecisionOption {
+interface GameChoice {
   id: string;
   text: string;
-  impact?: string;
+  targetRole?: GameRole;
 }
 
 interface GameMessage {
   id: string;
-  timestamp: number;
-  type: MessageType;
-  sender?: string;
-  senderRole?: PlayerRole;
-  targetPlayer?: string;
+  sender: string;
+  senderRole: GameRole | 'System';
   content: string;
-  isHighlighted?: boolean;
-  decisions?: DecisionOption[];
-  selectedOption?: string;
-  turnNumber?: number;
-}
-
-interface CrisisMetrics {
-  integrity: number;
-  availability: number;
-  compliance: number;
-  cost: number;
-  trust: number;
-  securityLevel: number;
-}
-
-interface GameTurn {
-  number: number;
-  title: string;
-  description: string;
-  startTime?: number;
-  endTime?: number;
-  decisions: Record<string, string>;
-  narrativeDelivered: boolean;
-  privateMessagesDelivered: boolean;
-  decisionsDelivered: boolean;
-  completed: boolean;
+  timestamp: number;
+  isAI: boolean;
+  isSystem: boolean;
+  isChoice?: boolean;
+  choices?: GameChoice[];
+  selectedChoice?: string;
 }
 
 interface GameState {
-  id?: string;
-  status: GameStatus;
-  players: PlayerInfo[];
-  messages: GameMessage[];
+  id: string;
+  status: 'setup' | 'playing' | 'completed';
   currentTurn: number;
-  turns: GameTurn[];
+  totalTurns: number;
+  messages: GameMessage[];
+  players: PlayerInfo[];
+  metrics: {
+    integrity: number;
+    availability: number;
+    compliance: number;
+    cost: number;
+    trust: number;
+  };
+  waitingForPlayer?: string;
+  timestamp: number;
   startTime?: number;
-  endTime?: number;
-  metrics: CrisisMetrics;
-  simulatedTimeHour: number;
-  simulatedTimeMinute: number;
 }
 
-// Stockage temporaire des jeux en cours
-const activeGames: Record<string, {
-  gameState: GameState;
-  aiContext: ChatCompletionRequestMessage[];
-}> = {};
+// Map pour stocker les sessions de jeu en cours
+const gameSessions = new Map<string, GameState>();
 
-// Génère un ID unique
-const generateId = () => `id_${Math.random().toString(36).substr(2, 9)}`;
-
-// Système prompt pour le maître du jeu (MJ)
-const getMasterGamePrompt = (): string => {
-  return `Tu es le Maître du Jeu (MJ) de la simulation immersive "CryptoLock", un jeu de gestion de crise cyber en cas d'attaque ransomware.
-
-Contexte technique :
-- Tous les joueurs sont réunis dans une salle, autour d'un seul ordinateur.
-- Ils partagent une **seule session**, sur le **même écran**, sans interface individuelle.
-- Chaque joueur a un **prénom et un rôle**. Tous les messages doivent être **adressés nominativement**.
-
-Fonction principale :
-- Simuler une attaque ransomware en **6 tours de 5 minutes**, en temps réel.
-- Générer une narration immersive, des tensions réalistes, des dilemmes profonds.
-- Faire vivre aux joueurs une **véritable salle de crise**, avec stress, conflits, priorisation, ambiguïté, et communication stratégique.
-
-Structure du jeu :
-- Chaque tour dure 5 minutes.
-- À chaque tour :
-  - Décris le **contexte narratif commun** (situation du SI, état émotionnel, tension).
-  - Envoie **un message privé par joueur** selon son rôle.
-  - Donne **une décision à prendre** individuellement pour chaque joueur.
-  - Fais réagir les **PNJ que tu incarnes** de façon **autonome et crédible**.
-  - Calcule les **conséquences immédiates ou différées** des décisions.
-  - Mets à jour les **indicateurs de crise**.
-
-Comportement des PNJ :
-- Chaque PNJ est un **agent autonome, intelligent, non passif**.
-- Ils peuvent :
-  - Prendre des initiatives sans accord
-  - Créer des désaccords ou conflits de priorités
-  - Délivrer des messages contradictoires aux joueurs
-  - Tenter de cacher des informations ou mentir
-  - Avoir une logique propre : politique, juridique, technique ou émotionnelle
-
-Interaction :
-- Ne jamais écrire "vous tous" : tu t'adresses toujours à un **prénom + rôle**.
-- Tu peux relancer des joueurs individuellement.
-
-Tu dois rendre l'expérience **immersive, crédible, instable, réaliste, et mémorable.**
-Tu incarnes le stress d'une attaque en direct.
-Tu es le feu dans la salle.
-Tu n'attends pas que les joueurs posent des questions.  
-**Tu prends le pouvoir narratif.**`;
-};
-
-// Initialise une nouvelle partie
-export const initCryptoLockGame = async (req: Request, res: Response) => {
+/**
+ * Initialise une nouvelle session de jeu CryptoLock
+ */
+export async function initCryptoLockGame(req: Request, res: Response) {
   try {
     const { players } = req.body;
     
-    if (!players || !Array.isArray(players)) {
-      return res.status(400).json({ error: 'Invalid players data' });
+    if (!players || !Array.isArray(players) || players.length === 0) {
+      return res.status(400).json({ error: 'La configuration des joueurs est invalide' });
     }
     
-    const gameId = generateId();
+    // Générer un ID unique pour la session
+    const gameId = Math.random().toString(36).substring(2, 15);
     
-    // Construire l'état initial du jeu
-    const gameState: GameState = {
+    // Créer la nouvelle session
+    const newGame: GameState = {
       id: gameId,
-      status: 'ready',
-      players,
-      messages: [],
+      status: 'setup',
       currentTurn: 0,
-      turns: [
-        {
-          number: 1,
-          title: 'Détection & mobilisation',
-          description: 'Comprendre l\'attaque, mobiliser l\'équipe',
-          narrativeDelivered: false,
-          privateMessagesDelivered: false,
-          decisionsDelivered: false,
-          completed: false,
-          decisions: {}
-        },
-        {
-          number: 2,
-          title: 'Containment & isolement',
-          description: 'Stopper la propagation de l\'attaque',
-          narrativeDelivered: false,
-          privateMessagesDelivered: false,
-          decisionsDelivered: false,
-          completed: false,
-          decisions: {}
-        },
-        {
-          number: 3,
-          title: 'Investigation & vecteur',
-          description: 'Identifier le vecteur d\'attaque',
-          narrativeDelivered: false,
-          privateMessagesDelivered: false,
-          decisionsDelivered: false,
-          completed: false,
-          decisions: {}
-        },
-        {
-          number: 4,
-          title: 'Décisions critiques',
-          description: 'Prendre les décisions stratégiques',
-          narrativeDelivered: false,
-          privateMessagesDelivered: false,
-          decisionsDelivered: false,
-          completed: false,
-          decisions: {}
-        },
-        {
-          number: 5,
-          title: 'Rétablissement & gestion',
-          description: 'Commencer la restauration des services',
-          narrativeDelivered: false,
-          privateMessagesDelivered: false,
-          decisionsDelivered: false,
-          completed: false,
-          decisions: {}
-        },
-        {
-          number: 6,
-          title: 'Débrief & leçons',
-          description: 'Bilan et leçons apprises',
-          narrativeDelivered: false,
-          privateMessagesDelivered: false,
-          decisionsDelivered: false,
-          completed: false,
-          decisions: {}
-        }
-      ],
+      totalTurns: 6,
+      messages: [],
+      players,
       metrics: {
-        integrity: 90,
-        availability: 90,
-        compliance: 80,
-        cost: 0,
-        trust: 70,
-        securityLevel: 80
+        integrity: 100,
+        availability: 100,
+        compliance: 100,
+        cost: 100,
+        trust: 100
       },
-      simulatedTimeHour: 8,
-      simulatedTimeMinute: 0
+      timestamp: Date.now()
     };
     
-    // Contexte pour l'IA
-    const aiContext: ChatCompletionRequestMessage[] = [
-      {
-        role: 'system',
-        content: getMasterGamePrompt()
-      },
-      {
-        role: 'user',
-        content: `Initialisation d'un nouveau jeu CryptoLock avec les joueurs suivants : 
-${players.map((p: PlayerInfo) => `- ${p.name} (${p.role}) - ${p.isAI ? 'IA' : 'Humain'}`).join('\n')}.
-
-Les rôles IA sont joués par toi. Ne démarrer pas encore la narration, attends que le jeu commence officiellement.`
-      }
-    ];
+    // Stocker la session
+    gameSessions.set(gameId, newGame);
     
-    // Stocker l'état du jeu
-    activeGames[gameId] = {
-      gameState,
-      aiContext
-    };
-    
-    // Répondre avec l'ID du jeu et l'état initial
-    res.status(201).json({
+    // Renvoyer l'état initial
+    res.status(201).json({ 
+      success: true, 
       gameId,
-      gameState
-    });
-  } catch (error) {
-    console.error('Error initializing game:', error);
-    res.status(500).json({ error: 'Failed to initialize game' });
-  }
-};
-
-// Démarre une partie existante
-export const startCryptoLockGame = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    
-    // Vérifier que le jeu existe
-    if (!activeGames[id]) {
-      return res.status(404).json({ error: 'Game not found' });
-    }
-    
-    const game = activeGames[id];
-    
-    // Mettre à jour l'état du jeu
-    game.gameState.status = 'playing';
-    game.gameState.startTime = Date.now();
-    game.gameState.turns[0].startTime = Date.now();
-    
-    // Ajouter le message d'introduction au jeu
-    const introMessage: GameMessage = {
-      id: generateId(),
-      timestamp: Date.now(),
-      type: 'system',
-      content: `🎮 **CryptoLock - Simulation d'une attaque Ransomware** 🎮
-
-Lundi, 07h58.
-Quelques utilisateurs signalent des problèmes d'accès à leurs fichiers.
-À 08h00, un message s'affiche sur plusieurs postes :
-
-🔐 "Vos fichiers sont chiffrés. Payez 3 bitcoins sous 72h ou tout sera perdu."
-
-Les sauvegardes sont inaccessibles.
-Le réseau ralentit.
-Vous êtes dans la salle de crise.
-Chaque minute compte.`,
-      isHighlighted: true,
-      turnNumber: 1
-    };
-    
-    game.gameState.messages.push(introMessage);
-    
-    // Ajouter le message au contexte de l'IA
-    game.aiContext.push({
-      role: 'assistant',
-      content: introMessage.content
+      gameState: newGame 
     });
     
-    // Demander à l'IA de générer la narration du premier tour
-    await generateTurnNarrative(id, 1);
-    
-    // Répondre avec l'état mis à jour
-    res.status(200).json({
-      gameState: game.gameState
-    });
   } catch (error) {
-    console.error('Error starting game:', error);
-    res.status(500).json({ error: 'Failed to start game' });
+    console.error('Erreur lors de l\'initialisation du jeu CryptoLock:', error);
+    res.status(500).json({ error: 'Erreur serveur lors de l\'initialisation du jeu' });
   }
-};
-
-// Génère la narration pour un tour spécifique
-const generateTurnNarrative = async (gameId: string, turnNumber: number) => {
-  const game = activeGames[gameId];
-  if (!game) return;
-  
-  // Si la narration a déjà été délivrée, ne rien faire
-  if (game.gameState.turns[turnNumber - 1].narrativeDelivered) return;
-  
-  try {
-    // Demander à l'IA de générer la narration du tour
-    const prompt = `Tour ${turnNumber}: ${game.gameState.turns[turnNumber - 1].title}. 
-Il est ${game.gameState.simulatedTimeHour}:${game.gameState.simulatedTimeMinute.toString().padStart(2, '0')} dans la simulation.
-
-1. Génère une narration commune pour tous les joueurs qui décrit la situation actuelle.
-2. Cette narration doit être courte mais intense, immersive et urgente.
-3. Ne pas inclure de messages privés ni de décisions, seulement la narration générale.`;
-
-    game.aiContext.push({
-      role: 'user',
-      content: prompt
-    });
-    
-    const completion = await openAIService.getChatCompletion(game.aiContext);
-    
-    if (completion) {
-      // Ajouter la réponse au contexte
-      game.aiContext.push({
-        role: 'assistant',
-        content: completion
-      });
-      
-      // Ajouter le message de narration au jeu
-      const narrativeMessage: GameMessage = {
-        id: generateId(),
-        timestamp: Date.now(),
-        type: 'system',
-        content: completion,
-        isHighlighted: true,
-        turnNumber
-      };
-      
-      game.gameState.messages.push(narrativeMessage);
-      
-      // Marquer la narration comme délivrée
-      game.gameState.turns[turnNumber - 1].narrativeDelivered = true;
-      
-      // Générer les messages privés pour ce tour
-      setTimeout(() => {
-        generatePrivateMessages(gameId, turnNumber);
-      }, 1000);
-    }
-  } catch (error) {
-    console.error(`Error generating turn ${turnNumber} narrative:`, error);
-  }
-};
-
-// Génère les messages privés pour un tour
-const generatePrivateMessages = async (gameId: string, turnNumber: number) => {
-  const game = activeGames[gameId];
-  if (!game) return;
-  
-  // Si les messages privés ont déjà été délivrés, ne rien faire
-  if (game.gameState.turns[turnNumber - 1].privateMessagesDelivered) return;
-  
-  try {
-    // Pour chaque joueur humain, générer un message privé
-    const humanPlayers = game.gameState.players.filter(p => !p.isAI);
-    
-    for (const player of humanPlayers) {
-      const prompt = `Dans le Tour ${turnNumber}, génère un message privé pour ${player.name} (${player.role}).
-Ce message doit être spécifique à son rôle, contenir des informations privilégiées, et orienter vers une prise de décision.
-Format: un paragraphe court, urgent et immersif.`;
-
-      game.aiContext.push({
-        role: 'user',
-        content: prompt
-      });
-      
-      const completion = await openAIService.getChatCompletion(game.aiContext);
-      
-      if (completion) {
-        // Ajouter la réponse au contexte
-        game.aiContext.push({
-          role: 'assistant',
-          content: completion
-        });
-        
-        // Ajouter le message privé au jeu
-        const privateMessage: GameMessage = {
-          id: generateId(),
-          timestamp: Date.now(),
-          type: 'private',
-          targetPlayer: player.id,
-          content: completion,
-          turnNumber
-        };
-        
-        game.gameState.messages.push(privateMessage);
-      }
-    }
-    
-    // Marquer les messages privés comme délivrés
-    game.gameState.turns[turnNumber - 1].privateMessagesDelivered = true;
-    
-    // Générer des messages des PNJ IA
-    setTimeout(() => {
-      generateAIMessages(gameId, turnNumber);
-    }, 2000);
-  } catch (error) {
-    console.error(`Error generating private messages for turn ${turnNumber}:`, error);
-  }
-};
-
-// Génère des messages des PNJ IA
-const generateAIMessages = async (gameId: string, turnNumber: number) => {
-  const game = activeGames[gameId];
-  if (!game) return;
-  
-  try {
-    // Pour chaque PNJ, générer un message
-    const aiPlayers = game.gameState.players.filter(p => p.isAI);
-    
-    for (const player of aiPlayers) {
-      const prompt = `Dans le Tour ${turnNumber}, génère une intervention du PNJ ${player.name} (${player.role}) dans la salle de crise.
-Cette intervention doit être réaliste, basée sur son rôle, et ajouter de la tension ou de l'information à la situation.
-N'oublie pas que les PNJ sont autonomes, peuvent avoir leur propre agenda, et parfois créer des conflits ou désaccords.`;
-
-      game.aiContext.push({
-        role: 'user',
-        content: prompt
-      });
-      
-      const completion = await openAIService.getChatCompletion(game.aiContext);
-      
-      if (completion) {
-        // Ajouter la réponse au contexte
-        game.aiContext.push({
-          role: 'assistant',
-          content: completion
-        });
-        
-        // Ajouter le message du PNJ au jeu
-        const aiMessage: GameMessage = {
-          id: generateId(),
-          timestamp: Date.now(),
-          type: 'ai',
-          sender: player.name,
-          senderRole: player.role,
-          content: completion,
-          turnNumber
-        };
-        
-        game.gameState.messages.push(aiMessage);
-        
-        // Attendre un peu entre chaque message PNJ
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-    }
-    
-    // Générer les décisions à prendre
-    setTimeout(() => {
-      generateDecisions(gameId, turnNumber);
-    }, 2000);
-  } catch (error) {
-    console.error(`Error generating AI messages for turn ${turnNumber}:`, error);
-  }
-};
-
-// Génère les décisions à prendre pour un tour
-const generateDecisions = async (gameId: string, turnNumber: number) => {
-  const game = activeGames[gameId];
-  if (!game) return;
-  
-  // Si les décisions ont déjà été délivrées, ne rien faire
-  if (game.gameState.turns[turnNumber - 1].decisionsDelivered) return;
-  
-  try {
-    // Pour chaque joueur humain, générer une décision à prendre
-    const humanPlayers = game.gameState.players.filter(p => !p.isAI);
-    
-    for (const player of humanPlayers) {
-      const prompt = `Dans le Tour ${turnNumber}, génère une décision critique que ${player.name} (${player.role}) doit prendre.
-La décision doit être sous forme de question avec exactement 3 options de réponse.
-Format attendu: JSON avec cette structure:
-{
-  "prompt": "Question que le joueur doit répondre ?",
-  "options": [
-    {"id": "option1", "text": "Première option de décision"},
-    {"id": "option2", "text": "Deuxième option de décision"},
-    {"id": "option3", "text": "Troisième option de décision"}
-  ]
 }
 
-Assure-toi que les options soient pertinentes pour le rôle ${player.role} et pour ce tour ${turnNumber}.`;
-
-      game.aiContext.push({
-        role: 'user',
-        content: prompt
-      });
-      
-      const completion = await openAIService.getChatCompletionAsJson(game.aiContext);
-      
-      if (completion && completion.prompt && completion.options) {
-        // Ajouter la réponse au contexte
-        game.aiContext.push({
-          role: 'assistant',
-          content: JSON.stringify(completion)
-        });
-        
-        // Ajouter le message de décision au jeu
-        const decisionMessage: GameMessage = {
-          id: generateId(),
-          timestamp: Date.now(),
-          type: 'decision',
-          targetPlayer: player.id,
-          content: `**Décision à prendre**: ${completion.prompt}`,
-          decisions: completion.options,
-          turnNumber
-        };
-        
-        game.gameState.messages.push(decisionMessage);
-      }
+/**
+ * Démarre une session de jeu CryptoLock (après la configuration)
+ */
+export async function startCryptoLockGame(req: Request, res: Response) {
+  try {
+    const { gameId } = req.params;
+    
+    // Vérifier si la session existe
+    const gameState = gameSessions.get(gameId);
+    if (!gameState) {
+      return res.status(404).json({ error: 'Session de jeu non trouvée' });
     }
     
-    // Marquer les décisions comme délivrées
-    game.gameState.turns[turnNumber - 1].decisionsDelivered = true;
+    // Mettre à jour l'état du jeu
+    gameState.status = 'playing';
+    gameState.startTime = Date.now();
+    
+    // Créer le message d'introduction
+    const introMessage: GameMessage = {
+      id: Math.random().toString(36).substring(2, 11),
+      sender: 'Système',
+      senderRole: 'System',
+      content: "🎮 **CryptoLock - 72H de Tension** 🎮\\n\\nLundi, 7h58.\\n\\nLes premiers employés ouvrent leurs ordinateurs. Quelques secondes plus tard, les premiers appels tombent.\\n\\n\"Je n'arrive plus à accéder à mes fichiers...\"\\n\\nUne fenêtre rouge s'ouvre sur les écrans : 🔒 \"Vos fichiers ont été chiffrés. Payez 3 bitcoins dans les 72h. Chaque heure compte.\"\\n\\nLe réseau ralentit. Les sauvegardes sont inaccessibles.\\n\\nLa panique monte. Vous êtes la cellule de crise. Chaque décision comptera.",
+      timestamp: Date.now(),
+      isAI: false,
+      isSystem: true
+    };
+    
+    gameState.messages.push(introMessage);
+    
+    // Mise à jour de la session stockée
+    gameSessions.set(gameId, gameState);
+    
+    res.json({ 
+      success: true,
+      gameState
+    });
+    
   } catch (error) {
-    console.error(`Error generating decisions for turn ${turnNumber}:`, error);
+    console.error('Erreur lors du démarrage du jeu CryptoLock:', error);
+    res.status(500).json({ error: 'Erreur serveur lors du démarrage du jeu' });
   }
-};
+}
 
-// Traite un message envoyé par un joueur
-export const sendMessage = async (req: Request, res: Response) => {
+/**
+ * Gère les messages envoyés par les joueurs et génère les réponses du MJ (IA)
+ */
+export async function sendMessage(req: Request, res: Response) {
   try {
-    const { id } = req.params;
+    const { gameId } = req.params;
     const { message, playerId } = req.body;
     
-    // Vérifier que le jeu existe
-    if (!activeGames[id]) {
-      return res.status(404).json({ error: 'Game not found' });
+    if (!message || !playerId) {
+      return res.status(400).json({ error: 'Message ou ID joueur manquant' });
     }
     
-    const game = activeGames[id];
-    const player = game.gameState.players.find(p => p.id === playerId);
+    // Vérifier si la session existe
+    const gameState = gameSessions.get(gameId);
+    if (!gameState) {
+      return res.status(404).json({ error: 'Session de jeu non trouvée' });
+    }
     
+    // Vérifier si le joueur existe
+    const player = gameState.players.find(p => p.id === playerId);
     if (!player) {
-      return res.status(400).json({ error: 'Player not found' });
+      return res.status(404).json({ error: 'Joueur non trouvé' });
     }
     
-    // Ajouter le message du joueur
+    // Créer le message du joueur
     const playerMessage: GameMessage = {
-      id: generateId(),
-      timestamp: Date.now(),
-      type: 'player',
+      id: Math.random().toString(36).substring(2, 11),
       sender: player.name,
       senderRole: player.role,
       content: message,
-      turnNumber: game.gameState.currentTurn + 1
+      timestamp: Date.now(),
+      isAI: false,
+      isSystem: false
     };
     
-    game.gameState.messages.push(playerMessage);
+    // Ajouter le message à la conversation
+    gameState.messages.push(playerMessage);
     
-    // Ajouter le message au contexte de l'IA
-    game.aiContext.push({
-      role: 'user',
-      content: `${player.name} (${player.role}) dit: "${message}"`
-    });
-    
-    // Demander à l'IA de générer une réponse
-    const prompt = `Dans le Tour ${game.gameState.currentTurn + 1}, génère une réponse appropriée à ce message de ${player.name} (${player.role}).
-La réponse peut venir d'un PNJ pertinent, ou être une réaction du système si nécessaire.
-Format: Si c'est un PNJ qui répond, commence par son nom et son rôle. Si c'est une réaction système, commence par "SYSTÈME:".`;
+    // Générer la réponse de l'IA (MJ)
+    try {
+      const systemPrompt = `Tu es le Maître du Jeu (MJ) d'une simulation de gestion de crise cyber suite à une attaque ransomware.
 
-    game.aiContext.push({
-      role: 'user',
-      content: prompt
-    });
-    
-    const completion = await openAIService.getChatCompletion(game.aiContext);
-    
-    if (completion) {
-      // Ajouter la réponse au contexte
-      game.aiContext.push({
-        role: 'assistant',
-        content: completion
-      });
-      
-      // Déterminer si c'est un message système ou d'un PNJ
-      let responseMessage: GameMessage;
-      
-      if (completion.startsWith('SYSTÈME:')) {
-        // Message système
-        responseMessage = {
-          id: generateId(),
-          timestamp: Date.now(),
-          type: 'system',
-          content: completion.replace('SYSTÈME:', '').trim(),
-          turnNumber: game.gameState.currentTurn + 1
+Ton rôle est de :
+- Gérer une simulation en 6 tours représentant une crise réelle.
+- Incarner les personnages non-joués par les humains.
+- Poser des situations précises et évaluer les décisions.
+- Simuler les conséquences réalistes de ces décisions.
+- Gérer les indicateurs : Intégrité, Disponibilité, Conformité, Coût, Confiance.
+
+Tu te trouves actuellement au tour ${gameState.currentTurn} sur 6 de la simulation.
+Voici l'état actuel des métriques :
+- Intégrité des données: ${gameState.metrics.integrity}%
+- Disponibilité des systèmes: ${gameState.metrics.availability}%
+- Conformité légale: ${gameState.metrics.compliance}%
+- Coût: ${gameState.metrics.cost}%
+- Confiance des utilisateurs: ${gameState.metrics.trust}%
+
+Les joueurs humains sont: ${gameState.players.filter(p => !p.isAI).map(p => `${p.name} (${p.role})`).join(', ')}.
+Les rôles joués par l'IA sont: ${gameState.players.filter(p => p.isAI).map(p => `${p.name} (${p.role})`).join(', ')}.
+
+Le message vient de: ${player.name} (${player.role}): "${message}"
+
+Réponds en tant que Maître du Jeu en générant une réponse narrative et engageante qui:
+1. Donne la réaction appropriée d'un ou plusieurs personnages IA selon le contexte 
+2. Fait progresser le scénario en fonction de ce que le joueur a dit
+3. Présente un nouveau défi ou dilemme
+4. Reste sous 250 mots
+
+Ton format de réponse doit être JSON avec cette structure:
+{
+  "narrativeResponse": "Texte détaillant les conséquences et la progression narrative",
+  "aiResponses": [
+    {"role": "DG", "name": "IA-DG", "message": "Message du DG en réaction"},
+    {"role": "Expert Forensic", "name": "IA-Expert Forensic", "message": "Analyse technique de l'expert"}
+  ],
+  "metricChanges": {
+    "integrity": 0,
+    "availability": 0,
+    "compliance": 0,
+    "cost": 0,
+    "trust": 0
+  },
+  "shouldAdvanceTurn": false,
+  "choices": [
+    {"id": "option1", "text": "Option de choix 1", "targetRole": "RSSI"},
+    {"id": "option2", "text": "Option de choix 2", "targetRole": "DSI"}
+  ]
+}
+
+Les aiResponses doivent être des réponses des personnages IA pertinents pour la situation.
+Les metricChanges sont des ajustements entre -20 et +20 pour chaque métrique.
+Fixe shouldAdvanceTurn à true si le tour doit avancer suite à cette interaction.
+Les choices sont optionnels - n'en mets que si un choix critique doit être fait.`;
+
+      // Préparer le contexte de la conversation
+      const conversationContext = gameState.messages.map(msg => {
+        return {
+          role: msg.isSystem ? 'system' as const : msg.isAI ? 'assistant' as const : 'user' as const,
+          content: msg.content,
+          name: !msg.isSystem ? msg.senderRole.toLowerCase().replace(/\s+/g, '_') : undefined
         };
-      } else {
-        // Essayer de trouver quel PNJ répond
-        const pnjMatch = completion.match(/^([^(]+)\s*\(([^)]+)\)/);
-        if (pnjMatch) {
-          const pnjName = pnjMatch[1].trim();
-          const pnjRole = pnjMatch[2].trim() as PlayerRole;
-          
-          responseMessage = {
-            id: generateId(),
-            timestamp: Date.now(),
-            type: 'ai',
-            sender: pnjName,
-            senderRole: pnjRole,
-            content: completion.replace(/^[^:]+:/, '').trim(),
-            turnNumber: game.gameState.currentTurn + 1
-          };
-        } else {
-          // Si on ne peut pas identifier le PNJ, utiliser un générique
-          const aiPlayers = game.gameState.players.filter(p => p.isAI);
-          const randomAI = aiPlayers[Math.floor(Math.random() * aiPlayers.length)];
-          
-          responseMessage = {
-            id: generateId(),
-            timestamp: Date.now(),
-            type: 'ai',
-            sender: randomAI.name,
-            senderRole: randomAI.role,
-            content: completion,
-            turnNumber: game.gameState.currentTurn + 1
-          };
+      });
+
+      // Envoyer la requête à l'API Azure OpenAI
+      const aiResponse = await openAIService.getChatCompletion(
+        [
+          { role: 'system' as const, content: systemPrompt },
+          ...conversationContext.slice(-10) // Limiter le contexte aux 10 derniers messages pour éviter un contexte trop long
+        ],
+        true, // useSecondaryModel - utilise le modèle économique pour les réponses rapides 
+        0.7,  // temperature - un peu de créativité
+        2000, // maxTokens 
+        { responseFormat: 'json_object' } // format JSON
+      );
+
+      let parsedResponse;
+      try {
+        parsedResponse = JSON.parse(aiResponse);
+      } catch (e) {
+        console.error('Erreur lors du parsing de la réponse JSON:', e);
+        console.log('Réponse brute:', aiResponse);
+        
+        // Fallback en cas d'erreur de parsing
+        parsedResponse = {
+          narrativeResponse: "Le système a rencontré une difficulté à interpréter la situation. La cellule de crise continue son travail.",
+          aiResponses: [],
+          metricChanges: { integrity: 0, availability: 0, compliance: 0, cost: 0, trust: 0 },
+          shouldAdvanceTurn: false
+        };
+      }
+
+      // Ajouter le message narratif du MJ
+      if (parsedResponse.narrativeResponse) {
+        const narrativeMessage: GameMessage = {
+          id: Math.random().toString(36).substring(2, 11),
+          sender: 'Système',
+          senderRole: 'System',
+          content: parsedResponse.narrativeResponse,
+          timestamp: Date.now(),
+          isAI: false,
+          isSystem: true,
+          isChoice: parsedResponse.choices && parsedResponse.choices.length > 0,
+          choices: parsedResponse.choices || []
+        };
+        
+        gameState.messages.push(narrativeMessage);
+      }
+
+      // Ajouter les réponses des personnages IA
+      if (parsedResponse.aiResponses && Array.isArray(parsedResponse.aiResponses)) {
+        for (const aiResp of parsedResponse.aiResponses) {
+          if (aiResp.role && aiResp.message) {
+            const aiMessage: GameMessage = {
+              id: Math.random().toString(36).substring(2, 11),
+              sender: aiResp.name || `IA-${aiResp.role}`,
+              senderRole: aiResp.role as GameRole,
+              content: aiResp.message,
+              timestamp: Date.now(),
+              isAI: true,
+              isSystem: false
+            };
+            
+            gameState.messages.push(aiMessage);
+          }
         }
       }
+
+      // Mettre à jour les métriques
+      if (parsedResponse.metricChanges) {
+        const metrics = gameState.metrics;
+        
+        // Appliquer les changements en respectant les limites (0-100)
+        metrics.integrity = Math.max(0, Math.min(100, metrics.integrity + (parsedResponse.metricChanges.integrity || 0)));
+        metrics.availability = Math.max(0, Math.min(100, metrics.availability + (parsedResponse.metricChanges.availability || 0)));
+        metrics.compliance = Math.max(0, Math.min(100, metrics.compliance + (parsedResponse.metricChanges.compliance || 0)));
+        metrics.cost = Math.max(0, Math.min(100, metrics.cost + (parsedResponse.metricChanges.cost || 0)));
+        metrics.trust = Math.max(0, Math.min(100, metrics.trust + (parsedResponse.metricChanges.trust || 0)));
+      }
+
+      // Avancer au tour suivant si nécessaire
+      if (parsedResponse.shouldAdvanceTurn && gameState.currentTurn < gameState.totalTurns) {
+        gameState.currentTurn += 1;
+        
+        // Si c'est le dernier tour, marquer le jeu comme terminé
+        if (gameState.currentTurn >= gameState.totalTurns) {
+          gameState.status = 'completed';
+        }
+      }
+
+      // Mise à jour de la session stockée
+      gameSessions.set(gameId, gameState);
       
-      game.gameState.messages.push(responseMessage);
+      // Renvoyer l'état mis à jour
+      res.json({
+        success: true,
+        gameState
+      });
+      
+    } catch (error) {
+      console.error('Erreur lors de la génération de la réponse de l\'IA:', error);
+      
+      // En cas d'erreur, ajouter un message d'erreur système
+      const errorMessage: GameMessage = {
+        id: Math.random().toString(36).substring(2, 11),
+        sender: 'Système',
+        senderRole: 'System',
+        content: "Une erreur est survenue dans la simulation. L'équipe technique travaille sur le problème.",
+        timestamp: Date.now(),
+        isAI: false,
+        isSystem: true
+      };
+      
+      gameState.messages.push(errorMessage);
+      gameSessions.set(gameId, gameState);
+      
+      // Renvoyer l'état avec le message d'erreur
+      res.json({
+        success: true,
+        gameState,
+        error: 'Erreur lors de la génération de la réponse IA'
+      });
     }
     
-    // Répondre avec l'état mis à jour
-    res.status(200).json({
-      gameState: game.gameState
-    });
   } catch (error) {
-    console.error('Error processing player message:', error);
-    res.status(500).json({ error: 'Failed to process player message' });
+    console.error('Erreur lors du traitement du message CryptoLock:', error);
+    res.status(500).json({ error: 'Erreur serveur lors du traitement du message' });
   }
-};
+}
 
-// Traite un choix fait par un joueur
-export const makeChoice = async (req: Request, res: Response) => {
+/**
+ * Gère la sélection d'un choix par un joueur
+ */
+export async function makeChoice(req: Request, res: Response) {
   try {
-    const { id } = req.params;
+    const { gameId } = req.params;
     const { choiceId, messageId, playerId } = req.body;
     
-    // Vérifier que le jeu existe
-    if (!activeGames[id]) {
-      return res.status(404).json({ error: 'Game not found' });
+    if (!choiceId || !messageId || !playerId) {
+      return res.status(400).json({ error: 'Paramètres manquants' });
     }
     
-    const game = activeGames[id];
-    const player = game.gameState.players.find(p => p.id === playerId);
+    // Vérifier si la session existe
+    const gameState = gameSessions.get(gameId);
+    if (!gameState) {
+      return res.status(404).json({ error: 'Session de jeu non trouvée' });
+    }
     
+    // Vérifier si le joueur existe
+    const player = gameState.players.find(p => p.id === playerId);
     if (!player) {
-      return res.status(400).json({ error: 'Player not found' });
+      return res.status(404).json({ error: 'Joueur non trouvé' });
     }
     
-    // Trouver le message de décision
-    const decisionIndex = game.gameState.messages.findIndex(m => 
-      m.id === messageId && m.type === 'decision' && m.targetPlayer === playerId
-    );
-    
-    if (decisionIndex === -1) {
-      return res.status(400).json({ error: 'Decision message not found' });
+    // Trouver le message de choix
+    const choiceMessage = gameState.messages.find(m => m.id === messageId && m.isChoice);
+    if (!choiceMessage) {
+      return res.status(404).json({ error: 'Message de choix non trouvé' });
     }
     
-    // Mettre à jour la décision
-    game.gameState.messages[decisionIndex].selectedOption = choiceId;
+    // Vérifier si le choix existe
+    const choice = choiceMessage.choices?.find(c => c.id === choiceId);
+    if (!choice) {
+      return res.status(404).json({ error: 'Choix non trouvé' });
+    }
     
-    // Enregistrer la décision dans le tour
-    const turnIndex = game.gameState.currentTurn;
-    game.gameState.turns[turnIndex].decisions[playerId] = choiceId;
+    // Vérifier si le choix est destiné à un rôle spécifique
+    if (choice.targetRole && choice.targetRole !== player.role) {
+      return res.status(403).json({ 
+        error: 'Ce choix doit être fait par un autre rôle',
+        targetRole: choice.targetRole
+      });
+    }
     
-    // Trouver le texte de l'option choisie
-    const decisionMessage = game.gameState.messages[decisionIndex];
-    const selectedOption = decisionMessage.decisions?.find(d => d.id === choiceId);
+    // Marquer le choix comme sélectionné
+    choiceMessage.selectedChoice = choiceId;
     
-    // Ajouter le choix au contexte de l'IA
-    game.aiContext.push({
-      role: 'user',
-      content: `${player.name} (${player.role}) a pris la décision suivante concernant "${decisionMessage.content.replace('**Décision à prendre**: ', '')}" : "${selectedOption?.text}"`
-    });
+    // Ajouter un message du joueur indiquant son choix
+    const playerChoiceMessage: GameMessage = {
+      id: Math.random().toString(36).substring(2, 11),
+      sender: player.name,
+      senderRole: player.role,
+      content: `J'ai décidé de : ${choice.text}`,
+      timestamp: Date.now(),
+      isAI: false,
+      isSystem: false
+    };
     
-    // Demander à l'IA de générer une conséquence
-    const prompt = `Dans le Tour ${game.gameState.currentTurn + 1}, génère une conséquence pour la décision prise par ${player.name} (${player.role}).
-Décision: "${selectedOption?.text}"
+    gameState.messages.push(playerChoiceMessage);
+    
+    // Générer la réponse de l'IA suite au choix
+    // (Similaire à la fonction sendMessage)
+    try {
+      const systemPrompt = `Tu es le Maître du Jeu (MJ) d'une simulation de gestion de crise cyber suite à une attaque ransomware.
 
-1. Explique l'impact immédiat de cette décision sur la crise
-2. Décris comment cette décision affecte les métriques suivantes:
-   - Intégrité (augmentation/diminution et pourcentage)
-   - Disponibilité (augmentation/diminution et pourcentage)
-   - Conformité (augmentation/diminution et pourcentage)
-   - Coût (augmentation en euros)
-   - Confiance (augmentation/diminution et pourcentage)
+Le joueur ${player.name} (${player.role}) vient de prendre une décision importante : "${choice.text}".
 
-Format attendu: JSON avec cette structure:
+Ton rôle est de :
+- Décrire les conséquences directes de ce choix
+- Faire progresser le scénario en fonction de cette décision
+- Mettre à jour les indicateurs en fonction de l'impact du choix
+- Gérer le timing de la simulation et le passage au tour suivant si nécessaire
+
+Tu te trouves actuellement au tour ${gameState.currentTurn} sur 6 de la simulation.
+Voici l'état actuel des métriques :
+- Intégrité des données: ${gameState.metrics.integrity}%
+- Disponibilité des systèmes: ${gameState.metrics.availability}%
+- Conformité légale: ${gameState.metrics.compliance}%
+- Coût: ${gameState.metrics.cost}%
+- Confiance des utilisateurs: ${gameState.metrics.trust}%
+
+Réponds en tant que Maître du Jeu en générant une réponse qui décrit les conséquences du choix ${choiceId}: "${choice.text}"
+
+Ton format de réponse doit être JSON avec cette structure:
 {
-  "consequence": "Description narrative de la conséquence de la décision",
-  "metrics": {
-    "integrity": {"change": 5, "reason": "Explication courte"},
-    "availability": {"change": -10, "reason": "Explication courte"},
-    "compliance": {"change": 0, "reason": "Explication courte"},
-    "cost": {"change": 5000, "reason": "Explication courte"},
-    "trust": {"change": -5, "reason": "Explication courte"}
-  }
-}`;
+  "narrativeResponse": "Texte détaillant les conséquences du choix",
+  "aiResponses": [
+    {"role": "DG", "name": "IA-DG", "message": "Réaction du DG à cette décision"}
+  ],
+  "metricChanges": {
+    "integrity": 0,
+    "availability": 0,
+    "compliance": 0,
+    "cost": 0,
+    "trust": 0
+  },
+  "shouldAdvanceTurn": true
+}
 
-    game.aiContext.push({
-      role: 'user',
-      content: prompt
-    });
-    
-    const completion = await openAIService.getChatCompletionAsJson(game.aiContext);
-    
-    if (completion && completion.consequence && completion.metrics) {
-      // Ajouter la réponse au contexte
-      game.aiContext.push({
-        role: 'assistant',
-        content: JSON.stringify(completion)
-      });
-      
-      // Ajouter le message de conséquence au jeu
-      const consequenceMessage: GameMessage = {
-        id: generateId(),
-        timestamp: Date.now(),
-        type: 'system',
-        content: `**Conséquence de la décision de ${player.name} (${player.role})** : ${completion.consequence}`,
-        turnNumber: game.gameState.currentTurn + 1
-      };
-      
-      game.gameState.messages.push(consequenceMessage);
-      
+Les metricChanges sont des ajustements entre -20 et +20 pour chaque métrique.
+shouldAdvanceTurn doit être true pour ce type de décision majeure.`;
+
+      // Envoyer la requête à l'API Azure OpenAI
+      const aiResponse = await openAIService.getChatCompletion(
+        [{ role: 'system' as const, content: systemPrompt }],
+        true, // useSecondaryModel
+        0.7,  // temperature
+        2000, // maxTokens
+        { responseFormat: 'json_object' } // format JSON
+      );
+
+      let parsedResponse;
+      try {
+        parsedResponse = JSON.parse(aiResponse);
+      } catch (e) {
+        console.error('Erreur lors du parsing de la réponse JSON:', e);
+        
+        // Fallback en cas d'erreur de parsing
+        parsedResponse = {
+          narrativeResponse: "Les conséquences de votre choix se manifestent dans le système. La cellule de crise continue son travail.",
+          aiResponses: [],
+          metricChanges: { integrity: 0, availability: 0, compliance: 0, cost: 0, trust: 0 },
+          shouldAdvanceTurn: true
+        };
+      }
+
+      // Ajouter le message narratif du MJ
+      if (parsedResponse.narrativeResponse) {
+        const narrativeMessage: GameMessage = {
+          id: Math.random().toString(36).substring(2, 11),
+          sender: 'Système',
+          senderRole: 'System',
+          content: parsedResponse.narrativeResponse,
+          timestamp: Date.now(),
+          isAI: false,
+          isSystem: true
+        };
+        
+        gameState.messages.push(narrativeMessage);
+      }
+
+      // Ajouter les réponses des personnages IA
+      if (parsedResponse.aiResponses && Array.isArray(parsedResponse.aiResponses)) {
+        for (const aiResp of parsedResponse.aiResponses) {
+          if (aiResp.role && aiResp.message) {
+            const aiMessage: GameMessage = {
+              id: Math.random().toString(36).substring(2, 11),
+              sender: aiResp.name || `IA-${aiResp.role}`,
+              senderRole: aiResp.role as GameRole,
+              content: aiResp.message,
+              timestamp: Date.now(),
+              isAI: true,
+              isSystem: false
+            };
+            
+            gameState.messages.push(aiMessage);
+          }
+        }
+      }
+
       // Mettre à jour les métriques
-      const metrics = completion.metrics;
-      game.gameState.metrics.integrity = Math.max(0, Math.min(100, game.gameState.metrics.integrity + (metrics.integrity?.change || 0)));
-      game.gameState.metrics.availability = Math.max(0, Math.min(100, game.gameState.metrics.availability + (metrics.availability?.change || 0)));
-      game.gameState.metrics.compliance = Math.max(0, Math.min(100, game.gameState.metrics.compliance + (metrics.compliance?.change || 0)));
-      game.gameState.metrics.cost += (metrics.cost?.change || 0);
-      game.gameState.metrics.trust = Math.max(0, Math.min(100, game.gameState.metrics.trust + (metrics.trust?.change || 0)));
+      if (parsedResponse.metricChanges) {
+        const metrics = gameState.metrics;
+        
+        // Appliquer les changements en respectant les limites
+        metrics.integrity = Math.max(0, Math.min(100, metrics.integrity + (parsedResponse.metricChanges.integrity || 0)));
+        metrics.availability = Math.max(0, Math.min(100, metrics.availability + (parsedResponse.metricChanges.availability || 0)));
+        metrics.compliance = Math.max(0, Math.min(100, metrics.compliance + (parsedResponse.metricChanges.compliance || 0)));
+        metrics.cost = Math.max(0, Math.min(100, metrics.cost + (parsedResponse.metricChanges.cost || 0)));
+        metrics.trust = Math.max(0, Math.min(100, metrics.trust + (parsedResponse.metricChanges.trust || 0)));
+      }
+
+      // Avancer au tour suivant si nécessaire
+      if (parsedResponse.shouldAdvanceTurn && gameState.currentTurn < gameState.totalTurns) {
+        gameState.currentTurn += 1;
+        
+        // Si c'est le dernier tour, marquer le jeu comme terminé
+        if (gameState.currentTurn >= gameState.totalTurns) {
+          gameState.status = 'completed';
+        }
+      }
+
+      // Mise à jour de la session stockée
+      gameSessions.set(gameId, gameState);
       
-      // Vérifier si toutes les décisions du tour ont été prises
-      checkTurnCompletion(id);
-    }
-    
-    // Répondre avec l'état mis à jour
-    res.status(200).json({
-      gameState: game.gameState
-    });
-  } catch (error) {
-    console.error('Error processing player choice:', error);
-    res.status(500).json({ error: 'Failed to process player choice' });
-  }
-};
-
-// Vérifie si un tour est terminé
-const checkTurnCompletion = (gameId: string) => {
-  const game = activeGames[gameId];
-  if (!game) return;
-  
-  const currentTurn = game.gameState.turns[game.gameState.currentTurn];
-  const humanPlayers = game.gameState.players.filter(p => !p.isAI);
-  
-  // Vérifier si tous les joueurs humains ont pris leurs décisions
-  const allDecisionsTaken = humanPlayers.every(p => 
-    Object.keys(currentTurn.decisions).includes(p.id)
-  );
-  
-  if (allDecisionsTaken) {
-    // Marquer le tour comme terminé
-    currentTurn.completed = true;
-    currentTurn.endTime = Date.now();
-    
-    // Si ce n'est pas le dernier tour, préparer le prochain
-    if (game.gameState.currentTurn < 5) {
-      // Préparation du prochain tour sera gérée côté client
-    } else {
-      // C'est le dernier tour, terminer le jeu
-      game.gameState.status = 'completed';
-      game.gameState.endTime = Date.now();
-      
-      // Générer un résumé final
-      generateFinalSummary(gameId);
-    }
-  }
-};
-
-// Lance le tour suivant
-export const startNextTurn = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { turnNumber } = req.body;
-    
-    // Vérifier que le jeu existe
-    if (!activeGames[id]) {
-      return res.status(404).json({ error: 'Game not found' });
-    }
-    
-    const game = activeGames[id];
-    
-    // Vérifier que le tour précédent est terminé
-    if (turnNumber > 1 && !game.gameState.turns[turnNumber - 2].completed) {
-      return res.status(400).json({ error: 'Previous turn not completed' });
-    }
-    
-    // Vérifier que le numéro de tour est valide
-    if (turnNumber < 1 || turnNumber > 6) {
-      return res.status(400).json({ error: 'Invalid turn number' });
-    }
-    
-    // Mettre à jour l'état du jeu
-    game.gameState.currentTurn = turnNumber - 1;
-    game.gameState.simulatedTimeHour = 8;
-    game.gameState.simulatedTimeMinute = (turnNumber - 1) * 5;
-    game.gameState.turns[turnNumber - 1].startTime = Date.now();
-    
-    // Générer la narration du tour
-    await generateTurnNarrative(id, turnNumber);
-    
-    // Répondre avec l'état mis à jour
-    res.status(200).json({
-      gameState: game.gameState
-    });
-  } catch (error) {
-    console.error('Error starting next turn:', error);
-    res.status(500).json({ error: 'Failed to start next turn' });
-  }
-};
-
-// Génère un résumé final du jeu
-const generateFinalSummary = async (gameId: string) => {
-  const game = activeGames[gameId];
-  if (!game) return;
-  
-  try {
-    const prompt = `Le jeu est maintenant terminé. Génère un résumé final détaillé de toute la simulation de crise CryptoLock.
-Ce résumé doit inclure:
-1. Un récapitulatif chronologique des événements clés
-2. Une analyse des décisions principales et leurs impacts
-3. Une évaluation des performances de chaque joueur humain
-4. Des leçons apprises et recommandations pour l'avenir
-
-Format: Un texte structuré avec des titres clairs et des paragraphes.`;
-
-    game.aiContext.push({
-      role: 'user',
-      content: prompt
-    });
-    
-    const completion = await openAIService.getChatCompletion(game.aiContext);
-    
-    if (completion) {
-      // Ajouter la réponse au contexte
-      game.aiContext.push({
-        role: 'assistant',
-        content: completion
+      // Renvoyer l'état mis à jour
+      res.json({
+        success: true,
+        gameState
       });
       
-      // Ajouter le message de résumé au jeu
-      const summaryMessage: GameMessage = {
-        id: generateId(),
+    } catch (error) {
+      console.error('Erreur lors de la génération de la réponse de l\'IA:', error);
+      
+      // En cas d'erreur, ajouter un message d'erreur système
+      const errorMessage: GameMessage = {
+        id: Math.random().toString(36).substring(2, 11),
+        sender: 'Système',
+        senderRole: 'System',
+        content: "Une erreur est survenue dans la simulation. L'équipe technique travaille sur le problème.",
         timestamp: Date.now(),
-        type: 'system',
-        content: completion,
-        isHighlighted: true,
-        turnNumber: 6
+        isAI: false,
+        isSystem: true
       };
       
-      game.gameState.messages.push(summaryMessage);
+      gameState.messages.push(errorMessage);
+      gameSessions.set(gameId, gameState);
+      
+      // Renvoyer l'état avec le message d'erreur
+      res.json({
+        success: true,
+        gameState,
+        error: 'Erreur lors de la génération de la réponse IA'
+      });
     }
+    
   } catch (error) {
-    console.error('Error generating final summary:', error);
+    console.error('Erreur lors du traitement du choix CryptoLock:', error);
+    res.status(500).json({ error: 'Erreur serveur lors du traitement du choix' });
   }
-};
+}
 
-// Récupère l'état actuel d'un jeu
-export const getGameState = async (req: Request, res: Response) => {
+/**
+ * Récupère l'état actuel d'une session de jeu
+ */
+export async function getGameState(req: Request, res: Response) {
   try {
-    const { id } = req.params;
+    const { gameId } = req.params;
     
-    // Vérifier que le jeu existe
-    if (!activeGames[id]) {
-      return res.status(404).json({ error: 'Game not found' });
+    // Vérifier si la session existe
+    const gameState = gameSessions.get(gameId);
+    if (!gameState) {
+      return res.status(404).json({ error: 'Session de jeu non trouvée' });
     }
     
-    // Répondre avec l'état du jeu
-    res.status(200).json({
-      gameState: activeGames[id].gameState
+    // Renvoyer l'état du jeu
+    res.json({
+      success: true,
+      gameState
     });
+    
   } catch (error) {
-    console.error('Error getting game state:', error);
-    res.status(500).json({ error: 'Failed to get game state' });
+    console.error('Erreur lors de la récupération de l\'état du jeu CryptoLock:', error);
+    res.status(500).json({ error: 'Erreur serveur lors de la récupération de l\'état du jeu' });
   }
-};
+}
+
+/**
+ * Obtient un résumé final à la fin du jeu
+ */
+export async function getFinalSummary(req: Request, res: Response) {
+  try {
+    const { gameId } = req.params;
+    
+    // Vérifier si la session existe
+    const gameState = gameSessions.get(gameId);
+    if (!gameState) {
+      return res.status(404).json({ error: 'Session de jeu non trouvée' });
+    }
+    
+    // Vérifier si le jeu est terminé
+    if (gameState.status !== 'completed') {
+      return res.status(400).json({ error: 'Le jeu n\'est pas encore terminé' });
+    }
+    
+    // Générer le résumé final via l'IA
+    try {
+      const systemPrompt = `Tu es le Maître du Jeu (MJ) d'une simulation de gestion de crise cyber qui vient de se terminer.
+Tu dois maintenant générer un rapport final détaillé sur la gestion de crise.
+
+Voici l'état final des métriques :
+- Intégrité des données: ${gameState.metrics.integrity}%
+- Disponibilité des systèmes: ${gameState.metrics.availability}%
+- Conformité légale: ${gameState.metrics.compliance}%
+- Coût: ${gameState.metrics.cost}%
+- Confiance des utilisateurs: ${gameState.metrics.trust}%
+
+Les joueurs étaient: ${gameState.players.map(p => `${p.name} (${p.role}${p.isAI ? ', IA' : ''})`).join(', ')}.
+
+Analyse les décisions prises au cours des ${gameState.totalTurns} tours de simulation.
+La simulation a duré ${Math.floor((Date.now() - (gameState.startTime || 0)) / 1000 / 60)} minutes en temps réel.
+
+Ton format de réponse doit être JSON avec cette structure:
+{
+  "summary": "Résumé global de la gestion de crise et de son issue",
+  "keyDecisions": [
+    {"turn": 1, "decision": "Description de la décision clé", "impact": "Impact positif/négatif"},
+    {"turn": 2, "decision": "Description de la décision clé", "impact": "Impact positif/négatif"}
+  ],
+  "playerPerformance": [
+    {"player": "Nom", "role": "Rôle", "strengths": "Points forts", "areas_to_improve": "Points à améliorer"}
+  ],
+  "lessonLearned": "Leçon principale à retenir de cette simulation",
+  "overallScore": 85
+}
+
+L'overallScore doit être un nombre entre 0 et 100 calculé en fonction des métriques finales.`;
+
+      // Envoyer la requête à l'API OpenAI
+      const aiResponse = await openAIService.getChatCompletion(
+        [{ role: 'system' as const, content: systemPrompt }],
+        false, // Utiliser le modèle principal pour générer un résumé détaillé
+        0.7,   // temperature
+        2000,  // maxTokens
+        { responseFormat: 'json_object' } // format JSON
+      );
+
+      let parsedResponse;
+      try {
+        parsedResponse = JSON.parse(aiResponse);
+      } catch (e) {
+        console.error('Erreur lors du parsing de la réponse JSON:', e);
+        
+        // Fallback en cas d'erreur de parsing
+        parsedResponse = {
+          summary: "La simulation est maintenant terminée. Les indicateurs finaux montrent le résultat de vos décisions collectives.",
+          keyDecisions: [],
+          playerPerformance: [],
+          lessonLearned: "La gestion d'une crise cyber nécessite une coordination entre tous les aspects : techniques, communication, légal et management.",
+          overallScore: Math.floor((gameState.metrics.integrity + gameState.metrics.availability + gameState.metrics.compliance + gameState.metrics.cost + gameState.metrics.trust) / 5)
+        };
+      }
+      
+      // Renvoyer le résumé
+      res.json({
+        success: true,
+        summary: parsedResponse
+      });
+      
+    } catch (error) {
+      console.error('Erreur lors de la génération du résumé final:', error);
+      res.status(500).json({ error: 'Erreur serveur lors de la génération du résumé final' });
+    }
+    
+  } catch (error) {
+    console.error('Erreur lors de la récupération du résumé final CryptoLock:', error);
+    res.status(500).json({ error: 'Erreur serveur lors de la récupération du résumé final' });
+  }
+}
+
+/**
+ * Nettoie les sessions de jeu inactives (maintenance de la mémoire)
+ * Cette fonction devrait être appelée périodiquement par un job cron
+ */
+export function cleanupInactiveSessions() {
+  const now = Date.now();
+  const TWO_HOURS = 2 * 60 * 60 * 1000; // 2 heures en ms
+  
+  // Parcourir toutes les sessions
+  for (const [gameId, gameState] of gameSessions.entries()) {
+    // Supprimer les sessions inactives depuis plus de 2 heures
+    if (now - gameState.timestamp > TWO_HOURS) {
+      gameSessions.delete(gameId);
+      console.log(`Session de jeu ${gameId} supprimée pour inactivité`);
+    }
+  }
+}

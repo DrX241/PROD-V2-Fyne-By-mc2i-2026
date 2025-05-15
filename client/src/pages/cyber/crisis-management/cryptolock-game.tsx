@@ -149,8 +149,6 @@ export default function CryptoLockGame() {
   const [showExitDialog, setShowExitDialog] = useState<boolean>(false);
   const [showGameOverDialog, setShowGameOverDialog] = useState<boolean>(false);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
-  const [gameId, setGameId] = useState<string>('');
-  const [apiError, setApiError] = useState<string | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
@@ -171,223 +169,6 @@ export default function CryptoLockGame() {
       }
     };
   }, [game.status, game.startTime]);
-  
-  // Fonctions d'API
-  const initializeGameOnServer = async () => {
-    try {
-      setIsProcessing(true);
-      setApiError(null);
-      
-      const response = await fetch('/api/cryptolock/init', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          players: game.players
-        })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de l\'initialisation du jeu');
-      }
-      
-      const data = await response.json();
-      setGameId(data.gameId);
-      setGame(prev => ({
-        ...prev,
-        id: data.gameId,
-        ...data.gameState
-      }));
-      
-      return data.gameId;
-    } catch (error) {
-      console.error('Erreur lors de l\'initialisation du jeu:', error);
-      setApiError((error as Error).message);
-      toast({
-        title: "Erreur d'initialisation",
-        description: (error as Error).message,
-        variant: "destructive"
-      });
-      return null;
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-  
-  const startGameOnServer = async (gameId: string) => {
-    try {
-      setIsProcessing(true);
-      setApiError(null);
-      
-      const response = await fetch(`/api/cryptolock/${gameId}/start`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors du démarrage du jeu');
-      }
-      
-      const data = await response.json();
-      setGame(prev => ({
-        ...prev,
-        ...data.gameState
-      }));
-    } catch (error) {
-      console.error('Erreur lors du démarrage du jeu:', error);
-      setApiError((error as Error).message);
-      toast({
-        title: "Erreur de démarrage",
-        description: (error as Error).message,
-        variant: "destructive"
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-  
-  const sendPlayerMessage = async (message: string, playerId: string) => {
-    if (!gameId) {
-      toast({
-        title: "Erreur",
-        description: "ID de jeu non trouvé",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    try {
-      setIsProcessing(true);
-      setApiError(null);
-      
-      const response = await fetch(`/api/cryptolock/${gameId}/message`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message,
-          playerId
-        })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de l\'envoi du message');
-      }
-      
-      const data = await response.json();
-      setGame(prev => ({
-        ...prev,
-        ...data.gameState
-      }));
-    } catch (error) {
-      console.error('Erreur lors de l\'envoi du message:', error);
-      setApiError((error as Error).message);
-      
-      toast({
-        title: "Erreur de communication",
-        description: (error as Error).message,
-        variant: "destructive"
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-  
-  const makePlayerChoice = async (choiceId: string, messageId: string, playerId: string) => {
-    if (!gameId) {
-      toast({
-        title: "Erreur",
-        description: "ID de jeu non trouvé",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    try {
-      setIsProcessing(true);
-      setApiError(null);
-      
-      const response = await fetch(`/api/cryptolock/${gameId}/choice`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          choiceId,
-          messageId,
-          playerId
-        })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de la sélection du choix');
-      }
-      
-      const data = await response.json();
-      setGame(prev => ({
-        ...prev,
-        ...data.gameState
-      }));
-    } catch (error) {
-      console.error('Erreur lors de la sélection du choix:', error);
-      setApiError((error as Error).message);
-      
-      toast({
-        title: "Erreur de communication",
-        description: (error as Error).message,
-        variant: "destructive"
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-  
-  const refreshGameState = async () => {
-    if (!gameId) return;
-    
-    try {
-      setApiError(null);
-      
-      const response = await fetch(`/api/cryptolock/${gameId}`);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de la récupération de l\'état du jeu');
-      }
-      
-      const data = await response.json();
-      setGame(prev => ({
-        ...prev,
-        ...data.gameState
-      }));
-    } catch (error) {
-      console.error('Erreur lors de la récupération de l\'état du jeu:', error);
-      setApiError((error as Error).message);
-    }
-  };
-  
-  // Effet pour rafraîchir périodiquement l'état du jeu (toutes les 10 secondes)
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-    
-    if (gameId && game.status === 'playing') {
-      intervalId = setInterval(refreshGameState, 10000);
-    }
-    
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
-  }, [gameId, game.status]);
   
   // Défilement automatique des messages
   const scrollToBottom = () => {
@@ -455,39 +236,11 @@ export default function CryptoLockGame() {
       return;
     }
     
-    // Garder une copie du message
-    const message = messageInput;
-    setMessageInput('');
-    
-    try {
-      if (gameId) {
-        // Si nous avons un gameId, utiliser l'API pour traiter le message
-        try {
-          await sendPlayerMessage(message, humanPlayer.id);
-          // L'état du jeu est mis à jour par la fonction sendPlayerMessage
-        } catch (error) {
-          console.error("Erreur lors de l'envoi du message via API:", error);
-          // En cas d'erreur, fallback au mode local
-          addLocalPlayerMessage(humanPlayer, message);
-          handleLocalResponse();
-        }
-      } else {
-        // Mode local sans API
-        addLocalPlayerMessage(humanPlayer, message);
-        handleLocalResponse();
-      }
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-  
-  // Fonction fallback pour ajouter un message du joueur localement
-  const addLocalPlayerMessage = (player: PlayerInfo, content: string) => {
     const newMessage: GameMessage = {
       id: generateId(),
-      sender: player.name,
-      senderRole: player.role,
-      content: content,
+      sender: humanPlayer.name,
+      senderRole: humanPlayer.role,
+      content: messageInput,
       timestamp: Date.now(),
       isAI: false,
       isSystem: false
@@ -497,10 +250,9 @@ export default function CryptoLockGame() {
       ...prev,
       messages: [...prev.messages, newMessage]
     }));
-  };
-  
-  // Fonction fallback pour générer des réponses locales
-  const handleLocalResponse = () => {
+    
+    setMessageInput('');
+    
     // Simuler une réponse de l'IA
     setTimeout(async () => {
       try {
@@ -615,39 +367,12 @@ La propagation du ransomware continue. Des décisions de confinement doivent êt
   };
   
   // Gérer la sélection de choix par le joueur
-  const handleChoiceSelection = async (choiceId: string) => {
+  const handleChoiceSelection = (choiceId: string) => {
     // Trouver le message de choix actuel
     const choiceMessage = game.messages.find(m => m.isChoice && !m.selectedChoice);
     if (!choiceMessage) return;
     
-    // Trouver le joueur humain
-    const humanPlayer = game.players.find(p => !p.isAI);
-    if (!humanPlayer) return;
-    
-    setIsProcessing(true);
-    
-    // Si nous avons un gameId, utiliser l'API
-    if (gameId) {
-      try {
-        await makePlayerChoice(choiceId, choiceMessage.id, humanPlayer.id);
-        // L'état du jeu est mis à jour par la réponse de l'API
-      } catch (error) {
-        console.error("Erreur lors de l'envoi du choix via API:", error);
-        
-        // En cas d'erreur, fallback au mode local
-        handleLocalChoiceSelection(choiceId, choiceMessage);
-      } finally {
-        setIsProcessing(false);
-      }
-    } else {
-      // Mode local sans API
-      handleLocalChoiceSelection(choiceId, choiceMessage);
-    }
-  };
-  
-  // Fonction fallback pour le traitement local des choix
-  const handleLocalChoiceSelection = (choiceId: string, choiceMessage: GameMessage) => {
-    // Mettre à jour le choix localement
+    // Mettre à jour le choix
     setGame(prev => ({
       ...prev,
       messages: prev.messages.map(m => 
