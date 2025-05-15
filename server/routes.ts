@@ -4841,13 +4841,17 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   
   // Routes pour les défis du IA Lab Trainer
   app.get('/api/ia-lab/challenge/categories/:language', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.getChallengeCategories(req, res)));
-  app.get('/api/ia-lab/challenge/sectors', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.getIndustrySectors(req, res)).catch(error => {
-    console.error('Erreur lors de la récupération des secteurs:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Erreur serveur'
-    });
-  }));
+  app.get('/api/ia-lab/challenge/sectors', (req, res) => {
+    import('./controllers/iaLabChallengeController.js')
+      .then(m => m.getIndustrySectors(req, res))
+      .catch(error => {
+        console.error('Erreur lors de la récupération des secteurs:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Erreur serveur'
+        });
+      });
+  });
   app.post('/api/ia-lab/challenge/generate', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.generateChallenge(req, res)));
   app.post('/api/ia-lab/challenge/evaluate', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.evaluateChallengeSolution(req, res)));
   app.post('/api/ia-lab/challenge/hint', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.getAdditionalHint(req, res)));
