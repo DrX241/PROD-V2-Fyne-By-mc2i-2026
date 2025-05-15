@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { 
   Card,
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -19,11 +20,18 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { ArrowLeft, CheckCircle, Copy, RefreshCw, Rocket, Brain, Image, Code, MessageSquare, Search, Wand, Bot, Trophy, Star, Zap, BookOpen, Lightbulb } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { 
+  ArrowLeft, CheckCircle, Copy, RefreshCw, Rocket, Brain, Image, Code, MessageSquare, 
+  Search, Wand, Bot, Trophy, Star, Zap, BookOpen, Lightbulb, Play, ChevronRight, 
+  Award, Github, Database, FileCode, BarChart, Sigma, PlusCircle, TerminalSquare, Check,
+  Languages, BookOpenCheck, Sparkles
+} from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useTheme } from '@/contexts/ThemeContext';
+import DataTopNavigation from '@/components/DataTopNavigation';
 
 interface PromptTemplate {
   id: string;
@@ -52,6 +60,43 @@ interface Challenge {
   icon: React.ReactNode;
 }
 
+interface CodeExample {
+  id: string;
+  language: 'python' | 'javascript' | 'sql' | 'r';
+  title: string;
+  description: string;
+  code: string;
+  category: 'data-analysis' | 'machine-learning' | 'data-visualization' | 'data-engineering';
+  difficulty: 'débutant' | 'intermédiaire' | 'avancé';
+  expectedOutput?: string;
+  hasError?: boolean;
+}
+
+interface ConceptExplanation {
+  id: string;
+  concept: string;
+  explanation: string;
+  examples: string[];
+  relatedConcepts: string[];
+  category: 'data-science' | 'machine-learning' | 'statistics' | 'programming';
+}
+
+interface DataScenario {
+  id: string;
+  title: string;
+  description: string;
+  scenario: string;
+  data: string;
+  questions: {
+    id: string;
+    question: string;
+    type: 'code' | 'text';
+    expectedAnswer?: string;
+  }[];
+  hints: string[];
+  difficulty: 'débutant' | 'intermédiaire' | 'avancé';
+}
+
 const AIPlayground: React.FC = () => {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -69,6 +114,21 @@ const AIPlayground: React.FC = () => {
   const [currentChallenge, setCurrentChallenge] = useState<number>(0);
   const [showExplanation, setShowExplanation] = useState<boolean>(false);
   const [completedChallenges, setCompletedChallenges] = useState<number[]>([]);
+  
+  // Nouveaux états pour l'apprentissage interactif
+  const [selectedCodeExample, setSelectedCodeExample] = useState<CodeExample | null>(null);
+  const [userCode, setUserCode] = useState<string>('');
+  const [codeOutput, setCodeOutput] = useState<string>('');
+  const [isRunningCode, setIsRunningCode] = useState<boolean>(false);
+  const [currentMode, setCurrentMode] = useState<'learn' | 'practice' | 'challenge'>('learn');
+  const [activeDataScenario, setActiveDataScenario] = useState<DataScenario | null>(null);
+  const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
+  const [showHint, setShowHint] = useState<boolean>(false);
+  const [currentHintIndex, setCurrentHintIndex] = useState<number>(0);
+  const [showConceptExplanation, setShowConceptExplanation] = useState<boolean>(false);
+  const [selectedConcept, setSelectedConcept] = useState<ConceptExplanation | null>(null);
+  const [executionHistory, setExecutionHistory] = useState<{code: string, output: string, timestamp: Date}[]>([]);
+  const codeEditorRef = useRef<HTMLTextAreaElement>(null);
 
   // Challenges d'apprentissage interactifs
   const learningChallenges: Challenge[] = [
@@ -126,6 +186,376 @@ const AIPlayground: React.FC = () => {
       expectedConcepts: ["Exploration de données", "Visualisation", "Analyse statistique"],
       explanation: "Ce prompt guide l'IA pour fournir une analyse complète du processus d'exploration de données: de la formulation des questions initiales aux techniques de visualisation appropriées, en passant par l'implémentation code et les méthodes statistiques. Cette approche méthodique est essentielle pour une analyse de données rigoureuse.",
       icon: <Search className="h-5 w-5 text-green-400" />
+    }
+  ];
+
+  // Exemples de code pour l'apprentissage
+  const codeExamples: CodeExample[] = [
+    {
+      id: "python-data-analysis-1",
+      language: "python",
+      title: "Analyse de données - Pandas fondamentaux",
+      description: "Un exemple d'analyse basique avec Pandas pour explorer et nettoyer un dataset",
+      code: `import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Charger les données
+df = pd.read_csv('data.csv')
+
+# Exploration des données
+print("Aperçu des données:")
+print(df.head())
+
+# Informations sur le dataframe
+print("\\nInformations sur le dataframe:")
+print(df.info())
+
+# Statistiques descriptives
+print("\\nStatistiques descriptives:")
+print(df.describe())
+
+# Vérifier les valeurs manquantes
+print("\\nValeurs manquantes par colonne:")
+print(df.isnull().sum())
+
+# Nettoyer les données
+# Remplacer les valeurs manquantes par la moyenne pour les colonnes numériques
+for col in df.select_dtypes(include=[np.number]).columns:
+    df[col].fillna(df[col].mean(), inplace=True)
+
+# Visualiser la distribution d'une variable
+plt.figure(figsize=(10, 6))
+df['age'].hist(bins=20)
+plt.title('Distribution des âges')
+plt.xlabel('Âge')
+plt.ylabel('Fréquence')
+plt.show()`,
+      category: "data-analysis",
+      difficulty: "débutant",
+      expectedOutput: "Aperçu des données:\n   id  age  income gender education\n0   1   25   50000      M  bachelor\n1   2   42   65000      F    master\n..."
+    },
+    {
+      id: "python-ml-regression",
+      language: "python",
+      title: "Régression linéaire avec scikit-learn",
+      description: "Implémentation d'un modèle de régression linéaire pour prédire des valeurs numériques",
+      code: `import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+import matplotlib.pyplot as plt
+
+# Générer des données synthétiques
+np.random.seed(42)
+X = np.random.rand(100, 1) * 10
+y = 2 * X + 1 + np.random.randn(100, 1) * 2
+
+# Diviser en ensembles d'entraînement et de test
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Créer et entraîner le modèle
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Afficher les coefficients
+print(f"Coefficient: {model.coef_[0][0]:.4f}")
+print(f"Intercept: {model.intercept_[0]:.4f}")
+
+# Faire des prédictions
+y_pred = model.predict(X_test)
+
+# Évaluer le modèle
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+print(f"Erreur quadratique moyenne: {mse:.4f}")
+print(f"Score R²: {r2:.4f}")
+
+# Visualiser les résultats
+plt.figure(figsize=(10, 6))
+plt.scatter(X_test, y_test, color='blue', label='Données réelles')
+plt.plot(X_test, y_pred, color='red', linewidth=2, label='Prédictions')
+plt.title('Régression linéaire')
+plt.xlabel('X')
+plt.ylabel('y')
+plt.legend()
+plt.show()`,
+      category: "machine-learning",
+      difficulty: "intermédiaire"
+    },
+    {
+      id: "python-data-viz",
+      language: "python",
+      title: "Visualisation avancée avec Seaborn",
+      description: "Création de visualisations statistiques avancées avec Seaborn",
+      code: `import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Définir le style
+sns.set(style='whitegrid')
+
+# Charger un dataset d'exemple
+tips = sns.load_dataset('tips')
+
+# Aperçu des données
+print(tips.head())
+
+# 1. Distribution univariée - histogramme et KDE
+plt.figure(figsize=(12, 6))
+
+plt.subplot(1, 2, 1)
+sns.histplot(tips['total_bill'], kde=True, bins=20)
+plt.title('Distribution des additions')
+
+plt.subplot(1, 2, 2)
+sns.histplot(tips['tip'], kde=True, color='green', bins=20)
+plt.title('Distribution des pourboires')
+
+plt.tight_layout()
+plt.show()
+
+# 2. Relation bivariée - scatter plot avec régression
+plt.figure(figsize=(10, 6))
+sns.regplot(x='total_bill', y='tip', data=tips)
+plt.title('Relation entre Addition et Pourboire')
+plt.show()
+
+# 3. Visualisation catégorielle - box plot
+plt.figure(figsize=(12, 6))
+sns.boxplot(x='day', y='total_bill', hue='sex', data=tips, palette='Set3')
+plt.title('Addition par jour et par genre')
+plt.show()
+
+# 4. Grille de graphiques - pairplot
+sns.pairplot(tips, hue='time', palette='viridis')
+plt.suptitle('Relations entre variables', y=1.02)
+plt.show()
+
+# 5. Heatmap - corrélation
+plt.figure(figsize=(8, 6))
+corr = tips.corr()
+sns.heatmap(corr, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
+plt.title('Matrice de corrélation')
+plt.show()`,
+      category: "data-visualization",
+      difficulty: "intermédiaire"
+    },
+    {
+      id: "sql-basic-queries",
+      language: "sql",
+      title: "Requêtes SQL fondamentales",
+      description: "Exemples de requêtes SQL pour l'analyse de données",
+      code: `-- Sélection basique avec filtres
+SELECT 
+    customer_id,
+    first_name,
+    last_name,
+    email,
+    registration_date
+FROM 
+    customers
+WHERE 
+    registration_date >= '2023-01-01'
+ORDER BY 
+    registration_date DESC
+LIMIT 10;
+
+-- Agrégation et groupement
+SELECT 
+    product_category,
+    COUNT(*) as num_products,
+    AVG(price) as avg_price,
+    MIN(price) as min_price,
+    MAX(price) as max_price
+FROM 
+    products
+GROUP BY 
+    product_category
+HAVING 
+    COUNT(*) > 5
+ORDER BY 
+    num_products DESC;
+
+-- Jointures multiples
+SELECT 
+    o.order_id,
+    c.first_name,
+    c.last_name,
+    p.product_name,
+    oi.quantity,
+    oi.unit_price,
+    (oi.quantity * oi.unit_price) as subtotal
+FROM 
+    orders o
+JOIN 
+    customers c ON o.customer_id = c.customer_id
+JOIN 
+    order_items oi ON o.order_id = oi.order_id
+JOIN 
+    products p ON oi.product_id = p.product_id
+WHERE 
+    o.order_date BETWEEN '2023-06-01' AND '2023-06-30'
+ORDER BY 
+    o.order_date, o.order_id;
+
+-- Sous-requêtes
+SELECT 
+    product_id,
+    product_name,
+    price
+FROM 
+    products
+WHERE 
+    price > (SELECT AVG(price) FROM products)
+ORDER BY 
+    price DESC;
+
+-- Window functions
+SELECT 
+    order_id,
+    order_date,
+    total_amount,
+    AVG(total_amount) OVER (PARTITION BY EXTRACT(MONTH FROM order_date)) as monthly_avg,
+    total_amount - AVG(total_amount) OVER (PARTITION BY EXTRACT(MONTH FROM order_date)) as diff_from_avg
+FROM 
+    orders
+ORDER BY 
+    order_date DESC;`,
+      category: "data-analysis",
+      difficulty: "intermédiaire"
+    },
+    {
+      id: "python-ml-clustering-error",
+      language: "python",
+      title: "Clustering K-Means (avec erreurs)",
+      description: "Implémentation d'un clustering K-means avec quelques erreurs à corriger",
+      code: `import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.datasets import make_blobs
+
+# Générer des données synthétiques
+X, y = make_blobs(n_samples=300, centers=4, cluster_std=0.60, random_state=42)
+
+# Standardiser les données
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# ERREUR 1: nombre incorrect de clusters
+kmeans = KMeans(n_clusters=2, max_iter=300, random_state=42)
+kmeans.fix(X_scaled)  # ERREUR 2: méthode incorrecte
+
+# Obtenir les prédictions
+y_pred = kmeans.predict(X_scaled)
+
+# ERREUR 3: nom de variable incorrect
+centers = kmeans.centers_  
+
+# ERREUR 4: Visualisation incorrecte
+plt.figure(figsize=(10, 6))
+plt.scatter(X[:, 0], X[:, 1], c=y_pred, cmap='viridis', s=50, alpha=0.8)
+plt.scatter(centers[:, 0], centers[:, 1], c='red', s=200, alpha=0.75, marker='X')
+plt.title('Résultats du clustering K-means')
+plt.show()
+
+# Évaluer la qualité du clustering
+# ERREUR 5: calcul de l'inertie incorrect
+print(f"Inertie: {np.sum((X - centers[y_pred])^2)}")
+
+# Déterminer le nombre optimal de clusters avec la méthode du coude
+inertias = []
+for k in range(1, 10):
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(X_scaled)
+    inertias.append(kmeans.inertia_)
+
+plt.figure(figsize=(10, 6))
+plt.plot(range(1, 10), inertias, 'o-', color='blue')
+plt.xlabel('Nombre de clusters')
+plt.ylabel('Inertie')
+plt.title('Méthode du coude')
+plt.xticks(range(1, 10))
+plt.grid(True)
+plt.show()`,
+      category: "machine-learning",
+      difficulty: "avancé",
+      hasError: true
+    }
+  ];
+
+  // Explications de concepts
+  const conceptExplanations: ConceptExplanation[] = [
+    {
+      id: "pandas-basics",
+      concept: "Pandas - Fondamentaux",
+      explanation: "Pandas est une bibliothèque Python pour la manipulation et l'analyse de données. Elle offre des structures de données flexibles comme les DataFrames et les Series, qui permettent de manipuler efficacement des ensembles de données tabulaires.",
+      examples: [
+        "import pandas as pd\n\n# Créer un DataFrame\ndf = pd.DataFrame({'A': [1, 2, 3], 'B': ['a', 'b', 'c']})\n\n# Afficher les 5 premières lignes\nprint(df.head())",
+        "# Statistiques descriptives\ndf.describe()",
+        "# Sélection de données\ndf[df['A'] > 1]"
+      ],
+      relatedConcepts: ["NumPy", "Matplotlib", "Data Cleaning", "Data Transformation"],
+      category: "data-science"
+    },
+    {
+      id: "ml-regression",
+      concept: "Régression linéaire",
+      explanation: "La régression linéaire est une technique statistique qui modélise la relation entre une variable dépendante et une ou plusieurs variables indépendantes en ajustant une équation linéaire aux données observées. C'est l'un des algorithmes les plus fondamentaux en apprentissage supervisé.",
+      examples: [
+        "from sklearn.linear_model import LinearRegression\n\n# Créer et entraîner le modèle\nmodel = LinearRegression()\nmodel.fit(X_train, y_train)",
+        "# Coefficients et intercept\nprint(f\"Pente: {model.coef_}\")\nprint(f\"Ordonnée à l'origine: {model.intercept_}\")",
+        "# Évaluation\nfrom sklearn.metrics import r2_score\nr2 = r2_score(y_test, y_pred)\nprint(f\"R²: {r2}\")"
+      ],
+      relatedConcepts: ["Machine Learning", "Régression polynomiale", "Évaluation de modèle", "Scikit-learn"],
+      category: "machine-learning"
+    }
+  ];
+
+  // Scénarios d'analyse de données
+  const dataScenarios: DataScenario[] = [
+    {
+      id: "retail-analysis",
+      title: "Analyse des ventes d'un commerce",
+      description: "Analysez les données de ventes d'un commerce pour identifier les tendances et faire des recommandations.",
+      scenario: "Vous êtes data analyst pour une chaîne de magasins de vêtements. Le directeur marketing vous demande d'analyser les données de ventes pour comprendre les performances par catégorie de produits et par région, afin d'optimiser la stratégie marketing.",
+      data: `date,store_id,product_category,units_sold,revenue,customer_age_group,region
+2023-01-15,1,T-shirts,45,1350,18-25,North
+2023-01-15,2,Jeans,28,1960,26-35,South
+2023-01-15,3,Dresses,15,1875,36-45,East
+2023-01-16,1,Jeans,32,2240,18-25,North
+2023-01-16,2,T-shirts,56,1680,26-35,South
+2023-01-16,3,Accessories,78,1170,18-25,East
+2023-01-17,1,Dresses,18,2250,36-45,North
+2023-01-17,2,Accessories,92,1380,18-25,South
+2023-01-17,3,T-shirts,63,1890,26-35,East`,
+      questions: [
+        {
+          id: "q1",
+          question: "Écrivez un code Python utilisant pandas pour charger ces données et afficher les statistiques descriptives par catégorie de produit.",
+          type: "code"
+        },
+        {
+          id: "q2",
+          question: "Créez une visualisation montrant la répartition des ventes par région.",
+          type: "code"
+        },
+        {
+          id: "q3",
+          question: "Quelle catégorie de produit génère le plus de revenus? Analysez les données pour expliquer pourquoi.",
+          type: "text"
+        }
+      ],
+      hints: [
+        "Commencez par charger les données dans un DataFrame pandas en utilisant pd.read_csv()",
+        "Pour les statistiques par catégorie, utilisez df.groupby('product_category')",
+        "Pour la visualisation, essayez d'utiliser sns.barplot() ou plt.pie()"
+      ],
+      difficulty: "intermédiaire"
     }
   ];
 
