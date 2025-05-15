@@ -427,48 +427,6 @@ const CyberHomePage: React.FC = () => {
           </div>
         </section>
         
-        {/* Section CTA */}
-        <section className="relative z-20 py-24 overflow-hidden">
-          <div className="container mx-auto px-8">
-            <div className="max-w-5xl mx-auto cyber-edge-distort bg-gradient-to-r from-blue-900/40 to-purple-900/40 p-12 border border-cyan-500/30">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <div>
-                  <h2 className="text-3xl md:text-4xl font-cyber-title tracking-wider text-white mb-6">
-                    Prêt à <span className="text-cyan-400">Transformer</span> votre Expérience de Formation?
-                  </h2>
-                  <p className="text-gray-300 mb-8">
-                    Rejoignez les organisations qui ont déjà adopté FYNE et constatez l'impact d'une formation véritablement immersive.
-                  </p>
-                  <CyberButton 
-                    variant="primary"
-                    size="lg"
-                    glowIntensity="high"
-                    onClick={() => setLocation('/playground/module-generator-new')}
-                  >
-                    Créer votre Module
-                  </CyberButton>
-                </div>
-                
-                <div className="relative">
-                  <div className="cyber-image rounded-lg overflow-hidden">
-                    <img 
-                      src={fyneAvatarPath} 
-                      alt="FYNE Virtual Assistant" 
-                      className="w-full h-auto"
-                    />
-                  </div>
-                  <div className="absolute -bottom-4 -right-4 cyber-terminal py-2 px-4 text-xs font-mono">
-                    <div className="flex items-center">
-                      <div className="h-2 w-2 rounded-full bg-green-400 mr-2"></div>
-                      <span>FYNE::AGENT_READY</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        
         {/* Footer */}
         <footer className="relative z-20 py-12 border-t border-cyan-900/30">
           <div className="container mx-auto px-8">
