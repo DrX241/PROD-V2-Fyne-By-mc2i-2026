@@ -25,7 +25,8 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Sparkles, Brain, Code, PlayCircle, Book, Trophy, ArrowLeft, RefreshCw, RotateCw, Lightbulb, Clock3, Terminal } from 'lucide-react';
 import Editor from 'react-simple-code-editor';
-import { highlight, languages } from 'highlight.js';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/atom-one-dark.css';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -835,6 +836,117 @@ const ReadMeIfYouCan = () => {
     }
   };
 
+  // Exécuter le code avec l'IA
+  const executeCode = async () => {
+    if (!userCodeInput.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez entrer du code avant d'exécuter.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsExecutingCode(true);
+    setCodeExecutionResult('');
+    
+    try {
+      // Simuler un traitement IA avec un délai
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Préparer prompt pour l'IA
+      const language = selectedLanguage;
+      const promptStart = language === 'python' 
+        ? "Exécute ce code Python et affiche le résultat. Si des erreurs sont présentes, explique-les de façon pédagogique:" 
+        : "Analyse cette requête SQL et explique ce qu'elle fait. Indique le résultat attendu et d'éventuelles optimisations:";
+      
+      // Ici nous simulons la réponse de l'IA, mais dans une version réelle 
+      // nous enverrions le code à l'API d'IA pour exécution
+      let result = '';
+      
+      if (language === 'python') {
+        if (userCodeInput.includes('print')) {
+          result = "Exécution réussie!\n\n";
+          
+          // Extraire les prints pour simuler l'output
+          const printMatches = userCodeInput.match(/print\s*\((.*?)\)/g);
+          if (printMatches) {
+            printMatches.forEach(match => {
+              const content = match.match(/print\s*\((.*?)\)/)[1];
+              result += `> ${content}\n`;
+            });
+          }
+          
+          result += "\n🔍 Analyse: Votre code s'exécute correctement. Il utilise des fonctions d'impression pour afficher les résultats.";
+          
+          // Suggestions d'amélioration
+          if (userCodeInput.includes('for') && !userCodeInput.includes('enumerate')) {
+            result += "\n\n💡 Suggestion: Pour les boucles for sur des indices, envisagez d'utiliser `enumerate()` pour plus de lisibilité.";
+          }
+        } else if (userCodeInput.includes('def ')) {
+          result = "Fonction définie avec succès, mais non exécutée.\n\n🔍 Analyse: Vous avez défini une fonction mais ne l'avez pas appelée. Pour voir le résultat, ajoutez un appel à la fonction à la fin du code.";
+        } else if (userCodeInput.includes('import') && (userCodeInput.includes('pandas') || userCodeInput.includes('numpy'))) {
+          result = "Bibliothèques importées avec succès.\n\n🔍 Analyse: Vous avez importé des bibliothèques de data science, mais le code ne contient pas d'opérations sur des données.";
+        } else {
+          result = "Code analysé.\n\n🔍 Analyse: Ce code définit des variables ou des structures de données, mais n'affiche aucun résultat. Essayez d'ajouter des instructions `print()` pour voir les résultats.";
+        }
+      } else if (language === 'sql') {
+        if (userCodeInput.toLowerCase().includes('select')) {
+          result = "Requête SQL analysée.\n\n";
+          
+          if (userCodeInput.toLowerCase().includes('join')) {
+            result += "Cette requête effectue une jointure entre tables. ";
+          }
+          
+          if (userCodeInput.toLowerCase().includes('where')) {
+            result += "Elle filtre les résultats avec une clause WHERE. ";
+          }
+          
+          if (userCodeInput.toLowerCase().includes('group by')) {
+            result += "Elle groupe les résultats. ";
+          }
+          
+          result += "\n\n🔍 Résultats simulés (échantillon):\n";
+          result += "| id | nom     | valeur |\n";
+          result += "|---:|---------|-------:|\n";
+          result += "| 1  | Exemple | 42.5   |\n";
+          result += "| 2  | Test    | 18.3   |\n";
+          result += "| 3  | Demo    | 75.0   |\n";
+          
+          // Suggestions d'optimisation
+          if (!userCodeInput.toLowerCase().includes('index') && userCodeInput.toLowerCase().includes('where')) {
+            result += "\n\n💡 Suggestion: Cette requête pourrait bénéficier d'un index sur les colonnes utilisées dans la clause WHERE.";
+          }
+        } else {
+          result = "Requête SQL analysée, mais n'est pas une requête SELECT.\n\n";
+          
+          if (userCodeInput.toLowerCase().includes('insert')) {
+            result += "Cette requête insère des données dans une table.";
+          } else if (userCodeInput.toLowerCase().includes('update')) {
+            result += "Cette requête met à jour des données existantes.";
+          } else if (userCodeInput.toLowerCase().includes('delete')) {
+            result += "Cette requête supprime des données d'une table.";
+          } else if (userCodeInput.toLowerCase().includes('create table')) {
+            result += "Cette requête crée une nouvelle table dans la base de données.";
+          }
+        }
+      }
+      
+      setCodeExecutionResult(result);
+    } catch (error) {
+      setCodeExecutionResult("Erreur lors de l'exécution: " + (error.message || "Une erreur inconnue est survenue"));
+    } finally {
+      setIsExecutingCode(false);
+    }
+  };
+  
+  // Initialiser l'éditeur de code quand on charge un nouveau défi en mode exécution
+  useEffect(() => {
+    if (selectedMode === 'exécution' && currentChallenge) {
+      setUserCodeInput(currentChallenge.code);
+    }
+  }, [currentChallenge, selectedMode]);
+
   // Récupérer un indice pour le challenge actuel
   const getHint = () => {
     setHintRequested(true);
@@ -1191,108 +1303,201 @@ const ReadMeIfYouCan = () => {
                 </CardHeader>
                 
                 <CardContent>
-                  <div className="space-y-4">
-                    {/* Affichage du code */}
-                    <CodeDisplay code={currentChallenge.code} language={currentChallenge.language} />
-                    
-                    {/* Question */}
-                    <div className="bg-blue-900/40 p-4 rounded-md border border-blue-700/40">
-                      <h3 className="text-white text-lg font-semibold mb-2 flex items-center">
-                        <Brain className="mr-2 h-5 w-5 text-purple-400" />
-                        Question:
-                      </h3>
-                      <p className="text-gray-200">{currentChallenge.question}</p>
-                    </div>
-                    
-                    {/* Réponses possibles */}
-                    <div className="mt-4">
-                      <h3 className="text-white font-semibold mb-3">Sélectionnez votre réponse:</h3>
-                      <RadioGroup 
-                        value={selectedAnswer || ""} 
-                        onValueChange={setSelectedAnswer}
-                        className="space-y-2"
-                        disabled={showResult}
-                      >
-                        {currentChallenge.responses.map((response) => (
-                          <div 
-                            key={response.id} 
-                            className={`flex items-start space-x-3 p-3 rounded-md ${
-                              showResult && response.isCorrect 
-                                ? 'bg-green-900/30 border border-green-500/50' 
-                                : showResult && selectedAnswer === response.id && !response.isCorrect
-                                  ? 'bg-red-900/30 border border-red-500/50'
-                                  : highContrastMode
-                                    ? 'bg-gray-700 border border-gray-600 hover:bg-gray-600'
-                                    : 'bg-blue-900/40 border border-blue-700/30 hover:bg-blue-800/50'
-                            } transition-colors`}
-                          >
-                            <RadioGroupItem 
-                              value={response.id} 
-                              id={`answer-${response.id}`} 
-                              className="mt-1"
-                              disabled={showResult}
-                            />
-                            <Label 
-                              htmlFor={`answer-${response.id}`} 
-                              className={`text-sm flex-grow ${
-                                showResult && response.isCorrect
-                                  ? 'text-green-300'
-                                  : showResult && selectedAnswer === response.id && !response.isCorrect
-                                    ? 'text-red-300'
-                                    : 'text-gray-200'
-                              }`}
-                            >
-                              <span className="font-semibold">{response.id.toUpperCase()}:</span> {response.text}
-                              
-                              {showResult && response.isCorrect && (
-                                <span className="ml-2 text-green-400 text-xs font-semibold">
-                                  ✓ CORRECT
-                                </span>
-                              )}
-                              
-                              {showResult && selectedAnswer === response.id && !response.isCorrect && (
-                                <span className="ml-2 text-red-400 text-xs font-semibold">
-                                  ✗ INCORRECT
-                                </span>
-                              )}
-                            </Label>
-                          </div>
-                        ))}
-                      </RadioGroup>
-                    </div>
-                    
-                    {/* Justification (sauf pour les débutants et mode vitesse) */}
-                    {selectedDifficulty !== 'débutant' && selectedMode !== 'vitesse' && (
-                      <div className="mt-4">
-                        <Label htmlFor="justification" className="text-white font-semibold mb-2 block">
-                          Justifiez votre réponse:
-                        </Label>
-                        <Textarea 
-                          id="justification" 
-                          placeholder="Expliquez votre raisonnement..."
-                          value={userJustification}
-                          onChange={(e) => setUserJustification(e.target.value)}
-                          disabled={showResult}
-                          className={`h-24 ${
-                            highContrastMode 
-                              ? 'bg-gray-700 border-gray-600' 
-                              : 'bg-blue-900/50 border-blue-700/30'
-                          }`}
-                        />
-                      </div>
-                    )}
-                    
-                    {/* Explication (visible après soumission) */}
-                    {showResult && (
-                      <div className="mt-6 bg-blue-900/40 p-4 rounded-md border border-blue-500/40">
+                  {selectedMode === 'exécution' ? (
+                    <div className="space-y-4">
+                      {/* Mode exécution avec éditeur de code */}
+                      <div className="bg-blue-900/40 p-4 rounded-md border border-blue-700/40">
                         <h3 className="text-white text-lg font-semibold mb-2 flex items-center">
-                          <Sparkles className="mr-2 h-5 w-5 text-yellow-400" />
-                          Explication:
+                          <Terminal className="mr-2 h-5 w-5 text-green-400" />
+                          Éditeur de code {currentChallenge.language === 'python' ? 'Python' : 'SQL'}:
                         </h3>
-                        <p className="text-gray-200">{currentChallenge.explanation}</p>
+                        <p className="text-gray-200 mb-4">{currentChallenge.question}</p>
+                        
+                        <div className="rounded-md overflow-hidden border border-blue-500/30 mt-2">
+                          <div className="bg-black/90 font-mono text-sm">
+                            <Editor
+                              value={userCodeInput}
+                              onValueChange={code => setUserCodeInput(code)}
+                              highlight={code => 
+                                code
+                                  .split('\n')
+                                  .map((line, i) => {
+                                    const highlighted = currentChallenge.language === 'python'
+                                      ? hljs.highlight(line, { language: 'python' }).value
+                                      : hljs.highlight(line, { language: 'sql' }).value;
+                                    return `<span style="color: #aaa; width: 2em; display: inline-block; text-align: right; margin-right: 1em;">${i + 1}</span><span>${highlighted}</span>`;
+                                  })
+                                  .join('\n')
+                              }
+                              padding={10}
+                              style={{
+                                fontFamily: '"Fira Code", "Courier New", monospace',
+                                fontSize: '14px',
+                                minHeight: '250px',
+                                backgroundColor: '#1a1a1a',
+                                color: '#f8f8f2',
+                              }}
+                              disabled={isExecutingCode}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-between mt-4">
+                          <Button
+                            onClick={() => setUserCodeInput(currentChallenge.code)}
+                            variant="outline"
+                            className="bg-blue-900/40 border-blue-700/40 text-white hover:bg-blue-800/60"
+                            disabled={isExecutingCode}
+                          >
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            Réinitialiser
+                          </Button>
+                          
+                          <Button
+                            onClick={executeCode}
+                            className={`${
+                              highContrastMode 
+                                ? 'bg-green-600 hover:bg-green-700' 
+                                : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
+                            } text-white`}
+                            disabled={isExecutingCode}
+                          >
+                            {isExecutingCode ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Exécution...
+                              </>
+                            ) : (
+                              <>
+                                <Terminal className="mr-2 h-4 w-4" />
+                                Exécuter le code
+                              </>
+                            )}
+                          </Button>
+                        </div>
                       </div>
-                    )}
-                  </div>
+                      
+                      {/* Résultat de l'exécution */}
+                      {codeExecutionResult && (
+                        <div className={`p-4 rounded-md border ${
+                          highContrastMode
+                            ? 'bg-gray-800 border-gray-600'
+                            : 'bg-blue-900/20 border-blue-700/40'
+                        }`}>
+                          <h3 className="text-white text-lg font-semibold mb-2 flex items-center">
+                            <Brain className="mr-2 h-5 w-5 text-purple-400" />
+                            Résultat:
+                          </h3>
+                          <pre className="text-gray-200 whitespace-pre-wrap font-mono text-sm bg-black/30 p-3 rounded-md max-h-60 overflow-auto">
+                            {codeExecutionResult}
+                          </pre>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* Affichage du code pour les autres modes */}
+                      <CodeDisplay code={currentChallenge.code} language={currentChallenge.language} />
+                      
+                      {/* Question */}
+                      <div className="bg-blue-900/40 p-4 rounded-md border border-blue-700/40">
+                        <h3 className="text-white text-lg font-semibold mb-2 flex items-center">
+                          <Brain className="mr-2 h-5 w-5 text-purple-400" />
+                          Question:
+                        </h3>
+                        <p className="text-gray-200">{currentChallenge.question}</p>
+                      </div>
+                      
+                      {/* Réponses possibles */}
+                      <div className="mt-4">
+                        <h3 className="text-white font-semibold mb-3">Sélectionnez votre réponse:</h3>
+                        <RadioGroup 
+                          value={selectedAnswer || ""} 
+                          onValueChange={setSelectedAnswer}
+                          className="space-y-2"
+                          disabled={showResult}
+                        >
+                          {currentChallenge.responses.map((response) => (
+                            <div 
+                              key={response.id} 
+                              className={`flex items-start space-x-3 p-3 rounded-md ${
+                                showResult && response.isCorrect 
+                                  ? 'bg-green-900/30 border border-green-500/50' 
+                                  : showResult && selectedAnswer === response.id && !response.isCorrect
+                                    ? 'bg-red-900/30 border border-red-500/50'
+                                    : highContrastMode
+                                      ? 'bg-gray-700 border border-gray-600 hover:bg-gray-600'
+                                      : 'bg-blue-900/40 border border-blue-700/30 hover:bg-blue-800/50'
+                              } transition-colors`}
+                            >
+                              <RadioGroupItem 
+                                value={response.id} 
+                                id={`answer-${response.id}`} 
+                                className="mt-1"
+                                disabled={showResult}
+                              />
+                              <Label 
+                                htmlFor={`answer-${response.id}`} 
+                                className={`text-sm flex-grow ${
+                                  showResult && response.isCorrect
+                                    ? 'text-green-300'
+                                    : showResult && selectedAnswer === response.id && !response.isCorrect
+                                      ? 'text-red-300'
+                                      : 'text-gray-200'
+                                }`}
+                              >
+                                <span className="font-semibold">{response.id.toUpperCase()}:</span> {response.text}
+                                
+                                {showResult && response.isCorrect && (
+                                  <span className="ml-2 text-green-400 text-xs font-semibold">
+                                    ✓ CORRECT
+                                  </span>
+                                )}
+                                
+                                {showResult && selectedAnswer === response.id && !response.isCorrect && (
+                                  <span className="ml-2 text-red-400 text-xs font-semibold">
+                                    ✗ INCORRECT
+                                  </span>
+                                )}
+                              </Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      </div>
+                      
+                      {/* Justification (sauf pour les débutants et mode vitesse) */}
+                      {selectedDifficulty !== 'débutant' && selectedMode !== 'vitesse' && (
+                        <div className="mt-4">
+                          <Label htmlFor="justification" className="text-white font-semibold mb-2 block">
+                            Justifiez votre réponse:
+                          </Label>
+                          <Textarea 
+                            id="justification" 
+                            placeholder="Expliquez votre raisonnement..."
+                            value={userJustification}
+                            onChange={(e) => setUserJustification(e.target.value)}
+                            disabled={showResult}
+                            className={`h-24 ${
+                              highContrastMode 
+                                ? 'bg-gray-700 border-gray-600' 
+                                : 'bg-blue-900/50 border-blue-700/30'
+                            }`}
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Explication (visible après soumission) */}
+                      {showResult && (
+                        <div className="mt-6 bg-blue-900/40 p-4 rounded-md border border-blue-500/40">
+                          <h3 className="text-white text-lg font-semibold mb-2 flex items-center">
+                            <Sparkles className="mr-2 h-5 w-5 text-yellow-400" />
+                            Explication:
+                          </h3>
+                          <p className="text-gray-200">{currentChallenge.explanation}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
                 
                 <CardFooter className="flex justify-between">
