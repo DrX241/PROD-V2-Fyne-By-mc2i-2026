@@ -63,6 +63,7 @@ import AmoaPage from "@/pages/amoa";
 import AmoaModeSelection from "@/pages/amoa-mode-selection";
 // Import la nouvelle version optimisée du mode de sélection AMOA (comme pour Cyber)
 import AmoaModeSelectionFixed from "@/pages/amoa-mode-selection-fixed";
+import AmoaModeSelectionNew from "@/pages/amoa-mode-selection-new";
 // Import de la page Data & IA
 import DataIaModeSelection from "@/pages/data-ia-mode-selection";
 import ReadMeIfYouCan from "@/pages/data-ia/read-me-if-you-can";
@@ -762,6 +763,7 @@ function App() {
                 <Route path="/amoa" component={AmoaPage} />
                 <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
                 <Route path="/amoa-mode-selection-fixed" component={AmoaModeSelectionFixed} />
+                <Route path="/amoa/new" component={AmoaModeSelectionNew} />
                 <Route path="/data-ia" component={DataIaModeSelection} />
                 <Route path="/data-ia/read-me-if-you-can" component={ReadMeIfYouCan} />
                 <Route path="/data-ia/data-ops-simulation" component={DataOpsSimulation} />
