@@ -407,7 +407,7 @@ export default function DataIaAcademy() {
       
       <main className="container mx-auto px-4 py-8">
         <div className="flex items-center mb-6">
-          <Link href="/data-ia-mode-selection">
+          <Link href="/data-ia">
             <DataButton 
               variant="outline"
               className="mr-4 text-blue-300 border-blue-300/30 hover:bg-blue-900/20"
