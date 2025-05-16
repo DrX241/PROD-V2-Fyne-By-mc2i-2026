@@ -19,6 +19,8 @@ import { Badge } from '@/components/ui/badge';
 import { CyberLabNav } from '../cyber-lab/CyberLabNav';
 import { useToast } from '@/hooks/use-toast';
 import Editor from '@monaco-editor/react';
+import { cn } from '@/lib/utils';
+import '@/styles/cyber-lab.css';
 
 // Captures réseau simulées
 const captures = [

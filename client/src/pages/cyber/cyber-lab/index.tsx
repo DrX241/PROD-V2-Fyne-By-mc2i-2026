@@ -1,220 +1,177 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { motion } from 'framer-motion';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Terminal, 
+  Network, 
+  Shield, 
+  Zap,
+  ArrowRight
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Terminal, Shield, Network, ArrowRight, ArrowLeft, Cpu, Server, Database, Code } from 'lucide-react';
-import HomeLayout from '@/components/layout/HomeLayout';
-import { Helmet } from 'react-helmet';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import '@/styles/cyber-lab.css';
 
-export default function CyberLabPage() {
+const CyberLab: React.FC = () => {
   const [, setLocation] = useLocation();
-  const [activeModule, setActiveModule] = useState<'none' | 'pentest' | 'network'>('none');
 
-  const handleModuleSelection = (module: 'pentest' | 'network') => {
-    setActiveModule(module);
+  // Animations des cartes
+  const cardVariants = {
+    initial: { opacity: 0, y: 50 },
+    animate: { opacity: 1, y: 0 },
+    hover: { scale: 1.03, boxShadow: "0 0 20px rgba(0, 255, 255, 0.3)" }
   };
 
-  const goToModule = () => {
-    if (activeModule === 'pentest') {
-      setLocation('/cyber/pentest-lab');
-    } else if (activeModule === 'network') {
-      setLocation('/cyber/network-lab');
-    }
-  };
+  // Simulation de l'effet de code qui défile
+  const codeLines = [
+    "# Analyseur de vulnérabilités web",
+    "def scan_for_xss(url):",
+    "  payload = '<script>alert(\"XSS\")</script>'",
+    "  response = requests.get(url + payload)",
+    "  if payload in response.text:",
+    "    return 'Vulnérable au XSS'",
+    "  return 'Sécurisé'",
+    "",
+    "# Analyse de trafic réseau",
+    "def analyze_packets(pcap_file):",
+    "  packets = rdpcap(pcap_file)",
+    "  suspicious_ips = []",
+    "  for pkt in packets:",
+    "    if IP in pkt:",
+    "      # Détection d'anomalies",
+    "      if is_suspicious(pkt[IP].src):",
+    "        suspicious_ips.append(pkt[IP].src)",
+    "  return suspicious_ips"
+  ];
 
   return (
-    <HomeLayout>
-      <Helmet>
-        <title>CYBER LAB | FYNE</title>
-      </Helmet>
-      
-      <div className="container mx-auto px-4 py-6">
-        <Card className="bg-gray-900 border-gray-800 text-gray-100 mb-8">
-          <CardHeader>
-            <div className="flex items-center">
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-purple-400 hover:text-purple-300 hover:bg-purple-950 border-purple-800 mr-4"
-                onClick={() => setLocation('/cyber')}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Retour
-              </Button>
-              <div>
-                <CardTitle className="text-2xl font-data-title bg-gradient-to-r from-violet-400 to-blue-500 bg-clip-text text-transparent">
-                  Laboratoire de cybersécurité
-                </CardTitle>
-                <CardDescription className="text-gray-400 mt-1">
-                  Choisissez un module pour commencer votre expérience pratique
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-              {/* Module d'Atelier de Pentest Web */}
-              <Card 
-                className={`bg-gray-800 border-2 transition-all duration-300 hover:shadow-md cursor-pointer overflow-hidden ${
-                  activeModule === 'pentest' 
-                    ? 'border-purple-500 shadow-lg shadow-purple-500/30' 
-                    : 'border-gray-700 hover:border-purple-700/50'
-                }`}
-                onClick={() => handleModuleSelection('pentest')}
-              >
-                <div className={`h-1.5 w-full ${
-                  activeModule === 'pentest' ? 'bg-gradient-to-r from-purple-500 to-blue-500' : 'bg-gray-700'
-                }`}></div>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center">
-                    <div className="p-3 rounded-lg bg-purple-900/50 mr-4">
-                      <Code className="h-7 w-7 text-purple-400" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg text-white">Atelier de Pentest Web</CardTitle>
-                      <CardDescription className="text-gray-400">Explorez et exploitez les vulnérabilités web</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-2 pb-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-purple-400 mr-2"></div>
-                      <p className="text-gray-300 text-sm">Injection SQL et vectorisation</p>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-purple-400 mr-2"></div>
-                      <p className="text-gray-300 text-sm">XSS et prise de contrôle navigateur</p>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-purple-400 mr-2"></div>
-                      <p className="text-gray-300 text-sm">Analyse dynamique de code avec IA</p>
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter className="bg-gray-800/60 border-t border-gray-700 pt-3 pb-4">
-                  <div className="flex items-center text-xs text-gray-400">
-                    <Cpu className="h-3.5 w-3.5 mr-1.5 text-purple-400" />
-                    <span>Défis interactifs avec environnement d'exécution en temps réel</span>
-                  </div>
-                </CardFooter>
-              </Card>
-
-              {/* Module de Laboratoire d'analyse de trafic réseau */}
-              <Card 
-                className={`bg-gray-800 border-2 transition-all duration-300 hover:shadow-md cursor-pointer overflow-hidden ${
-                  activeModule === 'network' 
-                    ? 'border-cyan-500 shadow-lg shadow-cyan-500/30' 
-                    : 'border-gray-700 hover:border-cyan-700/50'
-                }`}
-                onClick={() => handleModuleSelection('network')}
-              >
-                <div className={`h-1.5 w-full ${
-                  activeModule === 'network' ? 'bg-gradient-to-r from-cyan-500 to-blue-500' : 'bg-gray-700'
-                }`}></div>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center">
-                    <div className="p-3 rounded-lg bg-cyan-900/50 mr-4">
-                      <Network className="h-7 w-7 text-cyan-400" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg text-white">Laboratoire d'analyse de trafic réseau</CardTitle>
-                      <CardDescription className="text-gray-400">Analysez et interprétez des captures réseaux</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-2 pb-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-cyan-400 mr-2"></div>
-                      <p className="text-gray-300 text-sm">Analyse de paquets TCP/IP</p>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-cyan-400 mr-2"></div>
-                      <p className="text-gray-300 text-sm">Détection d'intrusions et anomalies</p>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-cyan-400 mr-2"></div>
-                      <p className="text-gray-300 text-sm">Investigation forensique avancée</p>
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter className="bg-gray-800/60 border-t border-gray-700 pt-3 pb-4">
-                  <div className="flex items-center text-xs text-gray-400">
-                    <Server className="h-3.5 w-3.5 mr-1.5 text-cyan-400" />
-                    <span>Captures PCAP réelles avec visualisation interactive</span>
-                  </div>
-                </CardFooter>
-              </Card>
-            </div>
-
-            {activeModule !== 'none' && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="mt-8 flex justify-center"
-              >
-                <Button 
-                  className={`px-8 py-6 text-white ${
-                    activeModule === 'pentest' 
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700' 
-                      : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700'
-                  }`}
-                  onClick={goToModule}
-                >
-                  {activeModule === 'pentest' 
-                    ? "Accéder à l'atelier de Pentest Web" 
-                    : "Accéder au laboratoire d'analyse réseau"}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </motion.div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Section d'information sur le laboratoire */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
-          <Card className="bg-blue-900/10 border border-blue-900/30">
-            <CardHeader>
-              <CardTitle className="text-lg text-blue-300 flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Apprentissage par la pratique
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-gray-300">
-              Les modules du CYBER LAB vous permettent de mettre en pratique vos connaissances dans un environnement sécurisé. Manipulez du code, analysez des données réelles et développez vos compétences techniques.
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-purple-900/10 border border-purple-900/30">
-            <CardHeader>
-              <CardTitle className="text-lg text-purple-300 flex items-center gap-2">
-                <Terminal className="h-5 w-5" />
-                Intelligence artificielle
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-gray-300">
-              Les modules du CYBER LAB intègrent l'intelligence artificielle pour analyser votre code, générer des défis personnalisés et vous fournir un retour précis sur vos manipulations techniques.
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-cyan-900/10 border border-cyan-900/30">
-            <CardHeader>
-              <CardTitle className="text-lg text-cyan-300 flex items-center gap-2">
-                <Database className="h-5 w-5" />
-                Défis inspirés de cas réels
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-gray-300">
-              Affrontez des défis inspirés de situations réelles rencontrées par les professionnels de la cybersécurité. Développez vos compétences en résolution de problèmes et votre pensée critique.
-            </CardContent>
-          </Card>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white p-6">
+      {/* En-tête */}
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold text-cyan-300 mb-2">CYBER LAB</h1>
+        <p className="text-gray-400 max-w-2xl mx-auto">
+          Bienvenue dans l'environnement d'expérimentation pratique des concepts de cybersécurité. 
+          Choisissez un module pour commencer votre apprentissage par la pratique.
+        </p>
       </div>
-    </HomeLayout>
+
+      {/* Animation de code en arrière-plan */}
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden z-0 opacity-10 pointer-events-none">
+        <pre className="text-cyan-400 text-xs animate-scrolling-code">
+          {Array(20).fill(codeLines).flat().join('\n')}
+        </pre>
+      </div>
+
+      {/* Modules de laboratoire */}
+      <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto z-10 relative">
+        {/* Module de Pentest Web */}
+        <motion.div
+          initial="initial"
+          animate="animate"
+          whileHover="hover"
+          transition={{ duration: 0.3 }}
+          variants={cardVariants}
+        >
+          <Card className="bg-gray-900/80 border-purple-900/50 hover:border-purple-500/50 h-full transition-all">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-2xl text-purple-300 flex items-center gap-2">
+                <Terminal className="h-6 w-6" />
+                Atelier de Pentest Web
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Découvrez et exploitez les vulnérabilités web dans un environnement sécurisé
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-sm text-gray-300">
+              <div className="space-y-3">
+                <div className="flex items-start gap-2">
+                  <div className="bg-purple-900/30 p-1 rounded-full mt-0.5">
+                    <Shield className="h-4 w-4 text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-purple-200">Challenges interactifs</p>
+                    <p className="text-xs text-gray-400">Testez vos compétences sur des vulnérabilités réelles: XSS, injection SQL, CSRF, etc.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <div className="bg-purple-900/30 p-1 rounded-full mt-0.5">
+                    <Zap className="h-4 w-4 text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-purple-200">Exécution de code réel</p>
+                    <p className="text-xs text-gray-400">Écrivez et exécutez du code pour exploiter et corriger des failles de sécurité</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                className="w-full bg-purple-900/60 hover:bg-purple-800 text-white hover:text-white border border-purple-700 group"
+                onClick={() => setLocation('/cyber/pentest-lab')}
+              >
+                <span>Accéder au laboratoire</span>
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </CardFooter>
+          </Card>
+        </motion.div>
+
+        {/* Module d'analyse réseau */}
+        <motion.div
+          initial="initial"
+          animate="animate"
+          whileHover="hover"
+          transition={{ duration: 0.3, delay: 0.1 }}
+          variants={cardVariants}
+        >
+          <Card className="bg-gray-900/80 border-cyan-900/50 hover:border-cyan-500/50 h-full transition-all">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-2xl text-cyan-300 flex items-center gap-2">
+                <Network className="h-6 w-6" />
+                Analyse de trafic réseau
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Analysez des captures réseau pour identifier les menaces et vulnérabilités
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-sm text-gray-300">
+              <div className="space-y-3">
+                <div className="flex items-start gap-2">
+                  <div className="bg-cyan-900/30 p-1 rounded-full mt-0.5">
+                    <Shield className="h-4 w-4 text-cyan-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-cyan-200">Forensique réseau</p>
+                    <p className="text-xs text-gray-400">Explorez des captures PCAP pour détecter les attaques réseau et exfiltrations de données</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <div className="bg-cyan-900/30 p-1 rounded-full mt-0.5">
+                    <Zap className="h-4 w-4 text-cyan-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-cyan-200">Visualisation de données</p>
+                    <p className="text-xs text-gray-400">Utilisez des outils d'analyse Python pour interpréter les motifs de trafic malveillant</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                className="w-full bg-cyan-900/60 hover:bg-cyan-800 text-white hover:text-white border border-cyan-700 group"
+                onClick={() => setLocation('/cyber/network-lab')}
+              >
+                <span>Accéder au laboratoire</span>
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </CardFooter>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Les styles sont définis dans un fichier CSS séparé */}
+    </div>
   );
-}
+};
+
+export default CyberLab;

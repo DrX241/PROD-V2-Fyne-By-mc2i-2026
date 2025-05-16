@@ -1,7 +1,12 @@
 import React from 'react';
 import { useLocation } from 'wouter';
-import { Network, Code } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { 
+  ArrowLeft,
+  Network,
+  Shield,
+  Terminal
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 type ModuleType = 'pentest' | 'network';
 
@@ -15,51 +20,56 @@ export const CyberLabNav: React.FC<CyberLabNavProps> = ({ activeModule }) => {
   const switchModule = (module: ModuleType) => {
     if (module === 'pentest') {
       setLocation('/cyber/pentest-lab');
-    } else {
+    } else if (module === 'network') {
       setLocation('/cyber/network-lab');
     }
   };
   
   return (
-    <div className="bg-gray-900 border-b border-gray-800 px-4 py-2 flex items-center justify-between">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`${
-            activeModule === 'pentest' 
-              ? 'bg-purple-900/30 text-purple-300 hover:bg-purple-900/40 hover:text-purple-300' 
-              : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800'
-          } flex items-center gap-2`}
-          onClick={() => switchModule('pentest')}
-        >
-          <Code className="h-4 w-4" />
-          <span>Atelier de Pentest Web</span>
-        </Button>
+    <div className="bg-black/70 backdrop-blur-sm border-b border-cyan-900/50 py-2 px-6 sticky top-0 z-10">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setLocation('/cyber')}
+            className="flex items-center gap-2 text-gray-400 hover:text-cyan-400 transition-colors duration-200 py-2 px-3 rounded-md hover:bg-cyan-950/20"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Retour</span>
+          </button>
+          
+          <span className="text-gray-600 mx-2">|</span>
+          
+          <div className="text-lg font-medium text-cyan-300">CYBER LAB</div>
+        </div>
         
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`${
-            activeModule === 'network' 
-              ? 'bg-cyan-900/30 text-cyan-300 hover:bg-cyan-900/40 hover:text-cyan-300' 
-              : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800'
-          } flex items-center gap-2`}
-          onClick={() => switchModule('network')}
-        >
-          <Network className="h-4 w-4" />
-          <span>Laboratoire d'analyse réseau</span>
-        </Button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => switchModule('pentest')}
+            className={cn(
+              "flex items-center gap-2 py-2 px-4 rounded-md transition-all duration-200",
+              activeModule === 'pentest'
+                ? "bg-purple-900/40 text-purple-300 border-b-2 border-purple-400"
+                : "text-gray-400 hover:text-purple-300 hover:bg-purple-900/20"
+            )}
+          >
+            <Terminal className="w-4 h-4" />
+            <span>Atelier de Pentest Web</span>
+          </button>
+          
+          <button
+            onClick={() => switchModule('network')}
+            className={cn(
+              "flex items-center gap-2 py-2 px-4 rounded-md transition-all duration-200",
+              activeModule === 'network'
+                ? "bg-cyan-900/40 text-cyan-300 border-b-2 border-cyan-400"
+                : "text-gray-400 hover:text-cyan-300 hover:bg-cyan-900/20"
+            )}
+          >
+            <Network className="w-4 h-4" />
+            <span>Analyse de trafic réseau</span>
+          </button>
+        </div>
       </div>
-      
-      <Button
-        variant="outline"
-        size="sm"
-        className="text-gray-400 hover:text-gray-300 hover:bg-gray-800 border-gray-700"
-        onClick={() => setLocation('/cyber/cyber-lab')}
-      >
-        Retour au CYBER LAB
-      </Button>
     </div>
   );
 };
