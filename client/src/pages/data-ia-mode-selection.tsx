@@ -539,7 +539,7 @@ export default function DataIaModeSelection() {
                       <IoBookOutline className="h-8 w-8 text-white" />
                     </div>
                   </div>
-                  <CardTitle className="text-center text-2xl font-data-title">DATA & IA ACADEMY</CardTitle>
+                  <CardTitle className="text-center text-2xl font-data-title">CAMPUS FORMATION</CardTitle>
                   <CardDescription className="text-center text-blue-300 mt-2">
                     Centre de formation complet en data science, IA et métiers de la data
                   </CardDescription>
@@ -577,7 +577,7 @@ export default function DataIaModeSelection() {
                       <Code className="h-8 w-8 text-white" />
                     </div>
                   </div>
-                  <CardTitle className="text-center text-2xl font-data-title">READ ME IF YOU CAN</CardTitle>
+                  <CardTitle className="text-center text-2xl font-data-title">CODE CHALLENGE</CardTitle>
                   <CardDescription className="text-center text-blue-300 mt-2">
                     Testez votre compréhension du code Python et SQL dans un environnement interactif
                   </CardDescription>
@@ -615,7 +615,7 @@ export default function DataIaModeSelection() {
                       <BsFileEarmarkCode className="h-8 w-8 text-white" />
                     </div>
                   </div>
-                  <CardTitle className="text-center text-2xl font-data-title">IA LAB TRAINER</CardTitle>
+                  <CardTitle className="text-center text-2xl font-data-title">DATA STUDIO</CardTitle>
                   <CardDescription className="text-center text-blue-300 mt-2">
                     Laboratoire interactif pour coder en Python et SQL avec assistance IA
                   </CardDescription>
