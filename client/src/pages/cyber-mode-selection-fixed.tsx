@@ -184,26 +184,7 @@ export default function CyberModeSelectionRedesign() {
       duration: '15-30 min'
     },
 
-    {
-      id: 'entree',
-      title: 'CHECK LIST AUDITION',
-      description: "Module de préparation pour les entretiens clients avec conseils professionnels",
-      icon: <BsPersonCheck className="h-5 w-5" />,
-      destination: '/cyber/interview-preparation',
-      difficulty: 'intermédiaire',
-      duration: '20-40 min',
-    },
-
-    {
-      id: 'cyber-pulse',
-      title: 'CYBERPULSE',
-      description: "Jouez avec un chatbot ludique et immersif qui génère des défis et des jeux en cybersécurité",
-      icon: <BsLightningCharge className="h-5 w-5" />,
-      destination: '/cyber/cyber-pulse',
-      difficulty: 'débutant',
-      duration: '10-20 min',
-      isNew: true
-    },
+    /* Les modules CYBERPULSE et CHECK LIST AUDITION ont été supprimés */
 
     {
       id: 'cyber-arcade',
@@ -327,7 +308,6 @@ export default function CyberModeSelectionRedesign() {
       icon: <IoBookOutline className="h-6 w-6 text-blue-100" />,
       modules: [
         'agent-ia',                // Assistant IA pour répondre aux questions
-        'cyber-pulse',            // CyberPULSE - Générateur de jeux et scenarios
         'ascension-progression',   // Parcours structuré de formation
         'centre-apprentissage'     // Nouveau module centralisant les ressources de formation
       ],
@@ -346,7 +326,6 @@ export default function CyberModeSelectionRedesign() {
       icon: <IoDesktopOutline className="h-6 w-6 text-indigo-100" />,
       modules: [
         'cyber-arcade',            // Jeux interactifs d'apprentissage
-        'entree',                  // Check List Audition
         'gestion-crise',           // Gestion de crise en temps réel
         'plan-continuité'          // Plan de Continuité d'Activité
       ],
