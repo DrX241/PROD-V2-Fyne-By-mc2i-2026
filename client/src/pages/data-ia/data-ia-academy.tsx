@@ -62,6 +62,14 @@ interface Module {
   comingSoon?: boolean;
 }
 
+interface QuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswerIndex: number;
+  explanation: string;
+}
+
 export default function DataIaAcademy() {
   // États
   const [modules, setModules] = useState<Module[]>([
@@ -739,9 +747,9 @@ export default function DataIaAcademy() {
                             .then(data => {
                               if (data.success && data.questions) {
                                 const quizIntro = `# Quiz sur ${selectedModule.title}\n\nTestez vos connaissances avec ces ${data.questions.length} questions :\n\n`;
-                                const questionsText = data.questions.map((q, i) => 
+                                const questionsText = data.questions.map((q: QuizQuestion, i: number) => 
                                   `**Question ${i+1}**: ${q.question}\n` +
-                                  q.options.map((opt, j) => `${j === q.correctAnswerIndex ? '✓' : ' '} ${opt}`).join('\n') +
+                                  q.options.map((opt: string, j: number) => `${j === q.correctAnswerIndex ? '✓' : ' '} ${opt}`).join('\n') +
                                   `\n\n*Explication: ${q.explanation}*\n\n`
                                 ).join('\n');
                                 

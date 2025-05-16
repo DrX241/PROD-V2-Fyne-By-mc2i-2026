@@ -29,7 +29,8 @@ import {
   BsBriefcase,
   BsGraphUp,
   BsBarChartLine,
-  BsDatabase
+  BsDatabase,
+  BsBook
 } from 'react-icons/bs';
 import { RiTeamLine, RiUserSettingsLine, RiFilterLine, RiRobot2Line } from 'react-icons/ri';
 import { MdOutlineEmojiEvents, MdOutlineDataExploration } from 'react-icons/md';
@@ -113,6 +114,16 @@ export default function DataIaModeSelection() {
 
   // Modules Data & IA disponibles
   const modules: Module[] = [
+    {
+      id: 'data-ia-academy',
+      title: 'DATA & IA ACADEMY',
+      description: 'Centre de formation complet pour apprendre Python, SQL, Data Science et les métiers de la Data.',
+      icon: <IoBookOutline className="h-5 w-5 text-blue-200" />,
+      destination: '/data-ia/data-ia-academy',
+      difficulty: 'tous niveaux',
+      isNew: true,
+      comingSoon: false
+    },
     {
       id: 'data-trainer',
       title: 'DATA TRAINER',
