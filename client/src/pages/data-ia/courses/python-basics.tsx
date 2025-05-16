@@ -657,8 +657,8 @@ b = bool(1)         # Convertit en booléen (True)`}
                         </tr>
                         <tr className="bg-blue-900/30">
                           <td className="border border-blue-800 p-2">Comparaison</td>
-                          <td className="border border-blue-800 p-2"><code>==, !=, >, <, >=, <=</code></td>
-                          <td className="border border-blue-800 p-2"><code>5 > 2 → True, 5 == 5 → True</code></td>
+                          <td className="border border-blue-800 p-2"><code>==, !=, &gt;, &lt;, &gt;=, &lt;=</code></td>
+                          <td className="border border-blue-800 p-2"><code>5 &gt; 2 → True, 5 == 5 → True</code></td>
                         </tr>
                         <tr className="bg-blue-900/20">
                           <td className="border border-blue-800 p-2">Logiques</td>
@@ -1051,7 +1051,7 @@ print(f"Salaire maximal: {max_salaire}€ (employé: {nom_max_salaire})")  # Sal
 # Filtrage des données (comme avec pandas .query())
 jeunes_employes = []
 for i in range(len(donnees["nom"])):
-    if donnees["age"][i] < 30 and donnees["salaire"][i] > 40000:
+    if donnees["age"][i] &lt; 30 and donnees["salaire"][i] &gt; 40000:
         jeunes_employes.append(donnees["nom"][i])
         
 print(f"Jeunes employés bien payés: {jeunes_employes}")  # Jeunes employés bien payés: ['Alice']
