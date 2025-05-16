@@ -743,10 +743,10 @@ export default function CyberModeSelectionRedesign() {
                     className={`cyber-edge-distort relative overflow-hidden p-8 ${
                       highContrastMode 
                         ? 'bg-gray-800 border border-gray-700' 
-                        : `bg-gradient-to-br from-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-900/80 to-black border border-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-500/20`
+                        : `bg-gradient-to-br from-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-800 to-black border-2 border-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-500/40 shadow-lg shadow-${objective.id === 'pratique' ? 'violet' : objective.id === 'initiale' ? 'blue' : objective.id === 'avancee' ? 'purple' : 'cyan'}-900/30`
                     }`}
                     whileHover={{ 
-                      boxShadow: highContrastMode ? 'none' : '0 0 15px rgba(6, 182, 212, 0.3)',
+                      boxShadow: highContrastMode ? 'none' : `0 0 20px rgba(${objective.id === 'pratique' ? '139, 92, 246' : objective.id === 'initiale' ? '59, 130, 246' : objective.id === 'avancee' ? '168, 85, 247' : '6, 182, 212'}, 0.5)`,
                       scale: 1.02
                     }}
                     data-id={`objective-${objective.id}`}
@@ -1152,18 +1152,18 @@ export default function CyberModeSelectionRedesign() {
                       transition={{ duration: 0.3 }}
                     >
                       <Card 
-                        className={`h-full border shadow-lg ${
+                        className={`h-full border-2 shadow-lg ${
                           highContrastMode 
                             ? 'bg-gray-800 border-gray-700 hover:border-gray-600' 
-                            : 'bg-white/5 border-white/20 hover:bg-white/10'
-                        } transition-colors`}
+                            : 'bg-gradient-to-br from-blue-900/80 to-black border-blue-500/40 hover:border-blue-400/60 shadow-blue-900/30'
+                        } transition-all`}
                         data-id={`module-card-${module.id}`}
                       >
                         <CardHeader className="pb-3">
                           <div className="flex justify-between items-start">
                             <div className="flex items-start">
                               <div className={`p-3 rounded-lg shrink-0 mt-0.5 ${
-                                highContrastMode ? 'bg-blue-900' : 'bg-blue-900/40'
+                                highContrastMode ? 'bg-blue-900' : 'bg-blue-700 shadow-inner shadow-blue-500/20'
                               } mr-4`}>
                                 {module.icon}
                               </div>
@@ -1222,11 +1222,11 @@ export default function CyberModeSelectionRedesign() {
                       transition={{ duration: 0.2 }}
                     >
                       <div 
-                        className={`flex items-center justify-between p-5 border rounded-xl shadow-md ${
+                        className={`flex items-center justify-between p-5 border-2 rounded-xl shadow-md ${
                           highContrastMode 
                             ? 'bg-gray-800 border-gray-700 hover:border-gray-600' 
-                            : 'bg-white/5 border-white/20 hover:bg-white/10'
-                        } transition-colors`}
+                            : 'bg-gradient-to-br from-blue-900/80 to-black border-blue-500/40 hover:border-blue-400/60 shadow-blue-900/30'
+                        } transition-all`}
                         data-id={`module-list-${module.id}`}
                       >
                         <div className="flex items-start gap-5">
