@@ -1,4 +1,4 @@
-import { ChatCompletionRequestMessage } from "@shared/schema";
+import { ChatCompletionRequestMessage } from "./openAiTypes";
 import axios from "axios";
 
 interface OpenAIConfig {

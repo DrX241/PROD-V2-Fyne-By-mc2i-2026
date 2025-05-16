@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { openAIService } from '../services/openai';
-import { ChatCompletionRequestMessage } from '@shared/schema';
+import { ChatCompletionRequestMessage } from '../services/openAiTypes';
 
 // Interface pour la structure des requêtes de génération de cours
 interface CourseGenerationRequest {

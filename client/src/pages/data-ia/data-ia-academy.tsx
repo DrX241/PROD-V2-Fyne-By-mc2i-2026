@@ -603,6 +603,251 @@ export default function DataIaAcademy() {
           </div>
         </div>
         
+        {/* Section détaillée du module sélectionné */}
+        {selectedModule && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-8 mb-10"
+          >
+            <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 border border-blue-400/20 shadow-lg overflow-hidden">
+              <CardHeader className="pb-3 bg-gradient-to-r from-blue-900/50 to-indigo-900/50">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center">
+                    <div className="p-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 mr-4">
+                      {selectedModule.icon}
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl text-blue-300">{selectedModule.title}</CardTitle>
+                      <div className="flex items-center mt-1">
+                        <Badge className="bg-blue-600 mr-2">{selectedModule.difficulty}</Badge>
+                        <Badge variant="outline" className="border-blue-400/30 text-blue-300">{selectedModule.duration}</Badge>
+                      </div>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="text-blue-300 hover:text-blue-100 hover:bg-blue-800/50"
+                    onClick={() => setSelectedModule(null)}
+                  >
+                    Fermer
+                  </Button>
+                </div>
+              </CardHeader>
+              
+              <CardContent className="pt-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Colonne gauche - Description et objectifs */}
+                  <div className="lg:col-span-1 space-y-4">
+                    <div>
+                      <h3 className="text-lg text-blue-300 mb-2 font-medium">Description</h3>
+                      <p className="text-gray-300">{selectedModule.description}</p>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-lg text-blue-300 mb-2 font-medium">Objectifs d'apprentissage</h3>
+                      <ul className="space-y-1 text-gray-300">
+                        <li className="flex items-start">
+                          <div className="mr-2 mt-1 h-1.5 w-1.5 rounded-full bg-blue-400"></div>
+                          <span>Maîtriser les concepts fondamentaux</span>
+                        </li>
+                        <li className="flex items-start">
+                          <div className="mr-2 mt-1 h-1.5 w-1.5 rounded-full bg-blue-400"></div>
+                          <span>Appliquer ces connaissances en contexte réel</span>
+                        </li>
+                        <li className="flex items-start">
+                          <div className="mr-2 mt-1 h-1.5 w-1.5 rounded-full bg-blue-400"></div>
+                          <span>Développer des compétences pratiques</span>
+                        </li>
+                        <li className="flex items-start">
+                          <div className="mr-2 mt-1 h-1.5 w-1.5 rounded-full bg-blue-400"></div>
+                          <span>Préparer des projets réels</span>
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-lg text-blue-300 mb-2 font-medium">Progression</h3>
+                      <Progress 
+                        value={selectedModule.progress || 0} 
+                        className="h-2 bg-gray-700"
+                        indicatorClassName="bg-gradient-to-r from-blue-500 to-indigo-600"
+                      />
+                      <p className="text-sm text-gray-400 mt-1">
+                        {selectedModule.progress || 0}% complété
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Colonne droite - Options d'apprentissage */}
+                  <div className="lg:col-span-2 space-y-6">
+                    <div>
+                      <h3 className="text-lg text-blue-300 mb-3 font-medium">Options d'apprentissage</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Button 
+                          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 h-auto py-3 text-left flex items-center justify-between"
+                          onClick={generateCourseContent}
+                        >
+                          <div className="flex items-center">
+                            <BookOpen className="h-5 w-5 mr-3" />
+                            <div>
+                              <div className="font-medium">Cours interactif</div>
+                              <div className="text-xs text-blue-200/80">Généré pour votre niveau</div>
+                            </div>
+                          </div>
+                          <IoMdArrowForward className="h-5 w-5" />
+                        </Button>
+                        
+                        <Button 
+                          className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 h-auto py-3 text-left flex items-center justify-between"
+                          onClick={() => {
+                            setAiAssistantMessage("Préparation des exercices pratiques en cours...");
+                            setTimeout(() => {
+                              setAiAssistantMessage("Voici une série d'exercices pratiques pour mettre en application vos connaissances sur " + selectedModule.title + ". Ces exercices sont adaptés à votre niveau et vous permettront de progresser étape par étape.");
+                            }, 2000);
+                          }}
+                        >
+                          <div className="flex items-center">
+                            <Code className="h-5 w-5 mr-3" />
+                            <div>
+                              <div className="font-medium">Exercices pratiques</div>
+                              <div className="text-xs text-purple-200/80">Appliquez vos connaissances</div>
+                            </div>
+                          </div>
+                          <IoMdArrowForward className="h-5 w-5" />
+                        </Button>
+                        
+                        <Button
+                          className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 h-auto py-3 text-left flex items-center justify-between"
+                          onClick={() => {
+                            setAiAssistantMessage("Génération d'un quiz d'évaluation en cours...");
+                            fetch('/api/data-ia/generate-quiz', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json'
+                              },
+                              body: JSON.stringify({
+                                moduleId: selectedModule.id,
+                                moduleTitle: selectedModule.title,
+                                difficulty: selectedModule.difficulty
+                              })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                              if (data.success && data.questions) {
+                                const quizIntro = `# Quiz sur ${selectedModule.title}\n\nTestez vos connaissances avec ces ${data.questions.length} questions :\n\n`;
+                                const questionsText = data.questions.map((q, i) => 
+                                  `**Question ${i+1}**: ${q.question}\n` +
+                                  q.options.map((opt, j) => `${j === q.correctAnswerIndex ? '✓' : ' '} ${opt}`).join('\n') +
+                                  `\n\n*Explication: ${q.explanation}*\n\n`
+                                ).join('\n');
+                                
+                                setAiAssistantMessage(quizIntro + questionsText);
+                              } else {
+                                setAiAssistantMessage("Désolé, je n'ai pas pu générer de quiz pour le moment. Veuillez réessayer plus tard.");
+                              }
+                            })
+                            .catch(error => {
+                              console.error('Erreur:', error);
+                              setAiAssistantMessage("Une erreur est survenue lors de la génération du quiz. Veuillez réessayer.");
+                            });
+                          }}
+                        >
+                          <div className="flex items-center">
+                            <FileText className="h-5 w-5 mr-3" />
+                            <div>
+                              <div className="font-medium">Quiz d'évaluation</div>
+                              <div className="text-xs text-cyan-200/80">Testez vos connaissances</div>
+                            </div>
+                          </div>
+                          <IoMdArrowForward className="h-5 w-5" />
+                        </Button>
+                        
+                        <Button 
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 h-auto py-3 text-left flex items-center justify-between"
+                          onClick={() => {
+                            setAiAssistantMessage("Préparation du projet guidé en cours...");
+                            setTimeout(() => {
+                              setAiAssistantMessage(`# Projet guidé : Mise en pratique de ${selectedModule.title}\n\nCe projet vous permettra d'appliquer vos connaissances dans un contexte réel, avec l'aide de votre assistant IA à chaque étape. Suivez les instructions ci-dessous pour créer votre solution.\n\n## Contexte du projet\n\nVous travaillez pour mc2i, au sein de la direction DIXIT (Data & IA), et devez développer une solution pour un client du secteur de l'énergie qui cherche à optimiser sa consommation énergétique en analysant les données de ses installations.\n\n## Votre mission\n\n1. Analyser les données de consommation\n2. Identifier les facteurs influençant les pics de consommation\n3. Créer un modèle prédictif simple\n4. Proposer des recommandations concrètes\n\nVous pouvez me poser des questions à chaque étape pour recevoir des conseils personnalisés.`);
+                            }, 2000);
+                          }}
+                        >
+                          <div className="flex items-center">
+                            <BsGraphUp className="h-5 w-5 mr-3" />
+                            <div>
+                              <div className="font-medium">Projet guidé</div>
+                              <div className="text-xs text-pink-200/80">Cas pratique avec assistance</div>
+                            </div>
+                          </div>
+                          <IoMdArrowForward className="h-5 w-5" />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="px-4 py-3 bg-blue-900/30 rounded-lg border border-blue-500/20">
+                      <h3 className="text-lg text-blue-300 mb-2 font-medium flex items-center">
+                        <RiRobot2Line className="h-5 w-5 mr-2" />
+                        Assistance IA personnalisée
+                      </h3>
+                      <p className="text-gray-300 text-sm mb-3">
+                        Posez des questions spécifiques sur ce module pour obtenir des explications adaptées à votre niveau.
+                      </p>
+                      <div className="flex gap-2">
+                        <input 
+                          type="text" 
+                          placeholder={`Question sur "${selectedModule.title}"...`} 
+                          className="flex-1 px-4 py-2 rounded-lg bg-gray-800/70 border border-blue-500/30 text-white focus:outline-none focus:border-blue-500/70"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && e.currentTarget.value) {
+                              const question = e.currentTarget.value;
+                              e.currentTarget.value = '';
+                              
+                              // Appel API pour répondre à la question
+                              setAiAssistantMessage(`Analyse de votre question sur ${selectedModule.title}...`);
+                              
+                              fetch('/api/data-ia/answer-question', {
+                                method: 'POST',
+                                headers: {
+                                  'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                  moduleId: selectedModule.id,
+                                  moduleTitle: selectedModule.title,
+                                  question
+                                })
+                              })
+                              .then(response => response.json())
+                              .then(data => {
+                                if (data.success && data.answer) {
+                                  setAiAssistantMessage(data.answer);
+                                } else {
+                                  setAiAssistantMessage("Je n'ai pas pu trouver une réponse précise à votre question. Pourriez-vous la reformuler ou me donner plus de détails?");
+                                }
+                              })
+                              .catch(error => {
+                                console.error('Erreur:', error);
+                                setAiAssistantMessage("Une erreur est survenue lors du traitement de votre question. Veuillez réessayer.");
+                              });
+                            }
+                          }}
+                        />
+                        <Button 
+                          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                        >
+                          Envoyer
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
         {/* Chatbot d'assistance IA */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
