@@ -521,6 +521,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     generateCode(req, res);
   });
   
+  // Route pour l'exécution de requêtes SQL dans les cours
+  app.post("/api/execute-sql", (req: Request, res: Response) => {
+    import('./controllers/sqlExecutionController').then(module => {
+      module.executeSQL(req, res);
+    }).catch(err => {
+      console.error("Erreur lors du chargement du contrôleur SQL:", err);
+      res.status(500).json({ error: "Erreur serveur lors de l'exécution SQL" });
+    });
+  });
+  
   // Routes pour le module Bug Hunter
   app.get("/api/bug-hunter/challenges", (req: Request, res: Response) => {
     getChallenges(req, res);
