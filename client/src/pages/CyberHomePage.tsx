@@ -270,37 +270,37 @@ const CyberHomePage: React.FC = () => {
               {modules.map((module) => (
                 <motion.div
                   key={module.id}
-                  className={`cyber-edge-distort relative overflow-hidden ${module.bgColor} border ${module.accentColor} p-6 transition-all duration-500`}
+                  className={`relative overflow-hidden bg-white border-2 border-blue-500 p-6 transition-all duration-500 shadow-md rounded-lg`}
                   onMouseEnter={() => handleModuleHover(module.id)}
                   onMouseLeave={() => handleModuleHover(null)}
                   whileHover={{ 
                     scale: 1.03,
-                    boxShadow: '0 0 25px rgba(0, 255, 255, 0.3)'
+                    boxShadow: '0 0 25px rgba(0, 100, 255, 0.4)'
                   }}
                   animate={{
                     boxShadow: hoveredModule === module.id 
-                      ? '0 0 25px rgba(0, 255, 255, 0.3)'
-                      : '0 0 5px rgba(0, 255, 255, 0.1)'
+                      ? '0 0 25px rgba(0, 100, 255, 0.4)'
+                      : '0 0 5px rgba(0, 100, 255, 0.2)'
                   }}
                 >
                   {/* Module header */}
                   <div className="flex items-center gap-3 mb-4">
-                    <div className={`p-2 rounded-md ${module.bgColor} border ${module.accentColor}`}>
+                    <div className={`p-2 rounded-md bg-blue-100 text-blue-700 border border-blue-300`}>
                       {module.icon}
                     </div>
-                    <h3 className={`text-xl font-cyber-title ${module.color}`}>
+                    <h3 className={`text-xl font-cyber-title text-blue-700`}>
                       {module.title}
                     </h3>
                   </div>
                   
                   {/* Description */}
-                  <p className="text-gray-300 mb-6 min-h-[4rem]">
+                  <p className="text-gray-600 mb-6 min-h-[4rem]">
                     {module.description}
                   </p>
                   
                   {/* Ligne scan - Ajustée pour tous les modules */}
                   <div 
-                    className={`absolute top-0 left-0 h-full w-px ${module.color.replace('text', 'bg')}`}
+                    className="absolute top-0 left-0 h-full w-px bg-blue-500"
                     style={{
                       opacity: hoveredModule === module.id ? 0.8 : 0,
                       transform: 'translateX(-100%)',
@@ -310,7 +310,7 @@ const CyberHomePage: React.FC = () => {
                   
                   {/* Ligne scan horizontale pour tous les modules */}
                   <div 
-                    className={`absolute top-0 left-0 w-full h-px ${module.color.replace('text', 'bg')}`}
+                    className="absolute top-0 left-0 w-full h-px bg-blue-500"
                     style={{
                       opacity: hoveredModule === module.id ? 0.8 : 0,
                       transform: 'translateY(-100%)',
@@ -334,7 +334,7 @@ const CyberHomePage: React.FC = () => {
                           setLocation('/playground/module-generator-new');
                         }
                       }}
-                      className="w-full"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white border border-blue-400"
                     >
                       Accéder
                       <ChevronRight className="ml-2" size={16} />
