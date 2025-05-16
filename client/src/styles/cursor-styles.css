@@ -15,7 +15,19 @@ input[type="button"],
 input[type="checkbox"], 
 input[type="radio"],
 select,
-.clickable {
+.clickable,
+.cyber-card-interactive {
+  cursor: pointer !important;
+}
+
+/* Remplacement global pour les éléments avec cursor-pointer */
+.cyber-edge-distort,
+.module-card {
+  cursor: default !important;
+}
+
+.module-card.clickable,
+.module-card .item-clickable {
   cursor: pointer !important;
 }
 
