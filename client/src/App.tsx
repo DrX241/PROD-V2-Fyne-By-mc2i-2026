@@ -771,49 +771,80 @@ function App() {
                 
                 {/* Routes pour les cours de DATA & IA ACADEMY */}
                 <Route path="/data-ia/courses/python-basics" component={() => {
+                  const PythonBasicsComponent = lazy(() => import('./pages/data-ia/courses/python-basics'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
-                      <NotYetImplemented title="Fondamentaux Python" message="Ce cours est en cours de développement. Il sera bientôt disponible." />
+                      <PythonBasicsComponent />
                     </Suspense>
                   );
                 }} />
                 
                 <Route path="/data-ia/courses/data-manipulation" component={() => {
+                  const NotYetImplementedComponent = lazy(() => import('./components/NotYetImplemented'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
-                      <NotYetImplemented title="Manipulation de données avec Pandas" message="Ce cours est en cours de développement. Il sera bientôt disponible." />
+                      <NotYetImplementedComponent 
+                        title="Manipulation de données avec Pandas" 
+                        message="Ce cours est en cours de développement. Il sera bientôt disponible."
+                        backPath="/data-ia/data-ia-academy"
+                        backLabel="Retour à Data & IA Academy"
+                      />
                     </Suspense>
                   );
                 }} />
                 
                 <Route path="/data-ia/courses/sql-fundamentals" component={() => {
+                  const NotYetImplementedComponent = lazy(() => import('./components/NotYetImplemented'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
-                      <NotYetImplemented title="SQL Fondamentaux" message="Ce cours est en cours de développement. Il sera bientôt disponible." />
+                      <NotYetImplementedComponent 
+                        title="SQL Fondamentaux" 
+                        message="Ce cours est en cours de développement. Il sera bientôt disponible."
+                        backPath="/data-ia/data-ia-academy"
+                        backLabel="Retour à Data & IA Academy"
+                      />
                     </Suspense>
                   );
                 }} />
                 
                 <Route path="/data-ia/courses/visualisation" component={() => {
+                  const NotYetImplementedComponent = lazy(() => import('./components/NotYetImplemented'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
-                      <NotYetImplemented title="Visualisation avec Matplotlib & Seaborn" message="Ce cours est en cours de développement. Il sera bientôt disponible." />
+                      <NotYetImplementedComponent 
+                        title="Visualisation avec Matplotlib & Seaborn" 
+                        message="Ce cours est en cours de développement. Il sera bientôt disponible."
+                        backPath="/data-ia/data-ia-academy"
+                        backLabel="Retour à Data & IA Academy"
+                      />
                     </Suspense>
                   );
                 }} />
                 
                 <Route path="/data-ia/courses/ml-fundamentals" component={() => {
+                  const NotYetImplementedComponent = lazy(() => import('./components/NotYetImplemented'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
-                      <NotYetImplemented title="Fondamentaux du Machine Learning" message="Ce cours est en cours de développement. Il sera bientôt disponible." />
+                      <NotYetImplementedComponent 
+                        title="Fondamentaux du Machine Learning" 
+                        message="Ce cours est en cours de développement. Il sera bientôt disponible."
+                        backPath="/data-ia/data-ia-academy"
+                        backLabel="Retour à Data & IA Academy"
+                      />
                     </Suspense>
                   );
                 }} />
                 
                 <Route path="/data-ia/courses/:courseId" component={() => {
+                  const NotYetImplementedComponent = lazy(() => import('./components/NotYetImplemented'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
-                      <NotYetImplemented title="Cours en développement" message="Ce cours est en cours de développement. Il sera bientôt disponible." />
+                      <NotYetImplementedComponent 
+                        title="Cours en développement" 
+                        message="Ce cours est en cours de développement. Il sera bientôt disponible."
+                        backPath="/data-ia/data-ia-academy"
+                        backLabel="Retour à Data & IA Academy"
+                      />
                     </Suspense>
                   );
                 }} />
