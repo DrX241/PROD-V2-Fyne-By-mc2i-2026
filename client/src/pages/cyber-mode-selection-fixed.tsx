@@ -577,10 +577,10 @@ export default function CyberModeSelectionRedesign() {
             <div className="flex items-center">
               <Link href="/">
                 <Button 
-                  className="bg-gradient-to-r from-blue-600 to-blue-800 text-white hover:from-blue-700 hover:to-blue-900 text-lg px-6 py-2 h-auto rounded-xl shadow-lg hover:shadow-blue-800/30 transition-all"
+                  className="bg-gradient-to-r from-cyan-600 to-cyan-900 text-white hover:from-cyan-500 hover:to-cyan-800 text-lg px-6 py-2 h-auto rounded-xl border border-cyan-500/50 shadow-lg shadow-cyan-900/30 hover:shadow-cyan-700/50 transition-all flex items-center"
                 >
                   <IoHome className="mr-3 h-6 w-6" />
-                  Accueil
+                  <span className="font-cyber">ACCUEIL</span>
                 </Button>
               </Link>
               <PageTitle title="Cyber Académie" />
@@ -594,7 +594,7 @@ export default function CyberModeSelectionRedesign() {
                     <Button 
                       variant="outline"
                       size="icon"
-                      className="w-11 h-11 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                      className="w-11 h-11 rounded-full bg-cyan-900/30 border-cyan-700 text-white hover:bg-cyan-800/50 shadow-md shadow-cyan-900/20"
                       onClick={() => {
                         setCurrentTour('cyber-mode-selection-redesign');
                         startTutorial();
@@ -619,8 +619,8 @@ export default function CyberModeSelectionRedesign() {
                       size="icon"
                       className={`w-11 h-11 rounded-full ${
                         highContrastMode 
-                          ? 'bg-blue-700 border-blue-600 text-white hover:bg-blue-600' 
-                          : 'bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50'
+                          ? 'bg-cyan-700 border-cyan-600 text-white hover:bg-cyan-600 shadow-md shadow-cyan-800/30' 
+                          : 'bg-cyan-900/30 border-cyan-700 text-white hover:bg-cyan-800/50 shadow-md shadow-cyan-900/20'
                       }`}
                       onClick={() => setHighContrastMode(!highContrastMode)}
                       data-id="contrast-button"
@@ -646,7 +646,7 @@ export default function CyberModeSelectionRedesign() {
                       <Button 
                         variant="outline"
                         size="icon"
-                        className="w-10 h-10 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                        className="w-10 h-10 rounded-full bg-cyan-900/30 border-cyan-700 text-white hover:bg-cyan-800/50 shadow-md shadow-cyan-900/20"
                         onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
                         data-id="text-smaller-button"
                       >
@@ -665,7 +665,7 @@ export default function CyberModeSelectionRedesign() {
                       <Button 
                         variant="outline"
                         size="icon"
-                        className="w-10 h-10 rounded-full bg-blue-900/30 border-blue-800 text-white hover:bg-blue-800/50"
+                        className="w-10 h-10 rounded-full bg-cyan-900/30 border-cyan-700 text-white hover:bg-cyan-800/50 shadow-md shadow-cyan-900/20"
                         onClick={() => setTextSize(Math.min(1.2, textSize + 0.1))}
                         data-id="text-larger-button"
                       >
