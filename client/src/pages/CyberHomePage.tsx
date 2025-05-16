@@ -155,7 +155,7 @@ const CyberHomePage: React.FC = () => {
 
   return (
     <div className="relative min-h-screen bg-white text-gray-800 overflow-hidden font-cyber">
-      {/* Fond blanc simple sans effets */}
+      {/* Fond blanc simple */}
       
       {/* Header */}
       <header className="relative z-10 pt-6 px-8">
@@ -164,8 +164,8 @@ const CyberHomePage: React.FC = () => {
             <div className="flex items-center gap-2">
               <img src={mcLogoPath} alt="mc2i" className="h-8 w-auto" />
               <div className="h-5 w-px bg-cyan-500/50"></div>
-              <div className="text-xl font-cyber-title text-cyan-400 tracking-wider font-bold">
-                FYNE
+              <div className="text-xl font-cyber-title text-blue-600 tracking-wider font-bold">
+                FYNE <span className="text-gray-700">CONNECTÉ</span>
               </div>
             </div>
             
@@ -235,12 +235,12 @@ const CyberHomePage: React.FC = () => {
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <span className="text-xs text-cyan-400 uppercase tracking-widest mb-2">
+              <span className="text-xs text-blue-600 uppercase tracking-widest mb-2">
                 Défiler
               </span>
-              <div className="w-6 h-10 border-2 border-cyan-400 rounded-full flex justify-center pt-2">
+              <div className="w-6 h-10 border-2 border-blue-600 rounded-full flex justify-center pt-2">
                 <motion.div 
-                  className="w-1.5 h-1.5 bg-cyan-400 rounded-full"
+                  className="w-1.5 h-1.5 bg-blue-600 rounded-full"
                   animate={{ y: [0, 12, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
@@ -250,18 +250,18 @@ const CyberHomePage: React.FC = () => {
         </section>
         
         {/* Section Modules */}
-        <section className="relative z-20 py-24 cyber-bg-fade">
+        <section className="relative z-20 py-24 bg-gray-50">
           <div className="container mx-auto px-8">
             <div className="text-center mb-16">
               <div className="inline-block">
-                <span className="px-4 py-1 rounded-full text-sm font-semibold bg-blue-900/30 text-cyan-300 font-cyber-accent tracking-wide border border-blue-500/30 backdrop-blur-sm">
+                <span className="px-4 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700 font-cyber-accent tracking-wide border border-blue-300 backdrop-blur-sm">
                   Modules Exclusifs
                 </span>
               </div>
-              <h2 className="mt-4 text-4xl md:text-5xl font-cyber-title tracking-wider text-white">
-                Expériences <span className="text-cyan-400">Adaptatives</span>
+              <h2 className="mt-4 text-4xl md:text-5xl font-cyber-title tracking-wider text-gray-800">
+                Expériences <span className="text-blue-600">Adaptatives</span>
               </h2>
-              <p className="mt-4 text-xl text-gray-300 max-w-2xl mx-auto">
+              <p className="mt-4 text-xl text-gray-600 max-w-2xl mx-auto">
                 Trois univers d'apprentissage conçus pour transformer votre formation en expérience immersive et interactive.
               </p>
             </div>
