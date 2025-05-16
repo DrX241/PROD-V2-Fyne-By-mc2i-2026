@@ -228,15 +228,15 @@ const CyberHomePage: React.FC = () => {
         <section className="relative min-h-[90vh] flex items-center">
           <div className="container mx-auto px-8 py-20 relative">
             {/* Image du personnage FYNE sur la droite */}
-            <div className="absolute right-0 bottom-0 z-10 hidden md:block" style={{ height: "calc(100vh - 100px)" }}>
+            <div className="absolute right-10 top-1/2 transform -translate-y-1/2 z-10 hidden md:block">
               <motion.img 
                 src={fyneCharacterPath}
                 alt="FYNE Character"
-                className="h-full object-contain object-bottom"
+                className="object-contain"
                 initial={{ opacity: 0, x: 100 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 1, delay: 0.5 }}
-                style={{ maxWidth: "40vw" }}
+                style={{ maxHeight: "80vh", maxWidth: "30vw" }}
               />
             </div>
 
