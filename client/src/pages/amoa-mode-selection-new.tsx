@@ -130,24 +130,27 @@ export default function AmoaModeSelectionNew() {
         
         {/* Contenu principal */}
         <div className="relative z-10 max-w-[1600px] w-full mx-auto px-4 py-12 sm:px-6 sm:py-16">
-          <div className="text-center mb-10 sm:mb-16">
-            <motion.h1 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-4xl font-bold mb-3"
-            >
-              I AM mc2i
-            </motion.h1>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-lg sm:text-xl text-blue-200 max-w-3xl mx-auto"
-            >
-              Assistant de formation intelligent pour les métiers de la transformation numérique
-            </motion.p>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-16 relative"
+            data-id="main-title"
+          >
+            <h1 className="text-5xl font-bold mb-4 font-data-title relative">
+              <span className="text-white">Centre de Formation</span>
+              <br />
+              <span className="text-6xl mt-2 block tracking-wider bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
+                I AM mc2i
+              </span>
+            </h1>
+            <div className="w-40 h-1 bg-gradient-to-r from-blue-400 to-indigo-500 mx-auto my-6 rounded-full"></div>
+            <p className={`max-w-3xl mx-auto text-xl ${
+              highContrastMode ? 'text-gray-300' : 'text-blue-100' 
+            }`}>
+              Assistant de formation intelligent pour les métiers de la <span className="font-semibold text-blue-300">transformation numérique</span>
+            </p>
+          </motion.div>
 
           {/* Modules mc2i */}
           <div className="mt-8 px-4">

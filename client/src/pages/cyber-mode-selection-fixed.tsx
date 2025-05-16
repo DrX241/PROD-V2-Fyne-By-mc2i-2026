@@ -668,34 +668,19 @@ export default function CyberModeSelectionRedesign() {
             className="text-center mb-16 relative z-10"
             data-id="main-title"
           >
-            <div className="inline-block">
-              <span className="px-4 py-1 rounded-full text-sm font-semibold bg-cyan-900/30 text-cyan-300 font-cyber-accent tracking-wide border border-cyan-500/30 backdrop-blur-sm">
-                Centre de Formation Avancée
-              </span>
-            </div>
-            
-            <h1 className="text-5xl font-cyber-title font-bold mb-4 mt-4 relative">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-500 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">
+            <h1 className="text-5xl font-bold mb-4 font-data-title relative">
+              <span className="text-white">Centre de Formation</span>
+              <br />
+              <span className="text-6xl mt-2 block tracking-wider bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                 I AM CYBER
               </span>
-              
-              {/* Ligne de décoration */}
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
             </h1>
-            
-            <p className={`max-w-3xl mx-auto text-xl font-cyber ${
-              highContrastMode ? 'text-gray-300' : 'text-blue-200'
-            } mt-8`}>
-              Trouvez votre parcours d'apprentissage personnalisé en cybersécurité
-              <span className="block mt-1 text-cyan-400/80">Simulations immersives · Formation adaptative · Scénarios réels</span>
+            <div className="w-40 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 mx-auto my-6 rounded-full"></div>
+            <p className={`max-w-3xl mx-auto text-xl ${
+              highContrastMode ? 'text-gray-300' : 'text-blue-100'
+            }`}>
+              Trouvez votre parcours d'apprentissage personnalisé en <span className="font-semibold text-cyan-300">cybersécurité</span>
             </p>
-            
-            {/* Élément décoratif */}
-            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-30 pointer-events-none" style={{ display: highContrastMode ? 'none' : 'block' }}>
-              <div className="h-px w-[200px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
-              <div className="h-px w-[150px] mx-auto mt-2 bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
-              <div className="h-px w-[100px] mx-auto mt-2 bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
-            </div>
           </motion.div>
 
           {/* Onglets principaux - TabsList masqué et remplacé par une marge minimale */}
