@@ -154,8 +154,39 @@ const CyberHomePage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-white text-gray-800 overflow-hidden font-cyber">
-      {/* Fond blanc simple */}
+    <div className="relative min-h-screen bg-gray-900 text-white overflow-hidden font-cyber">
+      {/* Scène 3D de fond */}
+      <CyberScene />
+      
+      {/* Background amélioré avec plusieurs couches */}
+      <div className="absolute inset-0 z-0">
+        {/* Overlay gradient principal */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-blue-950/40 to-black/80"></div>
+        
+        {/* Grille de fond cyberpunk inclinée */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcGF0dGVyblRyYW5zZm9ybT0icm90YXRlKDMwKSI+PHBhdGggZD0iTSAxMDAgMCBMIDAgMCAwIDEwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMWQ0ZWQ4IiBzdHJva2Utd2lkdGg9IjAuNSIvPjwvcGF0dGVybj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPjwvc3ZnPg==')]" style={{ opacity: 0.12 }}></div>
+        
+        {/* Texture de bruit pour donner de la profondeur */}
+        <div className="absolute inset-0 opacity-30 mix-blend-overlay bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=')]"></div>
+        
+        {/* Circuit patterns cybernétiques */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXR0ZXJuIGlkPSJjaXJjdWl0IiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMGgxMDB2MTAwSDIwMHYxMDBoLTEwMHYtMTAwSDB6IiBmaWxsPSJub25lIiBzdHJva2U9IiMwZmIzZDEiIHN0cm9rZS13aWR0aD0iMSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIwIiByPSIzIiBmaWxsPSIjMGZiM2QxIi8+PGNpcmNsZSBjeD0iMjAwIiBjeT0iMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIyMDAiIHI9IjMiIGZpbGw9IiMwZmIzZDEiLz48L3BhdHRlcm4+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNjaXJjdWl0KSIgb3BhY2l0eT0iMC4xNSIvPjwvc3ZnPg==')]" style={{ opacity: 0.08 }}></div>
+        
+        {/* Scanlines animées */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="w-full h-full bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent bg-repeat-y" 
+              style={{ 
+                backgroundSize: '100% 8px', 
+                animation: 'moveVertical 8s linear infinite',
+                opacity: 0.3
+              }}>
+          </div>
+        </div>
+        
+        {/* Éclats de lumière */}
+        <div className="absolute top-1/6 right-1/6 w-3 h-3 bg-cyan-300 rounded-full opacity-70 animate-pulse shadow-[0_0_40px_20px_rgba(34,211,238,0.6)]"></div>
+        <div className="absolute bottom-1/4 left-1/6 w-2 h-2 bg-pink-300 rounded-full opacity-60 animate-pulse shadow-[0_0_30px_15px_rgba(236,72,153,0.5)]"></div>
+      </div>
       
       {/* Header */}
       <header className="relative z-10 pt-6 px-8">
@@ -164,8 +195,8 @@ const CyberHomePage: React.FC = () => {
             <div className="flex items-center gap-2">
               <img src={mcLogoPath} alt="mc2i" className="h-8 w-auto" />
               <div className="h-5 w-px bg-cyan-500/50"></div>
-              <div className="text-xl font-cyber-title text-blue-600 tracking-wider font-bold">
-                FYNE <span className="text-gray-700">CONNECTÉ</span>
+              <div className="text-xl font-cyber-title text-cyan-400 tracking-wider font-bold">
+                FYNE
               </div>
             </div>
             
@@ -186,6 +217,14 @@ const CyberHomePage: React.FC = () => {
                 <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse"></div>
                 <span className="text-xs uppercase text-green-400 tracking-wider">Connecté</span>
               </div>
+              <CyberButton 
+                variant="primary" 
+                size="sm"
+                className="ml-2"
+                onClick={() => {}}
+              >
+                {userName || 'Connexion'}
+              </CyberButton>
             </div>
           </div>
         </div>
@@ -193,28 +232,25 @@ const CyberHomePage: React.FC = () => {
       
       {/* Hero Section */}
       <main className="relative z-10">
-        <section className="relative min-h-[90vh] flex items-center bg-white">
+        <section className="relative min-h-[90vh] flex items-center">
           <div className="container mx-auto px-8 py-20">
             <motion.div 
               className="max-w-4xl mx-auto text-center"
               style={{ opacity, y, scale }}
             >
-              <div className="text-3xl md:text-5xl text-cyan-600 font-cyber-title mb-8 tracking-widest">
-                <div className="font-bold">
-                  <span className="text-blue-600">FYNE</span> <span className="text-gray-700">CONNECTÉ</span>
-                </div>
+              <div className="text-3xl md:text-5xl text-cyan-500 font-cyber-title mb-8 tracking-widest">
                 <CyberGlitchText 
                   text="FOR - YOUR - NEXT - EXPERIENCE" 
-                  textSize="text-2xl md:text-4xl" 
-                  color="text-cyan-600"
-                  highlightColor="text-pink-500" 
+                  textSize="text-3xl md:text-5xl" 
+                  color="text-cyan-500"
+                  highlightColor="text-pink-400" 
                   glitchIntensity="medium"
-                  className="tracking-widest mt-2"
+                  className="tracking-widest"
                 />
               </div>
               
-              <p className="text-xl md:text-2xl text-gray-700 mb-8 font-cyber leading-relaxed max-w-3xl mx-auto">
-                Transformez votre <span className="text-pink-600">expérience de formation</span> avec notre plateforme immersive alimentée par l'IA. <span className="text-cyan-600">FYNE</span> redéfinit l'apprentissage pour l'adapter à vos besoins.
+              <p className="text-xl md:text-2xl text-gray-300 mb-8 font-cyber leading-relaxed max-w-3xl mx-auto">
+                Transformez votre <span className="text-pink-400">expérience de formation</span> avec notre plateforme immersive alimentée par l'IA. <span className="text-cyan-400">FYNE</span> redéfinit l'apprentissage pour l'adapter à vos besoins.
               </p>
               
               <div className="flex items-center justify-center mt-10">
@@ -235,12 +271,12 @@ const CyberHomePage: React.FC = () => {
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <span className="text-xs text-blue-600 uppercase tracking-widest mb-2">
+              <span className="text-xs text-cyan-400 uppercase tracking-widest mb-2">
                 Défiler
               </span>
-              <div className="w-6 h-10 border-2 border-blue-600 rounded-full flex justify-center pt-2">
+              <div className="w-6 h-10 border-2 border-cyan-400 rounded-full flex justify-center pt-2">
                 <motion.div 
-                  className="w-1.5 h-1.5 bg-blue-600 rounded-full"
+                  className="w-1.5 h-1.5 bg-cyan-400 rounded-full"
                   animate={{ y: [0, 12, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
@@ -250,18 +286,18 @@ const CyberHomePage: React.FC = () => {
         </section>
         
         {/* Section Modules */}
-        <section className="relative z-20 py-24 bg-gray-50">
+        <section className="relative z-20 py-24 cyber-bg-fade">
           <div className="container mx-auto px-8">
             <div className="text-center mb-16">
               <div className="inline-block">
-                <span className="px-4 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700 font-cyber-accent tracking-wide border border-blue-300 backdrop-blur-sm">
+                <span className="px-4 py-1 rounded-full text-sm font-semibold bg-blue-900/30 text-cyan-300 font-cyber-accent tracking-wide border border-blue-500/30 backdrop-blur-sm">
                   Modules Exclusifs
                 </span>
               </div>
-              <h2 className="mt-4 text-4xl md:text-5xl font-cyber-title tracking-wider text-gray-800">
-                Expériences <span className="text-blue-600">Adaptatives</span>
+              <h2 className="mt-4 text-4xl md:text-5xl font-cyber-title tracking-wider text-white">
+                Expériences <span className="text-cyan-400">Adaptatives</span>
               </h2>
-              <p className="mt-4 text-xl text-gray-600 max-w-2xl mx-auto">
+              <p className="mt-4 text-xl text-gray-300 max-w-2xl mx-auto">
                 Trois univers d'apprentissage conçus pour transformer votre formation en expérience immersive et interactive.
               </p>
             </div>
@@ -270,37 +306,37 @@ const CyberHomePage: React.FC = () => {
               {modules.map((module) => (
                 <motion.div
                   key={module.id}
-                  className={`relative overflow-hidden bg-white border-2 border-blue-500 p-6 transition-all duration-500 shadow-md rounded-lg`}
+                  className={`cyber-edge-distort relative overflow-hidden ${module.bgColor} border ${module.accentColor} p-6 transition-all duration-500`}
                   onMouseEnter={() => handleModuleHover(module.id)}
                   onMouseLeave={() => handleModuleHover(null)}
                   whileHover={{ 
                     scale: 1.03,
-                    boxShadow: '0 0 25px rgba(0, 100, 255, 0.4)'
+                    boxShadow: '0 0 25px rgba(0, 255, 255, 0.3)'
                   }}
                   animate={{
                     boxShadow: hoveredModule === module.id 
-                      ? '0 0 25px rgba(0, 100, 255, 0.4)'
-                      : '0 0 5px rgba(0, 100, 255, 0.2)'
+                      ? '0 0 25px rgba(0, 255, 255, 0.3)'
+                      : '0 0 5px rgba(0, 255, 255, 0.1)'
                   }}
                 >
                   {/* Module header */}
                   <div className="flex items-center gap-3 mb-4">
-                    <div className={`p-2 rounded-md bg-blue-100 text-blue-700 border border-blue-300`}>
+                    <div className={`p-2 rounded-md ${module.bgColor} border ${module.accentColor}`}>
                       {module.icon}
                     </div>
-                    <h3 className={`text-xl font-cyber-title text-blue-700`}>
+                    <h3 className={`text-xl font-cyber-title ${module.color}`}>
                       {module.title}
                     </h3>
                   </div>
                   
                   {/* Description */}
-                  <p className="text-gray-600 mb-6 min-h-[4rem]">
+                  <p className="text-gray-300 mb-6 min-h-[4rem]">
                     {module.description}
                   </p>
                   
                   {/* Ligne scan - Ajustée pour tous les modules */}
                   <div 
-                    className="absolute top-0 left-0 h-full w-px bg-blue-500"
+                    className={`absolute top-0 left-0 h-full w-px ${module.color.replace('text', 'bg')}`}
                     style={{
                       opacity: hoveredModule === module.id ? 0.8 : 0,
                       transform: 'translateX(-100%)',
@@ -310,7 +346,7 @@ const CyberHomePage: React.FC = () => {
                   
                   {/* Ligne scan horizontale pour tous les modules */}
                   <div 
-                    className="absolute top-0 left-0 w-full h-px bg-blue-500"
+                    className={`absolute top-0 left-0 w-full h-px ${module.color.replace('text', 'bg')}`}
                     style={{
                       opacity: hoveredModule === module.id ? 0.8 : 0,
                       transform: 'translateY(-100%)',
@@ -334,7 +370,7 @@ const CyberHomePage: React.FC = () => {
                           setLocation('/playground/module-generator-new');
                         }
                       }}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white border border-blue-400"
+                      className="w-full"
                     >
                       Accéder
                       <ChevronRight className="ml-2" size={16} />
