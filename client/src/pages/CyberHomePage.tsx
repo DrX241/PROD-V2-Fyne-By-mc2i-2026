@@ -154,39 +154,8 @@ const CyberHomePage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-gray-900 text-white overflow-hidden font-cyber">
-      {/* Scène 3D de fond */}
-      <CyberScene />
-      
-      {/* Background amélioré avec plusieurs couches */}
-      <div className="absolute inset-0 z-0">
-        {/* Overlay gradient principal */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-blue-950/40 to-black/80"></div>
-        
-        {/* Grille de fond cyberpunk inclinée */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcGF0dGVyblRyYW5zZm9ybT0icm90YXRlKDMwKSI+PHBhdGggZD0iTSAxMDAgMCBMIDAgMCAwIDEwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMWQ0ZWQ4IiBzdHJva2Utd2lkdGg9IjAuNSIvPjwvcGF0dGVybj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPjwvc3ZnPg==')]" style={{ opacity: 0.12 }}></div>
-        
-        {/* Texture de bruit pour donner de la profondeur */}
-        <div className="absolute inset-0 opacity-30 mix-blend-overlay bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=')]"></div>
-        
-        {/* Circuit patterns cybernétiques */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXR0ZXJuIGlkPSJjaXJjdWl0IiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMGgxMDB2MTAwSDIwMHYxMDBoLTEwMHYtMTAwSDB6IiBmaWxsPSJub25lIiBzdHJva2U9IiMwZmIzZDEiIHN0cm9rZS13aWR0aD0iMSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIwIiByPSIzIiBmaWxsPSIjMGZiM2QxIi8+PGNpcmNsZSBjeD0iMjAwIiBjeT0iMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIyMDAiIHI9IjMiIGZpbGw9IiMwZmIzZDEiLz48L3BhdHRlcm4+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNjaXJjdWl0KSIgb3BhY2l0eT0iMC4xNSIvPjwvc3ZnPg==')]" style={{ opacity: 0.08 }}></div>
-        
-        {/* Scanlines animées */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="w-full h-full bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent bg-repeat-y" 
-              style={{ 
-                backgroundSize: '100% 8px', 
-                animation: 'moveVertical 8s linear infinite',
-                opacity: 0.3
-              }}>
-          </div>
-        </div>
-        
-        {/* Éclats de lumière */}
-        <div className="absolute top-1/6 right-1/6 w-3 h-3 bg-cyan-300 rounded-full opacity-70 animate-pulse shadow-[0_0_40px_20px_rgba(34,211,238,0.6)]"></div>
-        <div className="absolute bottom-1/4 left-1/6 w-2 h-2 bg-pink-300 rounded-full opacity-60 animate-pulse shadow-[0_0_30px_15px_rgba(236,72,153,0.5)]"></div>
-      </div>
+    <div className="relative min-h-screen bg-white text-gray-800 overflow-hidden font-cyber">
+      {/* Fond blanc simple sans effets */}
       
       {/* Header */}
       <header className="relative z-10 pt-6 px-8">
@@ -217,14 +186,6 @@ const CyberHomePage: React.FC = () => {
                 <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse"></div>
                 <span className="text-xs uppercase text-green-400 tracking-wider">Connecté</span>
               </div>
-              <CyberButton 
-                variant="primary" 
-                size="sm"
-                className="ml-2"
-                onClick={() => {}}
-              >
-                {userName || 'Connexion'}
-              </CyberButton>
             </div>
           </div>
         </div>
@@ -232,25 +193,28 @@ const CyberHomePage: React.FC = () => {
       
       {/* Hero Section */}
       <main className="relative z-10">
-        <section className="relative min-h-[90vh] flex items-center">
+        <section className="relative min-h-[90vh] flex items-center bg-white">
           <div className="container mx-auto px-8 py-20">
             <motion.div 
               className="max-w-4xl mx-auto text-center"
               style={{ opacity, y, scale }}
             >
-              <div className="text-3xl md:text-5xl text-cyan-500 font-cyber-title mb-8 tracking-widest">
+              <div className="text-3xl md:text-5xl text-cyan-600 font-cyber-title mb-8 tracking-widest">
+                <div className="font-bold">
+                  <span className="text-blue-600">FYNE</span> <span className="text-gray-700">CONNECTÉ</span>
+                </div>
                 <CyberGlitchText 
                   text="FOR - YOUR - NEXT - EXPERIENCE" 
-                  textSize="text-3xl md:text-5xl" 
-                  color="text-cyan-500"
-                  highlightColor="text-pink-400" 
+                  textSize="text-2xl md:text-4xl" 
+                  color="text-cyan-600"
+                  highlightColor="text-pink-500" 
                   glitchIntensity="medium"
-                  className="tracking-widest"
+                  className="tracking-widest mt-2"
                 />
               </div>
               
-              <p className="text-xl md:text-2xl text-gray-300 mb-8 font-cyber leading-relaxed max-w-3xl mx-auto">
-                Transformez votre <span className="text-pink-400">expérience de formation</span> avec notre plateforme immersive alimentée par l'IA. <span className="text-cyan-400">FYNE</span> redéfinit l'apprentissage pour l'adapter à vos besoins.
+              <p className="text-xl md:text-2xl text-gray-700 mb-8 font-cyber leading-relaxed max-w-3xl mx-auto">
+                Transformez votre <span className="text-pink-600">expérience de formation</span> avec notre plateforme immersive alimentée par l'IA. <span className="text-cyan-600">FYNE</span> redéfinit l'apprentissage pour l'adapter à vos besoins.
               </p>
               
               <div className="flex items-center justify-center mt-10">
