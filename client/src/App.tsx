@@ -328,7 +328,7 @@ function App() {
                 
                 {/* Nouvel Atelier de Pentest Web */}
                 <Route path="/cyber/pentest-lab" component={() => {
-                  const PentestLab = lazy(() => import('./pages/cyber/pentest-lab'));
+                  const PentestLab = lazy(() => import('./pages/cyber/pentest-lab/index'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
                       <PentestLab />
@@ -338,7 +338,7 @@ function App() {
                 
                 {/* Nouveau Laboratoire d'analyse de trafic réseau */}
                 <Route path="/cyber/network-lab" component={() => {
-                  const NetworkLab = lazy(() => import('./pages/cyber/network-lab'));
+                  const NetworkLab = lazy(() => import('./pages/cyber/network-lab/index'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
                       <NetworkLab />
@@ -366,7 +366,7 @@ function App() {
                 
                 {/* Section Laboratoire Cyber */}
                 <Route path="/cyber/cyber-lab" component={() => {
-                  const CyberLabComponent = lazy(() => import('./pages/cyber/cyber-lab'));
+                  const CyberLabComponent = lazy(() => import('./pages/cyber/cyber-lab/index'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
                       <CyberLabComponent />
