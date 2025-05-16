@@ -848,7 +848,7 @@ export default function DataIaAcademy() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Button 
                           className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 h-auto py-3 text-left flex items-center justify-between"
-                          onClick={generateCourseContent}
+                          onClick={loadCourseContent}
                         >
                           <div className="flex items-center">
                             <BookOpen className="h-5 w-5 mr-3" />
