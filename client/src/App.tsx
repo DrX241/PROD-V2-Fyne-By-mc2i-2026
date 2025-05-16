@@ -225,6 +225,9 @@ function App() {
                     </Suspense>
                   );
                 }} />
+                
+                {/* Route pour la nouvelle interface I AM CYBER v3 */}
+                <Route path="/cyber-v3" component={CyberModeSelectionV3} />
                 <Route path="/cyber-mode-selection" component={() => {
                   const CyberModeSelectionFixed = lazy(() => import('./pages/cyber-mode-selection-fixed'));
                   return (

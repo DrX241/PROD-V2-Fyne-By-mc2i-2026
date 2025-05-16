@@ -39,15 +39,21 @@ import { useTutorial } from '@/contexts/TutorialContext';
 import { useTheme } from '@/contexts/ThemeContext';
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import PageTitle from '@/components/cyber/PageTitle';
 import HomeLayout from '@/components/layout/HomeLayout';
 import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
-import DataButton from '@/components/DataButton';
+import { DataButton } from '@/components/DataButton';
+
+// Composant titre simple
+const PageTitle = ({ title }: { title: string }) => (
+  <div className="ml-6">
+    <h1 className="text-3xl font-bold text-white tracking-tight">{title}</h1>
+  </div>
+);
 
 export default function CyberModeSelectionV3() {
   const [, setLocation] = useLocation();
   const { currentTour, setCurrentTour, startTutorial } = useTutorial();
-  const { theme } = useTheme();
+  const { themeMode } = useTheme();
   
   // États pour l'accessibilité
   const [highContrastMode, setHighContrastMode] = useState(false);
