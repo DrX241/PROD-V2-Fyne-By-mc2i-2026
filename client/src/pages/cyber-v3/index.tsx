@@ -387,6 +387,16 @@ export default function CyberV3() {
                       <div className="w-2 h-2 rounded-full bg-violet-400 mr-2"></div>
                       <p className="text-gray-200 text-sm">Atelier de Pentest Web</p>
                     </div>
+                    <div 
+                      className="flex items-center p-2 hover:bg-violet-800/30 rounded cursor-pointer transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/cyber/network-lab');
+                      }}
+                    >
+                      <div className="w-2 h-2 rounded-full bg-violet-400 mr-2"></div>
+                      <p className="text-gray-200 text-sm">Laboratoire d'analyse de trafic réseau</p>
+                    </div>
                   </div>
                   <div className="text-center">
                     <Button 

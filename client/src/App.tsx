@@ -335,6 +335,16 @@ function App() {
                     </Suspense>
                   );
                 }} />
+                
+                {/* Nouveau Laboratoire d'analyse de trafic réseau */}
+                <Route path="/cyber/network-lab" component={() => {
+                  const NetworkLab = lazy(() => import('./pages/cyber/network-lab'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <NetworkLab />
+                    </Suspense>
+                  );
+                }} />
                 <Route path="/cyber/test-technique" component={() => {
                   const CyberTestTechnique = lazy(() => import('./pages/cyber/test-technique'));
                   return (
