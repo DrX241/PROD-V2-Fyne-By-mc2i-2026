@@ -19,16 +19,22 @@ export function DataSceneBackground() {
     );
     camera.position.z = 5;
     
-    // Initialisation du renderer
-    const renderer = new THREE.WebGLRenderer({ alpha: true });
+    // Initialisation du renderer avec paramètres optimisés
+    const renderer = new THREE.WebGLRenderer({ 
+      alpha: true,
+      antialias: false, // Désactivé pour améliorer les performances
+      powerPreference: 'high-performance'
+    });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x000000, 0);
+    // Limiter le pixel ratio pour les appareils haute densité
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     
     // Ajout du canvas au container
     containerRef.current.appendChild(renderer.domElement);
     
-    // Création des particules
-    const particleCount = 1000;
+    // Création des particules (nombre réduit pour optimisation)
+    const particleCount = 600; // Réduction du nombre de particules
     const particles = new THREE.BufferGeometry();
     
     const positions = new Float32Array(particleCount * 3);
@@ -36,6 +42,14 @@ export function DataSceneBackground() {
     const sizes = new Float32Array(particleCount);
     
     const color = new THREE.Color();
+    // Couleurs précalculées pour optimiser la boucle
+    const presetColors = [
+      '#4287f5', // Bleu
+      '#42c5f5', // Cyan
+      '#8042f5', // Violet
+      '#f542e3', // Rose
+      '#42f5d1'  // Turquoise
+    ];
     
     for (let i = 0; i < particleCount; i++) {
       // Position
@@ -43,27 +57,16 @@ export function DataSceneBackground() {
       positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
       positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
       
-      // Couleur
-      const colorIndex = Math.floor(Math.random() * 5);
-      
-      if (colorIndex === 0) {
-        color.set('#4287f5'); // Bleu
-      } else if (colorIndex === 1) {
-        color.set('#42c5f5'); // Cyan
-      } else if (colorIndex === 2) {
-        color.set('#8042f5'); // Violet
-      } else if (colorIndex === 3) {
-        color.set('#f542e3'); // Rose
-      } else {
-        color.set('#42f5d1'); // Turquoise
-      }
+      // Couleur - simplifié avec la sélection dans le tableau précalculé
+      const colorIndex = Math.floor(Math.random() * presetColors.length);
+      color.set(presetColors[colorIndex]);
       
       colors[i * 3] = color.r;
       colors[i * 3 + 1] = color.g;
       colors[i * 3 + 2] = color.b;
       
       // Taille
-      sizes[i] = Math.random() * 5;
+      sizes[i] = Math.random() * 4; // Taille légèrement réduite
     }
     
     particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -83,9 +86,19 @@ export function DataSceneBackground() {
     const particleSystem = new THREE.Points(particles, particleMaterial);
     scene.add(particleSystem);
     
-    // Animation
-    const animate = () => {
+    // Animation optimisée avec limitation du framerate
+    let lastFrameTime = 0;
+    const targetFrameRate = 30; // Limiter à 30 FPS pour économiser des ressources
+    const frameInterval = 1000 / targetFrameRate;
+    
+    const animate = (timestamp = 0) => {
       requestAnimationFrame(animate);
+      
+      // Limitation du framerate
+      const elapsed = timestamp - lastFrameTime;
+      if (elapsed < frameInterval) return;
+      
+      lastFrameTime = timestamp - (elapsed % frameInterval);
       
       particleSystem.rotation.x += 0.0003;
       particleSystem.rotation.y += 0.0005;
