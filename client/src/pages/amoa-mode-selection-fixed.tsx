@@ -21,7 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Card, CardHeader, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from "@/components/ui/card";
 
 // Types pour l'organisation des modules
 interface Module {
@@ -415,7 +415,7 @@ export default function AmoaModeSelectionFixed() {
               transition={{ duration: 0.5 }}
               className="text-4xl font-bold mb-3"
             >
-              Centre de Formation - I AM mc2i
+              I AM mc2i
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
@@ -425,254 +425,126 @@ export default function AmoaModeSelectionFixed() {
             >
               Assistant de formation intelligent pour les métiers de la transformation numérique
             </motion.p>
-            
-            {/* Barre de recherche et filtres */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="mt-8 max-w-xl mx-auto relative"
-            >
-              <div className="relative">
-                <IoSearchOutline className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <Input
-                  type="text"
-                  placeholder="Rechercher un module..."
-                  className="pl-10 pr-4 py-2 w-full bg-white/10 border-white/20 text-white placeholder-blue-200/70 focus:border-blue-400"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </motion.div>
           </div>
 
-          {/* Onglets principaux */}
-          <Tabs defaultValue="objectifs" className="w-full" data-id="main-tabs">
-            <TabsList className={`w-full mb-4 ${
-              highContrastMode ? 'bg-gray-800 border border-gray-700' : 'bg-white/10'
-            }`}>
-              <TabsTrigger 
-                value="objectifs" 
-                className={`flex-1 flex items-center justify-center ${
-                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
-                }`}
-                data-id="objectives-tab"
+          {/* Modules mc2i */}
+          <div className="mt-8 px-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-center max-w-6xl mx-auto">
+              {/* COACH ENTRETIEN */}
+              <Card 
+                className={`w-full ${
+                  highContrastMode 
+                    ? 'bg-gray-800 border border-gray-700' 
+                    : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
+                } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
+                onClick={() => setLocation('/amoa/coach-entretien')}
               >
-                <IoBookOutline className="h-5 w-5 mr-2" />
-                Par objectif d'apprentissage
-              </TabsTrigger>
-              <TabsTrigger 
-                value="metiers" 
-                className={`flex-1 flex items-center justify-center ${
-                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
-                }`}
-                data-id="careers-tab"
+                <CardHeader>
+                  <div className="flex items-center justify-center mb-4">
+                    <div className={`p-3 rounded-lg ${
+                      highContrastMode 
+                        ? 'bg-blue-800' 
+                        : 'bg-gradient-to-r from-blue-500 to-blue-700 shadow-md'
+                    }`}>
+                      <IoVideocam className="h-8 w-8 text-white" />
+                    </div>
+                  </div>
+                  <CardTitle className="text-center text-2xl font-bold">COACH ENTRETIEN</CardTitle>
+                  <CardDescription className="text-center text-blue-300 mt-2">
+                    Simulateur d'entretiens clients avec intelligence artificielle
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="text-center flex flex-col items-center">
+                  <p className="text-gray-200 mb-4">
+                    Préparez-vous aux différents scénarios d'entretien avec feedback personnalisé
+                  </p>
+                  <Button 
+                    className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-5"
+                    onClick={() => setLocation('/amoa/coach-entretien')}
+                  >
+                    Démarrer une simulation
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            
+              {/* PROJET ACADEMY */}
+              <Card 
+                className={`w-full ${
+                  highContrastMode 
+                    ? 'bg-gray-800 border border-gray-700' 
+                    : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
+                } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
+                onClick={() => setLocation('/amoa/projet-academy')}
               >
-                <BsPeopleFill className="h-5 w-5 mr-2" />
-                Par métier
-              </TabsTrigger>
-              <TabsTrigger 
-                value="tous" 
-                className={`flex-1 flex items-center justify-center ${
-                  highContrastMode ? 'data-[state=active]:bg-blue-900 text-white' : ''
-                }`}
-                data-id="all-modules-tab"
+                <CardHeader>
+                  <div className="flex items-center justify-center mb-4">
+                    <div className={`p-3 rounded-lg ${
+                      highContrastMode 
+                        ? 'bg-blue-900' 
+                        : 'bg-gradient-to-r from-indigo-500 to-indigo-700 shadow-md'
+                    }`}>
+                      <BsClipboardCheck className="h-8 w-8 text-white" />
+                    </div>
+                  </div>
+                  <CardTitle className="text-center text-2xl font-bold">PROJET ACADEMY</CardTitle>
+                  <CardDescription className="text-center text-blue-300 mt-2">
+                    Centre de formation aux méthodes et outils de gestion de projet mc2i
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="text-center flex flex-col items-center">
+                  <p className="text-gray-200 mb-4">
+                    Maîtrisez les bonnes pratiques, méthodologies agiles et gestion documentaire
+                  </p>
+                  <Button 
+                    className="bg-gradient-to-r from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-white px-6 py-5"
+                    onClick={() => setLocation('/amoa/projet-academy')}
+                  >
+                    Explorer les formations
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* CONSULTANT LAB */}
+              <Card 
+                className={`w-full ${
+                  highContrastMode 
+                    ? 'bg-gray-800 border border-gray-700' 
+                    : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
+                } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
+                onClick={() => setLocation('/amoa/consultant-lab')}
               >
-                <BsGearFill className="h-5 w-5 mr-2" />
-                Tous les modules
-              </TabsTrigger>
-            </TabsList>
-            
-            {/* Vue Tous les modules */}
-            <TabsContent value="tous" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {filteredModules.map((module) => (
-                  <motion.div
-                    key={module.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                    className="relative"
-                    onMouseEnter={() => setHoveredModule(module.id)}
-                    onMouseLeave={() => setHoveredModule(null)}
-                  >
-                    <div className={`rounded-xl p-6 h-full bg-gradient-to-br from-blue-900 to-slate-900 ${module.comingSoon ? 'opacity-70' : ''}`} data-id={`module-${module.id}`}>
-                      <div className="flex flex-col h-full">
-                        <div className="flex items-start gap-3 mb-4">
-                          <div className="p-2 rounded-full bg-blue-700/50">
-                            {module.icon}
-                          </div>
-                          <div className="flex-1">
-                            <h2 className="text-xl font-bold text-white mb-1 line-clamp-2">{module.title}</h2>
-                            <div className="flex flex-wrap gap-2">
-                              <Badge variant="outline" className="text-xs text-white border-white/30">
-                                {module.difficulty}
-                              </Badge>
-                              <Badge variant="outline" className="text-xs text-white border-white/30">
-                                {module.duration}
-                              </Badge>
-                              {module.isNew && (
-                                <Badge className="bg-blue-600 text-white">NOUVEAU</Badge>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <p className="text-blue-100 line-clamp-2">
-                          {module.description}
-                        </p>
-                        
-                        <div className="mt-auto pt-4">
-                          {module.comingSoon ? (
-                            <Badge variant="outline" className="bg-gray-700 text-gray-100 w-full flex justify-center py-2">
-                              Bientôt disponible
-                            </Badge>
-                          ) : (
-                            <Link href={module.destination} className="w-full">
-                              <Button variant="secondary" className="w-full">
-                                Accéder au module
-                                <IoMdArrowForward className="ml-2 h-4 w-4" />
-                              </Button>
-                            </Link>
-                          )}
-                        </div>
-                      </div>
+                <CardHeader>
+                  <div className="flex items-center justify-center mb-4">
+                    <div className={`p-3 rounded-lg ${
+                      highContrastMode 
+                        ? 'bg-purple-900' 
+                        : 'bg-gradient-to-r from-purple-600 to-indigo-600 shadow-md'
+                    }`}>
+                      <IoAnalytics className="h-8 w-8 text-white" />
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-            </TabsContent>
-            
-            {/* Vue par objectifs d'apprentissage */}
-            <TabsContent value="objectifs" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {learningObjectives.map((objective) => (
-                  <motion.div
-                    key={objective.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3 }}
-                    className="relative"
+                  </div>
+                  <CardTitle className="text-center text-2xl font-bold">CONSULTANT LAB</CardTitle>
+                  <CardDescription className="text-center text-blue-300 mt-2">
+                    Environnement d'apprentissage pour maîtriser l'analyse et la transformation métier
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="text-center flex flex-col items-center">
+                  <p className="text-gray-200 mb-4">
+                    Développez vos compétences d'analyse avec des exercices pratiques et interactifs
+                  </p>
+                  <Button 
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-5"
+                    onClick={() => setLocation('/amoa/consultant-lab')}
                   >
-                    <div className={`rounded-xl p-6 h-full bg-gradient-to-br ${objective.gradient}`} data-id={`objective-${objective.id}`}>
-                      <div className="flex flex-col h-full">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="p-2 rounded-full bg-white/10">
-                            {objective.icon}
-                          </div>
-                          <h2 className="text-xl font-bold text-white">
-                            {objective.title}
-                          </h2>
-                        </div>
-                        
-                        <p className="mb-4 text-blue-100">
-                          {objective.description}
-                        </p>
-                        
-                        <div className="mt-auto">
-                          <h3 className="text-white font-medium mb-2">Modules recommandés:</h3>
-                          <ul className="space-y-2">
-                            {objective.modules.map((moduleId) => {
-                              const moduleInfo = modules.find(m => m.id === moduleId);
-                              return moduleInfo ? (
-                                <li key={moduleId}>
-                                  <Link 
-                                    href={moduleInfo.comingSoon ? "#" : moduleInfo.destination}
-                                    className="block p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
-                                  >
-                                    <div className="flex justify-between items-center">
-                                      <span className="font-medium text-white">{moduleInfo.title}</span>
-                                      <IoMdArrowForward className="h-4 w-4 text-white" />
-                                      {moduleInfo.comingSoon && (
-                                        <Badge variant="outline" className="ml-2 border-amber-500 text-amber-400 text-xs shrink-0">
-                                          Bientôt
-                                        </Badge>
-                                      )}
-                                    </div>
-                                  </Link>
-                                </li>
-                              ) : null;
-                            })}
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </TabsContent>
-            
-            {/* Vue par métiers */}
-            <TabsContent value="metiers" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {careerPaths.map((career) => (
-                  <motion.div
-                    key={career.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3 }}
-                    className="relative"
-                  >
-                    <div className={`rounded-xl p-6 h-full bg-gradient-to-br ${career.gradient}`} data-id={`career-${career.id}`}>
-                      <div className="flex flex-col h-full">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="p-2 rounded-full bg-white/10">
-                            {career.icon}
-                          </div>
-                          <h2 className="text-xl font-bold text-white">
-                            {career.title}
-                          </h2>
-                        </div>
-                        
-                        <p className="mb-4 text-blue-100">
-                          {career.description}
-                        </p>
-                        
-                        <div className="mb-4">
-                          <h4 className="font-medium text-white text-sm mb-2">Compétences clés:</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {career.skills.map((skill, index) => (
-                              <Badge key={index} variant="outline" className="bg-white/10 text-white border-white/30">
-                                {skill}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <div className="mt-auto">
-                          <h3 className="text-white font-medium mb-2">Parcours recommandé:</h3>
-                          <ul className="space-y-2">
-                            {career.modules.map((moduleId) => {
-                              const moduleInfo = modules.find(m => m.id === moduleId);
-                              return moduleInfo ? (
-                                <li key={moduleId}>
-                                  <Link 
-                                    href={moduleInfo.comingSoon ? "#" : moduleInfo.destination}
-                                    className="block p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
-                                  >
-                                    <div className="flex justify-between items-center">
-                                      <span className="font-medium text-white">{moduleInfo.title}</span>
-                                      <IoMdArrowForward className="h-4 w-4 text-white" />
-                                      {moduleInfo.comingSoon && (
-                                        <Badge variant="outline" className="ml-2 border-amber-500 text-amber-400 text-xs shrink-0">
-                                          Bientôt
-                                        </Badge>
-                                      )}
-                                    </div>
-                                  </Link>
-                                </li>
-                              ) : null;
-                            })}
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
+                    Accéder au laboratoire
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
     </HomeLayout>
