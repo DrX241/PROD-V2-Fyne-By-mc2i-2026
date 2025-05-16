@@ -325,6 +325,16 @@ function App() {
                 
                 {/* Module Cyber Snake - Supprimé */}
                 <Route path="/cyber/cyber-snake" component={NotYetImplemented} />
+                
+                {/* Nouvel Atelier de Pentest Web */}
+                <Route path="/cyber/pentest-lab" component={() => {
+                  const PentestLab = lazy(() => import('./pages/cyber/pentest-lab'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <PentestLab />
+                    </Suspense>
+                  );
+                }} />
                 <Route path="/cyber/test-technique" component={() => {
                   const CyberTestTechnique = lazy(() => import('./pages/cyber/test-technique'));
                   return (
