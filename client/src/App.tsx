@@ -364,6 +364,16 @@ function App() {
                   );
                 }} />
                 
+                {/* Section Laboratoire Cyber */}
+                <Route path="/cyber/cyber-lab" component={() => {
+                  const CyberLabComponent = lazy(() => import('./pages/cyber/cyber-lab'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CyberLabComponent />
+                    </Suspense>
+                  );
+                }} />
+                
                 {/* Section Outils Cyber */}
                 <Route path="/cyber/tools" component={() => {
                   const ToolsPageComponent = lazy(() => import('./pages/cyber/tools'));
