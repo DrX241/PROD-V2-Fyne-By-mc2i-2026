@@ -355,11 +355,12 @@ export default function CyberV3() {
               {/* CYBER LAB */}
               <motion.div 
                 whileHover={{ scale: 1.03 }}
-                className={`cyber-edge-distort relative overflow-hidden p-6 ${
+                className={`cyber-edge-distort relative overflow-hidden p-6 cyber-card-interactive ${
                   highContrastMode 
                     ? 'bg-gray-800 border border-gray-700' 
                     : 'bg-gradient-to-br from-violet-600 to-blue-900 border-2 border-violet-400/50 shadow-lg shadow-violet-500/50'
                 } hover:shadow-xl transition-all duration-300`}
+                onClick={() => setLocation('/cyber/cyber-lab')}
               >
                 <div className="flex items-center justify-center mb-4">
                   <div className={`p-3 rounded-lg ${

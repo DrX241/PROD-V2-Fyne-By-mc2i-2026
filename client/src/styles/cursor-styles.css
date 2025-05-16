@@ -1,0 +1,71 @@
+/* Styles de curseur pour l'ensemble de l'application */
+
+/* Curseur par défaut pour tout le document */
+body {
+  cursor: default;
+}
+
+/* Curseur pour les éléments cliquables */
+a, 
+button, 
+.cursor-pointer, 
+[role="button"], 
+input[type="submit"], 
+input[type="button"], 
+input[type="checkbox"], 
+input[type="radio"],
+select,
+.clickable {
+  cursor: pointer !important;
+}
+
+/* Curseur pour les éléments de texte */
+input[type="text"], 
+input[type="email"], 
+input[type="password"],
+input[type="search"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+textarea {
+  cursor: text !important;
+}
+
+/* Curseur pour les éléments non cliquables qui ressemblent à des liens */
+.disabled-link, 
+button:disabled, 
+[aria-disabled="true"],
+.not-allowed {
+  cursor: not-allowed !important;
+}
+
+/* Curseur pour les éléments de la carte cybersécurité */
+.cyber-card-interactive {
+  cursor: pointer !important;
+}
+
+.cyber-card-non-interactive {
+  cursor: default !important;
+}
+
+/* Curseur pour indiquer le redimensionnement */
+.resize-handle {
+  cursor: se-resize !important;
+}
+
+/* Curseur pour indiquer les zones d'aide */
+.help-area, 
+[data-tooltip],
+[aria-describedby] {
+  cursor: help !important;
+}
+
+/* Curseur pour indiquer le glisser-déposer */
+.draggable, 
+[draggable="true"] {
+  cursor: grab !important;
+}
+
+.dragging {
+  cursor: grabbing !important;
+}
