@@ -754,7 +754,7 @@ Cette activité suggère une préparation pour une attaque ciblée ultérieure.`
 };
 
 // Composant Calendar manquant
-const Calendar = (props) => (
+const Calendar = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     {...props}
     xmlns="http://www.w3.org/2000/svg"
