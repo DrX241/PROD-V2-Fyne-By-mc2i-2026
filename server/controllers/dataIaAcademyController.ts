@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { azureOpenAI } from '../services/openai';
-import { systemPrompts } from '../services/openaiContentGenerator';
+import { openAIService } from '../services/openai';
+import { ChatCompletionRequestMessage } from '@shared/schema';
 
 // Interface pour la structure des requêtes de génération de cours
 interface CourseGenerationRequest {
@@ -37,10 +37,9 @@ export async function generateCourseContent(req: Request, res: Response) {
 
   try {
     // Préparation du prompt système
-    const systemMessage = {
+    const systemMessage: ChatCompletionRequestMessage = {
       role: "system",
-      content: `${systemPrompts.general}
-        
+      content: `
 Vous êtes un formateur expert en Data Science et Intelligence Artificielle qui crée des cours interactifs et personnalisés.
 Votre mission est de générer un contenu de formation structuré, informatif et engageant pour le module demandé.
 
@@ -66,7 +65,7 @@ CONTRAINTES DE FORMAT:
     };
 
     // Préparation du prompt utilisateur
-    const userMessage = {
+    const userMessage: ChatCompletionRequestMessage = {
       role: "user",
       content: `Générez un cours sur "${moduleTitle}" adapté pour un niveau ${userLevel}.
       
@@ -87,17 +86,10 @@ Merci de maintenir un équilibre entre théorie et pratique.`
     };
 
     // Appel à l'API Azure OpenAI
-    const chatCompletion = await azureOpenAI.getCompletion([
+    const generatedContent = await openAIService.getChatCompletion([
       systemMessage,
       userMessage
-    ], {
-      model: "secondary", // Utiliser le modèle secondaire pour économiser des tokens
-      temperature: 0.7,
-      max_tokens: 2500,
-    });
-
-    // Extraction du contenu généré
-    const generatedContent = chatCompletion.content;
+    ], true, 0.7, 2500);
 
     // Envoi de la réponse
     return res.json({
@@ -133,10 +125,9 @@ export async function answerQuestion(req: Request, res: Response) {
 
   try {
     // Préparation du prompt système
-    const systemMessage = {
+    const systemMessage: ChatCompletionRequestMessage = {
       role: "system",
-      content: `${systemPrompts.general}
-        
+      content: `        
 Vous êtes un assistant expert en Data Science et Intelligence Artificielle qui répond aux questions des apprenants.
 Votre mission est de fournir des réponses précises, informatives et éducatives aux questions sur les technologies data et IA.
 
@@ -163,7 +154,7 @@ CONTRAINTES DE FORMAT:
     }
 
     // Préparation du prompt utilisateur
-    const userMessage = {
+    const userMessage: ChatCompletionRequestMessage = {
       role: "user",
       content: `${contextInfo}
       
@@ -173,17 +164,10 @@ Merci de me fournir une réponse concise et précise, avec des exemples pertinen
     };
 
     // Appel à l'API Azure OpenAI
-    const chatCompletion = await azureOpenAI.getCompletion([
+    const generatedAnswer = await openAIService.getChatCompletion([
       systemMessage,
       userMessage
-    ], {
-      model: "secondary",
-      temperature: 0.5,
-      max_tokens: 1000,
-    });
-
-    // Extraction du contenu généré
-    const generatedAnswer = chatCompletion.content;
+    ], true, 0.5, 1000);
 
     // Envoi de la réponse
     return res.json({
@@ -217,10 +201,9 @@ export async function generateQuiz(req: Request, res: Response) {
 
   try {
     // Préparation du prompt système
-    const systemMessage = {
+    const systemMessage: ChatCompletionRequestMessage = {
       role: "system",
-      content: `${systemPrompts.general}
-        
+      content: `        
 Vous êtes un expert en évaluation pédagogique spécialisé en Data Science et Intelligence Artificielle.
 Votre mission est de créer un quiz pertinent et éducatif pour évaluer les connaissances sur le module demandé.
 
@@ -242,7 +225,7 @@ CONTRAINTES DE FORMAT:
     };
 
     // Préparation du prompt utilisateur
-    const userMessage = {
+    const userMessage: ChatCompletionRequestMessage = {
       role: "user",
       content: `Générez un quiz de ${questionCount} questions à choix multiples pour évaluer les connaissances sur "${moduleTitle}" (ID: ${moduleId}) avec un niveau de difficulté "${difficulty}".
 
@@ -267,17 +250,10 @@ Merci de retourner uniquement le tableau JSON, sans texte supplémentaire.`
     };
 
     // Appel à l'API Azure OpenAI
-    const chatCompletion = await azureOpenAI.getCompletion([
+    const generatedContent = await openAIService.getChatCompletion([
       systemMessage,
       userMessage
-    ], {
-      model: "secondary",
-      temperature: 0.5,
-      max_tokens: 1500,
-    });
-
-    // Extraction et parsing du contenu généré
-    const generatedContent = chatCompletion.content;
+    ], true, 0.5, 1500);
     
     // Tentative de récupération du tableau JSON depuis la réponse
     const jsonMatch = generatedContent.match(/\[[\s\S]*\]/);

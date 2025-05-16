@@ -15,6 +15,7 @@ import cyberToolsRoutes from './routes/cyberToolsRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { evaluateInterviewTest, generateAdaptiveQuestion } from './cyberInterviewTestController';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
+import { generateCourseContent, answerQuestion, generateQuiz as generateDataIaQuiz } from './controllers/dataIaAcademyController';
 
 // Récupérer le chemin du répertoire actuel en module ES
 const __filename = fileURLToPath(import.meta.url);
@@ -594,6 +595,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/code/execute/python', executePythonCode);
   app.post('/api/code/execute/sql', executeSQLCode);
   app.post('/api/code/session/reset', resetSessionVariables);
+  
+  // Routes pour DATA & IA ACADEMY
+  app.post('/api/data-ia/generate-course', generateCourseContent);
+  app.post('/api/data-ia/answer-question', answerQuestion);
+  app.post('/api/data-ia/generate-quiz', generateDataIaQuiz);
   
   // Routes directes pour le simulateur de phishing (fallback en cas de problème d'importation)
   app.post('/api/cyber/tools/phishing-simulator', async (req: Request, res: Response) => {
