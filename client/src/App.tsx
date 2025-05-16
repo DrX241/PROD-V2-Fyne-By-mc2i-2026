@@ -768,6 +768,55 @@ function App() {
                 <Route path="/data-ia/ai-playground" component={AIPlayground} />
                 <Route path="/data-ia/ia-lab-trainer" component={IALabTrainer} />
                 <Route path="/data-ia/data-ia-academy" component={DataIaAcademy} />
+                
+                {/* Routes pour les cours de DATA & IA ACADEMY */}
+                <Route path="/data-ia/courses/python-basics" component={() => {
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <NotYetImplemented title="Fondamentaux Python" message="Ce cours est en cours de développement. Il sera bientôt disponible." />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/data-ia/courses/data-manipulation" component={() => {
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <NotYetImplemented title="Manipulation de données avec Pandas" message="Ce cours est en cours de développement. Il sera bientôt disponible." />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/data-ia/courses/sql-fundamentals" component={() => {
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <NotYetImplemented title="SQL Fondamentaux" message="Ce cours est en cours de développement. Il sera bientôt disponible." />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/data-ia/courses/visualisation" component={() => {
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <NotYetImplemented title="Visualisation avec Matplotlib & Seaborn" message="Ce cours est en cours de développement. Il sera bientôt disponible." />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/data-ia/courses/ml-fundamentals" component={() => {
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <NotYetImplemented title="Fondamentaux du Machine Learning" message="Ce cours est en cours de développement. Il sera bientôt disponible." />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/data-ia/courses/:courseId" component={() => {
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <NotYetImplemented title="Cours en développement" message="Ce cours est en cours de développement. Il sera bientôt disponible." />
+                    </Suspense>
+                  );
+                }} />
 
                 
                 <Route path="/amoa/academie" component={() => {
