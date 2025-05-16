@@ -373,7 +373,7 @@ export default function CyberV3() {
                 </div>
                 <h3 className="text-center text-2xl font-data-title mb-2">CYBER LAB</h3>
                 <p className="text-center text-violet-300 mt-2">
-                  Environnement pratique d'outils et de développement
+                  Environnement pratique d'analyse de sécurité
                 </p>
                 <div className="mt-4">
                   <div className="space-y-3 mb-5">
@@ -398,18 +398,7 @@ export default function CyberV3() {
                       <p className="text-gray-200 text-sm">Laboratoire d'analyse de trafic réseau</p>
                     </div>
                   </div>
-                  <div className="text-center">
-                    <Button 
-                      className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white px-6 py-5"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation('/cyber/tools');
-                      }}
-                    >
-                      Ouvrir le laboratoire
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
+
                 </div>
               </motion.div>
             </div>
