@@ -1,0 +1,331 @@
+import React, { useState } from 'react';
+import { Link, useLocation } from 'wouter';
+import { motion } from 'framer-motion';
+import { 
+  HelpCircle, 
+  ArrowRight,
+  Shield,
+  Terminal,
+  Laptop,
+  Code,
+  Database,
+  Server
+} from 'lucide-react';
+import { 
+  IoHome,
+  IoSchoolOutline
+} from 'react-icons/io5';
+import { 
+  IoMdArrowForward 
+} from 'react-icons/io';
+import { 
+  BsFileEarmarkCode,
+  BsShieldLock,
+  BsGearFill
+} from 'react-icons/bs';
+import { 
+  FiSun, 
+  FiMoon 
+} from 'react-icons/fi';
+import { 
+  AiOutlineZoomIn, 
+  AiOutlineZoomOut 
+} from 'react-icons/ai';
+
+import { Helmet } from 'react-helmet';
+import { Button } from '@/components/ui/button';
+import CyberScene from '@/components/CyberScene';
+import { useTutorial } from '@/contexts/TutorialContext';
+import { useTheme } from '@/contexts/ThemeContext';
+
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import PageTitle from '@/components/cyber/PageTitle';
+import HomeLayout from '@/components/layout/HomeLayout';
+import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
+import DataButton from '@/components/DataButton';
+
+export default function CyberModeSelectionV3() {
+  const [, setLocation] = useLocation();
+  const { currentTour, setCurrentTour, startTutorial } = useTutorial();
+  const { theme } = useTheme();
+  
+  // États pour l'accessibilité
+  const [highContrastMode, setHighContrastMode] = useState(false);
+  const [textSize, setTextSize] = useState(1);
+  
+  return (
+    <HomeLayout>
+      <Helmet>
+        <title>I AM CYBER | Nouvelle interface</title>
+      </Helmet>
+      
+      <div 
+        className="min-h-screen relative cyber-bg"
+        style={{ 
+          fontSize: `${textSize}rem`,
+          backgroundImage: highContrastMode ? 'none' : 'url("data:image/svg+xml,%3Csvg width="20" height="20" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M1 1h18v18H1V1z" fill="none" stroke="rgba(6,182,212,0.05)" stroke-width="0.2"/%3E%3C/svg%3E")',
+          backgroundRepeat: 'repeat',
+        }}>
+        {/* Arrière-plan animé */}
+        <CyberScene />
+        
+        {/* Navigation et contrôles */}
+        <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">
+          <div className="flex justify-between items-center mb-10">
+            <div className="flex items-center">
+              <Link href="/">
+                <DataButton 
+                  variant="outline"
+                  size="lg"
+                  className="text-cyan-300 border-cyan-300/30 hover:bg-cyan-900/20"
+                  startIcon={<IoHome className="h-6 w-6" />}
+                >
+                  Accueil
+                </DataButton>
+              </Link>
+              <PageTitle title="I AM CYBER" />
+            </div>
+            
+            <div className="flex items-center gap-4">
+              {/* Status de connexion à l'API */}
+              <OpenAIStatusIndicator />
+              
+              {/* Bouton d'aide */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DataButton 
+                      variant="outline"
+                      className="w-11 h-11 p-0 flex items-center justify-center rounded-full text-cyan-300 border-cyan-300/30 hover:bg-cyan-900/20"
+                      onClick={() => {
+                        setCurrentTour('cyber-mode-selection-v3');
+                        startTutorial();
+                      }}
+                      data-id="help-button"
+                    >
+                      <HelpCircle className="h-5 w-5" />
+                    </DataButton>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Afficher le guide</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              {/* Contrôle mode haut contraste */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DataButton 
+                      variant="outline"
+                      className={`w-11 h-11 p-0 flex items-center justify-center rounded-full ${
+                        highContrastMode 
+                          ? 'bg-gray-800 border-gray-700 text-white hover:bg-gray-700' 
+                          : 'text-cyan-300 border-cyan-300/30 hover:bg-cyan-900/20'
+                      }`}
+                      onClick={() => setHighContrastMode(!highContrastMode)}
+                      data-id="contrast-button"
+                    >
+                      {highContrastMode ? (
+                        <FiSun className="h-5 w-5" />
+                      ) : (
+                        <FiMoon className="h-5 w-5" />
+                      )}
+                    </DataButton>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{highContrastMode ? 'Désactiver' : 'Activer'} le mode haut contraste</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              {/* Contrôle taille du texte */}
+              <div className="flex items-center gap-2">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DataButton 
+                        variant="outline"
+                        className="w-10 h-10 p-0 flex items-center justify-center rounded-full text-cyan-300 border-cyan-300/30 hover:bg-cyan-900/20"
+                        onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
+                        data-id="text-smaller-button"
+                      >
+                        <AiOutlineZoomOut className="h-4 w-4" />
+                      </DataButton>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Réduire la taille du texte</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DataButton 
+                        variant="outline"
+                        className="w-10 h-10 p-0 flex items-center justify-center rounded-full text-cyan-300 border-cyan-300/30 hover:bg-cyan-900/20"
+                        onClick={() => setTextSize(Math.min(1.2, textSize + 0.1))}
+                        data-id="text-larger-button"
+                      >
+                        <AiOutlineZoomIn className="h-4 w-4" />
+                      </DataButton>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Augmenter la taille du texte</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            </div>
+          </div>
+          
+          {/* Titre et sous-titre */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-16 relative z-10"
+            data-id="main-title"
+          >
+            <h1 className="text-5xl font-bold mb-4 font-data-title relative">
+              <span className="text-white">Centre de Formation</span>
+              <br />
+              <span className="text-6xl mt-2 block tracking-wider bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                I AM CYBER
+              </span>
+            </h1>
+            <div className="w-40 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 mx-auto my-6 rounded-full"></div>
+            <p className={`max-w-3xl mx-auto text-xl ${
+              highContrastMode ? 'text-gray-300' : 'text-blue-100' 
+            }`}>
+              Trouvez votre parcours d'apprentissage personnalisé en <span className="font-semibold text-cyan-300">cybersécurité</span>
+            </p>
+          </motion.div>
+
+          {/* Modules Cyber */}
+          <div className="mt-8 px-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-center max-w-6xl mx-auto">
+              {/* CYBER ACADÉMIE */}
+              <div 
+                className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
+                  highContrastMode 
+                    ? 'bg-gray-800 border border-gray-700' 
+                    : 'bg-gradient-to-br from-blue-600 to-blue-900 border-2 border-blue-400/50 shadow-lg shadow-blue-500/50'
+                } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
+                onClick={() => setLocation('/cyber/learning-center')}
+              >
+                <div className="flex items-center justify-center mb-4">
+                  <div className={`p-3 rounded-lg ${
+                    highContrastMode 
+                      ? 'bg-blue-800' 
+                      : 'bg-gradient-to-r from-blue-500 to-blue-700 shadow-md'
+                  }`}>
+                    <IoSchoolOutline className="h-8 w-8 text-white" />
+                  </div>
+                </div>
+                <h3 className="text-center text-2xl font-data-title mb-2">CYBER ACADÉMIE</h3>
+                <p className="text-center text-blue-300 mt-2">
+                  Centre de formation complet aux métiers de la cybersécurité
+                </p>
+                <div className="text-center flex flex-col items-center mt-4">
+                  <p className="text-gray-200 mb-4">
+                    Formez-vous en cybersécurité à travers des cours interactifs, quiz et scénarios réels
+                  </p>
+                  <Button 
+                    className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-5"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLocation('/cyber/learning-center');
+                    }}
+                  >
+                    Explorer l'académie
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            
+              {/* CYBER DÉFENSE */}
+              <div 
+                className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
+                  highContrastMode 
+                    ? 'bg-gray-800 border border-gray-700' 
+                    : 'bg-gradient-to-br from-cyan-600 to-blue-900 border-2 border-cyan-400/50 shadow-lg shadow-cyan-500/50'
+                } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
+                onClick={() => setLocation('/cyber-defense-new')}
+              >
+                <div className="flex items-center justify-center mb-4">
+                  <div className={`p-3 rounded-lg ${
+                    highContrastMode 
+                      ? 'bg-cyan-900' 
+                      : 'bg-gradient-to-r from-cyan-500 to-blue-500 shadow-md'
+                  }`}>
+                    <BsShieldLock className="h-8 w-8 text-white" />
+                  </div>
+                </div>
+                <h3 className="text-center text-2xl font-data-title mb-2">CYBER DÉFENSE</h3>
+                <p className="text-center text-cyan-300 mt-2">
+                  Simulateur de gestion de crise et d'incidents cyber
+                </p>
+                <div className="text-center flex flex-col items-center mt-4">
+                  <p className="text-gray-200 mb-4">
+                    Confrontez-vous à des scénarios réalistes de menaces cyber et apprenez à y répondre efficacement
+                  </p>
+                  <Button 
+                    className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-6 py-5"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLocation('/cyber-defense-new');
+                    }}
+                  >
+                    Commencer la simulation
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* CYBER LAB */}
+              <div 
+                className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
+                  highContrastMode 
+                    ? 'bg-gray-800 border border-gray-700' 
+                    : 'bg-gradient-to-br from-violet-600 to-blue-900 border-2 border-violet-400/50 shadow-lg shadow-violet-500/50'
+                } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
+                onClick={() => setLocation('/cyber/tools')}
+              >
+                <div className="flex items-center justify-center mb-4">
+                  <div className={`p-3 rounded-lg ${
+                    highContrastMode 
+                      ? 'bg-violet-900' 
+                      : 'bg-gradient-to-r from-violet-600 to-blue-600 shadow-md'
+                  }`}>
+                    <Terminal className="h-8 w-8 text-white" />
+                  </div>
+                </div>
+                <h3 className="text-center text-2xl font-data-title mb-2">CYBER LAB</h3>
+                <p className="text-center text-violet-300 mt-2">
+                  Environnement pratique d'outils et de développement
+                </p>
+                <div className="text-center flex flex-col items-center mt-4">
+                  <p className="text-gray-200 mb-4">
+                    Créez votre propre assistant cyber et accédez à nos outils d'investigation et d'analyse
+                  </p>
+                  <Button 
+                    className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white px-6 py-5"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLocation('/cyber/tools');
+                    }}
+                  >
+                    Ouvrir le laboratoire
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </HomeLayout>
+  );
+}

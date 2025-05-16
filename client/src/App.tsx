@@ -64,6 +64,8 @@ import AmoaModeSelection from "@/pages/amoa-mode-selection";
 // Import la nouvelle version optimisée du mode de sélection AMOA (comme pour Cyber)
 import AmoaModeSelectionFixed from "@/pages/amoa-mode-selection-fixed";
 import AmoaModeSelectionNew from "@/pages/amoa-mode-selection-new";
+// Import de la nouvelle version v3 de I AM CYBER
+import CyberModeSelectionV3 from "@/pages/cyber-new/cyber-mode-selection-v3";
 // Import de la page Data & IA
 import DataIaModeSelection from "@/pages/data-ia-mode-selection";
 import ReadMeIfYouCan from "@/pages/data-ia/read-me-if-you-can";
