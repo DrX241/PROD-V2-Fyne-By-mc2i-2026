@@ -764,6 +764,30 @@ function App() {
                 <Route path="/amoa-mode-selection" component={AmoaModeSelection} />
                 <Route path="/amoa-mode-selection-fixed" component={AmoaModeSelectionFixed} />
                 <Route path="/amoa/new" component={AmoaModeSelectionNew} />
+                <Route path="/amoa/coach-entretien" component={() => {
+                  const CoachEntretien = lazy(() => import('./pages/amoa/coach-entretien'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CoachEntretien />
+                    </Suspense>
+                  );
+                }} />
+                <Route path="/amoa/projet-academy" component={() => {
+                  const ProjetAcademy = lazy(() => import('./pages/amoa/projet-academy'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <ProjetAcademy />
+                    </Suspense>
+                  );
+                }} />
+                <Route path="/amoa/consultant-lab" component={() => {
+                  const ConsultantLab = lazy(() => import('./pages/amoa/consultant-lab'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <ConsultantLab />
+                    </Suspense>
+                  );
+                }} />
                 <Route path="/data-ia" component={DataIaModeSelection} />
                 <Route path="/data-ia/read-me-if-you-can" component={ReadMeIfYouCan} />
                 <Route path="/data-ia/data-ops-simulation" component={DataOpsSimulation} />
