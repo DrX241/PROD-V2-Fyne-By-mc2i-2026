@@ -1,68 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'wouter';
+import React, { useState } from 'react';
+import { Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
-import { Search, ArrowRight, Home } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 // Icônes modernes de React Icons
-import { IoHome as IoHomeIcon, IoSearchOutline, IoBookOutline, IoDesktopOutline, IoTrophyOutline, IoConstructOutline } from 'react-icons/io5';
-import { IoMdArrowForward } from 'react-icons/io';
-import { BsKanban, BsPeopleFill, BsClipboardCheck, BsGearFill, 
-         BsCalendarCheck, BsBarChartFill, BsLightbulb, BsChevronRight,
-         BsBookmarkCheck, BsClipboardData, BsFileEarmarkText, BsFileEarmarkCode } from 'react-icons/bs';
-import { RiTeamLine, RiUserSettingsLine } from 'react-icons/ri';
-import { MdOutlineEmojiEvents } from 'react-icons/md';
-import { FaProjectDiagram, FaRegChartBar, FaGraduationCap } from 'react-icons/fa';
-import { TbChartDots, TbReportAnalytics } from 'react-icons/tb';
+import { IoHome as IoHomeIcon, IoVideocam, IoAnalytics } from 'react-icons/io5';
+import { BsClipboardCheck } from 'react-icons/bs';
 import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
 import { FiHelpCircle, FiMoon, FiSun } from 'react-icons/fi';
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from "@/components/ui/card";
-
-// Types pour l'organisation des modules
-interface Module {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  destination: string;
-  difficulty: 'débutant' | 'intermédiaire' | 'avancé' | 'tous niveaux';
-  duration: string;
-  isNew?: boolean;
-  comingSoon?: boolean;
-}
-
-interface LearningObjective {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  modules: string[]; // IDs des modules recommandés
-  gradient: string;
-  categories?: string[]; // Optionnel: Catégories pour l'objectif
-}
-
-interface CareerPath {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  skills: string[];
-  modules: string[]; // IDs des modules recommandés
-  gradient: string;
-}
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 
 export default function AmoaModeSelectionFixed() {
   // États
-  const [hoveredModule, setHoveredModule] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [highContrastMode, setHighContrastMode] = useState(false);
   const [textSize, setTextSize] = useState(1); // 1 = normal, >1 = larger, <1 = smaller
+  const [, navigate] = useLocation();
 
   // Liste complète des modules AMOA
   const modules: Module[] = [
@@ -437,7 +392,7 @@ export default function AmoaModeSelectionFixed() {
                     ? 'bg-gray-800 border border-gray-700' 
                     : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
                 } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
-                onClick={() => setLocation('/amoa/coach-entretien')}
+                onClick={() => navigate('/amoa/coach-entretien')}
               >
                 <CardHeader>
                   <div className="flex items-center justify-center mb-4">
