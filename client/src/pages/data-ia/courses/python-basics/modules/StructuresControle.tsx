@@ -447,7 +447,7 @@ except ValueError:
         
         <div className="bg-blue-900/30 rounded-lg p-4 border border-blue-800 mb-6">
           <h4 className="font-semibold mb-3">Exercice 1: Analyse des notes d'étudiants</h4>
-          <p className="mb-2">Écrivez un programme qui analyse une liste de notes et affiche la moyenne, le nombre d'étudiants ayant réussi (note >= 60) et échoué.</p>
+          <p className="mb-2">Écrivez un programme qui analyse une liste de notes et affiche la moyenne, le nombre d'étudiants ayant réussi (note supérieure ou égale à 60) et échoué.</p>
           
           <div className="mt-4 mb-2 font-semibold">Solution:</div>
           <SyntaxHighlighter language="python" style={vscDarkPlus} className="rounded-md">

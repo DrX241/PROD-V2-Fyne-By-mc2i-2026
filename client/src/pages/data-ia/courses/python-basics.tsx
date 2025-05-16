@@ -475,7 +475,7 @@ export default function PythonBasics() {
                         <p className="text-sm">Liste tous les paquets installés</p>
                       </div>
                       <div>
-                        <span className="font-mono text-blue-300">pip freeze > requirements.txt</span>
+                        <span className="font-mono text-blue-300">pip freeze vers requirements.txt</span>
                         <p className="text-sm">Sauvegarde la liste des paquets dans un fichier</p>
                       </div>
                       <div>
