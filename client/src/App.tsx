@@ -218,10 +218,10 @@ function App() {
                 <Route path="/home-classic" component={Home} />
                 <Route path="/modules" component={ModulesPage} />
                 <Route path="/cyber" component={() => {
-                  const CyberModeSelectionFixed = lazy(() => import('./pages/cyber-mode-selection-fixed'));
+                  const CyberV3 = lazy(() => import('./pages/cyber-v3'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
-                      <CyberModeSelectionFixed />
+                      <CyberV3 />
                     </Suspense>
                   );
                 }} />
