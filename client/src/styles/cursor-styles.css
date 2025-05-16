@@ -1,83 +1,94 @@
-/* Styles de curseur pour l'ensemble de l'application */
+/* Styles de curseur personnalisés pour l'application */
 
-/* Curseur par défaut pour tout le document */
+/* Style par défaut pour tout le site */
 body {
   cursor: default;
 }
 
-/* Curseur pour les éléments cliquables */
-a, 
-button, 
+/* Éléments cliquables */
 .cursor-pointer, 
-[role="button"], 
+button, 
+a, 
 input[type="submit"], 
-input[type="button"], 
-input[type="checkbox"], 
+input[type="button"],
+input[type="checkbox"],
 input[type="radio"],
 select,
 .clickable,
+[role="button"],
 .cyber-card-interactive {
   cursor: pointer !important;
 }
 
 /* Remplacement global pour les éléments avec cursor-pointer */
-.cyber-edge-distort,
-.module-card {
+.cursor-default {
   cursor: default !important;
 }
 
-.module-card.clickable,
-.module-card .item-clickable {
+.cursor-clickable {
   cursor: pointer !important;
 }
 
-/* Curseur pour les éléments de texte */
-input[type="text"], 
-input[type="email"], 
-input[type="password"],
-input[type="search"],
-input[type="number"],
-input[type="tel"],
-input[type="url"],
-textarea {
+.cursor-text {
   cursor: text !important;
 }
 
-/* Curseur pour les éléments non cliquables qui ressemblent à des liens */
-.disabled-link, 
-button:disabled, 
-[aria-disabled="true"],
-.not-allowed {
+.cursor-not-allowed {
   cursor: not-allowed !important;
 }
 
-/* Curseur pour les éléments de la carte cybersécurité */
-.cyber-card-interactive {
+.cursor-move {
   cursor: pointer !important;
 }
 
-.cyber-card-non-interactive {
+.cursor-wait {
   cursor: default !important;
 }
 
-/* Curseur pour indiquer le redimensionnement */
-.resize-handle {
+.cursor-resize {
   cursor: se-resize !important;
 }
 
-/* Curseur pour indiquer les zones d'aide */
-.help-area, 
-[data-tooltip],
-[aria-describedby] {
+.cursor-help {
   cursor: help !important;
 }
 
-/* Curseur pour indiquer le glisser-déposer */
-.draggable, 
-[draggable="true"] {
+.cursor-grab {
   cursor: grab !important;
 }
 
-.dragging {
+.cursor-grabbing {
   cursor: grabbing !important;
+}
+
+/* Pour les animations cyberpunk */
+.cyber-text-interactive:hover {
+  cursor: pointer;
+}
+
+.cyber-element:not([disabled]):not(.disabled):hover {
+  cursor: pointer;
+}
+
+/* Pour les champs de texte et zones de code */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+textarea,
+.monaco-editor,
+[contenteditable="true"] {
+  cursor: text !important;
+}
+
+/* Pour les éléments désactivés */
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled,
+.disabled {
+  cursor: not-allowed !important;
 }

@@ -2,6 +2,10 @@
 @import '@fontsource/rajdhani';
 @import '@fontsource/exo-2';
 
+/* Import des styles personnalisés */
+@import './styles/cursor-styles.css';
+@import './styles/cyber-lab.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -391,7 +391,7 @@ export default function CyberV3() {
                       className="flex items-center p-2 hover:bg-violet-800/30 rounded cursor-pointer transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation('/cyber/cyber-lab');
+                        setLocation('/cyber/network-lab');
                       }}
                     >
                       <div className="w-2 h-2 rounded-full bg-violet-400 mr-2"></div>
