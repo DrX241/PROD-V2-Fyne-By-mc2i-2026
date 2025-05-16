@@ -227,23 +227,9 @@ const CyberHomePage: React.FC = () => {
       <main className="relative z-10">
         <section className="relative min-h-[90vh] flex items-center">
           <div className="container mx-auto px-8 py-20 relative">
-            {/* Image du personnage FYNE sur la droite avec effets technologiques */}
+            {/* Image du personnage FYNE sur la droite avec effets technologiques simplifiés */}
             <div className="absolute right-10 top-1/2 transform -translate-y-1/2 z-10 hidden md:block">
-              {/* Cercle lumineux rotatif autour du personnage */}
-              <div className="absolute inset-0 w-full h-full">
-                <motion.div 
-                  className="absolute w-full h-full rounded-full border-2 border-cyan-500/30"
-                  style={{ 
-                    boxShadow: '0 0 15px rgba(0, 200, 255, 0.3)',
-                  }}
-                  animate={{ rotate: 360 }}
-                  transition={{ 
-                    duration: 20, 
-                    repeat: Infinity, 
-                    ease: "linear" 
-                  }}
-                />
-                
+              <div className="absolute inset-0 w-full h-full">                
                 {/* Particules technologiques qui gravitent */}
                 {[...Array(6)].map((_, i) => (
                   <motion.div 
@@ -306,29 +292,7 @@ const CyberHomePage: React.FC = () => {
                     }}
                   />
                 </motion.div>
-                
-                {/* Grille holographique */}
-                <div className="absolute inset-0 bg-grid-pattern opacity-10" 
-                  style={{
-                    backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(0, 200, 255, 0.3) 25%, rgba(0, 200, 255, 0.3) 26%, transparent 27%, transparent 74%, rgba(0, 200, 255, 0.3) 75%, rgba(0, 200, 255, 0.3) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(0, 200, 255, 0.3) 25%, rgba(0, 200, 255, 0.3) 26%, transparent 27%, transparent 74%, rgba(0, 200, 255, 0.3) 75%, rgba(0, 200, 255, 0.3) 76%, transparent 77%, transparent)',
-                    backgroundSize: '50px 50px'
-                  }}
-                />
               </div>
-              
-              {/* Pulse d'énergie */}
-              <motion.div 
-                className="absolute inset-0 rounded-full bg-cyan-500/10"
-                animate={{ 
-                  scale: [1, 1.5, 1],
-                  opacity: [0, 0.3, 0] 
-                }}
-                transition={{ 
-                  duration: 3, 
-                  repeat: Infinity, 
-                  ease: "easeInOut" 
-                }}
-              />
               
               {/* Image principale du personnage */}
               <motion.img 
@@ -340,44 +304,6 @@ const CyberHomePage: React.FC = () => {
                 transition={{ duration: 1, delay: 0.5 }}
                 style={{ maxHeight: "80vh", maxWidth: "30vw" }}
               />
-              
-              {/* Étiquettes de données flottantes */}
-              <motion.div
-                className="absolute top-1/4 right-full mr-4 bg-black/40 border border-cyan-500/50 backdrop-blur-sm rounded px-2 py-1"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ 
-                  opacity: [0, 1, 1, 0],
-                  x: [20, 0, 0, -20]
-                }}
-                transition={{ 
-                  duration: 4, 
-                  repeat: Infinity,
-                  repeatDelay: 5,
-                  times: [0, 0.1, 0.9, 1]
-                }}
-              >
-                <div className="text-xs text-cyan-400 font-mono">FYNE_AI_ASSISTANT</div>
-                <div className="text-xs text-gray-300 font-mono">STATUS: ONLINE</div>
-              </motion.div>
-              
-              <motion.div
-                className="absolute bottom-1/4 right-full mr-4 bg-black/40 border border-cyan-500/50 backdrop-blur-sm rounded px-2 py-1"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ 
-                  opacity: [0, 1, 1, 0],
-                  x: [20, 0, 0, -20]
-                }}
-                transition={{ 
-                  duration: 4, 
-                  repeat: Infinity,
-                  repeatDelay: 7,
-                  delay: 2.5,
-                  times: [0, 0.1, 0.9, 1]
-                }}
-              >
-                <div className="text-xs text-cyan-400 font-mono">LEARNING_MODULE</div>
-                <div className="text-xs text-gray-300 font-mono">READY: 100%</div>
-              </motion.div>
             </div>
 
             <motion.div 
