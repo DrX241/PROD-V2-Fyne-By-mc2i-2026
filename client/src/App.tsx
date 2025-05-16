@@ -771,15 +771,10 @@ function App() {
                 
                 {/* Routes pour les cours de DATA & IA ACADEMY */}
                 <Route path="/data-ia/courses/python-basics" component={() => {
-                  const NotYetImplementedComponent = lazy(() => import('./components/NotYetImplemented'));
+                  const PythonBasicsComponent = lazy(() => import('./pages/data-ia/courses/python-basics'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
-                      <NotYetImplementedComponent 
-                        title="Fondamentaux Python" 
-                        message="Ce cours est en cours de développement. Il sera bientôt disponible avec un contenu extrêmement complet et pédagogique."
-                        backPath="/data-ia/data-ia-academy"
-                        backLabel="Retour à Data & IA Academy"
-                      />
+                      <PythonBasicsComponent />
                     </Suspense>
                   );
                 }} />
