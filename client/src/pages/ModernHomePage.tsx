@@ -80,39 +80,74 @@ const ModernHomePage = () => {
 
   return (
     <div className="w-full min-h-screen bg-black overflow-hidden relative">
-      {/* Background gradient effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-gray-800 opacity-90"></div>
+      {/* Background gradient effect - more subtle with green tint like reference design */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-[#101a19] opacity-95"></div>
       
-      {/* Decorative lines */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent" style={{ top: '30%' }}></div>
-        <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent" style={{ top: '60%' }}></div>
-        <div className="absolute top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-gray-400 to-transparent" style={{ left: '35%' }}></div>
-        <div className="absolute top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-gray-400 to-transparent" style={{ left: '65%' }}></div>
+      {/* Glowing center point like in the reference */}
+      <div className="absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-[#1a2b28]/20 blur-[120px]"></div>
+      
+      {/* Decorative lines - thinner and more subtle */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute left-0 right-0 h-[0.5px] bg-gradient-to-r from-transparent via-[#38a891]/50 to-transparent" style={{ top: '30%' }}></div>
+        <div className="absolute left-0 right-0 h-[0.5px] bg-gradient-to-r from-transparent via-[#38a891]/50 to-transparent" style={{ top: '60%' }}></div>
+        <div className="absolute top-0 bottom-0 w-[0.5px] bg-gradient-to-b from-transparent via-[#38a891]/50 to-transparent" style={{ left: '35%' }}></div>
+        <div className="absolute top-0 bottom-0 w-[0.5px] bg-gradient-to-b from-transparent via-[#38a891]/50 to-transparent" style={{ left: '65%' }}></div>
       </div>
+      
+      {/* Curved decorative line like in reference design */}
+      <svg className="absolute top-0 left-0 w-full h-full opacity-10 overflow-visible" viewBox="0 0 1000 800">
+        <path 
+          d="M100,200 Q250,100 400,200 T700,200 T1000,200" 
+          fill="none" 
+          stroke="url(#gradientLine)" 
+          strokeWidth="1"
+        />
+        <defs>
+          <linearGradient id="gradientLine" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="transparent" />
+            <stop offset="50%" stopColor="#38a891" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="transparent" />
+          </linearGradient>
+        </defs>
+      </svg>
 
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-black/50 backdrop-blur-md border-b border-gray-800">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <img src={mcLogoPath} alt="mc2i" className="h-8 w-auto" />
-            <div className="h-5 w-px bg-cyan-500/50"></div>
-            <div className="text-xl font-bold text-white">
+      {/* Header - inspired by reference design */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/30 backdrop-blur-md">
+        <div className="max-w-[1400px] mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            {/* Logo with subtle glow effect */}
+            <div className="relative">
+              <div className="absolute -inset-1 bg-[#38a891]/20 rounded-full blur-sm"></div>
+              <img src={mcLogoPath} alt="mc2i" className="h-8 w-auto relative z-10" />
+            </div>
+            <div className="h-5 w-px bg-[#38a891]/30"></div>
+            <div className="text-xl font-bold text-white tracking-wider">
               FYNE
             </div>
           </div>
           
-          <nav className="hidden md:flex items-center gap-8">
-            <Link href="/" className="text-gray-300 hover:text-white transition">Accueil</Link>
-            <Link href="/cyber" className="text-gray-300 hover:text-white transition">I AM CYBER</Link>
-            <Link href="/data-ia" className="text-gray-300 hover:text-white transition">I AM DATA & IA</Link>
-            <Link href="/amoa-mode-selection-fixed" className="text-gray-300 hover:text-white transition">I AM mc2i</Link>
+          {/* Centered navigation - minimal and clean */}
+          <nav className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+            <Link href="/" className="text-white hover:text-[#38a891] transition-colors text-sm font-medium">Accueil</Link>
+            <Link href="/cyber" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">I AM CYBER</Link>
+            <Link href="/data-ia" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">I AM DATA & IA</Link>
+            <Link href="/amoa-mode-selection-fixed" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">I AM mc2i</Link>
+            <Link href="/playground/module-generator-new" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">Générateur</Link>
           </nav>
           
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-gray-900/60 py-1 px-3 rounded-full border border-gray-700">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              <span className="text-sm text-gray-300">FYNE Connecté</span>
+          {/* Right-aligned elements */}
+          <div className="flex items-center gap-3">
+            {/* Connection status with subtle styling */}
+            <div className="flex items-center gap-2 bg-black/40 backdrop-blur-sm py-1.5 px-3 rounded-full border border-[#38a891]/20">
+              <CheckCircle2 className="h-3.5 w-3.5 text-[#38a891]" />
+              <span className="text-xs font-medium text-gray-300">FYNE Connecté</span>
+            </div>
+            
+            {/* User icon in a circle */}
+            <div className="w-8 h-8 rounded-full bg-black/40 border border-[#38a891]/20 flex items-center justify-center">
+              <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
             </div>
           </div>
         </div>
@@ -121,115 +156,140 @@ const ModernHomePage = () => {
       {/* Main content */}
       <main className="relative pt-24">
         <div className="container mx-auto px-6 relative z-10">
-          {/* Hero section */}
-          <section className="min-h-[80vh] flex flex-col items-center justify-center relative">
+          {/* Hero section - inspired by reference design */}
+          <section className="min-h-[90vh] flex flex-col items-center justify-center relative">
             <div className="absolute inset-0 overflow-hidden">
-              {/* Animated nodes */}
-              {modules.map((module) => (
-                <motion.div
-                  key={module.id}
-                  className={`absolute w-3 h-3 rounded-full bg-${module.color}-500`}
-                  style={{ 
-                    left: module.position.x, 
-                    top: module.position.y,
-                    boxShadow: `0 0 20px rgba(${module.color === 'blue' ? '59, 130, 246' : module.color === 'emerald' ? '16, 185, 129' : module.color === 'purple' ? '168, 85, 247' : '245, 158, 11'}, 0.6)`
-                  }}
-                  animate={{ 
-                    scale: [1, 1.2, 1],
-                    opacity: [0.7, 1, 0.7]
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: Math.random() * 2
-                  }}
-                  onMouseEnter={() => setActiveModule(module.id)}
-                  onMouseLeave={() => setActiveModule(null)}
-                />
+              {/* Interactive node elements */}
+              {modules.map((module, index) => (
+                <React.Fragment key={module.id}>
+                  {/* Node point */}
+                  <motion.div
+                    className="absolute"
+                    style={{ 
+                      left: module.position.x, 
+                      top: module.position.y,
+                    }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.8, delay: index * 0.2 }}
+                  >
+                    <div className="relative">
+                      {/* Pulse animation */}
+                      <motion.div 
+                        className={`absolute w-3 h-3 rounded-full bg-[#38a891]/20`}
+                        animate={{ 
+                          scale: [1, 2.5, 1],
+                          opacity: [0.3, 0.1, 0.3]
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                      />
+                      
+                      {/* Core node */}
+                      <div className={`relative w-3 h-3 rounded-full bg-[#38a891]`} />
+                      
+                      {/* Node label */}
+                      <div className="absolute whitespace-nowrap text-xs text-gray-400 ml-5 -mt-2 font-mono">
+                        <span className="opacity-50">•</span> {module.title.split(' ')[1]} 
+                        <span className="ml-1 text-[10px] opacity-60">{Math.floor(Math.random() * 10)}.{Math.floor(Math.random() * 1000)}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                </React.Fragment>
               ))}
               
-              {/* Connection lines */}
+              {/* Connection lines - thinner and more subtle with gradient */}
               <svg className="absolute inset-0 w-full h-full">
                 <line 
                   x1="20%" y1="25%" 
                   x2="80%" y2="25%" 
-                  stroke="rgba(156, 163, 175, 0.3)" 
-                  strokeWidth="1"
+                  stroke="url(#lineGradient)" 
+                  strokeWidth="0.5"
                 />
                 <line 
                   x1="30%" y1="70%" 
                   x2="70%" y2="70%" 
-                  stroke="rgba(156, 163, 175, 0.3)" 
-                  strokeWidth="1"
+                  stroke="url(#lineGradient)" 
+                  strokeWidth="0.5"
                 />
                 <line 
                   x1="20%" y1="25%" 
                   x2="30%" y2="70%" 
-                  stroke="rgba(156, 163, 175, 0.3)" 
-                  strokeWidth="1"
+                  stroke="url(#lineGradient)" 
+                  strokeWidth="0.5"
                 />
                 <line 
                   x1="80%" y1="25%" 
                   x2="70%" y2="70%" 
-                  stroke="rgba(156, 163, 175, 0.3)" 
-                  strokeWidth="1"
+                  stroke="url(#lineGradient)" 
+                  strokeWidth="0.5"
                 />
+                <defs>
+                  <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#38a89133" />
+                    <stop offset="50%" stopColor="#38a89166" />
+                    <stop offset="100%" stopColor="#38a89133" />
+                  </linearGradient>
+                </defs>
               </svg>
             </div>
             
-            <div className="text-center max-w-4xl mx-auto">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                className="mb-6"
+            {/* Play button in center like reference */}
+            <motion.div 
+              className="absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+            >
+              <button className="w-14 h-14 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center border border-[#38a891]/20 group">
+                <Play className="w-5 h-5 text-[#38a891] group-hover:text-white transition-colors" />
+              </button>
+            </motion.div>
+            
+            {/* Center feature button like in reference */}
+            <motion.div
+              className="absolute left-1/2 top-[55%] -translate-x-1/2 w-auto"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+            >
+              <button
+                className="bg-black/40 backdrop-blur-sm text-white text-sm py-2.5 px-4 rounded-full font-medium border border-[#38a891]/30 flex items-center gap-2 hover:bg-black/60 transition-all"
+                onClick={() => setLocation('/cyber')}
               >
-                <span className="inline-block py-1 px-3 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                  Formation Assistée par IA
-                </span>
-              </motion.div>
-              
+                <span className="text-[#38a891]">→</span> Démarrer votre formation maintenant
+                <span className="text-[#38a891]">→</span>
+              </button>
+            </motion.div>
+            
+            {/* Main content - simplified and centered like reference */}
+            <div className="text-center max-w-5xl mx-auto">              
               <motion.h1
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-5xl md:text-7xl font-bold mb-6"
+                transition={{ duration: 1, delay: 0.3 }}
+                className="text-6xl md:text-8xl font-bold mb-4 tracking-tight"
               >
-                <span className="text-white">FOR YOUR NEXT </span>
-                <span className="text-blue-400">EXPERIENCE</span>
+                <div className="inline-block">
+                  <span className="text-white">FOR YOUR NEXT</span>{' '}
+                </div>
+                <div className="inline-block bg-gradient-to-r from-[#38a891] to-blue-400 text-transparent bg-clip-text">
+                  EXPERIENCE
+                </div>
               </motion.h1>
               
               <motion.p
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="text-xl md:text-2xl text-gray-300 mb-10 max-w-3xl mx-auto"
+                transition={{ duration: 1, delay: 0.5 }}
+                className="text-lg text-gray-400 mb-10 max-w-2xl mx-auto font-light"
               >
-                Améliorez votre expertise avec <span className="text-blue-400 font-bold">FYNE</span>.
-                Découvrez une nouvelle dimension d'apprentissage interactif avec nos
-                modules IA innovants qui s'adaptent parfaitement à votre progression.
+                Explorez l'univers de la formation assistée par l'IA, où technologie et expertise se rencontrent
+                pour une expérience d'apprentissage personnalisée et immersive.
               </motion.p>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                className="flex flex-wrap gap-4 justify-center"
-              >
-                <button 
-                  className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-3 px-8 rounded-lg font-medium flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/20 transition-all"
-                  onClick={() => setLocation('/cyber')}
-                >
-                  Démarrer une expérience
-                  <ArrowRight className="h-5 w-5" />
-                </button>
-                
-                <button className="bg-black/40 backdrop-blur-sm text-white py-3 px-8 rounded-lg font-medium border border-gray-700 flex items-center gap-2 hover:bg-black/60 transition-all">
-                  <Play className="h-5 w-5" />
-                  Voir la démo
-                </button>
-              </motion.div>
             </div>
             
             {/* Scroll indicator */}
@@ -238,51 +298,93 @@ const ModernHomePage = () => {
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 1.5, repeat: Infinity }}
             >
-              <ChevronDown className="h-6 w-6 text-gray-400" />
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">02/03 · Défiler vers le bas</span>
+                <ChevronDown className="h-4 w-4 text-[#38a891]" />
+              </div>
             </motion.div>
           </section>
           
-          {/* Modules section */}
-          <section className="py-24">
-            <div className="text-center mb-16">
-              <span className="inline-block py-1 px-3 rounded-full text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700 mb-3">
-                Expériences Adaptatives
-              </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Des<span className="text-blue-400"> modules d'excellence</span> pour votre formation
+          {/* Modules section - refined with glass cards like reference */}
+          <section className="py-32">
+            <div className="flex flex-col mb-20">
+              <div className="flex items-center gap-2 mb-3 mx-auto">
+                <div className="w-2 h-2 rounded-full bg-[#38a891]"></div>
+                <span className="uppercase text-xs tracking-wider text-gray-500 font-medium">Expériences Immersives</span>
+                <div className="w-2 h-2 rounded-full bg-[#38a891]"></div>
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 text-center">
+                <span className="opacity-80">Choisissez votre</span>{' '}
+                <span className="bg-gradient-to-r from-[#38a891] to-blue-400 text-transparent bg-clip-text">parcours d'excellence</span>
               </h2>
-              <p className="text-gray-300 max-w-2xl mx-auto">
-                Trois univers d'apprentissage conçus pour transformer votre formation en expérience immersive et interactive.
+              <p className="text-gray-400 max-w-2xl mx-auto text-center text-lg font-light">
+                Quatre univers spécialisés conçus pour transformer votre apprentissage en une expérience d'immersion complète et interactive.
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {modules.map((module) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              {modules.map((module, index) => (
                 <motion.div
                   key={module.id}
-                  className={`bg-gradient-to-br from-gray-900 to-black border-2 border-${module.color}-500/40 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-${module.color}-500/20 transition-all`}
-                  whileHover={{ 
-                    y: -5,
-                    borderColor: `rgba(${module.color === 'blue' ? '59, 130, 246' : module.color === 'emerald' ? '16, 185, 129' : module.color === 'purple' ? '168, 85, 247' : '245, 158, 11'}, 0.6)`
-                  }}
+                  className="group relative h-[340px] overflow-hidden"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 + 0.3 }}
+                  whileHover={{ y: -5 }}
                 >
-                  <div className="p-6">
-                    <div className={`w-12 h-12 rounded-full bg-${module.color}-900/60 flex items-center justify-center mb-4 border border-${module.color}-500/30`}>
-                      {module.icon}
+                  {/* Card background with glass effect */}
+                  <div className="absolute inset-0 bg-black/30 backdrop-blur-md border border-[#38a891]/10 rounded-xl overflow-hidden group-hover:border-[#38a891]/30 transition-all duration-300">
+                    {/* Subtle gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/60"></div>
+                    
+                    {/* Decorative elements */}
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-[#38a891]/5 rounded-bl-full"></div>
+                    <div className="absolute bottom-0 left-0 w-32 h-16 bg-[#38a891]/5 rounded-tr-full"></div>
+                    
+                    {/* Content */}
+                    <div className="relative h-full p-6 flex flex-col">
+                      {/* Module icon with animation */}
+                      <div className="mb-6 relative">
+                        <div className="absolute -inset-1 bg-[#38a891]/10 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div className="w-14 h-14 rounded-full bg-black/50 border border-[#38a891]/20 flex items-center justify-center relative z-10">
+                          {module.icon}
+                        </div>
+                      </div>
+                      
+                      {/* Module title */}
+                      <h3 className="text-xl font-bold text-white mb-3 tracking-wide">
+                        {module.title}
+                      </h3>
+                      
+                      {/* Divider line */}
+                      <div className="w-12 h-0.5 bg-gradient-to-r from-[#38a891] to-transparent mb-4"></div>
+                      
+                      {/* Description */}
+                      <p className="text-gray-300 mb-auto font-light">
+                        {module.description}
+                      </p>
+                      
+                      {/* Stats section */}
+                      <div className="flex items-center gap-4 mb-5 pt-5 border-t border-[#38a891]/10">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#38a891]/70"></div>
+                          <span className="text-xs text-gray-400">15+ modules</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#38a891]/70"></div>
+                          <span className="text-xs text-gray-400">Adaptatif</span>
+                        </div>
+                      </div>
+                      
+                      {/* Action button */}
+                      <button 
+                        className="w-full py-2.5 px-4 bg-black/30 border border-[#38a891]/20 rounded-lg font-medium text-white flex items-center justify-between hover:bg-black/50 hover:border-[#38a891]/40 transition-all"
+                        onClick={() => navigateToModule(module.id)}
+                      >
+                        <span>Explorer</span>
+                        <ArrowRight className="h-4 w-4 text-[#38a891]" />
+                      </button>
                     </div>
-                    <h3 className={`text-xl font-bold text-${module.color}-400 mb-2`}>
-                      {module.title}
-                    </h3>
-                    <p className="text-gray-400 mb-6 min-h-[4rem]">
-                      {module.description}
-                    </p>
-                    <button 
-                      className={`w-full py-2 px-4 rounded-lg bg-${module.color}-500/20 text-${module.color}-400 font-medium border border-${module.color}-500/40 flex items-center justify-between hover:bg-${module.color}-500/30 transition-colors`}
-                      onClick={() => navigateToModule(module.id)}
-                    >
-                      <span>Accéder</span>
-                      <ChevronRight className="h-5 w-5" />
-                    </button>
                   </div>
                 </motion.div>
               ))}
