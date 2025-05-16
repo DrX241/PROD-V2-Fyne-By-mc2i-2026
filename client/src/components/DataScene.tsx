@@ -32,13 +32,15 @@ const DataScene: React.FC<DataSceneProps> = ({ className }) => {
       cameraRef.current = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
       cameraRef.current.position.z = 30;
 
-      // Créer le renderer
+      // Créer le renderer avec des paramètres optimisés
       rendererRef.current = new THREE.WebGLRenderer({ 
-        antialias: true, 
-        alpha: true 
+        antialias: false, // Désactivé pour améliorer les performances
+        alpha: true,
+        powerPreference: 'high-performance'
       });
       rendererRef.current.setSize(width, height);
-      rendererRef.current.setPixelRatio(window.devicePixelRatio);
+      // Limiter le pixel ratio pour les appareils à haute densité
+      rendererRef.current.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
       container.appendChild(rendererRef.current.domElement);
 
       // Créer les particules pour représenter les données
@@ -51,7 +53,8 @@ const DataScene: React.FC<DataSceneProps> = ({ className }) => {
 
     // Créer les particules de données
     const createDataParticles = () => {
-      const particleCount = 2000;
+      // Réduction du nombre de particules pour améliorer les performances
+      const particleCount = 1200;
       const particleGeometry = new THREE.BufferGeometry();
       const positions = new Float32Array(particleCount * 3);
       const colors = new Float32Array(particleCount * 3);
@@ -73,7 +76,7 @@ const DataScene: React.FC<DataSceneProps> = ({ className }) => {
         positions[i * 3 + 1] = y;
         positions[i * 3 + 2] = z;
 
-        // Couleur
+        // Couleur - simplification de la détermination des couleurs
         const colorRand = Math.random();
         let color;
         
@@ -90,7 +93,7 @@ const DataScene: React.FC<DataSceneProps> = ({ className }) => {
         colors[i * 3 + 2] = color.b;
 
         // Taille
-        sizes[i] = Math.random() * 2;
+        sizes[i] = Math.random() * 1.5;
       }
 
       particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -132,11 +135,13 @@ const DataScene: React.FC<DataSceneProps> = ({ className }) => {
 
     // Créer des lignes connectant les particules pour simuler un réseau de données
     const createDataConnections = (positions: Float32Array, connectionCount: number, color: THREE.Color) => {
+      // Réduction du nombre de connexions pour améliorer les performances
+      const reducedConnectionCount = Math.min(60, connectionCount);
       const lineGeometry = new THREE.BufferGeometry();
-      const linePositions = new Float32Array(connectionCount * 6); // 2 points par ligne, 3 coordonnées par point
+      const linePositions = new Float32Array(reducedConnectionCount * 6); // 2 points par ligne, 3 coordonnées par point
       let lineIndex = 0;
 
-      for (let i = 0; i < connectionCount; i++) {
+      for (let i = 0; i < reducedConnectionCount; i++) {
         // Choisir deux indices de particules aléatoires
         const index1 = Math.floor(Math.random() * (positions.length / 3));
         const index2 = Math.floor(Math.random() * (positions.length / 3));
@@ -165,20 +170,30 @@ const DataScene: React.FC<DataSceneProps> = ({ className }) => {
       sceneRef.current!.add(lines);
     };
 
-    // Animer la scène
-    const animate = () => {
+    // Animer la scène avec optimisation de performances
+    let lastFrameTime = 0;
+    const targetFrameRate = 30; // Limiter à 30 FPS au lieu de 60+ pour économiser des ressources
+    const frameInterval = 1000 / targetFrameRate;
+    
+    const animate = (timestamp = 0) => {
       frameIdRef.current = requestAnimationFrame(animate);
+      
+      // Gestion du throttling pour limiter la fréquence de rafraîchissement
+      const elapsed = timestamp - lastFrameTime;
+      if (elapsed < frameInterval) return; // Sauter ce frame si trop récent
+      
+      lastFrameTime = timestamp - (elapsed % frameInterval);
       
       if (!particlesRef.current || !cameraRef.current || !rendererRef.current) return;
 
-      // Rotation lente des particules
-      particlesRef.current.rotation.x += 0.0005;
-      particlesRef.current.rotation.y += 0.0005;
+      // Rotation lente des particules - valeurs réduites pour économiser des ressources
+      particlesRef.current.rotation.x += 0.0003;
+      particlesRef.current.rotation.y += 0.0003;
 
-      // Effet de mouvement basé sur la position de la souris
+      // Effet de mouvement basé sur la position de la souris avec sensibilité réduite
       if (mouseX.current !== 0 && mouseY.current !== 0) {
-        particlesRef.current.rotation.x += (mouseY.current * 0.00005 - particlesRef.current.rotation.x) * 0.01;
-        particlesRef.current.rotation.y += (mouseX.current * 0.00005 - particlesRef.current.rotation.y) * 0.01;
+        particlesRef.current.rotation.x += (mouseY.current * 0.00003 - particlesRef.current.rotation.x) * 0.01;
+        particlesRef.current.rotation.y += (mouseX.current * 0.00003 - particlesRef.current.rotation.y) * 0.01;
       }
 
       rendererRef.current.render(sceneRef.current, cameraRef.current);

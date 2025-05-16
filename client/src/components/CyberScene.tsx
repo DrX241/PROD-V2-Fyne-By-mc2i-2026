@@ -16,10 +16,15 @@ const CyberScene: React.FC<CyberSceneProps> = ({ className = '' }) => {
     // Setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    const renderer = new THREE.WebGLRenderer({ 
+      alpha: true, 
+      antialias: false, // Désactivé pour améliorer les performances
+      powerPreference: 'high-performance' 
+    });
     
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    // Limiter le pixel ratio pour les appareils à haute densité
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     containerRef.current.appendChild(renderer.domElement);
     
     // Ajouter des lumières
@@ -52,9 +57,9 @@ const CyberScene: React.FC<CyberSceneProps> = ({ className = '' }) => {
     grid.position.y = -5;
     scene.add(grid);
     
-    // Ajouter des particules pour l'effet cyber
+    // Ajouter des particules pour l'effet cyber (nombre réduit pour optimisation)
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 1000;
+    const particlesCount = 600; // Réduction du nombre de particules pour améliorer les performances
     const posArray = new Float32Array(particlesCount * 3);
     
     for (let i = 0; i < particlesCount * 3; i++) {
@@ -110,13 +115,23 @@ const CyberScene: React.FC<CyberSceneProps> = ({ className = '' }) => {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('resize', handleResize);
 
-    // Fonction d'animation
-    const animate = () => {
+    // Fonction d'animation optimisée
+    let lastFrameTime = 0;
+    const targetFrameRate = 30; // Limiter à 30 FPS pour économiser des ressources
+    const frameInterval = 1000 / targetFrameRate;
+    
+    const animate = (timestamp = 0) => {
       requestAnimationFrame(animate);
       
-      // Effet de parallaxe avec la souris
-      camera.position.x += (mousePosition.current.x * 3 - camera.position.x) * 0.05;
-      camera.position.y += (mousePosition.current.y * 2 - camera.position.y) * 0.05;
+      // Limiter le framerate pour économiser des ressources
+      const elapsed = timestamp - lastFrameTime;
+      if (elapsed < frameInterval) return;
+      
+      lastFrameTime = timestamp - (elapsed % frameInterval);
+      
+      // Effet de parallaxe avec la souris (réduit pour optimisation)
+      camera.position.x += (mousePosition.current.x * 2 - camera.position.x) * 0.03;
+      camera.position.y += (mousePosition.current.y * 1.5 - camera.position.y) * 0.03;
       
       camera.lookAt(scene.position);
       renderer.render(scene, camera);
