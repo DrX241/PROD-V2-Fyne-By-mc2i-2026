@@ -13,98 +13,53 @@ interface CourseGenerationRequest {
   preferredLearningStyle?: 'textuel' | 'visuel' | 'application pratique';
 }
 
+import { dataIaCoursesService } from '../services/dataIaCoursesService';
+
 /**
- * Génère du contenu de cours personnalisé pour un module de la DATA & IA ACADEMY
- * Utilise Azure OpenAI pour créer un contenu adapté selon les besoins de l'utilisateur
+ * Récupère le contenu d'un cours préenregistré pour un module de la DATA & IA ACADEMY
+ * Utilise le service dataIaCoursesService pour obtenir le contenu plutôt que de le générer à la volée
  */
 export async function generateCourseContent(req: Request, res: Response) {
   const {
     moduleId,
-    moduleTitle,
-    moduleDifficulty,
-    userLevel = 'débutant',
-    previousKnowledge = [],
-    focusAreas = [],
-    preferredLearningStyle = 'application pratique'
+    moduleTitle
   } = req.body as CourseGenerationRequest;
 
-  if (!moduleId || !moduleTitle) {
+  if (!moduleId) {
     return res.status(400).json({
       success: false,
-      error: "Information du module incomplète. L'identifiant et le titre sont requis."
+      error: "Information du module incomplète. L'identifiant est requis."
     });
   }
 
   try {
-    // Préparation du prompt système
-    const systemMessage: ChatCompletionRequestMessage = {
-      role: "system",
-      content: `
-Vous êtes un formateur expert en Data Science et Intelligence Artificielle qui crée des cours interactifs et personnalisés.
-Votre mission est de générer un contenu de formation structuré, informatif et engageant pour le module demandé.
+    // Récupération du cours préenregistré
+    const course = dataIaCoursesService.getCourse(moduleId);
+    
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        error: `Aucun cours trouvé pour le module: ${moduleId}`
+      });
+    }
 
-DIRECTIVES:
-- Adaptez le contenu au niveau de difficulté demandé: ${moduleDifficulty}
-- Utilisez un style d'enseignement ${preferredLearningStyle === 'textuel' ? 'textuel avec des explications détaillées' : 
-  preferredLearningStyle === 'visuel' ? 'qui décrit des visualisations et schemas' : 
-  'orienté pratique avec des exemples de code et exercices'}
-- Structurez votre réponse avec des titres de sections clairs (##)
-- Incluez une introduction, des concepts clés, et une conclusion
-- Priorisez le contenu pratique et applicable dans un contexte professionnel
-- Référencez des cas d'usage réels, particulièrement dans les secteurs: énergie, finance, transport, santé
-- Utilisez des exemples concrets liés à mc2i, DIXIT (Direction Data & IA) et IMPULSE (secteurs industriels)
-- Incluez des exercices pratiques que l'utilisateur peut réaliser
-- Référencez des technologies et outils actuels
-
-CONTRAINTES DE FORMAT:
-- Utilisez un format markdown pour structurer votre contenu
-- Limitez votre réponse à l'équivalent de 10 minutes de lecture
-- Utilisez des listes à puces pour les points importants
-- Placez le code dans des blocs de code avec la syntaxe appropriée
-- Maintenez un ton professionnel mais accessible`
-    };
-
-    // Préparation du prompt utilisateur
-    const userMessage: ChatCompletionRequestMessage = {
-      role: "user",
-      content: `Générez un cours sur "${moduleTitle}" adapté pour un niveau ${userLevel}.
-      
-Informations supplémentaires:
-- ID du module: ${moduleId}
-- Niveau de difficulté ciblé: ${moduleDifficulty}
-${previousKnowledge.length > 0 ? `- Connaissances préalables: ${previousKnowledge.join(', ')}` : ''}
-${focusAreas.length > 0 ? `- Domaines d'intérêt particuliers: ${focusAreas.join(', ')}` : ''}
-
-Je souhaite un cours structuré avec:
-1. Une introduction expliquant l'importance du sujet
-2. Les concepts fondamentaux de façon claire et concise
-3. Des exemples pratiques et des cas d'usage réels
-4. Des exercices pour pratiquer
-5. Des ressources pour approfondir
-
-Merci de maintenir un équilibre entre théorie et pratique.`
-    };
-
-    // Appel à l'API Azure OpenAI
-    const generatedContent = await openAIService.getChatCompletion([
-      systemMessage,
-      userMessage
-    ], true, 0.7, 2500);
-
-    // Envoi de la réponse
+    // Envoi de la réponse avec le contenu préenregistré
     return res.json({
       success: true,
       moduleId,
-      moduleTitle,
-      content: generatedContent
+      moduleTitle: course.title,
+      content: course.content,
+      sections: course.sections,
+      exercises: course.exercises,
+      resources: course.resources
     });
 
   } catch (error) {
-    console.error('Erreur lors de la génération du cours:', error);
+    console.error('Erreur lors de la récupération du cours:', error);
     
     return res.status(500).json({
       success: false,
-      error: "Une erreur est survenue lors de la génération du contenu du cours. Veuillez réessayer."
+      error: "Une erreur est survenue lors de la récupération du contenu du cours. Veuillez réessayer."
     });
   }
 }
