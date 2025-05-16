@@ -14,7 +14,6 @@ import AuthScreen from "@/components/auth/AuthScreen";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import CyberHomePage from "@/pages/CyberHomePage";
-import ModernHomePage from "@/pages/ModernHomePage";
 import ModulesPage from "@/pages/modules";
 import CyberModeSelection from "@/pages/cyber-mode-selection";
 import CyberAgentPage from "@/pages/cyber-agent";
@@ -212,8 +211,7 @@ function App() {
                 }} />
                 
                 {/* Routes publiques */}
-                <Route path="/" component={ModernHomePage} />
-                <Route path="/home-cyber" component={CyberHomePage} />
+                <Route path="/" component={CyberHomePage} />
                 <Route path="/home-classic" component={Home} />
                 <Route path="/modules" component={ModulesPage} />
                 <Route path="/cyber" component={() => {
