@@ -560,80 +560,82 @@ export default function DataIaModeSelection() {
               </div>
             
               {/* READ ME IF YOU CAN */}
-              <Card 
-                className={`w-full ${
+              <div 
+                className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
                   highContrastMode 
                     ? 'bg-gray-800 border border-gray-700' 
-                    : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
+                    : 'bg-gradient-to-br from-indigo-600 to-cyan-900 border-2 border-cyan-400/50 shadow-lg shadow-cyan-500/50'
                 } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
                 onClick={() => setLocation('/data-ia/read-me-if-you-can')}
               >
-                <CardHeader>
-                  <div className="flex items-center justify-center mb-4">
-                    <div className={`p-3 rounded-lg ${
-                      highContrastMode 
-                        ? 'bg-blue-900' 
-                        : 'bg-gradient-to-r from-blue-500 to-cyan-500 shadow-md'
-                    }`}>
-                      <Code className="h-8 w-8 text-white" />
-                    </div>
+                <div className="flex items-center justify-center mb-4">
+                  <div className={`p-3 rounded-lg ${
+                    highContrastMode 
+                      ? 'bg-blue-900' 
+                      : 'bg-gradient-to-r from-blue-500 to-cyan-500 shadow-md'
+                  }`}>
+                    <Code className="h-8 w-8 text-white" />
                   </div>
-                  <CardTitle className="text-center text-2xl font-data-title">CODE CHALLENGE</CardTitle>
-                  <CardDescription className="text-center text-blue-300 mt-2">
-                    Testez votre compréhension du code Python et SQL dans un environnement interactif
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-center flex flex-col items-center">
+                </div>
+                <h3 className="text-center text-2xl font-data-title mb-2">CODE CHALLENGE</h3>
+                <p className="text-center text-cyan-300 mt-2">
+                  Testez votre compréhension du code Python et SQL dans un environnement interactif
+                </p>
+                <div className="text-center flex flex-col items-center mt-4">
                   <p className="text-gray-200 mb-4">
                     Déchiffrez et interprétez du code complexe pour progresser dans vos compétences en Data Science
                   </p>
                   <Button 
                     className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-6 py-5"
-                    onClick={() => setLocation('/data-ia/read-me-if-you-can')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLocation('/data-ia/read-me-if-you-can');
+                    }}
                   >
                     Commencer le défi
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
               {/* IA LAB TRAINER */}
-              <Card 
-                className={`w-full ${
+              <div 
+                className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
                   highContrastMode 
                     ? 'bg-gray-800 border border-gray-700' 
-                    : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
+                    : 'bg-gradient-to-br from-violet-600 to-purple-900 border-2 border-violet-400/50 shadow-lg shadow-violet-500/50'
                 } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
                 onClick={() => setLocation('/data-ia/ia-lab-trainer')}
               >
-                <CardHeader>
-                  <div className="flex items-center justify-center mb-4">
-                    <div className={`p-3 rounded-lg ${
-                      highContrastMode 
-                        ? 'bg-purple-900' 
-                        : 'bg-gradient-to-r from-purple-600 to-indigo-600 shadow-md'
-                    }`}>
-                      <BsFileEarmarkCode className="h-8 w-8 text-white" />
-                    </div>
+                <div className="flex items-center justify-center mb-4">
+                  <div className={`p-3 rounded-lg ${
+                    highContrastMode 
+                      ? 'bg-purple-900' 
+                      : 'bg-gradient-to-r from-purple-600 to-indigo-600 shadow-md'
+                  }`}>
+                    <BsFileEarmarkCode className="h-8 w-8 text-white" />
                   </div>
-                  <CardTitle className="text-center text-2xl font-data-title">DATA STUDIO</CardTitle>
-                  <CardDescription className="text-center text-blue-300 mt-2">
-                    Laboratoire interactif pour coder en Python et SQL avec assistance IA
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-center flex flex-col items-center">
+                </div>
+                <h3 className="text-center text-2xl font-data-title mb-2">DATA STUDIO</h3>
+                <p className="text-center text-violet-300 mt-2">
+                  Laboratoire interactif pour coder en Python et SQL avec assistance IA
+                </p>
+                <div className="text-center flex flex-col items-center mt-4">
                   <p className="text-gray-200 mb-4">
                     Développez et analysez du code avec l'aide d'une IA qui vous guide et vous corrige
                   </p>
                   <Button 
                     className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-5"
-                    onClick={() => setLocation('/data-ia/ia-lab-trainer')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLocation('/data-ia/ia-lab-trainer');
+                    }}
                   >
                     Ouvrir le laboratoire
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           </div>
         </div>
