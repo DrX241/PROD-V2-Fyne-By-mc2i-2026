@@ -239,7 +239,7 @@ export default function CyberV3() {
                       className="flex items-center p-2 hover:bg-blue-800/30 rounded cursor-pointer transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation('/cyber/role-play');
+                        setLocation('/cyber/learning/cyber-mastery');
                       }}
                     >
                       <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
@@ -249,7 +249,7 @@ export default function CyberV3() {
                       className="flex items-center p-2 hover:bg-blue-800/30 rounded cursor-pointer transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation('/cyber/technical-test');
+                        setLocation('/cyber/learning/cyber-mastery/sensibilisation');
                       }}
                     >
                       <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
@@ -259,7 +259,7 @@ export default function CyberV3() {
                       className="flex items-center p-2 hover:bg-blue-800/30 rounded cursor-pointer transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation('/cyber/interview');
+                        setLocation('/cyber/cyber-agent-new');
                       }}
                     >
                       <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
@@ -310,7 +310,7 @@ export default function CyberV3() {
                       className="flex items-center p-2 hover:bg-cyan-800/30 rounded cursor-pointer transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation('/cyber/crisis-management');
+                        setLocation('/cyber-defense-new');
                       }}
                     >
                       <div className="w-2 h-2 rounded-full bg-cyan-400 mr-2"></div>
@@ -330,7 +330,7 @@ export default function CyberV3() {
                       className="flex items-center p-2 hover:bg-cyan-800/30 rounded cursor-pointer transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation('/cyber/agent-ia');
+                        setLocation('/cyber/expert-learning');
                       }}
                     >
                       <div className="w-2 h-2 rounded-full bg-cyan-400 mr-2"></div>
@@ -381,7 +381,7 @@ export default function CyberV3() {
                       className="flex items-center p-2 hover:bg-violet-800/30 rounded cursor-pointer transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation('/cyber/assistant-creator');
+                        setLocation('/outils-ia/assistant/create');
                       }}
                     >
                       <div className="w-2 h-2 rounded-full bg-violet-400 mr-2"></div>
@@ -391,7 +391,7 @@ export default function CyberV3() {
                       className="flex items-center p-2 hover:bg-violet-800/30 rounded cursor-pointer transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation('/cyber/investigation-tools');
+                        setLocation('/cyber/arcade/cyber-investigator');
                       }}
                     >
                       <div className="w-2 h-2 rounded-full bg-violet-400 mr-2"></div>
@@ -401,7 +401,7 @@ export default function CyberV3() {
                       className="flex items-center p-2 hover:bg-violet-800/30 rounded cursor-pointer transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation('/cyber/analysis-lab');
+                        setLocation('/cyber/cyber-pulse');
                       }}
                     >
                       <div className="w-2 h-2 rounded-full bg-violet-400 mr-2"></div>
