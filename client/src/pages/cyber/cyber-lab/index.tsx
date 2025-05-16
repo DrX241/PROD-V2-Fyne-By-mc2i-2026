@@ -5,7 +5,8 @@ import {
   Network, 
   Shield, 
   Zap,
-  ArrowRight
+  ArrowRight,
+  ChevronLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -46,24 +47,37 @@ const CyberLab: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white p-6">
+      {/* Bouton de retour */}
+      <div className="absolute top-4 left-4 z-20">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="bg-black/50 border-cyan-800 text-cyan-400 hover:bg-black/70 hover:text-cyan-300 hover:border-cyan-500 transition-colors"
+          onClick={() => setLocation('/cyber-v3')}
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          Retour vers I AM CYBER
+        </Button>
+      </div>
+
       {/* En-tête */}
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-cyan-300 mb-2">CYBER LAB</h1>
-        <p className="text-gray-400 max-w-2xl mx-auto">
+      <div className="mb-10 text-center mt-6">
+        <h1 className="text-4xl font-bold text-cyan-300 mb-3 cyber-glitch-text">CYBER LAB</h1>
+        <p className="text-gray-300 max-w-3xl mx-auto text-lg">
           Bienvenue dans l'environnement d'expérimentation pratique des concepts de cybersécurité. 
           Choisissez un module pour commencer votre apprentissage par la pratique.
         </p>
       </div>
 
       {/* Animation de code en arrière-plan */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden z-0 opacity-10 pointer-events-none">
-        <pre className="text-cyan-400 text-xs animate-scrolling-code">
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden z-0 opacity-20 pointer-events-none">
+        <pre className="text-cyan-400 text-sm animate-scrolling-code font-mono">
           {Array(20).fill(codeLines).flat().join('\n')}
         </pre>
       </div>
 
       {/* Modules de laboratoire */}
-      <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto z-10 relative">
+      <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto z-10 relative">
         {/* Module de Pentest Web */}
         <motion.div
           initial="initial"
@@ -72,45 +86,45 @@ const CyberLab: React.FC = () => {
           transition={{ duration: 0.3 }}
           variants={cardVariants}
         >
-          <Card className="bg-gray-900/80 border-purple-900/50 hover:border-purple-500/50 h-full transition-all">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-2xl text-purple-300 flex items-center gap-2">
-                <Terminal className="h-6 w-6" />
+          <Card className="bg-gray-900/80 border-2 border-purple-900/50 hover:border-purple-500 h-full shadow-lg shadow-purple-900/20 hover:shadow-purple-800/40 transition-all">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-3xl text-purple-300 flex items-center gap-3">
+                <Terminal className="h-8 w-8" />
                 Atelier de Pentest Web
               </CardTitle>
-              <CardDescription className="text-gray-400">
+              <CardDescription className="text-gray-300 text-base">
                 Découvrez et exploitez les vulnérabilités web dans un environnement sécurisé
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-sm text-gray-300">
-              <div className="space-y-3">
-                <div className="flex items-start gap-2">
-                  <div className="bg-purple-900/30 p-1 rounded-full mt-0.5">
-                    <Shield className="h-4 w-4 text-purple-400" />
+            <CardContent className="text-base text-gray-300">
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="bg-purple-900/30 p-2 rounded-full mt-0.5">
+                    <Shield className="h-5 w-5 text-purple-400" />
                   </div>
                   <div>
-                    <p className="font-medium text-purple-200">Challenges interactifs</p>
-                    <p className="text-xs text-gray-400">Testez vos compétences sur des vulnérabilités réelles: XSS, injection SQL, CSRF, etc.</p>
+                    <p className="font-medium text-purple-200 text-lg">Challenges interactifs</p>
+                    <p className="text-sm text-gray-300">Testez vos compétences sur des vulnérabilités réelles: XSS, injection SQL, CSRF, etc.</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-2">
-                  <div className="bg-purple-900/30 p-1 rounded-full mt-0.5">
-                    <Zap className="h-4 w-4 text-purple-400" />
+                <div className="flex items-start gap-3">
+                  <div className="bg-purple-900/30 p-2 rounded-full mt-0.5">
+                    <Zap className="h-5 w-5 text-purple-400" />
                   </div>
                   <div>
-                    <p className="font-medium text-purple-200">Exécution de code réel</p>
-                    <p className="text-xs text-gray-400">Écrivez et exécutez du code pour exploiter et corriger des failles de sécurité</p>
+                    <p className="font-medium text-purple-200 text-lg">Exécution de code réel</p>
+                    <p className="text-sm text-gray-300">Écrivez et exécutez du code pour exploiter et corriger des failles de sécurité</p>
                   </div>
                 </div>
               </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="pt-4">
               <Button 
-                className="w-full bg-purple-900/60 hover:bg-purple-800 text-white hover:text-white border border-purple-700 group"
+                className="w-full bg-purple-900/80 hover:bg-purple-800 text-white hover:text-white border-2 border-purple-700 hover:border-purple-500 py-6 text-lg group"
                 onClick={() => setLocation('/cyber/pentest-lab')}
               >
                 <span>Accéder au laboratoire</span>
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </CardFooter>
           </Card>
@@ -124,45 +138,45 @@ const CyberLab: React.FC = () => {
           transition={{ duration: 0.3, delay: 0.1 }}
           variants={cardVariants}
         >
-          <Card className="bg-gray-900/80 border-cyan-900/50 hover:border-cyan-500/50 h-full transition-all">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-2xl text-cyan-300 flex items-center gap-2">
-                <Network className="h-6 w-6" />
+          <Card className="bg-gray-900/80 border-2 border-cyan-900/50 hover:border-cyan-500 h-full shadow-lg shadow-cyan-900/20 hover:shadow-cyan-800/40 transition-all">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-3xl text-cyan-300 flex items-center gap-3">
+                <Network className="h-8 w-8" />
                 Analyse de trafic réseau
               </CardTitle>
-              <CardDescription className="text-gray-400">
+              <CardDescription className="text-gray-300 text-base">
                 Analysez des captures réseau pour identifier les menaces et vulnérabilités
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-sm text-gray-300">
-              <div className="space-y-3">
-                <div className="flex items-start gap-2">
-                  <div className="bg-cyan-900/30 p-1 rounded-full mt-0.5">
-                    <Shield className="h-4 w-4 text-cyan-400" />
+            <CardContent className="text-base text-gray-300">
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="bg-cyan-900/30 p-2 rounded-full mt-0.5">
+                    <Shield className="h-5 w-5 text-cyan-400" />
                   </div>
                   <div>
-                    <p className="font-medium text-cyan-200">Forensique réseau</p>
-                    <p className="text-xs text-gray-400">Explorez des captures PCAP pour détecter les attaques réseau et exfiltrations de données</p>
+                    <p className="font-medium text-cyan-200 text-lg">Forensique réseau</p>
+                    <p className="text-sm text-gray-300">Explorez des captures PCAP pour détecter les attaques réseau et exfiltrations de données</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-2">
-                  <div className="bg-cyan-900/30 p-1 rounded-full mt-0.5">
-                    <Zap className="h-4 w-4 text-cyan-400" />
+                <div className="flex items-start gap-3">
+                  <div className="bg-cyan-900/30 p-2 rounded-full mt-0.5">
+                    <Zap className="h-5 w-5 text-cyan-400" />
                   </div>
                   <div>
-                    <p className="font-medium text-cyan-200">Visualisation de données</p>
-                    <p className="text-xs text-gray-400">Utilisez des outils d'analyse Python pour interpréter les motifs de trafic malveillant</p>
+                    <p className="font-medium text-cyan-200 text-lg">Visualisation de données</p>
+                    <p className="text-sm text-gray-300">Utilisez des outils d'analyse Python pour interpréter les motifs de trafic malveillant</p>
                   </div>
                 </div>
               </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="pt-4">
               <Button 
-                className="w-full bg-cyan-900/60 hover:bg-cyan-800 text-white hover:text-white border border-cyan-700 group"
+                className="w-full bg-cyan-900/80 hover:bg-cyan-800 text-white hover:text-white border-2 border-cyan-700 hover:border-cyan-500 py-6 text-lg group"
                 onClick={() => setLocation('/cyber/network-lab')}
               >
                 <span>Accéder au laboratoire</span>
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </CardFooter>
           </Card>
