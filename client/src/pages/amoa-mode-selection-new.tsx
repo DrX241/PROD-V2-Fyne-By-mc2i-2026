@@ -153,118 +153,121 @@ export default function AmoaModeSelectionNew() {
           <div className="mt-8 px-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-center max-w-6xl mx-auto">
               {/* COACH ENTRETIEN */}
-              <Card 
-                className={`w-full ${
+              <div 
+                className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
                   highContrastMode 
                     ? 'bg-gray-800 border border-gray-700' 
-                    : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
+                    : 'bg-gradient-to-br from-blue-600 to-blue-900 border-2 border-blue-400/50 shadow-lg shadow-blue-500/50'
                 } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
                 onClick={() => navigate('/amoa/coach-entretien')}
               >
-                <CardHeader>
-                  <div className="flex items-center justify-center mb-4">
-                    <div className={`p-3 rounded-lg ${
-                      highContrastMode 
-                        ? 'bg-blue-800' 
-                        : 'bg-gradient-to-r from-blue-500 to-blue-700 shadow-md'
-                    }`}>
-                      <IoVideocam className="h-8 w-8 text-white" />
-                    </div>
+                <div className="flex items-center justify-center mb-4">
+                  <div className={`p-3 rounded-lg ${
+                    highContrastMode 
+                      ? 'bg-blue-800' 
+                      : 'bg-gradient-to-r from-blue-500 to-blue-700 shadow-md'
+                  }`}>
+                    <IoVideocam className="h-8 w-8 text-white" />
                   </div>
-                  <CardTitle className="text-center text-2xl font-bold">COACH ENTRETIEN</CardTitle>
-                  <CardDescription className="text-center text-blue-300 mt-2">
-                    Simulateur d'entretiens clients avec intelligence artificielle
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-center flex flex-col items-center">
+                </div>
+                <h3 className="text-center text-2xl font-bold mb-2">COACH ENTRETIEN</h3>
+                <p className="text-center text-blue-300 mt-2">
+                  Simulateur d'entretiens clients avec intelligence artificielle
+                </p>
+                <div className="text-center flex flex-col items-center mt-4">
                   <p className="text-gray-200 mb-4">
                     Préparez-vous aux différents scénarios d'entretien avec feedback personnalisé
                   </p>
                   <Button 
                     className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-5"
-                    onClick={() => navigate('/amoa/coach-entretien')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate('/amoa/coach-entretien');
+                    }}
                   >
                     Démarrer une simulation
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             
               {/* PROJET ACADEMY */}
-              <Card 
-                className={`w-full ${
+              <div 
+                className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
                   highContrastMode 
                     ? 'bg-gray-800 border border-gray-700' 
-                    : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
+                    : 'bg-gradient-to-br from-indigo-600 to-indigo-900 border-2 border-indigo-400/50 shadow-lg shadow-indigo-500/50'
                 } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
                 onClick={() => navigate('/amoa/projet-academy')}
               >
-                <CardHeader>
-                  <div className="flex items-center justify-center mb-4">
-                    <div className={`p-3 rounded-lg ${
-                      highContrastMode 
-                        ? 'bg-blue-900' 
-                        : 'bg-gradient-to-r from-indigo-500 to-indigo-700 shadow-md'
-                    }`}>
-                      <BsClipboardCheck className="h-8 w-8 text-white" />
-                    </div>
+                <div className="flex items-center justify-center mb-4">
+                  <div className={`p-3 rounded-lg ${
+                    highContrastMode 
+                      ? 'bg-indigo-800' 
+                      : 'bg-gradient-to-r from-indigo-500 to-indigo-700 shadow-md'
+                  }`}>
+                    <BsClipboardCheck className="h-8 w-8 text-white" />
                   </div>
-                  <CardTitle className="text-center text-2xl font-bold">PROJET ACADEMY</CardTitle>
-                  <CardDescription className="text-center text-blue-300 mt-2">
-                    Centre de formation aux méthodes et outils de gestion de projet mc2i
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-center flex flex-col items-center">
+                </div>
+                <h3 className="text-center text-2xl font-bold mb-2">PROJET ACADEMY</h3>
+                <p className="text-center text-indigo-300 mt-2">
+                  Centre de formation aux méthodes et outils de gestion de projet mc2i
+                </p>
+                <div className="text-center flex flex-col items-center mt-4">
                   <p className="text-gray-200 mb-4">
                     Maîtrisez les bonnes pratiques, méthodologies agiles et gestion documentaire
                   </p>
                   <Button 
                     className="bg-gradient-to-r from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-white px-6 py-5"
-                    onClick={() => navigate('/amoa/projet-academy')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate('/amoa/projet-academy');
+                    }}
                   >
                     Explorer les formations
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
               {/* CONSULTANT LAB */}
-              <Card 
-                className={`w-full ${
+              <div 
+                className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
                   highContrastMode 
                     ? 'bg-gray-800 border border-gray-700' 
-                    : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
+                    : 'bg-gradient-to-br from-purple-600 to-indigo-900 border-2 border-purple-400/50 shadow-lg shadow-purple-500/50'
                 } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
                 onClick={() => navigate('/amoa/consultant-lab')}
               >
-                <CardHeader>
-                  <div className="flex items-center justify-center mb-4">
-                    <div className={`p-3 rounded-lg ${
-                      highContrastMode 
-                        ? 'bg-purple-900' 
-                        : 'bg-gradient-to-r from-purple-600 to-indigo-600 shadow-md'
-                    }`}>
-                      <IoAnalytics className="h-8 w-8 text-white" />
-                    </div>
+                <div className="flex items-center justify-center mb-4">
+                  <div className={`p-3 rounded-lg ${
+                    highContrastMode 
+                      ? 'bg-purple-800' 
+                      : 'bg-gradient-to-r from-purple-600 to-indigo-600 shadow-md'
+                  }`}>
+                    <IoAnalytics className="h-8 w-8 text-white" />
                   </div>
-                  <CardTitle className="text-center text-2xl font-bold">CONSULTANT LAB</CardTitle>
-                  <CardDescription className="text-center text-blue-300 mt-2">
-                    Environnement d'apprentissage pour maîtriser l'analyse et la transformation métier
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-center flex flex-col items-center">
+                </div>
+                <h3 className="text-center text-2xl font-bold mb-2">CONSULTANT LAB</h3>
+                <p className="text-center text-purple-300 mt-2">
+                  Environnement d'apprentissage pour maîtriser l'analyse et la transformation métier
+                </p>
+                <div className="text-center flex flex-col items-center mt-4">
                   <p className="text-gray-200 mb-4">
                     Développez vos compétences d'analyse avec des exercices pratiques et interactifs
                   </p>
                   <Button 
                     className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-5"
-                    onClick={() => navigate('/amoa/consultant-lab')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate('/amoa/consultant-lab');
+                    }}
                   >
                     Accéder au laboratoire
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           </div>
         </div>
