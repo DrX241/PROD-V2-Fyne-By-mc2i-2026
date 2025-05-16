@@ -520,43 +520,44 @@ export default function DataIaModeSelection() {
           {/* Modules Data & IA */}
           <div className="mt-8 px-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-center max-w-6xl mx-auto">
-              {/* DATA & IA ACADEMY */}
-              <Card 
-                className={`w-full ${
+              {/* DATA & IA ACADEMY - CAMPUS FORMATION */}
+              <div 
+                className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
                   highContrastMode 
                     ? 'bg-gray-800 border border-gray-700' 
-                    : 'bg-gradient-to-br from-[#1a3a60]/80 to-[#224980]/80 border border-blue-300/30 backdrop-blur-sm'
+                    : 'bg-gradient-to-br from-blue-600 to-blue-900 border-2 border-blue-400/50 shadow-lg shadow-blue-500/50'
                 } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
                 onClick={() => setLocation('/data-ia/data-ia-academy')}
               >
-                <CardHeader>
-                  <div className="flex items-center justify-center mb-4">
-                    <div className={`p-3 rounded-lg ${
-                      highContrastMode 
-                        ? 'bg-blue-800' 
-                        : 'bg-gradient-to-r from-blue-500 to-blue-700 shadow-md'
-                    }`}>
-                      <IoBookOutline className="h-8 w-8 text-white" />
-                    </div>
+                <div className="flex items-center justify-center mb-4">
+                  <div className={`p-3 rounded-lg ${
+                    highContrastMode 
+                      ? 'bg-blue-800' 
+                      : 'bg-gradient-to-r from-blue-500 to-blue-700 shadow-md'
+                  }`}>
+                    <IoBookOutline className="h-8 w-8 text-white" />
                   </div>
-                  <CardTitle className="text-center text-2xl font-data-title">CAMPUS FORMATION</CardTitle>
-                  <CardDescription className="text-center text-blue-300 mt-2">
-                    Centre de formation complet en data science, IA et métiers de la data
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-center flex flex-col items-center">
+                </div>
+                <h3 className="text-center text-2xl font-data-title mb-2">CAMPUS FORMATION</h3>
+                <p className="text-center text-blue-300 mt-2">
+                  Centre de formation complet en data science, IA et métiers de la data
+                </p>
+                <div className="text-center flex flex-col items-center mt-4">
                   <p className="text-gray-200 mb-4">
                     Apprenez Python, SQL, Data Science et les métiers de la Data par modules interactifs
                   </p>
                   <Button 
                     className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-5"
-                    onClick={() => setLocation('/data-ia/data-ia-academy')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLocation('/data-ia/data-ia-academy');
+                    }}
                   >
                     Explorer l'académie
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             
               {/* READ ME IF YOU CAN */}
               <Card 
