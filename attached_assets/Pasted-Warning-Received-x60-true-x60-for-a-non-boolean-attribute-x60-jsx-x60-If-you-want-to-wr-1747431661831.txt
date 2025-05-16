@@ -1,0 +1,37 @@
+Warning: Received &#x60;true&#x60; for a non-boolean attribute &#x60;jsx&#x60;.
+
+If you want to write it to the DOM, pass a string instead: jsx=&quot;true&quot; or jsx={value.toString()}.
+    at style
+    at div
+    at PentestLab (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/pages/cyber/pentest-lab/index.tsx:196:27)
+    at Suspense
+    at component
+    at Route (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=ef0b3fd2:323:16)
+    at Switch (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=ef0b3fd2:379:17)
+    at div
+    at TutorialProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/TutorialContext.tsx:235:36)
+    at ChatProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ChatContext.tsx:346:32)
+    at ThemeProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ThemeContext.tsx:33:33)
+    at QueryClientProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=ef0b3fd2:2805:3)
+    at App (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/App.tsx?v=2of9NjGes64GoImIBssLq:144:49)
+    at AuthProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/AuthContext.tsx?v=2of9NjGes64GoImIBssLq:21:32)
+
+If you want to write it to the DOM, pass a string instead: jsx=&amp;quot;true&amp;quot; or jsx={value.toString()}.
+at style
+at div
+at PentestLab (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/pages/cyber/pentest-lab/index.tsx:196:27)
+at Suspense
+at component
+at Route (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=ef0b3fd2:323:16)
+at Switch (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=ef0b3fd2:379:17)
+at div
+at TutorialProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/TutorialContext.tsx:235:36)
+at ChatProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ChatContext.tsx:346:32)
+at ThemeProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ThemeContext.tsx:33:33)
+at QueryClientProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=ef0b3fd2:2805:3)
+at App (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/App.tsx?v=2of9NjGes64GoImIBssLq:144:49)
+at AuthProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/AuthContext.tsx?v=2of9NjGes64GoImIBssLq:21:32)
+at t.value (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
