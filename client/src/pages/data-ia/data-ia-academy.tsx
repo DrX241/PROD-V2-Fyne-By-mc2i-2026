@@ -338,11 +338,57 @@ export default function DataIaAcademy() {
     setAiAssistantMessage(`Excellent choix ! Le module "${module.title}" vous permettra d'acquérir des compétences essentielles en ${module.category === 'languages' ? 'programmation' : module.category === 'concepts' ? 'théorie' : module.category === 'tools' ? 'utilisation d\'outils' : module.category === 'careers' ? 'métiers de la data' : 'mise en pratique'}. Voulez-vous commencer par une introduction interactive ou directement par les exercices pratiques ?`);
   };
   
-  // Fonction pour générer un cours avec l'IA
-  const generateCourseContent = async () => {
+  // Interfaces pour les cours récupérés du backend
+  interface CourseSection {
+    id: string;
+    title: string;
+    content: string;
+    type: 'text' | 'code' | 'video' | 'interactive';
+    codeLanguage?: string;
+    videoUrl?: string;
+  }
+  
+  interface CourseExercise {
+    id: string;
+    title: string;
+    description: string;
+    type: 'quiz' | 'coding' | 'project';
+    difficulty: 'débutant' | 'intermédiaire' | 'avancé';
+    content: string;
+    solution?: string;
+  }
+  
+  interface CourseResource {
+    id: string;
+    title: string;
+    type: 'article' | 'video' | 'book' | 'tool';
+    url: string;
+    description: string;
+  }
+  
+  interface CourseContent {
+    moduleId: string;
+    moduleTitle: string;
+    content: string;
+    sections: CourseSection[];
+    exercises: CourseExercise[];
+    resources: CourseResource[];
+  }
+  
+  // État pour stocker le cours chargé
+  const [courseContent, setCourseContent] = useState<CourseContent | null>(null);
+  const [activeSection, setActiveSection] = useState<CourseSection | null>(null);
+  const [activeExercise, setActiveExercise] = useState<CourseExercise | null>(null);
+  const [showSolution, setShowSolution] = useState<boolean>(false);
+  const [loadingCourse, setLoadingCourse] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>('contenu');
+  
+  // Fonction pour charger un cours complet
+  const loadCourseContent = async () => {
     if (!selectedModule) return;
     
-    setAiAssistantMessage("Génération de votre cours personnalisé en cours...");
+    setLoadingCourse(true);
+    setAiAssistantMessage("Chargement de votre cours en cours...");
     
     try {
       const response = await fetch('/api/data-ia/generate-course', {
@@ -352,49 +398,134 @@ export default function DataIaAcademy() {
         },
         body: JSON.stringify({
           moduleId: selectedModule.id,
-          moduleTitle: selectedModule.title,
-          moduleDifficulty: selectedModule.difficulty
+          moduleTitle: selectedModule.title
         })
       });
       
       if (!response.ok) {
-        throw new Error('Erreur lors de la génération du cours');
+        throw new Error('Erreur lors du chargement du cours');
       }
       
       const data = await response.json();
       
-      // Simuler un délai pour représenter le chargement du contenu
-      setTimeout(() => {
+      if (data.success) {
+        setCourseContent(data);
+        setActiveTab('contenu');
         setAiAssistantMessage(
-          `Voici votre cours personnalisé sur "${selectedModule.title}" :\n\n` +
-          `${data.content || "L'implémentation de ce module est en cours de développement. Veuillez réessayer ultérieurement."}`
+          `Bienvenue dans le cours "${data.moduleTitle}" ! Vous pouvez explorer le contenu, les exercices et les ressources. N'hésitez pas à me poser des questions si vous avez besoin d'aide.`
         );
         
-        // Mettre à jour le progrès si le cours est généré avec succès
-        if (data.content) {
-          setModules(prevModules => 
-            prevModules.map(m => 
-              m.id === selectedModule.id 
-                ? { ...m, progress: 25 } 
-                : m
-            )
-          );
+        // Mettre à jour le progrès du module
+        setModules(prevModules => 
+          prevModules.map(m => 
+            m.id === selectedModule.id 
+              ? { ...m, progress: 10 } 
+              : m
+          )
+        );
+        
+        // Définir la première section comme active par défaut
+        if (data.sections && data.sections.length > 0) {
+          setActiveSection(data.sections[0]);
         }
-      }, 3000);
-      
+      } else {
+        setAiAssistantMessage(`Je n'ai pas pu charger le cours "${selectedModule.title}". ${data.error || 'Veuillez réessayer ultérieurement.'}`);
+      }
     } catch (error) {
       console.error('Erreur:', error);
-      setAiAssistantMessage("Je suis désolé, mais j'ai rencontré une erreur lors de la génération de votre cours. Veuillez réessayer ou choisir un autre module.");
+      setAiAssistantMessage("Je suis désolé, mais j'ai rencontré une erreur lors du chargement de votre cours. Veuillez réessayer ou choisir un autre module.");
+    } finally {
+      setLoadingCourse(false);
     }
   };
   
-  // Fonction pour répondre à l'IA
-  const respondToAi = (response: string) => {
-    // Pour l'instant, on simule simplement une réponse
-    setAiAssistantMessage("Excellente question ! Je vais vous préparer un contenu personnalisé sur ce sujet. Cela prendra quelques instants...");
+  // Fonction pour répondre à l'IA - utilise l'API pour générer une réponse personnalisée
+  const respondToAi = async (question: string) => {
+    if (!selectedModule || !question.trim()) return;
     
-    // Simuler un délai pour la réponse de l'IA
-    setTimeout(generateCourseContent, 1500);
+    setAiAssistantMessage("Je réfléchis à votre question...");
+    
+    try {
+      const response = await fetch('/api/data-ia/answer-question', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          moduleId: selectedModule.id,
+          moduleTitle: selectedModule.title,
+          question: question
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la génération de la réponse');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setAiAssistantMessage(data.answer);
+      } else {
+        setAiAssistantMessage("Je suis désolé, mais je n'ai pas pu générer une réponse à votre question. Veuillez réessayer avec une formulation différente.");
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      setAiAssistantMessage("Désolé, j'ai rencontré une erreur technique lors de la génération de ma réponse. Veuillez réessayer ultérieurement.");
+    }
+  };
+  
+  // Fonction pour générer un quiz sur le module
+  const generateQuiz = async () => {
+    if (!selectedModule) return;
+    
+    setAiAssistantMessage("Génération d'un quiz pour tester vos connaissances...");
+    
+    try {
+      const response = await fetch('/api/data-ia/generate-quiz', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          moduleId: selectedModule.id,
+          moduleTitle: selectedModule.title,
+          difficulty: selectedModule.difficulty
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la génération du quiz');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.questions && data.questions.length > 0) {
+        setAiAssistantMessage(
+          `Voici un quiz pour tester vos connaissances sur "${selectedModule.title}" :\n\n` +
+          data.questions.map((q, i) => 
+            `**Question ${i+1}**: ${q.question}\n` +
+            q.options.map((opt, j) => `${String.fromCharCode(97 + j)}) ${opt}`).join('\n') +
+            '\n'
+          ).join('\n\n') +
+          '\n\nPour voir les réponses, cliquez sur "Voir les réponses" ci-dessous.'
+        );
+        
+        // Mettre à jour le progrès du module
+        setModules(prevModules => 
+          prevModules.map(m => 
+            m.id === selectedModule.id 
+              ? { ...m, progress: Math.min(100, (m.progress || 0) + 10) } 
+              : m
+          )
+        );
+      } else {
+        setAiAssistantMessage("Je n'ai pas pu générer un quiz pour ce module. Veuillez réessayer ultérieurement.");
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      setAiAssistantMessage("Je suis désolé, mais j'ai rencontré une erreur lors de la génération du quiz. Veuillez réessayer ultérieurement.");
+    }
   };
   
   // Filtrer les modules par catégorie active
@@ -503,10 +634,19 @@ export default function DataIaAcademy() {
                     <Progress value={selectedModule.progress || 0} className="h-2 bg-slate-700" />
                     
                     <Button 
-                      onClick={generateCourseContent}
+                      onClick={loadCourseContent}
                       className="w-full mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                      disabled={loadingCourse}
                     >
-                      Générer le cours IA
+                      {loadingCourse ? (
+                        <>
+                          <span className="animate-pulse mr-2">Chargement...</span>
+                        </>
+                      ) : (
+                        <>
+                          Charger le cours
+                        </>
+                      )}
                     </Button>
                   </div>
                 )}
