@@ -235,15 +235,33 @@ export default function CyberV3() {
                 </p>
                 <div className="mt-4">
                   <div className="space-y-3 mb-5">
-                    <div className="flex items-center">
+                    <div 
+                      className="flex items-center p-2 hover:bg-blue-800/30 rounded cursor-pointer transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/cyber/role-play');
+                      }}
+                    >
                       <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
                       <p className="text-gray-200 text-sm">Dans la peau de ton métier</p>
                     </div>
-                    <div className="flex items-center">
+                    <div 
+                      className="flex items-center p-2 hover:bg-blue-800/30 rounded cursor-pointer transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/cyber/technical-test');
+                      }}
+                    >
                       <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
                       <p className="text-gray-200 text-sm">Test technique</p>
                     </div>
-                    <div className="flex items-center">
+                    <div 
+                      className="flex items-center p-2 hover:bg-blue-800/30 rounded cursor-pointer transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/cyber/interview');
+                      }}
+                    >
                       <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
                       <p className="text-gray-200 text-sm">Mode entretien</p>
                     </div>
@@ -288,15 +306,33 @@ export default function CyberV3() {
                 </p>
                 <div className="mt-4">
                   <div className="space-y-3 mb-5">
-                    <div className="flex items-center">
+                    <div 
+                      className="flex items-center p-2 hover:bg-cyan-800/30 rounded cursor-pointer transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/cyber/crisis-management');
+                      }}
+                    >
                       <div className="w-2 h-2 rounded-full bg-cyan-400 mr-2"></div>
                       <p className="text-gray-200 text-sm">GESTION DE CRISE (CryptoLock)</p>
                     </div>
-                    <div className="flex items-center">
+                    <div 
+                      className="flex items-center p-2 hover:bg-cyan-800/30 rounded cursor-pointer transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/cyber/arcade');
+                      }}
+                    >
                       <div className="w-2 h-2 rounded-full bg-cyan-400 mr-2"></div>
                       <p className="text-gray-200 text-sm">CYBER ARCADE</p>
                     </div>
-                    <div className="flex items-center">
+                    <div 
+                      className="flex items-center p-2 hover:bg-cyan-800/30 rounded cursor-pointer transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/cyber/agent-ia');
+                      }}
+                    >
                       <div className="w-2 h-2 rounded-full bg-cyan-400 mr-2"></div>
                       <p className="text-gray-200 text-sm">AGENT IA</p>
                     </div>
@@ -341,15 +377,33 @@ export default function CyberV3() {
                 </p>
                 <div className="mt-4">
                   <div className="space-y-3 mb-5">
-                    <div className="flex items-center">
+                    <div 
+                      className="flex items-center p-2 hover:bg-violet-800/30 rounded cursor-pointer transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/cyber/assistant-creator');
+                      }}
+                    >
                       <div className="w-2 h-2 rounded-full bg-violet-400 mr-2"></div>
                       <p className="text-gray-200 text-sm">Créer votre assistant cyber</p>
                     </div>
-                    <div className="flex items-center">
+                    <div 
+                      className="flex items-center p-2 hover:bg-violet-800/30 rounded cursor-pointer transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/cyber/investigation-tools');
+                      }}
+                    >
                       <div className="w-2 h-2 rounded-full bg-violet-400 mr-2"></div>
                       <p className="text-gray-200 text-sm">Outils d'investigation</p>
                     </div>
-                    <div className="flex items-center">
+                    <div 
+                      className="flex items-center p-2 hover:bg-violet-800/30 rounded cursor-pointer transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/cyber/analysis-lab');
+                      }}
+                    >
                       <div className="w-2 h-2 rounded-full bg-violet-400 mr-2"></div>
                       <p className="text-gray-200 text-sm">Analysis Lab</p>
                     </div>
