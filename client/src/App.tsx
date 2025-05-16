@@ -226,8 +226,15 @@ function App() {
                   );
                 }} />
                 
-                {/* Route pour la nouvelle interface I AM CYBER v3 */}
-                <Route path="/cyber-v3" component={CyberModeSelectionV3} />
+                {/* Routes pour les nouvelles interfaces I AM CYBER */}
+                <Route path="/cyber-v3" component={() => {
+                  const CyberV3 = lazy(() => import('./pages/cyber-v3'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CyberV3 />
+                    </Suspense>
+                  );
+                }} />
                 <Route path="/cyber-mode-selection" component={() => {
                   const CyberModeSelectionFixed = lazy(() => import('./pages/cyber-mode-selection-fixed'));
                   return (

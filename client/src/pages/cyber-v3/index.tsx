@@ -6,67 +6,44 @@ import {
   ArrowRight,
   Shield,
   Terminal,
-  Laptop,
-  Code,
-  Database,
-  Server
 } from 'lucide-react';
-import { 
-  IoHome,
-  IoSchoolOutline
-} from 'react-icons/io5';
-import { 
-  IoMdArrowForward 
-} from 'react-icons/io';
-import { 
-  BsFileEarmarkCode,
-  BsShieldLock,
-  BsGearFill
-} from 'react-icons/bs';
-import { 
-  FiSun, 
-  FiMoon 
-} from 'react-icons/fi';
-import { 
-  AiOutlineZoomIn, 
-  AiOutlineZoomOut 
-} from 'react-icons/ai';
+import { IoHome, IoSchoolOutline } from 'react-icons/io5';
+import { BsShieldLock } from 'react-icons/bs';
+import { FiSun, FiMoon } from 'react-icons/fi';
+import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
 
 import { Helmet } from 'react-helmet';
 import { Button } from '@/components/ui/button';
 import CyberScene from '@/components/CyberScene';
 import { useTutorial } from '@/contexts/TutorialContext';
 import { useTheme } from '@/contexts/ThemeContext';
-
+import { DataButton } from '@/components/DataButton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import HomeLayout from '@/components/layout/HomeLayout';
 import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
-import { DataButton } from '@/components/DataButton';
 
-// Composant titre simple
-const PageTitle = ({ title }: { title: string }) => (
-  <div className="ml-6">
-    <h1 className="text-3xl font-bold text-white tracking-tight">{title}</h1>
-  </div>
-);
-
-export default function CyberModeSelectionV3() {
+export default function CyberV3() {
   const [, setLocation] = useLocation();
   const { currentTour, setCurrentTour, startTutorial } = useTutorial();
   const { themeMode } = useTheme();
-  
-  // États pour l'accessibilité
   const [highContrastMode, setHighContrastMode] = useState(false);
   const [textSize, setTextSize] = useState(1);
-  
+
   return (
     <HomeLayout>
       <Helmet>
         <title>I AM CYBER | Nouvelle interface</title>
+        <style>
+          {`
+            @keyframes moveVertical {
+              0% { background-position-y: 0; }
+              100% { background-position-y: 100%; }
+            }
+          `}
+        </style>
       </Helmet>
       
-      <div 
-        className="min-h-screen relative cyber-bg"
+      <div className="min-h-screen relative cyber-bg"
         style={{ 
           fontSize: `${textSize}rem`,
           backgroundImage: highContrastMode ? 'none' : 'url("data:image/svg+xml,%3Csvg width="20" height="20" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M1 1h18v18H1V1z" fill="none" stroke="rgba(6,182,212,0.05)" stroke-width="0.2"/%3E%3C/svg%3E")',
@@ -79,7 +56,8 @@ export default function CyberModeSelectionV3() {
         {!highContrastMode && (
           <>
             {/* Circuit patterns cybernétiques */}
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXR0ZXJuIGlkPSJjaXJjdWl0IiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMGgxMDB2MTAwSDIwMHYxMDBoLTEwMHYtMTAwSDB6IiBmaWxsPSJub25lIiBzdHJva2U9IiMwZmIzZDEiIHN0cm9rZS13aWR0aD0iMSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIwIiByPSIzIiBmaWxsPSIjMGZiM2QxIi8+PGNpcmNsZSBjeD0iMjAwIiBjeT0iMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIyMDAiIHI9IjMiIGZpbGw9IiMwZmIzZDEiLz48L3BhdHRlcm4+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNjaXJjdWl0KSIgb3BhY2l0eT0iMC4xNSIvPjwvc3ZnPg==')]" style={{ opacity: 0.05 }}></div>
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXR0ZXJuIGlkPSJjaXJjdWl0IiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMGgxMDB2MTAwSDIwMHYxMDBoLTEwMHYtMTAwSDB6IiBmaWxsPSJub25lIiBzdHJva2U9IiMwZmIzZDEiIHN0cm9rZS13aWR0aD0iMSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIwIiByPSIzIiBmaWxsPSIjMGZiM2QxIi8+PGNpcmNsZSBjeD0iMjAwIiBjeT0iMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIyMDAiIHI9IjMiIGZpbGw9IiMwZmIzZDEiLz48L3BhdHRlcm4+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNjaXJjdWl0KSIgb3BhY2l0eT0iMC4xNSIvPjwvc3ZnPg==')]" 
+                 style={{ opacity: 0.05 }}></div>
             
             {/* Scanlines animées */}
             <div className="absolute inset-0 overflow-hidden">
@@ -112,7 +90,9 @@ export default function CyberModeSelectionV3() {
                   Accueil
                 </DataButton>
               </Link>
-              <PageTitle title="I AM CYBER" />
+              <div className="ml-6">
+                <h1 className="text-3xl font-bold text-white tracking-tight">I AM CYBER</h1>
+              </div>
             </div>
             
             <div className="flex items-center gap-4">
@@ -127,10 +107,9 @@ export default function CyberModeSelectionV3() {
                       variant="outline"
                       className="w-11 h-11 p-0 flex items-center justify-center rounded-full text-cyan-300 border-cyan-300/30 hover:bg-cyan-900/20"
                       onClick={() => {
-                        setCurrentTour('cyber-mode-selection-v3');
+                        setCurrentTour('cyber-v3');
                         startTutorial();
                       }}
-                      data-id="help-button"
                     >
                       <HelpCircle className="h-5 w-5" />
                     </DataButton>
@@ -153,7 +132,6 @@ export default function CyberModeSelectionV3() {
                           : 'text-cyan-300 border-cyan-300/30 hover:bg-cyan-900/20'
                       }`}
                       onClick={() => setHighContrastMode(!highContrastMode)}
-                      data-id="contrast-button"
                     >
                       {highContrastMode ? (
                         <FiSun className="h-5 w-5" />
@@ -177,7 +155,6 @@ export default function CyberModeSelectionV3() {
                         variant="outline"
                         className="w-10 h-10 p-0 flex items-center justify-center rounded-full text-cyan-300 border-cyan-300/30 hover:bg-cyan-900/20"
                         onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
-                        data-id="text-smaller-button"
                       >
                         <AiOutlineZoomOut className="h-4 w-4" />
                       </DataButton>
@@ -195,7 +172,6 @@ export default function CyberModeSelectionV3() {
                         variant="outline"
                         className="w-10 h-10 p-0 flex items-center justify-center rounded-full text-cyan-300 border-cyan-300/30 hover:bg-cyan-900/20"
                         onClick={() => setTextSize(Math.min(1.2, textSize + 0.1))}
-                        data-id="text-larger-button"
                       >
                         <AiOutlineZoomIn className="h-4 w-4" />
                       </DataButton>
@@ -215,7 +191,6 @@ export default function CyberModeSelectionV3() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="text-center mb-16 relative z-10"
-            data-id="main-title"
           >
             <h1 className="text-5xl font-bold mb-4 font-data-title relative">
               <span className="text-white">Centre de Formation</span>
