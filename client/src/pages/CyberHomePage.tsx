@@ -215,16 +215,8 @@ const CyberHomePage: React.FC = () => {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse"></div>
-                <span className="text-xs uppercase text-green-400 tracking-wider">Connecté</span>
+                <span className="text-xs uppercase text-green-400 tracking-wider">FYNE Connecté</span>
               </div>
-              <CyberButton 
-                variant="primary" 
-                size="sm"
-                className="ml-2"
-                onClick={() => {}}
-              >
-                {userName || 'Connexion'}
-              </CyberButton>
             </div>
           </div>
         </div>
