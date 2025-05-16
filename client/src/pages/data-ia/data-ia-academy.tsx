@@ -18,7 +18,18 @@ import {
   Award,
   BarChart2,
   Cpu,
-  GitBranch
+  GitBranch,
+  Video,
+  Tool,
+  Link2,
+  ExternalLink,
+  PlayCircle,
+  CheckCircle,
+  XCircle,
+  Lightbulb,
+  BookText,
+  Puzzle,
+  HelpCircle
 } from 'lucide-react';
 import { BsGraphUp, BsTools, BsPeopleFill, BsBook } from 'react-icons/bs';
 import { RiRobot2Line } from 'react-icons/ri';
