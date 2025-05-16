@@ -233,20 +233,33 @@ export default function CyberV3() {
                 <p className="text-center text-blue-300 mt-2">
                   Centre de formation complet aux métiers de la cybersécurité
                 </p>
-                <div className="text-center flex flex-col items-center mt-4">
-                  <p className="text-gray-200 mb-4">
-                    Formez-vous en cybersécurité à travers des cours interactifs, quiz et scénarios réels
-                  </p>
-                  <Button 
-                    className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-5"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setLocation('/cyber/learning-center');
-                    }}
-                  >
-                    Explorer l'académie
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+                <div className="mt-4">
+                  <div className="space-y-3 mb-5">
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
+                      <p className="text-gray-200 text-sm">Dans la peau de ton métier</p>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
+                      <p className="text-gray-200 text-sm">Test technique</p>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
+                      <p className="text-gray-200 text-sm">Mode entretien</p>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <Button 
+                      className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-5"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/cyber/learning-center');
+                      }}
+                    >
+                      Explorer l'académie
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
             
@@ -273,20 +286,33 @@ export default function CyberV3() {
                 <p className="text-center text-cyan-300 mt-2">
                   Simulateur de gestion de crise et d'incidents cyber
                 </p>
-                <div className="text-center flex flex-col items-center mt-4">
-                  <p className="text-gray-200 mb-4">
-                    Confrontez-vous à des scénarios réalistes de menaces cyber et apprenez à y répondre efficacement
-                  </p>
-                  <Button 
-                    className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-6 py-5"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setLocation('/cyber-defense-new');
-                    }}
-                  >
-                    Commencer la simulation
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+                <div className="mt-4">
+                  <div className="space-y-3 mb-5">
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 rounded-full bg-cyan-400 mr-2"></div>
+                      <p className="text-gray-200 text-sm">GESTION DE CRISE (CryptoLock)</p>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 rounded-full bg-cyan-400 mr-2"></div>
+                      <p className="text-gray-200 text-sm">CYBER ARCADE</p>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 rounded-full bg-cyan-400 mr-2"></div>
+                      <p className="text-gray-200 text-sm">AGENT IA</p>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <Button 
+                      className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-6 py-5"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/cyber-defense-new');
+                      }}
+                    >
+                      Commencer la simulation
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
 
@@ -313,20 +339,33 @@ export default function CyberV3() {
                 <p className="text-center text-violet-300 mt-2">
                   Environnement pratique d'outils et de développement
                 </p>
-                <div className="text-center flex flex-col items-center mt-4">
-                  <p className="text-gray-200 mb-4">
-                    Créez votre propre assistant cyber et accédez à nos outils d'investigation et d'analyse
-                  </p>
-                  <Button 
-                    className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white px-6 py-5"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setLocation('/cyber/tools');
-                    }}
-                  >
-                    Ouvrir le laboratoire
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+                <div className="mt-4">
+                  <div className="space-y-3 mb-5">
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 rounded-full bg-violet-400 mr-2"></div>
+                      <p className="text-gray-200 text-sm">Créer votre assistant cyber</p>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 rounded-full bg-violet-400 mr-2"></div>
+                      <p className="text-gray-200 text-sm">Outils d'investigation</p>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 rounded-full bg-violet-400 mr-2"></div>
+                      <p className="text-gray-200 text-sm">Analysis Lab</p>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <Button 
+                      className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white px-6 py-5"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation('/cyber/tools');
+                      }}
+                    >
+                      Ouvrir le laboratoire
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
             </div>
