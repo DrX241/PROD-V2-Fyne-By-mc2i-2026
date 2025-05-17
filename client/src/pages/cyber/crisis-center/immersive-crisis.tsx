@@ -702,7 +702,7 @@ export default function ImmersiveCrisis() {
     }
   };
   
-  // Générer une réponse contextuelle avec l'API de simulation de crise - Version corrigée pour utiliser Azure OpenAI directement
+  // Générer une réponse contextuelle avec l'API de simulation de crise
   const generateContextualResponse = async (userMessage: string, role: string) => {
     // Ajouter un indicateur de chargement pendant l'appel à l'API
     const loadingMessage = {
@@ -720,57 +720,28 @@ export default function ImmersiveCrisis() {
     // Ajouter temporairement le message de chargement
     setMessages(prev => [...prev, loadingMessage]);
     
-    // Données de contexte actuelles pour fournir un prompt riche à l'API
-    const contextData = {
-      scenario: crisisScenarios[scenarioIndex].title,
-      tension: showDecisions ? 'modérée' : 'élevée',
-      stage: Math.floor(elapsedTime / 300),
-      impactedSystems: crisisScenarios[scenarioIndex].systems,
-      elapsedTime: Math.floor(elapsedTime / 60),
-      pastMessages: messages
-        .slice(-5)
-        .map(m => ({
-          role: m.isUser ? 'RSSI' : m.sender.role,
-          content: m.content
-        }))
-    };
-    
     try {
-      // Construction manuelle du prompt pour Azure OpenAI 
-      const prompt = `Tu es un membre d'une cellule de crise cybersécurité avec le rôle: ${role}.
-Tu réponds au RSSI qui t'a envoyé ce message: "${userMessage}".
-
-CONTEXTE:
-- Scénario: ${contextData.scenario}
-- Tension actuelle: ${contextData.tension}
-- Systèmes impactés: ${contextData.impactedSystems.join(', ')}
-- Temps écoulé depuis le début de la crise: ${contextData.elapsedTime} minutes
-
-COMPORTEMENT ATTENDU:
-- Adopte une personnalité réaliste pour ton rôle spécifique
-- Montre du stress/urgence approprié à la situation
-- Sois direct et concis (2-3 phrases maximum)
-- Mentionne des impacts concrets (financiers, légaux, techniques)
-
-FORMAT:
-- Ne commence pas par "En tant que..." ou "En ma qualité de..."
-- Réponds comme si tu étais en pleine crise, dans l'action
-- Cite au moins un chiffre ou un délai précis`;
-      
-      // Envoi direct à l'API Azure OpenAI via notre endpoint
-      const response = await fetch('/api/openai/chat', {
+      // Appeler l'API dédiée de simulation de crise (endpoint existant)
+      const response = await fetch('/api/immersive-crisis/generate-response', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          messages: [
-            { role: 'system', content: prompt },
-            { role: 'user', content: userMessage }
-          ],
-          temperature: 0.7,
-          useSecondaryModel: true, // Utiliser le modèle GPT-4o-mini pour des réponses plus rapides
-          maxTokens: 256 // Limiter la longueur des réponses pour plus de concision
+          message: userMessage,
+          role: role,
+          context: {
+            scenario: crisisScenarios[scenarioIndex].title,
+            tension: showDecisions ? 'modérée' : 'élevée',
+            impactedSystems: crisisScenarios[scenarioIndex].systems,
+            elapsedTime: Math.floor(elapsedTime / 60), // Temps écoulé en minutes
+            pastMessages: messages
+              .slice(-3) // Limiter aux 3 derniers messages pour le contexte
+              .map(m => ({
+                role: m.isUser ? 'RSSI' : m.sender.role,
+                content: m.content
+              }))
+          }
         }),
       });
       
@@ -778,83 +749,43 @@ FORMAT:
       setMessages(prev => prev.filter(m => m.id !== loadingMessage.id));
       
       if (!response.ok) {
-        // Log l'erreur complète pour debugging
+        // Log l'erreur complète
         const errorText = await response.text();
-        console.error('Erreur lors de l\'appel à Azure OpenAI:', errorText);
+        console.error(`Erreur API ${response.status}:`, errorText);
         throw new Error(`Erreur de connexion: ${response.status}`);
       }
       
       const data = await response.json();
       
-      if (!data.response) {
-        console.error('Réponse invalide:', data);
-        throw new Error('Format de réponse invalide');
+      if (data.error || !data.response) {
+        console.error('Erreur ou réponse vide:', data);
+        throw new Error(data.message || 'Réponse API invalide');
       }
       
-      // Log de succès
+      // Log de succès dans la console
+      console.log('Réponse générée pour', role, ':', data.response.substring(0, 30) + '...');
+      
+      // Ajouter au journal de debug
       addConsoleOutput([
-        `# Réponse générée par Azure OpenAI pour ${role}`,
+        `# Réponse générée pour ${role}`,
         `> ${data.response.substring(0, 30)}...`
       ]);
       
       return data.response;
     } catch (error) {
-      console.error('Erreur lors de l\'appel à l\'API Azure OpenAI:', error);
+      console.error('Erreur lors de l\'appel à l\'API de simulation:', error);
       
-      // Supprimer le message de chargement
+      // Supprimer tout message de chargement
       setMessages(prev => prev.filter(m => !m.sender.role.includes("en train de répondre")));
       
-      // Nouvelle approche: essayer l'API de crise en fallback si l'appel direct à OpenAI échoue
-      try {
-        const crisisResponse = await fetch('/api/immersive-crisis/generate-response', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            message: userMessage,
-            role: role,
-            context: contextData
-          }),
-        });
-        
-        if (crisisResponse.ok) {
-          const data = await crisisResponse.json();
-          if (data.response && typeof data.response === 'string') {
-            addConsoleOutput([
-              `# Fallback à l'API de crise réussi`,
-              `> Réponse obtenue: ${data.response.substring(0, 30)}...`
-            ]);
-            return data.response;
-          }
-        }
-        
-        // Si on arrive ici, c'est que les deux méthodes ont échoué
-        throw new Error('Les deux méthodes d\'appel ont échoué');
-      } catch (secondError) {
-        // En dernier recours, utiliser des réponses de backup adaptées au rôle
-        addConsoleOutput([
-          `# ERREUR CRITIQUE: Échec de tous les appels API`,
-          `> Utilisation de la réponse de secours pour ${role}`
-        ]);
-        
-        // Classification des rôles pour des réponses adaptées
-        const securityRoles = ['RSSI', 'Responsable SOC', 'Analyste Sécurité', 'Expert Forensic'];
-        const businessRoles = ['DSI', 'Directeur Général', 'DSI', 'Responsable métier'];
-        const commsRoles = ['Directeur Communication', 'Directrice Juridique', 'Responsable RH'];
-        
-        // Réponses personnalisées selon le rôle
-        if (securityRoles.some(r => role.includes(r))) {
-          return "Je détecte des indicateurs de compromission sur 3 serveurs critiques. L'attaquant utilise une technique de mouvement latéral avancée. Nous devons isoler immédiatement les systèmes affectés, ce qui prendra environ 45 minutes pour être pleinement effectif.";
-        } else if (businessRoles.some(r => role.includes(r))) {
-          return "L'incident impacte déjà 28% de nos capacités opérationnelles. Si nous isolons les systèmes, nous perdrons environ 120K€ en revenus sur les prochaines 24h, mais limiterons les dommages à long terme. Nous devons décider rapidement.";
-        } else if (commsRoles.some(r => role.includes(r))) {
-          return "Le règlement RGPD nous impose de notifier la CNIL dans les 72h si des données personnelles sont compromises. Nous risquons une amende de 4% du CA mondial en cas de manquement. Notre équipe juridique recommande de préparer un communiqué dès maintenant.";
-        }
-        
-        // Réponse par défaut
-        return "La situation est critique et requiert une action immédiate. Mes équipes analysent l'étendue de l'incident et estiment qu'il nous faudra entre 4 et 6 heures pour retrouver un contrôle total de notre infrastructure.";
-      }
+      // Ajouter l'erreur aux logs
+      addConsoleOutput([
+        `# ERREUR API: ${error instanceof Error ? error.message : 'Erreur inconnue'}`, 
+        '> Désolé, je ne peux pas répondre pour le moment.'
+      ]);
+      
+      // Message d'erreur constructif qui évite les réponses de secours génériques
+      return `[ERREUR API] Impossible de générer une réponse authentique pour ce rôle. Veuillez contacter l'équipe technique (${error instanceof Error ? error.message : 'erreur inconnue'}).`;
     }
   };
   

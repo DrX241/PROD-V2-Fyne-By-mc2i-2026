@@ -59,9 +59,12 @@ router.post('/generate-response', async (req, res) => {
   } catch (error) {
     console.error('Erreur lors de la génération de réponse pour la simulation de crise:', error);
     
-    // Réponse de fallback en cas d'erreur
-    res.json({ 
-      response: "Je comprends votre message et vais agir en conséquence. La situation est complexe et nécessite une coordination entre nos équipes." 
+    // Ne pas utiliser une réponse de fallback - laisser passer l'erreur au client
+    // pour que celui-ci sache qu'il y a un problème
+    res.status(500).json({ 
+      error: true,
+      message: error instanceof Error ? error.message : 'Erreur inconnue',
+      response: null
     });
   }
 });
