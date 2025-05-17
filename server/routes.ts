@@ -12,6 +12,7 @@ import { openAIService } from "./services/openai";
 import attachmentRoutes from './routes/attachmentRoutes';
 import cyberForgeRoutes from './routes/cyberForgeRoutes';
 import cyberToolsRoutes from './routes/cyberToolsRoutes';
+import immersiveCrisisRoutes from './routes/immersiveCrisisRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { evaluateInterviewTest, generateAdaptiveQuestion } from './cyberInterviewTestController';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
@@ -81,6 +82,7 @@ import { generateModule, saveCustomModule } from "./moduleGeneratorControllerNew
 import { analyzeEvidence, getInvestigationHints, evaluateInvestigationResult, generateInvestigationScenario, generateInvestigationNotes } from "./cyberInvestigatorController";
 import { getInvestigationProgress, saveInvestigationProgress, evaluateUserNotes } from "./investigationProgressController";
 // importation du controller CyberEscape supprimée
+import { generateTeamMemberResponse, simulateTeamInteraction, generateCrisisUpdate } from "./immersiveCrisisController";
 import { getChallenges, getChallengeById, getUserStats, getUserReports, submitBugReport, getReportById } from "./bugHunterController";
 import { generateCustomTool } from "./toolGeneratorController";
 import { getOrCreateUser, getUserById } from "./userController";
