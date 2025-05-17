@@ -702,121 +702,159 @@ export default function ImmersiveCrisis() {
     }
   };
   
-  // Générer une réponse contextuelle avec l'API de simulation de crise - Version améliorée
+  // Générer une réponse contextuelle avec l'API de simulation de crise - Version corrigée pour utiliser Azure OpenAI directement
   const generateContextualResponse = async (userMessage: string, role: string) => {
+    // Ajouter un indicateur de chargement pendant l'appel à l'API
+    const loadingMessage = {
+      id: generateId(),
+      sender: {
+        name: "Système",
+        role: "Centre de crise",
+        avatar: "SYS"
+      },
+      content: `${role} est en train de répondre...`,
+      timestamp: new Date(),
+      isUser: false
+    };
+    
+    // Ajouter temporairement le message de chargement
+    setMessages(prev => [...prev, loadingMessage]);
+    
+    // Données de contexte actuelles pour fournir un prompt riche à l'API
+    const contextData = {
+      scenario: crisisScenarios[scenarioIndex].title,
+      tension: showDecisions ? 'modérée' : 'élevée',
+      stage: Math.floor(elapsedTime / 300),
+      impactedSystems: crisisScenarios[scenarioIndex].systems,
+      elapsedTime: Math.floor(elapsedTime / 60),
+      pastMessages: messages
+        .slice(-5)
+        .map(m => ({
+          role: m.isUser ? 'RSSI' : m.sender.role,
+          content: m.content
+        }))
+    };
+    
     try {
-      // Ajouter un indicateur de chargement pendant l'appel à l'API
-      // Pour améliorer l'UX, indiquer clairement que la réponse est en cours de génération
-      const loadingMessage = {
-        id: generateId(),
-        sender: {
-          name: "Système",
-          role: "Centre de crise",
-          avatar: "SYS"
-        },
-        content: `${role} est en train de répondre...`,
-        timestamp: new Date(),
-        isUser: false
-      };
+      // Construction manuelle du prompt pour Azure OpenAI 
+      const prompt = `Tu es un membre d'une cellule de crise cybersécurité avec le rôle: ${role}.
+Tu réponds au RSSI qui t'a envoyé ce message: "${userMessage}".
+
+CONTEXTE:
+- Scénario: ${contextData.scenario}
+- Tension actuelle: ${contextData.tension}
+- Systèmes impactés: ${contextData.impactedSystems.join(', ')}
+- Temps écoulé depuis le début de la crise: ${contextData.elapsedTime} minutes
+
+COMPORTEMENT ATTENDU:
+- Adopte une personnalité réaliste pour ton rôle spécifique
+- Montre du stress/urgence approprié à la situation
+- Sois direct et concis (2-3 phrases maximum)
+- Mentionne des impacts concrets (financiers, légaux, techniques)
+
+FORMAT:
+- Ne commence pas par "En tant que..." ou "En ma qualité de..."
+- Réponds comme si tu étais en pleine crise, dans l'action
+- Cite au moins un chiffre ou un délai précis`;
       
-      // Ajouter temporairement le message de chargement
-      setMessages(prev => [...prev, loadingMessage]);
-      
-      // On vérifie d'abord si l'API OpenAI est disponible
-      const statusResponse = await fetch('/api/openai/status');
-      const statusData = await statusResponse.json();
-      
-      // Si l'API n'est pas disponible, lancer une erreur immédiatement
-      if (statusData.connectionStatus !== 'connected') {
-        throw new Error('API Azure OpenAI non disponible: ' + statusData.lastErrorMessage);
-      }
-      
-      // Appeler notre API dédiée de simulation de crise avec tous les détails de contexte
-      const response = await fetch('/api/immersive-crisis/generate-response', {
+      // Envoi direct à l'API Azure OpenAI via notre endpoint
+      const response = await fetch('/api/openai/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: userMessage,
-          role: role,
-          context: {
-            scenario: crisisScenarios[scenarioIndex].title,
-            tension: showDecisions ? 'modérée' : 'élevée',
-            stage: Math.floor(elapsedTime / 300), // Tension qui augmente avec le temps
-            impactedSystems: crisisScenarios[scenarioIndex].systems,
-            elapsedTime: Math.floor(elapsedTime / 60), // Temps écoulé en minutes pour le contexte
-            pastMessages: messages
-              .slice(-5) // Limiter aux 5 derniers messages pour le contexte
-              .map(m => ({
-                role: m.isUser ? 'RSSI' : m.sender.role,
-                content: m.content
-              }))
-          }
+          messages: [
+            { role: 'system', content: prompt },
+            { role: 'user', content: userMessage }
+          ],
+          temperature: 0.7,
+          useSecondaryModel: true, // Utiliser le modèle GPT-4o-mini pour des réponses plus rapides
+          maxTokens: 256 // Limiter la longueur des réponses pour plus de concision
         }),
       });
       
       // Supprimer le message de chargement
       setMessages(prev => prev.filter(m => m.id !== loadingMessage.id));
       
-      // Vérifier si la réponse est valide
       if (!response.ok) {
-        console.error('Erreur API:', await response.text());
-        throw new Error(`Erreur de connexion à l'API: ${response.status}`);
+        // Log l'erreur complète pour debugging
+        const errorText = await response.text();
+        console.error('Erreur lors de l\'appel à Azure OpenAI:', errorText);
+        throw new Error(`Erreur de connexion: ${response.status}`);
       }
       
-      // Parser la réponse
       const data = await response.json();
       
-      // Vérifier que data.response existe
-      if (!data.response || typeof data.response !== 'string' || data.response.trim() === '') {
-        console.error('Réponse vide ou invalide:', data);
-        throw new Error('Réponse API invalide');
+      if (!data.response) {
+        console.error('Réponse invalide:', data);
+        throw new Error('Format de réponse invalide');
       }
       
-      // Ajouter au journal de debug
+      // Log de succès
       addConsoleOutput([
-        `# Réponse API reçue pour ${role}`,
-        `> Longueur: ${data.response.length} caractères`
+        `# Réponse générée par Azure OpenAI pour ${role}`,
+        `> ${data.response.substring(0, 30)}...`
       ]);
       
       return data.response;
     } catch (error) {
-      console.error('Erreur lors de l\'appel à l\'API de simulation:', error);
+      console.error('Erreur lors de l\'appel à l\'API Azure OpenAI:', error);
       
-      // Supprimer tout message de chargement qui pourrait être présent
+      // Supprimer le message de chargement
       setMessages(prev => prev.filter(m => !m.sender.role.includes("en train de répondre")));
       
-      // Ajouter l'erreur aux logs pour le debug
-      addConsoleOutput([
-        `# ERREUR API: ${error instanceof Error ? error.message : 'Erreur inconnue'}`,
-        '> Utilisation de la réponse de secours'
-      ]);
-      
-      // Réponses de secours plus élaborées et variées selon le rôle et le contexte
-      const securityRoles = ['RSSI', 'Responsable SOC', 'Analyste Sécurité', 'Expert Forensic'];
-      const businessRoles = ['DSI', 'Directeur Général', 'DSI', 'Responsable métier'];
-      const commsRoles = ['Directeur Communication', 'Directrice Juridique', 'Responsable RH'];
-      
-      // Personnaliser selon le rôle
-      if (securityRoles.some(r => role.includes(r))) {
-        if (userMessage.toLowerCase().includes('isoler') || userMessage.toLowerCase().includes('couper')) {
-          return "D'après mon analyse technique, l'isolation des systèmes est notre meilleure option pour contenir l'attaque. J'ai déjà identifié les points de segmentation réseau à activer. Nous devons agir maintenant avant que l'attaquant n'étende son accès à d'autres systèmes critiques.";
-        } else {
-          return "Je termine l'analyse technique des IoCs et traces d'activité malveillante. Les premiers résultats confirment une compromission avancée avec des techniques d'élévation de privilèges. Je vous envoie mon rapport détaillé dans 10 minutes avec les recommandations techniques.";
+      // Nouvelle approche: essayer l'API de crise en fallback si l'appel direct à OpenAI échoue
+      try {
+        const crisisResponse = await fetch('/api/immersive-crisis/generate-response', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: userMessage,
+            role: role,
+            context: contextData
+          }),
+        });
+        
+        if (crisisResponse.ok) {
+          const data = await crisisResponse.json();
+          if (data.response && typeof data.response === 'string') {
+            addConsoleOutput([
+              `# Fallback à l'API de crise réussi`,
+              `> Réponse obtenue: ${data.response.substring(0, 30)}...`
+            ]);
+            return data.response;
+          }
         }
-      } else if (businessRoles.some(r => role.includes(r))) {
-        if (userMessage.toLowerCase().includes('isoler')) {
-          return "Attention, l'isolation complète des systèmes aura un impact financier direct de 50 000€ par heure sur nos opérations et affectera 2300 utilisateurs. Pouvons-nous envisager une isolation partielle des segments les plus critiques uniquement?";
-        } else {
-          return "Je comprends l'urgence de la situation mais nous devons aussi considérer l'impact sur les opérations. Les équipes métiers m'alertent déjà sur des perturbations significatives. Pouvons-nous trouver un équilibre entre sécurité et continuité d'activité?";
+        
+        // Si on arrive ici, c'est que les deux méthodes ont échoué
+        throw new Error('Les deux méthodes d\'appel ont échoué');
+      } catch (secondError) {
+        // En dernier recours, utiliser des réponses de backup adaptées au rôle
+        addConsoleOutput([
+          `# ERREUR CRITIQUE: Échec de tous les appels API`,
+          `> Utilisation de la réponse de secours pour ${role}`
+        ]);
+        
+        // Classification des rôles pour des réponses adaptées
+        const securityRoles = ['RSSI', 'Responsable SOC', 'Analyste Sécurité', 'Expert Forensic'];
+        const businessRoles = ['DSI', 'Directeur Général', 'DSI', 'Responsable métier'];
+        const commsRoles = ['Directeur Communication', 'Directrice Juridique', 'Responsable RH'];
+        
+        // Réponses personnalisées selon le rôle
+        if (securityRoles.some(r => role.includes(r))) {
+          return "Je détecte des indicateurs de compromission sur 3 serveurs critiques. L'attaquant utilise une technique de mouvement latéral avancée. Nous devons isoler immédiatement les systèmes affectés, ce qui prendra environ 45 minutes pour être pleinement effectif.";
+        } else if (businessRoles.some(r => role.includes(r))) {
+          return "L'incident impacte déjà 28% de nos capacités opérationnelles. Si nous isolons les systèmes, nous perdrons environ 120K€ en revenus sur les prochaines 24h, mais limiterons les dommages à long terme. Nous devons décider rapidement.";
+        } else if (commsRoles.some(r => role.includes(r))) {
+          return "Le règlement RGPD nous impose de notifier la CNIL dans les 72h si des données personnelles sont compromises. Nous risquons une amende de 4% du CA mondial en cas de manquement. Notre équipe juridique recommande de préparer un communiqué dès maintenant.";
         }
-      } else if (commsRoles.some(r => role.includes(r))) {
-        return "J'ai préparé trois scénarios de communication: interne uniquement, notification aux autorités, ou communication complète. Chaque option comporte des risques juridiques et d'image différents. La CNIL nous impose des délais stricts si des données personnelles sont compromises.";
+        
+        // Réponse par défaut
+        return "La situation est critique et requiert une action immédiate. Mes équipes analysent l'étendue de l'incident et estiment qu'il nous faudra entre 4 et 6 heures pour retrouver un contrôle total de notre infrastructure.";
       }
-      
-      // Réponse par défaut
-      return "Je travaille sur votre demande. Cette situation nécessite une coordination entre plusieurs équipes et j'aurai besoin d'informations supplémentaires pour vous fournir une réponse complète.";
     }
   };
   
