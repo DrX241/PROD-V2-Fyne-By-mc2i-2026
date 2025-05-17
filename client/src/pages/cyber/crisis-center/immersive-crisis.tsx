@@ -517,27 +517,24 @@ export default function ImmersiveCrisis() {
     }
   };
   
-  // Générer une réponse contextuelle avec l'API Azure OpenAI
+  // Générer une réponse contextuelle avec l'API de simulation de crise
   const generateContextualResponse = async (userMessage: string, role: string) => {
     try {
-      // Appeler Azure OpenAI pour une réponse personnalisée
-      const response = await fetch('/api/openai/generate', {
+      // Appeler notre API dédiée de simulation de crise
+      const response = await fetch('/api/immersive-crisis/generate-response', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           message: userMessage,
+          role: role,
           context: {
-            role: role,
             scenario: crisisScenarios[scenarioIndex].title,
-            tension: 'élevée',
-            situation: 'crise cybersécurité active'
-          },
-          prompt: `Tu joues le rôle d'un membre de la cellule de crise (${role}) répondant au RSSI pendant une crise cybersécurité. 
-          Le message du RSSI est: "${userMessage}". 
-          Tu dois répondre de manière réaliste, avec des tensions, des préoccupations professionnelles spécifiques à ton rôle, 
-          et en gardant à l'esprit les enjeux financiers, réputationnels et techniques.`
+            tension: showDecisions ? 'modérée' : 'élevée',
+            stage: Math.floor(elapsedTime / 300), // Tension qui augmente avec le temps
+            impactedSystems: crisisScenarios[scenarioIndex].systems
+          }
         }),
       });
       
@@ -548,23 +545,23 @@ export default function ImmersiveCrisis() {
       const data = await response.json();
       return data.response || 'Je m\'en occupe immédiatement et vous ferai un retour dès que possible.';
     } catch (error) {
-      console.error('Erreur lors de l\'appel à Azure OpenAI:', error);
+      console.error('Erreur lors de l\'appel à l\'API de simulation:', error);
       
       // Fallback basique si l'API n'est pas disponible
       if (userMessage.toLowerCase().includes('isoler') || userMessage.toLowerCase().includes('couper')) {
-        return 'Je vais immédiatement procéder à l\'isolation des systèmes concernés, mais j\'ai des inquiétudes sur l\'impact business.';
+        return 'Je vais immédiatement procéder à l\'isolation des systèmes concernés, mais j\'ai des inquiétudes sur l\'impact business. Cette décision nous coûtera au moins 200K€ par heure d\'interruption.';
       } else if (userMessage.toLowerCase().includes('analyse') || userMessage.toLowerCase().includes('investigation')) {
-        return 'Je lance une analyse approfondie. Sachez que cela va nécessiter des ressources supplémentaires et du temps.';
+        return 'Je lance une analyse approfondie. Sachez que cela va nécessiter des ressources supplémentaires et du temps. Pendant ce temps, l\'attaquant pourrait continuer à progresser dans notre réseau.';
       } else if (userMessage.toLowerCase().includes('communication') || userMessage.toLowerCase().includes('notification')) {
-        return 'Je prépare les communications comme demandé, mais nous devons être prudents sur le message à faire passer.';
+        return 'Je prépare les communications avec prudence. Notre réputation est en jeu et une mauvaise communication pourrait avoir des conséquences sur le cours de notre action. Le service juridique doit valider nos messages.';
       }
       
-      return 'Je m\'en occupe immédiatement. Cette situation est complexe et nécessite toute notre attention.';
+      return 'Je m\'en occupe immédiatement. Cette situation est complexe et nécessite toute notre attention. Nous devons agir vite tout en étant méthodiques.';
     }
   };
   
   // Prendre une décision
-  const makeDecision = (decisionId: string) => {
+  const makeDecision = async (decisionId: string) => {
     // Trouver la décision correspondante
     const decision = initialDecisions.find(d => d.id === decisionId);
     
@@ -588,8 +585,31 @@ export default function ImmersiveCrisis() {
       
       setNotifications(prev => [...prev, notif]);
       
-      // Ajouter un message automatique basé sur la décision
+      // Définir quels rôles vont supporter ou s'opposer à la décision
+      let supporters: string[] = [];
+      let opposants: string[] = [];
+      
+      if (decisionId === 'isolate-network') {
+        supporters = ['soc', 'security']; // Le SOC et la sécurité priorisent la protection
+        opposants = ['cio', 'business']; // Le DSI et le métier s'inquiètent de l'impact sur l'activité
+      } else if (decisionId === 'monitor-analyze') {
+        supporters = ['cio', 'business']; // Le DSI et le métier préfèrent maintenir l'activité
+        opposants = ['soc', 'security']; // Le SOC et la sécurité veulent contenir rapidement
+      } else if (decisionId === 'activate-crisis') {
+        supporters = ['security', 'legal']; // La sécurité et le juridique veulent formaliser la réponse
+        opposants = ['cio', 'comms']; // Le DSI et la communication s'inquiètent de l'impact médiatique
+      }
+      
+      // Ajouter des sorties console
+      addConsoleOutput([
+        `# Décision enregistrée: ${decision.text}`,
+        `> Impact sécurité: ${decision.impact.security}`,
+        `> Impact opérationnel: ${decision.impact.operations}`
+      ]);
+      
+      // Première réaction à la décision - message automatique
       setTimeout(() => {
+        // Ajouter un message automatique basé sur la décision (comme avant)
         if (decisionId === 'isolate-network') {
           addMessage({
             id: generateId(),
@@ -598,7 +618,7 @@ export default function ImmersiveCrisis() {
               role: 'DSI',
               avatar: 'LD'
             },
-            content: "L'isolation du réseau est en cours. Les équipes sont mobilisées mais des services critiques sont maintenant inaccessibles. Les utilisateurs commencent à appeler le support.",
+            content: "L'isolation du réseau est en cours. Les équipes sont mobilisées mais des services critiques sont maintenant inaccessibles. Les utilisateurs commencent à appeler le support. Cela nous coûte environ 50 000€ par heure d'interruption.",
             timestamp: new Date(),
             isUser: false
           });
@@ -610,7 +630,7 @@ export default function ImmersiveCrisis() {
               role: 'Responsable SOC',
               avatar: 'TG'
             },
-            content: "Nous continuons l'analyse sans isoler le réseau. Attention, nous observons des signes que l'attaquant est toujours actif et continue d'accéder à nos systèmes.",
+            content: "Nous continuons l'analyse sans isoler le réseau. Attention, nous observons des signes que l'attaquant est toujours actif et continue d'accéder à nos systèmes. Le risque d'exfiltration de données augmente.",
             timestamp: new Date(),
             isUser: false
           });
@@ -622,26 +642,194 @@ export default function ImmersiveCrisis() {
               role: 'Directrice Sécurité',
               avatar: 'ML'
             },
-            content: "La cellule de crise est officiellement activée. J'ai informé tous les membres clés et le premier point de situation aura lieu dans 15 minutes. Quelles sont vos directives immédiates?",
+            content: "La cellule de crise est officiellement activée. J'ai informé tous les membres clés et le premier point de situation aura lieu dans 15 minutes. Quelles sont vos directives immédiates? Nous avons besoin d'un plan de communication pour gérer notre image.",
             timestamp: new Date(),
             isUser: false
           });
         }
+        
+        // Simuler un débat entre membres de l'équipe
+        setTimeout(async () => {
+          try {
+            // Sélectionner un supporter et un opposant au hasard
+            const supporterId = supporters[Math.floor(Math.random() * supporters.length)];
+            const opposantId = opposants[Math.floor(Math.random() * opposants.length)];
+            
+            const supporter = crisisTeamMembers.find(m => m.id === supporterId);
+            const opposant = crisisTeamMembers.find(m => m.id === opposantId);
+            
+            if (supporter && opposant) {
+              // Appeler l'API pour simuler une conversation entre les membres
+              const response = await fetch('/api/immersive-crisis/team-interaction', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  decision: decision.text,
+                  supportingRole: `${supporter.name} (${supporter.role})`,
+                  opposingRole: `${opposant.name} (${opposant.role})`,
+                  scenario: crisisScenarios[scenarioIndex].title
+                })
+              });
+              
+              if (response.ok) {
+                const data = await response.json();
+                if (data.conversation) {
+                  // Analyser la conversation et la transformer en messages individuels
+                  const conversationLines = data.conversation.split('\n')
+                    .filter((line: string) => line.trim().length > 0);
+                  
+                  // Ajouter les messages à la conversation avec un délai entre chaque
+                  for (let i = 0; i < conversationLines.length; i++) {
+                    const line = conversationLines[i];
+                    setTimeout(() => {
+                      // Déterminer qui parle en fonction du début du message
+                      let speakingMember = supporter;
+                      
+                      // Si la ligne contient le nom de l'opposant, c'est lui qui parle
+                      if (line.toLowerCase().includes(opposant.name.toLowerCase()) || 
+                          (i % 2 === 1)) { // Alternance - premier message par supporter, deuxième par opposant
+                        speakingMember = opposant;
+                      }
+                      
+                      // Nettoyer le message
+                      let messageContent = line;
+                      if (messageContent.includes(':')) {
+                        messageContent = messageContent.split(':').slice(1).join(':').trim();
+                      } else if (messageContent.includes('(') && messageContent.includes(')')) {
+                        // Nettoyer les indications de type "(en colère)" ou "(sarcastique)"
+                        messageContent = messageContent.replace(/\([^)]*\)/g, '').trim();
+                      }
+                      
+                      // Ajouter le message
+                      addMessage({
+                        id: generateId(),
+                        sender: {
+                          name: speakingMember.name,
+                          role: speakingMember.role,
+                          avatar: speakingMember.avatar
+                        },
+                        content: messageContent,
+                        timestamp: new Date(),
+                        isUser: false
+                      });
+                    }, 8000 + (i * 4000)); // Espacer les messages
+                  }
+                } else {
+                  // Fallback en cas de problème avec la réponse
+                  fallbackTeamConversation(supporter, opposant, decision);
+                }
+              } else {
+                // Fallback en cas d'erreur de l'API
+                fallbackTeamConversation(supporter, opposant, decision);
+              }
+            }
+          } catch (error) {
+            console.error('Erreur lors de la simulation des interactions d\'équipe:', error);
+            // Utiliser un fallback sans appel API
+            const supporter = crisisTeamMembers.find(m => m.id === supporters[0]);
+            const opposant = crisisTeamMembers.find(m => m.id === opposants[0]);
+            
+            if (supporter && opposant) {
+              fallbackTeamConversation(supporter, opposant, decision);
+            }
+          }
+        }, 7000);
       }, 5000);
       
-      // Ajouter des sorties console
-      addConsoleOutput([
-        `# Décision enregistrée: ${decision.text}`,
-        `> Impact sécurité: ${decision.impact.security}`,
-        `> Impact opérationnel: ${decision.impact.operations}`
-      ]);
-      
-      // Avancer la simulation
-      setTimeout(() => {
-        // Ajouter de nouvelles alertes en fonction de la décision
-        addScenarioDevelopment(decisionId);
-      }, 15000);
+      // Avancer la simulation en générant une nouvelle alerte après un délai
+      setTimeout(async () => {
+        try {
+          // Appeler l'API pour générer une mise à jour de la crise
+          const updateResponse = await fetch('/api/immersive-crisis/crisis-update', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              currentStage: Math.min(2, Math.floor(elapsedTime / 300)),
+              pastDecisions: [decision.text],
+              scenario: crisisScenarios[scenarioIndex].title,
+              elapsedTime: Math.floor(elapsedTime / 60)
+            })
+          });
+          
+          if (updateResponse.ok) {
+            const alertData = await updateResponse.json();
+            
+            if (alertData && alertData.title && alertData.content) {
+              const newAlert: Notification = {
+                id: generateId(),
+                type: 'alert',
+                level: (alertData.level || 'moyenne') as AlertLevel,
+                source: alertData.source || 'Système de surveillance',
+                title: alertData.title,
+                content: alertData.content,
+                timestamp: new Date()
+              };
+              
+              setNotifications(prev => [...prev, newAlert]);
+            } else {
+              // Utiliser le développement de scénario par défaut si le format n'est pas correct
+              addScenarioDevelopment(decisionId);
+            }
+          } else {
+            // Fallback en cas d'erreur de l'API
+            addScenarioDevelopment(decisionId);
+          }
+        } catch (error) {
+          console.error('Erreur lors de la génération de mise à jour de crise:', error);
+          // Fallback: utiliser le développement de scénario par défaut
+          addScenarioDevelopment(decisionId);
+        }
+      }, 20000);
     }
+  };
+  
+  // Fallback pour simuler une conversation entre membres de l'équipe sans API
+  const fallbackTeamConversation = (supporter: any, opposant: any, decision: any) => {
+    setTimeout(() => {
+      addMessage({
+        id: generateId(),
+        sender: {
+          name: supporter.name,
+          role: supporter.role,
+          avatar: supporter.avatar
+        },
+        content: `Je soutiens la décision du RSSI. ${decision.text} est la meilleure option compte tenu des circonstances et des risques identifiés.`,
+        timestamp: new Date(),
+        isUser: false
+      });
+      
+      setTimeout(() => {
+        addMessage({
+          id: generateId(),
+          sender: {
+            name: opposant.name,
+            role: opposant.role,
+            avatar: opposant.avatar
+          },
+          content: `Je ne partage pas cette analyse. Cette décision va avoir des conséquences importantes sur nos opérations et notre réputation. Nous devrions envisager d'autres alternatives.`,
+          timestamp: new Date(),
+          isUser: false
+        });
+        
+        setTimeout(() => {
+          addMessage({
+            id: generateId(),
+            sender: {
+              name: supporter.name,
+              role: supporter.role,
+              avatar: supporter.avatar
+            },
+            content: `La sécurité doit rester notre priorité. Les conséquences d'une inaction seraient bien plus graves à long terme.`,
+            timestamp: new Date(),
+            isUser: false
+          });
+        }, 4000);
+      }, 4000);
+    }, 8000);
   };
   
   // Ajouter une évolution du scénario basée sur la décision prise
