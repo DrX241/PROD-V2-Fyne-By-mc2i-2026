@@ -275,7 +275,7 @@ export default function CyberV3() {
                     <Button 
                       className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-6 py-5 w-full"
                       onClick={(e) => {
-                        setLocation('/cyber-defense-new');
+                        setLocation('/cyber/crisis-center/immersive');
                       }}
                     >
                       Commencer la simulation

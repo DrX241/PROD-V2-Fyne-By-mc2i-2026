@@ -604,8 +604,6 @@ export default function ImmersiveCrisis() {
               height: `${20 + Math.random() * 100}px`,
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-              animationDuration: `${10 + Math.random() * 20}s`,
-              animationDelay: `${Math.random() * 5}s`,
               animation: 'float infinite'
             }}
           />
