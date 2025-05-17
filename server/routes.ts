@@ -468,6 +468,13 @@ function generateSynthesisHtml(
 export async function registerRoutes(app: Express): Promise<Server> {
     // Aucune authentification dans cette version
   
+  // Routes pour l'IA de pentest et les défis dynamiques
+  const { generateChallenge, analyzeSolution, getCustomHint } = await import("./controllers/pentestAIController").then(module => module.default);
+  
+  app.post('/api/pentest/generate-challenge', (req, res) => generateChallenge(req, res));
+  app.post('/api/pentest/analyze-solution', (req, res) => analyzeSolution(req, res));
+  app.post('/api/pentest/get-custom-hint', (req, res) => getCustomHint(req, res));
+  
   // Routes pour le générateur d'outils de cybersécurité
   app.post("/api/tool-generator/generate", (req: Request, res: Response) => {
     generateCustomTool(req, res);
