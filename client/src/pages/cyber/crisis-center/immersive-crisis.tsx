@@ -255,7 +255,7 @@ export default function ImmersiveCrisis() {
   const messagesRef = useRef<HTMLAudioElement>(null);
   
   // États
-  const [phase, setPhase] = useState<'intro' | 'alert' | 'crisis' | 'debrief'>('intro');
+  const [phase, setPhase] = useState<'intro' | 'tutorial' | 'alert' | 'crisis' | 'debrief'>('intro');
   const [scenarioIndex, setScenarioIndex] = useState<number>(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -266,6 +266,8 @@ export default function ImmersiveCrisis() {
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState<boolean>(true);
   const [showBrief, setShowBrief] = useState<boolean>(false);
+  const [tutorialStep, setTutorialStep] = useState<number>(1);
+  const [showInstructions, setShowInstructions] = useState<boolean>(true);
   const [consoleOutput, setConsoleOutput] = useState<string[]>(['# Console de sécurité initialisée', '> Détection des menaces en cours...']);
   
   // Timers
