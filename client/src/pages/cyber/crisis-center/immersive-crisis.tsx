@@ -149,7 +149,7 @@ const crisisScenarios = [
   }
 ];
 
-// Membres de l'équipe de crise avec différents rôles
+// Membres de l'équipe de crise avec différents rôles et personnalités
 const crisisTeamMembers = [
   {
     id: 'soc-lead',
@@ -157,17 +157,9 @@ const crisisTeamMembers = [
     role: 'Responsable SOC',
     expertise: 'Analyse technique des incidents',
     avatar: 'TG',
-    firstMessage: "Monsieur/Madame le/la RSSI, nous avons une situation critique en cours. J'ai mobilisé l'équipe d'incident response et nous sommes en train d'analyser l'étendue de la compromission.",
+    color: '#4C9AFF', // Bleu technique
+    firstMessage: "Monsieur/Madame le/la RSSI, nous sommes face à une situation critique. J'ai déjà mobilisé l'équipe d'incident response et nous analysons l'étendue de la compromission. Nos premiers résultats sont inquiétants. Quelle est votre directive prioritaire?",
     delay: 5000
-  },
-  {
-    id: 'ciso',
-    name: 'Marie Lambert',
-    role: 'Directrice Sécurité',
-    expertise: 'Gestion stratégique des incidents',
-    avatar: 'ML',
-    firstMessage: "Le Comité de Direction demande un point de situation dans 30 minutes. Nous devons préparer une analyse préliminaire et les premières recommandations d'urgence.",
-    delay: 12000
   },
   {
     id: 'cio',
@@ -175,8 +167,9 @@ const crisisTeamMembers = [
     role: 'DSI',
     expertise: 'Infrastructure et opérations IT',
     avatar: 'LD',
-    firstMessage: "Je suis en ligne avec les équipes IT. Quelles mesures d'urgence devons-nous mettre en place? L'isolement des systèmes critiques va impacter nos opérations.",
-    delay: 20000
+    color: '#36B37E', // Vert systèmes
+    firstMessage: "Je suis avec les équipes IT. Attention, notre priorité est la continuité de service! Si on isole complètement les systèmes, on perd 200K€ par heure d'interruption. Le PDG m'a déjà appelé deux fois. Quelles mesures d'urgence MINIMALES peut-on mettre en place?",
+    delay: 8000
   },
   {
     id: 'legal',
@@ -184,8 +177,9 @@ const crisisTeamMembers = [
     role: 'Directrice Juridique',
     expertise: 'Conformité et obligations légales',
     avatar: 'SR',
-    firstMessage: "Nous devons évaluer nos obligations réglementaires de notification. Si des données personnelles sont compromises, nous avons 72h pour notifier la CNIL.",
-    delay: 35000
+    color: '#FF5630', // Rouge légal
+    firstMessage: "Nous devons IMMÉDIATEMENT évaluer nos obligations réglementaires. Si des données personnelles sont compromises, nous avons 72h pour notifier la CNIL. Et le non-respect des délais peut entraîner une amende de 4% du CA mondial. Avons-nous une preuve de compromission de données clients?",
+    delay: 12000
   },
   {
     id: 'comms',
@@ -193,8 +187,29 @@ const crisisTeamMembers = [
     role: 'Directeur Communication',
     expertise: 'Communication de crise',
     avatar: 'AM',
-    firstMessage: "Les équipes de communication sont en attente. J'ai besoin de directives sur les messages internes et externes à préparer en cas d'escalade de la situation.",
-    delay: 50000
+    color: '#6554C0', // Violet communication
+    firstMessage: "Les journalistes commencent déjà à appeler nos attachés de presse! Comment gérer la communication? Devons-nous préparer un communiqué préventif ou attendre? Notre réputation est en jeu, et le cours de l'action pourrait chuter si la nouvelle se répand mal.",
+    delay: 20000
+  },
+  {
+    id: 'security-analyst',
+    name: 'Emma Chen',
+    role: 'Analyste Sécurité Senior',
+    expertise: 'Analyse forensic et threat hunting',
+    avatar: 'EC',
+    color: '#00B8D9', // Cyan analyste
+    firstMessage: "J'ai trouvé des IOCs qui correspondent à une campagne d'APT active. Les logs montrent des connexions suspectes depuis 3 semaines. C'est plus grave que ce que Thomas pense. On a besoin de plus de ressources pour l'investigation, et VITE.",
+    delay: 25000
+  },
+  {
+    id: 'cfo',
+    name: 'Mathieu Leroy',
+    role: 'Directeur Financier',
+    expertise: 'Contrôle financier et budget',
+    avatar: 'ML',
+    color: '#FFAB00', // Orange finance
+    firstMessage: "Je dois comprendre l'impact financier potentiel. Quels sont les risques financiers directs? Et combien va nous coûter votre plan d'action? Le conseil d'administration exige un budget précis avant d'approuver des dépenses exceptionnelles.",
+    delay: 40000
   },
   {
     id: 'ceo',
@@ -202,42 +217,78 @@ const crisisTeamMembers = [
     role: 'PDG',
     expertise: 'Direction exécutive',
     avatar: 'PL',
-    firstMessage: "Je viens d'être informé de la situation. J'ai besoin d'un rapport direct de votre part sur la gravité de l'incident et l'impact sur la continuité de nos activités.",
-    delay: 80000
+    color: '#172B4D', // Bleu foncé exécutif
+    firstMessage: "Je viens d'être informé de la situation en pleine réunion avec nos investisseurs. J'ai BESOIN dans l'heure d'un rapport clair: Quel est le risque RÉEL? Quel impact sur notre activité? Quelles sont VOS recommandations? Et surtout, comment VOUS comptez gérer cette crise?",
+    delay: 50000
   }
 ];
 
-// Options de décision pour la première phase (communes à tous les scénarios)
+// Options de décision pour la première phase avec des impacts sur divers aspects
 const initialDecisions = [
   {
     id: 'isolate-network',
-    text: 'Isoler les systèmes critiques du réseau',
+    text: 'Isoler complètement les systèmes critiques du réseau',
     impact: {
-      security: 'Réduit la propagation',
-      operations: 'Impact opérationnel majeur',
-      legal: 'Démontre une action responsable',
-      reputation: 'Montre proactivité'
-    }
+      security: 'Bloque la propagation immédiatement',
+      operations: 'Arrêt complet des services client (perte de 200K€/heure)',
+      legal: 'Position défendable en cas de procédure',
+      financial: 'Impact financier immédiat très élevé'
+    },
+    supporters: ['soc-lead', 'security-analyst', 'legal'],
+    opposants: ['cio', 'cfo', 'ceo'],
+    consequence: "Le DSI est furieux et escalade au PDG, qui remet en question votre jugement."
+  },
+  {
+    id: 'partial-isolation',
+    text: 'Isoler sélectivement uniquement les systèmes déjà compromis',
+    impact: {
+      security: 'Risque de propagation non détectée',
+      operations: 'Perturbation modérée (20-30% des services affectés)',
+      legal: 'Position défendable si bien documentée',
+      financial: 'Impact financier modéré (50K€/heure)'
+    },
+    supporters: ['cio', 'comms'],
+    opposants: ['security-analyst', 'legal'],
+    consequence: "L'analyste sécurité conteste votre décision."
   },
   {
     id: 'monitor-analyze',
-    text: 'Continuer à surveiller et analyser sans isoler',
+    text: 'Ne rien isoler: surveiller et analyser en profondeur d\'abord',
     impact: {
-      security: 'Risque de propagation',
-      operations: 'Continuité des opérations',
-      legal: 'Position plus difficile à défendre',
-      reputation: 'Risque de critique pour inaction'
-    }
+      security: 'Risque élevé de propagation et persistance',
+      operations: 'Continuité totale des opérations',
+      legal: 'Position difficile à défendre en cas de fuite',
+      financial: 'Aucun impact immédiat, risque futur élevé'
+    },
+    supporters: ['cfo', 'cio'],
+    opposants: ['soc-lead', 'security-analyst', 'legal'],
+    consequence: "Votre équipe de sécurité est démotivée."
   },
   {
     id: 'activate-crisis',
-    text: 'Activer formellement la cellule de crise',
+    text: 'Activer formellement la cellule de crise et mobiliser toutes les équipes',
     impact: {
-      security: 'Mobilisation des experts',
-      operations: 'Perturbation organisationnelle',
+      security: 'Mobilisation complète des experts',
+      operations: 'Perturbation organisationnelle majeure',
       legal: 'Procédures formelles documentées',
-      reputation: 'Démontre le sérieux de la situation'
-    }
+      financial: 'Coût immédiat (50-100K€)'
+    },
+    supporters: ['legal', 'comms', 'ceo'],
+    opposants: ['cfo'],
+    consequence: "Le Directeur Financier s'inquiète du coût."
+  },
+  {
+    id: 'external-help',
+    text: 'Faire appel immédiatement à un cabinet spécialisé en réponse à incident',
+    impact: {
+      security: 'Expertise pointue rapidement disponible',
+      operations: 'Impact limité sur les opérations',
+      legal: 'Décharge partielle de responsabilité',
+      financial: 'Coût élevé immédiat (100-150K€)'
+    },
+    supporters: ['security-analyst', 'legal'],
+    opposants: ['cfo', 'cio'],
+    consequence: "Le Directeur Financier bloque temporairement le budget."
   }
 ];
 
@@ -348,9 +399,11 @@ export default function ImmersiveCrisis() {
   const addMessage = (message: Message) => {
     setMessages(prev => [...prev, message]);
     
-    // Jouer le son de notification
-    if (isSoundEnabled && messagesRef.current && !message.isUser) {
-      messagesRef.current.play();
+    // Jouer le son de notification (si disponible)
+    if (isSoundEnabled && messagesRef.current && !message.isUser && messagesRef.current.src) {
+      messagesRef.current.play().catch(err => {
+        console.log('Notification sonore non disponible');
+      });
     }
     
     // Faire défiler vers le bas
@@ -396,11 +449,13 @@ export default function ImmersiveCrisis() {
     // Ajouter de nouveaux outputs console
     addConsoleOutput([`$ message envoyé à ${selectedTeamMember}`, `> traitement des directives...`]);
     
-    // Simuler une réponse après un délai (à remplacer par l'appel à l'IA)
+    // Simuler une réponse après un délai en utilisant l'API
     const member = crisisTeamMembers.find(m => m.id === selectedTeamMember);
     if (member) {
-      setTimeout(() => {
-        // Ici on pourrait appeler l'API IA pour générer une réponse contextuelle
+      setTimeout(async () => {
+        // Obtenir une réponse contextuelle via l'API
+        const aiResponse = await generateContextualResponse(userMessage, member.role);
+        
         const responseMsg: Message = {
           id: generateId(),
           sender: {
@@ -408,28 +463,104 @@ export default function ImmersiveCrisis() {
             role: member.role,
             avatar: member.avatar
           },
-          content: `En réponse à vos instructions, je vais procéder immédiatement. ${generateContextualResponse(userMessage, member.role)}`,
+          content: aiResponse,
           timestamp: new Date(),
           isUser: false
         };
         
         addMessage(responseMsg);
+        
+        // Ajouter des messages entre membres de l'équipe si approprié
+        if (Math.random() > 0.7) {
+          // 30% de chance d'avoir une conversation interne
+          setTimeout(() => {
+            // Trouver un autre membre qui pourrait réagir en fonction du contexte
+            const otherMembers = crisisTeamMembers.filter(m => 
+              m.id !== selectedTeamMember && 
+              ((initialDecisions.some(d => d.supporters.includes(m.id) && d.supporters.includes(selectedTeamMember))) || 
+               (initialDecisions.some(d => d.opposants.includes(m.id) && d.supporters.includes(selectedTeamMember))))
+            );
+            
+            if (otherMembers.length > 0) {
+              const respondingMember = otherMembers[Math.floor(Math.random() * otherMembers.length)];
+              
+              // Message interne entre membres de l'équipe
+              const internalMsg: Message = {
+                id: generateId(),
+                sender: {
+                  name: respondingMember.name,
+                  role: respondingMember.role,
+                  avatar: respondingMember.avatar
+                },
+                content: `@${member.name.split(' ')[0]} - Je suis ${Math.random() > 0.5 ? "d'accord" : "en désaccord"} avec cette approche. Nous devrions discuter des implications pour ${Math.random() > 0.5 ? "la sécurité" : "l'entreprise"}.`,
+                timestamp: new Date(),
+                isUser: false
+              };
+              
+              addMessage(internalMsg);
+              
+              // Notification de tension d'équipe
+              const tensionNotif: Notification = {
+                id: generateId(),
+                type: 'system',
+                source: 'Cellule de crise',
+                title: 'Tension détectée',
+                content: `Une divergence d'opinion est apparue entre ${member.name} et ${respondingMember.name} concernant la stratégie à adopter.`,
+                timestamp: new Date()
+              };
+              
+              setNotifications(prev => [...prev, tensionNotif]);
+            }
+          }, 4000 + Math.random() * 3000);
+        }
       }, 1500 + Math.random() * 2000);
     }
   };
   
-  // Générer une réponse contextuelle basique (à remplacer par l'appel à l'IA)
-  const generateContextualResponse = (userMessage: string, role: string) => {
-    // Version simplifiée pour la démo
-    if (userMessage.toLowerCase().includes('isoler') || userMessage.toLowerCase().includes('couper')) {
-      return 'Je vais immédiatement procéder à l\'isolation des systèmes concernés.';
-    } else if (userMessage.toLowerCase().includes('analyse') || userMessage.toLowerCase().includes('investigation')) {
-      return 'Je lance une analyse approfondie et vous tiendrai informé des résultats dès que possible.';
-    } else if (userMessage.toLowerCase().includes('communication') || userMessage.toLowerCase().includes('notification')) {
-      return 'Je prépare les communications comme demandé et vous soumettrai une proposition rapidement.';
+  // Générer une réponse contextuelle avec l'API Azure OpenAI
+  const generateContextualResponse = async (userMessage: string, role: string) => {
+    try {
+      // Appeler Azure OpenAI pour une réponse personnalisée
+      const response = await fetch('/api/openai/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          context: {
+            role: role,
+            scenario: crisisScenarios[scenarioIndex].title,
+            tension: 'élevée',
+            situation: 'crise cybersécurité active'
+          },
+          prompt: `Tu joues le rôle d'un membre de la cellule de crise (${role}) répondant au RSSI pendant une crise cybersécurité. 
+          Le message du RSSI est: "${userMessage}". 
+          Tu dois répondre de manière réaliste, avec des tensions, des préoccupations professionnelles spécifiques à ton rôle, 
+          et en gardant à l'esprit les enjeux financiers, réputationnels et techniques.`
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur de connexion à l\'API');
+      }
+      
+      const data = await response.json();
+      return data.response || 'Je m\'en occupe immédiatement et vous ferai un retour dès que possible.';
+    } catch (error) {
+      console.error('Erreur lors de l\'appel à Azure OpenAI:', error);
+      
+      // Fallback basique si l'API n'est pas disponible
+      if (userMessage.toLowerCase().includes('isoler') || userMessage.toLowerCase().includes('couper')) {
+        return 'Je vais immédiatement procéder à l\'isolation des systèmes concernés, mais j\'ai des inquiétudes sur l\'impact business.';
+      } else if (userMessage.toLowerCase().includes('analyse') || userMessage.toLowerCase().includes('investigation')) {
+        return 'Je lance une analyse approfondie. Sachez que cela va nécessiter des ressources supplémentaires et du temps.';
+      } else if (userMessage.toLowerCase().includes('communication') || userMessage.toLowerCase().includes('notification')) {
+        return 'Je prépare les communications comme demandé, mais nous devons être prudents sur le message à faire passer.';
+      }
+      
+      return 'Je m\'en occupe immédiatement. Cette situation est complexe et nécessite toute notre attention.';
     }
-    
-    return 'Je m\'en occupe immédiatement et vous ferai un retour dès que possible.';
   };
   
   // Prendre une décision
