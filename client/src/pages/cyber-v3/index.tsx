@@ -214,12 +214,11 @@ export default function CyberV3() {
               {/* CYBER ACADÉMIE */}
               <motion.div 
                 whileHover={{ scale: 1.03 }}
-                className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
+                className={`cyber-edge-distort relative overflow-hidden p-6 ${
                   highContrastMode 
                     ? 'bg-gray-800 border border-gray-700' 
                     : 'bg-gradient-to-br from-blue-600 to-blue-900 border-2 border-blue-400/50 shadow-lg shadow-blue-500/50'
                 } hover:shadow-xl transition-all duration-300`}
-                onClick={() => setLocation('/cyber/learning-center')}
               >
                 <div className="flex items-center justify-center mb-4">
                   <div className={`p-3 rounded-lg ${
@@ -234,34 +233,11 @@ export default function CyberV3() {
                 <p className="text-center text-blue-300 mt-2">
                   Centre de formation complet aux métiers de la cybersécurité
                 </p>
-                <div className="mt-4">
-                  <div className="space-y-3 mb-5">
-                    <div 
-                      className="flex items-center p-2 hover:bg-blue-800/30 rounded cursor-pointer transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation('/cyber/learning-center');
-                      }}
-                    >
-                      <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
-                      <p className="text-gray-200 text-sm">Parcours d'apprentissage</p>
-                    </div>
-                    <div 
-                      className="flex items-center p-2 hover:bg-blue-800/30 rounded cursor-pointer transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation('/cyber/pentest-lab');
-                      }}
-                    >
-                      <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
-                      <p className="text-gray-200 text-sm">Laboratoire de test</p>
-                    </div>
-                  </div>
+                <div className="mt-6">
                   <div className="text-center">
                     <Button 
-                      className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-5"
+                      className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-5 w-full"
                       onClick={(e) => {
-                        e.stopPropagation();
                         setLocation('/cyber/learning-center');
                       }}
                     >
@@ -275,12 +251,11 @@ export default function CyberV3() {
               {/* CYBER DÉFENSE */}
               <motion.div 
                 whileHover={{ scale: 1.03 }}
-                className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
+                className={`cyber-edge-distort relative overflow-hidden p-6 ${
                   highContrastMode 
                     ? 'bg-gray-800 border border-gray-700' 
                     : 'bg-gradient-to-br from-cyan-600 to-blue-900 border-2 border-cyan-400/50 shadow-lg shadow-cyan-500/50'
                 } hover:shadow-xl transition-all duration-300`}
-                onClick={() => setLocation('/cyber-defense-new')}
               >
                 <div className="flex items-center justify-center mb-4">
                   <div className={`p-3 rounded-lg ${
@@ -295,44 +270,11 @@ export default function CyberV3() {
                 <p className="text-center text-cyan-300 mt-2">
                   Simulateur de gestion de crise et d'incidents cyber
                 </p>
-                <div className="mt-4">
-                  <div className="space-y-3 mb-5">
-                    <div 
-                      className="flex items-center p-2 hover:bg-cyan-800/30 rounded cursor-pointer transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation('/cyber-defense-new');
-                      }}
-                    >
-                      <div className="w-2 h-2 rounded-full bg-cyan-400 mr-2"></div>
-                      <p className="text-gray-200 text-sm">GESTION DE CRISE (CryptoLock)</p>
-                    </div>
-                    <div 
-                      className="flex items-center p-2 hover:bg-cyan-800/30 rounded cursor-pointer transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation('/cyber/arcade');
-                      }}
-                    >
-                      <div className="w-2 h-2 rounded-full bg-cyan-400 mr-2"></div>
-                      <p className="text-gray-200 text-sm">CYBER ARCADE</p>
-                    </div>
-                    <div 
-                      className="flex items-center p-2 hover:bg-cyan-800/30 rounded cursor-pointer transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation('/cyber/expert-learning');
-                      }}
-                    >
-                      <div className="w-2 h-2 rounded-full bg-cyan-400 mr-2"></div>
-                      <p className="text-gray-200 text-sm">AGENT IA</p>
-                    </div>
-                  </div>
+                <div className="mt-6">
                   <div className="text-center">
                     <Button 
-                      className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-6 py-5"
+                      className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-6 py-5 w-full"
                       onClick={(e) => {
-                        e.stopPropagation();
                         setLocation('/cyber-defense-new');
                       }}
                     >
@@ -346,12 +288,11 @@ export default function CyberV3() {
               {/* CYBER LAB */}
               <motion.div 
                 whileHover={{ scale: 1.03 }}
-                className={`cyber-edge-distort relative overflow-hidden p-6 cyber-card-interactive ${
+                className={`cyber-edge-distort relative overflow-hidden p-6 ${
                   highContrastMode 
                     ? 'bg-gray-800 border border-gray-700' 
                     : 'bg-gradient-to-br from-violet-600 to-blue-900 border-2 border-violet-400/50 shadow-lg shadow-violet-500/50'
                 } hover:shadow-xl transition-all duration-300`}
-                onClick={() => setLocation('/cyber/cyber-lab')}
               >
                 <div className="flex items-center justify-center mb-4">
                   <div className={`p-3 rounded-lg ${
