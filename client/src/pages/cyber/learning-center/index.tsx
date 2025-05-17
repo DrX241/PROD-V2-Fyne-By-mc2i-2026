@@ -375,9 +375,11 @@ export default function LearningCenter() {
       destination: '/cyber/learning-center/modules/memo-ia-personnalise',
       isNew: true
     },
-
   ];
-
+  
+  // Tous les modules combinés pour la recherche
+  const allModules = [...basicModules, ...specializedModules, ...microModules, ...quickLearningModules];
+  
   // Parcours thématiques
   const learningPaths: LearningPath[] = [
     {
@@ -501,44 +503,70 @@ export default function LearningCenter() {
     }
   ];
 
+  // Définir les modules par pilier cybersécurité
+  const protectionDefenseModules = allModules.filter(module => 
+    module.tags.some(tag => ['réseau', 'firewall', 'IDS/IPS', 'chiffrement', 'authentification', 
+      'zero trust', 'cloud', 'BYOD', 'mobile', 'endpoints', 'VPN', 'segmentation'].includes(tag))
+  );
+  
+  const conformiteGouvernanceModules = allModules.filter(module => 
+    module.tags.some(tag => ['normes', 'standards', 'conformité', 'gouvernance', 'stratégie', 
+      'organisation', 'risques', 'analyse', 'RGPD', 'ISO 27001'].includes(tag))
+  );
+  
+  const analyseReponseModules = allModules.filter(module => 
+    module.tags.some(tag => ['ransomware', 'malware', 'incidents', 'forensique', 
+      'gestion de crise', 'threat hunting'].includes(tag))
+  );
+  
+  const cultureSensibilisationModules = allModules.filter(module => 
+    module.tags.some(tag => ['phishing', 'social engineering', 'sensibilisation', 'mots de passe', 
+      'formation', 'facteur humain', 'culture sécurité', 'bonnes pratiques'].includes(tag))
+  );
+  
   // Catégories de ressources
   const resourceCategories: ResourceCategory[] = [
     {
-      id: 'parcours-rapide',
-      title: 'Parcours rapide',
-      description: 'Apprentissage accéléré et outils d\'auto-formation',
-      icon: <Zap className="h-6 w-6 text-yellow-100" />,
-      modules: quickLearningModules,
-      gradient: 'from-amber-600 to-orange-800'
-    },
-    {
-      id: 'fondamentaux',
-      title: 'Modules fondamentaux',
-      description: 'Principes et concepts essentiels de la cybersécurité',
-      icon: <BookOpen className="h-6 w-6 text-blue-100" />,
-      modules: basicModules,
+      id: 'protection-defense',
+      title: '🛡️ Protection et Défense des Systèmes',
+      description: 'Empêcher, détecter et répondre aux attaques',
+      icon: <Shield className="h-6 w-6 text-blue-100" />,
+      modules: protectionDefenseModules,
       gradient: 'from-blue-700 to-blue-900'
     },
     {
-      id: 'specialises',
-      title: 'Modules spécialisés',
-      description: 'Approfondissement sur des domaines techniques et organisationnels',
-      icon: <Cpu className="h-6 w-6 text-purple-100" />,
-      modules: specializedModules,
+      id: 'conformite-gouvernance',
+      title: '📋 Conformité, Gouvernance et Risques',
+      description: 'Respecter les règles et structurer la sécurité',
+      icon: <FileText className="h-6 w-6 text-green-100" />,
+      modules: conformiteGouvernanceModules,
+      gradient: 'from-green-700 to-green-900'
+    },
+    {
+      id: 'analyse-reponse',
+      title: '🔍 Analyse et Réponse aux Incidents',
+      description: 'Savoir enquêter et agir en cas d\'attaque',
+      icon: <Zap className="h-6 w-6 text-orange-100" />,
+      modules: analyseReponseModules,
+      gradient: 'from-orange-700 to-red-900'
+    },
+    {
+      id: 'culture-sensibilisation',
+      title: '🧠 Culture et Sensibilisation',
+      description: 'Faire de l\'humain le premier rempart',
+      icon: <Users className="h-6 w-6 text-purple-100" />,
+      modules: cultureSensibilisationModules,
       gradient: 'from-purple-700 to-purple-900'
     },
     {
-      id: 'micro-learning',
-      title: 'Micro-learning',
-      description: 'Formations courtes et ciblées sur des sujets précis',
-      icon: <Clock className="h-6 w-6 text-green-100" />,
-      modules: microModules,
-      gradient: 'from-green-700 to-green-900'
+      id: 'parcours-rapide',
+      title: '⚡ Parcours rapide',
+      description: 'Apprentissage accéléré et outils d\'auto-formation',
+      icon: <Clock className="h-6 w-6 text-yellow-100" />,
+      modules: quickLearningModules,
+      gradient: 'from-amber-600 to-orange-800'
     }
   ];
-
-  // Tous les modules combinés pour la recherche
-  const allModules = [...basicModules, ...specializedModules, ...microModules, ...quickLearningModules];
 
   // Fonction de filtrage des modules
   const getFilteredModules = () => {
