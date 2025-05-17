@@ -1,0 +1,60 @@
+[vite] connecting...
+[vite] connected.
+Thème appliqué: futuristic
+Theme actuel: futuristic
+Thème appliqué: futuristic
+Theme actuel: futuristic
+Thème appliqué: futuristic
+État mis à jour : 
+Object {status: "connected", model: "gpt-4o-mini", keyType: "secondary", lastCheck: 1747524953754}
+État mis à jour : 
+Object {status: "connected", model: "gpt-4o-mini", keyType: "secondary", lastCheck: 1747524953754}
+Theme actuel: futuristic
+Thème appliqué: futuristic
+État mis à jour : 
+Object {status: "connected", model: "gpt-4o-mini", keyType: "secondary", lastCheck: 1747524953754}
+État mis à jour : 
+Object {status: "connected", model: "gpt-4o-mini", keyType: "secondary", lastCheck: 1747524953754}
+État mis à jour : 
+Object {status: "connected", model: "gpt-4o-mini", keyType: "secondary", lastCheck: 1747524953754}
+État mis à jour : 
+Object {status: "connected", model: "gpt-4o-mini", keyType: "secondary", lastCheck: 1747524953754}
+Theme actuel: futuristic
+Thème appliqué: futuristic
+État mis à jour : 
+Object {status: "connected", model: "gpt-4o-mini", keyType: "secondary", lastCheck: 1747524953754}
+État mis à jour : 
+Object {status: "connected", model: "gpt-4o-mini", keyType: "secondary", lastCheck: 1747524953754}
+Theme actuel: futuristic
+Erreur lors de la génération de mise à jour de crise: 
+SyntaxError {}
+
+at t.value (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Theme actuel: futuristic
+Erreur lors de l&#x27;appel à l&#x27;API de simulation: 
+SyntaxError {}
+
+at t.value (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Theme actuel: futuristic
+Erreur lors de l&#x27;appel à l&#x27;API de simulation: 
+SyntaxError {}
+message: "Unexpected token '<', "<!DOCTYPE "... is not valid JSON"
+stack: "SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: Object
+
+Theme actuel: futuristic
+Erreur lors de l&#x27;appel à l&#x27;API de simulation: 
+SyntaxError {}
+
+at t.value (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400

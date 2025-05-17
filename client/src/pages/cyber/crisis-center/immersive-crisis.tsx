@@ -1548,24 +1548,17 @@ export default function ImmersiveCrisis() {
             
             {/* Zone de saisie */}
             <div className="p-3 border-t border-gray-800 bg-gray-900/50">
-              <div className="flex gap-2 mb-2">
-                <select
-                  className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-300 flex-grow"
-                  value={selectedTeamMember || ''}
-                  onChange={(e) => setSelectedTeamMember(e.target.value)}
-                >
-                  <option value="">Sélectionnez un destinataire...</option>
-                  {crisisTeamMembers.map((member) => (
-                    <option key={member.id} value={member.id}>
-                      {member.name} - {member.role}
-                    </option>
-                  ))}
-                </select>
+              {/* Légende expliquant le mode de conversation contextuel */}
+              <div className="mb-2 text-xs text-blue-400 italic">
+                <p className="flex items-center">
+                  <Info className="h-3 w-3 mr-1" />
+                  Les membres de l'équipe répondront automatiquement en fonction du contexte de votre message.
+                </p>
               </div>
               
               <div className="flex gap-2">
                 <Textarea
-                  placeholder="Entrez votre message..."
+                  placeholder="Saisissez votre message à l'équipe de crise..."
                   className="min-h-[80px] resize-none bg-gray-800 border border-gray-700 text-white"
                   value={userMessage}
                   onChange={handleTyping}
@@ -1573,7 +1566,7 @@ export default function ImmersiveCrisis() {
                 <Button 
                   className="self-end"
                   onClick={sendMessage}
-                  disabled={!selectedTeamMember || !userMessage.trim()}
+                  disabled={!userMessage.trim()}
                 >
                   <Send className="h-4 w-4" />
                 </Button>
