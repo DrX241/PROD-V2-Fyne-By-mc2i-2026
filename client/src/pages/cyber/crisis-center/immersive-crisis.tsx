@@ -369,27 +369,75 @@ export default function ImmersiveCrisis() {
     }, 3000);
   };
   
-  // Planifier les messages automatiques des membres de l'équipe
+  // Planifier les messages automatiques des membres de l'équipe avec un meilleur séquençage
   const scheduleTeamMessages = () => {
     // Effacer les timers existants
     scenarioTimersRef.current.forEach(timer => clearTimeout(timer));
     scenarioTimersRef.current = [];
     
-    // Programmer les nouveaux messages
-    crisisTeamMembers.forEach(member => {
+    // Ajouter le message d'intro du système pour guider l'utilisateur
+    const introMessage = {
+      id: generateId(),
+      sender: {
+        name: "Système",
+        role: "Centre de crise",
+        avatar: "SYS"
+      },
+      content: "Bienvenue au centre de crise. Les membres de votre équipe vont se présenter à tour de rôle. Prenez le temps de lire leurs messages et d'analyser la situation avant de prendre une décision.",
+      timestamp: new Date(),
+      isUser: false
+    };
+    
+    addMessage(introMessage);
+    
+    // Trier les membres par ordre de délai (pour s'assurer qu'ils apparaissent dans l'ordre)
+    const sortedMembers = [...crisisTeamMembers].sort((a, b) => a.delay - b.delay);
+    
+    // Programmer les messages avec des délais plus espacés et une notification visuelle
+    sortedMembers.forEach((member, index) => {
       const timer = setTimeout(() => {
-        addMessage({
-          id: generateId(),
-          sender: {
-            name: member.name,
-            role: member.role,
-            avatar: member.avatar
-          },
-          content: member.firstMessage,
-          timestamp: new Date(),
-          isUser: false
-        });
-      }, member.delay);
+        // Message de notification avant que le membre ne parle
+        const notificationTimer = setTimeout(() => {
+          // Montrer une notification système indiquant qu'un nouveau membre rejoint la conversation
+          const notification: Notification = {
+            id: generateId(),
+            type: 'system' as NotificationType,
+            source: 'Centre de crise',
+            title: 'Nouveau message entrant',
+            content: `${member.name} (${member.role}) souhaite s'adresser à vous`,
+            timestamp: new Date()
+          };
+          
+          setNotifications(prev => [...prev, notification]);
+          
+          // Jouer un son de notification si activé
+          if (isSoundEnabled && notificationRef.current) {
+            notificationRef.current.play();
+          }
+          
+          // Ajouter le message effectif après une courte pause
+          setTimeout(() => {
+            addMessage({
+              id: generateId(),
+              sender: {
+                name: member.name,
+                role: member.role,
+                avatar: member.avatar
+              },
+              content: member.firstMessage,
+              timestamp: new Date(),
+              isUser: false
+            });
+            
+            // Faire défiler vers le nouveau message
+            setTimeout(() => {
+              messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+          }, 1500);
+        }, member.delay);
+        
+        scenarioTimersRef.current.push(notificationTimer);
+      }, 2000); // Délai initial plus court pour le premier message
       
       scenarioTimersRef.current.push(timer);
     });
@@ -517,10 +565,36 @@ export default function ImmersiveCrisis() {
     }
   };
   
-  // Générer une réponse contextuelle avec l'API de simulation de crise
+  // Générer une réponse contextuelle avec l'API de simulation de crise - Version améliorée
   const generateContextualResponse = async (userMessage: string, role: string) => {
     try {
-      // Appeler notre API dédiée de simulation de crise
+      // Ajouter un indicateur de chargement pendant l'appel à l'API
+      // Pour améliorer l'UX, indiquer clairement que la réponse est en cours de génération
+      const loadingMessage = {
+        id: generateId(),
+        sender: {
+          name: "Système",
+          role: "Centre de crise",
+          avatar: "SYS"
+        },
+        content: `${role} est en train de répondre...`,
+        timestamp: new Date(),
+        isUser: false
+      };
+      
+      // Ajouter temporairement le message de chargement
+      setMessages(prev => [...prev, loadingMessage]);
+      
+      // On vérifie d'abord si l'API OpenAI est disponible
+      const statusResponse = await fetch('/api/openai/status');
+      const statusData = await statusResponse.json();
+      
+      // Si l'API n'est pas disponible, lancer une erreur immédiatement
+      if (statusData.connectionStatus !== 'connected') {
+        throw new Error('API Azure OpenAI non disponible: ' + statusData.lastErrorMessage);
+      }
+      
+      // Appeler notre API dédiée de simulation de crise avec tous les détails de contexte
       const response = await fetch('/api/immersive-crisis/generate-response', {
         method: 'POST',
         headers: {
@@ -533,30 +607,79 @@ export default function ImmersiveCrisis() {
             scenario: crisisScenarios[scenarioIndex].title,
             tension: showDecisions ? 'modérée' : 'élevée',
             stage: Math.floor(elapsedTime / 300), // Tension qui augmente avec le temps
-            impactedSystems: crisisScenarios[scenarioIndex].systems
+            impactedSystems: crisisScenarios[scenarioIndex].systems,
+            elapsedTime: Math.floor(elapsedTime / 60), // Temps écoulé en minutes pour le contexte
+            pastMessages: messages
+              .slice(-5) // Limiter aux 5 derniers messages pour le contexte
+              .map(m => ({
+                role: m.isUser ? 'RSSI' : m.sender.role,
+                content: m.content
+              }))
           }
         }),
       });
       
+      // Supprimer le message de chargement
+      setMessages(prev => prev.filter(m => m.id !== loadingMessage.id));
+      
+      // Vérifier si la réponse est valide
       if (!response.ok) {
-        throw new Error('Erreur de connexion à l\'API');
+        console.error('Erreur API:', await response.text());
+        throw new Error(`Erreur de connexion à l'API: ${response.status}`);
       }
       
+      // Parser la réponse
       const data = await response.json();
-      return data.response || 'Je m\'en occupe immédiatement et vous ferai un retour dès que possible.';
+      
+      // Vérifier que data.response existe
+      if (!data.response || typeof data.response !== 'string' || data.response.trim() === '') {
+        console.error('Réponse vide ou invalide:', data);
+        throw new Error('Réponse API invalide');
+      }
+      
+      // Ajouter au journal de debug
+      addConsoleOutput([
+        `# Réponse API reçue pour ${role}`,
+        `> Longueur: ${data.response.length} caractères`
+      ]);
+      
+      return data.response;
     } catch (error) {
       console.error('Erreur lors de l\'appel à l\'API de simulation:', error);
       
-      // Fallback basique si l'API n'est pas disponible
-      if (userMessage.toLowerCase().includes('isoler') || userMessage.toLowerCase().includes('couper')) {
-        return 'Je vais immédiatement procéder à l\'isolation des systèmes concernés, mais j\'ai des inquiétudes sur l\'impact business. Cette décision nous coûtera au moins 200K€ par heure d\'interruption.';
-      } else if (userMessage.toLowerCase().includes('analyse') || userMessage.toLowerCase().includes('investigation')) {
-        return 'Je lance une analyse approfondie. Sachez que cela va nécessiter des ressources supplémentaires et du temps. Pendant ce temps, l\'attaquant pourrait continuer à progresser dans notre réseau.';
-      } else if (userMessage.toLowerCase().includes('communication') || userMessage.toLowerCase().includes('notification')) {
-        return 'Je prépare les communications avec prudence. Notre réputation est en jeu et une mauvaise communication pourrait avoir des conséquences sur le cours de notre action. Le service juridique doit valider nos messages.';
+      // Supprimer tout message de chargement qui pourrait être présent
+      setMessages(prev => prev.filter(m => !m.sender.role.includes("en train de répondre")));
+      
+      // Ajouter l'erreur aux logs pour le debug
+      addConsoleOutput([
+        `# ERREUR API: ${error instanceof Error ? error.message : 'Erreur inconnue'}`,
+        '> Utilisation de la réponse de secours'
+      ]);
+      
+      // Réponses de secours plus élaborées et variées selon le rôle et le contexte
+      const securityRoles = ['RSSI', 'Responsable SOC', 'Analyste Sécurité', 'Expert Forensic'];
+      const businessRoles = ['DSI', 'Directeur Général', 'DSI', 'Responsable métier'];
+      const commsRoles = ['Directeur Communication', 'Directrice Juridique', 'Responsable RH'];
+      
+      // Personnaliser selon le rôle
+      if (securityRoles.some(r => role.includes(r))) {
+        if (userMessage.toLowerCase().includes('isoler') || userMessage.toLowerCase().includes('couper')) {
+          return "D'après mon analyse technique, l'isolation des systèmes est notre meilleure option pour contenir l'attaque. J'ai déjà identifié les points de segmentation réseau à activer. Nous devons agir maintenant avant que l'attaquant n'étende son accès à d'autres systèmes critiques.";
+        } else {
+          return "Je termine l'analyse technique des IoCs et traces d'activité malveillante. Les premiers résultats confirment une compromission avancée avec des techniques d'élévation de privilèges. Je vous envoie mon rapport détaillé dans 10 minutes avec les recommandations techniques.";
+        }
+      } else if (businessRoles.some(r => role.includes(r))) {
+        if (userMessage.toLowerCase().includes('isoler')) {
+          return "Attention, l'isolation complète des systèmes aura un impact financier direct de 50 000€ par heure sur nos opérations et affectera 2300 utilisateurs. Pouvons-nous envisager une isolation partielle des segments les plus critiques uniquement?";
+        } else {
+          return "Je comprends l'urgence de la situation mais nous devons aussi considérer l'impact sur les opérations. Les équipes métiers m'alertent déjà sur des perturbations significatives. Pouvons-nous trouver un équilibre entre sécurité et continuité d'activité?";
+        }
+      } else if (commsRoles.some(r => role.includes(r))) {
+        return "J'ai préparé trois scénarios de communication: interne uniquement, notification aux autorités, ou communication complète. Chaque option comporte des risques juridiques et d'image différents. La CNIL nous impose des délais stricts si des données personnelles sont compromises.";
       }
       
-      return 'Je m\'en occupe immédiatement. Cette situation est complexe et nécessite toute notre attention. Nous devons agir vite tout en étant méthodiques.';
+      // Réponse par défaut
+      return "Je travaille sur votre demande. Cette situation nécessite une coordination entre plusieurs équipes et j'aurai besoin d'informations supplémentaires pour vous fournir une réponse complète.";
     }
   };
   
