@@ -1,9 +1,4 @@
-import OpenAI from "openai";
-
-// Initialiser l'API OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { openAIService } from "./openai";
 
 // Type pour les requêtes de génération de scénarios
 export interface ScenarioGenerationRequest {
@@ -25,10 +20,7 @@ export interface CodeAnalysisRequest {
  */
 export const generatePentestScenario = async (request: ScenarioGenerationRequest) => {
   try {
-    // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
+    const messages = [
         {
           role: "system",
           content: `Vous êtes un expert en cybersécurité spécialisé dans les tests d'intrusion web. 
@@ -54,10 +46,14 @@ export const generatePentestScenario = async (request: ScenarioGenerationRequest
           content: `Générez un scénario de challenge de pentest de niveau ${request.skillLevel} 
           pour la vulnérabilité ${request.category}. ${request.context || ''}`
         }
-      ],
-      temperature: 0.7,
-      response_format: { type: "json_object" },
-    });
+      ];
+
+    const response = await openAIService.getChatCompletion(
+      messages,
+      0.7, // temperature
+      2000, // maxTokens
+      { responseFormat: 'json_object' }
+    );
 
     const content = response.choices[0].message.content;
     return content ? JSON.parse(content) : null;
