@@ -527,40 +527,70 @@ export default function LearningCenter() {
   // Catégories de ressources
   const resourceCategories: ResourceCategory[] = [
     {
-      id: 'protection-defense',
-      title: '🛡️ Protection et Défense des Systèmes',
-      description: 'Empêcher, détecter et répondre aux attaques',
+      id: 'securite-systemes-reseaux',
+      title: 'Sécurité des systèmes et réseaux',
+      description: 'Protéger les infrastructures techniques contre les attaques',
       icon: <Shield className="h-6 w-6 text-blue-100" />,
       modules: protectionDefenseModules,
       gradient: 'from-blue-700 to-blue-900'
     },
     {
-      id: 'conformite-gouvernance',
-      title: '📋 Conformité, Gouvernance et Risques',
-      description: 'Respecter les règles et structurer la sécurité',
-      icon: <FileText className="h-6 w-6 text-green-100" />,
-      modules: conformiteGouvernanceModules,
-      gradient: 'from-green-700 to-green-900'
-    },
-    {
-      id: 'analyse-reponse',
-      title: '🔍 Analyse et Réponse aux Incidents',
-      description: 'Savoir enquêter et agir en cas d\'attaque',
+      id: 'detection-analyse-reponse',
+      title: 'Détection, analyse et réponse aux incidents',
+      description: 'Identifier et réagir face aux attaques',
       icon: <Zap className="h-6 w-6 text-orange-100" />,
       modules: analyseReponseModules,
       gradient: 'from-orange-700 to-red-900'
     },
     {
-      id: 'culture-sensibilisation',
-      title: '🧠 Culture et Sensibilisation',
-      description: 'Faire de l\'humain le premier rempart',
+      id: 'gouvernance-risques-conformite',
+      title: 'Gouvernance, risques et conformité',
+      description: 'Encadrer, évaluer, respecter les obligations légales',
+      icon: <FileText className="h-6 w-6 text-green-100" />,
+      modules: conformiteGouvernanceModules,
+      gradient: 'from-green-700 to-green-900'
+    },
+    {
+      id: 'securite-utilisateurs',
+      title: 'Sécurité des utilisateurs et sensibilisation',
+      description: 'L\'humain, maillon fort (ou faible)',
       icon: <Users className="h-6 w-6 text-purple-100" />,
       modules: cultureSensibilisationModules,
       gradient: 'from-purple-700 to-purple-900'
     },
     {
+      id: 'securite-applicative',
+      title: 'Sécurité applicative',
+      description: 'Empêcher l\'exploitation des failles logicielles',
+      icon: <Code className="h-6 w-6 text-indigo-100" />,
+      modules: allModules.filter(module => 
+        module.tags.some(tag => ['développement', 'AppSec', 'SAST/DAST', 'vulnérabilités', 'pentest', 'audit', 'code'].includes(tag))
+      ),
+      gradient: 'from-indigo-700 to-indigo-900'
+    },
+    {
+      id: 'securite-cloud',
+      title: 'Sécurité du Cloud et des environnements virtualisés',
+      description: 'Assurer la sécurité des ressources hors du SI interne',
+      icon: <CloudRain className="h-6 w-6 text-cyan-100" />,
+      modules: allModules.filter(module => 
+        module.tags.some(tag => ['cloud', 'AWS', 'Azure', 'GCP', 'virtualisation', 'conteneurs'].includes(tag))
+      ),
+      gradient: 'from-cyan-700 to-cyan-900'
+    },
+    {
+      id: 'cryptographie',
+      title: 'Cryptographie et protection des données',
+      description: 'Garantir la confidentialité, l\'intégrité et l\'authenticité',
+      icon: <Lock className="h-6 w-6 text-blue-100" />,
+      modules: allModules.filter(module => 
+        module.tags.some(tag => ['chiffrement', 'cryptographie', 'PKI', 'certificats', 'SSL/TLS', 'RGPD'].includes(tag))
+      ),
+      gradient: 'from-blue-800 to-blue-950'
+    },
+    {
       id: 'parcours-rapide',
-      title: '⚡ Parcours rapide',
+      title: 'Parcours rapide',
       description: 'Apprentissage accéléré et outils d\'auto-formation',
       icon: <Clock className="h-6 w-6 text-yellow-100" />,
       modules: quickLearningModules,

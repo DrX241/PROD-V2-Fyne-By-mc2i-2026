@@ -1,0 +1,90 @@
+Voici les grandes catégories de la cybersécurité, structurées pour couvrir l’ensemble du domaine :
+
+1. 🔐 Sécurité des systèmes et réseaux
+Protéger les infrastructures techniques contre les attaques.
+
+Firewalls, VPN, IDS/IPS
+
+Sécurité Wi-Fi, segmentation réseau
+
+Durcissement des systèmes (serveurs, postes)
+
+Gestion des accès et des comptes
+
+2. 🧪 Détection, analyse et réponse aux incidents
+Identifier et réagir face aux attaques.
+
+SOC (Security Operations Center)
+
+SIEM, logs, forensic
+
+Threat hunting, détection d’intrusions
+
+Gestion de crise, plans de remédiation
+
+3. 📋 Gouvernance, risques et conformité
+Encadrer, évaluer, respecter les obligations légales.
+
+Politiques de sécurité (PSSI)
+
+Gestion des risques (EBIOS, ISO 27005)
+
+Conformité : RGPD, NIS2, ISO 27001, DORA
+
+Audits, revues de sécurité, chartes
+
+4. 👤 Sécurité des utilisateurs et sensibilisation
+L'humain, maillon fort (ou faible).
+
+Formation & campagnes de sensibilisation
+
+Phishing, ingénierie sociale
+
+Politiques de mot de passe
+
+Simulations d’attaques ciblées
+
+5. 🧱 Sécurité applicative
+Empêcher l’exploitation des failles logicielles.
+
+Tests d’intrusion (pentest), audits de code
+
+OWASP Top 10 (XSS, SQLi, CSRF…)
+
+DevSecOps, sécurité dans le cycle de développement
+
+Protection des API, WAF
+
+6. ☁️ Sécurité du Cloud et des environnements virtualisés
+Assurer la sécurité des ressources hors du SI interne.
+
+Contrôle d’accès, chiffrement, logs cloud
+
+Configuration sécurisée (CSPM)
+
+Sécurité multi-tenant (SaaS, PaaS, IaaS)
+
+Responsabilités partagées (Cloud Provider vs Client)
+
+7. 🔐 Cryptographie et protection des données
+Garantir la confidentialité, l’intégrité et l’authenticité.
+
+Chiffrement symétrique / asymétrique
+
+Hachage, signature, certificats SSL/TLS
+
+PKI (Public Key Infrastructure)
+
+Protection des données personnelles
+
+8. 🧬 Cyberdéfense avancée et renseignement
+Anticiper, surveiller, désinformer si besoin.
+
+CTI (Cyber Threat Intelligence)
+
+Red Team / Blue Team / Purple Team
+
+OSINT, analyse de malware, reverse engineering
+
+Analyse comportementale, honeypots
+
