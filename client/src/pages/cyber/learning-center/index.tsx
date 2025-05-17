@@ -527,6 +527,14 @@ export default function LearningCenter() {
   // Catégories de ressources
   const resourceCategories: ResourceCategory[] = [
     {
+      id: 'parcours-rapide',
+      title: 'Parcours rapide',
+      description: 'Apprentissage accéléré et outils d\'auto-formation',
+      icon: <Clock className="h-6 w-6 text-yellow-100" />,
+      modules: quickLearningModules,
+      gradient: 'from-amber-600 to-orange-800'
+    },
+    {
       id: 'securite-systemes-reseaux',
       title: 'Sécurité des systèmes et réseaux',
       description: 'Protéger les infrastructures techniques contre les attaques',
@@ -589,12 +597,14 @@ export default function LearningCenter() {
       gradient: 'from-blue-800 to-blue-950'
     },
     {
-      id: 'parcours-rapide',
-      title: 'Parcours rapide',
-      description: 'Apprentissage accéléré et outils d\'auto-formation',
-      icon: <Clock className="h-6 w-6 text-yellow-100" />,
-      modules: quickLearningModules,
-      gradient: 'from-amber-600 to-orange-800'
+      id: 'cyberdefense-avancee',
+      title: 'Cyberdéfense avancée et renseignement',
+      description: 'Anticiper, surveiller, désinformer si besoin',
+      icon: <Eye className="h-6 w-6 text-red-100" />,
+      modules: allModules.filter(module => 
+        module.tags.some(tag => ['CTI', 'red team', 'blue team', 'threat intelligence', 'malware', 'honeypot', 'OSINT'].includes(tag))
+      ),
+      gradient: 'from-red-800 to-red-950'
     }
   ];
 
