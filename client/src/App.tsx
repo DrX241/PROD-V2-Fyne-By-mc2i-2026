@@ -495,6 +495,16 @@ function App() {
                   );
                 }} />
                 
+                {/* Module des fondamentaux de cybersécurité */}
+                <Route path="/cyber/cyber-fundamentals" component={() => {
+                  const CyberFundamentals = lazy(() => import('./pages/cyber/cyber-fundamentals'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CyberFundamentals />
+                    </Suspense>
+                  );
+                }} />
+                
                 {/* Routes pour les modules de Cyber Académie */}
                 <Route path="/cyber/learning-center/modules/fiches-cyber-express" component={() => {
                   const FichesCyberExpress = lazy(() => import('./pages/cyber/learning-center/modules/fiches-cyber-express'));
