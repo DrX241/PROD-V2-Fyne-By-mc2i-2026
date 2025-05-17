@@ -46,6 +46,7 @@ export default function CyberV3() {
       <div className="min-h-screen relative cyber-bg"
         style={{ 
           fontSize: `${textSize}rem`,
+          backgroundColor: '#000000',
           backgroundImage: highContrastMode ? 'none' : 'url("data:image/svg+xml,%3Csvg width="20" height="20" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M1 1h18v18H1V1z" fill="none" stroke="rgba(6,182,212,0.05)" stroke-width="0.2"/%3E%3C/svg%3E")',
           backgroundRepeat: 'repeat',
         }}>

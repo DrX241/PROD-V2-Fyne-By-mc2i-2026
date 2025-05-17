@@ -19,6 +19,15 @@
   --glow-accent: 0 0 5px rgba(255, 255, 0, 0.7), 0 0 10px rgba(255, 255, 0, 0.5);
 }
 
+/* Arrière-plan cyberpunk pour les sections I AM CYBER */
+.cyber-bg {
+  background-color: #000;
+  color: white;
+  position: relative;
+  z-index: 0;
+  overflow: hidden;
+}
+
 /* Éléments de base */
 .font-cyber {
   font-family: 'Rajdhani', sans-serif;
