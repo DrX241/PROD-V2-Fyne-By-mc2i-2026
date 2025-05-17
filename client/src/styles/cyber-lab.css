@@ -41,16 +41,32 @@
   }
 }
 
+@keyframes glow-pulse {
+  0% {
+    text-shadow: 0 0 5px rgba(6, 182, 212, 0.7), 0 0 10px rgba(139, 92, 246, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 8px rgba(6, 182, 212, 0.9), 0 0 15px rgba(139, 92, 246, 0.6);
+  }
+  100% {
+    text-shadow: 0 0 5px rgba(6, 182, 212, 0.7), 0 0 10px rgba(139, 92, 246, 0.3);
+  }
+}
+
 .animate-scrolling-code {
   width: 100%;
   height: 200vh;
-  animation: scrolling-code 60s linear infinite;
+  animation: 
+    scrolling-code 60s linear infinite,
+    glow-pulse 4s ease-in-out infinite;
   margin-top: 0;
-  color: rgba(6, 182, 212, 0.7); /* cyan-500 avec opacité */
-  text-shadow: 0 0 5px rgba(6, 182, 212, 0.5);
+  color: rgba(14, 165, 233, 0.95); /* sky-500 avec opacité augmentée */
   white-space: pre;
   font-family: "JetBrains Mono", monospace;
   line-height: 1.5;
+  font-weight: 600; /* Semi-bold pour plus de visibilité */
+  letter-spacing: 0.5px; /* Espace entre les lettres pour meilleure lisibilité */
+  mix-blend-mode: screen; /* Améliore la visibilité sur fond sombre */
 }
 
 /* Animation de carte */

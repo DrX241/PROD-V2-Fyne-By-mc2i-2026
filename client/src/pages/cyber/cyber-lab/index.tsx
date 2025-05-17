@@ -23,26 +23,42 @@ const CyberLab: React.FC = () => {
     hover: { scale: 1.03, boxShadow: "0 0 20px rgba(0, 255, 255, 0.3)" }
   };
 
-  // Simulation de l'effet de code qui défile
+  // Simulation de l'effet de code qui défile avec code plus visible et coloré
   const codeLines = [
-    "# Analyseur de vulnérabilités web",
+    "# == ANALYSEUR DE VULNÉRABILITÉS WEB ==",
     "def scan_for_xss(url):",
     "  payload = '<script>alert(\"XSS\")</script>'",
     "  response = requests.get(url + payload)",
     "  if payload in response.text:",
-    "    return 'Vulnérable au XSS'",
-    "  return 'Sécurisé'",
+    "    return '[ALERTE] VULNÉRABLE AU XSS'",
+    "  return '[SUCCÈS] SÉCURISÉ'",
     "",
-    "# Analyse de trafic réseau",
+    "# == DÉTECTION D'INJECTION SQL ==",
+    "def test_sql_injection(form_url):",
+    "  payloads = [\"' OR 1=1 --\", \"admin' --\", \"1' UNION SELECT 1,2,3 --\"]",
+    "  for p in payloads:",
+    "    if vulnerable_to_injection(form_url, p):",
+    "      return '[ALERTE] INJECTION SQL DÉTECTÉE'",
+    "",
+    "# == ANALYSE DE TRAFIC RÉSEAU ==",
     "def analyze_packets(pcap_file):",
     "  packets = rdpcap(pcap_file)",
     "  suspicious_ips = []",
     "  for pkt in packets:",
     "    if IP in pkt:",
     "      # Détection d'anomalies",
-    "      if is_suspicious(pkt[IP].src):",
+    "      if detect_malicious_pattern(pkt):",
     "        suspicious_ips.append(pkt[IP].src)",
-    "  return suspicious_ips"
+    "  return '[INFO] ADRESSES IP SUSPECTES: ' + str(len(suspicious_ips))",
+    "",
+    "# == DÉTECTION DE RANÇONGICIEL ==",
+    "def detect_ransomware(files):",
+    "  encrypted_count = 0",
+    "  for file in files:",
+    "    if has_encryption_markers(file):",
+    "      encrypted_count += 1",
+    "  risk_level = 'CRITIQUE' if encrypted_count > 10 else 'MODÉRÉ'",
+    "  return f'[ALERTE] MENACE DÉTECTÉE - Niveau: {risk_level}'"
   ];
 
   return (
@@ -69,10 +85,12 @@ const CyberLab: React.FC = () => {
         </p>
       </div>
 
-      {/* Animation de code en arrière-plan */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden z-0 opacity-20 pointer-events-none">
-        <pre className="text-cyan-400 text-sm animate-scrolling-code font-mono">
-          {Array(20).fill(codeLines).flat().join('\n')}
+      {/* Animation de code en arrière-plan - opacité améliorée */}
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden z-0 opacity-50 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black z-10 opacity-30"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-10 opacity-30"></div>
+        <pre className="text-sky-400 text-lg font-bold animate-scrolling-code font-mono relative z-5">
+          {Array(30).fill(codeLines).flat().join('\n')}
         </pre>
       </div>
 
