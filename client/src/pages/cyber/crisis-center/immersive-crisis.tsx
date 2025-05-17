@@ -241,10 +241,11 @@ const initialDecisions = [
   }
 ];
 
-// Effets sonores pour l'immersion
-const alarmSound = '/sounds/alarm.mp3'; // À remplacer par les chemins réels si disponibles
-const notificationSound = '/sounds/notification.mp3';
-const messageSound = '/sounds/message.mp3';
+// Effets sonores pour l'immersion - chemins commentés car fichiers non disponibles
+// Si besoin d'ajouter des sons, créer d'abord les fichiers correspondants
+const alarmSound = ''; // '/sounds/alarm.mp3'
+const notificationSound = ''; // '/sounds/notification.mp3'
+const messageSound = ''; // '/sounds/message.mp3';
 
 export default function ImmersiveCrisis() {
   const { toast } = useToast();
@@ -1160,9 +1161,10 @@ export default function ImmersiveCrisis() {
   return (
     <HomeLayout>
       {/* Éléments audio */}
-      <audio ref={alarmRef} src={alarmSound} />
+      {/* Audio éléments commentés car les fichiers audio ne sont pas disponibles */}
+      {/* <audio ref={alarmRef} src={alarmSound} />
       <audio ref={notificationRef} src={notificationSound} />
-      <audio ref={messagesRef} src={messageSound} />
+      <audio ref={messagesRef} src={messageSound} /> */}
       
       {/* Bulles cybernétiques */}
       {renderCyberBubbles()}
