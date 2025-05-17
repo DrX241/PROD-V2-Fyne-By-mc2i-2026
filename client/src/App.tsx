@@ -247,28 +247,13 @@ function App() {
                 <Route path="/cyber/agent" component={CyberAgentPage} />
                 <Route path="/cyber/cyber-agent" component={CyberAgentRedirectPage} /> {/* Redirection vers la nouvelle version */}
                 <Route path="/cyber/cyber-agent-old" component={CyberAgentRedirectPage} /> {/* Ancienne version (redirection) */}
-                <Route path="/cyber/cyber-agent-new" component={CyberAgentNewPage} /> {/* Nouvelle version du module Cyber Agent */}
+                {/* Route supprimée : Cyber Agent New */}
                 <Route path="/cyber/expert-learning" component={ExpertLearningPage} /> {/* Module Apprendre en échangeant */}
                 <Route path="/cyber/cyber-pulse" component={CyberPulseGame} /> {/* Nouveau jeu CyberPULSE */}
-                <Route path="/cyber/learning/cyber-mastery" component={() => {
-                  // Import dynamique de la nouvelle page Cyber Mastery
-                  const CyberMasteryPage = lazy(() => import('./pages/cyber/learning/cyber-mastery'));
-                  return (
-                    <Suspense fallback={<GlobalLoader />}>
-                      <CyberMasteryPage />
-                    </Suspense>
-                  );
-                }} />
-                <Route path="/cyber/learning/cyber-mastery/sensibilisation" component={() => {
-                  // Import dynamique du module de sensibilisation cybersécurité (version gamifiée)
-                  const SensibilisationCyberGame = lazy(() => import('./pages/cyber/learning/modules/sensibilisation-cyber-game'));
-                  return (
-                    <Suspense fallback={<GlobalLoader />}>
-                      <SensibilisationCyberGame />
-                    </Suspense>
-                  );
-                }} />
-                <Route path="/cyber/learning/cyber-mastery/:themeId" component={NotYetImplemented} />
+                {/* Routes supprimées : Cyber Mastery et ses sous-modules */}
+                {/* <Route path="/cyber/learning/cyber-mastery" component supprimé */}
+                {/* <Route path="/cyber/learning/cyber-mastery/sensibilisation" component supprimé */}
+                {/* <Route path="/cyber/learning/cyber-mastery/:themeId" component supprimé */}
                 
                 {/* Module d'arcade cyber et jeux d'enquête */}
                 <Route path="/cyber/arcade" component={CyberArcade} />

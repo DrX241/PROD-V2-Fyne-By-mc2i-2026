@@ -240,31 +240,21 @@ export default function CyberV3() {
                       className="flex items-center p-2 hover:bg-blue-800/30 rounded cursor-pointer transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation('/cyber/learning/cyber-mastery');
+                        setLocation('/cyber/learning-center');
                       }}
                     >
                       <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
-                      <p className="text-gray-200 text-sm">Dans la peau de ton métier</p>
+                      <p className="text-gray-200 text-sm">Parcours d'apprentissage</p>
                     </div>
                     <div 
                       className="flex items-center p-2 hover:bg-blue-800/30 rounded cursor-pointer transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation('/cyber/learning/cyber-mastery/sensibilisation');
+                        setLocation('/cyber/pentest-lab');
                       }}
                     >
                       <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
-                      <p className="text-gray-200 text-sm">Test technique</p>
-                    </div>
-                    <div 
-                      className="flex items-center p-2 hover:bg-blue-800/30 rounded cursor-pointer transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation('/cyber/cyber-agent-new');
-                      }}
-                    >
-                      <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
-                      <p className="text-gray-200 text-sm">Mode entretien</p>
+                      <p className="text-gray-200 text-sm">Laboratoire de test</p>
                     </div>
                   </div>
                   <div className="text-center">
