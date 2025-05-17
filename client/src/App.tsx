@@ -414,6 +414,15 @@ function App() {
                   );
                 }} />
                 
+                <Route path="/cyber/crisis-center/immersive" component={() => {
+                  const ImmersiveCrisisComponent = lazy(() => import('./pages/cyber/crisis-center/immersive-crisis'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <ImmersiveCrisisComponent />
+                    </Suspense>
+                  );
+                }} />
+                
                 <Route path="/cyber/interview-test" component={() => {
                   const CyberInterviewTest = lazy(() => import('./pages/cyber/interview-test'));
                   return (
