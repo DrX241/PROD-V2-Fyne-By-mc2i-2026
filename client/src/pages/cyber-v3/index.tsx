@@ -233,26 +233,15 @@ export default function CyberV3() {
                 <p className="text-center text-blue-300 mt-2">
                   Centre de formation complet aux métiers de la cybersécurité
                 </p>
-                <div className="mt-6 space-y-3">
+                <div className="mt-6">
                   <div className="text-center">
                     <Button 
-                      className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-5 w-full"
-                      onClick={(e) => {
-                        setLocation('/cyber/cyber-fundamentals');
-                      }}
-                    >
-                      Fondamentaux Cyber
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="text-center">
-                    <Button 
-                      className="bg-gradient-to-r from-indigo-600 to-blue-800 hover:from-indigo-700 hover:to-blue-900 text-white px-4 py-5 w-full"
+                      className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-5 w-full"
                       onClick={(e) => {
                         setLocation('/cyber/learning-center');
                       }}
                     >
-                      Centre d'apprentissage
+                      Explorer l'académie
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
