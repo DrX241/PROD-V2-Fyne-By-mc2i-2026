@@ -377,29 +377,18 @@ export default function CyberV3() {
                   Environnement pratique d'analyse de sécurité
                 </p>
                 <div className="mt-4">
-                  <div className="space-y-3 mb-5">
-                    <div 
-                      className="flex items-center p-2 hover:bg-violet-800/30 rounded cursor-pointer transition-colors"
+                  <div className="text-center">
+                    <Button 
+                      className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white px-6 py-5"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation('/cyber/pentest-lab');
+                        setLocation('/cyber/cyber-lab');
                       }}
                     >
-                      <div className="w-2 h-2 rounded-full bg-violet-400 mr-2"></div>
-                      <p className="text-gray-200 text-sm">Atelier de Pentest Web</p>
-                    </div>
-                    <div 
-                      className="flex items-center p-2 hover:bg-violet-800/30 rounded cursor-pointer transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation('/cyber/network-lab');
-                      }}
-                    >
-                      <div className="w-2 h-2 rounded-full bg-violet-400 mr-2"></div>
-                      <p className="text-gray-200 text-sm">Laboratoire d'analyse de trafic réseau</p>
-                    </div>
+                      Accéder au laboratoire
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
                   </div>
-
                 </div>
               </motion.div>
             </div>
