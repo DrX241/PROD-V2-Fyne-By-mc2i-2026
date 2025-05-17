@@ -319,6 +319,7 @@ export default function ImmersiveCrisis() {
   const [showBrief, setShowBrief] = useState<boolean>(false);
   const [tutorialStep, setTutorialStep] = useState<number>(1);
   const [showInstructions, setShowInstructions] = useState<boolean>(true);
+  const [lastInterventionTime, setLastInterventionTime] = useState<number | null>(null);
   const [consoleOutput, setConsoleOutput] = useState<string[]>(['# Console de sécurité initialisée', '> Détection des menaces en cours...']);
   
   // Timers
@@ -369,7 +370,7 @@ export default function ImmersiveCrisis() {
     }, 3000);
   };
   
-  // Planifier les messages automatiques des membres de l'équipe avec un meilleur séquençage
+  // Planifier uniquement le premier message - les autres apparaîtront au besoin
   const scheduleTeamMessages = () => {
     // Effacer les timers existants
     scenarioTimersRef.current.forEach(timer => clearTimeout(timer));
@@ -383,64 +384,63 @@ export default function ImmersiveCrisis() {
         role: "Centre de crise",
         avatar: "SYS"
       },
-      content: "Bienvenue au centre de crise. Les membres de votre équipe vont se présenter à tour de rôle. Prenez le temps de lire leurs messages et d'analyser la situation avant de prendre une décision.",
+      content: "Bienvenue au centre de crise. Vous êtes en communication avec le premier intervenant qui va vous présenter la situation. Les autres membres de l'équipe n'interviendront que lorsque cela deviendra nécessaire.",
       timestamp: new Date(),
       isUser: false
     };
     
     addMessage(introMessage);
     
-    // Trier les membres par ordre de délai (pour s'assurer qu'ils apparaissent dans l'ordre)
-    const sortedMembers = [...crisisTeamMembers].sort((a, b) => a.delay - b.delay);
+    // Trouver le premier membre à présenter (généralement le responsable SOC)
+    const firstResponder = crisisTeamMembers.find(m => m.id === 'soc-lead') || crisisTeamMembers[0];
     
-    // Programmer les messages avec des délais plus espacés et une notification visuelle
-    sortedMembers.forEach((member, index) => {
-      const timer = setTimeout(() => {
-        // Message de notification avant que le membre ne parle
-        const notificationTimer = setTimeout(() => {
-          // Montrer une notification système indiquant qu'un nouveau membre rejoint la conversation
-          const notification: Notification = {
-            id: generateId(),
-            type: 'system' as NotificationType,
-            source: 'Centre de crise',
-            title: 'Nouveau message entrant',
-            content: `${member.name} (${member.role}) souhaite s'adresser à vous`,
-            timestamp: new Date()
-          };
-          
-          setNotifications(prev => [...prev, notification]);
-          
-          // Jouer un son de notification si activé
-          if (isSoundEnabled && notificationRef.current) {
-            notificationRef.current.play();
-          }
-          
-          // Ajouter le message effectif après une courte pause
-          setTimeout(() => {
-            addMessage({
-              id: generateId(),
-              sender: {
-                name: member.name,
-                role: member.role,
-                avatar: member.avatar
-              },
-              content: member.firstMessage,
-              timestamp: new Date(),
-              isUser: false
-            });
-            
-            // Faire défiler vers le nouveau message
-            setTimeout(() => {
-              messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
-          }, 1500);
-        }, member.delay);
-        
-        scenarioTimersRef.current.push(notificationTimer);
-      }, 2000); // Délai initial plus court pour le premier message
+    // Programmer uniquement le premier message avec une notification
+    const timer = setTimeout(() => {
+      // Montrer une notification système indiquant que le premier membre rejoint la conversation
+      const notification: Notification = {
+        id: generateId(),
+        type: 'system' as NotificationType,
+        source: 'Centre de crise',
+        title: 'Premier contact',
+        content: `${firstResponder.name} (${firstResponder.role}) établit le contact`,
+        timestamp: new Date()
+      };
       
-      scenarioTimersRef.current.push(timer);
-    });
+      setNotifications(prev => [...prev, notification]);
+      
+      // Jouer un son de notification si activé
+      if (isSoundEnabled && notificationRef.current) {
+        notificationRef.current.play();
+      }
+      
+      // Ajouter le message du premier intervenant après une courte pause
+      setTimeout(() => {
+        addMessage({
+          id: generateId(),
+          sender: {
+            name: firstResponder.name,
+            role: firstResponder.role,
+            avatar: firstResponder.avatar
+          },
+          content: firstResponder.firstMessage,
+          timestamp: new Date(),
+          isUser: false
+        });
+        
+        // Faire défiler vers le nouveau message
+        setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+        
+        // Après ce premier message, ajouter une entrée dans les logs
+        addConsoleOutput([
+          `# Communication établie avec ${firstResponder.name}`,
+          `> Les autres membres n'interviendront que si nécessaire`
+        ]);
+      }, 1500);
+    }, 4000);
+    
+    scenarioTimersRef.current.push(timer);
   };
   
   // Ajouter un message à la conversation
@@ -467,12 +467,12 @@ export default function ImmersiveCrisis() {
     setUserMessage(e.target.value);
   };
   
-  // Envoyer un message
-  const sendMessage = () => {
-    if (!userMessage.trim() || !selectedTeamMember) {
+  // Envoyer un message avec intervention dynamique et contextuelle des PNJ
+  const sendMessage = async () => {
+    if (!userMessage.trim()) {
       toast({
         title: "Message incomplet",
-        description: "Veuillez sélectionner un destinataire et saisir un message.",
+        description: "Veuillez saisir un message.",
         variant: "destructive",
       });
       return;
@@ -494,74 +494,211 @@ export default function ImmersiveCrisis() {
     addMessage(userMsg);
     setUserMessage('');
     
-    // Ajouter de nouveaux outputs console
-    addConsoleOutput([`$ message envoyé à ${selectedTeamMember}`, `> traitement des directives...`]);
+    // Identifier qui devrait répondre en fonction du contexte
+    let respondingMemberId = selectedTeamMember;
     
-    // Simuler une réponse après un délai en utilisant l'API
-    const member = crisisTeamMembers.find(m => m.id === selectedTeamMember);
-    if (member) {
-      setTimeout(async () => {
-        // Obtenir une réponse contextuelle via l'API
-        const aiResponse = await generateContextualResponse(userMessage, member.role);
-        
-        const responseMsg: Message = {
-          id: generateId(),
-          sender: {
-            name: member.name,
-            role: member.role,
-            avatar: member.avatar
-          },
-          content: aiResponse,
-          timestamp: new Date(),
-          isUser: false
-        };
-        
-        addMessage(responseMsg);
-        
-        // Ajouter des messages entre membres de l'équipe si approprié
-        if (Math.random() > 0.7) {
-          // 30% de chance d'avoir une conversation interne
-          setTimeout(() => {
-            // Trouver un autre membre qui pourrait réagir en fonction du contexte
-            const otherMembers = crisisTeamMembers.filter(m => 
-              m.id !== selectedTeamMember && 
-              ((initialDecisions.some(d => d.supporters.includes(m.id) && d.supporters.includes(selectedTeamMember))) || 
-               (initialDecisions.some(d => d.opposants.includes(m.id) && d.supporters.includes(selectedTeamMember))))
-            );
-            
-            if (otherMembers.length > 0) {
-              const respondingMember = otherMembers[Math.floor(Math.random() * otherMembers.length)];
-              
-              // Message interne entre membres de l'équipe
-              const internalMsg: Message = {
-                id: generateId(),
-                sender: {
-                  name: respondingMember.name,
-                  role: respondingMember.role,
-                  avatar: respondingMember.avatar
-                },
-                content: `@${member.name.split(' ')[0]} - Je suis ${Math.random() > 0.5 ? "d'accord" : "en désaccord"} avec cette approche. Nous devrions discuter des implications pour ${Math.random() > 0.5 ? "la sécurité" : "l'entreprise"}.`,
-                timestamp: new Date(),
-                isUser: false
-              };
-              
-              addMessage(internalMsg);
-              
-              // Notification de tension d'équipe
-              const tensionNotif: Notification = {
-                id: generateId(),
-                type: 'system',
-                source: 'Cellule de crise',
-                title: 'Tension détectée',
-                content: `Une divergence d'opinion est apparue entre ${member.name} et ${respondingMember.name} concernant la stratégie à adopter.`,
-                timestamp: new Date()
-              };
-              
-              setNotifications(prev => [...prev, tensionNotif]);
-            }
-          }, 4000 + Math.random() * 3000);
+    // Si aucun membre n'est explicitement sélectionné, déterminer qui doit répondre
+    if (!respondingMemberId) {
+      // Chercher des mentions explicites de membres dans le message
+      const mentionedRole = findMentionedRole(userMessage);
+      if (mentionedRole) {
+        // Le membre mentionné répond
+        respondingMemberId = mentionedRole;
+      } else {
+        // Par défaut, le dernier interlocuteur non-utilisateur répond
+        const lastSpeaker = findLastSpeaker();
+        if (lastSpeaker) {
+          respondingMemberId = lastSpeaker;
+        } else {
+          // Si personne n'a parlé, c'est le responsable SOC qui répond par défaut
+          respondingMemberId = 'soc-lead';
         }
-      }, 1500 + Math.random() * 2000);
+      }
+    }
+    
+    // Ajouter de nouveaux outputs console
+    addConsoleOutput([`$ message envoyé`, `> traitement en cours...`]);
+    
+    // Obtenir le membre qui va répondre
+    const member = crisisTeamMembers.find(m => m.id === respondingMemberId);
+    
+    if (member) {
+      // Simuler un délai de réponse réaliste (plus court que précédemment)
+      setTimeout(async () => {
+        try {
+          // Obtenir une réponse contextuelle via l'API Azure OpenAI
+          const aiResponse = await generateContextualResponse(userMessage, member.role);
+          
+          // Formater la réponse
+          const responseMsg: Message = {
+            id: generateId(),
+            sender: {
+              name: member.name,
+              role: member.role,
+              avatar: member.avatar
+            },
+            content: aiResponse,
+            timestamp: new Date(),
+            isUser: false
+          };
+          
+          // Ajouter la réponse à la conversation
+          addMessage(responseMsg);
+          
+          // Déterminer si un autre membre devrait intervenir en fonction du contenu
+          analyzeForInterventions(userMessage, aiResponse, member.id);
+        } catch (error) {
+          console.error('Erreur lors de la génération de réponse:', error);
+          
+          // Notification d'erreur
+          toast({
+            title: "Problème de communication",
+            description: "Un problème est survenu lors de la communication avec l'équipe de crise.",
+            variant: "destructive",
+          });
+        }
+      }, 1200 + Math.random() * 1000); // Délai plus court pour une meilleure réactivité
+    }
+  };
+  
+  // Trouver quel membre de l'équipe était le dernier à parler
+  const findLastSpeaker = (): string => {
+    // Filtrer pour ne garder que les messages des membres de l'équipe (non-système, non-utilisateur)
+    const teamMessages = messages.filter(m => 
+      !m.isUser && m.sender.role !== 'Centre de crise' && m.sender.role !== 'Système'
+    );
+    
+    if (teamMessages.length > 0) {
+      // Prendre le plus récent message
+      const lastMessage = teamMessages[teamMessages.length - 1];
+      
+      // Trouver l'ID du membre correspondant
+      const member = crisisTeamMembers.find(m => m.name === lastMessage.sender.name);
+      if (member) {
+        return member.id;
+      }
+    }
+    
+    // Par défaut, retourner le responsable SOC
+    return 'soc-lead';
+  };
+  
+  // Trouver si un rôle est mentionné dans le message
+  const findMentionedRole = (message: string): string | null => {
+    const lowerMessage = message.toLowerCase();
+    
+    // Rechercher les mentions explicites de rôles ou de noms
+    for (const member of crisisTeamMembers) {
+      if (lowerMessage.includes(member.name.toLowerCase()) || 
+          lowerMessage.includes(member.role.toLowerCase())) {
+        return member.id;
+      }
+    }
+    
+    // Rechercher les mots-clés liés à certains domaines
+    const roleKeywords = {
+      'soc-lead': ['attaque', 'incident', 'détection', 'analyse', 'forensic', 'technique', 'soc'],
+      'cio': ['système', 'informatique', 'infrastructure', 'métier', 'opérations', 'disponibilité'],
+      'legal': ['juridique', 'légal', 'rgpd', 'cnil', 'notification', 'obligation', 'autorité'],
+      'comms': ['communication', 'presse', 'média', 'message', 'public', 'client', 'réputation'],
+      'security': ['sécurité', 'politique', 'procédure', 'conformité', 'audit']
+    };
+    
+    for (const [roleId, keywords] of Object.entries(roleKeywords)) {
+      if (keywords.some(keyword => lowerMessage.includes(keyword))) {
+        return roleId;
+      }
+    }
+    
+    return null;
+  };
+  
+  // Analyser le contenu pour déterminer si un autre membre devrait intervenir
+  const analyzeForInterventions = (userMessage: string, aiResponse: string, currentSpeakerId: string) => {
+    // Éviter trop d'interventions rapprochées
+    if (lastInterventionTime && (Date.now() - lastInterventionTime) < 30000) {
+      // Pas d'intervention si la dernière était il y a moins de 30 secondes
+      return;
+    }
+    
+    // Définir des sujets qui pourraient déclencher une intervention
+    const interventionTopics = [
+      { id: 'legal', keywords: ['juridique', 'légal', 'rgpd', 'cnil', 'notification', 'amende', 'régulateur'], 
+        importance: (msg: string) => msg.includes('obligation') ? 2 : 1 },
+      { id: 'cio', keywords: ['systèmes', 'impact', 'métier', 'business', 'opérations', 'coût', 'perte', 'production'],
+        importance: (msg: string) => msg.includes('critique') ? 2 : 1 },
+      { id: 'comms', keywords: ['média', 'presse', 'communication', 'clients', 'image', 'réputation', 'externe'],
+        importance: (msg: string) => msg.includes('public') ? 2 : 1 },
+      { id: 'security', keywords: ['vulnérabilité', 'sécurité', 'menace', 'compromission', 'attaquant'],
+        importance: (msg: string) => msg.includes('critique') ? 2 : 1 }
+    ];
+    
+    // Calculer des scores d'intervention pour chaque membre
+    const combinedText = (userMessage + ' ' + aiResponse).toLowerCase();
+    const interventionScores = new Map<string, number>();
+    
+    interventionTopics.forEach(topic => {
+      if (topic.id !== currentSpeakerId) { // On n'intervient pas si c'est le même rôle
+        const matchingKeywords = topic.keywords.filter(kw => combinedText.includes(kw));
+        if (matchingKeywords.length > 0) {
+          const importanceMultiplier = topic.importance(combinedText);
+          interventionScores.set(topic.id, matchingKeywords.length * importanceMultiplier);
+        }
+      }
+    });
+    
+    // Intervention possible seulement pour les thèmes avec un score suffisant
+    const potentialInterventions = Array.from(interventionScores.entries())
+      .filter(([_, score]) => score > 1) // Score minimum pour une intervention
+      .sort((a, b) => b[1] - a[1]); // Trier par score décroissant
+    
+    if (potentialInterventions.length > 0) {
+      // Faire intervenir le membre avec le score le plus élevé
+      const interveningMemberId = potentialInterventions[0][0];
+      const interveningMember = crisisTeamMembers.find(m => m.id === interveningMemberId);
+      
+      if (interveningMember) {
+        // Enregistrer l'heure de l'intervention
+        setLastInterventionTime(Date.now());
+        
+        // Préparer l'intervention après un délai
+        setTimeout(async () => {
+          // Montrer une notification indiquant qu'un autre membre souhaite intervenir
+          const notif: Notification = {
+            id: generateId(),
+            type: 'system' as NotificationType,
+            source: 'Centre de crise',
+            title: 'Intervention non sollicitée',
+            content: `${interveningMember.name} (${interveningMember.role}) intervient dans la discussion`,
+            timestamp: new Date()
+          };
+          
+          setNotifications(prev => [...prev, notif]);
+          
+          // Générer une réponse pour ce membre qui intervient spontanément
+          setTimeout(async () => {
+            // Créer un prompt contextualisé pour le membre qui intervient
+            const interventionPrompt = `${messages[messages.length-1].sender.name} vient de dire: "${aiResponse}" en réponse à un message du RSSI concernant "${userMessage}". Tu dois intervenir en fonction de ton rôle et de tes priorités.`;
+            
+            // Obtenir une réponse via l'API pour ce membre
+            const interventionResponse = await generateContextualResponse(interventionPrompt, interveningMember.role);
+            
+            // Ajouter l'intervention à la conversation
+            addMessage({
+              id: generateId(),
+              sender: {
+                name: interveningMember.name,
+                role: interveningMember.role,
+                avatar: interveningMember.avatar
+              },
+              content: interventionResponse,
+              timestamp: new Date(),
+              isUser: false
+            });
+            
+          }, 1500);
+        }, 4000 + Math.random() * 2000);
+      }
     }
   };
   
