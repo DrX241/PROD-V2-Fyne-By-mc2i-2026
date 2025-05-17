@@ -395,6 +395,25 @@ function App() {
                   );
                 }} />
                 
+                {/* Centre de Crise Immersif */}
+                <Route path="/cyber/crisis-center" component={() => {
+                  const CrisisCenterComponent = lazy(() => import('./pages/cyber/crisis-center/index'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CrisisCenterComponent />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/cyber/crisis-center/crisis-simulation" component={() => {
+                  const CrisisSimulationComponent = lazy(() => import('./pages/cyber/crisis-center/crisis-simulation'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CrisisSimulationComponent />
+                    </Suspense>
+                  );
+                }} />
+                
                 <Route path="/cyber/interview-test" component={() => {
                   const CyberInterviewTest = lazy(() => import('./pages/cyber/interview-test'));
                   return (
