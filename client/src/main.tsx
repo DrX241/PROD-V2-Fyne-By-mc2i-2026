@@ -5,11 +5,14 @@ import "./index.css";
 import "./styles/cyber.css";
 import "./styles/cursor-styles.css";
 import { AuthProvider } from "./contexts/AuthContext";
+import { HelmetProvider } from 'react-helmet-async';
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <HelmetProvider>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </HelmetProvider>
   </StrictMode>
 );

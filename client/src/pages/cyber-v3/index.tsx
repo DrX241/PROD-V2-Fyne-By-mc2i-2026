@@ -12,7 +12,7 @@ import { BsShieldLock } from 'react-icons/bs';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
 
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import CyberScene from '@/components/CyberScene';
 import { useTutorial } from '@/contexts/TutorialContext';
