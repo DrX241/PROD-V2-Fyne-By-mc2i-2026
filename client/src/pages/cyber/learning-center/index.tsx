@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   BookOpen,
   Cpu,
+  Eye,
   GraduationCap,
   Clock,
   Users,
