@@ -37,7 +37,8 @@ router.post('/generate-response', async (req, res) => {
         { role: 'user', content: message }
       ],
       0.7, // temperature
-      800  // maxTokens
+      800,  // maxTokens
+      { useSecondaryKey: true } // Utiliser le modèle secondaire plus rapide
     );
     
     res.json({ response });
@@ -85,7 +86,8 @@ router.post('/team-interaction', async (req, res) => {
         { role: 'system', content: prompt }
       ],
       0.8, // temperature légèrement plus élevée pour la créativité
-      1000 // maxTokens
+      1000, // maxTokens
+      { useSecondaryKey: true } // Utiliser le modèle secondaire plus rapide
     );
     
     res.json({ conversation: response });
@@ -131,7 +133,11 @@ router.post('/crisis-update', async (req, res) => {
         { role: 'system', content: prompt }
       ],
       0.7,
-      800
+      800, 
+      { 
+        useSecondaryKey: true,
+        responseFormat: 'json_object' // Demander un objet JSON pour simplifier le parsing
+      }
     );
     
     // Tenter de parser la réponse comme JSON

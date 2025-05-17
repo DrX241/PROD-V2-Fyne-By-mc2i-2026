@@ -286,6 +286,14 @@ class OpenAIService {
     options?: { responseFormat?: string }
   ): Promise<string>;
   
+  // Version simplifiée pour les appels depuis les routes immersives
+  async getChatCompletion(
+    messages: ChatCompletionRequestMessage[],
+    temperature?: number,
+    maxTokens?: number,
+    options?: { responseFormat?: string, useSecondaryKey?: boolean }
+  ): Promise<string>;
+  
   // Surcharge de la méthode pour compatibilité avec l'interface d'origine
   async getChatCompletion(
     messages: ChatCompletionRequestMessage[],
