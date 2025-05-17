@@ -110,7 +110,7 @@ export default function LearningCenter() {
       duration: '2-3h',
       level: 'débutant',
       category: 'fondamentaux',
-      tags: ['concepts', 'principes', 'introduction'],
+      tags: ['concepts', 'principes', 'introduction', 'sensibilisation', 'culture sécurité'],
       progress: 0,
       destination: '/cyber/learning-center/modules/intro-cybersecurite'
     },
@@ -134,7 +134,7 @@ export default function LearningCenter() {
       duration: '4-5h',
       level: 'intermédiaire',
       category: 'fondamentaux',
-      tags: ['risques', 'analyse', 'méthodologie'],
+      tags: ['risques', 'analyse', 'méthodologie', 'gouvernance', 'conformité', 'EBIOS'],
       progress: 0,
       destination: '/cyber/learning-center/modules/analyse-risques'
     },
@@ -162,7 +162,7 @@ export default function LearningCenter() {
       duration: '6-8h',
       level: 'intermédiaire',
       category: 'technique',
-      tags: ['réseau', 'firewall', 'IDS/IPS'],
+      tags: ['réseau', 'firewall', 'IDS/IPS', 'VPN', 'segmentation', 'endpoints'],
       progress: 0,
       destination: '/cyber/learning-center/modules/securite-reseaux'
     },
@@ -290,7 +290,7 @@ export default function LearningCenter() {
       duration: '45-60min',
       level: 'débutant',
       category: 'micro-learning',
-      tags: ['ransomware', 'malware', 'prévention'],
+      tags: ['ransomware', 'malware', 'prévention', 'incidents', 'gestion de crise', 'forensique'],
       progress: 0,
       destination: '/cyber/learning-center/modules/ransomware'
     },
