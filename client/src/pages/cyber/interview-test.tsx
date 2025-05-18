@@ -355,10 +355,10 @@ export default function CyberInterviewTest() {
       <div className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white pb-20">
         <div className="container mx-auto py-8 px-4 cyber-interview-test">
           <div className="flex items-center mb-8">
-            <Link href="/cyber">
+            <Link href="/cyber/roleplay">
               <Button variant="ghost" className="text-white mr-4">
                 <ArrowLeft className="mr-2 h-5 w-5" />
-                Retour
+                Retour aux jeux de rôle
               </Button>
             </Link>
             <h1 className="text-3xl font-bold font-[Rajdhani] tracking-wide text-white">TEST D'ENTRETIEN CYBERSÉCURITÉ</h1>
