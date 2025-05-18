@@ -406,33 +406,20 @@ export default function ProspectPulse() {
     isInitial: boolean = false
   ): Promise<string> => {
     try {
-      const formattedMessages = currentMessages.map(msg => ({
-        role: msg.sender === 'user' ? 'user' : 'assistant',
-        content: msg.content
+      // Formatage de l'historique des messages pour le serveur
+      const sessionHistory = currentMessages.map(msg => ({
+        content: msg.content,
+        sender: msg.sender
       }));
       
-      const systemPrompt = `Tu es un client qui contacte un Senior Manager de cabinet de conseil. 
-Tu as le profil suivant :
-- Type: ${clientProfile.type}
-- Personnalité: ${clientProfile.personality}
-- Contexte: ${clientProfile.context}
-
-${isInitial 
-  ? "Commence la conversation en demandant de l'aide pour une problématique. Sois bref (max 2 phrases)." 
-  : "Continue la conversation en fonction des réponses du consultant. Ne donne pas trop d'informations d'un coup, sois réaliste."
-}
-
-Ton objectif est de tester sa réactivité, sa capacité à poser les bonnes questions et à convaincre.
-Si le consultant fait une proposition pertinente qui correspond à tes besoins, montre de l'intérêt.
-Si ses réponses sont vagues ou inappropriées, montre ton insatisfaction.
-`;
-      
+      // Laisser le serveur gérer le système prompt sophistiqué
+      // Le contrôleur côté serveur a une logique enrichie pour les profils clients
       const payload = {
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...formattedMessages
-        ],
+        userMessage: currentMessages.length > 0 && currentMessages[currentMessages.length - 1].sender === 'user' 
+          ? currentMessages[currentMessages.length - 1].content 
+          : '',
         clientProfile: clientProfile,
+        sessionHistory: sessionHistory,
         isInitial: isInitial
       };
       
