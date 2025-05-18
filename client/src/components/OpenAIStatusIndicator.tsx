@@ -229,15 +229,12 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
                   text-white border-none`}
               >
                 {status === 'connected' ? (
-                  <CheckCircle className="w-2.5 sm:w-3 h-2.5 sm:h-3 mr-0.5 sm:mr-1" />
+                  <CheckCircle className="w-2.5 sm:w-3 h-2.5 sm:h-3" />
                 ) : status === 'disconnected' ? (
-                  <XCircle className="w-2.5 sm:w-3 h-2.5 sm:h-3 mr-0.5 sm:mr-1" />
+                  <XCircle className="w-2.5 sm:w-3 h-2.5 sm:h-3" />
                 ) : (
-                  <LoaderCircle className="w-2.5 sm:w-3 h-2.5 sm:h-3 mr-0.5 sm:mr-1 animate-spin" />
+                  <LoaderCircle className="w-2.5 sm:w-3 h-2.5 sm:h-3 animate-spin" />
                 )}
-                <span className="text-[10px] sm:text-xs font-medium">
-                  {status === 'connected' ? 'Connecté' : status === 'disconnected' ? 'Déconnecté' : status === 'reconnecting' ? 'Reconnexion...' : 'Vérification...'}
-                </span>
               </Badge>
 
               {/* Bouton de vérification ou de reconnexion selon l'état - responsive */}
