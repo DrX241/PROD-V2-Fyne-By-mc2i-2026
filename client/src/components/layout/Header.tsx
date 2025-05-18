@@ -60,15 +60,13 @@ export default function Header({ isFeny = false }) {
     <header className={`w-full max-w-[100vw] overflow-hidden fixed top-0 left-0 right-0 z-50 ${headerBgClass}`}>
       <div className="w-full px-3 sm:px-5 md:px-8 py-3 sm:py-4 flex items-center justify-between">
         <div className="flex items-center">
-
-
           <a href="/"
             className="flex items-center cursor-pointer"
           >
-            <img src={mclogo} alt="mc2i Logo" className="h-7 sm:h-9" />
+            <img src={mclogo} alt="mc2i Logo" className="h-7 sm:h-8 md:h-9" />
           </a>
         </div>
-        <div className="flex items-center gap-2 sm:gap-5">
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-5">
           {/* Indicateur OpenAI affiché dans tous les cas */}
           <div className="flex items-center">
             <OpenAIStatusIndicator position="in-header" showModelToggle={true} />
@@ -76,8 +74,8 @@ export default function Header({ isFeny = false }) {
           
           {/* Affichage de l'utilisateur existant */}
           {userName && (
-            <div className="flex items-center gap-1 sm:gap-2 mr-3">
-              <div className={`h-6 w-6 sm:h-8 sm:w-8 rounded-full ${userInitialBgClass} flex items-center justify-center font-medium text-xs sm:text-base`}>
+            <div className="flex items-center gap-1 sm:gap-2 mr-1 sm:mr-2 md:mr-3">
+              <div className={`h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 rounded-full ${userInitialBgClass} flex items-center justify-center font-medium text-xs sm:text-sm md:text-base`}>
                 {userInitial}
               </div>
               <span className={`${userNameClass} text-xs sm:text-sm font-medium hidden sm:inline-block`}>

@@ -44,7 +44,7 @@
   color: initial !important;
 }
 
-/* Optimisations responsive pour les appareils mobiles */
+/* Optimisations responsive pour tous les appareils */
 @layer base {
   html {
     -webkit-tap-highlight-color: transparent;
@@ -52,28 +52,74 @@
     -webkit-text-size-adjust: 100%;
   }
   
+  /* Base styles pour tous les écrans */
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  
+  .text-pretty {
+    text-wrap: pretty;
+    word-break: break-word;
+    hyphens: auto;
+  }
+  
+  /* Améliore la zone interactive pour les boutons sur tous les appareils */
+  button, [role="button"] {
+    min-height: 36px;
+    min-width: 36px;
+  }
+  
+  /* Petits écrans (téléphones) */
   @media (max-width: 640px) {
-    /* Optimisations pour les écrans mobiles */
-    .text-pretty {
-      text-wrap: pretty;
-      word-break: break-word;
-      hyphens: auto;
-    }
-    
-    /* Ajustement de la taille des polices pour une meilleure lisibilité sur mobile */
     body {
       font-size: 14px;
     }
     
-    /* Améliore la zone interactive pour les boutons sur mobile */
-    button, [role="button"] {
-      min-height: 36px;
-      min-width: 36px;
+    h1 {
+      font-size: 1.75rem !important;
+    }
+    
+    h2 {
+      font-size: 1.5rem !important;
+    }
+    
+    h3 {
+      font-size: 1.25rem !important;
+    }
+    
+    /* Améliore les marges et espacements sur mobile */
+    .container {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+    
+    /* Assurer que les contenus larges sont bien contenus */
+    pre, code, img, video, iframe {
+      max-width: 100% !important;
+    }
+  }
+  
+  /* Tablettes */
+  @media (min-width: 641px) and (max-width: 1024px) {
+    /* Ajustements spécifiques pour les tablettes */
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+  
+  /* Optimisations d'impression */
+  @media print {
+    body {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
   }
 }
 
 /* Formes de cartes futuristes pour Cyber Mode Selection */
+/* Styles standards pour écrans larges */
 .card-clip-path-1 {
   clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%, 5% 50%);
   border-radius: 12px;
@@ -94,10 +140,28 @@
   border-radius: 12px;
 }
 
+/* Version responsive pour mobiles - clippath simplifiés */
+@media (max-width: 640px) {
+  .card-clip-path-1,
+  .card-clip-path-2,
+  .card-clip-path-3,
+  .card-clip-path-4 {
+    clip-path: polygon(0 0, 100% 0, 98% 100%, 2% 100%);
+    border-radius: 8px;
+  }
+}
+
 /* Formes de cartes pour AMOA - Styles de documents professionnels */
 .amoa-card-1 {
   clip-path: polygon(0 0, 92% 0, 100% 8%, 100% 100%, 0 100%);
   border-radius: 0;
+}
+
+/* Version responsive pour mobiles */
+@media (max-width: 640px) {
+  .amoa-card-1 {
+    clip-path: polygon(0 0, 95% 0, 100% 5%, 100% 100%, 0 100%);
+  }
 }
 
 .amoa-card-2 {

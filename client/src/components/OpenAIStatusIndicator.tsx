@@ -214,7 +214,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
   }
 
   return (
-    <div className={`flex items-center space-x-2 ${positionStyles} ${className}`}>
+    <div className={`flex items-center space-x-1 sm:space-x-2 ${positionStyles} ${className}`}>
       {/* Indicateur de statut FYNE */}
       <TooltipProvider>
         <Tooltip>
@@ -222,7 +222,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
             <div className="flex items-center">
               <Badge 
                 variant="outline"
-                className={`px-1.5 sm:px-2 py-1 flex items-center gap-0.5 sm:gap-1 
+                className={`px-1 sm:px-2 py-0.5 sm:py-1 flex items-center gap-0.5 sm:gap-1 
                   ${status === 'connected' ? 'bg-green-700' : 
                     status === 'disconnected' ? 'bg-red-700' : 
                     status === 'reconnecting' ? 'bg-orange-700' : 'bg-yellow-700'} 
@@ -245,23 +245,23 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
                 <Button 
                   variant="outline"
                   size="icon"
-                  className="h-5 w-5 sm:h-6 sm:w-6 ml-1 rounded-full bg-white"
+                  className="h-4 w-4 xs:h-5 xs:w-5 sm:h-6 sm:w-6 ml-1 rounded-full bg-white"
                   onClick={forceReconnect}
                   disabled={isReconnecting}
                   title="Forcer la reconnexion"
                 >
-                  <RefreshCw className={`h-2.5 w-2.5 sm:h-3 sm:w-3 ${isReconnecting ? 'animate-spin' : ''} text-red-500`} />
+                  <RefreshCw className={`h-2 w-2 xs:h-2.5 xs:w-2.5 sm:h-3 sm:w-3 ${isReconnecting ? 'animate-spin' : ''} text-red-500`} />
                 </Button>
               ) : (
                 <Button 
                   variant="outline"
                   size="icon"
-                  className="h-5 w-5 sm:h-6 sm:w-6 ml-1 rounded-full bg-white"
+                  className="h-4 w-4 xs:h-5 xs:w-5 sm:h-6 sm:w-6 ml-1 rounded-full bg-white"
                   onClick={checkStatus}
                   disabled={isRefreshing}
                   title="Vérifier la connexion"
                 >
-                  <LoaderCircle className={`h-2.5 w-2.5 sm:h-3 sm:w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  <LoaderCircle className={`h-2 w-2 xs:h-2.5 xs:w-2.5 sm:h-3 sm:w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
                 </Button>
               )}
             </div>
