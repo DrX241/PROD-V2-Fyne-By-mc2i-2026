@@ -898,6 +898,50 @@ export default function CISOChallenge() {
     });
   };
 
+  // Fonction pour demander une analyse IA de la situation actuelle
+  const requestAIAnalysis = async () => {
+    if (!gameState) return;
+    
+    try {
+      setAiAnalysisLoading(true);
+      
+      // Dans une application réelle, ceci appellerait une API pour générer des recommandations IA
+      // Ici nous simulons l'appel avec un délai et une réponse prédéfinie
+      setTimeout(() => {
+        const threatLevel = gameState.threatLevel;
+        
+        let recommendation = "";
+        if (threatLevel > 80) {
+          recommendation = "ALERTE CRITIQUE : La situation nécessite une mobilisation immédiate de toutes les ressources disponibles. Isolez les systèmes infectés, activez le plan de continuité d'activité et communiquez avec les parties prenantes.";
+        } else if (threatLevel > 60) {
+          recommendation = "NIVEAU D'ALERTE ÉLEVÉ : Traitez cette situation comme prioritaire. Mobilisez l'équipe de réponse aux incidents, vérifiez les sauvegardes et préparez la communication de crise.";
+        } else if (threatLevel > 40) {
+          recommendation = "ALERTE MODÉRÉE : Continuez la surveillance active. Augmentez la fréquence des analyses de sécurité et préparez des ressources supplémentaires en cas d'escalade.";
+        } else {
+          recommendation = "NIVEAU D'ALERTE BAS : Maintenez une vigilance standard. Procédez à des vérifications de routine et documentez toutes les observations inhabituelles.";
+        }
+        
+        setAiSuggestion(recommendation);
+        setShowAiAssistant(true);
+        setAiAnalysisLoading(false);
+        
+        toast({
+          title: 'Analyse IA terminée',
+          description: 'De nouvelles recommandations sont disponibles',
+        });
+      }, 1500);
+      
+    } catch (error) {
+      console.error("Échec de l'analyse IA:", error);
+      setAiAnalysisLoading(false);
+      toast({
+        title: 'Erreur',
+        description: "Impossible d'obtenir l'analyse IA",
+        variant: 'destructive'
+      });
+    }
+  };
+
   // Redémarrer le jeu
   const restartGame = () => {
     try {
@@ -906,14 +950,14 @@ export default function CISOChallenge() {
       setGameOverDialog(false);
       setActiveTab('dashboard');
       toast({
-        title: 'Game restarted',
-        description: 'The scenario has been reset',
+        title: 'Jeu redémarré',
+        description: 'Le scénario a été réinitialisé',
       });
     } catch (error) {
-      console.error("Failed to restart game:", error);
+      console.error("Échec du redémarrage du jeu:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to restart the game',
+        title: 'Erreur',
+        description: 'Échec du redémarrage du jeu',
         variant: 'destructive'
       });
     }
@@ -950,7 +994,7 @@ export default function CISOChallenge() {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-900">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">Loading CISO Challenge...</h2>
+          <h2 className="text-2xl font-bold text-white mb-4">Chargement du CISO Challenge...</h2>
           <div className="w-16 h-16 border-4 border-t-cyan-500 border-gray-700 rounded-full animate-spin mx-auto"></div>
         </div>
       </div>
@@ -971,6 +1015,18 @@ export default function CISOChallenge() {
               <Clock className="w-5 h-5 text-cyan-400 mr-2" />
               <span className="text-white font-mono text-lg">{formatGameTime(gameState.currentTime)}</span>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className={`bg-indigo-700 hover:bg-indigo-600 text-white border-none ${aiAnalysisLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={requestAIAnalysis}
+              disabled={aiAnalysisLoading}
+            >
+              {aiAnalysisLoading ? 
+                <><BrainCircuit className="mr-1 h-5 w-5 animate-pulse" /> Analyse en cours...</> : 
+                <><BrainCircuit className="mr-1 h-5 w-5" /> Assistant IA</>
+              }
+            </Button>
             <div className="flex space-x-2">
               <Button
                 variant="outline"
@@ -982,7 +1038,7 @@ export default function CISOChallenge() {
                   <PlayCircle className="w-5 h-5 text-green-500 mr-1" /> : 
                   <PauseCircle className="w-5 h-5 text-cyan-500 mr-1" />
                 }
-                {gameState.paused ? 'Start' : 'Pause'}
+                {gameState.paused ? 'Démarrer' : 'Pause'}
               </Button>
               <div className="flex items-center space-x-2 bg-slate-700 rounded-md px-2 py-1">
                 <Button 
