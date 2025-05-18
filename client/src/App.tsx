@@ -176,6 +176,14 @@ function App() {
                 <Route path="/cyber/interview-simulation" component={NotYetImplemented} />
                 <Route path="/amoa/interview-simulation" component={AmoaInterviewSimulation} />
                 <Route path="/amoa/expert-learning" component={AmoaExpertLearningPage} />
+                <Route path="/amoa/roleplay" component={() => {
+                  const AmoaRoleplay = lazy(() => import('./pages/amoa/roleplay'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <AmoaRoleplay />
+                    </Suspense>
+                  );
+                }} />
                 <Route path="/amoa/synthese-entretien" component={() => {
                   const SyntheseEntretien = lazy(() => import('./pages/amoa/synthese-entretien'));
                   return (
