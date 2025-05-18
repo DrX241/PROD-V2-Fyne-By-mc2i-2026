@@ -248,8 +248,10 @@ export async function generateClientMessage(req: Request, res: Response) {
   try {
     const { userMessage, clientProfile, sessionHistory, isTimeout, isInitial } = req.body;
 
+    // Permettre les messages initiaux, les timeouts, ou un message utilisateur normal
+    // isInitial = true signifie que c'est le premier message envoyé par le client AI
     if (!userMessage && !isTimeout && !isInitial) {
-      return res.status(400).json({ error: 'Message utilisateur requis' });
+      return res.status(400).json({ error: 'Message utilisateur requis si ce n\'est ni un timeout ni un message initial' });
     }
 
     if (!clientProfile) {
