@@ -219,12 +219,12 @@ function initializeGameState(scenarioId: string): GameState {
   // Données de scénario fictives pour la démonstration
   const scenarios = {
     'ransomware': {
-      title: 'Ransomware Attack',
-      description: 'The organization has been hit by a sophisticated ransomware attack affecting critical systems. Files have been encrypted and a ransom note demands payment within 48 hours.',
+      title: 'Attaque par Rançongiciel',
+      description: 'L\'organisation a été touchée par une attaque sophistiquée de rançongiciel affectant les systèmes critiques. Les fichiers ont été chiffrés et une demande de rançon exige un paiement sous 48 heures.',
       threatLevel: 80,
       reputation: 70,
       budget: 50000,
-      timeRemaining: 48 * 60, // 48 hours in minutes
+      timeRemaining: 48 * 60, // 48 heures en minutes
     },
     'data-breach': {
       title: 'Customer Data Breach',
@@ -500,7 +500,10 @@ function initializeGameState(scenarioId: string): GameState {
       breakdown: []
     },
     gameOver: false,
-    gameWon: false
+    gameWon: false,
+    aiAssistantActive: true,
+    aiSuggestion: `L'analyse de la menace "${scenario.title}" indique un niveau de risque ${scenario.threatLevel > 75 ? 'critique' : scenario.threatLevel > 50 ? 'élevé' : 'modéré'}. Recommandation initiale : évaluez l'étendue de l'incident et mobilisez l'équipe de réponse.`,
+    aiAnalysisInProgress: false
   };
 }
 
@@ -513,6 +516,9 @@ export default function CISOChallenge() {
   const [showDecisionDialog, setShowDecisionDialog] = useState<boolean>(false);
   const [currentDecision, setCurrentDecision] = useState<Decision | null>(null);
   const [gameOverDialog, setGameOverDialog] = useState<boolean>(false);
+  const [aiAnalysisLoading, setAiAnalysisLoading] = useState<boolean>(false);
+  const [showAiAssistant, setShowAiAssistant] = useState<boolean>(false);
+  const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialiser le jeu
@@ -520,11 +526,16 @@ export default function CISOChallenge() {
     try {
       const initialState = initializeGameState(scenarioId || 'ransomware');
       setGameState(initialState);
+      
+      // Initialiser l'assistant IA
+      if (initialState.aiSuggestion) {
+        setAiSuggestion(initialState.aiSuggestion);
+      }
     } catch (error) {
-      console.error("Failed to initialize game:", error);
+      console.error("Échec d'initialisation du jeu:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to initialize the game scenario',
+        title: 'Erreur',
+        description: "Échec de l'initialisation du scénario de jeu",
         variant: 'destructive'
       });
     }
