@@ -25,10 +25,10 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
   const [isToggling, setIsToggling] = useState<boolean>(false);
   const [isReconnecting, setIsReconnecting] = useState<boolean>(false);
   const { toast } = useToast();
-  
+
   // Formate la date du dernier check
   const formattedLastCheck = lastCheck ? new Date(lastCheck).toLocaleTimeString() : 'Jamais';
-  
+
   // Fonction pour vérifier le statut
   const checkStatus = async () => {
     setIsRefreshing(true);
@@ -37,11 +37,11 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
       if (response.ok) {
         const data = await response.json();
         setStatus(data.connectionStatus || 'disconnected');
-        
+
         // Définir le modèle courant
         const model = data.currentModel || 'Inconnu';
         setCurrentModel(model);
-        
+
         // Ne pas changer automatiquement le type de clé API si un changement est déjà en cours
         // ou si l'utilisateur vient de changer le mode manuellement
         if (!isToggling) {
@@ -50,9 +50,9 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
           const keyType = (model === 'gpt-4o-mini') ? 'secondary' : 'primary';
           setApiKeyType(keyType);
         }
-        
+
         setLastCheck(data.lastCheck || Date.now());
-        
+
         console.log('État mis à jour :', {
           status: data.connectionStatus,
           model,
@@ -69,7 +69,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
       setIsRefreshing(false);
     }
   };
-  
+
   // Fonction pour forcer la reconnexion à Azure OpenAI
   const forceReconnect = async () => {
     setIsReconnecting(true);
@@ -81,10 +81,10 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
           'Content-Type': 'application/json',
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        
+
         if (data.success) {
           setStatus('connected');
           toast({
@@ -99,18 +99,18 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
             description: 'Tentative de reconnexion à FYNE en cours. Veuillez patienter...',
             variant: 'default',
           });
-          
+
           // Vérifier à nouveau après 5 secondes
           setTimeout(checkStatus, 5000);
         }
-        
+
         // Mettre à jour les autres informations
         setLastCheck(data.lastCheck || Date.now());
         const modelName = data.currentModel || 'gpt-4o-mini';
         setCurrentModel(modelName);
         const keyType = (modelName === 'gpt-4o-mini') ? 'secondary' : 'primary';
         setApiKeyType(keyType);
-        
+
         console.log('Tentative de reconnexion:', data);
       } else {
         setStatus('disconnected');
@@ -132,17 +132,17 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
       setIsReconnecting(false);
     }
   };
-  
+
   // Fonction pour basculer entre les modèles
   const toggleModel = async () => {
     setIsToggling(true);
     try {
       // Récupérer le nouveau type de clé
       const newKeyType = apiKeyType === 'primary' ? 'secondary' : 'primary';
-      
+
       // Définir d'abord localement le mode éco
       setApiKeyType(newKeyType);
-      
+
       // Puis faire la demande au serveur
       const response = await fetch('/api/cyber/switch-api-key', {
         method: 'POST',
@@ -151,26 +151,26 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
         },
         body: JSON.stringify({ keyType: newKeyType }),
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        
+
         // Récupérer le nom du modèle depuis la réponse ou utiliser une valeur par défaut
         const modelName = data.modelName || (newKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini');
         setCurrentModel(modelName);
-        
+
         // Ne pas changer apiKeyType ici, car il a déjà été défini au début
         setStatus(data.connectionStatus || 'checking');
-        
+
         console.log('Changement de modèle réussi:', {
           newKeyType,
           modelName,
           data
         });
-        
+
         // Vérifier le statut après un délai plus long pour permettre au serveur de changer
         setTimeout(checkStatus, 2000);
-        
+
         // Ajouter une seconde vérification après un délai supplémentaire
         setTimeout(checkStatus, 5000);
       } else {
@@ -185,26 +185,26 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
       setIsToggling(false);
     }
   };
-  
+
   // Vérifier le statut au chargement et périodiquement
   useEffect(() => {
     checkStatus();
-    
+
     // Vérifier le statut toutes les 5 minutes
     const intervalId = setInterval(checkStatus, 5 * 60 * 1000);
-    
+
     return () => clearInterval(intervalId);
   }, []);
-  
+
   // Économie activée ou non
   const economyMode = apiKeyType === 'secondary';
-  
+
   // Label du modèle en cours d'utilisation
   const modelLabel = currentModel === 'gpt-4o' ? 'GPT-4o' : 'GPT-4o-mini';
-  
+
   // Styles selon la position
   let positionStyles = '';
-  
+
   if (position === 'fixed-bottom-right') {
     positionStyles = 'fixed bottom-4 right-4 z-50 bg-opacity-90 bg-slate-900 p-2 rounded-md shadow-lg';
   } else if (position === 'fixed-bottom') {
@@ -212,7 +212,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
   } else if (position === 'in-header') {
     positionStyles = 'bg-transparent'; // Style pour l'en-tête
   }
-  
+
   return (
     <div className={`flex items-center space-x-2 ${positionStyles} ${className}`}>
       {/* Indicateur de statut FYNE */}
@@ -239,7 +239,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
                   {status === 'connected' ? 'Connecté' : status === 'disconnected' ? 'Déconnecté' : status === 'reconnecting' ? 'Reconnexion...' : 'Vérification...'}
                 </span>
               </Badge>
-              
+
               {/* Bouton de vérification ou de reconnexion selon l'état - responsive */}
               {status === 'disconnected' ? (
                 <Button 
@@ -293,7 +293,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      
+
       {/* Sélecteur de modèle - Eco mode */}
       {showModelToggle && (
         <TooltipProvider>
@@ -311,28 +311,18 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
                     {modelLabel}
                   </span>
                 </Badge>
-                
+
                 {/* Switch avec badge d'économie - adapté pour le responsive */}
-                <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-white rounded-full shadow-sm">
-                  <Zap className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${economyMode ? 'text-purple-600' : 'text-gray-400'}`} />
-                  <span className={`text-xs font-semibold hidden sm:inline ${economyMode ? 'text-purple-700' : 'text-gray-600'}`}>
-                    Éco
-                  </span>
-                  <Switch
-                    checked={economyMode}
-                    onCheckedChange={(checked) => {
-                      // Si l'utilisateur active le mode éco, on définit le type de clé comme 'secondary'
-                      // Si l'utilisateur désactive le mode éco, on définit le type de clé comme 'primary'
-                      setApiKeyType(checked ? 'secondary' : 'primary'); 
-                      
-                      // Puis on lance le changement côté serveur avec un petit délai
-                      // pour que l'UI reste cohérente
-                      setTimeout(toggleModel, 50);
-                    }}
-                    disabled={isToggling || status === 'checking'}
-                    className="scale-75 sm:scale-100"
-                  />
-                </div>
+                
+                <Switch
+                  checked={economyMode}
+                  onCheckedChange={(checked) => {
+                    setApiKeyType(checked ? 'secondary' : 'primary');
+                    setTimeout(toggleModel, 50);
+                  }}
+                  disabled={isToggling || status === 'checking'}
+                  className="scale-75 sm:scale-100"
+                />
               </div>
             </TooltipTrigger>
             <TooltipContent>
