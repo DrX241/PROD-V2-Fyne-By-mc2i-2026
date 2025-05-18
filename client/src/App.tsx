@@ -866,14 +866,14 @@ function App() {
                   );
                 }} />
                 
-                {/* Route conservée temporairement pour compatibilité */}
+                {/* Route redirectionnée vers /amoa/academie */}
                 <Route path="/amoa/projet-academy" component={() => {
-                  const ProjetAcademy = lazy(() => import('./pages/amoa/projet-academy'));
-                  return (
-                    <Suspense fallback={<GlobalLoader />}>
-                      <ProjetAcademy />
-                    </Suspense>
-                  );
+                  // Redirection vers la page academie
+                  const { navigate } = useLocation();
+                  React.useEffect(() => {
+                    navigate('/amoa/academie');
+                  }, [navigate]);
+                  return <GlobalLoader />;
                 }} />
                 <Route path="/amoa/consultant-lab" component={() => {
                   const ConsultantLab = lazy(() => import('./pages/amoa/consultant-lab'));
