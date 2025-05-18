@@ -59,6 +59,7 @@ interface Message {
   content: string;
   sender: 'user' | 'client';
   timestamp: Date;
+  isPlaying?: boolean;
 }
 
 interface ClientProfile {
@@ -94,12 +95,15 @@ export default function ProspectPulse() {
   const { toast } = useToast();
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   
   // États de l'application
   const [activeSession, setActiveSession] = useState<SimulationSession | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
+  const [currentPlayingMessageId, setCurrentPlayingMessageId] = useState<string | null>(null);
   const [globalTimeLeft, setGlobalTimeLeft] = useState(0);
   const [responseTimeLeft, setResponseTimeLeft] = useState(0);
   const [isSurpriseMode, setIsSurpriseMode] = useState(false);
@@ -230,6 +234,77 @@ export default function ProspectPulse() {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
+  
+  // Fonction pour lire le message à haute voix via l'API de synthèse vocale
+  const playMessageAudio = async (message: Message) => {
+    if (!isAudioEnabled || message.sender !== 'client' || !message.content.trim()) {
+      return;
+    }
+    
+    try {
+      setCurrentPlayingMessageId(message.id);
+      
+      // Récupérer la voix appropriée en fonction du type de client
+      let voiceName = "fr-FR-HenriNeural"; // Voix masculine par défaut
+      let style = "";
+      
+      if (activeSession?.clientProfile.type === 'pressé') {
+        voiceName = "fr-FR-HenriNeural";
+        style = "empressé";
+      } else if (activeSession?.clientProfile.type === 'hostile') {
+        voiceName = "fr-FR-MarcNeural";
+        style = "peu amical";
+      } else if (activeSession?.clientProfile.type === 'indécis') {
+        voiceName = "fr-FR-JeromeNeural";
+        style = "incertain";
+      } else if (activeSession?.clientProfile.type === 'technique') {
+        voiceName = "fr-FR-AlainNeural";
+        style = "professionnel";
+      } else if (activeSession?.clientProfile.type === 'débutant') {
+        voiceName = "fr-FR-YvesNeural";
+        style = "amical";
+      }
+      
+      // Appel à l'API de synthèse vocale
+      const response = await fetch('/api/audio/text-to-speech', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: message.content,
+          voiceName: voiceName,
+          language: 'fr-FR',
+          style: style
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la synthèse vocale');
+      }
+      
+      // Créer un blob audio à partir de la réponse
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      // Lire l'audio
+      if (audioRef.current) {
+        audioRef.current.src = audioUrl;
+        audioRef.current.play().catch(error => {
+          console.error('Erreur de lecture audio:', error);
+          setCurrentPlayingMessageId(null);
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la lecture audio:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de lire le message audio. Veuillez réessayer.",
+        variant: "destructive",
+      });
+      setCurrentPlayingMessageId(null);
+    }
+  };
   
   // Fonction pour déclencher une session surprise
   const triggerSurpriseSession = () => {
@@ -916,6 +991,24 @@ export default function ProspectPulse() {
                     <span className="text-xs ml-2 text-opacity-70 text-slate-300">
                       {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
+                    
+                    {/* Bouton audio pour les messages client */}
+                    {message.sender === 'client' && isAudioEnabled && (
+                      <button 
+                        className="ml-2 rounded-full flex items-center justify-center p-1 bg-blue-900/50 hover:bg-blue-800/50 transition-colors border border-blue-700/30"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          playMessageAudio(message);
+                        }}
+                        disabled={currentPlayingMessageId === message.id}
+                      >
+                        {currentPlayingMessageId === message.id ? (
+                          <Loader2 className="h-3 w-3 text-blue-300 animate-spin" />
+                        ) : (
+                          <Volume2 className="h-3 w-3 text-blue-300" />
+                        )}
+                      </button>
+                    )}
                   </div>
                   <div className="whitespace-pre-line">{message.content}</div>
                 </div>
