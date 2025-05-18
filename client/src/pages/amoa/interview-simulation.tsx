@@ -624,7 +624,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
           <Button 
             variant="ghost" 
             className="text-white hover:text-white hover:bg-blue-800"
-            onClick={() => navigate("/amoa")}
+            onClick={() => navigate("/amoa/roleplay")}
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Retour
