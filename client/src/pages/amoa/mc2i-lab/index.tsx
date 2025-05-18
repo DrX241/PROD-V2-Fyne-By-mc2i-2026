@@ -64,26 +64,26 @@ export default function Mc2iLab() {
       <PageTitle title="mc2i LAB" />
       <div className="min-h-screen bg-gradient-to-b from-indigo-950 to-slate-950 text-white py-8">
         <div className="container mx-auto px-4">
-          <div className="flex items-center mb-8">
+          <div className="flex items-center mb-6 sm:mb-8">
             <Button 
               variant="ghost" 
-              className="text-white mr-2" 
+              className="text-white mr-2 px-2 sm:px-3" 
               onClick={() => navigate('/amoa/new')}
             >
-              <ArrowLeft className="h-5 w-5 mr-2" />
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
               Retour
             </Button>
-            <h1 className="text-3xl font-bold">mc2i LAB</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">mc2i LAB</h1>
           </div>
 
-          <div className="mb-8">
-            <p className="text-xl text-indigo-300 max-w-3xl">
+          <div className="mb-6 sm:mb-8">
+            <p className="text-lg sm:text-xl text-indigo-300 max-w-3xl">
               Environnement d'apprentissage pour maîtriser l'analyse et la transformation métier
             </p>
-            <div className="w-32 h-1 bg-indigo-600 mt-4 mb-10"></div>
+            <div className="w-24 sm:w-32 h-1 bg-indigo-600 mt-3 sm:mt-4 mb-6 sm:mb-10"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {modules.map((module, index) => (
               <motion.div
                 key={module.id}
@@ -92,35 +92,35 @@ export default function Mc2iLab() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Card className={`bg-gradient-to-br ${module.gradient} border-0 shadow-lg h-full flex flex-col overflow-hidden`}>
-                  <CardHeader className="pb-2">
+                  <CardHeader className="pb-2 pt-4 sm:pt-5 px-3 sm:px-5">
                     <div className="flex justify-between items-start">
-                      <div className="p-3 bg-white/10 rounded-lg mb-3">
+                      <div className="p-2 sm:p-3 bg-white/10 rounded-lg mb-2 sm:mb-3">
                         {module.icon}
                       </div>
-                      <Badge variant="outline" className="bg-white/10 border-white/20">
+                      <Badge variant="outline" className="bg-white/10 border-white/20 text-xs sm:text-sm">
                         {module.status === 'coming-soon' ? 'Bientôt disponible' : 'Actif'}
                       </Badge>
                     </div>
-                    <CardTitle className="text-xl font-bold text-white">{module.title}</CardTitle>
-                    <CardDescription className={`${module.textColor}`}>
+                    <CardTitle className="text-lg sm:text-xl font-bold text-white">{module.title}</CardTitle>
+                    <CardDescription className={`${module.textColor} text-sm sm:text-base`}>
                       {module.description}
                     </CardDescription>
                   </CardHeader>
                   
-                  <CardContent className="pb-4 flex-grow">
-                    <div className="space-y-2 mt-2">
+                  <CardContent className="pb-3 sm:pb-4 flex-grow px-3 sm:px-5">
+                    <div className="space-y-1 sm:space-y-2 mt-1 sm:mt-2">
                       {module.features.map((feature, i) => (
                         <div key={i} className="flex items-start">
-                          <ChevronRight className="h-5 w-5 mr-2 mt-0.5 text-white/60" />
-                          <p className="text-sm text-white/80">{feature}</p>
+                          <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 mr-2 mt-0.5 text-white/60 flex-shrink-0" />
+                          <p className="text-xs sm:text-sm text-white/80">{feature}</p>
                         </div>
                       ))}
                     </div>
                   </CardContent>
                   
-                  <CardFooter>
+                  <CardFooter className="px-3 sm:px-5 pb-4 sm:pb-5">
                     <Button 
-                      className={`w-full ${module.buttonColor} text-white`}
+                      className={`w-full ${module.buttonColor} text-white text-sm sm:text-base py-1.5 sm:py-2`}
                       disabled={module.status === 'coming-soon'}
                       onClick={() => module.status !== 'coming-soon' && navigate(`/amoa/mc2i-lab/${module.id}`)}
                     >
