@@ -229,7 +229,7 @@ export default function AmoaModeSelectionNew() {
                     ? 'bg-gray-800 border border-gray-700' 
                     : 'bg-gradient-to-br from-indigo-600 to-indigo-900 border-2 border-indigo-400/50 shadow-lg shadow-indigo-500/50'
                 } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
-                onClick={() => navigate('/amoa/projet-academy')}
+                onClick={() => navigate('/amoa/academie')}
               >
                 <div className="flex items-center justify-center mb-4">
                   <div className={`p-3 rounded-lg ${
@@ -240,7 +240,7 @@ export default function AmoaModeSelectionNew() {
                     <BsClipboardCheck className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <h3 className="text-center text-2xl font-bold mb-2">PROJET ACADEMY</h3>
+                <h3 className="text-center text-2xl font-bold mb-2">mc2i ACADEMIE</h3>
                 <p className="text-center text-indigo-300 mt-2">
                   Centre de formation aux méthodes et outils de gestion de projet mc2i
                 </p>
@@ -252,7 +252,7 @@ export default function AmoaModeSelectionNew() {
                     className="bg-gradient-to-r from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-white px-6 py-5"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate('/amoa/projet-academy');
+                      navigate('/amoa/academie');
                     }}
                   >
                     Explorer les formations

@@ -857,6 +857,16 @@ function App() {
                     </Suspense>
                   );
                 }} />
+                <Route path="/amoa/academie" component={() => {
+                  const MciiAcademie = lazy(() => import('./pages/amoa/academie'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <MciiAcademie />
+                    </Suspense>
+                  );
+                }} />
+                
+                {/* Route conservée temporairement pour compatibilité */}
                 <Route path="/amoa/projet-academy" component={() => {
                   const ProjetAcademy = lazy(() => import('./pages/amoa/projet-academy'));
                   return (
