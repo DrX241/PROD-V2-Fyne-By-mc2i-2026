@@ -8,6 +8,7 @@ import {
   AlertCircle,
   CheckCircle,
   XCircle,
+  Timer,
   User,
   Bot,
   Zap,
@@ -482,7 +483,7 @@ Si ses réponses sont vagues ou inappropriées, montre ton insatisfaction.
     toast({
       title: "Attention !",
       description: "Vous avez mis trop de temps à répondre. Le client s'impatiente.",
-      variant: "warning",
+      variant: "destructive",
     });
     
     // Ajouter un message d'impatience du client

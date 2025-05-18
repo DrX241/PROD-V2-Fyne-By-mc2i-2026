@@ -96,7 +96,7 @@ ${clientProfile.type === 'débutant' ? 'Montre que tu ne maîtrises pas bien le 
     // Formatage de la réponse
     const clientMessage = {
       id: uuidv4(),
-      content: response.content,
+      content: response, // Le service retourne directement le contenu comme une chaîne
       sender: 'client',
       timestamp: new Date()
     };
@@ -134,7 +134,7 @@ Contexte: ${session.clientProfile.context}
 Historique de la conversation:
 `;
 
-    session.messages.forEach(msg => {
+    session.messages.forEach((msg: Message) => {
       const role = msg.sender === 'user' ? 'Consultant' : 'Client';
       conversationText += `${role}: ${msg.content}\n`;
     });
@@ -181,7 +181,7 @@ Format de réponse (JSON):
 
       // Analyse de la réponse JSON
       try {
-        const evaluation = JSON.parse(evaluationResponse.content);
+        const evaluation = JSON.parse(evaluationResponse); // Le service retourne directement le contenu comme une chaîne
         return res.status(200).json(evaluation);
       } catch (jsonError) {
         console.error('Erreur lors du parsing du JSON de l\'évaluation:', jsonError);
