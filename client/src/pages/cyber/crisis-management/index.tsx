@@ -192,10 +192,10 @@ export default function CrisisManagement() {
       <div className="container mx-auto py-8 px-4">
         {/* Header avec bouton retour */}
         <div className="flex items-center mb-8">
-          <Link href="/cyber">
+          <Link href="/cyber/roleplay">
             <Button variant="ghost" className="text-white hover:bg-blue-800/30">
               <IoMdArrowBack className="mr-2 h-5 w-5" />
-              Retour à I AM CYBER
+              Retour aux jeux de rôle
             </Button>
           </Link>
         </div>
