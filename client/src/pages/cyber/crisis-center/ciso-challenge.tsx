@@ -1004,6 +1004,57 @@ export default function CISOChallenge() {
   return (
     <HomeLayout>
       <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-gray-900 to-black">
+        {/* Assistant IA Dialog */}
+        {showAiAssistant && aiSuggestion && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+            <div className="bg-slate-900 border-2 border-indigo-500 rounded-lg max-w-2xl w-full p-6 shadow-lg shadow-indigo-500/20 animate-fadeIn">
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-indigo-700 rounded-full">
+                    <BrainCircuit className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white">IA Stratégique - Analyse de la Situation</h3>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setShowAiAssistant(false)}
+                  className="h-8 w-8 p-0 text-slate-400 hover:text-white"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+              
+              <div className="py-4 px-3 bg-slate-800 rounded-md mb-4">
+                <div className="flex">
+                  <div className="text-indigo-400 mr-2 flex-shrink-0 mt-1">
+                    <Sparkles className="h-5 w-5" />
+                  </div>
+                  <p className="text-white leading-relaxed">{aiSuggestion}</p>
+                </div>
+              </div>
+              
+              <div className="flex justify-end space-x-3">
+                <Button 
+                  variant="outline" 
+                  className="border-indigo-700 text-indigo-400 hover:bg-indigo-950"
+                  onClick={() => setShowAiAssistant(false)}
+                >
+                  Fermer
+                </Button>
+                <Button 
+                  className="bg-indigo-700 hover:bg-indigo-600 text-white"
+                  onClick={() => {
+                    setShowAiAssistant(false);
+                    requestAIAnalysis();
+                  }}
+                >
+                  Nouvelle analyse
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {/* En-tête */}
         <div className="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
           <div>
@@ -1115,7 +1166,7 @@ export default function CISOChallenge() {
 
                 <div>
                   <div className="flex justify-between mb-1">
-                    <span className="text-sm text-slate-300">Time Remaining</span>
+                    <span className="text-sm text-slate-300">Temps Restant</span>
                     <span className="text-sm font-medium text-white">{Math.floor(gameState.timeRemaining / 60)}h {gameState.timeRemaining % 60}m</span>
                   </div>
                   <Progress 
@@ -1129,7 +1180,7 @@ export default function CISOChallenge() {
 
             {/* Équipe */}
             <div className="p-4 border-b border-slate-700 flex-1 overflow-auto">
-              <h2 className="text-lg font-semibold text-white mb-4">Security Team</h2>
+              <h2 className="text-lg font-semibold text-white mb-4">Équipe de Sécurité</h2>
 
               <div className="space-y-3">
                 {gameState.team.map(member => (
@@ -1140,7 +1191,15 @@ export default function CISOChallenge() {
                         <AvatarFallback>{member.name.substring(0, 2)}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <h3 className="text-sm font-medium text-white">{member.name}</h3>
+                        <h3 className="text-sm font-medium text-white flex items-center">
+                          {member.name}
+                          {member.aiAssistance && (
+                            <span className="ml-2 text-xs px-1.5 py-0.5 bg-indigo-800 text-indigo-200 rounded-full flex items-center">
+                              <BrainCircuit className="w-3 h-3 mr-0.5" /> 
+                              IA
+                            </span>
+                          )}
+                        </h3>
                         <p className="text-xs text-slate-400">{member.role}</p>
                       </div>
                     </div>
