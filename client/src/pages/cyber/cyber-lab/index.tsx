@@ -6,7 +6,10 @@ import {
   Shield, 
   Zap,
   ArrowRight,
-  ChevronLeft
+  ChevronLeft,
+  Bot,
+  Code,
+  Settings
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -95,7 +98,7 @@ const CyberLab: React.FC = () => {
       </div>
 
       {/* Modules de laboratoire */}
-      <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto z-10 relative">
+      <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto z-10 relative">
         {/* Module de Pentest Web */}
         <motion.div
           initial="initial"
@@ -194,6 +197,58 @@ const CyberLab: React.FC = () => {
                 onClick={() => setLocation('/cyber/network-lab')}
               >
                 <span>Accéder au laboratoire</span>
+                <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </CardFooter>
+          </Card>
+        </motion.div>
+
+        {/* Module Assistant Cyber Personnalisé */}
+        <motion.div
+          initial="initial"
+          animate="animate"
+          whileHover="hover"
+          transition={{ duration: 0.3, delay: 0.2 }}
+          variants={cardVariants}
+        >
+          <Card className="bg-gray-900/80 border-2 border-emerald-900/50 hover:border-emerald-500 h-full shadow-lg shadow-emerald-900/20 hover:shadow-emerald-800/40 transition-all">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-3xl text-emerald-300 flex items-center gap-3">
+                <Bot className="h-8 w-8" />
+                Créer Votre Assistant Cyber
+              </CardTitle>
+              <CardDescription className="text-gray-300 text-base">
+                Concevez et déployez un assistant IA spécialisé en cybersécurité selon vos besoins
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-base text-gray-300">
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="bg-emerald-900/30 p-2 rounded-full mt-0.5">
+                    <Code className="h-5 w-5 text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-emerald-200 text-lg">IA personnalisable</p>
+                    <p className="text-sm text-gray-300">Développez un assistant spécialisé dans les domaines précis de la cybersécurité qui vous intéressent</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="bg-emerald-900/30 p-2 rounded-full mt-0.5">
+                    <Settings className="h-5 w-5 text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-emerald-200 text-lg">Paramétrage avancé</p>
+                    <p className="text-sm text-gray-300">Configurez le ton, les connaissances et les compétences de votre assistant virtuel</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="pt-4">
+              <Button 
+                className="w-full bg-emerald-900/80 hover:bg-emerald-800 text-white hover:text-white border-2 border-emerald-700 hover:border-emerald-500 py-6 text-lg group"
+                onClick={() => setLocation('/cyber/tools/assistant-cyber')}
+              >
+                <span>Créer mon assistant</span>
                 <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </CardFooter>
