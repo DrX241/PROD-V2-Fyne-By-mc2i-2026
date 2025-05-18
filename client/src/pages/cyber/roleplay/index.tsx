@@ -48,7 +48,7 @@ const RoleplayHub: React.FC = () => {
     {
       id: 'interview-test',
       title: "Test d'Entretien Cybersécurité",
-      description: 'Simulez un entretien d'embauche pour un poste en cybersécurité avec un recruteur IA',
+      description: "Simulez un entretien d'embauche pour un poste en cybersécurité avec un recruteur IA",
       link: '/cyber/interview-test',
       icon: <Briefcase className="h-10 w-10 text-blue-300" />,
       color: 'blue',
@@ -61,7 +61,7 @@ const RoleplayHub: React.FC = () => {
     {
       id: 'test-technique',
       title: 'Test Technique de Cybersécurité',
-      description: 'Mettez vos compétences techniques à l'épreuve dans des situations réalistes',
+      description: "Mettez vos compétences techniques à l'épreuve dans des situations réalistes",
       link: '/cyber/test-technique',
       icon: <Terminal className="h-10 w-10 text-violet-300" />,
       color: 'violet',
@@ -87,7 +87,7 @@ const RoleplayHub: React.FC = () => {
     {
       id: 'crisis-management',
       title: 'Gestion de Crise',
-      description: 'Prenez des décisions critiques lors d'incidents majeurs de cybersécurité',
+      description: "Prenez des décisions critiques lors d'incidents majeurs de cybersécurité",
       link: '/cyber/crisis-management',
       icon: <AlertTriangle className="h-10 w-10 text-rose-300" />,
       color: 'rose',

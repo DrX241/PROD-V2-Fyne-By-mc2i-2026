@@ -359,6 +359,16 @@ function App() {
                   );
                 }} />
                 
+                {/* Route pour le module Cyber Role Play */}
+                <Route path="/cyber/roleplay" component={() => {
+                  const RoleplayComponent = lazy(() => import('./pages/cyber/roleplay/index'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <RoleplayComponent />
+                    </Suspense>
+                  );
+                }} />
+                
                 {/* Section Outils Cyber */}
                 <Route path="/cyber/tools" component={() => {
                   const ToolsPageComponent = lazy(() => import('./pages/cyber/tools'));
