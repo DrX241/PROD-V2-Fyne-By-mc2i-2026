@@ -262,7 +262,7 @@ export default function AmoaModeSelectionNew() {
                     ? 'bg-gray-800 border border-gray-700' 
                     : 'bg-gradient-to-br from-purple-600 to-indigo-900 border-2 border-purple-400/50 shadow-lg shadow-purple-500/50'
                 } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
-                onClick={() => navigate('/amoa/consultant-lab')}
+                onClick={() => navigate('/amoa/mc2i-lab')}
               >
                 <div className="flex items-center justify-center mb-4">
                   <div className={`p-3 rounded-lg ${
@@ -282,7 +282,7 @@ export default function AmoaModeSelectionNew() {
                     className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-5"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate('/amoa/consultant-lab');
+                      navigate('/amoa/mc2i-lab');
                     }}
                   >
                     Accéder au laboratoire

@@ -877,11 +877,11 @@ function App() {
                     </Suspense>
                   );
                 }} />
-                <Route path="/amoa/consultant-lab" component={() => {
-                  const ConsultantLab = lazy(() => import('./pages/amoa/consultant-lab'));
+                <Route path="/amoa/mc2i-lab" component={() => {
+                  const Mc2iLab = lazy(() => import('./pages/amoa/mc2i-lab'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
-                      <ConsultantLab />
+                      <Mc2iLab />
                     </Suspense>
                   );
                 }} />
