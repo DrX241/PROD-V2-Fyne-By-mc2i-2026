@@ -1767,54 +1767,53 @@ export default function CrisisSimulation() {
           {/* Section principale */}
           <Card className="lg:col-span-3 border-border/40 bg-card/80">
             <CardHeader className="pb-2">
+              <div className="flex justify-between items-center mb-4">
+                <Badge variant="outline" className="gap-1 text-xs">
+                  <Calendar className="h-3 w-3" />
+                  Phase {phase + 1}/{scenario.phases.length}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="h-[calc(100vh-350px)]">
               <Tabs value={activeTab} onValueChange={(value) => {
                 setActiveTab(value);
                 if (value === 'chat') markMessagesAsRead();
                 if (value === 'alerts') markAlertsAsRead();
-              }}>
-                <div className="flex justify-between items-center">
-                  <TabsList>
-                    <TabsTrigger value="chat" className="relative">
-                      Messages
-                      {notificationCount.messages > 0 && (
-                        <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center">
-                          {notificationCount.messages}
-                        </Badge>
-                      )}
-                    </TabsTrigger>
-                    <TabsTrigger value="alerts" className="relative">
-                      Alertes
-                      {notificationCount.alerts > 0 && (
-                        <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center">
-                          {notificationCount.alerts}
-                        </Badge>
-                      )}
-                    </TabsTrigger>
-                    <TabsTrigger value="briefing">
-                      Briefing
-                    </TabsTrigger>
-                    <TabsTrigger value="team">
-                      Expertise
-                    </TabsTrigger>
-                  </TabsList>
-                  
-                  <Badge variant="outline" className="gap-1 text-xs">
-                    <Calendar className="h-3 w-3" />
-                    Phase {phase + 1}/{scenario.phases.length}
-                  </Badge>
-                </div>
-              </Tabs>
-            </CardHeader>
-            <CardContent className="h-[calc(100vh-350px)]">
-              <TabsContent value="chat" className="h-full mt-0">
-                {renderChat()}
-              </TabsContent>
-              
-              <TabsContent value="alerts" className="h-full mt-0">
-                <ScrollArea className="h-full pr-4 -mr-4">
-                  {renderAlerts()}
-                </ScrollArea>
-              </TabsContent>
+              }} className="h-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="chat" className="relative">
+                    Messages
+                    {notificationCount.messages > 0 && (
+                      <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center">
+                        {notificationCount.messages}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
+                  <TabsTrigger value="alerts" className="relative">
+                    Alertes
+                    {notificationCount.alerts > 0 && (
+                      <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center">
+                        {notificationCount.alerts}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
+                  <TabsTrigger value="briefing">
+                    Briefing
+                  </TabsTrigger>
+                  <TabsTrigger value="team">
+                    Expertise
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="chat" className="h-[calc(100%-40px)] mt-0">
+                  {renderChat()}
+                </TabsContent>
+                
+                <TabsContent value="alerts" className="h-[calc(100%-40px)] mt-0">
+                  <ScrollArea className="h-full pr-4 -mr-4">
+                    {renderAlerts()}
+                  </ScrollArea>
+                </TabsContent>
               
               <TabsContent value="briefing" className="h-full mt-0">
                 <ScrollArea className="h-full pr-4 -mr-4">
