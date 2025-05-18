@@ -98,7 +98,7 @@ const CyberLab: React.FC = () => {
       </div>
 
       {/* Modules de laboratoire */}
-      <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto z-10 relative">
+      <div className="grid md:grid-cols-2 gap-10 max-w-5xl mx-auto z-10 relative">
         {/* Module de Pentest Web */}
         <motion.div
           initial="initial"
@@ -109,8 +109,8 @@ const CyberLab: React.FC = () => {
         >
           <Card className="bg-gray-900/80 border-2 border-purple-900/50 hover:border-purple-500 h-full shadow-lg shadow-purple-900/20 hover:shadow-purple-800/40 transition-all">
             <CardHeader className="pb-4">
-              <CardTitle className="text-3xl text-purple-300 flex items-center gap-3">
-                <Terminal className="h-8 w-8" />
+              <CardTitle className="text-2xl text-purple-300 flex items-center gap-3 whitespace-nowrap">
+                <Terminal className="h-7 w-7" />
                 Atelier de Pentest Web
               </CardTitle>
               <CardDescription className="text-gray-300 text-base">
@@ -151,57 +151,7 @@ const CyberLab: React.FC = () => {
           </Card>
         </motion.div>
 
-        {/* Module d'analyse réseau */}
-        <motion.div
-          initial="initial"
-          animate="animate"
-          whileHover="hover"
-          transition={{ duration: 0.3, delay: 0.1 }}
-          variants={cardVariants}
-        >
-          <Card className="bg-gray-900/80 border-2 border-cyan-900/50 hover:border-cyan-500 h-full shadow-lg shadow-cyan-900/20 hover:shadow-cyan-800/40 transition-all">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-3xl text-cyan-300 flex items-center gap-3">
-                <Network className="h-8 w-8" />
-                Analyse de trafic réseau
-              </CardTitle>
-              <CardDescription className="text-gray-300 text-base">
-                Analysez des captures réseau pour identifier les menaces et vulnérabilités
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="text-base text-gray-300">
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="bg-cyan-900/30 p-2 rounded-full mt-0.5">
-                    <Shield className="h-5 w-5 text-cyan-400" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-cyan-200 text-lg">Forensique réseau</p>
-                    <p className="text-sm text-gray-300">Explorez des captures PCAP pour détecter les attaques réseau et exfiltrations de données</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="bg-cyan-900/30 p-2 rounded-full mt-0.5">
-                    <Zap className="h-5 w-5 text-cyan-400" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-cyan-200 text-lg">Visualisation de données</p>
-                    <p className="text-sm text-gray-300">Utilisez des outils d'analyse Python pour interpréter les motifs de trafic malveillant</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="pt-4">
-              <Button 
-                className="w-full bg-cyan-900/80 hover:bg-cyan-800 text-white hover:text-white border-2 border-cyan-700 hover:border-cyan-500 py-6 text-lg group"
-                onClick={() => setLocation('/cyber/network-lab')}
-              >
-                <span>Accéder au laboratoire</span>
-                <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </CardFooter>
-          </Card>
-        </motion.div>
+
 
         {/* Module Assistant Cyber Personnalisé */}
         <motion.div
@@ -213,9 +163,9 @@ const CyberLab: React.FC = () => {
         >
           <Card className="bg-gray-900/80 border-2 border-emerald-900/50 hover:border-emerald-500 h-full shadow-lg shadow-emerald-900/20 hover:shadow-emerald-800/40 transition-all">
             <CardHeader className="pb-4">
-              <CardTitle className="text-3xl text-emerald-300 flex items-center gap-3">
-                <Bot className="h-8 w-8" />
-                Créer Votre Assistant Cyber
+              <CardTitle className="text-2xl text-emerald-300 flex items-center gap-3 whitespace-nowrap">
+                <Bot className="h-7 w-7" />
+                Assistant Cyber
               </CardTitle>
               <CardDescription className="text-gray-300 text-base">
                 Concevez et déployez un assistant IA spécialisé en cybersécurité selon vos besoins
