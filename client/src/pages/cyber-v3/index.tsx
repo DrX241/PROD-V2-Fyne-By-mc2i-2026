@@ -92,9 +92,7 @@ export default function CyberV3() {
                   Accueil
                 </DataButton>
               </Link>
-              <div className="ml-6">
-                <h1 className="text-3xl font-bold text-white tracking-tight">Centre de Formation</h1>
-              </div>
+
             </div>
             
             <div className="flex items-center gap-4">
@@ -195,7 +193,7 @@ export default function CyberV3() {
               <span className="text-white">Centre de Formation</span>
               <br />
               <span className="text-6xl mt-2 block tracking-wider bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                Cybersécurité
+                I AM CYBER
               </span>
             </h1>
             <div className="w-40 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 mx-auto my-6 rounded-full"></div>
