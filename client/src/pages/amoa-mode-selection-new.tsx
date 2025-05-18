@@ -12,6 +12,9 @@ import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
+// Import des images mc2i
+import mc2iSloganImage from "@assets/image_1747585779637.png";
+import mc2iLogoImage from "@assets/image_1747585797449.png";
 
 export default function AmoaModeSelectionNew() {
   // États
@@ -26,6 +29,15 @@ export default function AmoaModeSelectionNew() {
         className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-[#006a9e] to-blue-900"
         style={{ fontSize: `${textSize}rem` }}
       >
+        {/* Image slogan mc2i en arrière-plan */}
+        <div className="absolute top-1/2 left-0 transform -translate-y-1/2 opacity-10 z-0 w-full flex justify-center">
+          <img src={mc2iSloganImage} alt="Éclairer et transformer les organisations" className="max-w-3xl w-full object-contain" />
+        </div>
+        
+        {/* Logo mc2i en arrière-plan */}
+        <div className="absolute bottom-10 right-10 opacity-20 z-0">
+          <img src={mc2iLogoImage} alt="Logo mc2i" className="w-40 h-auto" />
+        </div>
         {/* Bouton retour à l'accueil */}
         <div className="absolute top-4 left-4 z-20">
           <Button 
