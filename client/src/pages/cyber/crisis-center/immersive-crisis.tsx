@@ -721,6 +721,11 @@ export default function ImmersiveCrisis() {
     setMessages(prev => [...prev, loadingMessage]);
     
     try {
+      addConsoleOutput([
+        `# Envoi requête pour ${role}`,
+        `> Message: "${userMessage.substring(0, 30)}..."`
+      ]);
+      
       // Appeler l'API dédiée de simulation de crise (endpoint existant)
       const response = await fetch('/api/immersive-crisis/generate-response', {
         method: 'POST',
@@ -748,17 +753,52 @@ export default function ImmersiveCrisis() {
       // Supprimer le message de chargement
       setMessages(prev => prev.filter(m => m.id !== loadingMessage.id));
       
+      // Récupérer le texte brut avant d'essayer de parser du JSON
+      const responseText = await response.text();
+      
       if (!response.ok) {
         // Log l'erreur complète
-        const errorText = await response.text();
-        console.error(`Erreur API ${response.status}:`, errorText);
-        throw new Error(`Erreur de connexion: ${response.status}`);
+        console.error(`Erreur API ${response.status}:`, responseText);
+        
+        let errorDetail = 'Erreur de connexion';
+        try {
+          // Tenter de parser comme JSON pour extraire le message d'erreur
+          const errorJson = JSON.parse(responseText);
+          errorDetail = errorJson.message || `Erreur ${response.status}`;
+        } catch (e) {
+          // Si ce n'est pas du JSON valide
+          errorDetail = `Erreur ${response.status}: Format de réponse invalide`;
+        }
+        
+        addConsoleOutput([
+          `# ERREUR HTTP ${response.status}`,
+          `> ${errorDetail}`,
+          `> Réponse brute: ${responseText.substring(0, 100)}...`
+        ]);
+        
+        throw new Error(errorDetail);
       }
       
-      const data = await response.json();
+      // Tenter de parser la réponse comme JSON
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Erreur de parsing JSON:', e, 'Réponse brute:', responseText);
+        addConsoleOutput([
+          `# ERREUR PARSING`,
+          `> La réponse n'est pas au format JSON valide`,
+          `> Réponse brute: ${responseText.substring(0, 100)}...`
+        ]);
+        throw new Error('Format de réponse invalide - La réponse n\'est pas du JSON');
+      }
       
       if (data.error || !data.response) {
         console.error('Erreur ou réponse vide:', data);
+        addConsoleOutput([
+          `# ERREUR RÉPONSE`,
+          `> ${data.message || 'Réponse vide ou invalide'}`,
+        ]);
         throw new Error(data.message || 'Réponse API invalide');
       }
       
@@ -780,12 +820,13 @@ export default function ImmersiveCrisis() {
       
       // Ajouter l'erreur aux logs
       addConsoleOutput([
-        `# ERREUR API: ${error instanceof Error ? error.message : 'Erreur inconnue'}`, 
-        '> Désolé, je ne peux pas répondre pour le moment.'
+        `# ERREUR API DÉTAILLÉE`, 
+        `> ${error instanceof Error ? error.message : 'Erreur inconnue'}`,
+        `> Pour résoudre ce problème, vérifiez les logs serveur et la configuration Azure.`
       ]);
       
       // Message d'erreur constructif qui évite les réponses de secours génériques
-      return `[ERREUR API] Impossible de générer une réponse authentique pour ce rôle. Veuillez contacter l'équipe technique (${error instanceof Error ? error.message : 'erreur inconnue'}).`;
+      return `[ERREUR API] Impossible de générer une réponse authentique pour ${role}. L'erreur détaillée est: ${error instanceof Error ? error.message : 'erreur inconnue'}`;
     }
   };
   
