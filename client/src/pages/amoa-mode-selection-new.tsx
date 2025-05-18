@@ -29,14 +29,30 @@ export default function AmoaModeSelectionNew() {
         className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-[#006a9e] to-blue-900"
         style={{ fontSize: `${textSize}rem` }}
       >
-        {/* Image slogan mc2i en arrière-plan */}
-        <div className="absolute top-1/2 left-0 transform -translate-y-1/2 opacity-10 z-0 w-full flex justify-center">
-          <img src={mc2iSloganImage} alt="Éclairer et transformer les organisations" className="max-w-3xl w-full object-contain" />
-        </div>
-        
-        {/* Logo mc2i en arrière-plan */}
-        <div className="absolute bottom-10 right-10 opacity-20 z-0">
-          <img src={mc2iLogoImage} alt="Logo mc2i" className="w-40 h-auto" />
+        {/* Images mc2i en arrière-plan - grande taille et plus visibles */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          {/* Overlay semi-transparent pour améliorer le contraste avec le contenu */}
+          <div className="absolute inset-0 bg-blue-950/40 z-10"></div>
+          
+          {/* Première moitié de l'écran - Slogan */}
+          <div className="absolute top-0 left-0 w-1/2 h-full flex items-center justify-center opacity-60">
+            <img 
+              src={mc2iSloganImage} 
+              alt="Éclairer et transformer les organisations" 
+              className="w-full h-full object-cover object-center" 
+              style={{ filter: 'contrast(1.1) brightness(1.05)' }}
+            />
+          </div>
+          
+          {/* Seconde moitié de l'écran - Logo */}
+          <div className="absolute top-0 right-0 w-1/2 h-full flex items-center justify-center bg-blue-950 opacity-60">
+            <img 
+              src={mc2iLogoImage} 
+              alt="Logo mc2i" 
+              className="w-full h-full object-cover object-center" 
+              style={{ filter: 'contrast(1.2) brightness(1.1)' }}
+            />
+          </div>
         </div>
         {/* Bouton retour à l'accueil */}
         <div className="absolute top-4 left-4 z-20">
