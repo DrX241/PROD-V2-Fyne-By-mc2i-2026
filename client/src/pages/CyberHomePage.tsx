@@ -444,8 +444,10 @@ const CyberHomePage: React.FC = () => {
                       }}
                       className="w-full"
                     >
-                      Accéder
-                      <ChevronRight className="ml-2" size={16} />
+                      <span className="flex items-center">
+                        Accéder
+                        <ChevronRight className="ml-2" size={16} />
+                      </span>
                     </CyberButton>
                   </div>
                 </motion.div>
