@@ -45,6 +45,7 @@ import { startImposteurSimulation, processImposteurMessage, completeImposteurSim
 import { simulateTargetResponse, analyzePerformance } from "./brainHackerController";
 import { analyzeDefenseStrategy, generateAttackScenario, generateTacticalTip } from "./firewallTactiqueController";
 import { generateLivrable } from "./livrablesGeneratorController";
+import { generateClientMessage as generateProspectMessage, evaluateSession as evaluateProspectSession } from "./prospectPulseController";
 import {
   getAvailableScenarios,
   startCrisisSession,
