@@ -88,6 +88,32 @@ interface CrisisScenario {
 // Liste des scénarios de crise disponibles
 const crisisScenarios: CrisisScenario[] = [
   {
+    id: 'ciso-challenge',
+    title: 'CISO Challenge: Simulation de Crise',
+    description: 'Une nouvelle simulation immersive où vous prenez les commandes en tant que RSSI face à une crise majeure. Gérez les aspects techniques, humains et financiers en temps réel.',
+    duration: '30-60 min',
+    complexity: 'Intermédiaire',
+    phases: 5,
+    participants: 6,
+    category: 'Crisis Management',
+    tags: ['Temps réel', 'Prise de décision', 'Gestion d\'équipe', 'Budgétisation'],
+    objectives: [
+      'Réduire le niveau de menace',
+      'Gérer les ressources limitées efficacement',
+      'Maintenir la réputation de l\'organisation',
+      'Communiquer avec les parties prenantes',
+      'Résoudre l\'incident avant la fin du temps imparti'
+    ],
+    stats: {
+      completions: 76,
+      avgScore: 82,
+      bestTime: '28 min'
+    },
+    available: true,
+    featured: true,
+    new: true
+  },
+  {
     id: 'ransomware-critical',
     title: 'Attaque Ransomware Critique',
     description: 'Une attaque ransomware sophistiquée a infecté les systèmes critiques de l\'entreprise, chiffrant des données sensibles et menaçant les opérations.',
@@ -109,7 +135,7 @@ const crisisScenarios: CrisisScenario[] = [
       bestTime: '62 min'
     },
     available: true,
-    featured: true,
+    featured: false,
     new: false
   },
   {
@@ -268,7 +294,12 @@ export default function CrisisCenter() {
   
   // Lancer un scénario
   const startScenario = (scenario: CrisisScenario) => {
-    setLocation(`/cyber/crisis-center/crisis-simulation`);
+    // Rediriger vers la nouvelle expérience CISO Challenge si spécifié
+    if (scenario.id === 'ciso-challenge') {
+      setLocation(`/cyber/crisis-center/ciso-challenge`);
+    } else {
+      setLocation(`/cyber/crisis-center/crisis-simulation`);
+    }
   };
   
   // Rendu du panneau de statistiques

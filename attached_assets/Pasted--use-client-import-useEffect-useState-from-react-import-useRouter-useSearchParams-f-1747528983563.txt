@@ -1,0 +1,948 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import Image from "next/image"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
+import { Slider } from "@/components/ui/slider"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  AlertTriangle,
+  ArrowLeft,
+  Bell,
+  Clock,
+  DollarSign,
+  LayoutDashboard,
+  Mail,
+  Pause,
+  Play,
+  Shield,
+  Users,
+} from "lucide-react"
+import { type GameState, initializeGameState, formatGameTime } from "@/lib/game-state"
+
+export default function GamePage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const scenarioId = searchParams.get("scenario") || "ransomware-attack"
+
+  const [gameState, setGameState] = useState<GameState | null>(null)
+  const [activeTab, setActiveTab] = useState("dashboard")
+  const [showDecisionDialog, setShowDecisionDialog] = useState(false)
+  const [currentDecision, setCurrentDecision] = useState(null)
+  const [gameOverDialog, setGameOverDialog] = useState(false)
+
+  // Initialize game state
+  useEffect(() => {
+    try {
+      const initialState = initializeGameState(scenarioId)
+      setGameState(initialState)
+    } catch (error) {
+      console.error("Failed to initialize game:", error)
+      router.push("/scenarios")
+    }
+  }, [scenarioId, router])
+
+  // Game timer
+  useEffect(() => {
+    if (!gameState || gameState.paused || gameState.gameOver) return
+
+    const timer = setInterval(() => {
+      setGameState((prevState) => {
+        if (!prevState) return null
+
+        // Update time
+        const newElapsedRealTime = prevState.elapsedRealTime + 1
+        const newCurrentTime = prevState.currentTime + prevState.gameSpeed / 60
+        const newTimeRemaining = Math.max(0, prevState.timeRemaining - prevState.gameSpeed / 60)
+
+        // Check for game over conditions
+        let gameOver = prevState.gameOver
+        let gameOverReason = prevState.gameOverReason
+        let gameWon = prevState.gameWon
+
+        if (newTimeRemaining <= 0 && !gameOver) {
+          gameOver = true
+          gameOverReason = "Time has run out"
+        }
+
+        if (prevState.threatLevel >= 100 && !gameOver) {
+          gameOver = true
+          gameOverReason = "The cyber attack has completely compromised your systems"
+        }
+
+        if (prevState.reputation <= 0 && !gameOver) {
+          gameOver = true
+          gameOverReason = "You've lost all credibility with stakeholders"
+        }
+
+        // Check for win condition - threat reduced to very low level
+        if (prevState.threatLevel <= 10 && newCurrentTime > 60 && !gameOver) {
+          gameOver = true
+          gameWon = true
+          gameOverReason = "You've successfully mitigated the cyber attack!"
+        }
+
+        if (gameOver && !prevState.gameOver) {
+          setGameOverDialog(true)
+        }
+
+        // Return updated state
+        return {
+          ...prevState,
+          currentTime: newCurrentTime,
+          elapsedRealTime: newElapsedRealTime,
+          timeRemaining: newTimeRemaining,
+          gameOver,
+          gameOverReason,
+          gameWon,
+        }
+      })
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [gameState])
+
+  // Check for pending decisions
+  useEffect(() => {
+    if (!gameState || gameState.paused || gameState.gameOver) return
+
+    const pendingDecision = gameState.decisions.find((d) => d.triggered && !d.resolved)
+    if (pendingDecision && !showDecisionDialog) {
+      setCurrentDecision(pendingDecision)
+      setShowDecisionDialog(true)
+    }
+  }, [gameState, showDecisionDialog])
+
+  if (!gameState) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-900">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-cyan-400">Loading Game...</h2>
+          <p className="text-slate-300">Preparing your cyber crisis scenario</p>
+        </div>
+      </div>
+    )
+  }
+
+  const handlePauseToggle = () => {
+    setGameState({
+      ...gameState,
+      paused: !gameState.paused,
+    })
+  }
+
+  const handleSpeedChange = (value) => {
+    setGameState({
+      ...gameState,
+      gameSpeed: value[0],
+    })
+  }
+
+  const handleDecisionChoice = (option) => {
+    if (!currentDecision) return
+
+    // Apply consequences
+    const consequences = option.consequences || {}
+
+    setGameState((prevState) => {
+      if (!prevState) return null
+
+      const newThreatLevel = Math.max(0, Math.min(100, prevState.threatLevel + (consequences.threatLevel || 0)))
+      const newReputation = Math.max(0, Math.min(100, prevState.reputation + (consequences.reputation || 0)))
+      const newBudget = prevState.budget + (consequences.budget || 0)
+
+      // Update decisions
+      const updatedDecisions = prevState.decisions.map((d) => {
+        if (d.id === currentDecision.id) {
+          return { ...d, resolved: true }
+        }
+        return d
+      })
+
+      // Add log entry
+      const newLog = {
+        id: `decision-${currentDecision.id}-${option.id}`,
+        text: `Decision made: ${currentDecision.title} - ${option.text}`,
+        timeStamp: formatGameTime(prevState.currentTime),
+        category: "system",
+      }
+
+      // Calculate score impact
+      const scoreImpact = (consequences.threatLevel || 0) * -1 + (consequences.reputation || 0)
+      const newScore = prevState.score.current + scoreImpact
+
+      // Add score breakdown
+      const scoreBreakdown = [
+        ...prevState.score.breakdown,
+        {
+          category: "Decision",
+          value: scoreImpact,
+          description: `Decision: ${currentDecision.title}`,
+        },
+      ]
+
+      return {
+        ...prevState,
+        threatLevel: newThreatLevel,
+        reputation: newReputation,
+        budget: newBudget,
+        decisions: updatedDecisions,
+        logs: [...prevState.logs, newLog],
+        score: {
+          current: newScore,
+          breakdown: scoreBreakdown,
+        },
+      }
+    })
+
+    setShowDecisionDialog(false)
+    setCurrentDecision(null)
+  }
+
+  const getThreatLevelClass = () => {
+    if (gameState.threatLevel >= 75) return "text-red-500"
+    if (gameState.threatLevel >= 50) return "text-orange-500"
+    if (gameState.threatLevel >= 25) return "text-yellow-500"
+    return "text-green-500"
+  }
+
+  const getReputationClass = () => {
+    if (gameState.reputation <= 25) return "text-red-500"
+    if (gameState.reputation <= 50) return "text-orange-500"
+    if (gameState.reputation <= 75) return "text-yellow-500"
+    return "text-green-500"
+  }
+
+  const unreadEvents = gameState.events.filter((e) => !e.read).length
+  const unreadCommunications = gameState.communications.filter((c) => !c.read).length
+
+  return (
+    <div className="flex min-h-screen flex-col bg-slate-900 text-white">
+      {/* Header */}
+      <header className="border-b border-slate-700 bg-slate-800 p-4">
+        <div className="container mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/">
+              <Button variant="outline" size="icon" className="border-slate-600 text-white hover:bg-slate-700">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-xl font-bold text-cyan-400">{gameState.scenarioTitle}</h1>
+              <p className="text-sm text-slate-300">
+                Time: {formatGameTime(gameState.currentTime)} | Elapsed: {Math.floor(gameState.currentTime)} minutes
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="border-slate-600 text-white hover:bg-slate-700"
+                onClick={handlePauseToggle}
+              >
+                {gameState.paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+              </Button>
+              <div className="w-32">
+                <Slider
+                  defaultValue={[1]}
+                  min={0.5}
+                  max={3}
+                  step={0.5}
+                  value={[gameState.gameSpeed]}
+                  onValueChange={handleSpeedChange}
+                  disabled={gameState.paused}
+                />
+              </div>
+              <span className="text-sm text-slate-300">{gameState.gameSpeed}x</span>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <Clock className="h-4 w-4 text-cyan-400" />
+              <span className="text-sm">
+                {Math.floor(gameState.timeRemaining / 60)}h {Math.floor(gameState.timeRemaining % 60)}m remaining
+              </span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main content */}
+      <main className="container mx-auto flex-1 p-4">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+          {/* Status panel */}
+          <div className="col-span-1 space-y-4">
+            <Card className="bg-slate-800 border-slate-700 text-white">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-cyan-400">Status</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <div className="mb-1 flex justify-between">
+                    <span className="text-sm">Threat Level</span>
+                    <span className={`text-sm font-bold ${getThreatLevelClass()}`}>{gameState.threatLevel}%</span>
+                  </div>
+                  <Progress
+                    value={gameState.threatLevel}
+                    className="h-2 bg-slate-700"
+                    indicatorClassName={
+                      gameState.threatLevel >= 75
+                        ? "bg-red-500"
+                        : gameState.threatLevel >= 50
+                          ? "bg-orange-500"
+                          : gameState.threatLevel >= 25
+                            ? "bg-yellow-500"
+                            : "bg-green-500"
+                    }
+                  />
+                </div>
+
+                <div>
+                  <div className="mb-1 flex justify-between">
+                    <span className="text-sm">Reputation</span>
+                    <span className={`text-sm font-bold ${getReputationClass()}`}>{gameState.reputation}%</span>
+                  </div>
+                  <Progress
+                    value={gameState.reputation}
+                    className="h-2 bg-slate-700"
+                    indicatorClassName={
+                      gameState.reputation <= 25
+                        ? "bg-red-500"
+                        : gameState.reputation <= 50
+                          ? "bg-orange-500"
+                          : gameState.reputation <= 75
+                            ? "bg-yellow-500"
+                            : "bg-green-500"
+                    }
+                  />
+                </div>
+
+                <div>
+                  <div className="mb-1 flex justify-between">
+                    <span className="text-sm">Budget</span>
+                    <span className="text-sm font-bold">${gameState.budget.toLocaleString()}</span>
+                  </div>
+                  <Progress
+                    value={(gameState.budget / 1000000) * 100}
+                    max={100}
+                    className="h-2 bg-slate-700"
+                    indicatorClassName="bg-cyan-500"
+                  />
+                </div>
+
+                <div>
+                  <div className="mb-1 flex justify-between">
+                    <span className="text-sm">Score</span>
+                    <span className="text-sm font-bold">{gameState.score.current}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-slate-800 border-slate-700 text-white">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-cyan-400">Team</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {gameState.team.map((member) => (
+                  <div key={member.id} className="flex items-center gap-3">
+                    <div className="relative h-8 w-8 overflow-hidden rounded-full">
+                      <Image
+                        src={member.avatar || "/placeholder.svg"}
+                        alt={member.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">{member.name}</span>
+                        {member.assigned ? (
+                          <Badge className="bg-cyan-600">Assigned</Badge>
+                        ) : (
+                          <Badge className="bg-slate-600">Available</Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-400">{member.role}</p>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+              <CardFooter>
+                <Button
+                  variant="outline"
+                  className="w-full border-slate-600 text-white hover:bg-slate-700"
+                  onClick={() => setActiveTab("team")}
+                >
+                  Manage Team
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+
+          {/* Main panel */}
+          <div className="col-span-1 lg:col-span-3">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-5 bg-slate-800">
+                <TabsTrigger value="dashboard" className="data-[state=active]:bg-slate-700">
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Dashboard</span>
+                </TabsTrigger>
+                <TabsTrigger value="events" className="data-[state=active]:bg-slate-700">
+                  <Bell className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Events</span>
+                  {unreadEvents > 0 && <Badge className="ml-2 bg-red-500">{unreadEvents}</Badge>}
+                </TabsTrigger>
+                <TabsTrigger value="communications" className="data-[state=active]:bg-slate-700">
+                  <Mail className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Communications</span>
+                  {unreadCommunications > 0 && <Badge className="ml-2 bg-red-500">{unreadCommunications}</Badge>}
+                </TabsTrigger>
+                <TabsTrigger value="team" className="data-[state=active]:bg-slate-700">
+                  <Users className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Team</span>
+                </TabsTrigger>
+                <TabsTrigger value="resources" className="data-[state=active]:bg-slate-700">
+                  <Shield className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Resources</span>
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="dashboard" className="mt-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Card className="bg-slate-800 border-slate-700 text-white">
+                    <CardHeader>
+                      <CardTitle className="text-cyan-400">Scenario Overview</CardTitle>
+                      <CardDescription className="text-slate-300">Current situation</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="mb-4">{gameState.scenarioDescription}</p>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Time Elapsed:</span>
+                          <span className="text-sm">{Math.floor(gameState.currentTime)} minutes</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Time Remaining:</span>
+                          <span className="text-sm">
+                            {Math.floor(gameState.timeRemaining / 60)}h {Math.floor(gameState.timeRemaining % 60)}m
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Current Score:</span>
+                          <span className="text-sm">{gameState.score.current}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-slate-800 border-slate-700 text-white">
+                    <CardHeader>
+                      <CardTitle className="text-cyan-400">Activity Log</CardTitle>
+                      <CardDescription className="text-slate-300">Recent events and actions</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ScrollArea className="h-[200px] pr-4">
+                        {gameState.logs
+                          .slice()
+                          .reverse()
+                          .map((log) => (
+                            <div key={log.id} className="mb-2 border-l-2 border-slate-700 pl-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-medium text-slate-300">{log.timeStamp}</span>
+                                <Badge
+                                  variant="outline"
+                                  className={
+                                    log.category === "security"
+                                      ? "border-red-500 text-red-500"
+                                      : log.category === "team"
+                                        ? "border-cyan-500 text-cyan-500"
+                                        : log.category === "external"
+                                          ? "border-yellow-500 text-yellow-500"
+                                          : "border-slate-500 text-slate-500"
+                                  }
+                                >
+                                  {log.category}
+                                </Badge>
+                              </div>
+                              <p className="text-sm">{log.text}</p>
+                            </div>
+                          ))}
+                      </ScrollArea>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-slate-800 border-slate-700 text-white md:col-span-2">
+                    <CardHeader>
+                      <CardTitle className="text-cyan-400">Threat Dashboard</CardTitle>
+                      <CardDescription className="text-slate-300">Current security status</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid gap-4 md:grid-cols-3">
+                        <div
+                          className={`flex flex-col items-center justify-center rounded-lg p-4 ${
+                            gameState.threatLevel >= 75
+                              ? "bg-red-900/30"
+                              : gameState.threatLevel >= 50
+                                ? "bg-orange-900/30"
+                                : gameState.threatLevel >= 25
+                                  ? "bg-yellow-900/30"
+                                  : "bg-green-900/30"
+                          }`}
+                        >
+                          <div className="text-3xl font-bold">{gameState.threatLevel}%</div>
+                          <div className="text-sm text-slate-300">Overall Threat Level</div>
+                        </div>
+
+                        <div className="flex flex-col items-center justify-center rounded-lg bg-slate-700/30 p-4">
+                          <div className="text-3xl font-bold">
+                            {gameState.events.filter((e) => e.severity === "critical").length}
+                          </div>
+                          <div className="text-sm text-slate-300">Critical Alerts</div>
+                        </div>
+
+                        <div className="flex flex-col items-center justify-center rounded-lg bg-slate-700/30 p-4">
+                          <div className="text-3xl font-bold">
+                            {gameState.decisions.filter((d) => d.triggered && !d.resolved).length}
+                          </div>
+                          <div className="text-sm text-slate-300">Pending Decisions</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="events" className="mt-4">
+                <Card className="bg-slate-800 border-slate-700 text-white">
+                  <CardHeader>
+                    <CardTitle className="text-cyan-400">Security Events</CardTitle>
+                    <CardDescription className="text-slate-300">
+                      Alerts and notifications from security systems
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ScrollArea className="h-[500px] pr-4">
+                      {gameState.events.length === 0 ? (
+                        <div className="flex h-32 items-center justify-center text-slate-400">
+                          <p>No events to display</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {gameState.events
+                            .slice()
+                            .reverse()
+                            .map((event) => (
+                              <div
+                                key={event.id}
+                                className={`rounded-lg border p-4 ${
+                                  !event.read ? "border-red-500 bg-red-950/10" : "border-slate-700 bg-slate-800"
+                                }`}
+                              >
+                                <div className="mb-2 flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    {event.severity === "critical" && (
+                                      <AlertTriangle className="h-5 w-5 text-red-500" />
+                                    )}
+                                    <h3 className="font-medium">{event.title}</h3>
+                                  </div>
+                                  <Badge
+                                    className={
+                                      event.severity === "critical"
+                                        ? "bg-red-600"
+                                        : event.severity === "high"
+                                          ? "bg-orange-600"
+                                          : event.severity === "medium"
+                                            ? "bg-yellow-600"
+                                            : "bg-green-600"
+                                    }
+                                  >
+                                    {event.severity}
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-slate-300">{event.description}</p>
+                                <div className="mt-2 flex items-center justify-between">
+                                  <span className="text-xs text-slate-400">{event.timeStamp}</span>
+                                  {!event.read && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="border-slate-600 text-white hover:bg-slate-700"
+                                      onClick={() => {
+                                        setGameState({
+                                          ...gameState,
+                                          events: gameState.events.map((e) =>
+                                            e.id === event.id ? { ...e, read: true } : e,
+                                          ),
+                                        })
+                                      }}
+                                    >
+                                      Mark as Read
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="communications" className="mt-4">
+                <Card className="bg-slate-800 border-slate-700 text-white">
+                  <CardHeader>
+                    <CardTitle className="text-cyan-400">Communications</CardTitle>
+                    <CardDescription className="text-slate-300">
+                      Messages from stakeholders and team members
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ScrollArea className="h-[500px] pr-4">
+                      {gameState.communications.length === 0 ? (
+                        <div className="flex h-32 items-center justify-center text-slate-400">
+                          <p>No communications to display</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {gameState.communications
+                            .slice()
+                            .reverse()
+                            .map((comm) => (
+                              <div
+                                key={comm.id}
+                                className={`rounded-lg border p-4 ${
+                                  !comm.read ? "border-cyan-500 bg-cyan-950/10" : "border-slate-700 bg-slate-800"
+                                }`}
+                              >
+                                <div className="mb-2 flex items-center justify-between">
+                                  <h3 className="font-medium">{comm.subject}</h3>
+                                  {comm.requiresResponse && !comm.read && (
+                                    <Badge className="bg-cyan-600">Needs Response</Badge>
+                                  )}
+                                </div>
+                                <div className="mb-2 flex items-center justify-between text-sm text-slate-400">
+                                  <span>From: {comm.from}</span>
+                                  <span>{comm.timeStamp}</span>
+                                </div>
+                                <p className="text-sm text-slate-300">{comm.content}</p>
+                                <div className="mt-4 flex items-center justify-end gap-2">
+                                  {!comm.read && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="border-slate-600 text-white hover:bg-slate-700"
+                                      onClick={() => {
+                                        setGameState({
+                                          ...gameState,
+                                          communications: gameState.communications.map((c) =>
+                                            c.id === comm.id ? { ...c, read: true } : c,
+                                          ),
+                                        })
+                                      }}
+                                    >
+                                      Mark as Read
+                                    </Button>
+                                  )}
+                                  {comm.requiresResponse && comm.responseOptions && (
+                                    <Button
+                                      size="sm"
+                                      className="bg-cyan-600 hover:bg-cyan-700"
+                                      onClick={() => {
+                                        // Handle response options
+                                        // This would be similar to decision handling
+                                      }}
+                                    >
+                                      Respond
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="team" className="mt-4">
+                <Card className="bg-slate-800 border-slate-700 text-white">
+                  <CardHeader>
+                    <CardTitle className="text-cyan-400">Team Management</CardTitle>
+                    <CardDescription className="text-slate-300">
+                      Assign tasks and manage your security team
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      {gameState.team.map((member) => (
+                        <div key={member.id} className="rounded-lg border border-slate-700 p-4">
+                          <div className="flex items-start gap-4">
+                            <div className="relative h-12 w-12 overflow-hidden rounded-full">
+                              <Image
+                                src={member.avatar || "/placeholder.svg"}
+                                alt={member.name}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <div className="mb-2 flex items-center justify-between">
+                                <h3 className="font-medium">{member.name}</h3>
+                                {member.assigned ? (
+                                  <Badge className="bg-cyan-600">Assigned</Badge>
+                                ) : (
+                                  <Badge className="bg-slate-600">Available</Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-slate-300">{member.role}</p>
+                              <div className="mt-2 grid grid-cols-2 gap-2">
+                                <div>
+                                  <div className="mb-1 flex justify-between">
+                                    <span className="text-xs text-slate-400">Morale</span>
+                                    <span className="text-xs">{member.morale}%</span>
+                                  </div>
+                                  <Progress value={member.morale} className="h-1 bg-slate-700" />
+                                </div>
+                                <div>
+                                  <div className="mb-1 flex justify-between">
+                                    <span className="text-xs text-slate-400">Fatigue</span>
+                                    <span className="text-xs">{member.fatigue}%</span>
+                                  </div>
+                                  <Progress
+                                    value={member.fatigue}
+                                    className="h-1 bg-slate-700"
+                                    indicatorClassName="bg-red-500"
+                                  />
+                                </div>
+                              </div>
+                              <div className="mt-3">
+                                <h4 className="mb-1 text-xs font-semibold uppercase text-slate-400">Expertise</h4>
+                                <div className="flex flex-wrap gap-1">
+                                  {member.expertise.map((skill) => (
+                                    <span
+                                      key={skill}
+                                      className="inline-block rounded-full bg-slate-700 px-2 py-1 text-xs text-slate-300"
+                                    >
+                                      {skill}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="mt-4 flex justify-end gap-2">
+                            {member.assigned ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="border-slate-600 text-white hover:bg-slate-700"
+                                onClick={() => {
+                                  setGameState({
+                                    ...gameState,
+                                    team: gameState.team.map((t) =>
+                                      t.id === member.id ? { ...t, assigned: false } : t,
+                                    ),
+                                  })
+                                }}
+                              >
+                                Unassign
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                className="bg-cyan-600 hover:bg-cyan-700"
+                                onClick={() => {
+                                  setGameState({
+                                    ...gameState,
+                                    team: gameState.team.map((t) =>
+                                      t.id === member.id ? { ...t, assigned: true } : t,
+                                    ),
+                                  })
+                                }}
+                              >
+                                Assign to Task
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="resources" className="mt-4">
+                <Card className="bg-slate-800 border-slate-700 text-white">
+                  <CardHeader>
+                    <CardTitle className="text-cyan-400">Resource Management</CardTitle>
+                    <CardDescription className="text-slate-300">
+                      Allocate and purchase resources to combat the cyber attack
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="mb-4 flex items-center justify-between">
+                      <h3 className="font-medium">Available Budget</h3>
+                      <span className="text-lg font-bold">${gameState.budget.toLocaleString()}</span>
+                    </div>
+                    <Separator className="mb-4 bg-slate-700" />
+                    <div className="space-y-4">
+                      {gameState.resources.map((resource) => (
+                        <div key={resource.id} className="rounded-lg border border-slate-700 p-4">
+                          <div className="mb-2 flex items-center justify-between">
+                            <h3 className="font-medium">{resource.name}</h3>
+                            <Badge
+                              className={
+                                resource.type === "technical"
+                                  ? "bg-cyan-600"
+                                  : resource.type === "human"
+                                    ? "bg-green-600"
+                                    : "bg-yellow-600"
+                              }
+                            >
+                              {resource.type}
+                            </Badge>
+                          </div>
+                          <p className="mb-2 text-sm text-slate-300">{resource.description}</p>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm">Quantity: {resource.quantity}</span>
+                              <span className="text-sm text-slate-400">Cost: ${resource.cost.toLocaleString()}</span>
+                            </div>
+                            <Button
+                              size="sm"
+                              className="bg-cyan-600 hover:bg-cyan-700"
+                              disabled={gameState.budget < resource.cost}
+                              onClick={() => {
+                                if (gameState.budget >= resource.cost) {
+                                  setGameState({
+                                    ...gameState,
+                                    budget: gameState.budget - resource.cost,
+                                    resources: gameState.resources.map((r) =>
+                                      r.id === resource.id ? { ...r, quantity: r.quantity + 1 } : r,
+                                    ),
+                                    logs: [
+                                      ...gameState.logs,
+                                      {
+                                        id: `purchase-${resource.id}-${Date.now()}`,
+                                        text: `Purchased 1 ${resource.name} for $${resource.cost.toLocaleString()}`,
+                                        timeStamp: formatGameTime(gameState.currentTime),
+                                        category: "system",
+                                      },
+                                    ],
+                                  })
+                                }
+                              }}
+                            >
+                              <DollarSign className="mr-1 h-4 w-4" />
+                              Purchase
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </main>
+
+      {/* Decision Dialog */}
+      {showDecisionDialog && currentDecision && (
+        <Dialog open={showDecisionDialog} onOpenChange={setShowDecisionDialog}>
+          <DialogContent className="bg-slate-800 text-white sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-cyan-400">{currentDecision.title}</DialogTitle>
+              <DialogDescription className="text-slate-300">{currentDecision.description}</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3">
+              {currentDecision.options.map((option) => (
+                <Button
+                  key={option.id}
+                  variant="outline"
+                  className="w-full justify-start border-slate-600 p-4 text-left hover:bg-slate-700"
+                  onClick={() => handleDecisionChoice(option)}
+                >
+                  {option.text}
+                </Button>
+              ))}
+            </div>
+            <DialogFooter>
+              <div className="text-xs text-slate-400">
+                Your decision will impact the outcome of the crisis. Choose carefully.
+              </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Game Over Dialog */}
+      {gameOverDialog && (
+        <Dialog open={gameOverDialog} onOpenChange={setGameOverDialog}>
+          <DialogContent className="bg-slate-800 text-white sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className={gameState.gameWon ? "text-green-400" : "text-red-400"}>
+                {gameState.gameWon ? "Mission Accomplished" : "Game Over"}
+              </DialogTitle>
+              <DialogDescription className="text-slate-300">{gameState.gameOverReason}</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="rounded-lg bg-slate-700 p-4">
+                <h3 className="mb-2 text-lg font-medium text-cyan-400">Final Score: {gameState.score.current}</h3>
+                <div className="space-y-2">
+                  {gameState.score.breakdown.map((item, index) => (
+                    <div key={index} className="flex items-center justify-between text-sm">
+                      <span>{item.description}</span>
+                      <span className={item.value >= 0 ? "text-green-400" : "text-red-400"}>
+                        {item.value >= 0 ? "+" : ""}
+                        {item.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="mb-4 text-slate-300">
+                  {gameState.gameWon
+                    ? "Congratulations! You've successfully managed the cyber crisis."
+                    : "The cyber crisis has overwhelmed your organization. Better luck next time."}
+                </p>
+                <div className="flex justify-center gap-4">
+                  <Link href="/">
+                    <Button variant="outline" className="border-slate-600 text-white hover:bg-slate-700">
+                      Return to Menu
+                    </Button>
+                  </Link>
+                  <Link href={`/game?scenario=${gameState.scenarioId}`}>
+                    <Button className="bg-cyan-600 hover:bg-cyan-700">Try Again</Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
+  )
+}

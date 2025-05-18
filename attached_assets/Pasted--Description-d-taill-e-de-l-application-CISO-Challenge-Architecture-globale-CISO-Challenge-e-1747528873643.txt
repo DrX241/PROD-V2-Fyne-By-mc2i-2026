@@ -1,0 +1,309 @@
+### Description détaillée de l'application CISO Challenge
+
+## Architecture globale
+
+CISO Challenge est une application web interactive développée avec Next.js (App Router) qui simule la gestion de crises cybersécurité. L'application est structurée comme suit:
+
+### Structure des dossiers
+
+```plaintext
+/app                     # Dossier principal de l'application Next.js
+  /page.tsx              # Page d'accueil
+  /layout.tsx            # Layout principal
+  /globals.css           # Styles globaux
+  /game                  # Module de jeu
+    /page.tsx            # Interface principale du jeu
+    /loading.tsx         # Composant de chargement
+  /team                  # Page de présentation de l'équipe
+    /page.tsx
+  /scenarios             # Page de présentation des scénarios
+    /page.tsx
+/components              # Composants réutilisables (shadcn/ui)
+  /ui                    # Composants d'interface utilisateur
+/lib                     # Logique métier et utilitaires
+  /game-state.ts         # Gestion de l'état du jeu
+/public                  # Ressources statiques
+  /security-operations-lead.png
+  /placeholder-txu4e.png
+  /technical-security-specialist.png
+```
+
+## Composants principaux
+
+### 1. Page d'accueil (`app/page.tsx`)
+
+La page d'accueil présente deux cartes principales:
+
+- Une carte d'introduction expliquant le concept du jeu
+- Une carte "How To Play" détaillant les mécaniques de jeu
+
+
+Chaque carte utilise les composants `Card` de shadcn/ui avec un style sombre personnalisé (fond slate-800/900, texte blanc, accents cyan).
+
+### 2. Interface de jeu (`app/game/page.tsx`)
+
+C'est le composant le plus complexe, gérant toute la logique de jeu:
+
+- **En-tête**: Affiche le titre du scénario, l'heure actuelle, les contrôles de pause/vitesse
+- **Panneau latéral**: Affiche les indicateurs de statut (menace, réputation, budget) et l'équipe
+- **Panneau principal**: Interface à onglets avec:
+
+- Dashboard: Vue d'ensemble du scénario et logs d'activité
+- Events: Alertes et notifications de sécurité
+- Communications: Messages des parties prenantes
+- Team: Gestion de l'équipe de sécurité
+- Resources: Allocation des ressources
+
+
+
+
+
+Le composant utilise plusieurs états React pour gérer:
+
+- L'état du jeu (`gameState`)
+- L'onglet actif (`activeTab`)
+- Les dialogues de décision (`showDecisionDialog`, `currentDecision`)
+- Le dialogue de fin de jeu (`gameOverDialog`)
+
+
+### 3. Page d'équipe (`app/team/page.tsx`)
+
+Présente les quatre membres de l'équipe AI avec:
+
+- Photo de profil
+- Nom et rôle
+- Description
+- Domaines d'expertise
+
+
+### 4. Page de scénarios (`app/scenarios/page.tsx`)
+
+Affiche les cinq scénarios disponibles:
+
+- Attaque par ransomware
+- Fuite de données clients
+- Attaque DDoS
+- Menace interne
+- Compromission de la chaîne d'approvisionnement
+
+
+Chaque scénario a une difficulté, une durée et des domaines d'expertise associés.
+
+## Gestion de l'état du jeu (`lib/game-state.ts`)
+
+Ce module contient toute la logique métier du jeu:
+
+### Types principaux
+
+```typescript
+// Membre de l'équipe
+type TeamMember = {
+  id: string;
+  name: string;
+  role: string;
+  expertise: string[];
+  avatar: string;
+  morale: number;
+  fatigue: number;
+  assigned: boolean;
+}
+
+// Ressource
+type Resource = {
+  id: string;
+  name: string;
+  description: string;
+  quantity: number;
+  cost: number;
+  type: "technical" | "human" | "financial";
+}
+
+// Événement de scénario
+type ScenarioEvent = {
+  id: string;
+  title: string;
+  description: string;
+  timeStamp: string;
+  severity: "low" | "medium" | "high" | "critical";
+  read: boolean;
+}
+
+// Décision
+type Decision = {
+  id: string;
+  title: string;
+  description: string;
+  options: DecisionOption[];
+  deadline?: number;
+  triggered: boolean;
+  resolved: boolean;
+}
+
+// État global du jeu
+type GameState = {
+  scenarioId: string;
+  scenarioTitle: string;
+  scenarioDescription: string;
+  currentTime: number;
+  elapsedRealTime: number;
+  threatLevel: number;
+  reputation: number;
+  budget: number;
+  timeRemaining: number;
+  gameSpeed: number;
+  paused: boolean;
+  team: TeamMember[];
+  resources: Resource[];
+  events: ScenarioEvent[];
+  decisions: Decision[];
+  communications: Communication[];
+  logs: { id: string; text: string; timeStamp: string; category: string }[];
+  score: { current: number; breakdown: { category: string; value: number; description: string }[] };
+  gameOver: boolean;
+  gameOverReason?: string;
+  gameWon: boolean;
+}
+```
+
+### Fonctions principales
+
+- `initializeGameState(scenarioId)`: Initialise l'état du jeu pour un scénario donné
+- `formatGameTime(minutes)`: Formate le temps de jeu en heures:minutes AM/PM
+
+
+## Mécaniques de jeu
+
+### 1. Système de temps
+
+Le jeu utilise un timer React avec `useEffect` qui:
+
+- Incrémente le temps de jeu (`currentTime`)
+- Décrémente le temps restant (`timeRemaining`)
+- Vérifie les conditions de fin de jeu
+- Peut être mis en pause et sa vitesse ajustée
+
+
+### 2. Système de décision
+
+Les décisions sont présentées via un dialogue modal avec:
+
+- Un titre et une description
+- Plusieurs options de choix
+- Chaque option a des conséquences sur:
+
+- Le niveau de menace
+- La réputation
+- Le budget
+- Le temps
+- Le moral de l'équipe
+- Les événements déclenchés
+
+
+
+
+
+### 3. Système de communication
+
+Les communications sont gérées comme des messages avec:
+
+- Un expéditeur et un destinataire
+- Un sujet et un contenu
+- Un horodatage
+- Des options de réponse avec conséquences
+
+
+### 4. Système de ressources
+
+Les ressources peuvent être achetées avec le budget disponible:
+
+- Ressources humaines (analystes, intervenants)
+- Ressources techniques (systèmes de sauvegarde, protection des endpoints)
+- Ressources financières (Bitcoin pour rançon)
+
+
+### 5. Système de score
+
+Le score est calculé en fonction:
+
+- De la réduction du niveau de menace
+- Du maintien de la réputation
+- De l'efficacité de l'utilisation du budget
+- Des décisions prises
+
+
+## Styles et design
+
+L'application utilise:
+
+- Tailwind CSS pour le styling
+- Une palette de couleurs sombre (slate-800/900 pour les fonds)
+- Des accents cyan-400/600 pour les éléments importants
+- Des indicateurs de couleur pour les niveaux de menace:
+
+- Vert: faible
+- Jaune: moyen
+- Orange: élevé
+- Rouge: critique
+
+
+
+
+
+## Fonctionnalités interactives clés
+
+1. **Gestion du temps**: Contrôles de pause/reprise et ajustement de la vitesse
+2. **Prise de décision**: Choix stratégiques avec conséquences
+3. **Allocation de ressources**: Achat de ressources avec budget limité
+4. **Gestion d'équipe**: Assignation des membres de l'équipe à des tâches
+5. **Gestion des communications**: Réponse aux parties prenantes
+6. **Suivi des événements**: Surveillance des alertes de sécurité
+7. **Tableau de bord**: Vue d'ensemble de l'état de la crise
+
+
+## Détails techniques importants
+
+### Hooks React utilisés
+
+- `useState`: Gestion des états locaux
+- `useEffect`: Effets secondaires (timer, vérification des décisions)
+- `useRouter` et `useSearchParams`: Navigation et paramètres d'URL
+
+
+### Gestion de l'état
+
+L'application utilise un état global (`gameState`) qui est passé et mis à jour à travers les composants. Dans une implémentation plus complexe, on pourrait utiliser Context API ou Redux.
+
+### Initialisation du jeu
+
+Le jeu s'initialise en fonction du scénario sélectionné:
+
+```javascript
+useEffect(() => {
+  try {
+    const initialState = initializeGameState(scenarioId);
+    setGameState(initialState);
+  } catch (error) {
+    console.error("Failed to initialize game:", error);
+    router.push("/scenarios");
+  }
+}, [scenarioId, router]);
+```
+
+### Système de timer
+
+```javascript
+useEffect(() => {
+  if (!gameState || gameState.paused || gameState.gameOver) return;
+
+  const timer = setInterval(() => {
+    setGameState((prevState) => {
+      // Mise à jour du temps et vérification des conditions
+      // ...
+    });
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, [gameState]);
+```
+
+Pour reproduire cette application, vous devrez
