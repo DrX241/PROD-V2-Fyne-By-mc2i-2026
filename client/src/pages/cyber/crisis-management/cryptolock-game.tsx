@@ -642,7 +642,7 @@ La panique monte. Vous êtes la cellule de crise. Chaque décision comptera.`);
               <p className="text-xs font-cyber-accent text-cyan-500">72H DE TENSION</p>
             </div>
             
-            <OpenAIStatusIndicator position="in-header" />
+
           </div>
         </header>
         
