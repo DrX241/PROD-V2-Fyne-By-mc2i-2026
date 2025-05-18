@@ -7,7 +7,8 @@ import {
   Briefcase, 
   Terminal, 
   Shield, 
-  AlertTriangle 
+  AlertTriangle,
+  BrainCircuit
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -96,6 +97,19 @@ const RoleplayHub: React.FC = () => {
       buttonGradient: 'from-rose-700 to-rose-600',
       buttonHover: 'hover:from-rose-600 hover:to-rose-500',
       textColor: 'text-rose-300'
+    },
+    {
+      id: 'expert-cyber',
+      title: 'Expert Cybersécurité',
+      description: "Dialoguez librement avec un assistant spécialisé en cybersécurité",
+      link: '/cyber/expert-learning',
+      icon: <BrainCircuit className="h-10 w-10 text-cyan-300" />,
+      color: 'cyan',
+      gradient: 'from-cyan-900/70 to-cyan-700/30',
+      border: 'border-cyan-500/30',
+      buttonGradient: 'from-cyan-700 to-cyan-600',
+      buttonHover: 'hover:from-cyan-600 hover:to-cyan-500',
+      textColor: 'text-cyan-300'
     }
   ];
 

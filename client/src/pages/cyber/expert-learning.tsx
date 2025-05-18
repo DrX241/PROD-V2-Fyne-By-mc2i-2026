@@ -365,11 +365,11 @@ function ExpertLearningPageContent() {
             body: JSON.stringify({ userId })
           }).catch(err => console.error("Erreur lors de la fin de la session:", err));
         }
-        setLocation('/cyber');
+        setLocation('/cyber/roleplay');
       }
     } else {
       // Si aucune session n'est active, naviguer directement
-      setLocation('/cyber');
+      setLocation('/cyber/roleplay');
     }
   };
 
