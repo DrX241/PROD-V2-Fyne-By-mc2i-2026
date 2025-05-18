@@ -423,6 +423,15 @@ function App() {
                   );
                 }} />
                 
+                <Route path="/cyber/crisis-center/ciso-challenge" component={() => {
+                  const CISOChallengeComponent = lazy(() => import('./pages/cyber/crisis-center/ciso-challenge'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <CISOChallengeComponent />
+                    </Suspense>
+                  );
+                }} />
+                
                 <Route path="/cyber/interview-test" component={() => {
                   const CyberInterviewTest = lazy(() => import('./pages/cyber/interview-test'));
                   return (
