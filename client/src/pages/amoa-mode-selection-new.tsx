@@ -39,7 +39,7 @@ export default function AmoaModeSelectionNew() {
             <img 
               src={mc2iSloganImage} 
               alt="Éclairer et transformer les organisations" 
-              className="w-full h-full object-cover object-center" 
+              className="w-full h-full object-cover object-top" 
               style={{ filter: 'contrast(1.1) brightness(1.05)' }}
             />
           </div>
@@ -49,7 +49,7 @@ export default function AmoaModeSelectionNew() {
             <img 
               src={mc2iLogoImage} 
               alt="Logo mc2i" 
-              className="w-full h-full object-cover object-top" 
+              className="w-full h-full object-cover object-center" 
               style={{ filter: 'contrast(1.2) brightness(1.1)' }}
             />
           </div>
