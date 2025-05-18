@@ -130,3 +130,243 @@ export interface CrisisEventEvaluation {
   recommendations: string[];
   score: number;
 }
+
+export interface UserRole {
+  id: string;
+  name: string;
+  description: string;
+  icon?: string;
+  color?: string;
+  available?: boolean;
+  skillLevel?: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+}
+
+// Définition des types pour les contacts
+export interface Contact {
+  id: string;
+  name: string;
+  role: string;
+  department: string;
+  email?: string;
+  phone?: string;
+  availability?: 'available' | 'busy' | 'unavailable';
+  expertise?: string[];
+  avatarUrl?: string;
+  concern?: string;
+}
+
+// Liste des contacts disponibles dans l'application
+export const availableContacts: Contact[] = [
+  {
+    id: 'contact-1',
+    name: 'Yousra Saidani',
+    role: 'RSSI',
+    department: 'Sécurité',
+    email: 'y.saidani@exemple.com',
+    expertise: ['Gestion de crise', 'Gouvernance', 'Gestion des risques'],
+    availability: 'available'
+  },
+  {
+    id: 'contact-2',
+    name: 'Arnaud Gauthier',
+    role: 'DSI',
+    department: 'IT',
+    email: 'a.gauthier@exemple.com',
+    expertise: ['Infrastructure', 'Transformation digitale', 'Stratégie IT'],
+    availability: 'available'
+  },
+  {
+    id: 'contact-3',
+    name: 'Olivier Hervo',
+    role: 'Lead SOC',
+    department: 'Sécurité',
+    email: 'o.hervo@exemple.com',
+    expertise: ['Détection', 'Réponse incident', 'Monitoring'],
+    availability: 'available'
+  },
+  {
+    id: 'contact-4',
+    name: 'Lorenzo Bertola',
+    role: 'Analyste Sécurité',
+    department: 'Sécurité',
+    email: 'l.bertola@exemple.com',
+    expertise: ['Analyse forensique', 'Malware', 'Reverse engineering'],
+    availability: 'available'
+  },
+  {
+    id: 'contact-5',
+    name: 'Anthony Frescal',
+    role: 'Responsable infrastructure',
+    department: 'IT',
+    email: 'a.frescal@exemple.com',
+    expertise: ['Cloud', 'Réseau', 'Systèmes'],
+    availability: 'available'
+  },
+  {
+    id: 'contact-6',
+    name: 'Sarah Dumont',
+    role: 'DG',
+    department: 'Direction',
+    email: 's.dumont@exemple.com',
+    expertise: ['Leadership', 'Stratégie d\'entreprise'],
+    availability: 'busy'
+  },
+  {
+    id: 'contact-7',
+    name: 'Julien Grimault',
+    role: 'Responsable juridique',
+    department: 'Juridique',
+    email: 'j.grimault@exemple.com',
+    expertise: ['RGPD', 'Conformité', 'Contrats'],
+    availability: 'available'
+  },
+  {
+    id: 'contact-8',
+    name: 'Nosing Doeuk',
+    role: 'Architecte Cyber',
+    department: 'Sécurité',
+    email: 'n.doeuk@exemple.com',
+    expertise: ['Architecture sécurisée', 'DevSecOps', 'IAM'],
+    availability: 'available'
+  },
+  {
+    id: 'contact-9',
+    name: 'Thomas Mercier',
+    role: 'Responsable Communication',
+    department: 'Communication',
+    email: 't.mercier@exemple.com',
+    expertise: ['Communication de crise', 'Relations presse'],
+    availability: 'available'
+  }
+];
+
+// Fonction pour récupérer un contact par son nom
+export function getContactByName(name: string): Contact | undefined {
+  return availableContacts.find(contact => contact.name === name);
+}
+
+// Fonction pour récupérer les contacts de direction
+export function getExecutiveContacts(): Contact[] {
+  return availableContacts.filter(
+    contact => contact.role.includes('DG') || 
+              contact.role.includes('Directeur') || 
+              contact.role.includes('Direction')
+  );
+}
+
+// Fonction pour récupérer les contacts évaluateurs
+export function getEvaluators(): Contact[] {
+  return availableContacts.filter(
+    contact => contact.role.includes('RSSI') || 
+              contact.role.includes('DSI') || 
+              contact.role.includes('Chef')
+  );
+}
+
+// Fonction pour récupérer les évaluateurs par domaine
+export function getEvaluatorsByDomain(domain: string): Contact[] {
+  if (domain.toLowerCase().includes('securite') || domain.toLowerCase().includes('sécurité')) {
+    return availableContacts.filter(contact => 
+      contact.department.toLowerCase().includes('sécurité') ||
+      contact.expertise?.some(e => e.toLowerCase().includes('sécurité'))
+    );
+  } else if (domain.toLowerCase().includes('dev') || domain.toLowerCase().includes('application')) {
+    return availableContacts.filter(contact => 
+      contact.expertise?.some(e => 
+        e.toLowerCase().includes('dev') || 
+        e.toLowerCase().includes('application')
+      )
+    );
+  }
+  return getEvaluators();
+}
+
+// Fonction pour récupérer les contacts directs
+export function getDirectContacts(): Contact[] {
+  return availableContacts.filter(c => c.availability === 'available');
+}
+
+// Interfaces pour les missions
+export interface Mission {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: 'Débutant' | 'Intermédiaire' | 'Avancé' | 'Expert';
+  category: string;
+  objectives: Objective[];
+  contact: Contact;
+  decisions?: Decision[];
+  isCompleted?: boolean;
+  progress?: number;
+  timeEstimate?: string;
+  xpReward?: number;
+  domain?: string;
+}
+
+// Interface pour les objectifs
+export interface Objective {
+  id: string;
+  description: string;
+  isCompleted?: boolean;
+  isOptional?: boolean;
+}
+
+// Interface pour les décisions
+export interface Decision {
+  id: string;
+  question: string;
+  options: { id: string; text: string; }[];
+  context?: string;
+  correctOptionId?: string;
+}
+
+export const USER_ROLES: UserRole[] = [
+  {
+    id: 'blue-team',
+    name: 'Équipe Bleue',
+    description: 'Défendre les systèmes contre les attaques et gérer la réponse aux incidents.',
+    color: 'blue',
+    available: true,
+    skillLevel: 'intermediate'
+  },
+  {
+    id: 'red-team',
+    name: 'Équipe Rouge',
+    description: 'Tester les défenses et identifier les vulnérabilités par des simulations d\'attaque.',
+    color: 'red',
+    available: true,
+    skillLevel: 'advanced'
+  },
+  {
+    id: 'secops',
+    name: 'Sécurité Opérationnelle',
+    description: 'Maintenir la sécurité quotidienne et surveiller les activités suspectes.',
+    color: 'green',
+    available: true,
+    skillLevel: 'intermediate'
+  },
+  {
+    id: 'secarch',
+    name: 'Architecte Sécurité',
+    description: 'Concevoir des systèmes sécurisés et établir les standards de sécurité.',
+    color: 'purple',
+    available: true,
+    skillLevel: 'expert'
+  },
+  {
+    id: 'secdev',
+    name: 'Développeur Sécurité',
+    description: 'Intégrer la sécurité dans le cycle de développement logiciel.',
+    color: 'cyan',
+    available: true,
+    skillLevel: 'advanced'
+  },
+  {
+    id: 'secgov',
+    name: 'Gouvernance Sécurité',
+    description: 'Gérer les politiques, les risques et la conformité en matière de sécurité.',
+    color: 'amber',
+    available: true,
+    skillLevel: 'intermediate'
+  }
+];

@@ -324,11 +324,17 @@ export const evaluateDecision = async (req: Request, res: Response) => {
     };
     
     try {
-      const response = await openAIService.getCompletionFromChatMessages([systemMessage, userMessage], 'secondary');
-      let evaluationResult;
+      // Utiliser la méthode getChatCompletion avec le modèle secondaire
+      const responseText = await openAIService.getChatCompletion(
+        [systemMessage, userMessage],
+        true, // useSecondaryKey: true pour utiliser le modèle secondaire (gpt-4o-mini)
+        0.7,  // temperature
+        2048  // maxTokens
+      );
       
+      let evaluationResult;
       try {
-        evaluationResult = extractJsonFromOpenAiResponse(response);
+        evaluationResult = extractJsonFromOpenAiResponse(responseText);
       } catch (error) {
         evaluationResult = createFallbackJson({
           analysis: "Cette décision d'isoler immédiatement le réseau de l'entreprise d'Internet est généralement une bonne pratique lors d'une attaque ransomware active. Elle permet de limiter la propagation du malware et empêche la communication avec les serveurs de commande et contrôle des attaquants. Cependant, cette action isole également l'entreprise des ressources cloud, des partenaires et des clients, ce qui peut compliquer la communication de crise et la coordination avec les parties prenantes externes comme les experts en sécurité ou les autorités.",
@@ -411,7 +417,13 @@ export const simulateTeamMemberResponse = async (req: Request, res: Response) =>
     };
     
     try {
-      const responseText = await openAIService.getCompletionFromChatMessages([systemMessage, userMessage], 'secondary');
+      // Utiliser la méthode getChatCompletion avec le modèle secondaire
+      const responseText = await openAIService.getChatCompletion(
+        [systemMessage, userMessage],
+        true, // useSecondaryKey: true pour utiliser le modèle secondaire (gpt-4o-mini)
+        0.7,  // temperature
+        2000  // maxTokens
+      );
       
       // Simuler un délai de réponse basé sur la disponibilité et le temps de réponse du membre
       const responseDelay = teamMember.availability === 'busy' ? 
@@ -510,7 +522,13 @@ export const generateCrisisEvent = async (req: Request, res: Response) => {
       };
       
       try {
-        const messageContent = await openAIService.getCompletionFromChatMessages([systemMessage, userMessage], 'secondary');
+        // Utiliser la méthode getChatCompletion avec le modèle secondaire
+        const messageContent = await openAIService.getChatCompletion(
+          [systemMessage, userMessage],
+          true, // useSecondaryKey: true
+          0.7,  // temperature
+          2048  // maxTokens
+        );
         
         const event = {
           type: 'message',
@@ -557,7 +575,14 @@ export const generateCrisisEvent = async (req: Request, res: Response) => {
       };
       
       try {
-        const responseText = await openAIService.getCompletionFromChatMessages([systemMessage, userMessage], 'secondary');
+        // Utiliser la méthode getChatCompletion avec le modèle secondaire
+        const responseText = await openAIService.getChatCompletion(
+          [systemMessage, userMessage],
+          true, // useSecondaryKey: true
+          0.7,  // temperature
+          2048, // maxTokens
+          { responseFormat: 'json_object' } // Demander une réponse en format JSON
+        );
         
         // Extraire le JSON de la réponse
         let alertContent;
