@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import HomeLayout from '@/components/layout/HomeLayout';
 import { Button } from '@/components/ui/button';
+import axios from 'axios';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Card,
@@ -34,6 +35,10 @@ import {
   X,
   FastForward,
   ChevronRight,
+  Bot,
+  Sparkles,
+  BrainCircuit,
+  Lightbulb,
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -55,6 +60,7 @@ type TeamMember = {
   morale: number;
   fatigue: number;
   assigned: boolean;
+  aiAssistance?: boolean; // Indique si le membre bénéficie d'une assistance IA
 };
 
 type Resource = {
@@ -64,6 +70,7 @@ type Resource = {
   quantity: number;
   cost: number;
   type: "technical" | "human" | "financial";
+  aiPowered?: boolean; // Indique si la ressource est améliorée par l'IA
 };
 
 type ScenarioEvent = {
@@ -73,6 +80,7 @@ type ScenarioEvent = {
   timeStamp: string;
   severity: "low" | "medium" | "high" | "critical";
   read: boolean;
+  aiRecommendation?: string; // Recommandation d'action générée par l'IA
 };
 
 type DecisionOption = {
@@ -157,6 +165,9 @@ type GameState = {
   gameOver: boolean;
   gameOverReason?: string;
   gameWon: boolean;
+  aiAssistantActive: boolean; // Indique si l'assistant IA est actif
+  aiSuggestion: string | null; // Dernière suggestion de l'assistant IA
+  aiAnalysisInProgress: boolean; // Indique si une analyse IA est en cours
 };
 
 // Utilitaires et données
