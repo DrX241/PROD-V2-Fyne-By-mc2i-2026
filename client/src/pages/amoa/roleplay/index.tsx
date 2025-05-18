@@ -91,47 +91,7 @@ export default function AmoaRoleplay() {
               </CardContent>
             </Card>
 
-            {/* Mise en situation de recrutement */}
-            <Card className="bg-gradient-to-br from-indigo-900/80 to-indigo-950/90 border border-indigo-800/30 backdrop-blur-sm hover:shadow-lg hover:border-indigo-700/50 transition-all">
-              <CardHeader>
-                <div className="flex items-center justify-center mb-4">
-                  <div className="p-3 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 shadow-md">
-                    <Users className="h-8 w-8 text-white" />
-                  </div>
-                </div>
-                <CardTitle className="text-center text-xl font-bold">Simulation de recrutement</CardTitle>
-                <CardDescription className="text-center text-indigo-300">
-                  Évaluez des candidats AMOA avec l'IA
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <ul className="mb-6 text-sm text-indigo-200 flex flex-col gap-2">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-indigo-400 flex-shrink-0" />
-                    <span>Scenarios d'entretien personnalisés</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-indigo-400 flex-shrink-0" />
-                    <span>Rebonds intelligents de l'IA</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-indigo-400 flex-shrink-0" />
-                    <span>Analyse des compétences</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-indigo-400 flex-shrink-0" />
-                    <span>25-30 minutes par simulation</span>
-                  </li>
-                </ul>
-                <Button 
-                  className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white"
-                  onClick={() => setLocation('/amoa/recruitment-simulation')}
-                >
-                  Lancer une simulation
-                  <Badge className="ml-2 bg-indigo-500/50 text-white text-xs">Bientôt</Badge>
-                </Button>
-              </CardContent>
-            </Card>
+
 
             {/* Prospection Challenge (Ancien ProspectPulse) */}
             <Card className="bg-gradient-to-br from-orange-900/80 to-red-950/90 border border-orange-800/30 backdrop-blur-sm hover:shadow-lg hover:border-orange-700/50 transition-all">
