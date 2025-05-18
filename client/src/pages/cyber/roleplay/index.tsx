@@ -149,7 +149,7 @@ const RoleplayHub: React.FC = () => {
           onClick={() => setLocation('/cyber-v3')}
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
-          Retour vers I AM CYBER
+          Retour
         </Button>
       </div>
 
