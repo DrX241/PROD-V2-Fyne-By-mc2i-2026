@@ -98,9 +98,6 @@ export default function CyberV3() {
             </div>
             
             <div className="flex items-center gap-4">
-              {/* Status de connexion à l'API */}
-              <OpenAIStatusIndicator />
-              
               {/* Bouton d'aide */}
               <TooltipProvider>
                 <Tooltip>
