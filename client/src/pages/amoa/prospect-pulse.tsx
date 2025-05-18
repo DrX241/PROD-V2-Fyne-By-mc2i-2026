@@ -1067,10 +1067,10 @@ export default function ProspectPulse() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <p className="text-blue-200">
+                      <div className="text-blue-200">
                         Dans ce simulateur, vous incarnez un Senior Manager en situation de prospection client.
                         Vous devrez réagir rapidement, identifier les besoins, gérer les objections et proposer des solutions.
-                      </p>
+                      </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div className="bg-blue-950/50 border border-blue-900/30 rounded-lg p-4">
@@ -1175,10 +1175,10 @@ export default function ProspectPulse() {
                     ) : (
                       <div className="text-center py-8 text-blue-300">
                         <FileText className="h-10 w-10 mx-auto mb-2 text-blue-500/50" />
-                        <p>Aucune session complétée</p>
-                        <p className="text-sm text-blue-400 mt-1">
+                        <div className="font-medium">Aucune session complétée</div>
+                        <div className="text-sm text-blue-400 mt-1">
                           Commencez une simulation pour voir vos performances
-                        </p>
+                        </div>
                       </div>
                     )}
                   </CardContent>
