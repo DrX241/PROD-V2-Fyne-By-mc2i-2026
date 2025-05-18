@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Users, MessageSquare, Award, Clock, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Users, MessageSquare, Award, Clock, CheckCircle2, AlertCircle, Timer, Shuffle, Target, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -48,7 +48,7 @@ export default function CoachEntretien() {
           </motion.div>
 
           {/* Types de simulation d'entretien */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-12">
             {/* Mode classique */}
             <Card className="bg-gradient-to-br from-blue-900/80 to-blue-950/90 border border-blue-800/30 backdrop-blur-sm hover:shadow-lg hover:border-blue-700/50 transition-all">
               <CardHeader>
@@ -159,6 +159,44 @@ export default function CoachEntretien() {
                 </ul>
                 <Button className="w-full bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 text-white">
                   Commencer l'évaluation
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Mode ProspectPulse - Nouveau module */}
+            <Card className="bg-gradient-to-br from-orange-900/80 to-red-950/90 border border-orange-800/30 backdrop-blur-sm hover:shadow-lg hover:border-orange-700/50 transition-all">
+              <CardHeader>
+                <div className="flex items-center justify-center mb-4">
+                  <div className="p-3 rounded-lg bg-gradient-to-r from-amber-600 to-red-600 shadow-md">
+                    <Zap className="h-8 w-8 text-white" />
+                  </div>
+                </div>
+                <CardTitle className="text-center text-xl font-bold">ProspectPulse</CardTitle>
+                <CardDescription className="text-center text-orange-300">
+                  Simulateur de prospection sous pression
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <ul className="mb-6 text-sm text-orange-200 flex flex-col gap-2">
+                  <li className="flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 text-orange-400 flex-shrink-0" />
+                    <span>Chat client imprévu en temps réel</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Timer className="h-4 w-4 text-orange-400 flex-shrink-0" />
+                    <span>Réponses limitées à 20 secondes</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Shuffle className="h-4 w-4 text-orange-400 flex-shrink-0" />
+                    <span>Scénarios et profils clients aléatoires</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Target className="h-4 w-4 text-orange-400 flex-shrink-0" />
+                    <span>Évaluation des compétences commerciales</span>
+                  </li>
+                </ul>
+                <Button className="w-full bg-gradient-to-r from-amber-600 to-red-600 hover:from-amber-700 hover:to-red-700 text-white">
+                  Activer le mode surprise
                 </Button>
               </CardContent>
             </Card>
