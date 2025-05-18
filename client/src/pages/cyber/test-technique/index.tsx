@@ -1195,10 +1195,10 @@ export default function CyberTestTechnique() {
             <Button 
               variant="outline" 
               className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30"
-              onClick={() => window.location.href = '/cyber'}
+              onClick={() => window.location.href = '/cyber/roleplay'}
             >
               <Home className="mr-2 h-4 w-4" />
-              Retour à l'accueil
+              Retour aux jeux de rôle
             </Button>
           </div>
           
