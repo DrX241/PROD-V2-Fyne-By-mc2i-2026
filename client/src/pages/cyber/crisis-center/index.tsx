@@ -295,7 +295,7 @@ export default function CrisisCenter() {
   // Lancer un scénario
   const startScenario = (scenario: CrisisScenario) => {
     // Le module CISO Challenge a été supprimé, tous les scénarios utilisent crisis-simulation
-    setLocation(`/cyber/crisis-center/crisis-simulation`);
+    setLocation(`/cyber/crisis-management/crisis-simulation`);
   };
   
   // Rendu du panneau de statistiques
