@@ -167,7 +167,7 @@ function formatGameTime(minutes: number): string {
   const mins = minutes % 60;
   const period = hours >= 12 ? 'PM' : 'AM';
   const displayHours = hours % 12 || 12;
-  
+
   return `${displayHours}:${mins.toString().padStart(2, '0')} ${period}`;
 }
 
@@ -662,7 +662,7 @@ export default function CISOChallenge() {
   // Gérer la pause/reprise
   const togglePause = () => {
     if (!gameState) return;
-    
+
     setGameState(prevState => {
       if (!prevState) return prevState;
       return { ...prevState, paused: !prevState.paused };
@@ -677,7 +677,7 @@ export default function CISOChallenge() {
   // Ajuster la vitesse de jeu
   const adjustGameSpeed = (speed: number) => {
     if (!gameState) return;
-    
+
     setGameState(prevState => {
       if (!prevState) return prevState;
       return { ...prevState, gameSpeed: speed };
@@ -999,7 +999,7 @@ export default function CISOChallenge() {
             {/* Indicateurs */}
             <div className="p-4 border-b border-slate-700">
               <h2 className="text-lg font-semibold text-white mb-4">Status Indicators</h2>
-              
+
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between mb-1">
@@ -1011,7 +1011,7 @@ export default function CISOChallenge() {
                     className={`h-2 ${getThreatLevelColor(gameState.threatLevel)}`} 
                   />
                 </div>
-                
+
                 <div>
                   <div className="flex justify-between mb-1">
                     <span className="text-sm text-slate-300">Reputation</span>
@@ -1022,7 +1022,7 @@ export default function CISOChallenge() {
                     className={`h-2 ${getReputationColor(gameState.reputation)}`} 
                   />
                 </div>
-                
+
                 <div>
                   <div className="flex justify-between mb-1">
                     <span className="text-sm text-slate-300">Budget</span>
@@ -1034,7 +1034,7 @@ export default function CISOChallenge() {
                     className="h-2 bg-blue-500" 
                   />
                 </div>
-                
+
                 <div>
                   <div className="flex justify-between mb-1">
                     <span className="text-sm text-slate-300">Time Remaining</span>
@@ -1048,11 +1048,11 @@ export default function CISOChallenge() {
                 </div>
               </div>
             </div>
-            
+
             {/* Équipe */}
             <div className="p-4 border-b border-slate-700 flex-1 overflow-auto">
               <h2 className="text-lg font-semibold text-white mb-4">Security Team</h2>
-              
+
               <div className="space-y-3">
                 {gameState.team.map(member => (
                   <div key={member.id} className="p-2 bg-slate-700 rounded-md">
@@ -1066,12 +1066,12 @@ export default function CISOChallenge() {
                         <p className="text-xs text-slate-400">{member.role}</p>
                       </div>
                     </div>
-                    
+
                     <div className="mt-2 flex justify-between text-xs text-slate-400">
                       <span>Morale: {member.morale}%</span>
                       <span>Fatigue: {member.fatigue}%</span>
                     </div>
-                    
+
                     <div className="mt-2">
                       <Button
                         variant={member.assigned ? "destructive" : "secondary"}
@@ -1086,7 +1086,7 @@ export default function CISOChallenge() {
                 ))}
               </div>
             </div>
-            
+
             {/* Scénarios */}
             <div className="p-4 border-t border-slate-700">
               <select
@@ -1100,7 +1100,7 @@ export default function CISOChallenge() {
                 <option value="insider-threat">Insider Threat</option>
                 <option value="supply-chain">Supply Chain Compromise</option>
               </select>
-              
+
               <Button
                 variant="outline"
                 className="w-full mt-2 border-cyan-700 bg-slate-800 hover:bg-slate-700"
@@ -1110,7 +1110,7 @@ export default function CISOChallenge() {
               </Button>
             </div>
           </div>
-          
+
           {/* Panneau principal */}
           <div className="flex-1 bg-gray-900 overflow-hidden flex flex-col">
             {/* Onglets */}
@@ -1124,7 +1124,7 @@ export default function CISOChallenge() {
                     <BarChart4 className="w-4 h-4 mr-2" />
                     Dashboard
                   </TabsTrigger>
-                  
+
                   <TabsTrigger 
                     value="events" 
                     className="data-[state=active]:bg-cyan-900 data-[state=active]:text-cyan-400"
@@ -1135,7 +1135,7 @@ export default function CISOChallenge() {
                       <Badge className="ml-2 bg-red-500">{unreadEvents}</Badge>
                     )}
                   </TabsTrigger>
-                  
+
                   <TabsTrigger 
                     value="communications" 
                     className="data-[state=active]:bg-cyan-900 data-[state=active]:text-cyan-400"
@@ -1146,7 +1146,7 @@ export default function CISOChallenge() {
                       <Badge className="ml-2 bg-red-500">{unreadCommunications}</Badge>
                     )}
                   </TabsTrigger>
-                  
+
                   <TabsTrigger 
                     value="team" 
                     className="data-[state=active]:bg-cyan-900 data-[state=active]:text-cyan-400"
@@ -1154,7 +1154,7 @@ export default function CISOChallenge() {
                     <Users className="w-4 h-4 mr-2" />
                     Team
                   </TabsTrigger>
-                  
+
                   <TabsTrigger 
                     value="resources" 
                     className="data-[state=active]:bg-cyan-900 data-[state=active]:text-cyan-400"
@@ -1164,20 +1164,21 @@ export default function CISOChallenge() {
                   </TabsTrigger>
                 </TabsList>
               </div>
-              
+
               {/* Contenu des onglets */}
               <div className="flex-1 overflow-auto p-4">
                 {/* Dashboard */}
                 <TabsContent value="dashboard" className="mt-0 h-full">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
-                    <Card className="bg-slate-800 border-slate-700 text-white">
-                      <CardHeader>
-                        <CardTitle>Scenario Overview</CardTitle>
-                        <CardDescription className="text-slate-400">Current situation and objectives</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-slate-300 mb-4">{gameState.scenarioDescription}</p>
-                        
+                    
+<Card className="bg-slate-800 border-slate-700 text-white">
+              <CardHeader>
+                <CardTitle>Aperçu du Scénario</CardTitle>
+                <CardDescription className="text-slate-400">Situation actuelle et objectifs</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-300 mb-4">{gameState.scenarioDescription}</p>
+
                         <div className="space-y-2 mb-4">
                           <div className="flex justify-between">
                             <span className="text-slate-400">Time elapsed:</span>
@@ -1196,7 +1197,7 @@ export default function CISOChallenge() {
                             <span className="text-white">{gameState.resources.reduce((sum, r) => sum + r.quantity, 0)}</span>
                           </div>
                         </div>
-                        
+
                         <div className="bg-slate-700 p-3 rounded-md">
                           <h3 className="text-cyan-400 font-semibold mb-2">Objectives</h3>
                           <ul className="space-y-2 text-slate-300">
@@ -1220,7 +1221,7 @@ export default function CISOChallenge() {
                         </div>
                       </CardContent>
                     </Card>
-                    
+
                     <Card className="bg-slate-800 border-slate-700 text-white">
                       <CardHeader>
                         <CardTitle>Activity Log</CardTitle>
@@ -1251,11 +1252,11 @@ export default function CISOChallenge() {
                     </Card>
                   </div>
                 </TabsContent>
-                
+
                 {/* Events */}
                 <TabsContent value="events" className="mt-0">
                   <h2 className="text-xl font-semibold text-white mb-4">Security Events</h2>
-                  
+
                   {gameState.events.length === 0 ? (
                     <div className="text-center py-8 text-slate-400">
                       <AlertCircle className="w-10 h-10 mx-auto mb-2 text-slate-500" />
@@ -1301,11 +1302,11 @@ export default function CISOChallenge() {
                     </div>
                   )}
                 </TabsContent>
-                
+
                 {/* Communications */}
                 <TabsContent value="communications" className="mt-0">
                   <h2 className="text-xl font-semibold text-white mb-4">Stakeholder Communications</h2>
-                  
+
                   {gameState.communications.length === 0 ? (
                     <div className="text-center py-8 text-slate-400">
                       <MessageSquare className="w-10 h-10 mx-auto mb-2 text-slate-500" />
@@ -1331,7 +1332,7 @@ export default function CISOChallenge() {
                           </CardHeader>
                           <CardContent>
                             <p className="text-slate-300 whitespace-pre-line">{comm.content}</p>
-                            
+
                             {comm.options && !comm.replied && (
                               <div className="mt-4 bg-slate-700 p-3 rounded-md">
                                 <h3 className="text-white font-medium mb-2">Response Options:</h3>
@@ -1369,11 +1370,11 @@ export default function CISOChallenge() {
                     </div>
                   )}
                 </TabsContent>
-                
+
                 {/* Team */}
                 <TabsContent value="team" className="mt-0">
                   <h2 className="text-xl font-semibold text-white mb-4">Security Team Management</h2>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {gameState.team.map(member => (
                       <Card key={member.id} className="bg-slate-800 border-slate-700">
@@ -1400,7 +1401,7 @@ export default function CISOChallenge() {
                               ))}
                             </div>
                           </div>
-                          
+
                           <div className="space-y-3">
                             <div>
                               <div className="flex justify-between mb-1">
@@ -1412,7 +1413,7 @@ export default function CISOChallenge() {
                                 className="h-2 bg-green-500" 
                               />
                             </div>
-                            
+
                             <div>
                               <div className="flex justify-between mb-1">
                                 <span className="text-sm text-slate-300">Fatigue</span>
@@ -1438,7 +1439,7 @@ export default function CISOChallenge() {
                     ))}
                   </div>
                 </TabsContent>
-                
+
                 {/* Resources */}
                 <TabsContent value="resources" className="mt-0">
                   <div className="flex justify-between items-center mb-4">
@@ -1448,7 +1449,7 @@ export default function CISOChallenge() {
                       <span className="text-lg font-medium text-white">${gameState.budget.toLocaleString()}</span>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {gameState.resources.map(resource => (
                       <Card key={resource.id} className="bg-slate-800 border-slate-700">
@@ -1462,7 +1463,7 @@ export default function CISOChallenge() {
                         </CardHeader>
                         <CardContent>
                           <p className="text-slate-300 mb-4">{resource.description}</p>
-                          
+
                           <div className="flex justify-between items-center bg-slate-700 p-2 rounded-md">
                             <div>
                               <p className="text-xs text-slate-400">Cost</p>
@@ -1492,7 +1493,7 @@ export default function CISOChallenge() {
             </Tabs>
           </div>
         </div>
-        
+
         {/* Dialogue de décision */}
         <Dialog open={showDecisionDialog} onOpenChange={setShowDecisionDialog}>
           <DialogContent className="bg-slate-800 text-white border-slate-700 w-11/12 max-w-lg">
@@ -1504,7 +1505,7 @@ export default function CISOChallenge() {
                 {currentDecision?.description || 'Make your choice carefully as it will impact the outcome of the incident.'}
               </DialogDescription>
             </DialogHeader>
-            
+
             <div className="space-y-3 py-4">
               {currentDecision?.options.map(option => (
                 <Button
@@ -1543,7 +1544,7 @@ export default function CISOChallenge() {
             </div>
           </DialogContent>
         </Dialog>
-        
+
         {/* Dialogue de fin de jeu */}
         <Dialog open={gameOverDialog} onOpenChange={setGameOverDialog}>
           <DialogContent className="bg-slate-800 text-white border-slate-700 w-11/12 max-w-lg">
@@ -1562,7 +1563,7 @@ export default function CISOChallenge() {
                 }
               </DialogDescription>
             </DialogHeader>
-            
+
             <div className="py-4">
               <div className="bg-slate-700 p-4 rounded-md mb-4">
                 <h3 className="font-medium text-white mb-2">Performance Summary</h3>
@@ -1586,7 +1587,7 @@ export default function CISOChallenge() {
                 </div>
               </div>
             </div>
-            
+
             <DialogFooter className="flex-col sm:flex-row gap-2">
               <Button
                 variant="outline"
