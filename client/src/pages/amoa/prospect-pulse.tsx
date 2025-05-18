@@ -1033,6 +1033,9 @@ export default function ProspectPulse() {
             )}
             
             <div ref={messagesEndRef} />
+            
+            {/* Élément audio caché pour la lecture des messages */}
+            <audio ref={audioRef} className="hidden" onEnded={() => setCurrentPlayingMessageId(null)} />
           </div>
         </div>
         
