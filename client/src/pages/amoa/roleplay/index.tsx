@@ -49,7 +49,7 @@ export default function AmoaRoleplay() {
           </motion.div>
 
           {/* Types de jeux de rôle */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {/* Préparation d'audition */}
             <Card className="bg-gradient-to-br from-blue-900/80 to-blue-950/90 border border-blue-800/30 backdrop-blur-sm hover:shadow-lg hover:border-blue-700/50 transition-all">
               <CardHeader>
