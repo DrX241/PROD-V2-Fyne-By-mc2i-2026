@@ -830,6 +830,15 @@ function App() {
                     </Suspense>
                   );
                 }} />
+                
+                <Route path="/amoa/prospect-pulse" component={() => {
+                  const ProspectPulse = lazy(() => import('./pages/amoa/prospect-pulse'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <ProspectPulse />
+                    </Suspense>
+                  );
+                }} />
                 <Route path="/amoa/projet-academy" component={() => {
                   const ProjetAcademy = lazy(() => import('./pages/amoa/projet-academy'));
                   return (
