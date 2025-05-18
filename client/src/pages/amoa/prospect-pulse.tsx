@@ -95,15 +95,13 @@ export default function ProspectPulse() {
   const { toast } = useToast();
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
   
   // États de l'application
   const [activeSession, setActiveSession] = useState<SimulationSession | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
-  const [currentPlayingMessageId, setCurrentPlayingMessageId] = useState<string | null>(null);
+  const [isAudioEnabled] = useState(true); // Audio toujours activé par défaut, fonctionnalité à venir
   const [globalTimeLeft, setGlobalTimeLeft] = useState(0);
   const [responseTimeLeft, setResponseTimeLeft] = useState(0);
   const [isSurpriseMode, setIsSurpriseMode] = useState(false);
@@ -235,76 +233,7 @@ export default function ProspectPulse() {
     }
   }, [messages]);
   
-  // Fonction pour lire le message à haute voix via l'API de synthèse vocale
-  const playMessageAudio = async (message: Message) => {
-    if (!isAudioEnabled || message.sender !== 'client' || !message.content.trim()) {
-      return;
-    }
-    
-    try {
-      setCurrentPlayingMessageId(message.id);
-      
-      // Récupérer la voix appropriée en fonction du type de client
-      let voiceName = "fr-FR-HenriNeural"; // Voix masculine par défaut
-      let style = "";
-      
-      if (activeSession?.clientProfile.type === 'pressé') {
-        voiceName = "fr-FR-HenriNeural";
-        style = "empressé";
-      } else if (activeSession?.clientProfile.type === 'hostile') {
-        voiceName = "fr-FR-MarcNeural";
-        style = "peu amical";
-      } else if (activeSession?.clientProfile.type === 'indécis') {
-        voiceName = "fr-FR-JeromeNeural";
-        style = "incertain";
-      } else if (activeSession?.clientProfile.type === 'technique') {
-        voiceName = "fr-FR-AlainNeural";
-        style = "professionnel";
-      } else if (activeSession?.clientProfile.type === 'débutant') {
-        voiceName = "fr-FR-YvesNeural";
-        style = "amical";
-      }
-      
-      // Appel à l'API de synthèse vocale
-      const response = await fetch('/api/audio/text-to-speech', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: message.content,
-          voiceName: voiceName,
-          language: 'fr-FR',
-          style: style
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Erreur lors de la synthèse vocale');
-      }
-      
-      // Créer un blob audio à partir de la réponse
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-      
-      // Lire l'audio
-      if (audioRef.current) {
-        audioRef.current.src = audioUrl;
-        audioRef.current.play().catch(error => {
-          console.error('Erreur de lecture audio:', error);
-          setCurrentPlayingMessageId(null);
-        });
-      }
-    } catch (error) {
-      console.error('Erreur lors de la lecture audio:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de lire le message audio. Veuillez réessayer.",
-        variant: "destructive",
-      });
-      setCurrentPlayingMessageId(null);
-    }
-  };
+  // La fonction de lecture audio sera implémentée ultérieurement
   
   // Fonction pour déclencher une session surprise
   const triggerSurpriseSession = () => {
@@ -835,24 +764,24 @@ export default function ProspectPulse() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-slate-200 flex items-center gap-2">
-                  {isAudioEnabled ? 
-                    <Volume2 className="h-4 w-4 text-blue-400" /> : 
-                    <VolumeX className="h-4 w-4 text-slate-400" />
-                  }
-                  Mode audio
+                  <Volume2 className="h-4 w-4 text-slate-400" />
+                  Mode audio <span className="text-amber-400 text-xs ml-1">(Bientôt disponible)</span>
                 </label>
                 <button 
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${isAudioEnabled ? 'bg-blue-600' : 'bg-slate-700'}`}
-                  onClick={() => setIsAudioEnabled(!isAudioEnabled)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 bg-slate-700`}
+                  onClick={() => {
+                    toast({
+                      title: "Fonctionnalité à venir",
+                      description: "La synthèse vocale sera bientôt disponible",
+                      variant: "default",
+                    });
+                  }}
                 >
-                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isAudioEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white translate-x-1`} />
                 </button>
               </div>
               <p className="text-xs text-slate-400">
-                {isAudioEnabled 
-                  ? "Les messages du client seront lus à haute voix"
-                  : "Mode silencieux (texte uniquement)"
-                }
+                Écoutez les messages du client avec différentes voix adaptées à leur personnalité
               </p>
             </div>
             
@@ -1016,22 +945,30 @@ export default function ProspectPulse() {
                       {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                     
-                    {/* Bouton audio pour les messages client */}
-                    {message.sender === 'client' && isAudioEnabled && (
-                      <button 
-                        className="ml-2 rounded-full flex items-center justify-center p-1 bg-blue-900/50 hover:bg-blue-800/50 transition-colors border border-blue-700/30"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          playMessageAudio(message);
-                        }}
-                        disabled={currentPlayingMessageId === message.id}
-                      >
-                        {currentPlayingMessageId === message.id ? (
-                          <Loader2 className="h-3 w-3 text-blue-300 animate-spin" />
-                        ) : (
-                          <Volume2 className="h-3 w-3 text-blue-300" />
-                        )}
-                      </button>
+                    {/* Bouton audio pour les messages client - fonctionnalité bientôt disponible */}
+                    {message.sender === 'client' && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              className="ml-2 rounded-full flex items-center justify-center p-1 bg-blue-900/50 hover:bg-blue-800/50 transition-colors border border-blue-700/30"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toast({
+                                  title: "Fonctionnalité à venir",
+                                  description: "La synthèse vocale sera bientôt disponible",
+                                  variant: "default",
+                                });
+                              }}
+                            >
+                              <Volume2 className="h-3 w-3 text-blue-300" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-blue-950 text-white border-blue-800">
+                            <div className="font-medium">Lecture audio bientôt disponible</div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     )}
                   </div>
                   <div className="whitespace-pre-line">{message.content}</div>
@@ -1057,9 +994,6 @@ export default function ProspectPulse() {
             )}
             
             <div ref={messagesEndRef} />
-            
-            {/* Élément audio caché pour la lecture des messages */}
-            <audio ref={audioRef} className="hidden" onEnded={() => setCurrentPlayingMessageId(null)} />
           </div>
         </div>
         
