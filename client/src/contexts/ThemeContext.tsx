@@ -28,24 +28,19 @@ export function useTheme() {
 
 // Provider qui fournit le contexte aux composants enfants
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Initialisation avec le thème stocké dans localStorage ou 'classic' par défaut
-  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
-    // Récupère le thème depuis localStorage ou 'classic' par défaut
-    const savedTheme = localStorage.getItem('fyne-theme-mode');
-    return (savedTheme === 'futuristic' || savedTheme === 'classic' || savedTheme === 'dark') 
-      ? savedTheme as ThemeMode
-      : 'classic';
-  });
+  // Toujours utiliser le thème futuriste
+  const [themeMode, setThemeMode] = useState<ThemeMode>('futuristic');
 
-  // Sauvegarde le thème dans localStorage quand il change
+  // Sauvegarde le thème dans localStorage (toujours futuriste)
   useEffect(() => {
-    localStorage.setItem('fyne-theme-mode', themeMode);
+    localStorage.setItem('fyne-theme-mode', 'futuristic');
     console.log("Theme actuel:", themeMode);
   }, [themeMode]);
 
-  // Fonction pour basculer entre les thèmes
+  // Fonction pour basculer entre les thèmes (désactivée)
   const toggleTheme = () => {
-    setThemeMode(prevMode => prevMode === 'classic' ? 'futuristic' : 'classic');
+    // Ne fait rien, on garde toujours le thème futuriste
+    console.log("Tentative de changement de thème ignorée, mode futuriste forcé");
   };
 
   // Déterminer si le thème est sombre

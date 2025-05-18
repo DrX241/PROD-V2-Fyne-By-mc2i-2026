@@ -41,25 +41,20 @@ const extractFirstName = (input: string): string => {
 
 export default function Header({ isFeny = false }) {
   const { userName } = useChatContext();
-  const { themeMode } = useTheme();
+  // Nous utilisons un thème futuriste par défaut
+  const isFuturistic = true;
   
   // Extraire le prénom propre et obtenir son initiale
   const displayName = userName ? extractFirstName(userName) : "";
   const userInitial = displayName ? displayName.charAt(0).toUpperCase() : "U";
   
-  // Détermine les styles en fonction du thème
-  const headerBgClass = themeMode === 'futuristic' || isFeny
-    ? 'bg-gray-900 shadow-md border-b border-blue-900/50' 
-    : 'bg-white shadow-sm border-b border-gray-100';
+  // Styles fixes en mode futuriste
+  const headerBgClass = 'bg-gray-900 shadow-md border-b border-blue-900/50';
     
   // Classes pour l'affichage de l'utilisateur  
-  const userInitialBgClass = themeMode === 'futuristic' || isFeny
-    ? 'bg-blue-900 text-cyan-300'
-    : 'bg-blue-100 text-blue-600';
+  const userInitialBgClass = 'bg-blue-900 text-cyan-300';
     
-  const userNameClass = themeMode === 'futuristic' || isFeny
-    ? 'text-blue-200'
-    : 'text-gray-700';
+  const userNameClass = 'text-blue-200';
 
   return (
     <header className={`w-full max-w-[100vw] overflow-hidden fixed top-0 left-0 right-0 z-50 ${headerBgClass}`}>
