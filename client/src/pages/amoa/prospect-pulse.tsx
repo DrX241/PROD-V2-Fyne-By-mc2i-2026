@@ -112,37 +112,37 @@ export default function ProspectPulse() {
     {
       id: 'pressed',
       type: 'pressé',
-      personality: 'Impatient, direct, regarde souvent sa montre',
-      context: 'A un besoin urgent à résoudre, peu de temps disponible',
-      initialMessage: 'J\'ai une problématique urgente à te poser. Tu peux m\'aider ou pas ?'
+      personality: 'Impatient, direct, regarde souvent sa montre, veut aller à l\'essentiel, coupe la parole si on s\'égare',
+      context: 'Doit résoudre un problème stratégique d\'ici demain midi, a très peu de temps disponible',
+      initialMessage: 'Bonjour. J\'ai très peu de temps. On doit trancher d\'ici demain sur un projet critique, mais il reste trop d\'incertitudes. Tu peux m\'aider ou pas ? Sois direct stp.'
     },
     {
       id: 'hostile',
       type: 'hostile',
-      personality: 'Méfiant, critique, teste constamment vos réponses',
-      context: 'A eu de mauvaises expériences avec des prestataires',
-      initialMessage: 'On m\'a recommandé votre cabinet, mais franchement j\'ai des doutes.'
+      personality: 'Méfiant, critique, teste constamment vos réponses, veut des preuves pas des promesses, peut être sec',
+      context: 'A eu de mauvaises expériences avec plusieurs prestataires, compare activement les cabinets',
+      initialMessage: 'Bonjour. On m\'a recommandé votre cabinet, mais franchement j\'ai des doutes. Vous êtes le troisième que je contacte ce mois-ci. Dites-moi ce que vous avez de différent, et vite.'
     },
     {
       id: 'indecis',
       type: 'indécis',
-      personality: 'Hésitant, pose beaucoup de questions, change régulièrement d\'avis',
-      context: 'N\'arrive pas à déterminer clairement ses besoins',
-      initialMessage: 'Je ne sais pas trop si c\'est ce qu\'il nous faut, mais voilà notre situation...'
+      personality: 'Hésitant, pose beaucoup de questions parfois redondantes, change régulièrement d\'avis, a besoin d\'être rassuré',
+      context: 'Son entreprise vit une période floue, n\'arrive pas à déterminer clairement ses besoins ou priorités',
+      initialMessage: 'Bonjour... Je ne suis pas encore certain que ce soit ce qu\'il nous faut, mais voilà. On a un projet de transformation, ou peut-être juste une réorganisation partielle. Bref, c\'est un peu flou. Tu peux m\'aider à y voir clair ?'
     },
     {
       id: 'technique',
       type: 'technique',
-      personality: 'Précis, utilise un vocabulaire technique, attend des réponses expertes',
-      context: 'Connaît bien son domaine et veut vérifier votre expertise',
-      initialMessage: 'Bonjour, j\'aimerais discuter d\'une problématique d\'architecture SI qui nous pose problème.'
+      personality: 'Exigeant, précis, rigoureux, utilise un vocabulaire métier avancé, teste vos connaissances techniques',
+      context: 'Fait face à un problème technique critique en interne, veut mesurer votre expertise concrète',
+      initialMessage: 'Bonjour. On rencontre actuellement des problèmes de latence sur une architecture hybride cloud/on-prem. Je cherche un cabinet capable d\'apporter un diagnostic fiable et une roadmap. Est-ce dans vos cordes ?'
     },
     {
       id: 'debutant',
       type: 'débutant',
-      personality: 'Peu familier avec le conseil, utilise un vocabulaire simple',
-      context: 'Premier contact avec un cabinet de conseil',
-      initialMessage: 'Bonjour, c\'est la première fois que je fais appel à un consultant...'
+      personality: 'Curieux mais perdu, pose des questions naïves, ne connaît pas les termes techniques, a besoin d\'explications simples',
+      context: 'Premier contact avec un cabinet de conseil, ne sait pas comment fonctionnent les prestations',
+      initialMessage: 'Bonjour, c\'est la première fois que je fais appel à un cabinet de conseil. On a un projet, mais je ne sais pas trop comment ça marche. Tu peux m\'expliquer ce que vous faites, et comment ça se passe si on travaille ensemble ?'
     }
   ]);
   
