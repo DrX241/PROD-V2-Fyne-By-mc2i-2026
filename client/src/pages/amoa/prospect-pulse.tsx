@@ -833,6 +833,30 @@ export default function ProspectPulse() {
           
           <div className="space-y-4 py-2">
             <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-slate-200 flex items-center gap-2">
+                  {isAudioEnabled ? 
+                    <Volume2 className="h-4 w-4 text-blue-400" /> : 
+                    <VolumeX className="h-4 w-4 text-slate-400" />
+                  }
+                  Mode audio
+                </label>
+                <button 
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${isAudioEnabled ? 'bg-blue-600' : 'bg-slate-700'}`}
+                  onClick={() => setIsAudioEnabled(!isAudioEnabled)}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isAudioEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+              <p className="text-xs text-slate-400">
+                {isAudioEnabled 
+                  ? "Les messages du client seront lus à haute voix"
+                  : "Mode silencieux (texte uniquement)"
+                }
+              </p>
+            </div>
+            
+            <div className="space-y-2">
               <label className="text-sm font-medium text-slate-200">Durée totale de session</label>
               <div className="flex items-center gap-3">
                 <input 
