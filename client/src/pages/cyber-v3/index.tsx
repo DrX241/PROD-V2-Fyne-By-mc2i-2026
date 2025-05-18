@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Shield,
   Terminal,
+  Users,
 } from 'lucide-react';
 import { IoHome, IoSchoolOutline } from 'react-icons/io5';
 import { BsShieldLock } from 'react-icons/bs';
@@ -248,7 +249,7 @@ export default function CyberV3() {
                 </div>
               </motion.div>
             
-              {/* CYBER DÉFENSE */}
+              {/* CYBER ROLE PLAY */}
               <motion.div 
                 whileHover={{ scale: 1.03 }}
                 className={`cyber-edge-distort relative overflow-hidden p-6 ${
@@ -266,19 +267,19 @@ export default function CyberV3() {
                     <BsShieldLock className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <h3 className="text-center text-2xl font-data-title mb-2">CYBER DÉFENSE</h3>
+                <h3 className="text-center text-2xl font-data-title mb-2">CYBER ROLE PLAY</h3>
                 <p className="text-center text-cyan-300 mt-2">
-                  Simulateur de gestion de crise et d'incidents cyber
+                  Jeux de rôle immersifs pour l'apprentissage cyber
                 </p>
                 <div className="mt-6">
                   <div className="text-center">
                     <Button 
                       className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-6 py-5 w-full"
                       onClick={(e) => {
-                        setLocation('/cyber/crisis-management');
+                        setLocation('/cyber/roleplay');
                       }}
                     >
-                      Accéder au centre de crise
+                      Accéder aux simulations
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
