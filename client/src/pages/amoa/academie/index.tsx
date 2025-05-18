@@ -304,7 +304,7 @@ export default function AmoaAcademie() {
       {/* En-tête */}
       <div className="p-6 container mx-auto">
         <div className="flex items-center mb-2">
-          <Link href="/amoa">
+          <Link href="/amoa/new">
             <Button variant="ghost" className="text-white mr-4">
               <ArrowLeft className="mr-2 h-5 w-5" />
               Retour

@@ -868,12 +868,18 @@ function App() {
                 
                 {/* Route redirectionnée vers /amoa/academie */}
                 <Route path="/amoa/projet-academy" component={() => {
-                  // Redirection vers la page academie
-                  const { navigate } = useLocation();
-                  React.useEffect(() => {
+                  const [_, navigate] = useLocation();
+                  
+                  useEffect(() => {
                     navigate('/amoa/academie');
-                  }, [navigate]);
-                  return <GlobalLoader />;
+                  }, []);
+                  
+                  return (
+                    <div className="min-h-screen flex items-center justify-center bg-indigo-950">
+                      <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+                      <p className="text-white mt-4 ml-4">Redirection...</p>
+                    </div>
+                  );
                 }} />
                 <Route path="/amoa/consultant-lab" component={() => {
                   const ConsultantLab = lazy(() => import('./pages/amoa/consultant-lab'));
