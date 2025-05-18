@@ -1067,7 +1067,7 @@ export default function CrisisSimulation() {
         {/* Bannière supérieure */}
         <div className="flex flex-col md:flex-row items-center justify-between bg-card/80 backdrop-blur-sm p-4 rounded-lg border border-border/40 mb-6">
           <div className="flex items-center">
-            <Link href="/cyber/crisis-management" className="mr-4">
+            <Link href="/cyber/crisis-center" className="mr-4">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Retour

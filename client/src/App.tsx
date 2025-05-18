@@ -195,15 +195,6 @@ function App() {
                 }} />
                 
                 {/* Routes pour les modules mc2i qui ne fonctionnaient pas */}
-                <Route path="/amoa/prospect-pulse" component={() => {
-                  const ProspectPulseComponent = lazy(() => import('./pages/amoa/prospect-pulse'));
-                  return (
-                    <Suspense fallback={<GlobalLoader />}>
-                      <ProspectPulseComponent />
-                    </Suspense>
-                  );
-                }} />
-                
                 <Route path="/amoa/test-reflexes" component={() => {
                   const TestReflexesComponent = lazy(() => import('./pages/amoa/test-reflexes-fixed'));
                   return (
@@ -405,7 +396,7 @@ function App() {
                 }} />
                 
                 {/* Centre de Crise Immersif */}
-                <Route path="/cyber/crisis-management" component={() => {
+                <Route path="/cyber/crisis-center" component={() => {
                   const CrisisCenterComponent = lazy(() => import('./pages/cyber/crisis-center/index'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
@@ -414,7 +405,7 @@ function App() {
                   );
                 }} />
                 
-                <Route path="/cyber/crisis-management/crisis-simulation" component={() => {
+                <Route path="/cyber/crisis-center/crisis-simulation" component={() => {
                   const CrisisSimulationComponent = lazy(() => import('./pages/cyber/crisis-center/crisis-simulation'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
@@ -423,7 +414,7 @@ function App() {
                   );
                 }} />
                 
-                <Route path="/cyber/crisis-management/immersive" component={() => {
+                <Route path="/cyber/crisis-center/immersive" component={() => {
                   const ImmersiveCrisisComponent = lazy(() => import('./pages/cyber/crisis-center/immersive-crisis'));
                   return (
                     <Suspense fallback={<GlobalLoader />}>
@@ -433,7 +424,7 @@ function App() {
                 }} />
                 
                 {/* Le module CISO Challenge a été supprimé */}
-                <Route path="/cyber/crisis-management/ciso-challenge" component={NotYetImplemented} />
+                <Route path="/cyber/crisis-center/ciso-challenge" component={NotYetImplemented} />
                 
                 <Route path="/cyber/interview-test" component={() => {
                   const CyberInterviewTest = lazy(() => import('./pages/cyber/interview-test'));

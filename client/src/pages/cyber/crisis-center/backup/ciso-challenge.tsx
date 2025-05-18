@@ -1729,7 +1729,7 @@ export default function CISOChallenge() {
               <Button
                 variant="outline"
                 className="flex-1 border-slate-600 hover:bg-slate-700"
-                onClick={() => setLocation('/cyber/crisis-management')}
+                onClick={() => setLocation('/cyber/crisis-center')}
               >
                 Return to Scenarios
               </Button>

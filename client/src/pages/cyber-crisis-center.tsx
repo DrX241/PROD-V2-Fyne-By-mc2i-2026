@@ -91,7 +91,7 @@ export default function CyberCrisisCenter() {
           <Button 
             size="lg"
             className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-8 py-6"
-            onClick={() => setLocation('/cyber/crisis-management/ciso-challenge')}
+            onClick={() => setLocation('/cyber/crisis-center/ciso-challenge')}
           >
             Lancer la Simulation CISO
           </Button>

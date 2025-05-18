@@ -42,7 +42,7 @@ export default function CyberV3() {
           `}
         </style>
       </Helmet>
-
+      
       <div className="min-h-screen relative cyber-bg"
         style={{ 
           fontSize: `${textSize}rem`,
@@ -52,14 +52,14 @@ export default function CyberV3() {
         }}>
         {/* Arrière-plan animé */}
         <CyberScene />
-
+        
         {/* Éléments visuels supplémentaires */}
         {!highContrastMode && (
           <>
             {/* Circuit patterns cybernétiques */}
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXR0ZXJuIGlkPSJjaXJjdWl0IiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMGgxMDB2MTAwSDIwMHYxMDBoLTEwMHYtMTAwSDB6IiBmaWxsPSJub25lIiBzdHJva2U9IiMwZmIzZDEiIHN0cm9rZS13aWR0aD0iMSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIwIiByPSIzIiBmaWxsPSIjMGZiM2QxIi8+PGNpcmNsZSBjeD0iMjAwIiBjeT0iMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIyMDAiIHI9IjMiIGZpbGw9IiMwZmIzZDEiLz48L3BhdHRlcm4+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNjaXJjdWl0KSIgb3BhY2l0eT0iMC4xNSIvPjwvc3ZnPg==')]" 
                  style={{ opacity: 0.05 }}></div>
-
+            
             {/* Scanlines animées */}
             <div className="absolute inset-0 overflow-hidden">
               <div className="w-full h-full bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent bg-repeat-y" 
@@ -70,13 +70,13 @@ export default function CyberV3() {
                   }}>
               </div>
             </div>
-
+            
             {/* Points lumineux */}
             <div className="absolute top-1/5 right-1/4 w-2 h-2 bg-cyan-300 rounded-full opacity-70 animate-pulse shadow-[0_0_30px_15px_rgba(34,211,238,0.5)]"></div>
             <div className="absolute bottom-1/3 left-1/5 w-1 h-1 bg-pink-300 rounded-full opacity-60 animate-pulse shadow-[0_0_20px_10px_rgba(236,72,153,0.4)]"></div>
           </>
         )}
-
+        
         {/* Navigation et contrôles */}
         <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">
           <div className="flex justify-between items-center mb-10">
@@ -95,11 +95,11 @@ export default function CyberV3() {
                 <h1 className="text-3xl font-bold text-white tracking-tight">I AM CYBER</h1>
               </div>
             </div>
-
+            
             <div className="flex items-center gap-4">
               {/* Status de connexion à l'API */}
               <OpenAIStatusIndicator />
-
+              
               {/* Bouton d'aide */}
               <TooltipProvider>
                 <Tooltip>
@@ -120,7 +120,7 @@ export default function CyberV3() {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-
+              
               {/* Contrôle mode haut contraste */}
               <TooltipProvider>
                 <Tooltip>
@@ -146,7 +146,7 @@ export default function CyberV3() {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-
+              
               {/* Contrôle taille du texte */}
               <div className="flex items-center gap-2">
                 <TooltipProvider>
@@ -165,7 +165,7 @@ export default function CyberV3() {
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-
+                
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -185,7 +185,7 @@ export default function CyberV3() {
               </div>
             </div>
           </div>
-
+          
           {/* Titre et sous-titre */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -247,7 +247,7 @@ export default function CyberV3() {
                   </div>
                 </div>
               </motion.div>
-
+            
               {/* CYBER DÉFENSE */}
               <motion.div 
                 whileHover={{ scale: 1.03 }}
