@@ -93,7 +93,7 @@ export default function CyberV3() {
                 </DataButton>
               </Link>
               <div className="ml-6">
-                <h1 className="text-3xl font-bold text-white tracking-tight">I AM CYBER</h1>
+                <h1 className="text-3xl font-bold text-white tracking-tight">Centre de Formation</h1>
               </div>
             </div>
             
