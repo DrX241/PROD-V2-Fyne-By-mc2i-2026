@@ -849,7 +849,7 @@ export default function ProspectPulse() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-white">Session en cours</h3>
-                <p className="text-sm text-blue-300">Client: <Badge className="bg-blue-700 hover:bg-blue-600">{activeSession.clientProfile.type}</Badge></p>
+                <div className="text-sm text-blue-300">Client: <Badge className="bg-blue-700 hover:bg-blue-600">{activeSession.clientProfile.type}</Badge></div>
               </div>
             </div>
             
@@ -915,7 +915,7 @@ export default function ProspectPulse() {
                       {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-                  <p className="whitespace-pre-line">{message.content}</p>
+                  <div className="whitespace-pre-line">{message.content}</div>
                 </div>
               </div>
             ))}
@@ -976,7 +976,7 @@ export default function ProspectPulse() {
           </div>
           
           <div className="mt-2 text-xs text-blue-400">
-            <p>Conseil: Soyez concis et précis. Posez des questions pour mieux comprendre les besoins du client.</p>
+            <div className="text-sm text-gray-300">Conseil: Soyez concis et précis. Posez des questions pour mieux comprendre les besoins du client.</div>
           </div>
         </div>
       </div>
@@ -1021,7 +1021,7 @@ export default function ProspectPulse() {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent className="bg-blue-950 text-white border-blue-800">
-                    <p>Paramètres du simulateur</p>
+                    <div className="font-medium">Paramètres du simulateur</div>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -1041,7 +1041,7 @@ export default function ProspectPulse() {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent className="bg-amber-950 text-white border-amber-800">
-                    <p>Reçois des demandes clients aléatoires pendant ta navigation</p>
+                    <div className="text-sm">Reçois des demandes clients aléatoires pendant ta navigation</div>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>

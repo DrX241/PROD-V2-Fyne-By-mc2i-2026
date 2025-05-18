@@ -1,0 +1,76 @@
+Warning: validateDOMNesting(...): <div> cannot appear as a descendant of &lt;p&gt;.
+    at div
+    at _c (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/components/ui/badge.tsx:37:11)
+    at p
+    at div
+    at div
+    at div
+    at div
+    at div
+    at div
+    at div
+    at div
+    at div
+    at main
+    at div
+    at HomeLayout (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/components/layout/HomeLayout.tsx:18:38)
+    at ProspectPulse (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/pages/amoa/prospect-pulse.tsx:65:35)
+    at Suspense
+    at component
+    at Route (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e9146888:323:16)
+    at Switch (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e9146888:379:17)
+    at div
+    at TutorialProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/TutorialContext.tsx:235:36)
+    at ChatProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ChatContext.tsx:346:32)
+    at ThemeProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ThemeContext.tsx:33:33)
+    at QueryClientProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=e9146888:2805:3)
+    at App (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/App.tsx?v=sQvkdReHBGdQWnOi4he9h:143:49)
+    at AuthProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/AuthContext.tsx?v=sQvkdReHBGdQWnOi4he9h:21:32)
+    at _a (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-helmet-async.js?v=e9146888:550:5)
+at div
+at _c (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/components/ui/badge.tsx:37:11)
+at p
+at div
+at div
+at div
+at div
+at div
+at div
+at div
+at div
+at div
+at main
+at div
+at HomeLayout (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/components/layout/HomeLayout.tsx:18:38)
+at ProspectPulse (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/pages/amoa/prospect-pulse.tsx:65:35)
+at Suspense
+at component
+at Route (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e9146888:323:16)
+at Switch (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e9146888:379:17)
+at div
+at TutorialProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/TutorialContext.tsx:235:36)
+at ChatProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ChatContext.tsx:346:32)
+at ThemeProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ThemeContext.tsx:33:33)
+at QueryClientProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=e9146888:2805:3)
+at App (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/App.tsx?v=sQvkdReHBGdQWnOi4he9h:143:49)
+at AuthProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/AuthContext.tsx?v=sQvkdReHBGdQWnOi4he9h:21:32)
+at _a (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-helmet-async.js?v=e9146888:550:5)
+at t.value (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Theme actuel: futuristic
+Warning: Cannot update a component (&#x60;Toaster&#x60;) while rendering a different component (&#x60;ProspectPulse&#x60;). To locate the bad setState() call inside &#x60;ProspectPulse&#x60;, follow the stack trace as described in https://reactjs.org/link/setstate-in-render
+    at ProspectPulse (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/pages/amoa/prospect-pulse.tsx:65:35)
+    at Suspense
+    at component
+    at Route (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e9146888:323:16)
+    at Switch (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e9146888:379:17)
+    at div
+    at TutorialProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/TutorialContext.tsx:235:36)
+    at ChatProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ChatContext.tsx:346:32)
+    at ThemeProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/ThemeContext.tsx:33:33)
+    at QueryClientProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=e9146888:2805:3)
+    at App (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/App.tsx?v=sQvkdReHBGdQWnOi4he9h:143:49)
+    at AuthProvider (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/src/contexts/AuthContext.tsx?v=sQvkdReHBGdQWnOi4he9h:21:32)
+    at _a (https://635b36d3-5c8d-400a-aff2-b62afb5448fa-00-3j5eg0z743035.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-helmet-async.js?v=e9146888:550:5)
