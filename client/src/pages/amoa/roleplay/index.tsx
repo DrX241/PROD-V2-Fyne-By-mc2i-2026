@@ -190,9 +190,9 @@ export default function AmoaRoleplay() {
               Notre module mc2i ROLE PLAY s'enrichira bientôt de nouvelles fonctionnalités pour vous aider à progresser 
               dans toutes les situations professionnelles que vous pourriez rencontrer.
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-blue-900/30 rounded-lg p-4 flex items-start gap-3">
-                <div className="bg-blue-700/40 p-2 rounded-lg">
+                <div className="bg-blue-800/60 p-2 rounded-lg">
                   <MessageSquare className="h-5 w-5 text-blue-300" />
                 </div>
                 <div>
@@ -200,13 +200,25 @@ export default function AmoaRoleplay() {
                   <p className="text-sm text-blue-300 mt-1">Simulations d'entretiens impliquant plusieurs participants avec différents rôles.</p>
                 </div>
               </div>
-              <div className="bg-blue-900/30 rounded-lg p-4 flex items-start gap-3">
-                <div className="bg-blue-700/40 p-2 rounded-lg">
-                  <Award className="h-5 w-5 text-blue-300" />
+              <div className="bg-indigo-900/30 rounded-lg p-4 flex items-start gap-3">
+                <div className="bg-indigo-700/60 p-2 rounded-lg">
+                  <Award className="h-5 w-5 text-indigo-300" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-blue-100">Certification des compétences</h4>
-                  <p className="text-sm text-blue-300 mt-1">Obtenez une validation de vos capacités après plusieurs simulations réussies.</p>
+                  <h4 className="font-medium text-indigo-100">Certification des compétences</h4>
+                  <p className="text-sm text-indigo-300 mt-1">Obtenez une validation de vos capacités après plusieurs simulations réussies.</p>
+                </div>
+              </div>
+              <div className="bg-purple-900/40 rounded-lg p-4 flex items-start gap-3 border border-purple-800/30">
+                <div className="bg-purple-700/60 p-2 rounded-lg">
+                  <Timer className="h-5 w-5 text-purple-300" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-purple-100 flex items-center gap-2">
+                    Mode Audio en temps réel
+                    <Badge className="bg-purple-800/80 text-purple-100 text-[10px]">COMING SOON</Badge>
+                  </h4>
+                  <p className="text-sm text-purple-300 mt-1">Interagissez vocalement avec une IA réactive pour des échanges naturels et immédiats.</p>
                 </div>
               </div>
             </div>
