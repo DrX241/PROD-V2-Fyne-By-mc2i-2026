@@ -612,6 +612,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Enregistrer les routes pour les outils cyber
   app.use('/api/cyber/tools', cyberToolsRoutes);
   
+  // Enregistrer les routes pour ProspectPulse
+  app.use('/api/prospect-pulse', prospectPulseRoutes);
+  
   // Routes pour l'exécution de code
   app.post('/api/code/execute/python', executePythonCode);
   app.post('/api/code/execute/sql', executeSQLCode);
