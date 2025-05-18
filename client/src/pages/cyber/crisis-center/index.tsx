@@ -109,9 +109,9 @@ const crisisScenarios: CrisisScenario[] = [
       avgScore: 82,
       bestTime: '28 min'
     },
-    available: true,
-    featured: true,
-    new: true
+    available: false, // Scénario temporairement indisponible
+    featured: false,
+    new: false
   },
   {
     id: 'ransomware-critical',
@@ -294,12 +294,8 @@ export default function CrisisCenter() {
   
   // Lancer un scénario
   const startScenario = (scenario: CrisisScenario) => {
-    // Rediriger vers la nouvelle expérience CISO Challenge si spécifié
-    if (scenario.id === 'ciso-challenge') {
-      setLocation(`/cyber/crisis-center/ciso-challenge`);
-    } else {
-      setLocation(`/cyber/crisis-center/crisis-simulation`);
-    }
+    // Le module CISO Challenge a été supprimé, tous les scénarios utilisent crisis-simulation
+    setLocation(`/cyber/crisis-center/crisis-simulation`);
   };
   
   // Rendu du panneau de statistiques
