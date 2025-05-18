@@ -350,15 +350,9 @@ Réponds maintenant en tant que Client en une seule réplique qui reflète fidè
       800   // max_tokens augmentés pour des réponses plus complètes
     );
 
-    // Formatage de la réponse
-    const clientMessage = {
-      id: uuidv4(),
-      content: response, // Le service retourne directement le contenu comme une chaîne
-      sender: 'client',
-      timestamp: new Date()
-    };
-
-    return res.status(200).json({ message: clientMessage });
+    // Formatage de la réponse - envoi uniquement du contenu textuel
+    // Cela évite l'erreur "Objects are not valid as a React child"
+    return res.status(200).json({ message: response });
   } catch (error) {
     console.error('Erreur lors de la génération du message client:', error);
     return res.status(500).json({ error: 'Erreur lors de la génération du message client' });
