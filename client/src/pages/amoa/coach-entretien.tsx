@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Users, MessageSquare, Award, Clock, CheckCircle2, AlertCircle, Timer, Shuffle, Target, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
 
 export default function CoachEntretien() {
+  const [_, setLocation] = useLocation();
   return (
     <HomeLayout>
       <div className="min-h-screen bg-gradient-to-b from-blue-900 via-blue-950 to-gray-900 pt-16 pb-12 text-white">
@@ -195,7 +196,10 @@ export default function CoachEntretien() {
                     <span>Évaluation des compétences commerciales</span>
                   </li>
                 </ul>
-                <Button className="w-full bg-gradient-to-r from-amber-600 to-red-600 hover:from-amber-700 hover:to-red-700 text-white">
+                <Button 
+                  className="w-full bg-gradient-to-r from-amber-600 to-red-600 hover:from-amber-700 hover:to-red-700 text-white"
+                  onClick={() => setLocation('/amoa/prospect-pulse')}
+                >
                   Activer le mode surprise
                 </Button>
               </CardContent>
