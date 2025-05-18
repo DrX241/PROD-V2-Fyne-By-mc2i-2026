@@ -35,16 +35,11 @@ export default function AmoaModeSelectionNew() {
           <div className="absolute inset-0 bg-blue-950/40 z-10"></div>
           
           {/* Première moitié de l'écran - Slogan */}
-          <div className="absolute top-0 left-0 w-1/2 h-full flex items-center justify-center">
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <div className="text-white text-3xl font-bold text-center p-4 bg-gradient-to-r from-blue-900/80 to-indigo-900/80 rounded-lg shadow-lg">
-                Éclairer et transformer<br />les organisations
-              </div>
-            </div>
+          <div className="absolute top-0 left-0 w-1/2 h-full flex items-center justify-center opacity-60">
             <img 
               src={mc2iSloganImage} 
               alt="Éclairer et transformer les organisations" 
-              className="w-full h-full object-cover object-center opacity-60" 
+              className="w-full h-full object-cover object-center" 
               style={{ filter: 'contrast(1.1) brightness(1.05)' }}
             />
           </div>
