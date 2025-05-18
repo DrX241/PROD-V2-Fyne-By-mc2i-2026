@@ -299,7 +299,7 @@ function ExpertLearningPageContent() {
   
   // Retour à la page précédente
   const handleReturnToPrevious = () => {
-    setLocation('/amoa-mode-selection');
+    setLocation('/amoa/roleplay');
   };
   
   return (
@@ -341,7 +341,7 @@ function ExpertLearningPageContent() {
               className="bg-violet-950 border-violet-400/30 text-violet-400 hover:bg-violet-900 hover:border-violet-400/50 flex items-center gap-2 font-mono text-xs shadow-[0_0_10px_rgba(167,139,250,0.1)]"
             >
               <span className="text-red-400">←</span>
-              <span>RETOUR CONSOLE PRINCIPALE</span>
+              <span>RETOUR MODULES AMOA</span>
             </Button>
           </div>
           
@@ -592,7 +592,7 @@ function ExpertLearningPageContent() {
                       onClick={handleReturnToPrevious}
                       className="border-violet-400/30 text-violet-400 hover:bg-violet-900 hover:border-violet-400/50"
                     >
-                      Retour à l'accueil
+                      Retour aux modules AMOA
                     </Button>
                   </CardFooter>
                 </Card>
