@@ -320,6 +320,23 @@ export interface Decision {
   correctOptionId?: string;
 }
 
+// Structure pour le suivi des compétences
+export interface SkillProgress {
+  id: string;
+  name: string;
+  progress: number;
+  category?: string;
+  icon?: string;
+}
+
+// Fonction pour calculer la progression globale des compétences
+export function calculateGlobalSkillProgress(skills: SkillProgress[]): number {
+  if (!skills || skills.length === 0) return 0;
+  
+  const totalProgress = skills.reduce((sum, skill) => sum + skill.progress, 0);
+  return Math.floor(totalProgress / skills.length);
+}
+
 export const USER_ROLES: UserRole[] = [
   {
     id: 'blue-team',
