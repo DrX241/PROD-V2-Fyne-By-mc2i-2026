@@ -109,9 +109,9 @@ export default function CyberArcade() {
       <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-gray-900 to-blue-900">
         <div className="relative z-10 max-w-7xl w-full mx-auto px-4 py-12 sm:px-6 sm:py-16">
           <div className="flex items-center mb-8">
-            <Link href="/cyber">
+            <Link href="/cyber/roleplay">
               <Button variant="ghost" className="text-white hover:bg-blue-800/20 mr-4">
-                <ArrowLeft className="mr-2 h-4 w-4" /> Retour
+                <ArrowLeft className="mr-2 h-4 w-4" /> Retour aux jeux de rôle
               </Button>
             </Link>
             <h1 className="text-3xl sm:text-4xl font-bold text-white">Cyber Arcade</h1>
