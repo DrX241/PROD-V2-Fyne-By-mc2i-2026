@@ -1,11 +1,11 @@
 import express from 'express';
-import { openAIService } from '../services/openai';
-import { handleCrisisTeamResponse } from '../fixes/openai-fix';
+import { handleCrisisTeamResponse } from '../controllers/azureOpenAIController';
 
 const router = express.Router();
 
 /**
  * Route pour générer une réponse contextuelle pour un membre de l'équipe de crise
+ * Utilise notre contrôleur amélioré pour la gestion des erreurs HTML et la génération de réponses
  */
 router.post('/generate-response', handleCrisisTeamResponse);
 
