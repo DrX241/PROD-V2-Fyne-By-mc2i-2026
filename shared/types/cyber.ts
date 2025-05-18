@@ -73,8 +73,13 @@ export interface DecisionOption {
     time: number;
     reputation: number;
     cost: number;
+    budget?: number;
+    timeline?: number;
+    employment?: number;
+    missionCritical?: number;
   };
   consequences: string[];
+  description?: string;
   triggers?: string[];
 }
 
@@ -86,6 +91,9 @@ export interface CrisisDecisionContent {
   securityImpact: number;
   reputationImpact: number;
   costImpact: number;
+  situation?: string;
+  context?: string;
+  options?: DecisionOption[];
 }
 
 export interface TimeTrigger {
@@ -314,8 +322,9 @@ export interface Objective {
 // Interface pour les décisions
 export interface Decision {
   id: string;
-  question: string;
-  options: { id: string; text: string; }[];
+  question?: string;
+  text: string;
+  options: DecisionOption[];
   context?: string;
   correctOptionId?: string;
 }
