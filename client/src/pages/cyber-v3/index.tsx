@@ -275,10 +275,10 @@ export default function CyberV3() {
                     <Button 
                       className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-6 py-5 w-full"
                       onClick={(e) => {
-                        setLocation('/cyber/crisis-center/ciso-challenge');
+                        setLocation('/cyber/crisis-center');
                       }}
                     >
-                      Commencer la simulation CISO
+                      Accéder au centre de crise
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
