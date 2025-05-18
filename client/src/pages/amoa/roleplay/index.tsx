@@ -175,12 +175,12 @@ export default function AmoaRoleplay() {
             </Card>
           </div>
 
-          {/* Section historique des simulations */}
+          {/* Section évolutions à venir */}
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-blue-950/50 border border-blue-900/30 rounded-xl p-6 max-w-4xl mx-auto"
+            className="bg-blue-950/50 border border-blue-900/30 rounded-xl p-6 w-full mx-auto"
           >
             <h3 className="text-xl font-bold mb-4 flex items-center">
               <FileText className="mr-2 h-5 w-5" />
@@ -190,35 +190,26 @@ export default function AmoaRoleplay() {
               Notre module mc2i ROLE PLAY s'enrichira bientôt de nouvelles fonctionnalités pour vous aider à progresser 
               dans toutes les situations professionnelles que vous pourriez rencontrer.
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-blue-900/30 rounded-lg p-4 flex items-start gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-blue-900/30 rounded-lg p-5 flex items-start gap-4 border border-blue-800/30 hover:border-blue-700/50 transition-all">
                 <div className="bg-blue-800/60 p-2 rounded-lg">
-                  <MessageSquare className="h-5 w-5 text-blue-300" />
+                  <MessageSquare className="h-6 w-6 text-blue-300" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-blue-100">Situations multi-interlocuteurs</h4>
-                  <p className="text-sm text-blue-300 mt-1">Simulations d'entretiens impliquant plusieurs participants avec différents rôles.</p>
+                  <h4 className="font-medium text-blue-100 text-lg">Situations multi-interlocuteurs</h4>
+                  <p className="text-sm text-blue-300 mt-2">Simulations d'entretiens impliquant plusieurs participants avec différents rôles pour des scénarios plus complexes et réalistes.</p>
                 </div>
               </div>
-              <div className="bg-indigo-900/30 rounded-lg p-4 flex items-start gap-3">
-                <div className="bg-indigo-700/60 p-2 rounded-lg">
-                  <Award className="h-5 w-5 text-indigo-300" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-indigo-100">Certification des compétences</h4>
-                  <p className="text-sm text-indigo-300 mt-1">Obtenez une validation de vos capacités après plusieurs simulations réussies.</p>
-                </div>
-              </div>
-              <div className="bg-purple-900/40 rounded-lg p-4 flex items-start gap-3 border border-purple-800/30">
+              <div className="bg-purple-900/40 rounded-lg p-5 flex items-start gap-4 border border-purple-800/30 hover:border-purple-700/50 transition-all">
                 <div className="bg-purple-700/60 p-2 rounded-lg">
-                  <Timer className="h-5 w-5 text-purple-300" />
+                  <Timer className="h-6 w-6 text-purple-300" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-purple-100 flex items-center gap-2">
+                  <h4 className="font-medium text-purple-100 flex items-center gap-2 text-lg">
                     Mode Audio en temps réel
-                    <Badge className="bg-purple-800/80 text-purple-100 text-[10px]">COMING SOON</Badge>
+                    <Badge className="bg-purple-800/80 text-purple-100 text-xs">COMING SOON</Badge>
                   </h4>
-                  <p className="text-sm text-purple-300 mt-1">Interagissez vocalement avec une IA réactive pour des échanges naturels et immédiats.</p>
+                  <p className="text-sm text-purple-300 mt-2">Interagissez vocalement avec une IA réactive pour des échanges naturels et immédiats, sans délai de traitement, pour une expérience encore plus réaliste.</p>
                 </div>
               </div>
             </div>
