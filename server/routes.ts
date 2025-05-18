@@ -13,6 +13,7 @@ import attachmentRoutes from './routes/attachmentRoutes';
 import cyberForgeRoutes from './routes/cyberForgeRoutes';
 import cyberToolsRoutes from './routes/cyberToolsRoutes';
 import immersiveCrisisRoutes from './routes/immersiveCrisisRoutes';
+import prospectPulseRoutes from './routes/prospectPulseRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { evaluateInterviewTest, generateAdaptiveQuestion } from './cyberInterviewTestController';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
