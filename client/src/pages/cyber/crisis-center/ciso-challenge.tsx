@@ -43,7 +43,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar } from '@/components/ui/avatar';
 import { AvatarImage } from '@/components/ui/avatar';
 import { AvatarFallback } from '@/components/ui/avatar';
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 // Types
 type TeamMember = {
@@ -494,7 +494,8 @@ function initializeGameState(scenarioId: string): GameState {
 }
 
 export default function CISOChallenge() {
-  const router = useRouter();
+  const [location, setLocation] = useLocation();
+  const { toast } = useToast();
   const [scenarioId, setScenarioId] = useState<string>('ransomware');
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [activeTab, setActiveTab] = useState<string>('dashboard');
@@ -516,7 +517,7 @@ export default function CISOChallenge() {
         variant: 'destructive'
       });
     }
-  }, [scenarioId]);
+  }, [scenarioId, toast]);
 
   // Système de timer
   useEffect(() => {
@@ -1590,7 +1591,7 @@ export default function CISOChallenge() {
               <Button
                 variant="outline"
                 className="flex-1 border-slate-600 hover:bg-slate-700"
-                onClick={() => router.push('/scenarios')}
+                onClick={() => setLocation('/cyber/crisis-center')}
               >
                 Return to Scenarios
               </Button>
