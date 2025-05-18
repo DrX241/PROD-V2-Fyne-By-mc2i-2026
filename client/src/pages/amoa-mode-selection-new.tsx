@@ -155,14 +155,14 @@ export default function AmoaModeSelectionNew() {
           {/* Modules mc2i */}
           <div className="mt-8 px-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-center max-w-6xl mx-auto">
-              {/* COACH ENTRETIEN */}
+              {/* mc2i ROLE PLAY */}
               <div 
                 className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
                   highContrastMode 
                     ? 'bg-gray-800 border border-gray-700' 
                     : 'bg-gradient-to-br from-blue-600 to-blue-900 border-2 border-blue-400/50 shadow-lg shadow-blue-500/50'
                 } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
-                onClick={() => navigate('/amoa/coach-entretien')}
+                onClick={() => navigate('/amoa/roleplay')}
               >
                 <div className="flex items-center justify-center mb-4">
                   <div className={`p-3 rounded-lg ${
@@ -173,22 +173,22 @@ export default function AmoaModeSelectionNew() {
                     <IoVideocam className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <h3 className="text-center text-2xl font-bold mb-2">COACH ENTRETIEN</h3>
+                <h3 className="text-center text-2xl font-bold mb-2">mc2i ROLE PLAY</h3>
                 <p className="text-center text-blue-300 mt-2">
-                  Simulateur d'entretiens clients avec intelligence artificielle
+                  Simulations métier et situations professionnelles interactives
                 </p>
                 <div className="text-center flex flex-col items-center mt-4">
                   <p className="text-gray-200 mb-4">
-                    Préparez-vous aux différents scénarios d'entretien avec feedback personnalisé
+                    Développez vos compétences en entretien client, recrutement et prospection commerciale
                   </p>
                   <Button 
                     className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-5"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate('/amoa/coach-entretien');
+                      navigate('/amoa/roleplay');
                     }}
                   >
-                    Démarrer une simulation
+                    Accéder aux jeux de rôle
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
