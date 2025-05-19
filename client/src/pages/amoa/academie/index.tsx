@@ -237,64 +237,7 @@ export default function AmoaAcademie() {
             </div>
           </div>
           
-          {/* Parcours complets */}
-          <div className="bg-gradient-to-r from-emerald-900/40 to-emerald-950/60 border border-emerald-700 rounded-lg p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold flex items-center">
-                <GraduationCap className="mr-3 h-6 w-6 text-emerald-400" />
-                Parcours certifiants
-              </h2>
-              <Badge variant="outline" className="bg-emerald-800/30 border-emerald-600 text-emerald-200 px-3 py-1 text-sm">
-                2 parcours disponibles
-              </Badge>
-            </div>
-            <p className="text-emerald-200 mb-6">
-              Des parcours complets et certifiants pour accélérer votre carrière en AMOA.
-            </p>
-            
-            {/* Liste des parcours */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {learningPaths.map((path) => (
-                <Card key={path.id} className="bg-emerald-900/20 border border-emerald-700 hover:shadow-md hover:border-emerald-500 transition-all">
-                  <CardHeader className="pb-3">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center">
-                        <div className="p-2 rounded-full bg-emerald-800/50 mr-3">
-                          {path.icon}
-                        </div>
-                        <CardTitle>{path.title}</CardTitle>
-                      </div>
-                      {path.isNew && (
-                        <Badge className="bg-cyan-600 text-white border-none">
-                          Nouveau
-                        </Badge>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pb-3">
-                    <p className="text-emerald-200 mb-3 text-sm">{path.description}</p>
-                    
-                    <div className="flex items-center space-x-3 mb-2 text-sm text-emerald-300">
-                      <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        <span>{path.duration}</span>
-                      </div>
-                      <Badge variant="outline" className="bg-emerald-800/30 border-emerald-600 text-emerald-200">
-                        {path.level}
-                      </Badge>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Link href="#">
-                      <Button variant="link" className="text-emerald-300 hover:text-emerald-100 p-0 h-auto">
-                        Découvrir ce parcours →
-                      </Button>
-                    </Link>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          </div>
+
         </div>
       </div>
     </div>
