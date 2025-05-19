@@ -31,6 +31,7 @@ import FyneAbout from "./pages/fyne-about";
 // Import des pages cyber
 import CyberRoleplay from "./pages/cyber/roleplay/index";
 import CyberLab from "./pages/cyber/cyber-lab/index";
+import CyberLearningCenter from "./pages/cyber/learning-center/index";
 // Import des pages AMOA
 import SasAcademie from "./pages/amoa/sas-academie";
 import AmoaRoleplay from "./pages/amoa/roleplay/index";
@@ -88,7 +89,7 @@ function App() {
                 <Route path="/cyber-old" component={CyberModeSelection} />
                 <Route path="/cyber/roleplay" component={CyberRoleplay} />
                 <Route path="/cyber/cyber-lab" component={CyberLab} />
-                <Route path="/cyber/learning-center" component={lazy(() => import('./pages/cyber/learning-center'))} />
+                <Route path="/cyber/learning-center" component={CyberLearningCenter} />
                 <Route path="/data-ia" component={DataIaModeSelection} />
                 <Route path="/amoa/new" component={AmoaModeSelectionNew} />
                 <Route path="/amoa/sas-academie" component={SasAcademie} />
