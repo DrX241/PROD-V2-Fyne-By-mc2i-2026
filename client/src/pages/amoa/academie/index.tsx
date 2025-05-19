@@ -451,62 +451,34 @@ export default function AmoaAcademie() {
                   <Shield className="mr-2 h-5 w-5 text-indigo-400" />
                   Fondamentaux AMOA
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card className="bg-indigo-900/20 border border-indigo-700 h-full flex flex-col">
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between items-start">
-                        <div className="p-2 rounded-full bg-indigo-800/50 mb-2">
-                          <BookOpen className="h-5 w-5 text-indigo-300" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {filteredBasicModules.map((module, i) => (
+                    <Card key={module.id} className="bg-indigo-900/20 border border-indigo-700 h-full flex flex-col hover:shadow-md hover:border-indigo-500 transition-all">
+                      <CardHeader className="pb-2">
+                        <div className="flex justify-between items-start">
+                          <div className="p-2 rounded-full bg-indigo-800/50 mb-2">
+                            {module.icon}
+                          </div>
+                          <Badge variant="outline" className="bg-indigo-800/30 border-indigo-600 text-indigo-200">
+                            {module.level}
+                          </Badge>
                         </div>
-                        <Badge variant="outline" className="bg-indigo-800/30 border-indigo-600 text-indigo-200">
-                          Tous niveaux
-                        </Badge>
-                      </div>
-                      <CardTitle className="text-lg">Cycle complet AMOA</CardTitle>
-                    </CardHeader>
-                    <CardContent className="pb-2 flex-grow">
-                      <div className="mt-2 text-sm text-indigo-300 flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        <span>15-20h de formation</span>
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <Link href="#">
-                        <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
-                          Accéder au module
-                        </Button>
-                      </Link>
-                    </CardFooter>
-                  </Card>
-                  
-                  <Card className="bg-indigo-900/20 border border-indigo-700 h-full flex flex-col">
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between items-start">
-                        <div className="p-2 rounded-full bg-indigo-800/50 mb-2">
-                          <FileText className="h-5 w-5 text-indigo-300" />
+                        <CardTitle className="text-lg">{module.title}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="pb-2 flex-grow">
+                        <div className="mt-2 text-sm text-indigo-300 flex items-center">
+                          <Calendar className="h-4 w-4 mr-1" />
+                          <span>{module.duration}</span>
                         </div>
-                        <Badge variant="outline" className="bg-indigo-800/30 border-indigo-600 text-indigo-200">
-                          Débutant
-                        </Badge>
-                      </div>
-                      <CardTitle className="text-lg">Expression de besoins</CardTitle>
-                    </CardHeader>
-                    <CardContent className="pb-2 flex-grow">
-                      <div className="mt-2 text-sm text-indigo-300 flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        <span>5h de formation</span>
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <Link href="#">
-                        <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
-                          Accéder au module
-                        </Button>
-                      </Link>
-                    </CardFooter>
-                  </Card>
-                      </Card>
-                    </motion.div>
+                      </CardContent>
+                      <CardFooter>
+                        <Link href={module.comingSoon ? "#" : (module.destination || "#")}>
+                          <Button className={`w-full ${module.comingSoon ? 'bg-indigo-800/50 hover:bg-indigo-800' : 'bg-indigo-600 hover:bg-indigo-700'}`}>
+                            {module.comingSoon ? 'Bientôt disponible' : 'Accéder au module'}
+                          </Button>
+                        </Link>
+                      </CardFooter>
+                    </Card>
                   ))}
                 </div>
               </div>
