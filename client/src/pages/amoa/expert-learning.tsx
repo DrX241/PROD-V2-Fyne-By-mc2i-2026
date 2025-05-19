@@ -34,19 +34,19 @@ function formatTextWithStructure(text: string): string {
     .replace(/`([^`]+)`/g, '<span class="text-blue-300">$1</span>') // Inline code subtil
     
     // Supprime les titres markdown pour un style plus conversationnel
-    .replace(/^### (.*?)$/gm, '<div class="text-blue-300 font-medium mt-3 mb-1">$1</div>') 
-    .replace(/^## (.*?)$/gm, '<div class="text-blue-300 font-medium mt-3 mb-1">$1</div>') 
-    .replace(/^# (.*?)$/gm, '<div class="text-blue-300 font-medium mt-3 mb-1">$1</div>') 
+    .replace(/^### (.*?)$/gm, '<div class="text-blue-300 font-medium mt-2 mb-0">$1</div>') 
+    .replace(/^## (.*?)$/gm, '<div class="text-blue-300 font-medium mt-2 mb-0">$1</div>') 
+    .replace(/^# (.*?)$/gm, '<div class="text-blue-300 font-medium mt-2 mb-0">$1</div>') 
     
     // Citations plus subtiles 
-    .replace(/^> (.*?)$/gm, '<div class="border-l-2 border-blue-500/40 pl-3 my-2 text-blue-300/80">$1</div>') 
+    .replace(/^> (.*?)$/gm, '<div class="border-l-2 border-blue-500/40 pl-2 my-1 text-blue-300/80">$1</div>') 
     
     // Listes simplifiées
-    .replace(/^- (.*?)$/gm, '<div class="flex mb-1">• <span class="ml-2">$1</span></div>') // Puces stylisées
-    .replace(/^(\d+)\. (.*?)$/gm, '<div class="flex mb-1"><span class="text-blue-400 mr-2">$1.</span> <span>$2</span></div>') // Numération stylisée
+    .replace(/^- (.*?)$/gm, '<div class="flex mb-0">• <span class="ml-1">$1</span></div>') // Puces stylisées compactes
+    .replace(/^(\d+)\. (.*?)$/gm, '<div class="flex mb-0"><span class="text-blue-400 mr-1">$1.</span> <span>$2</span></div>') // Numération compacte
     
     // Paragraphes et espacement naturel
-    .replace(/\n\n/g, '<div class="mt-2"></div>') // Double espace
+    .replace(/\n\n/g, '<div class="mt-1"></div>') // Espace réduit
     .replace(/\n/g, '<br>'); // Simple saut de ligne
   
   return formatted;
@@ -361,36 +361,36 @@ function ExpertLearningPageContent() {
                 {isDecisionMode && currentScenario ? (
                   <div className="w-full">
                     {/* Affichage du mode décision quand on a un scénario */}
-                    <div className="bg-indigo-950 p-4 rounded-lg mb-4 shadow-lg border border-indigo-400/30">
-                      <h2 className="text-indigo-200 text-xl font-bold mb-2">Mode Décision AMOA</h2>
-                      <p className="text-indigo-100">Scénario {scenarioNumber} sur {totalScenarios}</p>
+                    <div className="bg-blue-950 p-3 rounded-lg mb-3 shadow-lg border border-blue-400/30">
+                      <h2 className="text-blue-200 text-lg font-bold mb-1">Mode Décision AMOA</h2>
+                      <p className="text-blue-100">Scénario {scenarioNumber} sur {totalScenarios}</p>
                     </div>
                     {/* Interface de scénario */}
-                    <div className="bg-indigo-950 p-6 rounded-lg border border-indigo-400/30 shadow-lg">
-                      <div className="mb-6">
-                        <h3 className="text-xl font-bold text-indigo-200 mb-3">{currentScenario.title}</h3>
-                        <p className="text-indigo-100 mb-4">{currentScenario.description}</p>
-                        <div className="bg-indigo-900/40 p-4 rounded-md border border-indigo-700/50 mb-4">
-                          <h4 className="text-indigo-300 font-medium mb-2">Contexte</h4>
-                          <p className="text-indigo-100">{currentScenario.context}</p>
+                    <div className="bg-blue-950 p-4 rounded-lg border border-blue-400/30 shadow-lg">
+                      <div className="mb-4">
+                        <h3 className="text-lg font-bold text-blue-200 mb-2">{currentScenario.title}</h3>
+                        <p className="text-blue-100 mb-3 text-sm">{currentScenario.description}</p>
+                        <div className="bg-blue-900/40 p-3 rounded-md border border-blue-700/50 mb-3">
+                          <h4 className="text-blue-300 font-medium mb-1 text-sm">Contexte</h4>
+                          <p className="text-blue-100 text-xs">{currentScenario.context}</p>
                         </div>
                       </div>
                       <div className="space-y-4 mb-6">
-                        <h4 className="text-indigo-300 font-medium">Options</h4>
+                        <h4 className="text-blue-300 font-medium">Options</h4>
                         {currentScenario.options.map((option: any) => (
                           <div 
                             key={option.id}
-                            className="p-4 rounded-md bg-indigo-900/40 border border-indigo-700/50 hover:bg-indigo-800/50 cursor-pointer"
+                            className="p-3 rounded-md bg-blue-900/40 border border-blue-700/50 hover:bg-blue-800/50 cursor-pointer"
                             onClick={() => handleDecisionMade(currentScenario.id, option.id)}
                           >
-                            <h5 className="font-medium text-indigo-200 mb-1">{option.text}</h5>
-                            <p className="text-indigo-100 text-sm">{option.description}</p>
+                            <h5 className="font-medium text-blue-200 mb-0">{option.text}</h5>
+                            <p className="text-blue-100 text-xs">{option.description}</p>
                           </div>
                         ))}
                       </div>
                       {isLoadingScenario && (
-                        <div className="flex justify-center p-4">
-                          <span className="text-indigo-300">Traitement en cours...</span>
+                        <div className="flex justify-center p-2">
+                          <span className="text-blue-300 text-xs">Traitement en cours...</span>
                         </div>
                       )}
                     </div>
