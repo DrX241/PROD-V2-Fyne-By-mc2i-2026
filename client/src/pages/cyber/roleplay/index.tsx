@@ -48,7 +48,7 @@ const RoleplayHub: React.FC = () => {
     },
     {
       id: 'interview-test',
-      title: "Test d'Entretien Cybersécurité",
+      title: "Simulation d'entretien",
       description: "Simulez un entretien d'embauche pour un poste en cybersécurité avec un recruteur IA",
       link: '/cyber/interview-test',
       icon: <Briefcase className="h-10 w-10 text-blue-300" />,
