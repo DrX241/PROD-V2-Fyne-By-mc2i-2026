@@ -32,7 +32,7 @@ export default function AmoaRoleplay() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mb-10 max-w-3xl"
+            className="mb-10 max-w-4xl mx-auto"
           >
             <h2 className="text-2xl font-bold mb-3">Simulations métier et situations professionnelles interactives</h2>
             <p className="text-blue-200 mb-4">
@@ -142,7 +142,7 @@ export default function AmoaRoleplay() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-blue-950/50 border border-blue-900/30 rounded-xl p-6 w-full mx-auto"
+            className="bg-blue-950/50 border border-blue-900/30 rounded-xl p-6 max-w-4xl mx-auto"
           >
             <h3 className="text-xl font-bold mb-4 flex items-center">
               <FileText className="mr-2 h-5 w-5" />
