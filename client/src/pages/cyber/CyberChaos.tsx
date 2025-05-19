@@ -1686,7 +1686,7 @@ const CyberChaos: React.FC = () => {
                 </Button>
                 <Button 
                   variant="outline" 
-                  onClick={() => navigate('/mode-selection')}
+                  onClick={() => navigate('/cyber/roleplay')}
                   className="w-full sm:w-auto border-blue-700 text-blue-200 hover:bg-blue-900/50"
                 >
                   Retour à l'accueil
