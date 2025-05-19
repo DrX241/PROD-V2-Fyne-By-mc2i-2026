@@ -182,7 +182,7 @@ export default function AmoaModeSelectionNew() {
 
           {/* Modules mc2i */}
           <div className="mt-8 px-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-center max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center max-w-4xl mx-auto">
               {/* mc2i ACADEMIE */}
               <div 
                 className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
@@ -213,7 +213,7 @@ export default function AmoaModeSelectionNew() {
                       navigate('/amoa/academie');
                     }}
                   >
-                    Explorer les formations
+                    Je découvre l'académie
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
@@ -249,7 +249,7 @@ export default function AmoaModeSelectionNew() {
                       navigate('/amoa/roleplay');
                     }}
                   >
-                    Accéder aux jeux de rôle
+                    J'incarne un rôle
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
