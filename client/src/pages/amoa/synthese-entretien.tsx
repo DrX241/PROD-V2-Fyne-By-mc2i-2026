@@ -171,7 +171,7 @@ export default function SyntheseEntretien() {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => navigate('/amoa-mode-selection')}
+              onClick={() => navigate('/amoa/new')}
               className="h-10 w-10 rounded-full"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -351,7 +351,7 @@ export default function SyntheseEntretien() {
                     Nouvelle synthèse
                   </Button>
                   <Button 
-                    onClick={() => navigate('/amoa-mode-selection')}
+                    onClick={() => navigate('/amoa/new')}
                     variant="default"
                   >
                     Terminer

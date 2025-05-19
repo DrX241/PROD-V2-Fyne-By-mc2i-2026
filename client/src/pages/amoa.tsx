@@ -26,7 +26,7 @@ export default function AmoaPage() {
   
   // Rediriger automatiquement vers la page de sélection des modes
   React.useEffect(() => {
-    setLocation('/amoa-mode-selection');
+    setLocation('/amoa/new');
   }, [setLocation]);
   
   const [hoveredModule, setHoveredModule] = useState<string | null>(null);
