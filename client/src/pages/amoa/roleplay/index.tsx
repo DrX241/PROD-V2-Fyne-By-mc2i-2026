@@ -52,8 +52,7 @@ export default function AmoaRoleplay() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 mx-auto max-w-4xl">
             {/* Préparation d'audition */}
             <Card 
-              className="bg-gradient-to-br from-blue-900/80 to-blue-950/90 border border-blue-800/30 backdrop-blur-sm hover:shadow-lg hover:border-blue-700/50 transition-all cursor-pointer"
-              onClick={() => setLocation('/amoa/interview-simulation')}
+              className="bg-gradient-to-br from-blue-900/80 to-blue-950/90 border border-blue-800/30 backdrop-blur-sm hover:shadow-lg hover:border-blue-700/50 transition-all"
             >
               <CardHeader>
                 <div className="flex items-center justify-center mb-4">
@@ -87,10 +86,7 @@ export default function AmoaRoleplay() {
                 </ul>
                 <Button 
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setLocation('/amoa/interview-simulation');
-                  }}
+                  onClick={() => setLocation('/amoa/interview-simulation')}
                 >
                   Commencer une préparation
                 </Button>
@@ -101,8 +97,7 @@ export default function AmoaRoleplay() {
 
             {/* Prospection Challenge (Ancien ProspectPulse) */}
             <Card 
-              className="bg-gradient-to-br from-orange-900/80 to-red-950/90 border border-orange-800/30 backdrop-blur-sm hover:shadow-lg hover:border-orange-700/50 transition-all cursor-pointer"
-              onClick={() => setLocation('/amoa/prospect-pulse')}
+              className="bg-gradient-to-br from-orange-900/80 to-red-950/90 border border-orange-800/30 backdrop-blur-sm hover:shadow-lg hover:border-orange-700/50 transition-all"
             >
               <CardHeader>
                 <div className="flex items-center justify-center mb-4">
@@ -136,10 +131,7 @@ export default function AmoaRoleplay() {
                 </ul>
                 <Button 
                   className="w-full bg-gradient-to-r from-amber-600 to-red-600 hover:from-amber-700 hover:to-red-700 text-white"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setLocation('/amoa/prospect-pulse');
-                  }}
+                  onClick={() => setLocation('/amoa/prospect-pulse')}
                 >
                   Relever le défi
                 </Button>
