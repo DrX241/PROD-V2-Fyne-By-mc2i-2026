@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import CyberButton from '@/components/CyberButton';
 import { useChatContext } from "@/contexts/ChatContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useGptModel } from "@/contexts/GptModelContext";
+// Le contexte GptModel a été temporairement retiré
 import OpenAIStatusIndicator from "@/components/OpenAIStatusIndicator";
 import { 
   RocketIcon, 
@@ -95,10 +95,11 @@ const CyberHomePage: React.FC = () => {
     }
   ];
 
-  const { isGpt4oMini, setIsGpt4oMini } = useGptModel();
+  // Mode ÉCO temporairement simulé avec un état local
+  const [isEcoMode, setIsEcoMode] = useState(false);
 
   const toggleEcoMode = () => {
-    setIsGpt4oMini(!isGpt4oMini);
+    setIsEcoMode(!isEcoMode);
   };
 
   return (
@@ -119,13 +120,13 @@ const CyberHomePage: React.FC = () => {
               </div>
               
               <div className="flex items-center gap-2">
-                <span className={`text-sm font-medium ${isGpt4oMini ? 'text-amber-600' : 'text-gray-500'}`}>
-                  Mode ÉCO {isGpt4oMini ? 'ON' : 'OFF'}
+                <span className={`text-sm font-medium ${isEcoMode ? 'text-amber-600' : 'text-gray-500'}`}>
+                  Mode ÉCO {isEcoMode ? 'ON' : 'OFF'}
                 </span>
                 <Switch 
-                  checked={isGpt4oMini} 
+                  checked={isEcoMode} 
                   onCheckedChange={toggleEcoMode}
-                  className={isGpt4oMini ? 'bg-amber-500' : ''}
+                  className={isEcoMode ? 'bg-amber-500' : ''}
                 />
               </div>
             </div>
