@@ -8,7 +8,7 @@ export default function CyberLearningCenter() {
   const [, setLocation] = useLocation();
 
   const handleReturn = () => {
-    setLocation('/cyber/roleplay');
+    setLocation('/cyber');
   };
 
   return (
@@ -33,29 +33,52 @@ export default function CyberLearningCenter() {
                 pédagogiques personnalisés et interactifs.
               </p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex flex-col gap-6">
                 <div className="bg-blue-950 p-6 rounded-lg border border-blue-500/30 hover:border-blue-500/50 transition-all">
-                  <h2 className="text-xl font-semibold mb-3 text-blue-300">Parcours Débutant</h2>
-                  <p className="text-sm mb-4">Introduction aux concepts fondamentaux de la cybersécurité et aux bonnes pratiques essentielles.</p>
-                  <p className="text-xs text-blue-400">Disponible prochainement</p>
+                  <h2 className="text-xl font-semibold mb-3 text-blue-300">Parcours Rapide</h2>
+                  <p className="text-sm mb-4">Formation accélérée pour acquérir les compétences essentielles en cybersécurité en un temps record.</p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+                    <div className="bg-blue-900/50 p-3 rounded border border-blue-400/20">
+                      <h3 className="text-sm font-medium text-blue-300 mb-1">Module 1</h3>
+                      <p className="text-xs">Introduction à la sécurité des réseaux</p>
+                    </div>
+                    <div className="bg-blue-900/50 p-3 rounded border border-blue-400/20">
+                      <h3 className="text-sm font-medium text-blue-300 mb-1">Module 2</h3>
+                      <p className="text-xs">Détection d'intrusion et prévention</p>
+                    </div>
+                    <div className="bg-blue-900/50 p-3 rounded border border-blue-400/20">
+                      <h3 className="text-sm font-medium text-blue-300 mb-1">Module 3</h3>
+                      <p className="text-xs">Gestion des incidents de sécurité</p>
+                    </div>
+                  </div>
                 </div>
                 
-                <div className="bg-blue-950 p-6 rounded-lg border border-blue-500/30 hover:border-blue-500/50 transition-all">
-                  <h2 className="text-xl font-semibold mb-3 text-blue-300">Parcours Intermédiaire</h2>
-                  <p className="text-sm mb-4">Approfondissement des connaissances techniques et analyse de scénarios de menaces.</p>
-                  <p className="text-xs text-blue-400">Disponible prochainement</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-blue-950 p-6 rounded-lg border border-blue-500/30 hover:border-blue-500/50 transition-all">
+                    <h2 className="text-xl font-semibold mb-3 text-blue-300">Parcours Métier RSSI</h2>
+                    <p className="text-sm mb-4">Formation complète pour devenir Responsable de la Sécurité des Systèmes d'Information.</p>
+                    <p className="text-xs text-blue-400">Disponible prochainement</p>
+                  </div>
+                  
+                  <div className="bg-blue-950 p-6 rounded-lg border border-blue-500/30 hover:border-blue-500/50 transition-all">
+                    <h2 className="text-xl font-semibold mb-3 text-blue-300">Parcours Métier SOC</h2>
+                    <p className="text-sm mb-4">Formation spécialisée pour travailler dans un centre opérationnel de sécurité.</p>
+                    <p className="text-xs text-blue-400">Disponible prochainement</p>
+                  </div>
                 </div>
                 
-                <div className="bg-blue-950 p-6 rounded-lg border border-blue-500/30 hover:border-blue-500/50 transition-all">
-                  <h2 className="text-xl font-semibold mb-3 text-blue-300">Parcours Avancé</h2>
-                  <p className="text-sm mb-4">Techniques de protection avancées et gestion des incidents de sécurité complexes.</p>
-                  <p className="text-xs text-blue-400">Disponible prochainement</p>
-                </div>
-                
-                <div className="bg-blue-950 p-6 rounded-lg border border-blue-500/30 hover:border-blue-500/50 transition-all">
-                  <h2 className="text-xl font-semibold mb-3 text-blue-300">Certification</h2>
-                  <p className="text-sm mb-4">Préparation aux certifications professionnelles reconnues dans le domaine de la cybersécurité.</p>
-                  <p className="text-xs text-blue-400">Disponible prochainement</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-blue-950 p-6 rounded-lg border border-blue-500/30 hover:border-blue-500/50 transition-all">
+                    <h2 className="text-xl font-semibold mb-3 text-blue-300">Sécurité Cloud</h2>
+                    <p className="text-sm mb-4">Modules spécialisés sur la sécurisation des infrastructures et applications cloud.</p>
+                    <p className="text-xs text-blue-400">Disponible prochainement</p>
+                  </div>
+                  
+                  <div className="bg-blue-950 p-6 rounded-lg border border-blue-500/30 hover:border-blue-500/50 transition-all">
+                    <h2 className="text-xl font-semibold mb-3 text-blue-300">Préparation Certifications</h2>
+                    <p className="text-sm mb-4">Programmes dédiés à la préparation aux certifications (CISSP, CEH, CompTIA Security+).</p>
+                    <p className="text-xs text-blue-400">Disponible prochainement</p>
+                  </div>
                 </div>
               </div>
               
