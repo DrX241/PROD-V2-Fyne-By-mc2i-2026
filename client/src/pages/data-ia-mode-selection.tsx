@@ -89,8 +89,7 @@ export default function DataIAModeSelection() {
         backgroundRepeat: 'no-repeat',
         position: 'relative',
       }}>
-        {/* Overlay pour assurer la lisibilité du contenu */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#000000]/80 to-[#001428]/70 z-0"></div>
+        {/* Aucun overlay pour laisser apparaître l'image binaire */}
         
         {/* Contenu de la page, avec z-10 pour le mettre au-dessus de l'overlay */}
         <div className="relative z-10">
