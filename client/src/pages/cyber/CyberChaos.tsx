@@ -1355,7 +1355,7 @@ const CyberChaos: React.FC = () => {
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={() => navigate('/mode-selection')}
+                onClick={() => navigate('/cyber/roleplay')}
                 className="hover:bg-blue-800/50"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
