@@ -325,9 +325,18 @@ const CyberHomePage: React.FC = () => {
                 Transformez votre <span className="text-pink-400">expérience de formation</span> avec notre plateforme immersive alimentée par l'IA. <span className="text-cyan-400">FYNE</span> redéfinit l'apprentissage pour l'adapter à vos besoins.
               </p>
               
-              <div className="flex items-center justify-center mt-10">
+              <div className="flex items-center justify-center gap-6 mt-10">
                 <CyberButton 
                   variant="primary"
+                  size="lg"
+                  glowIntensity="high"
+                  onClick={() => setLocation('/fyne-about')}
+                >
+                  DÉCOUVREZ FYNE
+                </CyberButton>
+                
+                <CyberButton 
+                  variant="secondary"
                   size="lg"
                   glowIntensity="high"
                   onClick={() => setLocation('/cyber')}
