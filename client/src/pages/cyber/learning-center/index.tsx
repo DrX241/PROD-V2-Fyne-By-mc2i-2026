@@ -508,9 +508,9 @@ export default function LearningCenter() {
         module.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         module.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
       
-      const matchesLevel = selectedLevel === '' || module.level === selectedLevel;
+      const matchesLevel = selectedLevel === 'all' || selectedLevel === '' || module.level === selectedLevel;
       
-      const matchesCategory = selectedCategory === '' || module.category === selectedCategory;
+      const matchesCategory = selectedCategory === 'all' || selectedCategory === '' || module.category === selectedCategory;
       
       let matchesDuration = true;
       if (selectedDuration === 'court') {
@@ -536,9 +536,9 @@ export default function LearningCenter() {
         path.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         path.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
       
-      const matchesLevel = selectedLevel === '' || path.level === selectedLevel;
+      const matchesLevel = selectedLevel === 'all' || selectedLevel === '' || path.level === selectedLevel;
       
-      const matchesCategory = selectedCategory === '' || path.category === selectedCategory;
+      const matchesCategory = selectedCategory === 'all' || selectedCategory === '' || path.category === selectedCategory;
       
       let matchesDuration = true;
       if (selectedDuration === 'court') {
@@ -794,7 +794,7 @@ export default function LearningCenter() {
                   <SelectValue placeholder="Niveau" />
                 </SelectTrigger>
                 <SelectContent className="bg-blue-950 border-blue-500/30 text-white">
-                  <SelectItem value="">Tous les niveaux</SelectItem>
+                  <SelectItem value="all">Tous les niveaux</SelectItem>
                   <SelectItem value="débutant">Débutant</SelectItem>
                   <SelectItem value="intermédiaire">Intermédiaire</SelectItem>
                   <SelectItem value="avancé">Avancé</SelectItem>
@@ -807,7 +807,7 @@ export default function LearningCenter() {
                   <SelectValue placeholder="Catégorie" />
                 </SelectTrigger>
                 <SelectContent className="bg-blue-950 border-blue-500/30 text-white">
-                  <SelectItem value="">Toutes les catégories</SelectItem>
+                  <SelectItem value="all">Toutes les catégories</SelectItem>
                   <SelectItem value="fondamentaux">Fondamentaux</SelectItem>
                   <SelectItem value="technique">Technique</SelectItem>
                   <SelectItem value="gouvernance">Gouvernance</SelectItem>
@@ -821,7 +821,7 @@ export default function LearningCenter() {
                   <SelectValue placeholder="Durée" />
                 </SelectTrigger>
                 <SelectContent className="bg-blue-950 border-blue-500/30 text-white">
-                  <SelectItem value="">Toutes les durées</SelectItem>
+                  <SelectItem value="all">Toutes les durées</SelectItem>
                   <SelectItem value="court">Court (&lt; 1h)</SelectItem>
                   <SelectItem value="moyen">Moyen (1-5h)</SelectItem>
                   <SelectItem value="long">Long (&gt; 5h)</SelectItem>
@@ -834,9 +834,9 @@ export default function LearningCenter() {
                   className="border-blue-500/30 text-blue-300 hover:bg-blue-900/20"
                   onClick={() => {
                     setSearchTerm('');
-                    setSelectedLevel('');
-                    setSelectedCategory('');
-                    setSelectedDuration('');
+                    setSelectedLevel('all');
+                    setSelectedCategory('all');
+                    setSelectedDuration('all');
                   }}
                 >
                   Réinitialiser
