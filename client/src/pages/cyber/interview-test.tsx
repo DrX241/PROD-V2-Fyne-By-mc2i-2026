@@ -423,20 +423,37 @@ export default function CyberInterviewTest() {
     setIsSubmitting(true);
 
     try {
-      // Instructions d'évaluation objective pour l'IA
+      // Instructions d'évaluation objective pour l'IA avec exigence d'exemples concrets pour chaque observation
       const objectiveInstructions = {
         evaluationGuidelines: {
           objectivity: "Évaluer de manière strictement factuelle les réponses en fonction de leur pertinence technique et professionnelle",
           accuracy: "Éviter toute surestimation des compétences, ne pas inventer de forces ou qualités non démontrées dans les réponses",
-          specificity: "Baser chaque observation sur des extraits précis ou des éléments concrets présents dans les réponses",
+          specificity: "Baser CHAQUE observation sur des extraits précis ou des éléments concrets présents dans les réponses",
           balance: "Présenter à la fois les forces démontrées et les domaines d'amélioration avec la même rigueur, sans enjoliver",
           factualFeedback: "Se concentrer sur la qualité technique des réponses (précision, pertinence, exhaustivité)",
           responseQuality: "Évaluer objectivement la maturité technique, la structure des réponses, la posture professionnelle",
           negativeFeatures: "Mentionner explicitement les lacunes techniques, les imprécisions et les faiblesses constatées",
           concreteMetrics: "Fournir une évaluation chiffrée (pourcentage) de la qualité objective des réponses techniques",
           technicalDepth: "Évaluer la profondeur technique des réponses sans complaisance",
-          professionalStance: "Analyser la posture professionnelle sans idéalisation"
+          professionalStance: "Analyser la posture professionnelle sans idéalisation",
+          evidence: "Pour CHAQUE point fort ou axe d'amélioration cité, fournir OBLIGATOIREMENT une citation exacte ou un exemple concret tiré des réponses",
+          analytical: "Présenter une analyse critique et non une simple description des réponses",
+          citations: "Format requis pour les citations : 'Par exemple, quand vous dites \"[citation exacte]\"...'",
+          negativeBias: "Mettre l'accent sur les faiblesses pour garantir une évaluation rigoureuse",
+          clarity: "Éviter les généralités et les formulations vagues qui pourraient s'appliquer à n'importe quel candidat"
         },
+        strengthsFormat: [
+          "Chaque force doit être présentée sous la forme: '[Force spécifique] : Exemple tiré de vos réponses : \"[citation exacte]\"'",
+          "Maximum 5 forces, uniquement celles explicitement démontrées dans les réponses",
+          "Ne pas enjoliver ou extrapoler au-delà de ce qui est clairement démontré",
+          "Inclure une notation de pertinence technique pour chaque force (faible/moyenne/élevée)"
+        ],
+        improvementsFormat: [
+          "Chaque axe d'amélioration doit être présenté sous la forme: '[Domaine à améliorer] : Constat basé sur votre réponse : \"[citation problématique ou manquante]\"'",
+          "Minimum 5 axes d'amélioration, couvrant différents aspects techniques et méthodologiques",
+          "Être direct et factuel sur les lacunes observées",
+          "Ne pas atténuer les critiques par politesse"
+        ],
         evaluationCategories: [
           "Précision technique", 
           "Complétude des réponses", 
@@ -445,7 +462,9 @@ export default function CyberInterviewTest() {
           "Pertinence cybersécurité",
           "Rigueur méthodologique",
           "Prise en compte des contraintes",
-          "Points faibles identifiés"
+          "Points faibles identifiés",
+          "Niveau de détail technique",
+          "Cohérence méthodologique"
         ]
       };
 
@@ -666,13 +685,15 @@ export default function CyberInterviewTest() {
               <div className="bg-blue-900/50 backdrop-blur-sm border border-green-800/50 p-4 rounded-md">
                 <h3 className="font-semibold mb-2 flex items-center text-white">
                   <CheckCircle2 className="h-5 w-5 mr-2 text-green-400" />
-                  Forces
+                  Points forts identifiés
                 </h3>
-                <ul className="list-disc list-inside space-y-1 text-sm text-blue-100">
+                <div className="space-y-3 text-sm text-blue-100">
                   {evaluationResult.strengths.map((strength, index) => (
-                    <li key={index}>{strength}</li>
+                    <div key={index} className="border-l-2 border-green-500/50 pl-3 py-1">
+                      <p dangerouslySetInnerHTML={{ __html: strength.replace(/\"(.*?)\"/g, '<span class="font-mono text-xs bg-blue-950/70 px-1 py-0.5 rounded">"$1"</span>') }} />
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
 
               <div className="bg-blue-900/50 backdrop-blur-sm border border-amber-800/50 p-4 rounded-md">
@@ -680,11 +701,13 @@ export default function CyberInterviewTest() {
                   <AlertCircle className="h-5 w-5 mr-2 text-amber-400" />
                   Axes de progression
                 </h3>
-                <ul className="list-disc list-inside space-y-1 text-sm text-blue-100">
+                <div className="space-y-3 text-sm text-blue-100">
                   {evaluationResult.improvements.map((improvement, index) => (
-                    <li key={index}>{improvement}</li>
+                    <div key={index} className="border-l-2 border-amber-500/50 pl-3 py-1">
+                      <p dangerouslySetInnerHTML={{ __html: improvement.replace(/\"(.*?)\"/g, '<span class="font-mono text-xs bg-blue-950/70 px-1 py-0.5 rounded">"$1"</span>') }} />
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
 
               <div className="bg-blue-900/50 backdrop-blur-sm border border-purple-800/50 p-4 rounded-md">
