@@ -653,7 +653,7 @@ const TestDeReflexes: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* En-tête */}
           <div className="flex justify-between items-center mb-8">
-            <Link href="/amoa-mode-selection">
+            <Link href="/amoa/new">
               <Button variant="outline" className="bg-white/10 hover:bg-white/20 text-white border-white/20">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Retour

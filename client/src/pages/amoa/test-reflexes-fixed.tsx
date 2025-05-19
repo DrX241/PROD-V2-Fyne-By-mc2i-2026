@@ -575,7 +575,7 @@ const TestDeReflexes: React.FC = () => {
                   <Brain className="h-6 w-6 text-blue-400" />
                   <CardTitle className="text-xl font-bold text-white">Test de Réflexes AMOA</CardTitle>
                 </div>
-                <Link href="/amoa-mode-selection">
+                <Link href="/amoa/new">
                   <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Retour
