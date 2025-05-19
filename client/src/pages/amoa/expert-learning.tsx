@@ -306,13 +306,13 @@ function ExpertLearningPageContent() {
     <HomeLayout gradientBg>
       <div className="min-h-screen relative overflow-hidden">
         {/* Background de style console AMOA avec effet de lignes numériques */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-br from-violet-950 to-indigo-950">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-violet-700/10 via-transparent to-transparent opacity-30"></div>
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-blue-950 to-blue-900">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-700/10 via-transparent to-transparent opacity-30"></div>
           
           {/* Lignes de code stylisées */}
           <div className="absolute inset-0 overflow-hidden opacity-10">
             {Array.from({ length: 40 }).map((_, i) => (
-              <div key={i} className="text-xs text-violet-300 font-mono whitespace-nowrap">
+              <div key={i} className="text-xs text-blue-300 font-mono whitespace-nowrap">
                 {Array.from({ length: 50 }).map((_, j) => (
                   <span key={j} className="mr-2">
                     {Math.random() > 0.5 ? '{' : Math.random() > 0.5 ? '}' : Math.random() > 0.5 ? '(' : ')'}
@@ -327,20 +327,20 @@ function ExpertLearningPageContent() {
           {/* Icône "check" stylisée pour compléter le thème AMOA */}
           <div className="absolute bottom-5 right-5 opacity-30">
             <svg width="100" height="100" viewBox="0 0 100 100">
-              <path d="M40,60 L45,70 L65,50" fill="none" stroke="#a78bfa" strokeWidth="2" />
+              <path d="M40,60 L45,70 L65,50" fill="none" stroke="#60a5fa" strokeWidth="2" />
             </svg>
           </div>
         </div>
         
         <div className="relative z-10 max-w-6xl w-full mx-auto px-4 py-8 sm:px-6 sm:py-12">
           {/* Bouton de retour - style console AMOA */}
-          <div className="absolute top-0 left-4 mt-4">
+          <div className="absolute top-4 right-4 mt-4">
             <Button 
               variant="outline" 
               onClick={handleReturnToPrevious}
-              className="bg-violet-950 border-violet-400/30 text-violet-400 hover:bg-violet-900 hover:border-violet-400/50 flex items-center gap-2 font-mono text-xs shadow-[0_0_10px_rgba(167,139,250,0.1)]"
+              className="bg-blue-900 border-blue-400/30 text-blue-300 hover:bg-blue-800 hover:border-blue-400/50 flex items-center gap-2 font-mono text-xs shadow-[0_0_10px_rgba(139,178,250,0.1)]"
             >
-              <span className="text-red-400">←</span>
+              <span className="text-blue-200">←</span>
               <span>RETOUR MODULES AMOA</span>
             </Button>
           </div>
@@ -358,15 +358,15 @@ function ExpertLearningPageContent() {
                     VERSION 2.5.3 | ÉTAT: <span className="text-blue-300">PRÊT</span>
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="py-6 space-y-4 text-violet-100">
-                  <div className="font-mono text-sm border-l-2 border-violet-400/50 pl-4">
-                    <p>Bienvenue sur le module <span className="text-violet-400">APPRENDRE EN ÉCHANGEANT</span>.</p>
+                <CardContent className="py-6 space-y-4 text-blue-100">
+                  <div className="font-mono text-sm border-l-2 border-blue-400/50 pl-4">
+                    <p>Bienvenue sur le module <span className="text-blue-400">APPRENDRE EN ÉCHANGEANT</span>.</p>
                     <p className="mt-2">Cette interface vous permet d'interagir avec un expert en Assistance à Maîtrise d'Ouvrage pour explorer des concepts adaptés à votre niveau et à vos besoins spécifiques.</p>
                   </div>
                   
-                  <div className="bg-violet-900 p-4 rounded-md border border-violet-400/30 font-mono text-sm space-y-3">
-                    <p className="text-red-400">► FONCTIONNALITÉS:</p>
-                    <ul className="space-y-2 pl-6 list-disc text-violet-100">
+                  <div className="bg-blue-900 p-4 rounded-md border border-blue-400/30 font-mono text-sm space-y-3">
+                    <p className="text-blue-300">► FONCTIONNALITÉS:</p>
+                    <ul className="space-y-2 pl-6 list-disc text-blue-100">
                       <li>Dialogue avec un expert en AMOA pour identifier vos besoins d'apprentissage</li>
                       <li>Contenu personnalisé adapté à votre niveau et votre domaine professionnel</li>
                       <li>Formats d'apprentissage flexibles (méthodologies, ateliers, livrables)</li>
@@ -375,11 +375,11 @@ function ExpertLearningPageContent() {
                     </ul>
                   </div>
                 </CardContent>
-                <CardFooter className="border-t border-violet-400/20 pt-4 flex justify-center">
+                <CardFooter className="border-t border-blue-400/20 pt-4 flex justify-center">
                   <Button 
                     onClick={startSession}
                     disabled={isLoading}
-                    className="bg-violet-600 hover:bg-violet-500 text-white font-mono"
+                    className="bg-blue-600 hover:bg-blue-500 text-white font-mono"
                   >
                     {isLoading ? (
                       <>
@@ -437,7 +437,7 @@ function ExpertLearningPageContent() {
                     {/* Zone de chat avec messages */}
                     <div 
                       ref={chatContainerRef}
-                      className="flex-1 overflow-y-auto bg-violet-950/80 border border-violet-400/30 rounded-t-md shadow-[0_0_15px_rgba(167,139,250,0.1)] h-[calc(100vh-350px)] min-h-[400px]"
+                      className="flex-1 overflow-y-auto bg-blue-950/80 border border-blue-400/30 rounded-t-md shadow-[0_0_15px_rgba(139,178,250,0.1)] h-[calc(100vh-320px)] min-h-[500px]"
                     >
                       <div className="p-4 space-y-4">
                         {messages.map((message) => (
@@ -450,21 +450,21 @@ function ExpertLearningPageContent() {
                             <div
                               className={`max-w-[85%] p-3 rounded-md ${
                                 message.type === "user"
-                                  ? "bg-violet-600/30 text-white ml-auto"
-                                  : "bg-violet-900 border border-violet-400/20 text-white"
+                                  ? "bg-blue-600/30 text-white ml-auto"
+                                  : "bg-blue-900 border border-blue-400/20 text-white"
                               }`}
                             >
                               {message.type === "bot" ? (
                                 <div 
-                                  className="prose prose-invert max-w-none text-violet-100" 
+                                  className="prose prose-invert max-w-none text-blue-100" 
                                   dangerouslySetInnerHTML={{ 
                                     __html: DOMPurify.sanitize(formatTextWithStructure(message.content)) 
                                   }}
                                 />
                               ) : (
-                                <p className="text-violet-100">{message.content}</p>
+                                <p className="text-blue-100">{message.content}</p>
                               )}
-                              <div className="text-xs text-violet-400/60 mt-1 text-right">
+                              <div className="text-xs text-blue-400/60 mt-1 text-right">
                                 {new Date(message.timestamp).toLocaleTimeString([], { 
                                   hour: '2-digit', 
                                   minute: '2-digit' 
@@ -475,11 +475,11 @@ function ExpertLearningPageContent() {
                         ))}
                         {isLoading && (
                           <div className="flex justify-start">
-                            <div className="max-w-[85%] p-3 rounded-md bg-violet-900 border border-violet-400/20 text-white">
+                            <div className="max-w-[85%] p-3 rounded-md bg-blue-900 border border-blue-400/20 text-white">
                               <div className="flex space-x-2">
-                                <div className="w-2 h-2 rounded-full bg-violet-400/30 animate-pulse"></div>
-                                <div className="w-2 h-2 rounded-full bg-violet-400/30 animate-pulse delay-150"></div>
-                                <div className="w-2 h-2 rounded-full bg-violet-400/30 animate-pulse delay-300"></div>
+                                <div className="w-2 h-2 rounded-full bg-blue-400/30 animate-pulse"></div>
+                                <div className="w-2 h-2 rounded-full bg-blue-400/30 animate-pulse delay-150"></div>
+                                <div className="w-2 h-2 rounded-full bg-blue-400/30 animate-pulse delay-300"></div>
                               </div>
                             </div>
                           </div>
@@ -492,7 +492,7 @@ function ExpertLearningPageContent() {
                       <Button
                         variant="outline"
                         size="icon"
-                        className="absolute bottom-32 right-8 rounded-full bg-violet-950 border-violet-400/30 text-violet-400 hover:bg-violet-900 hover:border-violet-400/50 shadow-[0_0_10px_rgba(167,139,250,0.2)]"
+                        className="absolute bottom-32 right-8 rounded-full bg-blue-950 border-blue-400/30 text-blue-400 hover:bg-blue-900 hover:border-blue-400/50 shadow-[0_0_10px_rgba(139,178,250,0.2)]"
                         onClick={scrollToBottom}
                       >
                         <ChevronDown className="h-4 w-4" />
@@ -501,7 +501,7 @@ function ExpertLearningPageContent() {
               
                     {/* Zone de saisie de message - masquée en mode décision */}
                     {!isDecisionMode && (
-                      <div className="bg-violet-900 p-4 rounded-b-md border-x border-b border-violet-400/30 shadow-[0_0_15px_rgba(167,139,250,0.1)]">
+                      <div className="bg-blue-900 p-4 rounded-b-md border-x border-b border-blue-400/30 shadow-[0_0_15px_rgba(139,178,250,0.1)]">
                         <form onSubmit={handleSubmit} className="flex space-x-2">
                           <div className="flex-1 relative">
                             <textarea
@@ -510,18 +510,18 @@ function ExpertLearningPageContent() {
                               onChange={(e) => setInputMessage(e.target.value)}
                               onKeyDown={handleKeyDown}
                               placeholder="Posez votre question sur l'AMOA..."
-                              className="w-full p-3 bg-violet-950 text-violet-100 border border-violet-400/30 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-400/50 resize-none min-h-[60px] max-h-[120px] overflow-y-auto"
+                              className="w-full p-3 bg-blue-950 text-blue-100 border border-blue-400/30 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400/50 resize-none min-h-[60px] max-h-[120px] overflow-y-auto"
                               disabled={isLoading}
                               rows={2}
                             />
-                            <div className="absolute right-3 bottom-2 text-xs text-violet-400/60">
+                            <div className="absolute right-3 bottom-2 text-xs text-blue-400/60">
                               {inputMessage.length > 0 ? `${inputMessage.length} car.` : 'Entrée: envoyer · Maj+Entrée: nouvelle ligne'}
                             </div>
                           </div>
                           <Button 
                             type="submit" 
                             disabled={isLoading || !inputMessage.trim()} 
-                            className="bg-violet-600 hover:bg-violet-500 text-white self-end h-[60px] w-[60px]"
+                            className="bg-blue-600 hover:bg-blue-500 text-white self-end h-[60px] w-[60px]"
                           >
                             {isLoading ? (
                               <RefreshCw className="h-5 w-5 animate-spin" />
@@ -538,7 +538,7 @@ function ExpertLearningPageContent() {
                             size="sm"
                             onClick={endSession}
                             disabled={isLoading}
-                            className="bg-violet-950 border-red-400/30 text-red-400 hover:bg-violet-900 hover:border-red-400/50 text-xs"
+                            className="bg-blue-950 border-blue-400/30 text-blue-300 hover:bg-blue-900 hover:border-blue-400/50 text-xs"
                           >
                             Terminer la session
                           </Button>
