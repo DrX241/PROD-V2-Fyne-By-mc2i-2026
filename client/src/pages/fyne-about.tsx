@@ -146,7 +146,7 @@ export default function FyneAbout() {
             className="max-w-3xl"
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Découvrez <span className="text-blue-400">I AM CYBER</span>
+              Découvrez <span className="text-blue-400">FYNE</span>
             </h1>
             <p className="text-xl text-gray-200 mb-8">
               L'expérience de formation immersive nouvelle génération qui transforme radicalement l'apprentissage professionnel
@@ -320,7 +320,7 @@ export default function FyneAbout() {
               <li>Entraînement express avant une soutenance client</li>
             </ul>
             <p className="text-gray-200 mb-3">
-              FYNE est un produit né du terrain, testé chez nous, validé par nos clients, et désormais prêt pour CIM².
+              FYNE est un produit né du terrain, testé chez nous et validé par nos clients.
             </p>
             <p className="text-gray-200 font-semibold">
               C'est un concentré de notre expertise cyber, de notre vision pédagogique, et de notre engagement en matière d'innovation utile et responsable.

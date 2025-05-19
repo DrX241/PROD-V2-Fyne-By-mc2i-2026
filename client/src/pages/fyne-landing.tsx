@@ -47,7 +47,7 @@ export default function FyneLanding() {
                 variant="primary" 
                 className="px-6 py-5 text-lg"
               >
-                Découvrez I AM CYBER
+                Découvrez FYNE
                 <ArrowRight className="ml-2 h-5 w-5" />
               </CyberButton>
             </Link>
