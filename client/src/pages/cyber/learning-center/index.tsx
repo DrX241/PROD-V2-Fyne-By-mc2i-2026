@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Search, Zap, BookOpen, Brain, Monitor, Globe, Shield, Lock, Database, Clock, Newspaper, Code, Mail } from "lucide-react";
+import { ArrowLeft, Search, Zap, BookOpen, Brain, Monitor, Shield, Lock, Database, Clock, Newspaper, Code } from "lucide-react";
 import HomeLayout from '@/components/layout/HomeLayout';
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,7 +16,7 @@ export default function CyberLearningCenter() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleReturn = () => {
-    setLocation('/cyber/roleplay');
+    setLocation('/cyber');
   };
 
   const handleModuleClick = (path: string) => {
