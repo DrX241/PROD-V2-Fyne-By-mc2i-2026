@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
 // Import l'image du personnage FYNE
-import fyneCharacter from '@assets/reliant-les-lignes-et-les-points-avec-des-particules-flottantes.jpg';
+import fyneCharacter from '@assets/image_1747677449072.png';
 
 export default function FyneLanding() {
   return (
