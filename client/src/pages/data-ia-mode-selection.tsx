@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 // Import du fond d'écran
-import dataNetworkBg from '@/assets/backgrounds/data-network-bg.jpg';
+import dataBinaryBg from '@/assets/backgrounds/data-binary-bg.jpg';
 import { 
   IoHome, 
   IoBookOutline, 
@@ -83,14 +83,14 @@ export default function DataIAModeSelection() {
         fontSize: `${textSize}rem`,
         backgroundImage: highContrastMode 
           ? 'none' 
-          : `url(${dataNetworkBg})`,
+          : `url(${dataBinaryBg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         position: 'relative',
       }}>
         {/* Overlay pour assurer la lisibilité du contenu */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#1e3a5f]/80 to-[#102848]/90 z-0"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#000000]/80 to-[#001428]/70 z-0"></div>
         
         {/* Contenu de la page, avec z-10 pour le mettre au-dessus de l'overlay */}
         <div className="relative z-10">
