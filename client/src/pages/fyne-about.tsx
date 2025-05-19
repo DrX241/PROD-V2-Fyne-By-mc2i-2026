@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { ArrowLeft, Shield, Brain, Sparkles, BookOpen, Target, Users, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Shield, Brain, Sparkles, BookOpen, Target, Users, CheckCircle, Zap, Clock, BookOpenCheck, GitPullRequest, BarChart4, HeartHandshake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from 'framer-motion';
+import CyberButton from '@/components/CyberButton';
 
-// Import image
+// Import images
 import bgImage from '@assets/abstrait-avec-design-low-poly.jpg'; 
 
 export default function FyneAbout() {
@@ -25,54 +26,100 @@ export default function FyneAbout() {
     visible: { opacity: 1, y: 0 }
   };
 
-  // Features of FYNE
+  // Technologies avancées
+  const technologies = [
+    {
+      title: "IA Prédictive",
+      description: "Algorithmes avancés s'adaptant en temps réel à votre niveau et vos besoins spécifiques.",
+      icon: <Target className="h-10 w-10 text-blue-400" />,
+      color: "from-blue-950 to-blue-900/60 border-blue-800/50"
+    },
+    {
+      title: "Simulations Immersives",
+      description: "Scénarios réalistes et adaptatifs avec feedback personnalisé et évolution dynamique.",
+      icon: <Shield className="h-10 w-10 text-blue-400" />,
+      color: "from-blue-950 to-blue-900/60 border-blue-800/50"
+    },
+    {
+      title: "Environnement Interactif",
+      description: "Interfaces multi-sensorielles conçues pour maximiser l'engagement et l'apprentissage.",
+      icon: <Brain className="h-10 w-10 text-blue-400" />,
+      color: "from-blue-950 to-blue-900/60 border-blue-800/50"
+    },
+  ];
+  
+  // Caractéristiques de la plateforme
   const features = [
     {
-      title: "Parcours adaptatifs",
-      description: "Un apprentissage qui s'adapte automatiquement à votre rythme et votre niveau grâce à l'IA.",
-      icon: <Target className="h-12 w-12 text-blue-400" />,
-      color: "from-blue-900/40 to-blue-950/60 border-blue-700"
+      title: "Personnages IA avancés",
+      description: "Interagissez avec des PNJ ultra-réalistes qui s'adaptent à votre style d'apprentissage.",
+      icon: <Users className="h-10 w-10 text-indigo-400" />,
+      color: "from-indigo-950 to-indigo-900/60 border-indigo-800/50"
     },
     {
-      title: "Coaching personnalisé",
-      description: "Recevez des conseils et feedback pertinents sur vos compétences spécifiques.",
-      icon: <Users className="h-12 w-12 text-indigo-400" />,
-      color: "from-indigo-900/40 to-indigo-950/60 border-indigo-700"
+      title: "Apprentissage adaptatif",
+      description: "Algorithmes d'IA qui ajustent la difficulté et le contenu selon votre progression.",
+      icon: <GitPullRequest className="h-10 w-10 text-indigo-400" />,
+      color: "from-indigo-950 to-indigo-900/60 border-indigo-800/50"
     },
     {
-      title: "Simulation de situations réelles",
-      description: "Mettez en pratique vos connaissances dans des environnements simulés proches de la réalité.",
-      icon: <Brain className="h-12 w-12 text-violet-400" />,
-      color: "from-violet-900/40 to-violet-950/60 border-violet-700"
+      title: "Scénarios contextuels",
+      description: "Simulation de situations professionnelles réelles pour un apprentissage applicable.",
+      icon: <BookOpenCheck className="h-10 w-10 text-indigo-400" />,
+      color: "from-indigo-950 to-indigo-900/60 border-indigo-800/50"
     },
     {
-      title: "Modules interactifs",
-      description: "Des exercices engageants qui rendent l'apprentissage plus efficace et mémorable.",
-      icon: <BookOpen className="h-12 w-12 text-cyan-400" />,
-      color: "from-cyan-900/40 to-cyan-950/60 border-cyan-700"
+      title: "Feedback instantané",
+      description: "Évaluation continue et suggestions d'amélioration par l'intelligence artificielle.",
+      icon: <Zap className="h-10 w-10 text-indigo-400" />,
+      color: "from-indigo-950 to-indigo-900/60 border-indigo-800/50"
     },
     {
-      title: "Analyse de performance",
-      description: "Obtenez des insights détaillés sur vos progrès et domaines d'amélioration.",
-      icon: <Sparkles className="h-12 w-12 text-emerald-400" />,
-      color: "from-emerald-900/40 to-emerald-950/60 border-emerald-700"
+      title: "Modules sectoriels",
+      description: "Contenus spécialisés adaptés aux enjeux spécifiques de votre industrie.",
+      icon: <BarChart4 className="h-10 w-10 text-indigo-400" />,
+      color: "from-indigo-950 to-indigo-900/60 border-indigo-800/50"
     },
     {
-      title: "Sécurité des données",
-      description: "Vos informations et résultats sont protégés avec les plus hauts standards de confidentialité.",
-      icon: <Shield className="h-12 w-12 text-amber-400" />,
-      color: "from-amber-900/40 to-amber-950/60 border-amber-700"
-    }
+      title: "Accessibilité totale",
+      description: "Disponible sur tous vos appareils avec synchronisation automatique.",
+      icon: <HeartHandshake className="h-10 w-10 text-indigo-400" />,
+      color: "from-indigo-950 to-indigo-900/60 border-indigo-800/50"
+    },
   ];
 
-  // Benefits of using FYNE
-  const benefits = [
-    { text: "Amélioration continue des compétences", icon: <CheckCircle className="h-5 w-5 text-emerald-400" /> },
-    { text: "Économie de temps grâce à un apprentissage efficace", icon: <CheckCircle className="h-5 w-5 text-emerald-400" /> },
-    { text: "Adaptation aux besoins spécifiques de chaque utilisateur", icon: <CheckCircle className="h-5 w-5 text-emerald-400" /> },
-    { text: "Feedback immédiat et constructif", icon: <CheckCircle className="h-5 w-5 text-emerald-400" /> },
-    { text: "Motivation accrue par l'interaction", icon: <CheckCircle className="h-5 w-5 text-emerald-400" /> },
-    { text: "Préparation optimale aux enjeux réels", icon: <CheckCircle className="h-5 w-5 text-emerald-400" /> }
+  // Les problèmes de formation traditionnelle et les solutions FYNE
+  const challenges = [
+    { 
+      challenge: "Rétention d'information limitée à 20% avec les méthodes classiques",
+      solution: "Amélioration à plus de 75% grâce à l'apprentissage par l'expérience",
+      icon: <CheckCircle className="h-5 w-5 text-emerald-400" /> 
+    },
+    { 
+      challenge: "Manque d'engagement et d'attention durant les formations traditionnelles",
+      solution: "Engagement actif grâce à l'interaction continue et aux simulations immersives",
+      icon: <CheckCircle className="h-5 w-5 text-emerald-400" /> 
+    },
+    { 
+      challenge: "Absence de mise en pratique concrète des connaissances acquises",
+      solution: "Application directe dans des environnements simulés reproduisant des cas réels",
+      icon: <CheckCircle className="h-5 w-5 text-emerald-400" /> 
+    },
+    { 
+      challenge: "Difficulté à personnaliser le contenu selon les besoins individuels",
+      solution: "Adaptation automatique du contenu et de la difficulté à chaque utilisateur",
+      icon: <CheckCircle className="h-5 w-5 text-emerald-400" /> 
+    },
+    { 
+      challenge: "Mesure inefficace des progrès et des compétences réellement acquises",
+      solution: "Analyse détaillée des performances avec métriques concrètes et actionables",
+      icon: <CheckCircle className="h-5 w-5 text-emerald-400" /> 
+    },
+    { 
+      challenge: "Contraintes de temps et de lieu limitant l'accès à la formation",
+      solution: "Flexibilité totale permettant l'apprentissage n'importe où, n'importe quand",
+      icon: <CheckCircle className="h-5 w-5 text-emerald-400" /> 
+    }
   ];
 
   return (
@@ -99,10 +146,10 @@ export default function FyneAbout() {
             className="max-w-3xl"
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Découvrez <span className="text-blue-400">FYNE</span>
+              Découvrez <span className="text-blue-400">I AM CYBER</span>
             </h1>
             <p className="text-xl text-gray-200 mb-8">
-              La plateforme d'apprentissage assistée par l'IA qui révolutionne votre développement professionnel
+              L'expérience de formation immersive nouvelle génération qui transforme radicalement l'apprentissage professionnel
             </p>
           </motion.div>
         </div>
@@ -110,46 +157,90 @@ export default function FyneAbout() {
 
       {/* Main content */}
       <div className="container mx-auto px-4 py-16">
-        {/* What is FYNE section */}
-        <motion.section
-          className="mb-20"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-        >
-          <h2 className="text-3xl font-bold mb-6 text-center">Qu'est-ce que FYNE ?</h2>
-          <div className="max-w-3xl mx-auto text-center">
-            <p className="text-lg text-gray-300 mb-6">
-              FYNE (For Your Next Experience) est une plateforme innovante qui combine la puissance de l'intelligence artificielle 
-              avec des méthodes pédagogiques avancées pour offrir une expérience d'apprentissage personnalisée et immersive.
-            </p>
-            <p className="text-lg text-gray-300">
-              Développée par mc2i, FYNE répond aux besoins de formation dans divers domaines professionnels, 
-              de la gestion de projet à la cybersécurité, en passant par l'analyse de données et le développement de compétences interpersonnelles.
-            </p>
-          </div>
-        </motion.section>
-
-        {/* Features section */}
+        {/* Technologies avancées section */}
         <motion.section
           className="mb-20"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          <h2 className="text-3xl font-bold mb-10 text-center">Fonctionnalités clés</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, index) => (
+          <div className="inline-block px-4 py-1.5 bg-blue-600/30 rounded-full text-blue-200 mb-4 mx-auto">
+            <span className="text-sm">Technologie Propriétaire</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">
+            Avancées <span className="bg-gradient-to-r from-pink-400 to-pink-600 text-transparent bg-clip-text">Technologiques</span>
+          </h2>
+          <p className="text-lg text-gray-300 mb-10 max-w-3xl mx-auto text-center">
+            Une infrastructure numérique conçue pour propulser votre apprentissage vers de nouveaux horizons
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {technologies.map((tech, index) => (
               <motion.div key={index} variants={itemVariants}>
-                <Card className={`bg-gradient-to-br ${feature.color} h-full hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}>
+                <Card className={`bg-gradient-to-br ${tech.color} h-full border-[1px] hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300`}>
                   <CardHeader>
                     <div className="flex justify-center mb-4">
-                      {feature.icon}
+                      {tech.icon}
                     </div>
-                    <CardTitle className="text-xl text-center">{feature.title}</CardTitle>
+                    <CardTitle className="text-xl text-center text-blue-100">{tech.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <CardDescription className="text-gray-300 text-center">
+                      {tech.description}
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* Citation section */}
+        <motion.section 
+          className="mb-20 max-w-4xl mx-auto"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.4 }}
+        >
+          <div className="bg-blue-50/5 rounded-lg p-8 md:p-10 text-center relative">
+            <div className="text-6xl text-blue-400/30 absolute top-6 left-6">❝</div>
+            <p className="text-xl md:text-2xl text-gray-200 italic mb-6 relative z-10">
+              "L'intelligence artificielle ne remplace pas l'intelligence humaine, elle l'augmente. Notre plateforme combine le meilleur des deux pour créer une expérience d'apprentissage inégalée."
+            </p>
+            <div className="text-blue-400">
+              Direction de l'Innovation
+              <span className="block text-sm text-gray-400">mc2i</span>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* Une expérience d'apprentissage inégalée section */}
+        <motion.section
+          className="mb-20"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <div className="inline-block px-4 py-1.5 bg-blue-600/30 rounded-full text-blue-200 mb-4 mx-auto">
+            <span className="text-sm">Technologies avancées</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">
+            Une expérience d'apprentissage <span className="text-blue-400">inégalée</span>
+          </h2>
+          <p className="text-lg text-gray-300 mb-10 max-w-3xl mx-auto text-center">
+            Notre technologie d'IA générative crée un environnement personnalisé qui s'adapte à vos besoins
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feature, index) => (
+              <motion.div key={index} variants={itemVariants}>
+                <Card className={`bg-white bg-opacity-5 border-[1px] border-white/10 h-full hover:bg-opacity-10 hover:border-indigo-500/30 transition-all duration-300`}>
+                  <CardHeader>
+                    <div className="mb-2">
+                      {feature.icon}
+                    </div>
+                    <CardTitle className="text-lg">{feature.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="text-gray-300">
                       {feature.description}
                     </CardDescription>
                   </CardContent>
@@ -159,23 +250,81 @@ export default function FyneAbout() {
           </div>
         </motion.section>
 
-        {/* Benefits section */}
+        {/* Défis et solutions section */}
         <motion.section
           className="mb-20"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7, delay: 0.6 }}
         >
-          <h2 className="text-3xl font-bold mb-10 text-center">Avantages de FYNE</h2>
-          <div className="max-w-3xl mx-auto bg-blue-900/20 border border-blue-700 rounded-lg p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {benefits.map((benefit, index) => (
-                <div key={index} className="flex items-center space-x-3">
-                  {benefit.icon}
-                  <span className="text-gray-200">{benefit.text}</span>
+          <h2 className="text-3xl font-bold mb-8 text-center">
+            Pourquoi <span className="text-blue-400">FYNE</span> révolutionne la formation
+          </h2>
+          <p className="text-lg text-gray-300 mb-10 max-w-3xl mx-auto text-center">
+            Nos solutions répondent aux défis majeurs des méthodes d'apprentissage traditionnelles
+          </p>
+          
+          <div className="max-w-4xl mx-auto">
+            {challenges.map((item, index) => (
+              <motion.div 
+                key={index}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * index }}
+                className="bg-gradient-to-r from-blue-900/20 to-indigo-900/20 border border-blue-800/20 rounded-lg p-5 mb-4"
+              >
+                <div className="flex items-start">
+                  <div className="bg-red-500/20 rounded-full p-3 mr-4">
+                    <Clock className="h-6 w-6 text-red-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-red-300 mb-1">Défi</h3>
+                    <p className="text-gray-300 mb-4">{item.challenge}</p>
+                    
+                    <div className="flex items-start">
+                      <div className="bg-emerald-500/20 rounded-full p-3 mr-4">
+                        <Sparkles className="h-6 w-6 text-emerald-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-emerald-300 mb-1">Solution FYNE</h3>
+                        <p className="text-gray-300">{item.solution}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* Histoire de FYNE section */}
+        <motion.section
+          className="mb-20"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7, delay: 0.8 }}
+        >
+          <h2 className="text-3xl font-bold mb-8 text-center">
+            <span className="text-emerald-400">🌱</span> D'où vient FYNE ?
+          </h2>
+          <div className="max-w-3xl mx-auto bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border border-blue-800/30 rounded-lg p-8">
+            <p className="text-gray-200 mb-6">
+              Déclaré vainqueur à la suite d'un challenge intrapreneurial mc2i lancé en 2024, FYNE a été développé par 4 collaborateurs mêlant expertises en cybersécurité, formation, IA générative et développement.
+            </p>
+            <p className="text-gray-200 mb-6">
+              En quelques semaines un premier prototype opérationnel a été créé. Il est testé immédiatement en interne chez mc2i, dans des contextes concrets :
+            </p>
+            <ul className="list-disc pl-6 mb-6 space-y-2 text-gray-300">
+              <li>Simulations cyber pour des consultants juniors</li>
+              <li>Tests de mise en situation pour recruter des profils spécialisés</li>
+              <li>Entraînement express avant une soutenance client</li>
+            </ul>
+            <p className="text-gray-200 mb-3">
+              FYNE est un produit né du terrain, testé chez nous, validé par nos clients, et désormais prêt pour CIM².
+            </p>
+            <p className="text-gray-200 font-semibold">
+              C'est un concentré de notre expertise cyber, de notre vision pédagogique, et de notre engagement en matière d'innovation utile et responsable.
+            </p>
           </div>
         </motion.section>
 
@@ -184,7 +333,7 @@ export default function FyneAbout() {
           className="text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.8 }}
+          transition={{ duration: 0.7, delay: 1 }}
         >
           <h2 className="text-3xl font-bold mb-6">Prêt à transformer votre façon d'apprendre ?</h2>
           <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
@@ -193,14 +342,20 @@ export default function FyneAbout() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/cyber/roleplay">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg">
+              <CyberButton 
+                variant="primary" 
+                className="px-8 py-5 text-lg"
+              >
                 Découvrir CYBER ACADEMY
-              </Button>
+              </CyberButton>
             </Link>
             <Link href="/amoa/new">
-              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-6 text-lg">
+              <CyberButton 
+                variant="secondary" 
+                className="px-8 py-5 text-lg"
+              >
                 Explorer AMOA ACADEMY
-              </Button>
+              </CyberButton>
             </Link>
           </div>
         </motion.section>

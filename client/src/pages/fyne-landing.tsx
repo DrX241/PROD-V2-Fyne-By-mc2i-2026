@@ -1,11 +1,11 @@
 import React from 'react';
 import { Link } from 'wouter';
 import { ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
 // Import l'image du personnage FYNE
 import fyneCharacter from '@assets/image_1747677449072.png';
+import CyberButton from '@/components/CyberButton';
 
 export default function FyneLanding() {
   return (
@@ -38,17 +38,18 @@ export default function FyneLanding() {
             </h1>
             
             <p className="text-lg text-gray-300 mb-8">
-              Découvrez une nouvelle dimension d'apprentissage interactif avec nos
-              modules IA innovants qui s'adaptent parfaitement à votre progression.
+              La formation immersive nouvelle génération avec des modules intelligents
+              qui s'adaptent en temps réel à vos besoins.
             </p>
             
             <Link href="/fyne-about">
-              <Button 
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-6 rounded-md text-lg font-semibold"
+              <CyberButton 
+                variant="primary" 
+                className="px-6 py-5 text-lg"
               >
-                Démarrer une expérience
+                Découvrez I AM CYBER
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+              </CyberButton>
             </Link>
           </motion.div>
           
