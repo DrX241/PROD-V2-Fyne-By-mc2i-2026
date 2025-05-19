@@ -222,7 +222,15 @@ function App() {
                 }} />
                 
                 {/* Routes publiques */}
-                <Route path="/" component={CyberHomePage} />
+                {/* Redirection vers la nouvelle landing page FYNE */}
+                <Route path="/" component={() => {
+                  const FyneLanding = lazy(() => import('./pages/fyne-landing'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <FyneLanding />
+                    </Suspense>
+                  );
+                }} />
                 <Route path="/home-classic" component={Home} />
                 <Route path="/modules" component={ModulesPage} />
                 <Route path="/cyber" component={() => {
@@ -1015,6 +1023,25 @@ function App() {
                 }} />
                 
                 {/* Ancien module mc2i Learning et OUTILS IA supprimé */}
+                
+                {/* Nouvelles routes FYNE */}
+                <Route path="/fyne-landing" component={() => {
+                  const FyneLanding = lazy(() => import('./pages/fyne-landing'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <FyneLanding />
+                    </Suspense>
+                  );
+                }} />
+                
+                <Route path="/fyne-about" component={() => {
+                  const FyneAbout = lazy(() => import('./pages/fyne-about'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <FyneAbout />
+                    </Suspense>
+                  );
+                }} />
                 
                 {/* Route par défaut (404) */}
                 <Route component={NotFound} />
