@@ -31,6 +31,9 @@ interface EvaluationResult {
   };
 }
 
+// Options de durée du test en minutes
+type TestDuration = 3 | 5 | 10;
+
 // État de test (en cours, terminé, etc.)
 type TestState = 'intro' | 'in-progress' | 'submitting' | 'results';
 
@@ -141,9 +144,11 @@ export default function CyberInterviewTest() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [currentAnswer, setCurrentAnswer] = useState('');
-  const [timeLeft, setTimeLeft] = useState(10 * 60); // 10 minutes en secondes
+  const [testDuration, setTestDuration] = useState<TestDuration>(10); // Durée par défaut: 10 minutes
+  const [timeLeft, setTimeLeft] = useState(10 * 60); // 10 minutes en secondes par défaut
   const [evaluationResult, setEvaluationResult] = useState<EvaluationResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingNextQuestion, setIsLoadingNextQuestion] = useState(false);
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -156,13 +161,13 @@ export default function CyberInterviewTest() {
       setCurrentQuestionIndex(0);
       setAnswers({});
       setCurrentAnswer('');
-      setTimeLeft(10 * 60);
+      setTimeLeft(testDuration * 60); // Conversion en secondes basée sur la durée sélectionnée
       setEvaluationResult(null);
     } else if (testState === 'in-progress' && questions.length === 0) {
       // Commencer par la question de présentation uniquement
       setQuestions(getInitialQuestion());
     }
-  }, [testState]);
+  }, [testState, testDuration]);
 
   // Gestion du timer
   useEffect(() => {
@@ -203,6 +208,30 @@ export default function CyberInterviewTest() {
 
   // Passer à la question suivante ou générer une nouvelle question adaptative
   const handleNextQuestion = async () => {
+    // Vérifier si la réponse est intelligible
+    if (currentAnswer.trim().length < 5) {
+      toast({
+        title: "Réponse trop courte",
+        description: "Veuillez fournir une réponse plus détaillée.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Vérifier que la réponse a du sens et n'est pas juste du texte aléatoire
+    const wordsCount = currentAnswer.trim().split(/\s+/).length;
+    if (wordsCount < 3) {
+      toast({
+        title: "Réponse insuffisante",
+        description: "Votre réponse ne semble pas être complète. Veuillez élaborer davantage.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Activer l'indicateur de chargement pour éviter les clics multiples
+    setIsLoadingNextQuestion(true);
+    
     // Sauvegarder la réponse actuelle
     if (currentQuestionIndex < questions.length) {
       setAnswers(prev => ({
@@ -221,6 +250,7 @@ export default function CyberInterviewTest() {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setCurrentAnswer('');
+      setIsLoadingNextQuestion(false);
       return;
     }
 
