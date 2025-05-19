@@ -49,7 +49,7 @@ export default function AmoaRoleplay() {
           </motion.div>
 
           {/* Types de jeux de rôle */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 mx-auto max-w-4xl">
             {/* Préparation d'audition */}
             <Card className="bg-gradient-to-br from-blue-900/80 to-blue-950/90 border border-blue-800/30 backdrop-blur-sm hover:shadow-lg hover:border-blue-700/50 transition-all">
               <CardHeader>
@@ -58,9 +58,9 @@ export default function AmoaRoleplay() {
                     <Briefcase className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-center text-xl font-bold">Préparation d'audition</CardTitle>
+                <CardTitle className="text-center text-xl font-bold">Je suis Consultant</CardTitle>
                 <CardDescription className="text-center text-blue-300">
-                  Simulation d'entretien client pour des missions
+                  Je prépare une audition client
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
@@ -101,9 +101,9 @@ export default function AmoaRoleplay() {
                     <Zap className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-center text-xl font-bold">Prospection Challenge</CardTitle>
+                <CardTitle className="text-center text-xl font-bold">Je suis SM</CardTitle>
                 <CardDescription className="text-center text-orange-300">
-                  Simulation de prospection sous pression
+                  Je prépare un RDV commercial
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
