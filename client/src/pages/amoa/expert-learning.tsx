@@ -172,6 +172,13 @@ function ExpertLearningPageContent() {
     }
   }, [inputMessage]);
   
+  // Démarrer automatiquement la session au chargement de la page
+  useEffect(() => {
+    if (!isSessionActive && !sessionSummary && !isLoading) {
+      startSession();
+    }
+  }, []);
+  
   // Fonction pour faire défiler jusqu'au bas du chat
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
