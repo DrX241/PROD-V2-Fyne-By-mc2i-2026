@@ -395,28 +395,68 @@ export default function CyberInterviewTest() {
           </div>
           <Card className="max-w-3xl mx-auto bg-blue-900/30 border-blue-800">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold text-center text-white font-[Rajdhani]">Test d'entretien cybersécurité</CardTitle>
-              <CardDescription className="text-center text-blue-100">
-                Évaluez vos compétences en cybersécurité avec ce test de 10 minutes
+              <CardTitle className="text-3xl font-bold text-center text-white font-[Rajdhani]">Test d'entretien cybersécurité</CardTitle>
+              <CardDescription className="text-center text-blue-100 text-lg mt-2">
+                Évaluez objectivement vos compétences techniques et fonctionnelles en cybersécurité
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4 text-white">
-              <div className="bg-blue-900/50 backdrop-blur-sm border border-blue-800 p-4 rounded-md">
-                <h3 className="font-semibold mb-2 flex items-center text-white">
+            <CardContent className="space-y-6 text-white">
+              <div className="bg-blue-900/50 backdrop-blur-sm border border-blue-800 p-5 rounded-md">
+                <h3 className="font-semibold mb-3 flex items-center text-white text-lg">
                   <Clock className="h-5 w-5 mr-2 text-blue-300" />
                   Comment ça fonctionne
                 </h3>
                 <ul className="list-disc list-inside space-y-2 text-sm text-blue-100">
-                  <li>Test chronométré de 10 minutes</li>
+                  <li>Test chronométré adapté à vos disponibilités (durée à choisir ci-dessous)</li>
                   <li>10 questions ouvertes mêlant aspects techniques et fonctionnels</li>
-                  <li>Répondez à chaque question de façon concise mais complète</li>
-                  <li>À la fin, une IA analysera vos réponses et générera un profil d'évaluation</li>
-                  <li>Vous recevrez une analyse de vos forces et axes d'amélioration</li>
+                  <li>Répondez à chaque question de façon concise mais détaillée</li>
+                  <li>L'IA évalue la qualité et la pertinence de vos réponses en temps réel</li>
+                  <li>À la fin, vous recevrez une analyse objective de vos compétences, forces et axes d'amélioration</li>
                 </ul>
               </div>
 
-              <div className="bg-blue-900/50 backdrop-blur-sm border border-amber-800/50 p-4 rounded-md">
-                <h3 className="font-semibold mb-2 flex items-center text-white">
+              {/* Sélection de la durée */}
+              <div className="bg-blue-900/50 backdrop-blur-sm border border-blue-600/50 p-5 rounded-md">
+                <h3 className="font-semibold mb-3 flex items-center text-white text-lg">
+                  <TimerReset className="h-5 w-5 mr-2 text-blue-300" />
+                  Choisissez la durée du test
+                </h3>
+                <div className="grid grid-cols-3 gap-3 my-3">
+                  <Button 
+                    variant={testDuration === 3 ? "default" : "outline"}
+                    className={testDuration === 3 
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white" 
+                      : "border-blue-500/50 text-blue-200 hover:bg-blue-800/30"}
+                    onClick={() => setTestDuration(3)}
+                  >
+                    3 minutes
+                  </Button>
+                  <Button 
+                    variant={testDuration === 5 ? "default" : "outline"}
+                    className={testDuration === 5 
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white" 
+                      : "border-blue-500/50 text-blue-200 hover:bg-blue-800/30"}
+                    onClick={() => setTestDuration(5)}
+                  >
+                    5 minutes
+                  </Button>
+                  <Button 
+                    variant={testDuration === 10 ? "default" : "outline"}
+                    className={testDuration === 10 
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white" 
+                      : "border-blue-500/50 text-blue-200 hover:bg-blue-800/30"}
+                    onClick={() => setTestDuration(10)}
+                  >
+                    10 minutes
+                  </Button>
+                </div>
+                <p className="text-sm text-blue-100 mt-2">
+                  Durée sélectionnée: <span className="font-semibold text-blue-300">{testDuration} minutes</span> - {testDuration === 3 ? "Idéal pour un test rapide" : testDuration === 5 ? "Recommandé pour une évaluation standard" : "Parfait pour une évaluation approfondie"}
+                </p>
+              </div>
+
+              <div className="bg-blue-900/50 backdrop-blur-sm border border-amber-800/50 p-5 rounded-md">
+                <h3 className="font-semibold mb-3 flex items-center text-white text-lg">
                   <AlertCircle className="h-5 w-5 mr-2 text-amber-400" />
                   À savoir avant de commencer
                 </h3>
@@ -424,7 +464,8 @@ export default function CyberInterviewTest() {
                   <li>Le test sera chronométré dès que vous cliquerez sur "Commencer"</li>
                   <li>Vous ne pourrez pas revenir à une question précédente</li>
                   <li>Si le temps s'écoule, vos réponses seront automatiquement soumises</li>
-                  <li>Assurez-vous d'être dans un environnement calme et sans distractions</li>
+                  <li>Fournissez des réponses complètes et pertinentes pour obtenir une meilleure évaluation</li>
+                  <li>L'IA détectera les réponses hors-sujet ou sans cohérence avec le domaine de la cybersécurité</li>
                 </ul>
               </div>
             </CardContent>
@@ -577,18 +618,18 @@ export default function CyberInterviewTest() {
             </div>
             <Progress value={progress} className="mt-4" />
           </CardHeader>
-          <CardContent className="space-y-4 text-white">
-            <div className="space-y-2 bg-blue-900/50 backdrop-blur-sm border border-blue-800 p-4 rounded-md">
-              <h3 className="text-lg font-medium">{questions[currentQuestionIndex]?.question}</h3>
+          <CardContent className="space-y-5 text-white">
+            <div className="space-y-3 bg-blue-900/50 backdrop-blur-sm border border-blue-800 p-5 rounded-md">
+              <h3 className="text-xl font-medium">{questions[currentQuestionIndex]?.question}</h3>
               {questions[currentQuestionIndex]?.hint && (
-                <p className="text-sm text-blue-100">{questions[currentQuestionIndex]?.hint}</p>
+                <p className="text-sm text-blue-100 border-l-2 border-blue-400 pl-3 py-1">{questions[currentQuestionIndex]?.hint}</p>
               )}
             </div>
             <Textarea
               placeholder={questions[currentQuestionIndex]?.placeholder}
               value={currentAnswer}
               onChange={(e) => setCurrentAnswer(e.target.value)}
-              className="min-h-[150px] bg-blue-950/50 border-blue-700 text-white placeholder:text-blue-400"
+              className="min-h-[200px] bg-blue-950/50 border-blue-700 text-white placeholder:text-blue-400 text-base p-4"
             />
           </CardContent>
           <CardFooter className="flex justify-between">
@@ -602,11 +643,24 @@ export default function CyberInterviewTest() {
             </Button>
             <Button 
               onClick={handleNextQuestion}
-              disabled={currentAnswer.trim().length < 3}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+              disabled={currentAnswer.trim().length < 5 || isLoadingNextQuestion}
+              className={`${
+                isLoadingNextQuestion 
+                  ? 'bg-blue-700 opacity-80' 
+                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
+              } min-w-[180px]`}
             >
-              {currentQuestionIndex < totalQuestions - 1 ? 'Question suivante' : 'Terminer le test'}
-              <ArrowRight className="ml-2 h-4 w-4" />
+              {isLoadingNextQuestion ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-t-transparent border-white rounded-full animate-spin mr-2"></div>
+                  Chargement...
+                </>
+              ) : (
+                <>
+                  {currentQuestionIndex < totalQuestions - 1 ? 'Question suivante' : 'Terminer le test'}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
             </Button>
           </CardFooter>
         </Card>
