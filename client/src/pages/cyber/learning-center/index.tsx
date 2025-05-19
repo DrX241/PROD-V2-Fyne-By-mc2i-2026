@@ -76,7 +76,7 @@ export default function CyberLearningCenter() {
                 </select>
                 <select className="bg-blue-950/70 border border-blue-500/30 text-white px-3 py-2 rounded-md focus:border-blue-500 h-10 text-sm">
                   <option value="">Durée</option>
-                  <option value="court">< 15 min</option>
+                  <option value="court">&lt; 15 min</option>
                   <option value="moyen">15-30 min</option>
                   <option value="long">+30 min</option>
                 </select>
