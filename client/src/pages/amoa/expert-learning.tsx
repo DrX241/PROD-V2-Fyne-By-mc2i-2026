@@ -20,30 +20,30 @@ function formatTextWithStructure(text: string): string {
   // Remplace les liens
   const linkified = text.replace(
     /(https?:\/\/[^\s]+)/g, 
-    '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-violet-400 hover:text-violet-300 underline">$1</a>'
+    '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 underline">$1</a>'
   );
   
   // Format minimal pour un rendu élégant - moins académique
   const formatted = linkified
     // Conserver le formatage basique (gras/italique) pour l'emphase
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-violet-200">$1</strong>') // Gras subtil
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-blue-200">$1</strong>') // Gras subtil
     .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italique
     
     // Conserver le code mais avec un style plus discret
-    .replace(/```([\s\S]*?)```/g, '<div class="bg-violet-900/20 p-3 rounded my-2 overflow-x-auto border-l-2 border-violet-400/30">$1</div>') // Code block simplifié
-    .replace(/`([^`]+)`/g, '<span class="text-violet-300">$1</span>') // Inline code subtil
+    .replace(/```([\s\S]*?)```/g, '<div class="bg-blue-900/20 p-2 rounded my-2 overflow-x-auto border-l-2 border-blue-400/30">$1</div>') // Code block simplifié
+    .replace(/`([^`]+)`/g, '<span class="text-blue-300">$1</span>') // Inline code subtil
     
     // Supprime les titres markdown pour un style plus conversationnel
-    .replace(/^### (.*?)$/gm, '<div class="text-violet-300 font-medium mt-3 mb-1">$1</div>') 
-    .replace(/^## (.*?)$/gm, '<div class="text-violet-300 font-medium mt-3 mb-1">$1</div>') 
-    .replace(/^# (.*?)$/gm, '<div class="text-violet-300 font-medium mt-3 mb-1">$1</div>') 
+    .replace(/^### (.*?)$/gm, '<div class="text-blue-300 font-medium mt-3 mb-1">$1</div>') 
+    .replace(/^## (.*?)$/gm, '<div class="text-blue-300 font-medium mt-3 mb-1">$1</div>') 
+    .replace(/^# (.*?)$/gm, '<div class="text-blue-300 font-medium mt-3 mb-1">$1</div>') 
     
     // Citations plus subtiles 
-    .replace(/^> (.*?)$/gm, '<div class="border-l-2 border-violet-500/40 pl-3 my-2 text-violet-300/80">$1</div>') 
+    .replace(/^> (.*?)$/gm, '<div class="border-l-2 border-blue-500/40 pl-3 my-2 text-blue-300/80">$1</div>') 
     
     // Listes simplifiées
     .replace(/^- (.*?)$/gm, '<div class="flex mb-1">• <span class="ml-2">$1</span></div>') // Puces stylisées
-    .replace(/^(\d+)\. (.*?)$/gm, '<div class="flex mb-1"><span class="text-violet-400 mr-2">$1.</span> <span>$2</span></div>') // Numération stylisée
+    .replace(/^(\d+)\. (.*?)$/gm, '<div class="flex mb-1"><span class="text-blue-400 mr-2">$1.</span> <span>$2</span></div>') // Numération stylisée
     
     // Paragraphes et espacement naturel
     .replace(/\n\n/g, '<div class="mt-2"></div>') // Double espace
@@ -341,7 +341,7 @@ function ExpertLearningPageContent() {
         
         <div className="relative z-10 max-w-6xl w-full mx-auto px-4 py-8 sm:px-6 sm:py-12">
           {/* Bouton de retour - style console AMOA */}
-          <div className="absolute top-4 right-4 mt-4">
+          <div className="absolute top-4 left-4 mt-4">
             <Button 
               variant="outline" 
               onClick={handleReturnToPrevious}
@@ -352,53 +352,9 @@ function ExpertLearningPageContent() {
             </Button>
           </div>
           
-          <div className="flex flex-col items-center justify-center h-full pt-16">
-            {!isSessionActive && !sessionSummary ? (
-              // Page d'accueil - style terminal AMOA
-              <Card className="w-full max-w-3xl bg-blue-950 border border-blue-400/30 text-white shadow-[0_0_15px_rgba(139,178,250,0.1)]">
-                <CardHeader className="border-b border-blue-400/20">
-                  <CardTitle className="font-mono text-blue-400 flex items-center gap-2">
-                    <Bot className="h-5 w-5" />
-                    EXPERT AMOA - INTERFACE DE DIALOGUE
-                  </CardTitle>
-                  <CardDescription className="text-blue-100/70 font-mono">
-                    VERSION 2.5.3 | ÉTAT: <span className="text-blue-300">PRÊT</span>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="py-6 space-y-4 text-blue-100">
-                  <div className="font-mono text-sm border-l-2 border-blue-400/50 pl-4">
-                    <p>Bienvenue sur le module <span className="text-blue-400">APPRENDRE EN ÉCHANGEANT</span>.</p>
-                    <p className="mt-2">Cette interface vous permet d'interagir avec un expert en Assistance à Maîtrise d'Ouvrage pour explorer des concepts adaptés à votre niveau et à vos besoins spécifiques.</p>
-                  </div>
-                  
-                  <div className="bg-blue-900 p-4 rounded-md border border-blue-400/30 font-mono text-sm space-y-3">
-                    <p className="text-blue-300">► FONCTIONNALITÉS:</p>
-                    <ul className="space-y-2 pl-6 list-disc text-blue-100">
-                      <li>Dialogue avec un expert en AMOA pour identifier vos besoins d'apprentissage</li>
-                      <li>Contenu personnalisé adapté à votre niveau et votre domaine professionnel</li>
-                      <li>Formats d'apprentissage flexibles (méthodologies, ateliers, livrables)</li>
-                      <li>Références actualisées aux méthodes et bonnes pratiques en gestion de projet</li>
-                      <li>Mode décision avec scénarios complexes et choix stratégiques</li>
-                    </ul>
-                  </div>
-                </CardContent>
-                <CardFooter className="border-t border-blue-400/20 pt-4 flex justify-center">
-                  <Button 
-                    onClick={startSession}
-                    disabled={isLoading}
-                    className="bg-blue-600 hover:bg-blue-500 text-white font-mono"
-                  >
-                    {isLoading ? (
-                      <>
-                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                        INITIALISATION...
-                      </>
-                    ) : (
-                      <>DÉMARRER UNE SESSION</>
-                    )}
-                  </Button>
-                </CardFooter>
-              </Card>
+          <div className="flex flex-col items-center justify-center h-full pt-6">
+            {false ? ( // Désactivation complète de la page intermédiaire
+              <div></div>
             ) : (
               <div className="flex flex-col w-full max-w-4xl mx-auto">
                 {/* Mode décision ou chat standard */}
@@ -444,7 +400,7 @@ function ExpertLearningPageContent() {
                     {/* Zone de chat avec messages */}
                     <div 
                       ref={chatContainerRef}
-                      className="flex-1 overflow-y-auto bg-blue-950/80 border border-blue-400/30 rounded-t-md shadow-[0_0_15px_rgba(139,178,250,0.1)] h-[calc(100vh-320px)] min-h-[500px]"
+                      className="flex-1 overflow-y-auto bg-blue-950/80 border border-blue-400/30 rounded-t-md shadow-[0_0_15px_rgba(139,178,250,0.1)] h-[calc(100vh-220px)] min-h-[600px] w-full"
                     >
                       <div className="p-4 space-y-4">
                         {messages.map((message) => (
@@ -560,14 +516,14 @@ function ExpertLearningPageContent() {
             {/* Résumé de session (modal) */}
             {sessionSummary && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
-                <Card className="w-full max-w-3xl bg-violet-950 border-violet-400/30 text-white shadow-[0_0_20px_rgba(167,139,250,0.2)]">
+                <Card className="w-full max-w-3xl bg-blue-950 border-blue-400/30 text-white shadow-[0_0_20px_rgba(139,178,250,0.2)]">
                   <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="text-violet-400">Résumé de votre session</CardTitle>
+                    <CardTitle className="text-blue-400">Résumé de votre session</CardTitle>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={closeSessionSummary}
-                      className="text-violet-400 hover:text-violet-300 hover:bg-violet-900"
+                      className="text-blue-400 hover:text-blue-300 hover:bg-blue-900"
                     >
                       <X className="h-5 w-5" />
                     </Button>
@@ -575,12 +531,12 @@ function ExpertLearningPageContent() {
                   <CardContent className="max-h-[60vh] overflow-y-auto">
                     {sessionSummary === "Aucune interaction n'a été enregistrée pendant cette session." ? (
                       <div className="flex flex-col items-center justify-center py-6 text-center">
-                        <p className="text-violet-100 mb-2">{sessionSummary}</p>
-                        <p className="text-violet-300/70 text-sm">Pour obtenir un résumé détaillé, échangez des messages avec l'assistant pendant la session.</p>
+                        <p className="text-blue-100 mb-2">{sessionSummary}</p>
+                        <p className="text-blue-300/70 text-sm">Pour obtenir un résumé détaillé, échangez des messages avec l'assistant pendant la session.</p>
                       </div>
                     ) : (
                       <div 
-                        className="prose prose-invert max-w-none text-violet-100" 
+                        className="prose prose-invert max-w-none text-blue-100" 
                         dangerouslySetInnerHTML={{ 
                           __html: DOMPurify.sanitize(formatTextWithStructure(sessionSummary)) 
                         }}
@@ -590,14 +546,14 @@ function ExpertLearningPageContent() {
                   <CardFooter className="flex justify-center gap-4">
                     <Button
                       onClick={startSession}
-                      className="bg-violet-600 hover:bg-violet-500 text-white"
+                      className="bg-blue-600 hover:bg-blue-500 text-white"
                     >
                       Nouvelle session
                     </Button>
                     <Button
                       variant="outline"
                       onClick={handleReturnToPrevious}
-                      className="border-violet-400/30 text-violet-400 hover:bg-violet-900 hover:border-violet-400/50"
+                      className="border-blue-400/30 text-blue-400 hover:bg-blue-900 hover:border-blue-400/50"
                     >
                       Retour aux modules AMOA
                     </Button>
