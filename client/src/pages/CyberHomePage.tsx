@@ -61,7 +61,7 @@ const CyberHomePage: React.FC = () => {
       color: 'text-[#006a9e]',
       bgColor: 'bg-[#006a9e]/10',
       accentColor: 'border-[#006a9e]/50',
-      route: '/cyber/home'
+      route: '/cyber'
     },
     {
       id: 'data',
@@ -71,7 +71,7 @@ const CyberHomePage: React.FC = () => {
       color: 'text-[#006a9e]',
       bgColor: 'bg-[#006a9e]/10',
       accentColor: 'border-[#006a9e]/50',
-      route: '/data-ia/home'
+      route: '/data-ia'
     },
     {
       id: 'mc2i',
