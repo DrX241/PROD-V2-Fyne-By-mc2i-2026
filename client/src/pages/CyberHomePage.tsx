@@ -159,10 +159,10 @@ const CyberHomePage: React.FC = () => {
             >
               <div className="text-3xl md:text-5xl font-bold mb-8 tracking-widest">
                 <h1 className="font-bold tracking-widest">
-                  <span className="text-[#dd0061]">F</span>OR 
-                  <span className="text-[#006a9e]"> Y</span>OUR 
-                  <span className="text-green-600"> N</span>EXT 
-                  <span className="text-orange-500"> E</span>XPERIENCE
+                  <span className="text-[#dd0061]">F</span><span className="text-[#006a9e]">OR </span>
+                  <span className="text-[#dd0061]">Y</span><span className="text-[#006a9e]">OUR </span>
+                  <span className="text-[#dd0061]">N</span><span className="text-[#006a9e]">EXT </span>
+                  <span className="text-[#dd0061]">E</span><span className="text-[#006a9e]">XPERIENCE</span>
                 </h1>
               </div>
               
