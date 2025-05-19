@@ -43,50 +43,43 @@ const QUESTIONS: Question[] = [
     id: 'q1',
     type: 'presentation',
     question: 'Présente-toi en tant que professionnel de la cybersécurité.',
-    hint: 'Décris ton parcours, tes compétences et ton rôle actuel ou souhaité.',
-    placeholder: 'Je suis un professionnel de la cybersécurité spécialisé dans...'
+    hint: 'Décris ton parcours, tes compétences et ton rôle actuel ou souhaité.'
   },
   {
     id: 'q2',
     type: 'reflex',
     question: 'Un mail suspect arrive dans ta boîte de réception professionnelle. Quelles sont tes 3 premières actions ?',
-    hint: 'Pense à la séquence d\'actions et aux précautions à prendre.',
-    placeholder: 'Premièrement, je... Deuxièmement, je... Enfin, je...'
+    hint: 'Pense à la séquence d\'actions et aux précautions à prendre.'
   },
   {
     id: 'q3',
     type: 'incident',
     question: 'Une attaque par ransomware vient de bloquer 3 serveurs critiques de l\'entreprise. Que fais-tu dans la première heure ?',
-    hint: 'Pense à la gestion de crise immédiate, aux communications et aux actions techniques.',
-    placeholder: 'Dans les premières minutes, je...'
+    hint: 'Pense à la gestion de crise immédiate, aux communications et aux actions techniques.'
   },
   {
     id: 'q4',
     type: 'analysis',
     question: 'Voici un extrait de logs de connexion suspects :\n\n192.168.1.25 - - [03/May/2025:02:14:12 +0100] "GET /admin/login.php HTTP/1.1" 200 4523\n192.168.1.25 - - [03/May/2025:02:14:15 +0100] "POST /admin/login.php HTTP/1.1" 401 289\n192.168.1.25 - - [03/May/2025:02:14:18 +0100] "POST /admin/login.php HTTP/1.1" 401 289\n192.168.1.25 - - [03/May/2025:02:14:19 +0100] "POST /admin/login.php HTTP/1.1" 401 289\n...(20 entrées similaires)...\n192.168.1.25 - - [03/May/2025:02:15:32 +0100] "POST /admin/login.php HTTP/1.1" 302 0\n192.168.1.25 - - [03/May/2025:02:15:33 +0100] "GET /admin/dashboard.php HTTP/1.1" 200 18345\n\nIdentifie et explique ce que tu observes.',
-    hint: 'Recherche des motifs, des anomalies ou des indicateurs de comportement suspect.',
-    placeholder: 'Je remarque que...'
+    hint: 'Recherche des motifs, des anomalies ou des indicateurs de comportement suspect.'
   },
   {
     id: 'q5',
     type: 'ethical',
     question: 'Lors d\'un audit, tu identifies une faille de sécurité critique qui a été passée sous silence par ton supérieur. Quelle est ta réaction ?',
-    hint: 'Réfléchis aux dimensions éthiques, légales et professionnelles de la situation.',
-    placeholder: 'Face à cette situation, je...'
+    hint: 'Réfléchis aux dimensions éthiques, légales et professionnelles de la situation.'
   },
   {
     id: 'q6',
     type: 'client',
     question: 'Un client refuse d\'implémenter une bonne pratique de sécurité essentielle pour des raisons de coût. Comment gères-tu cette situation ?',
-    hint: 'Pense à l\'équilibre entre pédagogie, argumentation et prise en compte des contraintes du client.',
-    placeholder: 'Pour convaincre le client...'
+    hint: 'Pense à l\'équilibre entre pédagogie, argumentation et prise en compte des contraintes du client.'
   },
   {
     id: 'q7',
     type: 'projection',
     question: 'Quelle est la menace cyber qui t\'inquiète le plus pour les 3 prochaines années et pourquoi ?',
-    hint: 'Tu peux évoquer des tendances technologiques, géopolitiques ou sociétales.',
-    placeholder: 'La menace qui m\'inquiète particulièrement est...'
+    hint: 'Tu peux évoquer des tendances technologiques, géopolitiques ou sociétales.'
   }
 ];
 
@@ -212,7 +205,7 @@ export default function CyberInterviewTest() {
     if (isLoadingNextQuestion) return;
     
     // Vérifier si la réponse est intelligible
-    if (currentAnswer.trim().length < 5) {
+    if (currentAnswer.trim().length < 10) {
       toast({
         title: "Réponse trop courte",
         description: "Veuillez fournir une réponse plus détaillée.",
@@ -223,13 +216,52 @@ export default function CyberInterviewTest() {
     
     // Vérifier que la réponse a du sens et n'est pas juste du texte aléatoire
     const wordsCount = currentAnswer.trim().split(/\s+/).length;
-    if (wordsCount < 3) {
+    if (wordsCount < 5) {
       toast({
         title: "Réponse insuffisante",
         description: "Votre réponse ne semble pas être complète. Veuillez élaborer davantage.",
         variant: "destructive"
       });
       return;
+    }
+    
+    // Analyse rapide de la pertinence de la réponse par rapport à la question
+    const currentQuestion = questions[currentQuestionIndex];
+    
+    // Vérifier si la réponse est pertinente pour la cybersécurité
+    const cyberKeywords = ['sécurité', 'cyber', 'protection', 'menace', 'attaque', 'défense', 'réseau', 'vulnérabilité', 
+                          'hacker', 'pare-feu', 'malware', 'virus', 'données', 'confidentialité', 'authentification', 
+                          'autorisation', 'cryptage', 'risque', 'serveur', 'politique', 'conformité', 'intrusion'];
+    
+    // Vérifier si au moins un mot-clé lié à la cybersécurité est présent
+    const lowerCaseAnswer = currentAnswer.toLowerCase();
+    const hasCyberSecurityTerms = cyberKeywords.some(keyword => lowerCaseAnswer.includes(keyword));
+    
+    // Si la réponse semble hors sujet
+    if (wordsCount > 15 && !hasCyberSecurityTerms && currentQuestionIndex > 0) {
+      toast({
+        title: "Réponse hors sujet",
+        description: "Votre réponse ne semble pas être en lien avec la cybersécurité. Veuillez répondre à la question posée.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Pour les questions techniques, vérifier un minimum de qualité technique
+    if (currentQuestion?.type === 'analysis' || currentQuestion?.type === 'incident') {
+      const technicalKeywords = ['protocole', 'log', 'serveur', 'firewall', 'ip', 'http', 'code', 'administration', 
+                               'authentification', 'accès', 'service', 'système', 'fichier', 'base de données', 
+                               'sauvegarde', 'isolation', 'forensic', 'preuve', 'analyse'];
+      
+      const hasTechnicalTerms = technicalKeywords.some(keyword => lowerCaseAnswer.includes(keyword));
+      
+      if (wordsCount > 20 && !hasTechnicalTerms) {
+        toast({
+          title: "Manque de précision technique",
+          description: "Votre réponse manque de termes techniques pertinents pour ce type de question.",
+          variant: "destructive"
+        });
+      }
     }
     
     // Activer l'indicateur de chargement pour éviter les clics multiples
@@ -338,12 +370,27 @@ export default function CyberInterviewTest() {
       // Instructions d'évaluation objective pour l'IA
       const objectiveInstructions = {
         evaluationGuidelines: {
-          objectivity: "Évaluer de manière strictement factuelle les réponses en fonction de leur pertinence technique",
-          accuracy: "Éviter toute surestimation des compétences, ne pas inventer de forces ou qualités non démontrées",
-          specificity: "Baser les observations sur des éléments concrets présents dans les réponses",
-          balance: "Présenter à la fois les forces démontrées et les domaines d'amélioration avec la même rigueur",
-          factualFeedback: "Se concentrer sur le contenu technique plutôt que le style d'écriture"
-        }
+          objectivity: "Évaluer de manière strictement factuelle les réponses en fonction de leur pertinence technique et professionnelle",
+          accuracy: "Éviter toute surestimation des compétences, ne pas inventer de forces ou qualités non démontrées dans les réponses",
+          specificity: "Baser chaque observation sur des extraits précis ou des éléments concrets présents dans les réponses",
+          balance: "Présenter à la fois les forces démontrées et les domaines d'amélioration avec la même rigueur, sans enjoliver",
+          factualFeedback: "Se concentrer sur la qualité technique des réponses (précision, pertinence, exhaustivité)",
+          responseQuality: "Évaluer objectivement la maturité technique, la structure des réponses, la posture professionnelle",
+          negativeFeatures: "Mentionner explicitement les lacunes techniques, les imprécisions et les faiblesses constatées",
+          concreteMetrics: "Fournir une évaluation chiffrée (pourcentage) de la qualité objective des réponses techniques",
+          technicalDepth: "Évaluer la profondeur technique des réponses sans complaisance",
+          professionalStance: "Analyser la posture professionnelle sans idéalisation"
+        },
+        evaluationCategories: [
+          "Précision technique", 
+          "Complétude des réponses", 
+          "Maturité professionnelle", 
+          "Structure et clarté", 
+          "Pertinence cybersécurité",
+          "Rigueur méthodologique",
+          "Prise en compte des contraintes",
+          "Points faibles identifiés"
+        ]
       };
 
       // Préparer les données à envoyer
@@ -666,7 +713,7 @@ export default function CyberInterviewTest() {
               )}
             </div>
             <Textarea
-              placeholder={questions[currentQuestionIndex]?.placeholder}
+              placeholder="Entrez votre réponse ici..."
               value={currentAnswer}
               onChange={(e) => setCurrentAnswer(e.target.value)}
               className="min-h-[200px] bg-blue-950/50 border-blue-700 text-white placeholder:text-blue-400 text-base p-4"
