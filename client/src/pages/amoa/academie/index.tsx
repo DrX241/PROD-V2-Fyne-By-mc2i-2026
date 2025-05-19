@@ -192,50 +192,7 @@ export default function AmoaAcademie() {
             </div>
           </div>
           
-          {/* Parcours spécialisés */}
-          <div className="bg-gradient-to-r from-blue-900/40 to-blue-950/60 border border-blue-700 rounded-lg p-6 mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold flex items-center">
-                <GraduationCap className="mr-3 h-6 w-6 text-blue-400" />
-                Modules avancés
-              </h2>
-              <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 px-3 py-1 text-sm">
-                4 modules spécialisés
-              </Badge>
-            </div>
-            <p className="text-blue-200 mb-6">
-              Des modules avancés pour approfondir vos compétences et devenir un expert AMOA.
-            </p>
-            
-            {/* Liste des modules spécialisés */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {specializedModules.map((module) => (
-                <Card key={module.id} className="bg-blue-900/20 border border-blue-700 flex flex-col hover:shadow-md hover:border-blue-500 transition-all">
-                  <div className="flex p-4">
-                    <div className="p-2 rounded-full bg-blue-800/50 mr-3 h-10 w-10 flex items-center justify-center">
-                      {module.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start">
-                        <h3 className="font-medium">{module.title}</h3>
-                        <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 ml-2">
-                          {module.duration}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-blue-300 mt-1">{module.description}</p>
-                    </div>
-                  </div>
-                  <div className="mt-auto p-2 pl-4">
-                    <Link href="#">
-                      <Button variant="link" className="text-blue-300 hover:text-blue-100 p-0 h-auto">
-                        {module.comingSoon ? 'Bientôt disponible' : 'Accéder au module'} →
-                      </Button>
-                    </Link>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
+
           
 
         </div>
