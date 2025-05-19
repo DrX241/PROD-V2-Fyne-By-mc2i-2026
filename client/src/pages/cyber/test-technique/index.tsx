@@ -403,17 +403,90 @@ export default function CyberTestTechnique() {
   };
 
   const goToNextQuestion = () => {
-    // Vérification si une réponse a été sélectionnée pour la question courante
-    if (questions && 
-        questions[currentQuestion].type === 'mcq' && 
-        responses && 
-        responses[currentQuestion].answer === -1) {
-      toast({
-        title: "Réponse requise",
-        description: "Vous devez sélectionner une réponse avant de passer à la question suivante.",
-        variant: "destructive",
-      });
-      return;
+    // Vérification si une réponse a été fournie pour la question courante
+    if (questions && responses) {
+      const currentQuestionObj = questions[currentQuestion];
+      const currentResponse = responses[currentQuestion];
+      
+      // Vérification pour QCM
+      if (currentQuestionObj.type === 'mcq' && currentResponse.answer === -1) {
+        toast({
+          title: "Réponse requise",
+          description: "Vous devez sélectionner une réponse avant de passer à la question suivante.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Vérification pour les questions ouvertes, code ou scénarios
+      if (currentQuestionObj.type !== 'mcq') {
+        const textAnswer = currentResponse.answer as string;
+        
+        // Vérifier si la réponse est vide ou trop courte
+        if (!textAnswer || textAnswer.trim().length < 10) {
+          toast({
+            title: "Réponse insuffisante",
+            description: "Veuillez fournir une réponse plus détaillée avant de continuer.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        // Analyse de cohérence pour les questions ouvertes et scénarios
+        if (currentQuestionObj.type === 'open' || currentQuestionObj.type === 'scenario') {
+          // Vérifier que la réponse est pertinente par rapport à la question
+          const lowerCaseQuestion = currentQuestionObj.question.toLowerCase();
+          const lowerCaseAnswer = textAnswer.toLowerCase();
+          
+          // Extraction des mots-clés de la question pour analyse de cohérence
+          const questionKeywords = lowerCaseQuestion
+            .replace(/[.,?!;:]/g, '')
+            .split(/\s+/)
+            .filter(word => word.length > 3)
+            .filter(word => !['comment', 'pourquoi', 'quelles', 'quels', 'cette', 'dans', 'avec', 'pour', 'votre'].includes(word));
+          
+          // Vérifier si la réponse contient des éléments de la question
+          const questionRelevance = questionKeywords.some(keyword => lowerCaseAnswer.includes(keyword));
+          
+          // Vérifier si la réponse est pertinente pour la cybersécurité
+          const cyberKeywords = [
+            'sécurité', 'cyber', 'protection', 'menace', 'attaque', 'défense', 'réseau', 'vulnérabilité', 
+            'hacker', 'pare-feu', 'malware', 'virus', 'données', 'confidentialité', 'authentification', 
+            'autorisation', 'cryptage', 'risque', 'serveur', 'politique', 'conformité', 'intrusion',
+            'phishing', 'ransomware', 'détection', 'prévention', 'audit', 'soc', 'cert'
+          ];
+          
+          const hasCyberSecurityTerms = cyberKeywords.some(keyword => lowerCaseAnswer.includes(keyword));
+          
+          // Si la réponse semble hors sujet
+          if (textAnswer.trim().split(/\s+/).length > 15 && !questionRelevance && !hasCyberSecurityTerms) {
+            toast({
+              title: "Réponse hors sujet",
+              description: "Votre réponse ne semble pas être directement liée à la question posée.",
+              variant: "destructive",
+            });
+            return;
+          }
+        }
+        
+        // Vérification spécifique pour les réponses de code
+        if (currentQuestionObj.type === 'code') {
+          // Vérifier que la réponse contient du code significatif
+          const codePatterns = ['function', 'if', 'for', 'while', 'return', 'var', 'let', 'const', 
+                               'class', 'import', 'try', 'catch', '=', '{', '}', '()', '[]', ';', '=>'];
+          
+          const hasCodeStructure = codePatterns.some(pattern => textAnswer.includes(pattern));
+          
+          if (!hasCodeStructure) {
+            toast({
+              title: "Code invalide",
+              description: "Votre réponse ne semble pas contenir de code valide. Veuillez fournir une solution de code.",
+              variant: "destructive",
+            });
+            return;
+          }
+        }
+      }
     }
     
     if (questions && Array.isArray(questions) && currentQuestion < questions.length - 1) {
@@ -759,6 +832,14 @@ export default function CyberTestTechnique() {
                         answer: e.target.value
                       };
                       setResponses(updatedResponses);
+                    }}
+                    onPaste={(e) => {
+                      e.preventDefault();
+                      toast({
+                        title: "Action interdite",
+                        description: "Le copier-coller n'est pas autorisé durant ce test.",
+                        variant: "destructive"
+                      });
                     }}
                     placeholder={`Saisissez votre réponse ${
                       questions[currentQuestion].type === 'code' ? 'de code' :
