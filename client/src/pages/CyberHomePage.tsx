@@ -116,18 +116,7 @@ const CyberHomePage: React.FC = () => {
             
             <div className="flex items-center gap-5">
               <div className="flex items-center gap-2">
-                <OpenAIStatusIndicator />
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <span className={`text-sm font-medium ${isEcoMode ? 'text-amber-600' : 'text-gray-500'}`}>
-                  Mode ÉCO {isEcoMode ? 'ON' : 'OFF'}
-                </span>
-                <Switch 
-                  checked={isEcoMode} 
-                  onCheckedChange={toggleEcoMode}
-                  className={isEcoMode ? 'bg-amber-500' : ''}
-                />
+                <OpenAIStatusIndicator position="in-header" showModelToggle={true} />
               </div>
             </div>
           </div>
