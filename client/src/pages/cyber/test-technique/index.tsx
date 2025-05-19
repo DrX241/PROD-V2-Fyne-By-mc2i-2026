@@ -185,15 +185,8 @@ export default function CyberTestTechnique() {
         setResponses(initialResponses);
         setStep('quiz');
         
-        // Ajuster le temps selon le niveau de difficulté et le nombre de questions
-        const baseTimePerQuestion = 60; // 60 secondes par question
-        const difficultyMultiplier = 
-          data.questions[0].difficulty === 'beginner' ? 1 :
-          data.questions[0].difficulty === 'intermediate' ? 1.5 :
-          data.questions[0].difficulty === 'advanced' ? 2 : 
-          data.questions[0].difficulty === 'expert' ? 2.5 : 1;
-        
-        const totalTime = Math.min(3600, Math.max(600, Math.round(data.questions.length * baseTimePerQuestion * difficultyMultiplier)));
+        // Utiliser un temps fixe de 5 minutes (300 secondes) pour tous les tests, quelle que soit la difficulté
+        const totalTime = 300; // 5 minutes en secondes
         setTimeLeft(totalTime);
         
         toast({
@@ -947,11 +940,11 @@ export default function CyberTestTechnique() {
             <div className="p-5 bg-blue-900/50 rounded-lg border border-blue-700">
               <div className="flex items-center mb-4">
                 <div className="w-16 h-16 rounded-full flex items-center justify-center bg-blue-800 border-4 border-blue-700">
-                  <span className="text-xl font-bold text-white">{Math.round((evaluationResults.score / evaluationResults.totalQuestions) * 100)}%</span>
+                  <span className="text-xl font-bold text-white">{Math.round((evaluationResults.correctCount / evaluationResults.totalQuestions) * 100)}%</span>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-white font-rajdhani">Score: {evaluationResults.score}/{evaluationResults.totalQuestions}</h3>
-                  <p className="text-blue-200">Réponses correctes: {evaluationResults.correctCount} sur {evaluationResults.totalQuestions}</p>
+                  <h3 className="text-lg font-medium text-white font-rajdhani">Score: {evaluationResults.correctCount}/{evaluationResults.totalQuestions}</h3>
+                  <p className="text-blue-200">{evaluationResults.correctCount} réponse{evaluationResults.correctCount !== 1 ? 's' : ''} correcte{evaluationResults.correctCount !== 1 ? 's' : ''} sur {evaluationResults.totalQuestions} questions</p>
                 </div>
               </div>
             </div>
