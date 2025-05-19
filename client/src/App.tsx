@@ -26,6 +26,8 @@ import AmoaModeSelectionNew from "./pages/amoa-mode-selection-new";
 import ModuleGenerator from "./pages/playground/module-generator";
 // Import des pages de la nouvelle interface cyber V3
 import CyberV3 from "./pages/cyber-v3";
+// Import de la page à propos de FYNE
+import FyneAbout from "./pages/fyne-about";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -68,6 +70,7 @@ function App() {
                 <Route path="/" component={CyberHomePage} />
                 <Route path="/home-classic" component={Home} />
                 <Route path="/modules" component={ModulesPage} />
+                <Route path="/fyne-about" component={FyneAbout} />
                 
                 {/* Routes des modules */}
                 <Route path="/cyber" component={CyberV3} />
