@@ -225,42 +225,98 @@ export default function CyberInterviewTest() {
       return;
     }
     
-    // Analyse rapide de la pertinence de la réponse par rapport à la question
-    const currentQuestion = questions[currentQuestionIndex];
+    // Analyse de la pertinence de la réponse par rapport à la question posée
+    const questionObj = questions[currentQuestionIndex];
     
-    // Vérifier si la réponse est pertinente pour la cybersécurité
-    const cyberKeywords = ['sécurité', 'cyber', 'protection', 'menace', 'attaque', 'défense', 'réseau', 'vulnérabilité', 
-                          'hacker', 'pare-feu', 'malware', 'virus', 'données', 'confidentialité', 'authentification', 
-                          'autorisation', 'cryptage', 'risque', 'serveur', 'politique', 'conformité', 'intrusion'];
-    
-    // Vérifier si au moins un mot-clé lié à la cybersécurité est présent
-    const lowerCaseAnswer = currentAnswer.toLowerCase();
-    const hasCyberSecurityTerms = cyberKeywords.some(keyword => lowerCaseAnswer.includes(keyword));
-    
-    // Si la réponse semble hors sujet
-    if (wordsCount > 15 && !hasCyberSecurityTerms && currentQuestionIndex > 0) {
-      toast({
-        title: "Réponse hors sujet",
-        description: "Votre réponse ne semble pas être en lien avec la cybersécurité. Veuillez répondre à la question posée.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Pour les questions techniques, vérifier un minimum de qualité technique
-    if (currentQuestion?.type === 'analysis' || currentQuestion?.type === 'incident') {
-      const technicalKeywords = ['protocole', 'log', 'serveur', 'firewall', 'ip', 'http', 'code', 'administration', 
-                               'authentification', 'accès', 'service', 'système', 'fichier', 'base de données', 
-                               'sauvegarde', 'isolation', 'forensic', 'preuve', 'analyse'];
+    if (questionObj) {
+      const lowerCaseAnswer = currentAnswer.toLowerCase();
+      const lowerCaseQuestion = questionObj.question.toLowerCase();
       
-      const hasTechnicalTerms = technicalKeywords.some(keyword => lowerCaseAnswer.includes(keyword));
+      // Extraction des mots-clés de la question pour analyse de cohérence
+      const questionKeywords = lowerCaseQuestion
+        .replace(/[.,?!;:]/g, '')
+        .split(/\s+/)
+        .filter(word => word.length > 3)
+        .filter(word => !['comment', 'pourquoi', 'quelles', 'quels', 'cette', 'dans', 'avec', 'pour', 'votre'].includes(word));
       
-      if (wordsCount > 20 && !hasTechnicalTerms) {
+      // Vérifier si la réponse contient des éléments de la question
+      const questionRelevance = questionKeywords.some(keyword => lowerCaseAnswer.includes(keyword));
+      
+      // Vérifier si la réponse est pertinente pour la cybersécurité
+      const cyberKeywords = [
+        'sécurité', 'cyber', 'protection', 'menace', 'attaque', 'défense', 'réseau', 'vulnérabilité', 
+        'hacker', 'pare-feu', 'malware', 'virus', 'données', 'confidentialité', 'authentification', 
+        'autorisation', 'cryptage', 'risque', 'serveur', 'politique', 'conformité', 'intrusion',
+        'phishing', 'ransomware', 'détection', 'prévention', 'pentest', 'audit', 'soc', 'cert',
+        'incident', 'réponse', 'crise', 'communication', 'analyse', 'forensic', 'supervision'
+      ];
+      
+      // Mots-clés spécifiques par type de question
+      const typeSpecificKeywords: Record<string, string[]> = {
+        'presentation': ['expérience', 'parcours', 'compétence', 'formation', 'rôle', 'poste', 'métier', 'cybersécurité'],
+        'reflex': ['vérifier', 'analyser', 'isoler', 'rapport', 'signaler', 'email', 'phishing', 'suspicion'],
+        'incident': ['isoler', 'contenir', 'analyser', 'communication', 'sauvegarde', 'restauration', 'ransomware', 'forensic'],
+        'analysis': ['log', 'connexion', 'tentative', 'intrusion', 'brute force', 'admin', 'authentification', 'dashboard'],
+        'ethical': ['rapport', 'signaler', 'responsabilité', 'disclosure', 'hiérarchie', 'éthique', 'légal', 'confidentiel'],
+        'client': ['conseil', 'risque', 'conformité', 'impact', 'business', 'retour', 'investissement', 'sensibilisation'],
+        'projection': ['futur', 'menace', 'évolution', 'tendance', 'intelligence', 'artificielle', 'quantique', 'prédiction']
+      };
+      
+      // Vérifier si au moins un mot-clé lié à la cybersécurité est présent
+      const hasCyberSecurityTerms = cyberKeywords.some(keyword => lowerCaseAnswer.includes(keyword));
+      
+      // Vérifier la pertinence par rapport au type de question
+      const hasTypeSpecificTerms = questionObj.type && typeSpecificKeywords[questionObj.type]
+        ? typeSpecificKeywords[questionObj.type].some(keyword => lowerCaseAnswer.includes(keyword))
+        : false;
+        
+      // Analyse multi-critères de pertinence
+      const isRelevantAnswer = questionRelevance || hasCyberSecurityTerms || hasTypeSpecificTerms;
+      
+      // Si la réponse semble hors sujet après analyse approfondie
+      if (wordsCount > 15 && !isRelevantAnswer) {
         toast({
-          title: "Manque de précision technique",
-          description: "Votre réponse manque de termes techniques pertinents pour ce type de question.",
+          title: "Réponse hors sujet",
+          description: "Votre réponse ne semble pas répondre directement à la question posée. Veuillez rester cohérent avec le contexte de la question.",
           variant: "destructive"
         });
+        return;
+      }
+      
+      // Pour les questions techniques, vérifier un minimum de qualité technique et de profondeur
+      if (questionObj.type === 'analysis' || questionObj.type === 'incident') {
+        const technicalKeywords = [
+          'protocole', 'log', 'serveur', 'firewall', 'ip', 'http', 'code', 'administration', 
+          'authentification', 'accès', 'service', 'système', 'fichier', 'base de données', 
+          'sauvegarde', 'isolation', 'forensic', 'preuve', 'analyse', 'trafic', 'port',
+          '401', '200', '302', 'post', 'get', 'login.php', 'dashboard', 'bruteforce'
+        ];
+        
+        const hasTechnicalTerms = technicalKeywords.some(keyword => lowerCaseAnswer.includes(keyword));
+        
+        // Pour l'analyse de logs, vérifier si la réponse mentionne des éléments spécifiques du log
+        if (questionObj.type === 'analysis' && lowerCaseQuestion.includes('extrait de logs')) {
+          const logSpecificTerms = ['401', 'erreur', 'unauthorize', 'tentative', 'connexion', 'login', 'dashboard'];
+          const hasLogSpecificTerms = logSpecificTerms.some(term => lowerCaseAnswer.includes(term));
+          
+          if (!hasLogSpecificTerms) {
+            toast({
+              title: "Analyse insuffisante",
+              description: "Votre réponse ne semble pas analyser les éléments spécifiques présents dans les logs fournis.",
+              variant: "destructive"
+            });
+            return;
+          }
+        }
+        
+        if (wordsCount > 20 && !hasTechnicalTerms) {
+          toast({
+            title: "Manque de précision technique",
+            description: "Votre réponse manque de termes techniques pertinents pour ce type de question. Soyez plus précis et utilisez la terminologie appropriée.",
+            variant: "destructive"
+          });
+          return;
+        }
       }
     }
     
@@ -716,6 +772,14 @@ export default function CyberInterviewTest() {
               placeholder="Entrez votre réponse ici..."
               value={currentAnswer}
               onChange={(e) => setCurrentAnswer(e.target.value)}
+              onPaste={(e) => {
+                e.preventDefault();
+                toast({
+                  title: "Action interdite",
+                  description: "Le copier-coller n'est pas autorisé durant ce test.",
+                  variant: "destructive"
+                });
+              }}
               className="min-h-[200px] bg-blue-950/50 border-blue-700 text-white placeholder:text-blue-400 text-base p-4"
             />
           </CardContent>
