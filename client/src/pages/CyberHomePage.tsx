@@ -101,7 +101,7 @@ const CyberHomePage: React.FC = () => {
       color: 'text-cyan-400',
       bgColor: 'bg-blue-900/20',
       accentColor: 'border-cyan-500/50',
-      route: '/amoa-mode-selection-fixed'
+      route: '/amoa/new'
     },
     {
       id: 'generator',
@@ -421,7 +421,7 @@ const CyberHomePage: React.FC = () => {
                         } else if (module.id === 'data') {
                           setLocation('/data-ia');
                         } else if (module.id === 'mc2i') {
-                          setLocation('/amoa-mode-selection-fixed');
+                          setLocation('/amoa/new');
                         } else {
                           setLocation('/playground/module-generator-new');
                         }
@@ -511,7 +511,7 @@ const CyberHomePage: React.FC = () => {
                         href={
                           module.id === 'cyber' ? '/cyber' :
                           module.id === 'data' ? '/data-ia' :
-                          module.id === 'mc2i' ? '/amoa-mode-selection-fixed' :
+                          module.id === 'mc2i' ? '/amoa/new' :
                           '/playground/module-generator-new'
                         }
                         className="text-gray-400 hover:text-cyan-400 transition-colors duration-300 text-sm"
@@ -522,7 +522,7 @@ const CyberHomePage: React.FC = () => {
                           } else if (module.id === 'data') {
                             setLocation('/data-ia');
                           } else if (module.id === 'mc2i') {
-                            setLocation('/amoa-mode-selection-fixed');
+                            setLocation('/amoa/new');
                           } else {
                             setLocation('/playground/module-generator-new');
                           }
