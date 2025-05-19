@@ -3322,12 +3322,12 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         });
       }
       
-      // Toujours utiliser la clé primaire (GPT-4o) pour de meilleures performances
-      openAIService.switchApiKey('primary');
+      // Basculer réellement vers le type de clé demandé
+      openAIService.switchApiKey(keyType);
       
-      // Mais renvoyer à l'interface la clé demandée pour l'affichage
+      // Récupérer le nom du modèle en fonction du type de clé
       const modelName = keyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini';
-      console.log(`Interface indique ${keyType} (${modelName}) mais utilise toujours GPT-4o`);
+      console.log(`Switched API key to ${keyType} (${modelName})`);
       
       res.json({
         status: 'success',
