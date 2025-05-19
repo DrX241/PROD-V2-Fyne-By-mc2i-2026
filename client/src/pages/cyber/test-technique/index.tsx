@@ -976,60 +976,105 @@ export default function CyberTestTechnique() {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <h4 className="text-green-300 font-medium mb-1">Points forts</h4>
-                    <ul className="list-disc pl-5 space-y-1">
+                  <div className="bg-green-900/20 p-4 rounded-lg border border-green-800">
+                    <h4 className="text-green-300 font-medium mb-3">Points forts identifiés</h4>
+                    <div className="space-y-3">
                       {evaluationResults.analysis.strengths.map((strength, index) => (
-                        <li key={index} className="text-blue-200">{strength}</li>
+                        <div key={index} className="border-l-2 border-green-500/50 pl-3 py-1">
+                          <p className="text-blue-200" dangerouslySetInnerHTML={{ 
+                            __html: strength.replace(/\"(.*?)\"/g, '<span class="font-mono text-xs bg-blue-950/70 px-1 py-0.5 rounded">"$1"</span>') 
+                          }} />
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                   
-                  <div>
-                    <h4 className="text-red-300 font-medium mb-1">Points à améliorer</h4>
-                    <ul className="list-disc pl-5 space-y-1">
+                  <div className="bg-red-900/20 p-4 rounded-lg border border-red-800">
+                    <h4 className="text-red-300 font-medium mb-3">Points à améliorer</h4>
+                    <div className="space-y-3">
                       {evaluationResults.analysis.weaknesses.map((weakness, index) => (
-                        <li key={index} className="text-blue-200">{weakness}</li>
+                        <div key={index} className="border-l-2 border-amber-500/50 pl-3 py-1">
+                          <p className="text-blue-200" dangerouslySetInnerHTML={{ 
+                            __html: weakness.replace(/\"(.*?)\"/g, '<span class="font-mono text-xs bg-blue-950/70 px-1 py-0.5 rounded">"$1"</span>') 
+                          }} />
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 </div>
                 
-                <div className="mb-4">
-                  <h4 className="text-blue-100 font-medium mb-1">Recommandations</h4>
-                  <ul className="list-disc pl-5 space-y-1">
+                <div className="mb-4 bg-indigo-900/20 p-4 rounded-lg border border-indigo-800">
+                  <h4 className="text-indigo-300 font-medium mb-3">Recommandations personnalisées</h4>
+                  <div className="space-y-3">
                     {evaluationResults.analysis.recommendations.map((recommendation, index) => (
-                      <li key={index} className="text-blue-200">{recommendation}</li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div className="mb-4">
-                  <h4 className="text-blue-100 font-medium mb-1">Ressources recommandées</h4>
-                  <div className="space-y-2">
-                    {evaluationResults.analysis.resources.map((resource, index) => (
-                      <div key={index} className="p-2 bg-blue-950/70 rounded border border-blue-800">
-                        <h5 className="text-blue-100 font-medium">{resource.title}</h5>
-                        <p className="text-sm text-blue-300">{resource.description}</p>
-                        {resource.url && (
-                          <a 
-                            href={resource.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="text-sm text-blue-400 hover:text-blue-300 inline-flex items-center mt-1"
-                          >
-                            <span>Accéder à la ressource</span>
-                            <ChevronRight className="ml-1 h-3 w-3" />
-                          </a>
-                        )}
+                      <div key={index} className="border-l-2 border-indigo-500/50 pl-3 py-1">
+                        <p className="text-blue-200" dangerouslySetInnerHTML={{ 
+                          __html: recommendation.replace(/\"(.*?)\"/g, '<span class="font-mono text-xs bg-blue-950/70 px-1 py-0.5 rounded">"$1"</span>') 
+                        }} />
                       </div>
                     ))}
                   </div>
                 </div>
                 
-                <div>
-                  <h4 className="text-blue-100 font-medium mb-1">Prochaines étapes</h4>
-                  <p className="text-blue-200">{evaluationResults.analysis.nextSteps}</p>
+                <div className="mb-4 bg-blue-900/20 p-4 rounded-lg border border-blue-800">
+                  <h4 className="text-blue-100 font-medium mb-3">Ressources personnalisées recommandées</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {evaluationResults.analysis.resources.map((resource, index) => (
+                      <div key={index} className="p-3 bg-blue-950/70 rounded border border-blue-800 hover:border-blue-600 transition-colors">
+                        <div className="flex items-start">
+                          <div className="p-1.5 rounded-full bg-blue-800/50 mr-2">
+                            {resource.type === 'mcq' && (
+                              <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                              </svg>
+                            )}
+                            {resource.type === 'code' && (
+                              <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                              </svg>
+                            )}
+                            {resource.type === 'scenario' && (
+                              <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                              </svg>
+                            )}
+                            {(!resource.type || resource.type === 'open') && (
+                              <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                              </svg>
+                            )}
+                          </div>
+                          <div>
+                            <h5 className="font-medium text-white text-sm">{resource.title}</h5>
+                            <p className="text-xs text-blue-300 mt-1">{resource.description}</p>
+                            {resource.url && (
+                              <a 
+                                href={resource.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="mt-2 text-xs inline-flex items-center text-blue-400 hover:text-blue-300"
+                              >
+                                Accéder à la ressource
+                                <ChevronRight className="ml-1 h-3 w-3" />
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="bg-blue-900/20 p-4 rounded-lg border border-blue-800">
+                  <h4 className="text-blue-100 font-medium mb-2 flex items-center">
+                    <svg className="w-4 h-4 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                    </svg>
+                    Prochaines étapes personnalisées
+                  </h4>
+                  <p className="text-blue-200" dangerouslySetInnerHTML={{ 
+                    __html: evaluationResults.analysis.nextSteps.replace(/\"(.*?)\"/g, '<span class="font-mono text-xs bg-blue-950/70 px-1 py-0.5 rounded">"$1"</span>') 
+                  }} />
                 </div>
               </div>
             )}
