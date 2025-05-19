@@ -299,7 +299,7 @@ function ExpertLearningPageContent() {
   
   // Retour à la page précédente
   const handleReturnToPrevious = () => {
-    setLocation('/amoa/roleplay');
+    setLocation('/amoa/sas-academie');
   };
   
   return (
