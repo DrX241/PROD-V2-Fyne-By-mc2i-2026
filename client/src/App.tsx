@@ -24,6 +24,8 @@ import CyberAgentNewPage from "./pages/cyber/cyber-agent-new";
 import DataIaModeSelection from "./pages/data-ia-mode-selection";
 import AmoaModeSelectionNew from "./pages/amoa-mode-selection-new";
 import ModuleGenerator from "./pages/playground/module-generator";
+// Import des pages de la nouvelle interface cyber V3
+import CyberV3 from "./pages/cyber-v3";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -68,7 +70,9 @@ function App() {
                 <Route path="/modules" component={ModulesPage} />
                 
                 {/* Routes des modules */}
-                <Route path="/cyber" component={CyberModeSelection} />
+                <Route path="/cyber" component={CyberV3} />
+                <Route path="/cyber-v3" component={CyberV3} />
+                <Route path="/cyber-old" component={CyberModeSelection} />
                 <Route path="/data-ia" component={DataIaModeSelection} />
                 <Route path="/amoa/new" component={AmoaModeSelectionNew} />
                 <Route path="/playground/module-generator" component={ModuleGenerator} />
