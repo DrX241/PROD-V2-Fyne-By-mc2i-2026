@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import CyberButton from '@/components/CyberButton';
 import { useChatContext } from "@/contexts/ChatContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useGptModel } from "@/contexts/GptModelContext";
+import OpenAIStatusIndicator from "@/components/OpenAIStatusIndicator";
 import { 
   RocketIcon, 
   Zap, 
@@ -12,10 +14,13 @@ import {
   Users,
   ShieldCheck,
   Brain,
-  ChevronRight
+  ChevronRight,
+  Power,
+  Check
 } from 'lucide-react';
 import mcLogoPath from "@assets/mc2i.png";
 import fyneCharacterPath from "../assets/fyne-character.png";
+import { Switch } from "@/components/ui/switch";
 
 // Interface pour les modules
 interface Module {
@@ -90,11 +95,47 @@ const CyberHomePage: React.FC = () => {
     }
   ];
 
+  const { isGpt4oMini, setIsGpt4oMini } = useGptModel();
+
+  const toggleEcoMode = () => {
+    setIsGpt4oMini(!isGpt4oMini);
+  };
+
   return (
     <div className="min-h-screen bg-white text-[#061019]">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src={mcLogoPath} alt="mc2i" className="h-8 w-auto" />
+              <div className="h-5 w-px bg-gray-300"></div>
+              <span className="text-xl font-bold text-[#006a9e]">FYNE</span>
+            </div>
+            
+            <div className="flex items-center gap-5">
+              <div className="flex items-center gap-2">
+                <OpenAIStatusIndicator />
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className={`text-sm font-medium ${isGpt4oMini ? 'text-amber-600' : 'text-gray-500'}`}>
+                  Mode ÉCO {isGpt4oMini ? 'ON' : 'OFF'}
+                </span>
+                <Switch 
+                  checked={isGpt4oMini} 
+                  onCheckedChange={toggleEcoMode}
+                  className={isGpt4oMini ? 'bg-amber-500' : ''}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      
       <main className="relative">
         {/* Contenu principal */}
-        <section className="relative z-10 min-h-screen flex items-center justify-center pt-20 pb-32">
+        <section className="relative z-10 min-h-screen flex items-center justify-center pt-28 pb-32">
           <div className="container mx-auto px-8 flex flex-col md:flex-row items-center">
             {/* Character à droite en desktop */}
             <div className="hidden md:block absolute right-0 bottom-0 z-10">

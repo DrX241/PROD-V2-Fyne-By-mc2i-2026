@@ -7,6 +7,7 @@ import { Suspense, lazy, startTransition, useState, useEffect } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { TutorialProvider } from "./contexts/TutorialContext";
+import { GptModelProvider } from "./contexts/GptModelContext";
 import AuthScreen from "@/components/auth/AuthScreen";
 
 // Importation des composants directement car le lazy loading provoque des problèmes
@@ -1040,8 +1041,9 @@ function App() {
               </Switch>
               <Toaster />
             </div>
-          </TutorialProvider>
-        </ChatProvider>
+          </ChatProvider>
+        </TutorialProvider>
+      </GptModelProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
