@@ -968,6 +968,15 @@ function App() {
                 }} />
 
                 
+                <Route path="/amoa/sas-academie" component={() => {
+                  const SasAcademie = lazy(() => import('./pages/amoa/sas-academie'));
+                  return (
+                    <Suspense fallback={<GlobalLoader />}>
+                      <SasAcademie />
+                    </Suspense>
+                  );
+                }} />
+                
                 <Route path="/amoa/academie" component={() => {
                   const AmoaAcademie = lazy(() => import('./pages/amoa/academie'));
                   return (
