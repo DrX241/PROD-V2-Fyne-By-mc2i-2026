@@ -134,46 +134,7 @@ export default function AmoaRoleplay() {
               </CardContent>
             </Card>
 
-            {/* EXPERT AMOA */}
-            <Card className="bg-gradient-to-br from-teal-900/80 to-emerald-950/90 border border-teal-800/30 backdrop-blur-sm hover:shadow-lg hover:border-teal-700/50 transition-all">
-              <CardHeader>
-                <div className="flex items-center justify-center mb-4">
-                  <div className="p-3 rounded-lg bg-gradient-to-r from-teal-600 to-emerald-700 shadow-md">
-                    <BrainCircuit className="h-8 w-8 text-white" />
-                  </div>
-                </div>
-                <CardTitle className="text-center text-xl font-bold">EXPERT AMOA</CardTitle>
-                <CardDescription className="text-center text-teal-300">
-                  Chatbot spécialisé pour consultants AMOA
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <ul className="mb-6 text-sm text-teal-200 flex flex-col gap-2">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-teal-400 flex-shrink-0" />
-                    <span>Dialogue libre avec un expert IA</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-teal-400 flex-shrink-0" />
-                    <span>Réponses sur mesure et contextuelles</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-teal-400 flex-shrink-0" />
-                    <span>Apprenez les méthodologies mc2i</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-teal-400 flex-shrink-0" />
-                    <span>Consultations illimitées</span>
-                  </li>
-                </ul>
-                <Button 
-                  className="w-full bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-700 hover:to-emerald-800 text-white"
-                  onClick={() => setLocation('/amoa/expert-learning')}
-                >
-                  Consulter l'expert
-                </Button>
-              </CardContent>
-            </Card>
+
           </div>
 
           {/* Section évolutions à venir */}
