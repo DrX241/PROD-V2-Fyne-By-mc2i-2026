@@ -255,41 +255,7 @@ export default function AmoaModeSelectionNew() {
                 </div>
               </div>
 
-              {/* mc2i LAB */}
-              <div 
-                className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
-                  highContrastMode 
-                    ? 'bg-gray-800 border border-gray-700' 
-                    : 'bg-gradient-to-br from-purple-600 to-indigo-900 border-2 border-purple-400/50 shadow-lg shadow-purple-500/50'
-                } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
-                onClick={() => navigate('/amoa/mc2i-lab')}
-              >
-                <div className="flex items-center justify-center mb-4">
-                  <div className={`p-3 rounded-lg ${
-                    highContrastMode 
-                      ? 'bg-purple-800' 
-                      : 'bg-gradient-to-r from-purple-600 to-indigo-600 shadow-md'
-                  }`}>
-                    <IoAnalytics className="h-8 w-8 text-white" />
-                  </div>
-                </div>
-                <h3 className="text-center text-2xl font-bold mb-2">mc2i LAB</h3>
-                <p className="text-center text-purple-300 mt-2">
-                  Environnement d'apprentissage pour maîtriser l'analyse et la transformation métier
-                </p>
-                <div className="text-center flex flex-col items-center mt-4">
-                  <Button 
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-5"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate('/amoa/mc2i-lab');
-                    }}
-                  >
-                    Accéder au laboratoire
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+
             </div>
           </div>
         </div>
