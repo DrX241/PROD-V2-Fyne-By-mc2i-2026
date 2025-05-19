@@ -88,6 +88,7 @@ function App() {
                 <Route path="/cyber-old" component={CyberModeSelection} />
                 <Route path="/cyber/roleplay" component={CyberRoleplay} />
                 <Route path="/cyber/cyber-lab" component={CyberLab} />
+                <Route path="/cyber/learning-center" component={lazy(() => import('./pages/cyber/learning-center'))} />
                 <Route path="/data-ia" component={DataIaModeSelection} />
                 <Route path="/amoa/new" component={AmoaModeSelectionNew} />
                 <Route path="/amoa/sas-academie" component={SasAcademie} />
