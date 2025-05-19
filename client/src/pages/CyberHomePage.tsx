@@ -449,50 +449,7 @@ const CyberHomePage: React.FC = () => {
           </div>
         </section>
         
-        {/* Section Fonctionnalités */}
-        <section className="relative z-20 py-24 cyber-grid">
-          <div className="absolute inset-0 bg-black/80 z-0"></div>
-          <div className="container mx-auto px-8 relative z-10">
-            <div className="text-center mb-16">
-              <div className="inline-block">
-                <span className="px-4 py-1 rounded-full text-sm font-semibold bg-blue-900/30 text-cyan-300 font-cyber-accent tracking-wide border border-blue-500/30 backdrop-blur-sm">
-                  Technologie Propriétaire
-                </span>
-              </div>
-              <h2 className="mt-4 text-4xl md:text-5xl font-cyber-title tracking-wider text-white">
-                Avancées <span className="text-pink-400">Technologiques</span>
-              </h2>
-              <p className="mt-4 text-xl text-gray-300 max-w-2xl mx-auto">
-                Une infrastructure numérique conçue pour propulser votre apprentissage vers de nouveaux horizons.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {features.map((feature, index) => (
-                <motion.div 
-                  key={index}
-                  className="cyber-hud-frame backdrop-blur-md"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  <div className="flex flex-col items-center text-center">
-                    <div className="mb-4 p-3 rounded-full bg-blue-900/20 border border-cyan-500/30 neon-pulse">
-                      {feature.icon}
-                    </div>
-                    <h3 className="text-xl font-cyber-title text-cyan-300 mb-2">
-                      {feature.title}
-                    </h3>
-                    <p className="text-gray-300 text-sm">
-                      {feature.description}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* La section des Fonctionnalités Technologiques a été supprimée et déplacée dans la page /fyne-about */}
         
         {/* Footer */}
         <footer className="relative z-20 py-12 border-t border-cyan-900/30">
