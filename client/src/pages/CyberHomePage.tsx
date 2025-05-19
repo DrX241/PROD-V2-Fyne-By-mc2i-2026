@@ -61,7 +61,7 @@ const CyberHomePage: React.FC = () => {
       color: 'text-[#006a9e]',
       bgColor: 'bg-[#006a9e]/10',
       accentColor: 'border-[#006a9e]/50',
-      route: '/cyber'
+      route: '/cyber/home'
     },
     {
       id: 'data',
@@ -71,7 +71,7 @@ const CyberHomePage: React.FC = () => {
       color: 'text-[#006a9e]',
       bgColor: 'bg-[#006a9e]/10',
       accentColor: 'border-[#006a9e]/50',
-      route: '/data-ia'
+      route: '/data-ia/home'
     },
     {
       id: 'mc2i',
@@ -91,7 +91,7 @@ const CyberHomePage: React.FC = () => {
       color: 'text-[#006a9e]',
       bgColor: 'bg-[#006a9e]/10',
       accentColor: 'border-[#006a9e]/50',
-      route: '/playground/module-generator-new'
+      route: '/playground/module-generator'
     }
   ];
 
