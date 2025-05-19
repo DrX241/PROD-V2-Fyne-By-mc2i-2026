@@ -1047,7 +1047,7 @@ export default function ProspectPulse() {
           {/* En-tête */}
           <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <Link href="/amoa/coach-entretien">
+              <Link href="/amoa/roleplay">
                 <Button variant="outline" className="bg-blue-900/30 text-white border-blue-800/50 hover:bg-blue-800/40">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Retour
