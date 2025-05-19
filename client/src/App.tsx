@@ -28,10 +28,16 @@ import ModuleGenerator from "./pages/playground/module-generator";
 import CyberV3 from "./pages/cyber-v3";
 // Import de la page à propos de FYNE
 import FyneAbout from "./pages/fyne-about";
+// Import des pages cyber
+import CyberRoleplay from "./pages/cyber/roleplay/index";
+import CyberLab from "./pages/cyber/cyber-lab/index";
 // Import des pages AMOA
 import SasAcademie from "./pages/amoa/sas-academie";
 import AmoaRoleplay from "./pages/amoa/roleplay/index";
 import AmoaAcademie from "./pages/amoa/academie/index";
+import InterviewSimulation from "./pages/amoa/interview-simulation";
+import ProspectPulse from "./pages/amoa/prospect-pulse";
+import ExpertLearning from "./pages/amoa/expert-learning";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -80,11 +86,16 @@ function App() {
                 <Route path="/cyber" component={CyberV3} />
                 <Route path="/cyber-v3" component={CyberV3} />
                 <Route path="/cyber-old" component={CyberModeSelection} />
+                <Route path="/cyber/roleplay" component={CyberRoleplay} />
+                <Route path="/cyber/cyber-lab" component={CyberLab} />
                 <Route path="/data-ia" component={DataIaModeSelection} />
                 <Route path="/amoa/new" component={AmoaModeSelectionNew} />
                 <Route path="/amoa/sas-academie" component={SasAcademie} />
                 <Route path="/amoa/roleplay" component={AmoaRoleplay} />
                 <Route path="/amoa/academie" component={AmoaAcademie} />
+                <Route path="/amoa/interview-simulation" component={InterviewSimulation} />
+                <Route path="/amoa/prospect-pulse" component={ProspectPulse} />
+                <Route path="/amoa/expert-learning" component={ExpertLearning} />
                 <Route path="/playground/module-generator" component={ModuleGenerator} />
                 
                 {/* Route par défaut (404) */}
