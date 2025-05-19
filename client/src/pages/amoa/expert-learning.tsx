@@ -348,14 +348,14 @@ function ExpertLearningPageContent() {
           <div className="flex flex-col items-center justify-center h-full pt-16">
             {!isSessionActive && !sessionSummary ? (
               // Page d'accueil - style terminal AMOA
-              <Card className="w-full max-w-2xl bg-violet-950 border border-violet-400/30 text-white shadow-[0_0_15px_rgba(167,139,250,0.1)]">
-                <CardHeader className="border-b border-violet-400/20">
-                  <CardTitle className="font-mono text-violet-400 flex items-center gap-2">
+              <Card className="w-full max-w-3xl bg-blue-950 border border-blue-400/30 text-white shadow-[0_0_15px_rgba(139,178,250,0.1)]">
+                <CardHeader className="border-b border-blue-400/20">
+                  <CardTitle className="font-mono text-blue-400 flex items-center gap-2">
                     <Bot className="h-5 w-5" />
                     EXPERT AMOA - INTERFACE DE DIALOGUE
                   </CardTitle>
-                  <CardDescription className="text-violet-100/70 font-mono">
-                    VERSION 2.5.3 | ÉTAT: <span className="text-violet-300">PRÊT</span>
+                  <CardDescription className="text-blue-100/70 font-mono">
+                    VERSION 2.5.3 | ÉTAT: <span className="text-blue-300">PRÊT</span>
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="py-6 space-y-4 text-violet-100">
