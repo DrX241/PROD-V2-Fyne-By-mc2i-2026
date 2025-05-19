@@ -22,6 +22,7 @@ import { DataButton } from '@/components/DataButton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import HomeLayout from '@/components/layout/HomeLayout';
 import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
+import CyberThreatMap from '@/components/animations/CyberThreatMap';
 
 export default function CyberV3() {
   const [, setLocation] = useLocation();
@@ -57,22 +58,24 @@ export default function CyberV3() {
         {/* Éléments visuels supplémentaires */}
         {!highContrastMode && (
           <>
-            {/* Circuit patterns cybernétiques */}
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXR0ZXJuIGlkPSJjaXJjdWl0IiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMGgxMDB2MTAwSDIwMHYxMDBoLTEwMHYtMTAwSDB6IiBmaWxsPSJub25lIiBzdHJva2U9IiMwZmIzZDEiIHN0cm9rZS13aWR0aD0iMSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIwIiByPSIzIiBmaWxsPSIjMGZiM2QxIi8+PGNpcmNsZSBjeD0iMjAwIiBjeT0iMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIyMDAiIHI9IjMiIGZpbGw9IiMwZmIzZDEiLz48L3BhdHRlcm4+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNjaXJjdWl0KSIgb3BhY2l0eT0iMC4xNSIvPjwvc3ZnPg==')]" 
-                 style={{ opacity: 0.05 }}></div>
+            {/* Fond dégradé pour la carte de menaces */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#081020] to-[#0c2348] opacity-80"></div>
             
-            {/* Scanlines animées */}
+            {/* Carte des menaces cyber en temps réel */}
+            <CyberThreatMap highContrastMode={highContrastMode} />
+            
+            {/* Scanlines animées (réduites pour ne pas interférer avec la carte) */}
             <div className="absolute inset-0 overflow-hidden">
               <div className="w-full h-full bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent bg-repeat-y" 
                   style={{ 
                     backgroundSize: '100% 8px', 
                     animation: 'moveVertical 8s linear infinite',
-                    opacity: 0.2
+                    opacity: 0.1
                   }}>
               </div>
             </div>
             
-            {/* Points lumineux */}
+            {/* Points lumineux additionnels */}
             <div className="absolute top-1/5 right-1/4 w-2 h-2 bg-cyan-300 rounded-full opacity-70 animate-pulse shadow-[0_0_30px_15px_rgba(34,211,238,0.5)]"></div>
             <div className="absolute bottom-1/3 left-1/5 w-1 h-1 bg-pink-300 rounded-full opacity-60 animate-pulse shadow-[0_0_20px_10px_rgba(236,72,153,0.4)]"></div>
           </>
