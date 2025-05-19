@@ -55,7 +55,7 @@ const CyberHomePage: React.FC = () => {
   const modules: Module[] = [
     {
       id: 'cyber',
-      title: 'CYBER ACADEMY',
+      title: 'I AM CYBER',
       description: 'Plongez au cœur des enjeux de la cybersécurité avec des simulations réalistes',
       icon: <ShieldCheck size={24} />,
       color: 'text-[#006a9e]',
@@ -65,7 +65,7 @@ const CyberHomePage: React.FC = () => {
     },
     {
       id: 'data',
-      title: 'DATA & IA',
+      title: 'I AM DATA & IA',
       description: 'Maîtrisez les technologies d\'analyse de données et d\'intelligence artificielle',
       icon: <Brain size={24} />,
       color: 'text-[#006a9e]',
@@ -75,7 +75,7 @@ const CyberHomePage: React.FC = () => {
     },
     {
       id: 'mc2i',
-      title: 'AMOA ACADEMY',
+      title: 'I AM mc2i',
       description: 'Développez vos compétences en assistance à maîtrise d\'ouvrage',
       icon: <RocketIcon size={24} />,
       color: 'text-[#006a9e]',
