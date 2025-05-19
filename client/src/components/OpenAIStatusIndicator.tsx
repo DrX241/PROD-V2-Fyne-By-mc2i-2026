@@ -135,6 +135,9 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
 
   // Fonction pour basculer entre les modèles
   const toggleModel = async () => {
+    // Bloquer les changements multiples rapides
+    if (isToggling) return;
+    
     setIsToggling(true);
     try {
       // Récupérer le nouveau type de clé
@@ -142,6 +145,9 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
 
       // Définir d'abord localement le mode éco
       setApiKeyType(newKeyType);
+      
+      // Mettre à jour le modèle de façon préemptive pour éviter le clignotement
+      setCurrentModel(newKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini');
 
       // Puis faire la demande au serveur
       const response = await fetch('/api/cyber/switch-api-key', {
@@ -155,34 +161,51 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
       if (response.ok) {
         const data = await response.json();
 
-        // Récupérer le nom du modèle depuis la réponse ou utiliser une valeur par défaut
-        const modelName = data.modelName || (newKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini');
-        setCurrentModel(modelName);
+        // Récupérer le nom du modèle depuis la réponse
+        if (data.modelName) {
+          setCurrentModel(data.modelName);
+        }
 
-        // Ne pas changer apiKeyType ici, car il a déjà été défini au début
-        setStatus(data.connectionStatus || 'checking');
+        // Mettre à jour le statut si fourni
+        if (data.status === 'success') {
+          setStatus('connected');
+        } else if (data.connectionStatus) {
+          setStatus(data.connectionStatus);
+        }
 
         console.log('Changement de modèle réussi:', {
           newKeyType,
-          modelName,
+          modelName: data.modelName || (newKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini'),
           data
         });
 
-        // Vérifier le statut après un délai plus long pour permettre au serveur de changer
-        setTimeout(checkStatus, 2000);
-
-        // Ajouter une seconde vérification après un délai supplémentaire
-        setTimeout(checkStatus, 5000);
+        // Une seule vérification après un délai raisonnable
+        setTimeout(checkStatus, 3000);
       } else {
         // En cas d'erreur, revenir à l'état précédent
         setApiKeyType(apiKeyType);
+        setCurrentModel(apiKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini');
+        toast({
+          title: "Échec du changement de mode",
+          description: "Impossible de changer le mode de l'API. Veuillez réessayer.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error('Erreur lors du changement de modèle OpenAI:', error);
       // En cas d'erreur, revenir à l'état précédent
       setApiKeyType(apiKeyType);
+      setCurrentModel(apiKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini');
+      toast({
+        title: "Erreur de communication",
+        description: "Une erreur est survenue lors du changement de mode.",
+        variant: "destructive",
+      });
     } finally {
-      setIsToggling(false);
+      // Attendre un délai minimal avant de permettre un nouveau basculement
+      setTimeout(() => {
+        setIsToggling(false);
+      }, 1000);
     }
   };
 

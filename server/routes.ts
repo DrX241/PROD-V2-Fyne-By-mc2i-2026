@@ -3310,7 +3310,7 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
   // API pour évaluer les décisions prises dans le module Cyber Defense
   app.post("/api/cyber-defense/evaluate-decision", evaluateDecision);
   
-  // API route pour basculer entre les clés API (toujours utilise GPT-4o)
+  // API route pour basculer entre les clés API (GPT-4o et GPT-4o-mini)
   app.post('/api/cyber/switch-api-key', (req: Request, res: Response) => {
     try {
       const { keyType } = req.body;
