@@ -222,15 +222,7 @@ function App() {
                 }} />
                 
                 {/* Routes publiques */}
-                {/* Redirection vers la nouvelle landing page FYNE */}
-                <Route path="/" component={() => {
-                  const FyneLanding = lazy(() => import('./pages/fyne-landing'));
-                  return (
-                    <Suspense fallback={<GlobalLoader />}>
-                      <FyneLanding />
-                    </Suspense>
-                  );
-                }} />
+                <Route path="/" component={CyberHomePage} />
                 <Route path="/home-classic" component={Home} />
                 <Route path="/modules" component={ModulesPage} />
                 <Route path="/cyber" component={() => {
