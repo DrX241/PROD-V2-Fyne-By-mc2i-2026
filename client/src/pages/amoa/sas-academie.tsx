@@ -1,0 +1,142 @@
+import React from 'react';
+import { Link, useLocation } from 'wouter';
+import {
+  ArrowLeft,
+  ArrowRight,
+  MessageSquare,
+  BookOpen,
+  GraduationCap
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import PageTitle from '@/components/utils/PageTitle';
+
+export default function SasAcademie() {
+  const [, navigate] = useLocation();
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-indigo-950 to-slate-950 text-white pb-20">
+      {/* En-tête */}
+      <div className="p-6 container mx-auto">
+        <div className="flex items-center mb-2">
+          <Link href="/amoa/new">
+            <Button variant="ghost" className="text-white mr-4">
+              <ArrowLeft className="mr-2 h-5 w-5" />
+              Retour
+            </Button>
+          </Link>
+          <PageTitle title="AMOA ACADÉMIE" />
+        </div>
+        
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10">
+          <div>
+            <h1 className="text-3xl font-bold">Choisissez votre mode d'apprentissage</h1>
+            <p className="text-indigo-200 mt-1">Deux approches complémentaires pour développer vos compétences</p>
+          </div>
+        </div>
+
+        {/* Options d'apprentissage */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-8">
+          {/* Option 1: Apprendre en discutant */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <Card className="h-full bg-gradient-to-br from-indigo-900/40 to-indigo-950 border-indigo-700 hover:border-indigo-500 hover:shadow-lg transition-all duration-300">
+              <CardHeader>
+                <div className="flex justify-center mb-4">
+                  <div className="p-4 rounded-full bg-indigo-800/70">
+                    <MessageSquare className="h-10 w-10 text-indigo-200" />
+                  </div>
+                </div>
+                <CardTitle className="text-2xl text-center mb-2">Apprentissage conversationnel</CardTitle>
+                <CardDescription className="text-indigo-300 text-center text-lg">
+                  Discutez avec un expert virtuel pour explorer les sujets à votre rythme
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="mb-6 text-indigo-200">
+                  Posez des questions, explorez des concepts et approfondissez à votre guise les sujets qui vous intéressent dans une conversation fluide avec un assistant IA spécialisé.
+                </p>
+                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
+                  <li className="flex items-center text-indigo-200">
+                    <div className="h-2 w-2 rounded-full bg-indigo-400 mr-2"></div>
+                    Format libre et personnalisé
+                  </li>
+                  <li className="flex items-center text-indigo-200">
+                    <div className="h-2 w-2 rounded-full bg-indigo-400 mr-2"></div>
+                    Questions illimitées
+                  </li>
+                  <li className="flex items-center text-indigo-200">
+                    <div className="h-2 w-2 rounded-full bg-indigo-400 mr-2"></div>
+                    Apprentissage adaptatif
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <Button 
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-5"
+                  onClick={() => navigate('/amoa/expert-learning')}
+                >
+                  Discuter avec un expert
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
+            </Card>
+          </motion.div>
+
+          {/* Option 2: Parcours structuré */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Card className="h-full bg-gradient-to-br from-blue-900/40 to-blue-950 border-blue-700 hover:border-blue-500 hover:shadow-lg transition-all duration-300">
+              <CardHeader>
+                <div className="flex justify-center mb-4">
+                  <div className="p-4 rounded-full bg-blue-800/70">
+                    <GraduationCap className="h-10 w-10 text-blue-200" />
+                  </div>
+                </div>
+                <CardTitle className="text-2xl text-center mb-2">Parcours structuré</CardTitle>
+                <CardDescription className="text-blue-300 text-center text-lg">
+                  Suivez un curriculum organisé avec des modules progressifs
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="mb-6 text-blue-200">
+                  Progressez méthodiquement à travers des modules de formation organisés, des exercices pratiques et des ressources éducatives sélectionnées par nos experts.
+                </p>
+                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
+                  <li className="flex items-center text-blue-200">
+                    <div className="h-2 w-2 rounded-full bg-blue-400 mr-2"></div>
+                    Contenu structuré et progressif
+                  </li>
+                  <li className="flex items-center text-blue-200">
+                    <div className="h-2 w-2 rounded-full bg-blue-400 mr-2"></div>
+                    Suivi de progression
+                  </li>
+                  <li className="flex items-center text-blue-200">
+                    <div className="h-2 w-2 rounded-full bg-blue-400 mr-2"></div>
+                    Ressources téléchargeables
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <Button 
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-5"
+                  onClick={() => navigate('/amoa/academie')}
+                >
+                  Accéder aux modules
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
+            </Card>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -210,7 +210,7 @@ export default function AmoaModeSelectionNew() {
                     className="bg-gradient-to-r from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-white px-6 py-5"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate('/amoa/academie');
+                      navigate('/amoa/sas-academie');
                     }}
                   >
                     Je découvre l'académie

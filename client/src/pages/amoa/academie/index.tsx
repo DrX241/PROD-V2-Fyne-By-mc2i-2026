@@ -1,79 +1,23 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'wouter';
 import {
   ArrowLeft,
   BookOpen,
   Shield,
   FileText,
-  Search,
-  Briefcase,
-  Users,
-  LineChart,
   Calendar,
   FileQuestion,
-  BarChart3,
   ListChecks,
-  BrainCircuit,
+  GraduationCap,
+  Users,
+  Briefcase,
   Layers,
-  Sparkles,
-  MessageCircle,
-  GraduationCap
+  LineChart
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useToast } from '@/hooks/use-toast';
 import PageTitle from '@/components/utils/PageTitle';
-
-// Types pour l'organisation du contenu
-interface Module {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  duration: string;
-  level: 'débutant' | 'intermédiaire' | 'avancé' | 'tous niveaux';
-  category: string;
-  tags: string[];
-  progress?: number;
-  isNew?: boolean;
-  isFeatured?: boolean;
-  comingSoon?: boolean;
-  destination?: string;
-}
-
-interface LearningPath {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  modules: string[];
-  duration: string;
-  level: 'débutant' | 'intermédiaire' | 'avancé' | 'tous niveaux';
-  category: 'technique' | 'méthodologie' | 'mixte';
-  objectives: string[];
-  tags: string[];
-  progress?: number;
-  certification?: string;
-  isNew?: boolean;
-  gradient: string;
-}
-
-interface ResourceCategory {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  modules: Module[];
-  gradient: string;
-}
 
 export default function AmoaAcademie() {
   // États
