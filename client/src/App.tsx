@@ -28,6 +28,9 @@ import ModuleGenerator from "./pages/playground/module-generator";
 import CyberV3 from "./pages/cyber-v3";
 // Import de la page à propos de FYNE
 import FyneAbout from "./pages/fyne-about";
+// Import des pages AMOA
+import SasAcademie from "./pages/amoa/sas-academie";
+import AmoaRoleplay from "./pages/amoa/roleplay";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -78,6 +81,8 @@ function App() {
                 <Route path="/cyber-old" component={CyberModeSelection} />
                 <Route path="/data-ia" component={DataIaModeSelection} />
                 <Route path="/amoa/new" component={AmoaModeSelectionNew} />
+                <Route path="/amoa/sas-academie" component={SasAcademie} />
+                <Route path="/amoa/roleplay" component={AmoaRoleplay} />
                 <Route path="/playground/module-generator" component={ModuleGenerator} />
                 
                 {/* Route par défaut (404) */}
