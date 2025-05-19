@@ -20,6 +20,10 @@ import CyberAgentPage from "@/pages/cyber-agent";
 // Utiliser les chemins relatifs pour les nouveaux composants
 import CyberAgentRedirectPage from "./pages/cyber/cyber-agent-redirect";
 import CyberAgentNewPage from "./pages/cyber/cyber-agent-new";
+// Import des pages de modules
+import DataIaModeSelection from "./pages/data-ia-mode-selection";
+import AmoaModeSelectionNew from "./pages/amoa-mode-selection-new";
+import ModuleGenerator from "./pages/playground/module-generator";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -62,6 +66,12 @@ function App() {
                 <Route path="/" component={CyberHomePage} />
                 <Route path="/home-classic" component={Home} />
                 <Route path="/modules" component={ModulesPage} />
+                
+                {/* Routes des modules */}
+                <Route path="/cyber" component={CyberModeSelection} />
+                <Route path="/data-ia" component={DataIaModeSelection} />
+                <Route path="/amoa/new" component={AmoaModeSelectionNew} />
+                <Route path="/playground/module-generator" component={ModuleGenerator} />
                 
                 {/* Route par défaut (404) */}
                 <Route component={NotFound} />
