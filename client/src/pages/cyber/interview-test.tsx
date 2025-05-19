@@ -208,6 +208,9 @@ export default function CyberInterviewTest() {
 
   // Passer à la question suivante ou générer une nouvelle question adaptative
   const handleNextQuestion = async () => {
+    // Pour éviter les doubles clics
+    if (isLoadingNextQuestion) return;
+    
     // Vérifier si la réponse est intelligible
     if (currentAnswer.trim().length < 5) {
       toast({
@@ -233,12 +236,11 @@ export default function CyberInterviewTest() {
     setIsLoadingNextQuestion(true);
     
     // Sauvegarder la réponse actuelle
-    if (currentQuestionIndex < questions.length) {
-      setAnswers(prev => ({
-        ...prev,
-        [questions[currentQuestionIndex].id]: currentAnswer
-      }));
-    }
+    const updatedAnswers = {
+      ...answers,
+      [questions[currentQuestionIndex].id]: currentAnswer
+    };
+    setAnswers(updatedAnswers);
 
     // Si c'est la 10ème question (index 9), on termine le test
     if (currentQuestionIndex >= 9) {
@@ -247,30 +249,43 @@ export default function CyberInterviewTest() {
     }
 
     // Si on a déjà une question suivante chargée, on y passe simplement
+    // Cela devrait être instantané, pas besoin d'attendre
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-      setCurrentAnswer('');
-      setIsLoadingNextQuestion(false);
+      // Préchargement pour éviter tout délai perceptible
+      setTimeout(() => {
+        setCurrentQuestionIndex(prev => prev + 1);
+        setCurrentAnswer('');
+        setIsLoadingNextQuestion(false);
+      }, 10); // Délai minimal pour la transition visuelle
       return;
     }
 
     // Sinon, on doit générer une nouvelle question adaptative
     try {
       // Construction des précédentes réponses pour l'API
-      const presentationAnswer = answers[questions[0].id] || currentAnswer;
+      const presentationAnswer = updatedAnswers[questions[0].id] || currentAnswer;
       const previousAnswers = questions.map((q, index) => ({
         questionId: q.id,
         type: q.type,
         question: q.question,
-        answer: index === currentQuestionIndex ? currentAnswer : answers[q.id] || ''
+        answer: index === currentQuestionIndex ? currentAnswer : updatedAnswers[q.id] || ''
       }));
 
-      // Obtenir une nouvelle question adaptative
-      const nextQuestion = await generateAdaptiveQuestion(
+      // Promesse pour obtenir une nouvelle question adaptative
+      // Avec un timeout pour limiter l'attente
+      const questionPromise = generateAdaptiveQuestion(
         presentationAnswer,
         currentQuestionIndex,
         previousAnswers
       );
+      
+      // Ajouter un délai maximum de 3 secondes
+      const timeoutPromise = new Promise<null>((resolve) => {
+        setTimeout(() => resolve(null), 3000);
+      });
+      
+      // Utiliser la première promesse qui se résout
+      const nextQuestion = await Promise.race([questionPromise, timeoutPromise]);
 
       if (nextQuestion) {
         // Ajouter la nouvelle question à notre liste
@@ -278,50 +293,59 @@ export default function CyberInterviewTest() {
         setCurrentQuestionIndex(prev => prev + 1);
         setCurrentAnswer('');
       } else {
-        // En cas d'erreur, utiliser une question de secours
+        // En cas d'erreur ou de timeout, utiliser une question de secours
+        // Sélectionner une question d'un type différent de celles déjà posées
+        const usedTypes = questions.map(q => q.type);
         const fallbackQuestion = QUESTIONS.find(q => 
-          !questions.some(existingQ => existingQ.type === q.type)
+          !usedTypes.includes(q.type)
         ) || QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
 
         setQuestions(prev => [...prev, fallbackQuestion]);
         setCurrentQuestionIndex(prev => prev + 1);
         setCurrentAnswer('');
-
-        toast({
-          title: 'Information',
-          description: 'Une question générique a été chargée.',
-          variant: 'default',
-        });
       }
     } catch (error) {
       console.error('Erreur lors de la génération de question:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Une erreur est survenue lors du chargement de la question suivante.',
-        variant: 'destructive',
-      });
+      
+      // En cas d'erreur, utiliser une question de secours sans notifier l'utilisateur
+      // pour ne pas interrompre son expérience
+      const usedTypes = questions.map(q => q.type);
+      const fallbackQuestion = QUESTIONS.find(q => 
+        !usedTypes.includes(q.type)
+      ) || QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
 
-      // En cas d'erreur, terminer le test avec les questions actuelles
-      if (questions.length > 1) {
-        handleSubmitTest();
-      }
+      setQuestions(prev => [...prev, fallbackQuestion]);
+      setCurrentQuestionIndex(prev => prev + 1);
+      setCurrentAnswer('');
+    } finally {
+      // Dans tous les cas, désactiver l'indicateur de chargement
+      setIsLoadingNextQuestion(false);
     }
   };
 
   // Soumettre le test pour évaluation
   const handleSubmitTest = async () => {
     // Sauvegarder la dernière réponse si pas déjà fait
+    const finalAnswers = { ...answers };
     if (currentQuestionIndex < questions.length) {
-      setAnswers(prev => ({
-        ...prev,
-        [questions[currentQuestionIndex].id]: currentAnswer
-      }));
+      finalAnswers[questions[currentQuestionIndex].id] = currentAnswer;
     }
 
     setTestState('submitting');
     setIsSubmitting(true);
 
     try {
+      // Instructions d'évaluation objective pour l'IA
+      const objectiveInstructions = {
+        evaluationGuidelines: {
+          objectivity: "Évaluer de manière strictement factuelle les réponses en fonction de leur pertinence technique",
+          accuracy: "Éviter toute surestimation des compétences, ne pas inventer de forces ou qualités non démontrées",
+          specificity: "Baser les observations sur des éléments concrets présents dans les réponses",
+          balance: "Présenter à la fois les forces démontrées et les domaines d'amélioration avec la même rigueur",
+          factualFeedback: "Se concentrer sur le contenu technique plutôt que le style d'écriture"
+        }
+      };
+
       // Préparer les données à envoyer
       const submissionData = {
         questions: questions.map(q => ({
@@ -329,10 +353,12 @@ export default function CyberInterviewTest() {
           type: q.type,
           question: q.question
         })),
-        answers: Object.keys(answers).map(qId => ({
+        answers: Object.keys(finalAnswers).map(qId => ({
           questionId: qId,
-          answer: answers[qId]
-        }))
+          answer: finalAnswers[qId]
+        })),
+        evaluationOptions: objectiveInstructions,
+        testDuration: testDuration // Envoi de la durée du test choisie
       };
 
       // Appel API pour l'évaluation
@@ -363,8 +389,22 @@ export default function CyberInterviewTest() {
         description: 'Une erreur est survenue lors de l\'évaluation de votre test. Veuillez réessayer.',
         variant: 'destructive',
       });
+      
+      // Revenir à l'écran d'introduction en cas d'erreur prolongée
+      setTimeout(() => {
+        if (isSubmitting) {
+          setTestState('intro');
+          setIsSubmitting(false);
+          toast({
+            title: 'Session réinitialisée',
+            description: 'La session a été réinitialisée en raison d\'un problème de connexion.',
+            variant: 'default',
+          });
+        }
+      }, 15000); // Attendre 15 secondes avant de réinitialiser
     } finally {
-      setIsSubmitting(false);
+      // Ne pas désactiver isSubmitting ici pour permettre l'affichage du chargement
+      // Il sera désactivé lorsque le résultat sera affiché ou après le timeout
     }
   };
 
