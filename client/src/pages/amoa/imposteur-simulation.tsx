@@ -304,7 +304,7 @@ export default function ImposteurSimulation() {
           </div>
           <Button
             variant="outline"
-            onClick={() => navigate('/amoa-mode-selection')}
+            onClick={() => navigate('/amoa/new')}
           >
             <ArrowLeftIcon className="mr-2 h-4 w-4" />
             Retour

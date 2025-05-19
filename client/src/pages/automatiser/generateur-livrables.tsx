@@ -762,7 +762,7 @@ export default function GenerateurLivrables() {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => navigate('/amoa-mode-selection')}
+              onClick={() => navigate('/amoa/new')}
               className="h-10 w-10 rounded-full"
             >
               <ArrowLeft className="h-5 w-5" />
