@@ -236,7 +236,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
                   <LoaderCircle className="w-2.5 sm:w-3 h-2.5 sm:h-3 mr-0.5 sm:mr-1 animate-spin" />
                 )}
                 <span className="text-[10px] sm:text-xs font-medium">
-                  {status === 'connected' ? 'Connecté' : status === 'disconnected' ? 'Déconnecté' : status === 'reconnecting' ? 'Reconnexion...' : 'Vérification...'}
+                  {status === 'connected' ? 'FYNE Connecté' : status === 'disconnected' ? 'Déconnecté' : status === 'reconnecting' ? 'Reconnexion...' : 'Vérification...'}
                 </span>
               </Badge>
 
@@ -308,7 +308,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
                     'bg-blue-700 hover:bg-blue-600'} text-white hidden md:flex`}
                 >
                   <span className="text-xs font-medium">
-                    {modelLabel}
+                    {economyMode ? `Mode ÉCO (${modelLabel})` : modelLabel}
                   </span>
                 </Badge>
 
@@ -329,8 +329,8 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
               <p>{economyMode ? 'Désactiver' : 'Activer'} le mode économie</p>
               <p className="text-xs">
                 {economyMode ? 
-                  'Mode économique activé (utilise GPT-4o-mini)' : 
-                  'Utilise actuellement le modèle standard (GPT-4o)'}
+                  'Mode ÉCO activé (utilise GPT-4o-mini pour réduire la consommation)' : 
+                  'Mode standard activé (utilise GPT-4o pour des performances optimales)'}
               </p>
             </TooltipContent>
           </Tooltip>
