@@ -101,7 +101,7 @@ export default function AmoaRoleplay() {
                     <Zap className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-center text-xl font-bold">Je suis SM</CardTitle>
+                <CardTitle className="text-center text-xl font-bold">Je suis Sénior Manager</CardTitle>
                 <CardDescription className="text-center text-orange-300">
                   Je prépare un RDV commercial
                 </CardDescription>
