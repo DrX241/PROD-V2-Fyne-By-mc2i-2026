@@ -1,28 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import CyberScene from '@/components/CyberScene';
-import CyberGlitchText from '@/components/CyberGlitchText';
+import { motion } from 'framer-motion';
 import CyberButton from '@/components/CyberButton';
-import { gsap } from 'gsap';
 import { useChatContext } from "@/contexts/ChatContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { 
-  Cpu, 
-  ShieldCheck, 
-  Brain, 
   RocketIcon, 
   Zap, 
-  ChevronRight,
-  Lock,
-  LineChart,
-  Network,
-  Users,
   Globe,
-  Share2
+  Share2,
+  Users,
+  ShieldCheck,
+  Brain,
+  ChevronRight
 } from 'lucide-react';
 import mcLogoPath from "@assets/mc2i.png";
-import fyneAvatarPath from "@assets/image_1745520990954.png";
 import fyneCharacterPath from "../assets/fyne-character.png";
 
 // Interface pour les modules
@@ -41,9 +33,7 @@ const CyberHomePage: React.FC = () => {
   const [, setLocation] = useLocation();
   const { userName } = useChatContext();
   const { themeMode, setThemeMode } = useTheme();
-  const [scrollY, setScrollY] = useState(0);
   const [hoveredModule, setHoveredModule] = useState<string | null>(null);
-  const { scrollYProgress } = useScroll();
   
   // Force le thème futuriste pour cette page
   useEffect(() => {
@@ -56,51 +46,36 @@ const CyberHomePage: React.FC = () => {
     };
   }, []);
 
-  // Animation de scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Transformations basées sur le scroll
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const y = useTransform(scrollYProgress, [0, 0.2], [0, -100]);
-  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
-
-  // Liste des modules avec style cyberpunk
+  // Liste des modules principaux
   const modules: Module[] = [
     {
       id: 'cyber',
-      title: 'I AM CYBER',
-      description: 'Formation immersive en cybersécurité et simulations de crises',
+      title: 'CYBER ACADEMY',
+      description: 'Plongez au cœur des enjeux de la cybersécurité avec des simulations réalistes',
       icon: <ShieldCheck size={24} />,
-      color: 'text-cyan-400',
-      bgColor: 'bg-blue-900/20',
-      accentColor: 'border-cyan-500/50',
+      color: 'text-[#006a9e]',
+      bgColor: 'bg-[#006a9e]/10',
+      accentColor: 'border-[#006a9e]/50',
       route: '/cyber'
     },
     {
       id: 'data',
-      title: 'I AM DATA & IA',
-      description: 'Maîtrisez les technologies IA et l\'analyse de données',
+      title: 'DATA & IA',
+      description: 'Maîtrisez les technologies d\'analyse de données et d\'intelligence artificielle',
       icon: <Brain size={24} />,
-      color: 'text-cyan-400',
-      bgColor: 'bg-blue-900/20',
-      accentColor: 'border-cyan-500/50',
+      color: 'text-[#006a9e]',
+      bgColor: 'bg-[#006a9e]/10',
+      accentColor: 'border-[#006a9e]/50',
       route: '/data-ia'
     },
     {
       id: 'mc2i',
-      title: 'I AM mc2i',
-      description: 'Simulation d\'entretiens et gestion de projets innovants',
+      title: 'AMOA ACADEMY',
+      description: 'Développez vos compétences en assistance à maîtrise d\'ouvrage',
       icon: <RocketIcon size={24} />,
-      color: 'text-cyan-400',
-      bgColor: 'bg-blue-900/20',
-      accentColor: 'border-cyan-500/50',
+      color: 'text-[#006a9e]',
+      bgColor: 'bg-[#006a9e]/10',
+      accentColor: 'border-[#006a9e]/50',
       route: '/amoa/new'
     },
     {
@@ -108,193 +83,21 @@ const CyberHomePage: React.FC = () => {
       title: 'SOYEZ QUI VOUS VOULEZ',
       description: 'Créez vos propres modules de formation personnalisés',
       icon: <Zap size={24} />,
-      color: 'text-cyan-400',
-      bgColor: 'bg-blue-900/20',
-      accentColor: 'border-cyan-500/50',
+      color: 'text-[#006a9e]',
+      bgColor: 'bg-[#006a9e]/10',
+      accentColor: 'border-[#006a9e]/50',
       route: '/playground/module-generator-new'
     }
   ];
 
-  // Liste des fonctionnalités principales
-  const features = [
-    {
-      icon: <Cpu className="w-10 h-10 text-cyan-400" />,
-      title: "IA Prédictive",
-      description: "Algorithmie avancée s'adaptant en temps réel à votre niveau et vos besoins spécifiques."
-    },
-    {
-      icon: <ShieldCheck className="w-10 h-10 text-cyan-400" />,
-      title: "Simulations Immersives",
-      description: "Scénarios réalistes et adaptatifs avec feedback personnalisé et évolution dynamique."
-    },
-    {
-      icon: <Network className="w-10 h-10 text-cyan-400" />,
-      title: "Environnement Interactif",
-      description: "Interfaces multi-sensorielles conçues pour maximiser l'engagement et l'apprentissage."
-    },
-    {
-      icon: <Lock className="w-10 h-10 text-cyan-400" />,
-      title: "Sécurité Maximale",
-      description: "Protection de vos données et conformité RGPD à chaque étape du processus."
-    },
-    {
-      icon: <LineChart className="w-10 h-10 text-cyan-400" />,
-      title: "Analyse de Performance",
-      description: "Métriques détaillées sur vos progrès avec visualisation en temps réel."
-    },
-    {
-      icon: <Users className="w-10 h-10 text-cyan-400" />,
-      title: "Collaboration Avancée",
-      description: "Outils de partage et environnements multi-utilisateurs synchronisés."
-    }
-  ];
-
-  // Effet de hover sur les modules
-  const handleModuleHover = (id: string | null) => {
-    setHoveredModule(id);
-  };
-
   return (
-    <div className="relative min-h-screen bg-gray-900 text-white overflow-hidden font-cyber">
-      {/* Scène 3D de fond */}
-      <CyberScene />
-      
-      {/* Background amélioré avec plusieurs couches */}
-      <div className="absolute inset-0 z-0">
-        {/* Overlay gradient principal */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-blue-950/40 to-black/80"></div>
-        
-        {/* Grille de fond cyberpunk inclinée */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcGF0dGVyblRyYW5zZm9ybT0icm90YXRlKDMwKSI+PHBhdGggZD0iTSAxMDAgMCBMIDAgMCAwIDEwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMWQ0ZWQ4IiBzdHJva2Utd2lkdGg9IjAuNSIvPjwvcGF0dGVybj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIiAvPjwvc3ZnPg==')]" style={{ opacity: 0.12 }}></div>
-        
-        {/* Texture de bruit pour donner de la profondeur */}
-        <div className="absolute inset-0 opacity-30 mix-blend-overlay bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=')]"></div>
-        
-        {/* Circuit patterns cybernétiques */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXR0ZXJuIGlkPSJjaXJjdWl0IiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMGgxMDB2MTAwSDIwMHYxMDBoLTEwMHYtMTAwSDB6IiBmaWxsPSJub25lIiBzdHJva2U9IiMwZmIzZDEiIHN0cm9rZS13aWR0aD0iMSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIwIiByPSIzIiBmaWxsPSIjMGZiM2QxIi8+PGNpcmNsZSBjeD0iMjAwIiBjeT0iMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIyMDAiIHI9IjMiIGZpbGw9IiMwZmIzZDEiLz48L3BhdHRlcm4+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNjaXJjdWl0KSIgb3BhY2l0eT0iMC4xNSIvPjwvc3ZnPg==')]" style={{ opacity: 0.08 }}></div>
-        
-        {/* Scanlines animées */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="w-full h-full bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent bg-repeat-y" 
-              style={{ 
-                backgroundSize: '100% 8px', 
-                animation: 'moveVertical 8s linear infinite',
-                opacity: 0.3
-              }}>
-          </div>
-        </div>
-        
-        {/* Éclats de lumière */}
-        <div className="absolute top-1/6 right-1/6 w-3 h-3 bg-cyan-300 rounded-full opacity-70 animate-pulse shadow-[0_0_40px_20px_rgba(34,211,238,0.6)]"></div>
-        <div className="absolute bottom-1/4 left-1/6 w-2 h-2 bg-pink-300 rounded-full opacity-60 animate-pulse shadow-[0_0_30px_15px_rgba(236,72,153,0.5)]"></div>
-      </div>
-      
-      {/* Header */}
-      <header className="relative z-10 pt-6 px-8">
-        <div className="container mx-auto">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <img src={mcLogoPath} alt="mc2i" className="h-8 w-auto" />
-              <div className="h-5 w-px bg-cyan-500/50"></div>
-              <div className="text-xl font-cyber-title text-cyan-400 tracking-wider font-bold">
-                FYNE
-              </div>
-            </div>
-            
-            <nav className="hidden md:flex items-center space-x-6">
-              {modules.map((module) => (
-                <Link 
-                  key={module.id}
-                  href={module.route}
-                  className={`text-sm font-cyber-accent ${module.color} hover:underline tracking-wide transition-colors duration-300 uppercase`}
-                >
-                  {module.title}
-                </Link>
-              ))}
-            </nav>
-            
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse"></div>
-                <span className="text-xs uppercase text-green-400 tracking-wider">FYNE Connecté</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-      
-      {/* Hero Section */}
-      <main className="relative z-10">
-        <section className="relative min-h-[90vh] flex items-center">
-          <div className="container mx-auto px-8 py-20 relative">
-            {/* Image du personnage FYNE sur la droite avec effets technologiques simplifiés */}
-            <div className="absolute right-10 top-1/2 transform -translate-y-1/2 z-10 hidden md:block">
-              <div className="absolute inset-0 w-full h-full">                
-                {/* Particules technologiques qui gravitent */}
-                {[...Array(6)].map((_, i) => (
-                  <motion.div 
-                    key={i}
-                    className="absolute w-2 h-2 rounded-full bg-cyan-400"
-                    style={{
-                      boxShadow: '0 0 8px rgba(0, 200, 255, 0.8)',
-                      top: '50%',
-                      left: '50%',
-                    }}
-                    initial={{ 
-                      x: 0,
-                      y: 0,
-                      scale: 0.5 + Math.random() * 0.5
-                    }}
-                    animate={{ 
-                      x: [0, Math.cos(i * 60 * (Math.PI/180)) * 150, 0],
-                      y: [0, Math.sin(i * 60 * (Math.PI/180)) * 150, 0]
-                    }}
-                    transition={{ 
-                      duration: 4 + i * 1.5, 
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  />
-                ))}
-                
-                {/* Lignes de scan verticales */}
-                <motion.div 
-                  className="absolute inset-0 overflow-hidden"
-                  initial={{ opacity: 0.5 }}
-                >
-                  <motion.div
-                    className="absolute top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-cyan-400 to-transparent"
-                    style={{ left: '30%' }}
-                    animate={{ 
-                      y: ['-100%', '100%'],
-                      opacity: [0, 1, 0]
-                    }}
-                    transition={{ 
-                      duration: 2.5, 
-                      repeat: Infinity, 
-                      repeatType: 'loop',
-                      repeatDelay: 3 
-                    }}
-                  />
-                  <motion.div
-                    className="absolute top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-cyan-400 to-transparent"
-                    style={{ left: '70%' }}
-                    animate={{ 
-                      y: ['-100%', '100%'],
-                      opacity: [0, 1, 0] 
-                    }}
-                    transition={{ 
-                      duration: 2.5, 
-                      repeat: Infinity, 
-                      repeatType: 'loop',
-                      repeatDelay: 3,
-                      delay: 1.2
-                    }}
-                  />
-                </motion.div>
-              </div>
-              
-              {/* Image principale du personnage */}
+    <div className="min-h-screen bg-white text-[#061019]">
+      <main className="relative">
+        {/* Contenu principal */}
+        <section className="relative z-10 min-h-screen flex items-center justify-center pt-20 pb-32">
+          <div className="container mx-auto px-8 flex flex-col md:flex-row items-center">
+            {/* Character à droite en desktop */}
+            <div className="hidden md:block absolute right-0 bottom-0 z-10">
               <motion.img 
                 src={fyneCharacterPath}
                 alt="FYNE Character"
@@ -308,131 +111,103 @@ const CyberHomePage: React.FC = () => {
 
             <motion.div 
               className="max-w-4xl mx-auto text-center md:text-left md:ml-0 md:mr-auto relative z-20"
-              style={{ opacity, y, scale }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
             >
-              <div className="text-3xl md:text-5xl text-cyan-500 font-cyber-title mb-8 tracking-widest">
-                <CyberGlitchText 
-                  text="FOR - YOUR - NEXT - EXPERIENCE" 
-                  textSize="text-3xl md:text-5xl" 
-                  color="text-cyan-500"
-                  highlightColor="text-pink-400" 
-                  glitchIntensity="medium"
-                  className="tracking-widest"
-                />
+              <div className="text-3xl md:text-5xl font-bold mb-8 tracking-widest">
+                <h1 className="font-bold tracking-widest text-[#006a9e]">
+                  FOR YOUR NEXT EXPERIENCE
+                </h1>
               </div>
               
-              <p className="text-xl md:text-2xl text-gray-300 mb-8 font-cyber leading-relaxed max-w-3xl mx-auto">
-                Transformez votre <span className="text-pink-400">expérience de formation</span> avec notre plateforme immersive alimentée par l'IA. <span className="text-cyan-400">FYNE</span> redéfinit l'apprentissage pour l'adapter à vos besoins.
+              <p className="text-xl md:text-2xl text-[#061019] mb-8 leading-relaxed max-w-3xl mx-auto">
+                Transformez votre <span className="text-[#dd0061] font-semibold">expérience de formation</span> avec notre plateforme immersive alimentée par l'IA. <span className="text-[#006a9e] font-semibold">FYNE</span> redéfinit l'apprentissage pour l'adapter à vos besoins.
               </p>
               
-              <div className="flex items-center justify-center mt-10">
-                <CyberButton 
-                  variant="primary"
-                  size="lg"
-                  glowIntensity="high"
+              <div className="flex items-center justify-center md:justify-start mt-10">
+                <motion.button
                   onClick={() => setLocation('/fyne-about')}
+                  className="px-8 py-4 bg-[#006a9e] hover:bg-[#006a9e]/90 text-white rounded-md text-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  DÉCOUVREZ FYNE
-                </CyberButton>
+                  <span>DÉCOUVREZ FYNE</span>
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="24" 
+                    height="24" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                    className="ml-2"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </motion.button>
               </div>
             </motion.div>
-            
-
           </div>
         </section>
         
         {/* Section Modules */}
-        <section className="relative z-20 py-24 cyber-bg-fade">
+        <section className="relative z-20 py-24 bg-gray-50">
           <div className="container mx-auto px-8">
             <div className="text-center mb-16">
               <div className="inline-block">
-                <span className="px-4 py-1 rounded-full text-sm font-semibold bg-blue-900/30 text-cyan-300 font-cyber-accent tracking-wide border border-blue-500/30 backdrop-blur-sm">
+                <span className="px-4 py-1 rounded-full text-sm font-semibold bg-[#006a9e]/10 text-[#006a9e] tracking-wide border border-[#006a9e]/30">
                   Modules Exclusifs
                 </span>
               </div>
-              <h2 className="mt-4 text-4xl md:text-5xl font-cyber-title tracking-wider text-white">
-                Expériences <span className="text-cyan-400">Adaptatives</span>
+              <h2 className="mt-4 text-4xl md:text-5xl font-bold tracking-wider text-[#061019]">
+                Des <span className="text-[#dd0061]">formations</span> pour tous les besoins
               </h2>
-              <p className="mt-4 text-xl text-gray-300 max-w-2xl mx-auto">
-                Trois univers d'apprentissage conçus pour transformer votre formation en expérience immersive et interactive.
+              <p className="mt-4 text-xl text-gray-600 max-w-2xl mx-auto">
+                Explorez nos modules spécialisés conçus pour développer vos compétences dans des domaines stratégiques.
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {modules.map((module) => (
-                <motion.div
+                <motion.div 
                   key={module.id}
-                  className={`cyber-edge-distort relative overflow-hidden ${module.bgColor} border ${module.accentColor} p-6 transition-all duration-500`}
-                  onMouseEnter={() => handleModuleHover(module.id)}
-                  onMouseLeave={() => handleModuleHover(null)}
-                  whileHover={{ 
-                    scale: 1.03,
-                    boxShadow: '0 0 25px rgba(0, 255, 255, 0.3)'
-                  }}
-                  animate={{
-                    boxShadow: hoveredModule === module.id 
-                      ? '0 0 25px rgba(0, 255, 255, 0.3)'
-                      : '0 0 5px rgba(0, 255, 255, 0.1)'
-                  }}
+                  className={`bg-white border-2 rounded-xl overflow-hidden shadow-lg transition-all duration-300 ${
+                    hoveredModule === module.id 
+                      ? `border-[#dd0061]` 
+                      : `border-[#006a9e]/20`
+                  }`}
+                  onMouseEnter={() => setHoveredModule(module.id)}
+                  onMouseLeave={() => setHoveredModule(null)}
+                  whileHover={{ y: -10 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  onClick={() => setLocation(module.route)}
+                  style={{ cursor: 'pointer' }}
                 >
-                  {/* Module header */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={`p-2 rounded-md ${module.bgColor} border ${module.accentColor}`}>
-                      {module.icon}
-                    </div>
-                    <h3 className={`text-xl font-cyber-title ${module.color}`}>
-                      {module.title}
-                    </h3>
-                  </div>
-                  
-                  {/* Description */}
-                  <p className="text-gray-300 mb-6 min-h-[4rem]">
-                    {module.description}
-                  </p>
-                  
-                  {/* Ligne scan - Ajustée pour tous les modules */}
-                  <div 
-                    className={`absolute top-0 left-0 h-full w-px ${module.color.replace('text', 'bg')}`}
-                    style={{
-                      opacity: hoveredModule === module.id ? 0.8 : 0,
-                      transform: 'translateX(-100%)',
-                      animation: hoveredModule === module.id ? 'scanLine 1.5s linear infinite' : 'none'
-                    }}
-                  />
-                  
-                  {/* Ligne scan horizontale pour tous les modules */}
-                  <div 
-                    className={`absolute top-0 left-0 w-full h-px ${module.color.replace('text', 'bg')}`}
-                    style={{
-                      opacity: hoveredModule === module.id ? 0.8 : 0,
-                      transform: 'translateY(-100%)',
-                      animation: hoveredModule === module.id ? 'scanLineHorizontal 1.5s linear infinite' : 'none'
-                    }}
-                  />
-                  
-                  {/* Button */}
-                  <div className="mt-auto pt-4">
-                    <CyberButton 
-                      variant="primary"
-                      onClick={() => {
-                        // Utiliser les routes directes pour s'assurer que les liens fonctionnent
-                        if (module.id === 'cyber') {
-                          setLocation('/cyber');
-                        } else if (module.id === 'data') {
-                          setLocation('/data-ia');
-                        } else if (module.id === 'mc2i') {
-                          setLocation('/amoa/new');
-                        } else {
-                          setLocation('/playground/module-generator-new');
-                        }
-                      }}
-                      className="w-full"
+                  <div className="p-6">
+                    <div 
+                      className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 
+                      ${hoveredModule === module.id ? 'bg-[#dd0061]/20' : 'bg-[#006a9e]/20'}`}
                     >
-                      <span className="flex items-center">
-                        Accéder
-                        <ChevronRight className="ml-2" size={16} />
+                      <div className={hoveredModule === module.id ? 'text-[#dd0061]' : 'text-[#006a9e]'}>
+                        {module.icon}
+                      </div>
+                    </div>
+                    <h3 className="text-lg font-bold mb-2 text-[#061019]">{module.title}</h3>
+                    <p className="text-gray-600 text-sm mb-4">{module.description}</p>
+                    <div className="flex items-center text-sm font-medium">
+                      <span className={hoveredModule === module.id ? 'text-[#dd0061]' : 'text-[#006a9e]'}>
+                        Découvrir
                       </span>
-                    </CyberButton>
+                      <ChevronRight className={`ml-1 w-4 h-4 ${
+                        hoveredModule === module.id ? 'text-[#dd0061]' : 'text-[#006a9e]'
+                      }`} />
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -440,49 +215,34 @@ const CyberHomePage: React.FC = () => {
           </div>
         </section>
         
-        {/* La section des Fonctionnalités Technologiques a été supprimée et déplacée dans la page /fyne-about */}
-        
         {/* Footer */}
-        <footer className="relative z-20 py-12 border-t border-cyan-900/30">
+        <footer className="relative z-20 py-12 border-t border-gray-200 bg-white">
           <div className="container mx-auto px-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <img src={mcLogoPath} alt="mc2i" className="h-8 w-auto" />
-                  <div className="h-5 w-px bg-cyan-500/50"></div>
-                  <div className="text-xl font-cyber-title text-cyan-400 tracking-wider font-bold">
+                  <div className="h-5 w-px bg-gray-300"></div>
+                  <div className="text-xl font-bold text-[#006a9e]">
                     FYNE
                   </div>
                 </div>
-                <p className="text-gray-400 text-sm">
+                <p className="text-gray-600 text-sm">
                   Propulsez votre formation avec notre plateforme IA de simulation immersive.
                 </p>
               </div>
               
               <div>
-                <h4 className="text-cyan-400 font-cyber-title mb-4 text-sm uppercase tracking-wider">Modules</h4>
+                <h4 className="text-[#006a9e] font-bold mb-4 text-sm uppercase tracking-wider">Modules</h4>
                 <ul className="space-y-2">
                   {modules.map(module => (
                     <li key={module.id}>
                       <Link 
-                        href={
-                          module.id === 'cyber' ? '/cyber' :
-                          module.id === 'data' ? '/data-ia' :
-                          module.id === 'mc2i' ? '/amoa/new' :
-                          '/playground/module-generator-new'
-                        }
-                        className="text-gray-400 hover:text-cyan-400 transition-colors duration-300 text-sm"
+                        href={module.route}
+                        className="text-gray-600 hover:text-[#dd0061] transition-colors duration-300 text-sm"
                         onClick={(e) => {
                           e.preventDefault();
-                          if (module.id === 'cyber') {
-                            setLocation('/cyber');
-                          } else if (module.id === 'data') {
-                            setLocation('/data-ia');
-                          } else if (module.id === 'mc2i') {
-                            setLocation('/amoa/new');
-                          } else {
-                            setLocation('/playground/module-generator-new');
-                          }
+                          setLocation(module.route);
                         }}
                       >
                         {module.title}
@@ -493,32 +253,32 @@ const CyberHomePage: React.FC = () => {
               </div>
               
               <div>
-                <h4 className="text-cyan-400 font-cyber-title mb-4 text-sm uppercase tracking-wider">Ressources</h4>
+                <h4 className="text-[#006a9e] font-bold mb-4 text-sm uppercase tracking-wider">Ressources</h4>
                 <ul className="space-y-2">
-                  <li><a href="#" className="text-gray-400 hover:text-cyan-400 transition-colors duration-300 text-sm">Documentation</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-cyan-400 transition-colors duration-300 text-sm">Tutoriels</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-cyan-400 transition-colors duration-300 text-sm">Blog</a></li>
-                  <li><a href="#" className="text-gray-400 hover:text-cyan-400 transition-colors duration-300 text-sm">Support</a></li>
+                  <li><a href="#" className="text-gray-600 hover:text-[#dd0061] transition-colors duration-300 text-sm">Documentation</a></li>
+                  <li><a href="#" className="text-gray-600 hover:text-[#dd0061] transition-colors duration-300 text-sm">Tutoriels</a></li>
+                  <li><a href="#" className="text-gray-600 hover:text-[#dd0061] transition-colors duration-300 text-sm">Blog</a></li>
+                  <li><a href="#" className="text-gray-600 hover:text-[#dd0061] transition-colors duration-300 text-sm">Support</a></li>
                 </ul>
               </div>
               
               <div>
-                <h4 className="text-cyan-400 font-cyber-title mb-4 text-sm uppercase tracking-wider">Contact</h4>
+                <h4 className="text-[#006a9e] font-bold mb-4 text-sm uppercase tracking-wider">Contact</h4>
                 <div className="flex items-center gap-4">
-                  <a href="#" className="text-gray-400 hover:text-cyan-400 transition-colors duration-300">
+                  <a href="#" className="text-gray-600 hover:text-[#dd0061] transition-colors duration-300">
                     <Globe size={20} />
                   </a>
-                  <a href="#" className="text-gray-400 hover:text-cyan-400 transition-colors duration-300">
+                  <a href="#" className="text-gray-600 hover:text-[#dd0061] transition-colors duration-300">
                     <Share2 size={20} />
                   </a>
-                  <a href="#" className="text-gray-400 hover:text-cyan-400 transition-colors duration-300">
+                  <a href="#" className="text-gray-600 hover:text-[#dd0061] transition-colors duration-300">
                     <Users size={20} />
                   </a>
                 </div>
               </div>
             </div>
             
-            <div className="mt-8 pt-8 border-t border-cyan-900/30 text-center">
+            <div className="mt-8 pt-8 border-t border-gray-200 text-center">
               <p className="text-xs text-gray-500">
                 &copy; {new Date().getFullYear()} FYNE by mc2i. Tous droits réservés.
               </p>
