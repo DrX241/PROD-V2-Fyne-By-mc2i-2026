@@ -337,23 +337,7 @@ const CyberHomePage: React.FC = () => {
               </div>
             </motion.div>
             
-            {/* Scroll indicator */}
-            <motion.div 
-              className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center"
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <span className="text-xs text-cyan-400 uppercase tracking-widest mb-2">
-                Défiler
-              </span>
-              <div className="w-6 h-10 border-2 border-cyan-400 rounded-full flex justify-center pt-2">
-                <motion.div 
-                  className="w-1.5 h-1.5 bg-cyan-400 rounded-full"
-                  animate={{ y: [0, 12, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-              </div>
-            </motion.div>
+
           </div>
         </section>
         
