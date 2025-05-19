@@ -1,535 +1,1025 @@
 import React, { useState } from 'react';
-import { useLocation } from 'wouter';
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Search, Zap, BookOpen, Brain, Monitor, Shield, Lock, Database, Clock, Newspaper, Code, Globe } from "lucide-react";
-import HomeLayout from '@/components/layout/HomeLayout';
-import { Card } from "@/components/ui/card";
+import { Link } from 'wouter';
+import {
+  ArrowLeft,
+  BookOpen,
+  Cpu,
+  Eye,
+  GraduationCap,
+  Clock,
+  Users,
+  Shield,
+  Lock,
+  Database,
+  Code,
+  LineChart,
+  Network,
+  Wifi,
+  FileText,
+  Search,
+  Folder,
+  Monitor,
+  CloudRain,
+  ScrollText,
+  BarChart3,
+  Calendar,
+  Bot,
+  BrainCircuit,
+  Layers,
+  Zap,
+  Star,
+  Sparkles
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from '@/hooks/use-toast';
+import { useTutorial } from '@/contexts/TutorialContext';
+import PageTitle from '@/components/utils/PageTitle';
 
-export default function CyberLearningCenter() {
-  const [, setLocation] = useLocation();
-  const [activeTab, setActiveTab] = useState("modules");
-  const [searchQuery, setSearchQuery] = useState("");
+// Types pour l'organisation du contenu
+interface Module {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  duration: string;
+  level: 'débutant' | 'intermédiaire' | 'avancé' | 'tous niveaux';
+  category: string;
+  tags: string[];
+  progress?: number;
+  isNew?: boolean;
+  isFeatured?: boolean;
+  comingSoon?: boolean;
+  destination?: string;
+}
 
-  const handleReturn = () => {
-    setLocation('/cyber');
+interface LearningPath {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  modules: string[];
+  duration: string;
+  level: 'débutant' | 'intermédiaire' | 'avancé' | 'tous niveaux';
+  category: 'technique' | 'gouvernance' | 'mixte';
+  objectives: string[];
+  tags: string[];
+  progress?: number;
+  certification?: string;
+  isNew?: boolean;
+  gradient: string;
+}
+
+interface ResourceCategory {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  modules: Module[];
+  gradient: string;
+}
+
+export default function LearningCenter() {
+  // États
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedLevel, setSelectedLevel] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedDuration, setSelectedDuration] = useState<string>('');
+  const [activeTab, setActiveTab] = useState('modules');
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  
+  const { toast } = useToast();
+  const { startTutorial, setCurrentTour } = useTutorial();
+
+  // Modules de base (fondamentaux de la cybersécurité)
+  const basicModules: Module[] = [
+    {
+      id: 'intro-cybersecurite',
+      title: 'Introduction à la cybersécurité',
+      description: 'Les concepts fondamentaux, terminologie et principes de base de la cybersécurité',
+      icon: <Shield />,
+      duration: '2-3h',
+      level: 'débutant',
+      category: 'fondamentaux',
+      tags: ['concepts', 'principes', 'introduction', 'sensibilisation', 'culture sécurité'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/intro-cybersecurite'
+    },
+    {
+      id: 'modele-menaces',
+      title: 'Modélisation des menaces',
+      description: 'Comprendre et modéliser les menaces pour mieux protéger vos systèmes d\'information',
+      icon: <FileText />,
+      duration: '3-4h',
+      level: 'intermédiaire',
+      category: 'fondamentaux',
+      tags: ['analyse', 'risques', 'menaces'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/modele-menaces'
+    },
+    {
+      id: 'analyse-risques',
+      title: 'Analyse et gestion des risques',
+      description: 'Méthodologies d\'analyse et de gestion des risques en cybersécurité',
+      icon: <BarChart3 />,
+      duration: '4-5h',
+      level: 'intermédiaire',
+      category: 'fondamentaux',
+      tags: ['risques', 'analyse', 'méthodologie', 'gouvernance', 'conformité', 'EBIOS'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/analyse-risques'
+    },
+    {
+      id: 'normes-standards',
+      title: 'Normes et standards de sécurité',
+      description: 'Panorama des normes et standards internationaux en cybersécurité (ISO 27001, NIST, etc.)',
+      icon: <Layers />,
+      duration: '3-4h',
+      level: 'intermédiaire',
+      category: 'fondamentaux',
+      tags: ['normes', 'standards', 'conformité'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/normes-standards'
+    }
+  ];
+
+  // Modules spécialisés (sécurité technique, gouvernance, etc.)
+  const specializedModules: Module[] = [
+    {
+      id: 'securite-reseaux',
+      title: 'Sécurité des réseaux',
+      description: 'Protection des infrastructures réseau et détection des intrusions',
+      icon: <Network />,
+      duration: '6-8h',
+      level: 'intermédiaire',
+      category: 'technique',
+      tags: ['réseau', 'firewall', 'IDS/IPS', 'VPN', 'segmentation', 'endpoints'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/securite-reseaux'
+    },
+    {
+      id: 'securite-cloud',
+      title: 'Sécurité du cloud',
+      description: 'Sécurisation des environnements cloud (AWS, Azure, GCP)',
+      icon: <CloudRain />,
+      duration: '5-7h',
+      level: 'avancé',
+      category: 'technique',
+      tags: ['cloud', 'AWS', 'Azure', 'GCP'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/securite-cloud',
+      isNew: true
+    },
+    {
+      id: 'devsecops',
+      title: 'DevSecOps',
+      description: 'Intégration de la sécurité dans le cycle de développement logiciel',
+      icon: <Code />,
+      duration: '8-10h',
+      level: 'avancé',
+      category: 'technique',
+      tags: ['développement', 'DevOps', 'CI/CD'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/devsecops'
+    },
+    {
+      id: 'securite-donnees',
+      title: 'Sécurité des données',
+      description: 'Protection des données sensibles et confidentielles',
+      icon: <Database />,
+      duration: '4-6h',
+      level: 'intermédiaire',
+      category: 'technique',
+      tags: ['données', 'chiffrement', 'DLP'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/securite-donnees'
+    },
+    {
+      id: 'gestion-identites',
+      title: 'Gestion des identités et des accès',
+      description: 'Stratégies et solutions pour la gestion des identités et des accès',
+      icon: <Lock />,
+      duration: '5-6h',
+      level: 'intermédiaire',
+      category: 'technique',
+      tags: ['IAM', 'authentification', 'autorisation'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/gestion-identites'
+    },
+    {
+      id: 'gouvernance-cyber',
+      title: 'Gouvernance de la cybersécurité',
+      description: 'Organisation, pilotage et stratégie de la cybersécurité en entreprise',
+      icon: <Users />,
+      duration: '6-8h',
+      level: 'intermédiaire',
+      category: 'gouvernance',
+      tags: ['gouvernance', 'stratégie', 'organisation'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/gouvernance-cyber'
+    },
+    {
+      id: 'securite-ot',
+      title: 'Cybersécurité des systèmes industriels (OT)',
+      description: 'Protection des environnements industriels et systèmes SCADA',
+      icon: <Cpu />,
+      duration: '7-9h',
+      level: 'avancé',
+      category: 'technique',
+      tags: ['OT', 'SCADA', 'industriel'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/securite-ot',
+      isNew: true
+    },
+    {
+      id: 'intelligence-artificielle-securite',
+      title: 'IA et cybersécurité',
+      description: 'Applications et enjeux de l\'IA dans la cybersécurité',
+      icon: <BrainCircuit />,
+      duration: '4-5h',
+      level: 'avancé',
+      category: 'technique',
+      tags: ['IA', 'machine learning', 'automatisation'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/ia-securite',
+      isNew: true,
+      isFeatured: true
+    }
+  ];
+
+  // Modules micro-learning (courts, focalisés)
+  const microModules: Module[] = [
+    {
+      id: 'phishing-detection',
+      title: 'Détecter le phishing',
+      description: 'Reconnaître et se protéger contre les attaques de phishing',
+      icon: <Zap />,
+      duration: '30-45min',
+      level: 'débutant',
+      category: 'micro-learning',
+      tags: ['phishing', 'social engineering', 'sensibilisation'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/phishing-detection'
+    },
+    {
+      id: 'mot-de-passe',
+      title: 'Gestion des mots de passe',
+      description: 'Bonnes pratiques pour des mots de passe sécurisés',
+      icon: <Lock />,
+      duration: '20-30min',
+      level: 'débutant',
+      category: 'micro-learning',
+      tags: ['mots de passe', 'authentification', 'sensibilisation'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/mot-de-passe'
+    },
+    {
+      id: 'ransomware',
+      title: 'Comprendre les ransomwares',
+      description: 'Mécanismes des ransomwares et mesures préventives',
+      icon: <Shield />,
+      duration: '45-60min',
+      level: 'débutant',
+      category: 'micro-learning',
+      tags: ['ransomware', 'malware', 'prévention', 'incidents', 'gestion de crise', 'forensique'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/ransomware'
+    },
+    {
+      id: 'byod-securite',
+      title: 'Sécurité des appareils personnels (BYOD)',
+      description: 'Sécuriser l\'utilisation des appareils personnels en entreprise',
+      icon: <Wifi />,
+      duration: '30-45min',
+      level: 'débutant',
+      category: 'micro-learning',
+      tags: ['BYOD', 'mobile', 'appareils personnels'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/byod-securite'
+    },
+    {
+      id: 'zero-trust',
+      title: 'Principe du Zero Trust',
+      description: 'Introduction au modèle de sécurité Zero Trust',
+      icon: <Shield />,
+      duration: '45-60min',
+      level: 'intermédiaire',
+      category: 'micro-learning',
+      tags: ['zero trust', 'architecture', 'confiance'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/zero-trust',
+      isNew: true
+    }
+  ];
+
+  // Modules du parcours rapide
+  const quickLearningModules: Module[] = [
+    {
+      id: 'fiches-cyber-express',
+      title: 'Fiches Cyber Express',
+      description: 'Synthèses rapides sur les concepts clés de cybersécurité',
+      icon: <FileText />,
+      duration: '5-10min',
+      level: 'tous niveaux',
+      category: 'parcours-rapide',
+      tags: ['fiches', 'synthèse', 'express', 'concepts'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/fiches-cyber-express',
+      isNew: true
+    },
+    {
+      id: 'quiz-adaptatif-ia',
+      title: 'Quiz adaptatif IA',
+      description: 'Évaluez vos connaissances avec des quiz personnalisés par l\'IA',
+      icon: <BrainCircuit />,
+      duration: '10-15min',
+      level: 'tous niveaux',
+      category: 'parcours-rapide',
+      tags: ['quiz', 'évaluation', 'adaptatif', 'IA'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/quiz-adaptatif-ia',
+      isNew: true
+    },
+    {
+      id: 'glossaire-visuel',
+      title: 'Glossaire visuel',
+      description: 'Lexique illustré des termes techniques de cybersécurité',
+      icon: <BookOpen />,
+      duration: '5-15min',
+      level: 'débutant',
+      category: 'parcours-rapide',
+      tags: ['glossaire', 'terminologie', 'visuel', 'lexique'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/glossaire-visuel',
+      isNew: true
+    },
+    {
+      id: 'memo-ia-personnalise',
+      title: 'Mémo IA personnalisé',
+      description: 'Créez des aide-mémoires sur mesure grâce à l\'intelligence artificielle',
+      icon: <Bot />,
+      duration: '5-10min',
+      level: 'tous niveaux',
+      category: 'parcours-rapide',
+      tags: ['mémo', 'personnalisé', 'IA', 'aide-mémoire'],
+      progress: 0,
+      destination: '/cyber/learning-center/modules/memo-ia-personnalise',
+      isNew: true
+    },
+  ];
+  
+  // Tous les modules combinés pour la recherche
+  const allModules = [...basicModules, ...specializedModules, ...microModules, ...quickLearningModules];
+  
+  // Parcours thématiques
+  const learningPaths: LearningPath[] = [
+    {
+      id: 'rssi',
+      title: 'Parcours RSSI',
+      description: 'Formation complète pour les Responsables de la Sécurité des Systèmes d\'Information',
+      icon: <Shield />,
+      modules: ['intro-cybersecurite', 'modele-menaces', 'analyse-risques', 'normes-standards', 'gouvernance-cyber', 'securite-cloud'],
+      duration: '40-50h',
+      level: 'avancé',
+      category: 'mixte',
+      objectives: [
+        'Maîtriser les fondamentaux de la gouvernance de la cybersécurité',
+        'Comprendre les aspects juridiques et réglementaires',
+        'Élaborer et mettre en œuvre une stratégie de sécurité',
+        'Gérer les risques et les incidents de sécurité'
+      ],
+      tags: ['RSSI', 'gouvernance', 'stratégie', 'conformité', 'management'],
+      progress: 0,
+      certification: 'Certification interne RSSI',
+      isNew: true,
+      gradient: 'from-blue-800 to-indigo-600'
+    },
+    {
+      id: 'architecte-securite',
+      title: 'Parcours Architecte Sécurité',
+      description: 'Conception d\'architectures de sécurité robustes et conformes',
+      icon: <Layers />,
+      modules: ['securite-reseaux', 'securite-cloud', 'zero-trust', 'devsecops', 'securite-donnees', 'gestion-identites'],
+      duration: '35-45h',
+      level: 'avancé',
+      category: 'technique',
+      objectives: [
+        'Concevoir des architectures de sécurité résilientes',
+        'Maîtriser les technologies de sécurité avancées',
+        'Sécuriser les environnements cloud et hybrides',
+        'Implémenter des modèles Zero Trust'
+      ],
+      tags: ['architecture', 'conception', 'infrastructure', 'cloud', 'réseaux'],
+      progress: 0,
+      gradient: 'from-indigo-700 to-purple-700'
+    },
+    {
+      id: 'analyste-soc',
+      title: 'Parcours Analyste SOC',
+      description: 'Surveillance, détection et réponse aux menaces cybernétiques',
+      icon: <Eye />,
+      modules: ['securite-reseaux', 'phishing-detection', 'ransomware', 'intelligence-artificielle-securite'],
+      duration: '30-40h',
+      level: 'intermédiaire',
+      category: 'technique',
+      objectives: [
+        'Surveiller et analyser les événements de sécurité',
+        'Détecter et qualifier les incidents',
+        'Mener les premières actions de réponse',
+        'Utiliser les outils de détection et d\'analyse'
+      ],
+      tags: ['SOC', 'détection', 'surveillance', 'incidents', 'SIEM', 'XDR'],
+      progress: 0,
+      gradient: 'from-green-700 to-emerald-700'
+    },
+    {
+      id: 'devsecops-engineer',
+      title: 'Parcours DevSecOps',
+      description: 'Intégration de la sécurité dans le DevOps et le cycle de développement',
+      icon: <Code />,
+      modules: ['devsecops', 'securite-cloud', 'intelligence-artificielle-securite', 'zero-trust'],
+      duration: '25-35h',
+      level: 'avancé',
+      category: 'technique',
+      objectives: [
+        'Intégrer la sécurité dans le pipeline CI/CD',
+        'Automatiser les tests de sécurité',
+        'Sécuriser les environnements conteneurisés',
+        'Mettre en œuvre des pratiques IaC sécurisées'
+      ],
+      tags: ['DevSecOps', 'CI/CD', 'automatisation', 'containers', 'développement sécurisé'],
+      progress: 0,
+      isNew: true,
+      gradient: 'from-rose-700 to-red-700'
+    }
+  ];
+  
+  // Catégories de ressources pour l'interface
+  const resourceCategories: ResourceCategory[] = [
+    {
+      id: 'parcours-rapide',
+      title: 'Parcours rapide',
+      description: 'Apprentissage accéléré et outils d\'auto-formation',
+      icon: <Zap />,
+      modules: quickLearningModules,
+      gradient: 'from-orange-800 to-transparent'
+    },
+    {
+      id: 'fondamentaux',
+      title: 'Fondamentaux de la cybersécurité',
+      description: 'Concepts essentiels pour tous les niveaux',
+      icon: <Shield />,
+      modules: basicModules,
+      gradient: 'from-blue-800 to-transparent'
+    },
+    {
+      id: 'modules-technique',
+      title: 'Modules techniques avancés',
+      description: 'Pour approfondir vos connaissances techniques',
+      icon: <Code />,
+      modules: specializedModules,
+      gradient: 'from-violet-800 to-transparent'
+    },
+    {
+      id: 'micro-learning',
+      title: 'Modules micro-learning',
+      description: 'Formations courtes et ciblées sur des sujets spécifiques',
+      icon: <Clock />,
+      modules: microModules,
+      gradient: 'from-emerald-800 to-transparent'
+    }
+  ];
+  
+  // Filtrer les modules en fonction des critères de recherche
+  const filterModules = (modules: Module[]) => {
+    return modules.filter(module => {
+      const matchesSearch = searchTerm === '' || 
+        module.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        module.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        module.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      const matchesLevel = selectedLevel === '' || module.level === selectedLevel;
+      
+      const matchesCategory = selectedCategory === '' || module.category === selectedCategory;
+      
+      let matchesDuration = true;
+      if (selectedDuration === 'court') {
+        matchesDuration = module.duration.includes('min') || module.duration.includes('1h');
+      } else if (selectedDuration === 'moyen') {
+        matchesDuration = module.duration.includes('2-3h') || module.duration.includes('3-4h') || module.duration.includes('4-5h');
+      } else if (selectedDuration === 'long') {
+        matchesDuration = !module.duration.includes('min') && 
+          (module.duration.includes('5') || module.duration.includes('6') || 
+           module.duration.includes('7') || module.duration.includes('8') || 
+           module.duration.includes('9') || module.duration.includes('10'));
+      }
+      
+      return matchesSearch && matchesLevel && matchesCategory && matchesDuration;
+    });
+  };
+  
+  // Filtrer les parcours en fonction des critères de recherche
+  const filterPaths = (paths: LearningPath[]) => {
+    return paths.filter(path => {
+      const matchesSearch = searchTerm === '' || 
+        path.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        path.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        path.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      const matchesLevel = selectedLevel === '' || path.level === selectedLevel;
+      
+      const matchesCategory = selectedCategory === '' || path.category === selectedCategory;
+      
+      let matchesDuration = true;
+      if (selectedDuration === 'court') {
+        matchesDuration = path.duration.includes('10') || path.duration.includes('15') || path.duration.includes('20');
+      } else if (selectedDuration === 'moyen') {
+        matchesDuration = path.duration.includes('25') || path.duration.includes('30') || path.duration.includes('35');
+      } else if (selectedDuration === 'long') {
+        matchesDuration = path.duration.includes('40') || path.duration.includes('45') || 
+                         path.duration.includes('50') || path.duration.includes('55') || 
+                         path.duration.includes('60');
+      }
+      
+      return matchesSearch && matchesLevel && matchesCategory && matchesDuration;
+    });
   };
 
-  const handleModuleClick = (path: string) => {
-    setLocation(path);
+  // Génération de contenu avec IA
+  const generateContent = () => {
+    if (aiPrompt.trim() === '') {
+      toast({
+        title: "Prompt requis",
+        description: "Veuillez entrer une demande pour l'assistant IA.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsGenerating(true);
+    
+    // Simuler une génération
+    setTimeout(() => {
+      setIsGenerating(false);
+      toast({
+        title: "Contenu généré",
+        description: "Votre contenu personnalisé a été créé avec succès.",
+      });
+      setAiPrompt('');
+    }, 3000);
   };
-
+  
+  // Fonction pour lancer le tutoriel
+  const handleStartTutorial = () => {
+    setCurrentTour('learning-center');
+    startTutorial();
+  };
+  
+  // Rendu du module
+  const renderModuleCard = (module: Module, index: number) => (
+    <motion.div
+      key={module.id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+    >
+      <Link href={module.destination || '#'}>
+        <Card className="h-full bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 cursor-pointer overflow-hidden group">
+          <div className="p-5">
+            <div className="flex items-start mb-4">
+              <div className="h-8 w-8 mr-2 flex items-center justify-center bg-blue-800 text-white rounded">
+                {module.icon}
+              </div>
+              <div>
+                {module.isNew && (
+                  <Badge className="bg-blue-600 hover:bg-blue-700 text-[10px] font-normal py-0 h-4">Nouveau</Badge>
+                )}
+                {module.isFeatured && (
+                  <Badge className="bg-amber-600 hover:bg-amber-700 text-[10px] font-normal py-0 h-4 ml-1">Populaire</Badge>
+                )}
+                <h3 className="font-medium text-white mt-1">{module.title}</h3>
+              </div>
+            </div>
+            <div className="text-xs text-blue-300 flex items-center mb-2">
+              <span className="bg-blue-800/50 px-2 py-0.5 rounded text-[10px]">{module.level}</span>
+              <span className="ml-2 text-blue-400">{module.duration}</span>
+            </div>
+            <p className="text-sm text-blue-100 mb-4">{module.description}</p>
+            <div className="flex flex-wrap gap-1">
+              {module.tags.slice(0, 3).map(tag => (
+                <Badge key={tag} className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">{tag}</Badge>
+              ))}
+            </div>
+          </div>
+          {(module.progress !== undefined && module.progress > 0) && (
+            <div className="px-5 pb-3">
+              <div className="flex items-center text-xs text-blue-400 mb-1">
+                <span>Progression: {module.progress}%</span>
+              </div>
+              <Progress value={module.progress} className="h-1.5 bg-blue-900/40" indicatorClassName="bg-blue-500" />
+            </div>
+          )}
+          <div className="absolute inset-0 flex items-end justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <Button className="mb-4 bg-blue-600 hover:bg-blue-700">
+              {module.progress && module.progress > 0 ? 'Continuer' : 'Commencer'}
+            </Button>
+          </div>
+        </Card>
+      </Link>
+    </motion.div>
+  );
+  
+  // Rendu d'un parcours d'apprentissage
+  const renderLearningPathCard = (path: LearningPath, index: number) => (
+    <motion.div
+      key={path.id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+      className="col-span-1 md:col-span-2"
+    >
+      <Card className="bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 overflow-hidden h-full">
+        <div className="bg-gradient-to-r border-b border-blue-700/30 p-4 flex items-center gap-3">
+          <div className={`p-2 rounded-lg bg-gradient-to-r ${path.gradient}`}>
+            {path.icon}
+          </div>
+          <div>
+            <h3 className="font-semibold text-white">{path.title}</h3>
+            <p className="text-sm text-blue-300">{path.duration} • {path.level}</p>
+          </div>
+          {path.isNew && (
+            <Badge className="bg-blue-600 hover:bg-blue-700 ml-auto">Nouveau</Badge>
+          )}
+        </div>
+        <div className="p-4">
+          <p className="text-blue-100 mb-4">{path.description}</p>
+          
+          <div className="mb-4">
+            <h4 className="text-sm font-medium text-white mb-2">Objectifs d'apprentissage</h4>
+            <ul className="text-sm text-blue-200 list-disc pl-5 space-y-1">
+              {path.objectives.slice(0, 3).map((objective, i) => (
+                <li key={i}>{objective}</li>
+              ))}
+            </ul>
+          </div>
+          
+          <div className="mb-4">
+            <h4 className="text-sm font-medium text-white mb-2">Modules inclus ({path.modules.length})</h4>
+            <div className="flex flex-wrap gap-1.5">
+              {path.modules.slice(0, 5).map(moduleId => {
+                const module = allModules.find(m => m.id === moduleId);
+                return module ? (
+                  <Badge key={moduleId} className="bg-blue-900/80 text-[10px]">
+                    {module.title}
+                  </Badge>
+                ) : null;
+              })}
+              {path.modules.length > 5 && (
+                <Badge className="bg-blue-900/80 text-[10px]">
+                  +{path.modules.length - 5} modules
+                </Badge>
+              )}
+            </div>
+          </div>
+          
+          {path.certification && (
+            <div className="mb-4 flex items-center">
+              <GraduationCap className="h-4 w-4 text-amber-400 mr-1.5" />
+              <span className="text-xs text-blue-200">{path.certification}</span>
+            </div>
+          )}
+          
+          <div className="flex justify-end mt-2">
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              Voir le parcours
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </motion.div>
+  );
+  
+  // Filtrer les parcours et modules selon les critères
+  const filteredModules = allModules.filter(module => !module.comingSoon);
+  const filteredPaths = filterPaths(learningPaths);
+  
   return (
-    <HomeLayout>
-      <div className="flex flex-col min-h-screen bg-[#0a1429]">
-        {/* Header avec bouton retour */}
-        <div className="w-full px-4 py-4 flex items-center bg-blue-950/50">
-          <Button
-            variant="ghost"
-            onClick={handleReturn}
-            className="text-white hover:bg-blue-900/30 flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Retour
-          </Button>
-          <div className="ml-4 flex-1">
-            <h1 className="text-xl font-bold text-white">CYBER ACADÉMIE</h1>
+    <div className="min-h-screen bg-[#0a1429]">
+      <PageTitle title="Cyber Académie | Centre de formation" />
+      
+      {/* En-tête avec navigation et titre */}
+      <div className="border-b border-blue-800/60">
+        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
+          <Link href="/cyber">
+            <Button variant="ghost" className="text-blue-300 hover:bg-blue-900/30 hover:text-blue-200">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Retour
+            </Button>
+          </Link>
+          <h1 className="text-xl text-white font-medium">Cyber Académie</h1>
+          
+          <div className="ml-auto flex items-center">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-9 h-9 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 rounded-full"
+                    onClick={handleStartTutorial}
+                  >
+                    <Eye className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Visite guidée</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-9 h-9 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 rounded-full"
+                    onClick={() => setAiPanelOpen(!aiPanelOpen)}
+                  >
+                    <BrainCircuit className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Assistant pédagogique IA</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
+      </div>
+      
+      {/* Contenu principal */}
+      <div className="container mx-auto px-4 py-8">
+        {/* Titre et description */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Centre de formation en cybersécurité</h1>
+          <p className="text-blue-300 max-w-3xl">
+            Développez vos compétences en cybersécurité avec nos modules de formation interactifs adaptés à tous les niveaux, des débutants aux experts.
+          </p>
+        </div>
+        
+        {/* Barre de recherche et filtres */}
+        <div className="mb-10">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-grow">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-blue-400" />
+              <Input
+                placeholder="Rechercher par titre, mot-clé ou description..."
+                className="pl-10 bg-blue-950/70 border-blue-500/30 text-white focus:border-blue-500"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-wrap md:flex-nowrap gap-3">
+              <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+                <SelectTrigger className="w-[180px] bg-blue-950/70 border-blue-500/30 text-white focus:border-blue-500">
+                  <SelectValue placeholder="Niveau" />
+                </SelectTrigger>
+                <SelectContent className="bg-blue-950 border-blue-500/30 text-white">
+                  <SelectItem value="">Tous les niveaux</SelectItem>
+                  <SelectItem value="débutant">Débutant</SelectItem>
+                  <SelectItem value="intermédiaire">Intermédiaire</SelectItem>
+                  <SelectItem value="avancé">Avancé</SelectItem>
+                  <SelectItem value="tous niveaux">Tous niveaux</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-[180px] bg-blue-950/70 border-blue-500/30 text-white focus:border-blue-500">
+                  <SelectValue placeholder="Catégorie" />
+                </SelectTrigger>
+                <SelectContent className="bg-blue-950 border-blue-500/30 text-white">
+                  <SelectItem value="">Toutes les catégories</SelectItem>
+                  <SelectItem value="fondamentaux">Fondamentaux</SelectItem>
+                  <SelectItem value="technique">Technique</SelectItem>
+                  <SelectItem value="gouvernance">Gouvernance</SelectItem>
+                  <SelectItem value="parcours-rapide">Parcours rapide</SelectItem>
+                  <SelectItem value="micro-learning">Micro-learning</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select value={selectedDuration} onValueChange={setSelectedDuration}>
+                <SelectTrigger className="w-[180px] bg-blue-950/70 border-blue-500/30 text-white focus:border-blue-500">
+                  <SelectValue placeholder="Durée" />
+                </SelectTrigger>
+                <SelectContent className="bg-blue-950 border-blue-500/30 text-white">
+                  <SelectItem value="">Toutes les durées</SelectItem>
+                  <SelectItem value="court">Court (&lt; 1h)</SelectItem>
+                  <SelectItem value="moyen">Moyen (1-5h)</SelectItem>
+                  <SelectItem value="long">Long (&gt; 5h)</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {(searchTerm || selectedLevel || selectedCategory || selectedDuration) && (
+                <Button
+                  variant="outline"
+                  className="border-blue-500/30 text-blue-300 hover:bg-blue-900/20"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSelectedLevel('');
+                    setSelectedCategory('');
+                    setSelectedDuration('');
+                  }}
+                >
+                  Réinitialiser
+                </Button>
+              )}
+            </div>
           </div>
         </div>
         
-        {/* En-tête principale */}
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-white">Cyber Académie</h1>
-              <p className="text-blue-300 mt-1">Centre de formation complet en cybersécurité</p>
-            </div>
-            
-            <div className="flex flex-wrap gap-2 mt-4 md:mt-0">
-              <Button variant="outline" className="border-blue-500/50 text-blue-300 hover:bg-blue-900/50">
-                <Monitor className="h-4 w-4 mr-2" />
-                Visite guidée
-              </Button>
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                <Brain className="h-4 w-4 mr-2" />
-                Assistant pédagogique IA
-              </Button>
-            </div>
-          </div>
+        {/* Onglets de navigation */}
+        <Tabs defaultValue="modules" className="mb-10" onValueChange={setActiveTab}>
+          <TabsList className="bg-blue-950/70 border border-blue-800/60">
+            <TabsTrigger value="modules" className="data-[state=active]:bg-blue-700">
+              <Folder className="h-4 w-4 mr-2" />
+              Modules
+            </TabsTrigger>
+            <TabsTrigger value="paths" className="data-[state=active]:bg-blue-700">
+              <LineChart className="h-4 w-4 mr-2" />
+              Parcours thématiques
+            </TabsTrigger>
+            <TabsTrigger value="my-learning" className="data-[state=active]:bg-blue-700">
+              <BookOpen className="h-4 w-4 mr-2" />
+              Mes apprentissages
+            </TabsTrigger>
+          </TabsList>
           
-          {/* Barre de recherche et filtres */}
-          <div className="mb-8">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-grow">
-                <Search className="absolute left-3 top-2.5 h-4 w-4 text-blue-400" />
-                <Input 
-                  placeholder="Rechercher par titre, description ou mot-clé..." 
-                  className="pl-10 bg-blue-950/70 border-blue-500/30 text-white focus:border-blue-500 h-10"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+          {/* Contenu de l'onglet Modules */}
+          <TabsContent value="modules">
+            {(searchTerm || selectedLevel || selectedCategory || selectedDuration) ? (
+              // Résultats de recherche
+              <div>
+                <h2 className="text-white text-xl font-medium mb-4">Résultats ({filterModules(filteredModules).length})</h2>
+                {filterModules(filteredModules).length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filterModules(filteredModules).map((module, index) => renderModuleCard(module, index))}
+                  </div>
+                ) : (
+                  <div className="bg-blue-900/30 rounded-lg p-8 text-center">
+                    <p className="text-blue-300 mb-4">Aucun module ne correspond à vos critères de recherche.</p>
+                    <Button
+                      variant="outline"
+                      className="border-blue-500/30 text-blue-300 hover:bg-blue-900/20"
+                      onClick={() => {
+                        setSearchTerm('');
+                        setSelectedLevel('');
+                        setSelectedCategory('');
+                        setSelectedDuration('');
+                      }}
+                    >
+                      Réinitialiser les filtres
+                    </Button>
+                  </div>
+                )}
               </div>
-              <div className="flex gap-2 flex-wrap md:flex-nowrap">
-                <select className="bg-blue-950/70 border border-blue-500/30 text-white px-3 py-2 rounded-md focus:border-blue-500 h-10 text-sm">
-                  <option value="">Niveau</option>
-                  <option value="debutant">Débutant</option>
-                  <option value="intermediaire">Intermédiaire</option>
-                  <option value="avance">Avancé</option>
-                </select>
-                <select className="bg-blue-950/70 border border-blue-500/30 text-white px-3 py-2 rounded-md focus:border-blue-500 h-10 text-sm">
-                  <option value="">Catégorie</option>
-                  <option value="reseau">Sécurité réseau</option>
-                  <option value="application">Sécurité applicative</option>
-                  <option value="cloud">Sécurité cloud</option>
-                </select>
-                <select className="bg-blue-950/70 border border-blue-500/30 text-white px-3 py-2 rounded-md focus:border-blue-500 h-10 text-sm">
-                  <option value="">Durée</option>
-                  <option value="court">&lt; 15 min</option>
-                  <option value="moyen">15-30 min</option>
-                  <option value="long">+30 min</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          
-          {/* Tabs de navigation */}
-          <Tabs defaultValue="modules" className="w-full" onValueChange={(value) => setActiveTab(value)}>
-            <div className="border-b border-blue-800">
-              <TabsList className="bg-transparent">
-                <TabsTrigger 
-                  value="modules" 
-                  className="text-sm data-[state=active]:text-blue-300 data-[state=active]:border-blue-400 pb-2 border-b-2 border-transparent data-[state=active]:shadow-none"
-                >
-                  Modules
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="parcours" 
-                  className="text-sm data-[state=active]:text-blue-300 data-[state=active]:border-blue-400 pb-2 border-b-2 border-transparent data-[state=active]:shadow-none"
-                >
-                  Parcours thématiques
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="apprentissage" 
-                  className="text-sm data-[state=active]:text-blue-300 data-[state=active]:border-blue-400 pb-2 border-b-2 border-transparent data-[state=active]:shadow-none"
-                >
-                  Mon apprentissage
-                </TabsTrigger>
-              </TabsList>
-            </div>
-            
-            {/* Contenu des tabs */}
-            <TabsContent value="modules" className="mt-6">
-              <ScrollArea className="h-full">
-                {/* Parcours rapide */}
-                <div className="mb-10">
-                  <div className="flex items-center mb-6 bg-gradient-to-r from-orange-800 to-transparent p-3 rounded-md">
-                    <div className="bg-orange-600 p-2 rounded mr-3">
-                      <Zap className="h-5 w-5 text-white" />
+            ) : (
+              // Affichage par catégories
+              <div className="space-y-12">
+                {resourceCategories.map((category) => (
+                  <div key={category.id}>
+                    <div className="flex items-center mb-6 bg-gradient-to-r p-3 rounded-md"
+                         style={{ backgroundImage: `linear-gradient(to right, ${category.gradient})` }}>
+                      <div className="bg-inherit p-2 rounded mr-3">
+                        {category.icon}
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-semibold text-white">{category.title}</h2>
+                        <p className="text-sm text-blue-200">{category.description}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h2 className="text-xl font-semibold text-white">Parcours rapide</h2>
-                      <p className="text-sm text-blue-200">Apprentissage accéléré et outils d'auto-formation</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {category.modules.map((module, index) => renderModuleCard(module, index))}
                     </div>
                   </div>
-                  
+                ))}
+              </div>
+            )}
+          </TabsContent>
+          
+          {/* Contenu de l'onglet Parcours */}
+          <TabsContent value="paths">
+            {(searchTerm || selectedLevel || selectedCategory || selectedDuration) ? (
+              // Résultats de recherche pour les parcours
+              <div>
+                <h2 className="text-white text-xl font-medium mb-4">Résultats ({filteredPaths.length})</h2>
+                {filteredPaths.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Fiches Cyber Express */}
-                    <Card 
-                      className="bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 overflow-hidden group"
-                      onClick={() => handleModuleClick('/cyber/learning-center/modules/fiches-cyber-express')}
-                    >
-                      <div className="p-5">
-                        <div className="flex items-start mb-4">
-                          <div className="h-8 w-8 mr-2 flex items-center justify-center bg-blue-800 text-white rounded">
-                            <BookOpen className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <Badge className="bg-blue-600 hover:bg-blue-700 text-[10px] font-normal py-0 h-4">Nouveau</Badge>
-                            <h3 className="font-medium text-white mt-1">Fiches Cyber Express</h3>
-                          </div>
-                        </div>
-                        <div className="text-xs text-blue-300 flex items-center mb-2">
-                          <span className="bg-blue-800/50 px-2 py-0.5 rounded text-[10px]">tous niveaux</span>
-                          <span className="ml-2 text-blue-400">5-10min</span>
-                        </div>
-                        <p className="text-sm text-blue-100 mb-4">Synthèses rapides sur les concepts clés de cybersécurité</p>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">fiches</Badge>
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">synthèse</Badge>
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">express</Badge>
-                        </div>
-                      </div>
-                      <div className="absolute inset-0 flex items-end justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <Button 
-                          className="mb-4 bg-blue-600 hover:bg-blue-700"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleModuleClick('/cyber/learning-center/modules/fiches-cyber-express');
-                          }}
-                        >
-                          Accéder aux fiches
-                        </Button>
-                      </div>
-                    </Card>
-                    
-                    {/* Quiz adaptatif IA */}
-                    <Card 
-                      className="bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 overflow-hidden group"
-                      onClick={() => handleModuleClick('/cyber/learning-center/modules/quiz-adaptatif-ia')}
-                    >
-                      <div className="p-5">
-                        <div className="flex items-start mb-4">
-                          <div className="h-8 w-8 mr-2 flex items-center justify-center bg-blue-800 text-white rounded">
-                            <Brain className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <Badge className="bg-blue-600 hover:bg-blue-700 text-[10px] font-normal py-0 h-4">Nouveau</Badge>
-                            <h3 className="font-medium text-white mt-1">Quiz adaptatif IA</h3>
-                          </div>
-                        </div>
-                        <div className="text-xs text-blue-300 flex items-center mb-2">
-                          <span className="bg-blue-800/50 px-2 py-0.5 rounded text-[10px]">tous niveaux</span>
-                          <span className="ml-2 text-blue-400">10-15min</span>
-                        </div>
-                        <p className="text-sm text-blue-100 mb-4">Évaluez vos connaissances avec des quiz personnalisés par l'IA</p>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">quiz</Badge>
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">évaluation</Badge>
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">adaptatif</Badge>
-                        </div>
-                      </div>
-                      <div className="absolute inset-0 flex items-end justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <Button 
-                          className="mb-4 bg-blue-600 hover:bg-blue-700"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleModuleClick('/cyber/learning-center/modules/quiz-adaptatif-ia');
-                          }}
-                        >
-                          Commencer un quiz
-                        </Button>
-                      </div>
-                    </Card>
-                    
-                    {/* Glossaire visuel */}
-                    <Card 
-                      className="bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 overflow-hidden group"
-                      onClick={() => handleModuleClick('/cyber/learning-center/modules/glossaire-visuel')}
-                    >
-                      <div className="p-5">
-                        <div className="flex items-start mb-4">
-                          <div className="h-8 w-8 mr-2 flex items-center justify-center bg-blue-800 text-white rounded">
-                            <BookOpen className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <Badge className="bg-blue-600 hover:bg-blue-700 text-[10px] font-normal py-0 h-4">Nouveau</Badge>
-                            <h3 className="font-medium text-white mt-1">Glossaire visuel</h3>
-                          </div>
-                        </div>
-                        <div className="text-xs text-blue-300 flex items-center mb-2">
-                          <span className="bg-blue-800/50 px-2 py-0.5 rounded text-[10px]">débutant</span>
-                          <span className="ml-2 text-blue-400">5-10min</span>
-                        </div>
-                        <p className="text-sm text-blue-100 mb-4">Lexique illustré des termes techniques de cybersécurité</p>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">glossaire</Badge>
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">terminologie</Badge>
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">visuel</Badge>
-                        </div>
-                      </div>
-                      <div className="absolute inset-0 flex items-end justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <Button 
-                          className="mb-4 bg-blue-600 hover:bg-blue-700"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleModuleClick('/cyber/learning-center/modules/glossaire-visuel');
-                          }}
-                        >
-                          Explorer le glossaire
-                        </Button>
-                      </div>
-                    </Card>
+                    {filteredPaths.map((path, index) => renderLearningPathCard(path, index))}
                   </div>
-                  
-                  {/* Mémo IA personnalisé */}
-                  <div className="mt-6">
-                    <Card 
-                      className="bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 overflow-hidden group"
-                      onClick={() => handleModuleClick('/cyber/learning-center/modules/memo-ia-personnalise')}
+                ) : (
+                  <div className="bg-blue-900/30 rounded-lg p-8 text-center">
+                    <p className="text-blue-300 mb-4">Aucun parcours ne correspond à vos critères de recherche.</p>
+                    <Button
+                      variant="outline"
+                      className="border-blue-500/30 text-blue-300 hover:bg-blue-900/20"
+                      onClick={() => {
+                        setSearchTerm('');
+                        setSelectedLevel('');
+                        setSelectedCategory('');
+                        setSelectedDuration('');
+                      }}
                     >
-                      <div className="p-5 relative">
-                        <div className="flex items-start">
-                          <div className="h-8 w-8 mr-3 flex items-center justify-center bg-blue-800 text-white rounded">
-                            <Brain className="h-4 w-4" />
-                          </div>
-                          <div className="flex-grow">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <Badge className="bg-blue-600 hover:bg-blue-700 text-[10px] font-normal py-0 h-4">Nouveau</Badge>
-                                <h3 className="font-medium text-white mt-1">Mémo IA personnalisé</h3>
-                              </div>
-                              <div className="text-xs text-blue-300 flex items-center">
-                                <span className="bg-blue-800/50 px-2 py-0.5 rounded text-[10px]">tous niveaux</span>
-                                <span className="ml-2 text-blue-400">5-10min</span>
-                              </div>
-                            </div>
-                            <p className="text-sm text-blue-100 my-2">Créez des aide-mémoires sur mesure grâce à l'intelligence artificielle</p>
-                            <div className="flex flex-wrap gap-1">
-                              <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">mémo</Badge>
-                              <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">personnalisé</Badge>
-                              <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">IA</Badge>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="absolute inset-0 flex items-end justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <Button 
-                            className="mb-4 bg-blue-600 hover:bg-blue-700"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleModuleClick('/cyber/learning-center/modules/memo-ia-personnalise');
-                            }}
-                          >
-                            Créer un mémo
-                          </Button>
-                        </div>
-                      </div>
-                    </Card>
+                      Réinitialiser les filtres
+                    </Button>
                   </div>
+                )}
+              </div>
+            ) : (
+              // Affichage standard des parcours
+              <div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {learningPaths.map((path, index) => renderLearningPathCard(path, index))}
                 </div>
-                
-                {/* Modules fondamentaux */}
-                <div className="mb-10">
-                  <div className="flex items-center mb-6 bg-gradient-to-r from-blue-800 to-transparent p-3 rounded-md">
-                    <div className="bg-blue-600 p-2 rounded mr-3">
-                      <Shield className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-semibold text-white">Fondamentaux de la cybersécurité</h2>
-                      <p className="text-sm text-blue-200">Concepts essentiels pour tous les niveaux</p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Introduction à la cybersécurité */}
-                    <Card className="bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 cursor-pointer overflow-hidden group">
-                      <div className="p-5">
-                        <div className="flex items-start mb-4">
-                          <div className="h-8 w-8 mr-2 flex items-center justify-center bg-blue-800 text-white rounded">
-                            <Shield className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <Badge className="bg-green-600 hover:bg-green-700 text-[10px] font-normal py-0 h-4">Fondamental</Badge>
-                            <h3 className="font-medium text-white mt-1">Introduction à la cybersécurité</h3>
-                          </div>
-                        </div>
-                        <div className="text-xs text-blue-300 flex items-center mb-2">
-                          <span className="bg-blue-800/50 px-2 py-0.5 rounded text-[10px]">débutant</span>
-                          <span className="ml-2 text-blue-400">20min</span>
-                        </div>
-                        <p className="text-sm text-blue-100 mb-4">Les concepts de base et principes essentiels de la cybersécurité</p>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">principes</Badge>
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">fondamentaux</Badge>
-                        </div>
-                      </div>
-                      <div className="absolute inset-0 flex items-end justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <Button className="mb-4 bg-blue-600 hover:bg-blue-700">
-                          Commencer
-                        </Button>
-                      </div>
-                    </Card>
-                    
-                    {/* Phishing et ingénierie sociale */}
-                    <Card className="bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 cursor-pointer overflow-hidden group">
-                      <div className="p-5">
-                        <div className="flex items-start mb-4">
-                          <div className="h-8 w-8 mr-2 flex items-center justify-center bg-orange-700 text-white rounded">
-                            <Globe className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <Badge className="bg-orange-600 hover:bg-orange-700 text-[10px] font-normal py-0 h-4">Populaire</Badge>
-                            <h3 className="font-medium text-white mt-1">Phishing et ingénierie sociale</h3>
-                          </div>
-                        </div>
-                        <div className="text-xs text-blue-300 flex items-center mb-2">
-                          <span className="bg-blue-800/50 px-2 py-0.5 rounded text-[10px]">tous niveaux</span>
-                          <span className="ml-2 text-blue-400">15min</span>
-                        </div>
-                        <p className="text-sm text-blue-100 mb-4">Comment reconnaître et se protéger contre les attaques par manipulation sociale</p>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">phishing</Badge>
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">social engineering</Badge>
-                        </div>
-                      </div>
-                      <div className="absolute inset-0 flex items-end justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <Button className="mb-4 bg-blue-600 hover:bg-blue-700">
-                          Commencer
-                        </Button>
-                      </div>
-                    </Card>
-                    
-                    {/* Mots de passe et authentification */}
-                    <Card className="bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 cursor-pointer overflow-hidden group">
-                      <div className="p-5">
-                        <div className="flex items-start mb-4">
-                          <div className="h-8 w-8 mr-2 flex items-center justify-center bg-blue-800 text-white rounded">
-                            <Lock className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <Badge className="bg-green-600 hover:bg-green-700 text-[10px] font-normal py-0 h-4">Essentiel</Badge>
-                            <h3 className="font-medium text-white mt-1">Sécurité des mots de passe</h3>
-                          </div>
-                        </div>
-                        <div className="text-xs text-blue-300 flex items-center mb-2">
-                          <span className="bg-blue-800/50 px-2 py-0.5 rounded text-[10px]">débutant</span>
-                          <span className="ml-2 text-blue-400">10min</span>
-                        </div>
-                        <p className="text-sm text-blue-100 mb-4">Bonnes pratiques et techniques avancées pour la gestion des mots de passe</p>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">mots de passe</Badge>
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">MFA</Badge>
-                        </div>
-                      </div>
-                      <div className="absolute inset-0 flex items-end justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <Button className="mb-4 bg-blue-600 hover:bg-blue-700">
-                          Commencer
-                        </Button>
-                      </div>
-                    </Card>
-                  </div>
-                </div>
-                
-                {/* Modules avancés */}
-                <div className="mb-10">
-                  <div className="flex items-center mb-6 bg-gradient-to-r from-violet-800 to-transparent p-3 rounded-md">
-                    <div className="bg-violet-700 p-2 rounded mr-3">
-                      <Code className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-semibold text-white">Modules techniques avancés</h2>
-                      <p className="text-sm text-blue-200">Pour approfondir vos connaissances techniques</p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Zero Trust */}
-                    <Card className="bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 cursor-pointer overflow-hidden group">
-                      <div className="p-5">
-                        <div className="flex items-start mb-4">
-                          <div className="h-8 w-8 mr-2 flex items-center justify-center bg-purple-800 text-white rounded">
-                            <Lock className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <Badge className="bg-purple-600 hover:bg-purple-700 text-[10px] font-normal py-0 h-4">Avancé</Badge>
-                            <h3 className="font-medium text-white mt-1">Architecture Zero Trust</h3>
-                          </div>
-                        </div>
-                        <div className="text-xs text-blue-300 flex items-center mb-2">
-                          <span className="bg-blue-800/50 px-2 py-0.5 rounded text-[10px]">intermédiaire</span>
-                          <span className="ml-2 text-blue-400">25min</span>
-                        </div>
-                        <p className="text-sm text-blue-100 mb-4">Principes et mise en œuvre du modèle de sécurité "ne jamais faire confiance, toujours vérifier"</p>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">zero trust</Badge>
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">architecture</Badge>
-                        </div>
-                      </div>
-                      <div className="absolute inset-0 flex items-end justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <Button className="mb-4 bg-blue-600 hover:bg-blue-700">
-                          Commencer
-                        </Button>
-                      </div>
-                    </Card>
-                    
-                    {/* Sécurité des API */}
-                    <Card className="bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 cursor-pointer overflow-hidden group">
-                      <div className="p-5">
-                        <div className="flex items-start mb-4">
-                          <div className="h-8 w-8 mr-2 flex items-center justify-center bg-purple-800 text-white rounded">
-                            <Code className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <Badge className="bg-purple-600 hover:bg-purple-700 text-[10px] font-normal py-0 h-4">Technique</Badge>
-                            <h3 className="font-medium text-white mt-1">Sécurité des API</h3>
-                          </div>
-                        </div>
-                        <div className="text-xs text-blue-300 flex items-center mb-2">
-                          <span className="bg-blue-800/50 px-2 py-0.5 rounded text-[10px]">avancé</span>
-                          <span className="ml-2 text-blue-400">30min</span>
-                        </div>
-                        <p className="text-sm text-blue-100 mb-4">Protection des interfaces de programmation et gestion des risques associés</p>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">API</Badge>
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">OAuth</Badge>
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">JWT</Badge>
-                        </div>
-                      </div>
-                      <div className="absolute inset-0 flex items-end justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <Button className="mb-4 bg-blue-600 hover:bg-blue-700">
-                          Commencer
-                        </Button>
-                      </div>
-                    </Card>
-                    
-                    {/* Sécurité dans le Cloud */}
-                    <Card className="bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 cursor-pointer overflow-hidden group">
-                      <div className="p-5">
-                        <div className="flex items-start mb-4">
-                          <div className="h-8 w-8 mr-2 flex items-center justify-center bg-purple-800 text-white rounded">
-                            <Database className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <Badge className="bg-purple-600 hover:bg-purple-700 text-[10px] font-normal py-0 h-4">Technique</Badge>
-                            <h3 className="font-medium text-white mt-1">Sécurité dans le Cloud</h3>
-                          </div>
-                        </div>
-                        <div className="text-xs text-blue-300 flex items-center mb-2">
-                          <span className="bg-blue-800/50 px-2 py-0.5 rounded text-[10px]">avancé</span>
-                          <span className="ml-2 text-blue-400">35min</span>
-                        </div>
-                        <p className="text-sm text-blue-100 mb-4">Modèles de responsabilité et stratégies de sécurisation des environnements cloud</p>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">cloud</Badge>
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">IAM</Badge>
-                          <Badge className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">CASB</Badge>
-                        </div>
-                      </div>
-                      <div className="absolute inset-0 flex items-end justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <Button className="mb-4 bg-blue-600 hover:bg-blue-700">
-                          Commencer
-                        </Button>
-                      </div>
-                    </Card>
-                  </div>
-                </div>
-              </ScrollArea>
-            </TabsContent>
-            
-            <TabsContent value="parcours" className="mt-6">
-              <div className="bg-blue-900/30 p-6 rounded-lg text-center">
-                <p className="text-blue-200">Les parcours thématiques seront disponibles prochainement</p>
-                <Button className="mt-4 bg-blue-600 hover:bg-blue-700">
-                  <Clock className="h-4 w-4 mr-2" />
-                  Recevoir une notification
+              </div>
+            )}
+          </TabsContent>
+          
+          {/* Contenu de l'onglet Mes apprentissages */}
+          <TabsContent value="my-learning">
+            <div className="bg-blue-900/30 p-12 rounded-lg text-center">
+              <h3 className="text-2xl font-bold text-white mb-3">Suivez votre progression d'apprentissage</h3>
+              <p className="text-blue-300 mb-6">
+                Connectez-vous pour accéder à votre tableau de bord personnalisé, suivre votre progression et recevoir des recommandations adaptées à votre profil.
+              </p>
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                Se connecter
+              </Button>
+            </div>
+          </TabsContent>
+        </Tabs>
+        
+        {/* Panel Assistant IA */}
+        {aiPanelOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="fixed bottom-0 left-0 right-0 bg-blue-950 border-t border-blue-700 p-4 z-50"
+          >
+            <div className="container mx-auto">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-white font-semibold flex items-center">
+                  <BrainCircuit className="h-5 w-5 mr-2 text-blue-400" />
+                  Assistant pédagogique IA
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-blue-300 hover:bg-blue-900/30"
+                  onClick={() => setAiPanelOpen(false)}
+                >
+                  Fermer
                 </Button>
               </div>
-            </TabsContent>
-            
-            <TabsContent value="apprentissage" className="mt-6">
-              <div className="bg-blue-900/30 p-6 rounded-lg text-center">
-                <p className="text-blue-200">Votre espace d'apprentissage personnalisé sera disponible prochainement</p>
-                <Button className="mt-4 bg-blue-600 hover:bg-blue-700">
-                  <Newspaper className="h-4 w-4 mr-2" />
-                  S'inscrire à la newsletter
+              <div className="flex gap-3">
+                <Input
+                  className="bg-blue-900/50 border-blue-700 text-white"
+                  placeholder="Demandez à l'IA de vous créer un contenu personnalisé..."
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  disabled={isGenerating}
+                />
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700 whitespace-nowrap"
+                  onClick={generateContent}
+                  disabled={isGenerating}
+                >
+                  {isGenerating ? (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+                      Génération...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Générer
+                    </>
+                  )}
                 </Button>
               </div>
-            </TabsContent>
-          </Tabs>
-        </div>
+            </div>
+          </motion.div>
+        )}
       </div>
-    </HomeLayout>
+    </div>
   );
 }
