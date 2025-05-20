@@ -1,8 +1,7 @@
 import React from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { IoChevronBack, IoHome, IoSettings } from 'react-icons/io5';
-import { Badge } from '@/components/ui/badge';
+import { IoChevronBack, IoSettings } from 'react-icons/io5';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -24,11 +23,7 @@ const DataTopNavigation: React.FC = () => {
             <IoChevronBack className="mr-1" />
             Retour
           </Button>
-          
-
         </div>
-        
-
         
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
