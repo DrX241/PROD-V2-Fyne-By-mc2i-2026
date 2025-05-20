@@ -436,12 +436,20 @@ export default function CyberPourDebutants() {
             
             <Card className="bg-amber-950/40 border-amber-800/30 shadow-xl">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-amber-200 mb-3">Besoin d'aide ?</h3>
+                <h3 className="text-lg font-semibold text-amber-200 mb-3">Mettre en pratique</h3>
                 <p className="text-amber-300 text-sm mb-4">
-                  Si vous avez des questions sur les concepts présentés ou si vous souhaitez approfondir certains sujets, 
-                  n'hésitez pas à utiliser notre assistant IA.
+                  Testez vos connaissances et affrontez des situations réelles avec notre playground interactif 
+                  spécialement conçu pour les débutants.
                 </p>
-                <Button className="w-full bg-amber-700 hover:bg-amber-600 text-white">
+                <Link href="/cyber/learning-center/modules/cyber-pour-debutants/playground">
+                  <Button className="w-full bg-amber-700 hover:bg-amber-600 text-white mb-3">
+                    Accéder au playground interactif
+                  </Button>
+                </Link>
+                <p className="text-amber-300 text-sm mb-4 mt-4">
+                  Si vous avez des questions sur les concepts présentés, n'hésitez pas à utiliser notre assistant IA.
+                </p>
+                <Button className="w-full bg-amber-700/80 hover:bg-amber-600 text-white">
                   Consulter l'assistant IA
                 </Button>
               </CardContent>
