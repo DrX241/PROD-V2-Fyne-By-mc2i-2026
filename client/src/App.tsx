@@ -34,6 +34,7 @@ import CyberLab from "./pages/cyber/cyber-lab/index";
 import CyberLearningCenter from "./pages/cyber/learning-center/index";
 
 // Import des modules de la Cyber Académie - importés dynamiquement avec lazy pour améliorer les performances
+const IntroductionCybersecurite = lazy(() => import("./pages/cyber/learning-center/modules/intro-cybersecurite/index"));
 const ZeroTrust = lazy(() => import("./pages/cyber/learning-center/modules/zero-trust/index"));
 const FichesCyberExpress = lazy(() => import("./pages/cyber/learning-center/modules/fiches-cyber-express/index"));
 const QuizAdaptatifIA = lazy(() => import("./pages/cyber/learning-center/modules/quiz-adaptatif-ia/index"));
@@ -111,6 +112,13 @@ function App() {
                 <Route path="/cyber/learning-center" component={CyberLearningCenter} />
                 
                 {/* Routes pour les modules de la Cyber Académie - avec Suspense pour chargement différé */}
+                <Route path="/cyber/learning-center/modules/intro-cybersecurite">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      <IntroductionCybersecurite />
+                    </Suspense>
+                  )}
+                </Route>
                 <Route path="/cyber/learning-center/modules/zero-trust">
                   {(params) => (
                     <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
