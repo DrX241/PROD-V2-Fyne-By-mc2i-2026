@@ -39,6 +39,18 @@ import FichesCyberExpress from "./pages/cyber/learning-center/modules/fiches-cyb
 import QuizAdaptatifIA from "./pages/cyber/learning-center/modules/quiz-adaptatif-ia/index";
 import GlossaireVisuel from "./pages/cyber/learning-center/modules/glossaire-visuel/index";
 import MemoIAPersonnalise from "./pages/cyber/learning-center/modules/memo-ia-personnalise/index";
+import BYODSecurite from "./pages/cyber/learning-center/modules/byod-securite/index";
+import SecuriteReseaux from "./pages/cyber/learning-center/modules/securite-reseaux/index";
+import SecuriteCloud from "./pages/cyber/learning-center/modules/securite-cloud/index";
+import SecuriteDonnees from "./pages/cyber/learning-center/modules/securite-donnees/index";
+import SecuriteOT from "./pages/cyber/learning-center/modules/securite-ot/index";
+import IASecurite from "./pages/cyber/learning-center/modules/ia-securite/index";
+import MicroLearning from "./pages/cyber/learning-center/modules/micro-learning/index";
+import Ransomware from "./pages/cyber/learning-center/modules/ransomware/index";
+import PhishingDetection from "./pages/cyber/learning-center/modules/phishing-detection/index";
+import MotDePasse from "./pages/cyber/learning-center/modules/mot-de-passe/index";
+import DevSecOps from "./pages/cyber/learning-center/modules/devsecops/index";
+import GouvernanceCyber from "./pages/cyber/learning-center/modules/gouvernance-cyber/index";
 // Import des pages AMOA
 import SasAcademie from "./pages/amoa/sas-academie";
 import AmoaRoleplay from "./pages/amoa/roleplay/index";
@@ -115,40 +127,40 @@ function App() {
                   {(params) => <MemoIAPersonnalise />}
                 </Route>
                 <Route path="/cyber/learning-center/modules/gouvernance-cyber">
-                  {(params) => <CyberLearningCenter />}
+                  {(params) => <GouvernanceCyber />}
                 </Route>
                 <Route path="/cyber/learning-center/modules/securite-reseaux">
-                  {(params) => <CyberLearningCenter />}
+                  {(params) => <SecuriteReseaux />}
                 </Route>
                 <Route path="/cyber/learning-center/modules/securite-cloud">
-                  {(params) => <CyberLearningCenter />}
+                  {(params) => <SecuriteCloud />}
                 </Route>
                 <Route path="/cyber/learning-center/modules/securite-donnees">
-                  {(params) => <CyberLearningCenter />}
+                  {(params) => <SecuriteDonnees />}
                 </Route>
                 <Route path="/cyber/learning-center/modules/securite-ot">
-                  {(params) => <CyberLearningCenter />}
+                  {(params) => <SecuriteOT />}
                 </Route>
                 <Route path="/cyber/learning-center/modules/ia-securite">
-                  {(params) => <CyberLearningCenter />}
+                  {(params) => <IASecurite />}
                 </Route>
                 <Route path="/cyber/learning-center/modules/micro-learning">
-                  {(params) => <CyberLearningCenter />}
+                  {(params) => <MicroLearning />}
                 </Route>
                 <Route path="/cyber/learning-center/modules/ransomware">
-                  {(params) => <CyberLearningCenter />}
+                  {(params) => <Ransomware />}
                 </Route>
                 <Route path="/cyber/learning-center/modules/phishing-detection">
-                  {(params) => <CyberLearningCenter />}
+                  {(params) => <PhishingDetection />}
                 </Route>
                 <Route path="/cyber/learning-center/modules/mot-de-passe">
-                  {(params) => <CyberLearningCenter />}
+                  {(params) => <MotDePasse />}
                 </Route>
                 <Route path="/cyber/learning-center/modules/byod-securite">
-                  {(params) => <CyberLearningCenter />}
+                  {(params) => <BYODSecurite />}
                 </Route>
                 <Route path="/cyber/learning-center/modules/devsecops">
-                  {(params) => <CyberLearningCenter />}
+                  {(params) => <DevSecOps />}
                 </Route>
                 
                 <Route path="/data-ia" component={DataIaModeSelection} />
