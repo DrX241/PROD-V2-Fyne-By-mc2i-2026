@@ -21,7 +21,8 @@ import {
   Eye,
   User,
   Database,
-  RefreshCw
+  RefreshCw,
+  GraduationCap
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
