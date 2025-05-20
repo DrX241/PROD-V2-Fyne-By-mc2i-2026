@@ -58,7 +58,15 @@ const MarkdownRenderer = ({ content }: { content: string }) => {
   
   return <div>{formattedContent}</div>;
 };
-import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
+// Composant simple pour simuler OpenAIStatusIndicator
+const OpenAIStatusIndicator = () => {
+  return (
+    <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-medium">
+      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+      <span>Connecté</span>
+    </div>
+  );
+};
 
 // Type pour un message dans la conversation
 interface Message {

@@ -282,6 +282,13 @@ function App() {
                     </Suspense>
                   )}
                 </Route>
+                <Route path="/data-ia/data-studio">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      {React.createElement(lazy(() => import("./pages/data-ia/data-studio")))}
+                    </Suspense>
+                  )}
+                </Route>
                 <Route path="/data-ia/roleplay">
                   {(params) => (
                     <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
