@@ -958,7 +958,7 @@ const ReadMeIfYouCan = () => {
             <div className="flex items-center gap-2">
               <Button 
                 variant="ghost" 
-                onClick={() => setLocation('/data-ia')}
+                onClick={() => setLocation('/data-ia/roleplay')}
                 className="text-white hover:text-blue-300"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />

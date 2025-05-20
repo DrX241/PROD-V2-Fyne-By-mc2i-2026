@@ -602,7 +602,7 @@ const IALabTrainer: React.FC = () => {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => setLocation('/data-ia')}
+              onClick={() => setLocation('/data-ia/roleplay')}
               className="mr-3 border-blue-500/30 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
             >
               <ArrowLeft className="h-5 w-5" />
