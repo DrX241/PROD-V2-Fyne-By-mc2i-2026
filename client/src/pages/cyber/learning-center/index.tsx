@@ -805,7 +805,7 @@ export default function LearningCenter() {
         {/* Espace entre le titre et le contenu */}
         <div className="mb-10"></div>
         
-        {/* Affichage des fondamentaux de la cybersécurité uniquement */}
+        {/* Affichage des différentes sections */}
         <div className="space-y-8">
           {/* Fondamentaux de la cybersécurité */}
           <div className="bg-gradient-to-r from-blue-900/40 to-blue-950/60 border border-blue-700 rounded-lg p-6">
@@ -847,6 +847,42 @@ export default function LearningCenter() {
                     </Card>
                   </Link>
               ))}
+            </div>
+          </div>
+          
+          {/* Découvrez les différents métiers en cyber */}
+          <div className="bg-gradient-to-r from-cyan-900/40 to-cyan-950/60 border border-cyan-700 rounded-lg p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold flex items-center">
+                <Users className="mr-3 h-6 w-6 text-cyan-400" />
+                Découvrez les différents métiers en cyber
+              </h2>
+              <Badge variant="outline" className="bg-cyan-800/30 border-cyan-600 text-cyan-200 px-3 py-1 text-sm">
+                Nouveauté
+              </Badge>
+            </div>
+            <p className="text-cyan-200 mb-6">
+              Explorez les différentes carrières et spécialisations dans le domaine de la cybersécurité. Découvrez les compétences requises, 
+              les missions et les parcours pour devenir un professionnel de la cybersécurité.
+            </p>
+            <div className="flex justify-center">
+              <Link href="/cyber/profil-pro" className="block w-full md:w-2/3 lg:w-1/2">
+                <Card className="bg-cyan-900/30 border border-cyan-700 flex flex-col hover:shadow-md hover:border-cyan-500 transition-all">
+                  <div className="p-5 flex flex-col items-center">
+                    <div className="p-3 rounded-full bg-cyan-800/50 mb-4 h-16 w-16 flex items-center justify-center">
+                      <Briefcase className="h-8 w-8 text-cyan-300" />
+                    </div>
+                    <h3 className="font-medium text-white text-xl text-center">Dans la peau de votre métier</h3>
+                    <p className="text-cyan-300 mt-3 text-center mb-4">
+                      Découvrez les métiers de la cybersécurité à travers des simulations immersives et des parcours interactifs
+                    </p>
+                    <Button className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white w-full mt-2">
+                      Explorer les profils professionnels
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
+                </Card>
+              </Link>
             </div>
           </div>
         </div>
