@@ -593,49 +593,49 @@ export default function LearningCenter() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
     >
-      <Link href={module.destination || '#'}>
-        <Card className="h-full bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 cursor-pointer overflow-hidden group">
-          <div className="p-5">
-            <div className="flex items-start mb-4">
-              <div className="h-8 w-8 mr-2 flex items-center justify-center bg-blue-800 text-white rounded">
-                {module.icon}
-              </div>
-              <div>
-                {module.isNew && (
-                  <Badge className="bg-blue-600 hover:bg-blue-700 text-[10px] font-normal py-0 h-4">Nouveau</Badge>
-                )}
-                {module.isFeatured && (
-                  <Badge className="bg-amber-600 hover:bg-amber-700 text-[10px] font-normal py-0 h-4 ml-1">Populaire</Badge>
-                )}
-                <h3 className="font-medium text-white mt-1">{module.title}</h3>
-              </div>
+      <Card className="h-full bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 cursor-pointer overflow-hidden group">
+        <div className="p-5">
+          <div className="flex items-start mb-4">
+            <div className="h-8 w-8 mr-2 flex items-center justify-center bg-blue-800 text-white rounded">
+              {module.icon}
             </div>
-            <div className="text-xs text-blue-300 flex items-center mb-2">
-              <span className="bg-blue-800/50 px-2 py-0.5 rounded text-[10px]">{module.level}</span>
-              <span className="ml-2 text-blue-400">{module.duration}</span>
-            </div>
-            <p className="text-sm text-blue-100 mb-4">{module.description}</p>
-            <div className="flex flex-wrap gap-1">
-              {module.tags.slice(0, 3).map(tag => (
-                <Badge key={tag} className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">{tag}</Badge>
-              ))}
+            <div>
+              {module.isNew && (
+                <Badge className="bg-blue-600 hover:bg-blue-700 text-[10px] font-normal py-0 h-4">Nouveau</Badge>
+              )}
+              {module.isFeatured && (
+                <Badge className="bg-amber-600 hover:bg-amber-700 text-[10px] font-normal py-0 h-4 ml-1">Populaire</Badge>
+              )}
+              <h3 className="font-medium text-white mt-1">{module.title}</h3>
             </div>
           </div>
-          {(module.progress !== undefined && module.progress > 0) && (
-            <div className="px-5 pb-3">
-              <div className="flex items-center text-xs text-blue-400 mb-1">
-                <span>Progression: {module.progress}%</span>
-              </div>
-              <Progress value={module.progress} className="h-1.5 bg-blue-900/40" indicatorClassName="bg-blue-500" />
+          <div className="text-xs text-blue-300 flex items-center mb-2">
+            <span className="bg-blue-800/50 px-2 py-0.5 rounded text-[10px]">{module.level}</span>
+            <span className="ml-2 text-blue-400">{module.duration}</span>
+          </div>
+          <p className="text-sm text-blue-100 mb-4">{module.description}</p>
+          <div className="flex flex-wrap gap-1">
+            {module.tags.slice(0, 3).map(tag => (
+              <Badge key={tag} className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">{tag}</Badge>
+            ))}
+          </div>
+        </div>
+        {(module.progress !== undefined && module.progress > 0) && (
+          <div className="px-5 pb-3">
+            <div className="flex items-center text-xs text-blue-400 mb-1">
+              <span>Progression: {module.progress}%</span>
             </div>
-          )}
-          <div className="absolute inset-0 flex items-end justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <Progress value={module.progress} className="h-1.5 bg-blue-900/40" indicatorClassName="bg-blue-500" />
+          </div>
+        )}
+        <div className="absolute inset-0 flex items-end justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <Link href={module.destination || '#'}>
             <Button className="mb-4 bg-blue-600 hover:bg-blue-700">
               {module.progress && module.progress > 0 ? 'Continuer' : 'Commencer'}
             </Button>
-          </div>
-        </Card>
-      </Link>
+          </Link>
+        </div>
+      </Card>
     </motion.div>
   );
   
