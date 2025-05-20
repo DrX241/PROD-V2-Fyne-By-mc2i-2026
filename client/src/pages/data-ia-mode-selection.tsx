@@ -250,9 +250,7 @@ export default function DataIAModeSelection() {
                     Centre de formation complet en data science, IA et métiers de la data
                   </p>
                   <div className="text-center flex flex-col items-center mt-4">
-                    <p className="text-gray-200 mb-4">
-                      Apprenez Python, SQL, Data Science et les métiers de la Data par modules interactifs
-                    </p>
+
                     <Button 
                       className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-5"
                       onClick={(e) => {
@@ -288,9 +286,7 @@ export default function DataIAModeSelection() {
                     Jeux de rôle immersifs pour l'apprentissage data et IA
                   </p>
                   <div className="text-center flex flex-col items-center mt-4">
-                    <p className="text-gray-200 mb-4">
-                      Incarnez différents rôles et mettez en pratique vos compétences en Data Science et IA
-                    </p>
+
                     <Button 
                       className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-5"
                       onClick={(e) => {
