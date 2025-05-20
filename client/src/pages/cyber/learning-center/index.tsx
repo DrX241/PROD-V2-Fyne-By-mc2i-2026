@@ -106,19 +106,6 @@ export default function LearningCenter() {
   // Modules de base (fondamentaux de la cybersécurité)
   const basicModules: Module[] = [
     {
-      id: 'cyber-pour-debutants',
-      title: 'Cybersécurité pour débutants',
-      description: 'Sensibilisation aux principaux risques et bonnes pratiques pour les non-initiés',
-      icon: <Shield />,
-      duration: '1-2h',
-      level: 'débutant',
-      category: 'fondamentaux',
-      tags: ['débutant', 'sensibilisation', 'risques', 'bonnes pratiques', 'initiation'],
-      progress: 0,
-      destination: '/cyber/learning-center/modules/cyber-pour-debutants',
-      isNew: true
-    },
-    {
       id: 'intro-cybersecurite',
       title: 'Introduction à la cybersécurité',
       description: 'Les concepts fondamentaux, terminologie et principes de base de la cybersécurité',

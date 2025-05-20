@@ -7,9 +7,6 @@ import React, { Suspense, lazy, startTransition, useState, useEffect } from "rea
 import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { TutorialProvider } from "./contexts/TutorialContext";
-
-// Importation des pages avec lazy-loading
-const ProfilProRoleplay = lazy(() => import("./pages/cyber/profil-pro/roleplay"));
 import AuthScreen from "@/components/auth/AuthScreen";
 
 // Importation des composants directement car le lazy loading provoque des problèmes
@@ -124,13 +121,6 @@ function App() {
                 <Route path="/cyber/sas-academie" component={SasCyberAcademie} />
                 <Route path="/cyber/learning-center" component={CyberLearningCenter} />
                 <Route path="/cyber/profil-pro" component={ProfilPro} />
-                <Route path="/cyber/profil-pro/roleplay">
-                  {() => (
-                    <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><p className="text-white">Chargement...</p></div>}>
-                      <ProfilProRoleplay />
-                    </Suspense>
-                  )}
-                </Route>
                 <Route path="/cyber/expert-learning" component={ExpertLearningPage} />
                 <Route path="/cyber/interview-test" component={InterviewTestPage} />
                 <Route path="/cyber/test-technique" component={TestTechniquePage} />
