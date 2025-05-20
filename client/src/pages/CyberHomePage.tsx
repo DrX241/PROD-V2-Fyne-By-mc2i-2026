@@ -58,9 +58,9 @@ const CyberHomePage: React.FC = () => {
       title: 'I AM CYBER',
       description: 'Plongez au cœur des enjeux de la cybersécurité avec des simulations réalistes',
       icon: <ShieldCheck size={24} />,
-      color: 'text-[#006a9e]',
-      bgColor: 'bg-[#006a9e]/10',
-      accentColor: 'border-[#006a9e]/50',
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-100',
+      accentColor: 'border-purple-500',
       route: '/cyber'
     },
     {
@@ -68,9 +68,9 @@ const CyberHomePage: React.FC = () => {
       title: 'I AM DATA & IA',
       description: 'Maîtrisez les technologies d\'analyse de données et d\'intelligence artificielle',
       icon: <Brain size={24} />,
-      color: 'text-[#006a9e]',
-      bgColor: 'bg-[#006a9e]/10',
-      accentColor: 'border-[#006a9e]/50',
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-100',
+      accentColor: 'border-purple-500',
       route: '/data-ia'
     },
     {
@@ -78,9 +78,9 @@ const CyberHomePage: React.FC = () => {
       title: 'I AM mc2i',
       description: 'Développez vos compétences en assistance à maîtrise d\'ouvrage',
       icon: <RocketIcon size={24} />,
-      color: 'text-[#006a9e]',
-      bgColor: 'bg-[#006a9e]/10',
-      accentColor: 'border-[#006a9e]/50',
+      color: 'text-emerald-600',
+      bgColor: 'bg-emerald-100',
+      accentColor: 'border-emerald-500',
       route: '/amoa/new'
     },
     {
@@ -88,9 +88,9 @@ const CyberHomePage: React.FC = () => {
       title: 'SOYEZ QUI VOUS VOULEZ',
       description: 'Créez vos propres modules de formation personnalisés',
       icon: <Zap size={24} />,
-      color: 'text-[#006a9e]',
-      bgColor: 'bg-[#006a9e]/10',
-      accentColor: 'border-[#006a9e]/50',
+      color: 'text-rose-600',
+      bgColor: 'bg-rose-100',
+      accentColor: 'border-rose-500',
       route: '/playground/module-generator'
     }
   ];
@@ -205,42 +205,42 @@ const CyberHomePage: React.FC = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {modules.map((module) => (
                 <motion.div 
                   key={module.id}
-                  className={`bg-white border-2 rounded-xl overflow-hidden shadow-lg transition-all duration-300 ${
-                    hoveredModule === module.id 
-                      ? `border-[#dd0061]` 
-                      : `border-[#006a9e]/20`
-                  }`}
+                  className={`bg-white rounded-3xl overflow-hidden shadow-lg transition-all duration-300 
+                    ${module.id === 'cyber' ? 'border-t-8 border-t-purple-500' : ''}
+                    ${module.id === 'data' ? 'border-t-8 border-t-purple-500' : ''}
+                    ${module.id === 'mc2i' ? 'border-t-8 border-t-emerald-500' : ''}
+                    ${module.id === 'generator' ? 'border-t-8 border-t-rose-500' : ''}`
+                  }
                   onMouseEnter={() => setHoveredModule(module.id)}
                   onMouseLeave={() => setHoveredModule(null)}
-                  whileHover={{ y: -10 }}
+                  whileHover={{ y: -10, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                   onClick={() => setLocation(module.route)}
                   style={{ cursor: 'pointer' }}
                 >
-                  <div className="p-6">
+                  <div className="p-8">
                     <div 
-                      className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 
-                      ${hoveredModule === module.id ? 'bg-[#dd0061]/20' : 'bg-[#006a9e]/20'}`}
+                      className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 
+                        ${module.bgColor}`
+                      }
                     >
-                      <div className={hoveredModule === module.id ? 'text-[#dd0061]' : 'text-[#006a9e]'}>
+                      <div className={module.color}>
                         {module.icon}
                       </div>
                     </div>
-                    <h3 className="text-lg font-bold mb-2 text-[#061019]">{module.title}</h3>
-                    <p className="text-gray-600 text-sm mb-4">{module.description}</p>
+                    <h3 className="text-xl font-bold mb-3 text-gray-800">{module.title}</h3>
+                    <p className="text-gray-600 mb-6">{module.description}</p>
                     <div className="flex items-center text-sm font-medium">
-                      <span className={hoveredModule === module.id ? 'text-[#dd0061]' : 'text-[#006a9e]'}>
-                        Découvrir
+                      <span className={module.color}>
+                        Explorer
                       </span>
-                      <ChevronRight className={`ml-1 w-4 h-4 ${
-                        hoveredModule === module.id ? 'text-[#dd0061]' : 'text-[#006a9e]'
-                      }`} />
+                      <ChevronRight className={`ml-1 w-4 h-4 ${module.color}`} />
                     </div>
                   </div>
                 </motion.div>
