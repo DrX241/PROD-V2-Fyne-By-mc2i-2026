@@ -804,13 +804,15 @@ const ReadMeIfYouCan = () => {
       const randomIndex = Math.floor(Math.random() * generators.length);
       const generatorFunction = generators[randomIndex];
       
-      // Générer un nouveau challenge
-      const newChallenge = generatorFunction();
+      // Générer un nouveau challenge et s'assurer qu'il a toutes les propriétés nécessaires
+      const baseChallenge = generatorFunction();
       
-      // Ajouter un ID unique basé sur le temps pour éviter les doublons
-      const challengeWithId = {
-        ...newChallenge,
-        id: `${selectedLanguage}-${selectedDifficulty}-${Date.now()}`
+      // Créer un objet challenge complet avec toutes les propriétés requises
+      const challengeWithId: CodeChallenge = {
+        ...baseChallenge,
+        id: `${selectedLanguage}-${selectedDifficulty}-${Date.now()}`,
+        language: selectedLanguage,
+        difficulty: selectedDifficulty
       };
       
       setCurrentChallenge(challengeWithId);
