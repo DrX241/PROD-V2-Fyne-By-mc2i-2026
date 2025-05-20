@@ -209,12 +209,12 @@ class OpenAIService {
       console.log(`Request parameters: temperature=${temperature}, max_tokens=${maxTokens}`);
       console.log(`Nombre de messages: ${messages.length}, Premier role: ${messages[0]?.role}`);
       
-      // Formater la requête pour l'API suivant l'implémentation originale
+      // Formater la requête pour l'API
       const requestBody: any = {
         messages: messages,
         temperature: temperature,
         max_tokens: maxTokens
-        // Ne pas inclure le nom du modèle dans le corps
+        // Note: Pour Azure OpenAI, ne pas inclure le champ 'model' ici
       };
       
       // Ajouter le format de réponse JSON si demandé
@@ -428,12 +428,12 @@ class OpenAIService {
       
       const url = `${baseEndpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
       
-      // Adapter le corps de la requête pour Azure OpenAI exactement comme dans l'implémentation originale
+      // Adapter le corps de la requête pour Azure OpenAI
       const requestBody = {
         messages: [{ role: "user", content: "Test connection" }],
         max_tokens: 5,
-        temperature: 0
-        // Ne pas inclure le nom du modèle dans le corps, conforme à l'implémentation originale
+        temperature: 0,
+        model: config.modelName  // Pour Azure, le modèle est nécessaire (doit correspondre au modèle du service)
       };
       
       console.log(`Envoi d'une requête à ${url} avec le déploiement: ${config.deploymentName}`);
