@@ -47,17 +47,17 @@ const RoleplayHub: React.FC = () => {
       textColor: 'text-blue-300'
     },
     {
-      id: 'test-technique',
-      title: 'Je suis Expert Technique',
-      description: "Je me teste sur des problématiques réelles de cybersécurité",
-      link: '/cyber/test-technique',
-      icon: <Terminal className="h-10 w-10 text-violet-300" />,
-      color: 'violet',
-      gradient: 'from-violet-900/70 to-violet-700/30',
-      border: 'border-violet-500/30',
-      buttonGradient: 'from-violet-700 to-violet-600',
-      buttonHover: 'hover:from-violet-600 hover:to-violet-500',
-      textColor: 'text-violet-300'
+      id: 'pentest-lab',
+      title: 'Je suis Pentester',
+      description: "J'explore et j'exploite des vulnérabilités web en environnement contrôlé",
+      link: '/cyber/pentest-lab',
+      icon: <Terminal className="h-10 w-10 text-purple-300" />,
+      color: 'purple',
+      gradient: 'from-purple-900/70 to-purple-700/30',
+      border: 'border-purple-500/30',
+      buttonGradient: 'from-purple-700 to-purple-600',
+      buttonHover: 'hover:from-purple-600 hover:to-purple-500',
+      textColor: 'text-purple-300'
     },
     {
       id: 'crisis-management',

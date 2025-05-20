@@ -142,9 +142,9 @@ const CyberLab: React.FC = () => {
             <CardFooter className="pt-4">
               <Button 
                 className="w-full bg-purple-900/80 hover:bg-purple-800 text-white hover:text-white border-2 border-purple-700 hover:border-purple-500 py-6 text-lg group"
-                onClick={() => setLocation('/cyber/pentest-lab')}
+                onClick={() => setLocation('/cyber/roleplay')}
               >
-                <span>Accéder au laboratoire</span>
+                <span>Accéder aux simulations</span>
                 <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </CardFooter>
