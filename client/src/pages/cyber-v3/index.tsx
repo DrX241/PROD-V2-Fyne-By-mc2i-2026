@@ -13,6 +13,9 @@ import { BsShieldLock } from 'react-icons/bs';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
 
+// Import de l'image d'arrière-plan
+import cyberBackgroundImage from '../../assets/cyber-background.jpg';
+
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 //import CyberScene from '@/components/CyberScene';
@@ -48,7 +51,7 @@ export default function CyberV3() {
         style={{ 
           fontSize: `${textSize}rem`,
           backgroundColor: '#000814',
-          backgroundImage: 'linear-gradient(rgba(0, 10, 30, 0.4), rgba(5, 15, 30, 0.5)), url("/attached_assets/oeil-d-un-robot-futuriste.jpg")',
+          backgroundImage: `linear-gradient(rgba(0, 10, 30, 0.4), rgba(5, 15, 30, 0.5)), url(${cyberBackgroundImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
