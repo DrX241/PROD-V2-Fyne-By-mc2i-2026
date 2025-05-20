@@ -711,13 +711,26 @@ export default function LearningCenter() {
   
   // Fonction pour mettre à jour la liste des modules
   const updateModules = () => {
-    // Trouver le module IA et cybersécurité
-    const iaModule = allModules.find(m => m.id === 'intelligence-artificielle-securite');
+    // Chercher le module IA et cybersécurité avec l'un ou l'autre des IDs possibles
+    const iaModule = allModules.find(m => 
+      m.id === 'intelligence-artificielle-securite' || m.id === 'ia-securite'
+    );
     
     // Si on le trouve, on change sa catégorie pour l'intégrer aux fondamentaux
     if (iaModule) {
       iaModule.category = 'fondamentaux';
     }
+    
+    // Vérifier et corriger les liens de destination pour tous les modules
+    allModules.forEach(module => {
+      // S'assurer que chaque module a une destination valide
+      if (!module.destination && module.id) {
+        module.destination = `/cyber/learning-center/modules/${module.id}`;
+      }
+      
+      // Retirer l'affichage de durée si besoin
+      module.duration = '';
+    });
     
     // Filtrer pour exclure le module 'modele-menaces' et garder seulement les modules non "à venir"
     return allModules.filter(module => 
@@ -823,7 +836,7 @@ export default function LearningCenter() {
                           <div className="flex justify-between items-start">
                             <h3 className="font-medium text-white">{module.title}</h3>
                           </div>
-                          <p className="text-sm text-blue-300 mt-1">{module.description}</p>
+                          <p className="text-sm text-blue-300 mt-1 truncate">{module.description}</p>
                         </div>
                       </div>
                       <div className="mt-auto p-2 pl-4">
