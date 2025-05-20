@@ -48,6 +48,7 @@ const QuizAdaptatifIA = lazy(() => import("./pages/cyber/learning-center/modules
 const GlossaireVisuel = lazy(() => import("./pages/cyber/learning-center/modules/glossaire-visuel/index"));
 const MemoIAPersonnalise = lazy(() => import("./pages/cyber/learning-center/modules/memo-ia-personnalise/index"));
 const BYODSecurite = lazy(() => import("./pages/cyber/learning-center/modules/byod-securite/index"));
+const DebutantCyber = lazy(() => import("./pages/cyber/learning-center/modules/debutant-cyber/index"));
 const SecuriteReseaux = lazy(() => import("./pages/cyber/learning-center/modules/securite-reseaux/index"));
 const SecuriteCloud = lazy(() => import("./pages/cyber/learning-center/modules/securite-cloud/index"));
 const SecuriteDonnees = lazy(() => import("./pages/cyber/learning-center/modules/securite-donnees/index"));
@@ -167,6 +168,13 @@ function App() {
                   {(params) => (
                     <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
                       <MemoIAPersonnalise />
+                    </Suspense>
+                  )}
+                </Route>
+                <Route path="/cyber/learning-center/modules/debutant-cyber">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      <DebutantCyber />
                     </Suspense>
                   )}
                 </Route>
