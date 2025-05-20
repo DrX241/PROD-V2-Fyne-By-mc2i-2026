@@ -230,12 +230,11 @@ export default function DataIAModeSelection() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-center max-w-6xl mx-auto">
                 {/* DATA & IA ACADEMY - CAMPUS FORMATION */}
                 <div 
-                  className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
+                  className={`cyber-edge-distort relative overflow-hidden p-6 ${
                     highContrastMode 
                       ? 'bg-gray-800 border border-gray-700' 
                       : 'bg-gradient-to-br from-blue-600 to-blue-900 border-2 border-blue-400/50 shadow-lg shadow-blue-500/50'
                   } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
-                  onClick={() => setLocation('/data-ia/data-ia-academy')}
                 >
                   <div className="flex items-center justify-center mb-4">
                     <div className={`p-3 rounded-lg ${
@@ -269,12 +268,11 @@ export default function DataIAModeSelection() {
               
                 {/* READ ME IF YOU CAN */}
                 <div 
-                  className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
+                  className={`cyber-edge-distort relative overflow-hidden p-6 ${
                     highContrastMode 
                       ? 'bg-gray-800 border border-gray-700' 
                       : 'bg-gradient-to-br from-indigo-600 to-cyan-900 border-2 border-cyan-400/50 shadow-lg shadow-cyan-500/50'
                   } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
-                  onClick={() => setLocation('/data-ia/read-me-if-you-can')}
                 >
                   <div className="flex items-center justify-center mb-4">
                     <div className={`p-3 rounded-lg ${

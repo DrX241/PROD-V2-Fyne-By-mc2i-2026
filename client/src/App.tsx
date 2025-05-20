@@ -268,6 +268,8 @@ function App() {
                 </Route>
                 
                 <Route path="/data-ia" component={DataIaModeSelection} />
+                <Route path="/data-ia/read-me-if-you-can" component={lazy(() => import("./pages/data-ia/read-me-if-you-can"))} />
+                <Route path="/data-ia/ia-lab-trainer" component={lazy(() => import("./pages/data-ia/ia-lab-trainer"))} />
                 <Route path="/amoa/new" component={AmoaModeSelectionNew} />
                 <Route path="/amoa/sas-academie" component={SasAcademie} />
                 <Route path="/amoa/roleplay" component={AmoaRoleplay} />
