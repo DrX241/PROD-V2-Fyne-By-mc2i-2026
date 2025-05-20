@@ -260,7 +260,7 @@ export default function DataIAModeSelection() {
                         setLocation('/data-ia/sas-academie');
                       }}
                     >
-                      Explorer l'académie
+                      Je découvre l'académie
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
@@ -298,7 +298,7 @@ export default function DataIAModeSelection() {
                         setLocation('/data-ia/roleplay');
                       }}
                     >
-                      Accéder aux simulations
+                      J'incarne un rôle
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>

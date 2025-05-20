@@ -216,7 +216,7 @@ export default function CyberV3() {
                         setLocation('/cyber/sas-academie');
                       }}
                     >
-                      Explorer l'académie
+                      Je découvre l'académie
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
@@ -253,7 +253,7 @@ export default function CyberV3() {
                         setLocation('/cyber/roleplay');
                       }}
                     >
-                      Accéder aux simulations
+                      Je découvre un rôle
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
