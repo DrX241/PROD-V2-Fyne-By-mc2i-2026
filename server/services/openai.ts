@@ -86,7 +86,7 @@ class OpenAIService {
     this.secondaryConfig = {
       endpoint: gpt4oMiniEndpoint,
       apiKey: gpt4oMiniApiKey,
-      deploymentName: gpt4oMiniDeploymentName,
+      deploymentName: "Eddy-02-2025-gpt-4o-mini", // Nom exact du déploiement
       apiVersion: gpt4oMiniApiVersion,
       modelName: "gpt-4o-mini"
     };
