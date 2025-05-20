@@ -712,7 +712,7 @@ export default function LearningCenter() {
   // Fonction pour mettre à jour la liste des modules
   const updateModules = () => {
     // Trouver le module IA et cybersécurité
-    const iaModule = allModules.find(m => m.id === 'ia-securite');
+    const iaModule = allModules.find(m => m.id === 'intelligence-artificielle-securite');
     
     // Si on le trouve, on change sa catégorie pour l'intégrer aux fondamentaux
     if (iaModule) {
@@ -735,7 +735,7 @@ export default function LearningCenter() {
       {/* En-tête avec navigation et titre */}
       <div className="border-b border-blue-800/60">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-          <Link href="/cyber">
+          <Link href="/cyber/roleplay">
             <Button variant="ghost" className="text-blue-300 hover:bg-blue-900/30 hover:text-blue-200">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Retour
@@ -786,9 +786,7 @@ export default function LearningCenter() {
         {/* Titre et description */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Centre de formation en cybersécurité</h1>
-          <p className="text-blue-300 max-w-3xl">
-            Développez vos compétences en cybersécurité avec nos modules de formation interactifs adaptés à tous les niveaux, des débutants aux experts.
-          </p>
+          <p className="text-blue-300 max-w-3xl">Développez vos compétences en cybersécurité avec nos modules de formation interactifs adaptés à tous les niveaux, des débutants aux experts.</p>
         </div>
         
         {/* Espace entre le titre et le contenu */}
@@ -824,9 +822,6 @@ export default function LearningCenter() {
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
                             <h3 className="font-medium text-white">{module.title}</h3>
-                            <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 ml-2">
-                              {module.duration}
-                            </Badge>
                           </div>
                           <p className="text-sm text-blue-300 mt-1">{module.description}</p>
                         </div>
