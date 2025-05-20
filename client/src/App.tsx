@@ -32,6 +32,13 @@ import FyneAbout from "./pages/fyne-about";
 import CyberRoleplay from "./pages/cyber/roleplay/index";
 import CyberLab from "./pages/cyber/cyber-lab/index";
 import CyberLearningCenter from "./pages/cyber/learning-center/index";
+
+// Import des modules de la Cyber Académie
+import ZeroTrust from "./pages/cyber/learning-center/modules/zero-trust/index";
+import FichesCyberExpress from "./pages/cyber/learning-center/modules/fiches-cyber-express/index";
+import QuizAdaptatifIA from "./pages/cyber/learning-center/modules/quiz-adaptatif-ia/index";
+import GlossaireVisuel from "./pages/cyber/learning-center/modules/glossaire-visuel/index";
+import MemoIAPersonnalise from "./pages/cyber/learning-center/modules/memo-ia-personnalise/index";
 // Import des pages AMOA
 import SasAcademie from "./pages/amoa/sas-academie";
 import AmoaRoleplay from "./pages/amoa/roleplay/index";
@@ -90,6 +97,60 @@ function App() {
                 <Route path="/cyber/roleplay" component={CyberRoleplay} />
                 <Route path="/cyber/cyber-lab" component={CyberLab} />
                 <Route path="/cyber/learning-center" component={CyberLearningCenter} />
+                
+                {/* Routes pour les modules de la Cyber Académie */}
+                <Route path="/cyber/learning-center/modules/zero-trust">
+                  {(params) => <ZeroTrust />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/fiches-cyber-express">
+                  {(params) => <FichesCyberExpress />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/quiz-adaptatif-ia">
+                  {(params) => <QuizAdaptatifIA />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/glossaire-visuel">
+                  {(params) => <GlossaireVisuel />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/memo-ia-personnalise">
+                  {(params) => <MemoIAPersonnalise />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/gouvernance-cyber">
+                  {(params) => <CyberLearningCenter />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/securite-reseaux">
+                  {(params) => <CyberLearningCenter />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/securite-cloud">
+                  {(params) => <CyberLearningCenter />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/securite-donnees">
+                  {(params) => <CyberLearningCenter />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/securite-ot">
+                  {(params) => <CyberLearningCenter />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/ia-securite">
+                  {(params) => <CyberLearningCenter />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/micro-learning">
+                  {(params) => <CyberLearningCenter />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/ransomware">
+                  {(params) => <CyberLearningCenter />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/phishing-detection">
+                  {(params) => <CyberLearningCenter />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/mot-de-passe">
+                  {(params) => <CyberLearningCenter />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/byod-securite">
+                  {(params) => <CyberLearningCenter />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/devsecops">
+                  {(params) => <CyberLearningCenter />}
+                </Route>
+                
                 <Route path="/data-ia" component={DataIaModeSelection} />
                 <Route path="/amoa/new" component={AmoaModeSelectionNew} />
                 <Route path="/amoa/sas-academie" component={SasAcademie} />
