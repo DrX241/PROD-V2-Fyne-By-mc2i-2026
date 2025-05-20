@@ -14,7 +14,8 @@ import {
   ArrowRight,
   Laptop,
   FileText,
-  Briefcase
+  Briefcase,
+  BookOpen
 } from 'lucide-react';
 import PageTitle from '@/components/utils/PageTitle';
 
@@ -53,6 +54,24 @@ const ProfilProRoleplay = () => {
   
   // Définition des profils professionnels
   const profiles = [
+    {
+      id: 'debutant',
+      title: 'Je suis débutant en cybersécurité',
+      description: 'Découverte des fondamentaux et premiers pas',
+      color: 'green',
+      border: 'border-green-500',
+      gradient: 'from-green-800 to-green-900',
+      buttonGradient: 'from-green-600 to-green-800',
+      buttonHover: 'hover:from-green-700 hover:to-green-900',
+      textColor: 'text-green-200',
+      icon: <BookOpen className="h-10 w-10 text-green-300" />,
+      link: '/cyber/learning-center/modules/cyber-pour-debutants',
+      skills: [
+        'Comprendre les risques du monde numérique',
+        'Acquérir les bases de la cybersécurité',
+        'Développer les bons réflexes de protection'
+      ]
+    },
     {
       id: 'rssi',
       title: 'Je suis RSSI',
@@ -171,7 +190,7 @@ const ProfilProRoleplay = () => {
           variant="outline" 
           size="sm" 
           className="bg-black/50 border-cyan-800 text-cyan-400 hover:bg-black/70 hover:text-cyan-300 hover:border-cyan-500 transition-colors"
-          onClick={() => setLocation('/cyber/learning-center')}
+          onClick={() => setLocation("/cyber/learning-center")}
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
           Retour
@@ -239,13 +258,23 @@ const ProfilProRoleplay = () => {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button 
-                  className={`w-full py-6 bg-gradient-to-r ${profile.buttonGradient} ${profile.buttonHover} text-white group`}
-                  disabled
-                >
-                  <span>Bientôt disponible</span>
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </Button>
+                {profile.id === 'debutant' ? (
+                  <Button 
+                    className={`w-full py-6 bg-gradient-to-r ${profile.buttonGradient} ${profile.buttonHover} text-white group`}
+                    onClick={() => setLocation(profile.link)}
+                  >
+                    <span>Accéder au module</span>
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                ) : (
+                  <Button 
+                    className={`w-full py-6 bg-gradient-to-r ${profile.buttonGradient} ${profile.buttonHover} text-white group`}
+                    disabled
+                  >
+                    <span>Bientôt disponible</span>
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                )}
               </CardFooter>
             </Card>
           </motion.div>
