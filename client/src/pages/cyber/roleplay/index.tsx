@@ -49,7 +49,7 @@ const RoleplayHub: React.FC = () => {
     {
       id: 'interview-test',
       title: "Je suis Consultant Cyber",
-      description: "Je prépare une audition technique en cybersécurité",
+      description: "Je prépare une audition en cybersécurité et je voudrais m'entraîner et être mis en situation",
       link: '/cyber/interview-test',
       icon: <Briefcase className="h-10 w-10 text-blue-300" />,
       color: 'blue',
