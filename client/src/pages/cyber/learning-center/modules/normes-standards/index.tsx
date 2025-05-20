@@ -60,7 +60,7 @@ export default function NormesStandards() {
           <div className="lg:col-span-2 space-y-8">
             <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold text-white mb-4">Panorama des normes en cybersécurité</h2>
+                <h2 className="text-2xl font-bold text-white mb-4">Panorama des normes et standards internationaux<br />en cybersécurité (ISO 27001, NIST, etc.)</h2>
                 
                 <div className="prose prose-invert max-w-none">
                   <p className="text-blue-200">
