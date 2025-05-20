@@ -48,7 +48,7 @@ export default function CyberV3() {
         style={{ 
           fontSize: `${textSize}rem`,
           backgroundColor: '#000814',
-          backgroundImage: 'linear-gradient(rgba(0, 10, 30, 0.5), rgba(5, 15, 30, 0.6)), url("https://images.pexels.com/photos/5380664/pexels-photo-5380664.jpeg?auto=compress&cs=tinysrgb&w=1600")',
+          backgroundImage: 'linear-gradient(rgba(0, 10, 30, 0.4), rgba(5, 15, 30, 0.5)), url("/attached_assets/oeil-d-un-robot-futuriste.jpg")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
