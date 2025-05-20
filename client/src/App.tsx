@@ -3,7 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
-import { Suspense, lazy, startTransition, useState, useEffect } from "react";
+import React, { Suspense, lazy, startTransition, useState, useEffect } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { TutorialProvider } from "./contexts/TutorialContext";
@@ -33,7 +33,7 @@ import CyberRoleplay from "./pages/cyber/roleplay/index";
 import CyberLab from "./pages/cyber/cyber-lab/index";
 import CyberLearningCenter from "./pages/cyber/learning-center/index";
 import SasCyberAcademie from "./pages/cyber/sas-academie";
-import CyberExpertLearning from "./pages/cyber/expert-learning";
+import ExpertLearningPage from "./pages/cyber/expert-learning";
 
 // Import des modules de la Cyber Académie - importés dynamiquement avec lazy pour améliorer les performances
 const IntroductionCybersecurite = lazy(() => import("./pages/cyber/learning-center/modules/intro-cybersecurite/index"));
@@ -115,7 +115,7 @@ function App() {
                 <Route path="/cyber/cyber-lab" component={CyberLab} />
                 <Route path="/cyber/sas-academie" component={SasCyberAcademie} />
                 <Route path="/cyber/learning-center" component={CyberLearningCenter} />
-                <Route path="/cyber/expert-learning" component={ExpertLearning} />
+                <Route path="/cyber/expert-learning" component={ExpertLearningPage} />
                 
                 {/* Routes pour les modules de la Cyber Académie - avec Suspense pour chargement différé */}
                 <Route path="/cyber/learning-center/modules/intro-cybersecurite">
@@ -295,7 +295,7 @@ function App() {
                 </Route>
                 <Route path="/amoa/interview-simulation" component={InterviewSimulation} />
                 <Route path="/amoa/prospect-pulse" component={ProspectPulse} />
-                <Route path="/amoa/expert-learning" component={ExpertLearning} />
+                <Route path="/amoa/expert-learning" component={AmoaExpertLearning} />
                 <Route path="/playground/module-generator" component={ModuleGenerator} />
                 
                 {/* Route par défaut (404) */}
