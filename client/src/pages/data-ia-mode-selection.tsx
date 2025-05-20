@@ -245,7 +245,7 @@ export default function DataIAModeSelection() {
                       <IoBookOutline className="h-8 w-8 text-white" />
                     </div>
                   </div>
-                  <h3 className="text-center text-2xl font-data-title mb-2">CAMPUS FORMATION</h3>
+                  <h3 className="text-center text-2xl font-data-title mb-2">DATA & IA ACADÉMIE</h3>
                   <p className="text-center text-blue-300 mt-2">
                     Centre de formation complet en data science, IA et métiers de la data
                   </p>
@@ -283,22 +283,22 @@ export default function DataIAModeSelection() {
                       <Code className="h-8 w-8 text-white" />
                     </div>
                   </div>
-                  <h3 className="text-center text-2xl font-data-title mb-2">CODE CHALLENGE</h3>
+                  <h3 className="text-center text-2xl font-data-title mb-2">ESPACE D'ENTRAINEMENT</h3>
                   <p className="text-center text-cyan-300 mt-2">
-                    Testez votre compréhension du code Python et SQL dans un environnement interactif
+                    Testez et améliorez vos compétences en Data Science et IA pratique
                   </p>
                   <div className="text-center flex flex-col items-center mt-4">
                     <p className="text-gray-200 mb-4">
-                      Déchiffrez et interprétez du code complexe pour progresser dans vos compétences en Data Science
+                      Résolvez des problèmes concrets et développez vos capacités en Python, SQL et Data
                     </p>
                     <Button 
                       className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-6 py-5"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation('/data-ia/read-me-if-you-can');
+                        setLocation('/data-ia/data-studio');
                       }}
                     >
-                      Commencer le défi
+                      Accéder à l'entraînement
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
@@ -321,22 +321,22 @@ export default function DataIAModeSelection() {
                       <BsFileEarmarkCode className="h-8 w-8 text-white" />
                     </div>
                   </div>
-                  <h3 className="text-center text-2xl font-data-title mb-2">DATA STUDIO</h3>
+                  <h3 className="text-center text-2xl font-data-title mb-2">DATA & IA ROLE PLAY</h3>
                   <p className="text-center text-violet-300 mt-2">
-                    Laboratoire interactif pour coder en Python et SQL avec assistance IA
+                    Jeux de rôle immersifs pour l'apprentissage data et IA
                   </p>
                   <div className="text-center flex flex-col items-center mt-4">
                     <p className="text-gray-200 mb-4">
-                      Développez et analysez du code avec l'aide d'une IA qui vous guide et vous corrige
+                      Incarnez différents rôles et mettez en pratique vos compétences en Data Science et IA
                     </p>
                     <Button 
                       className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-5"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation('/data-ia/ia-lab-trainer');
+                        setLocation('/data-ia/roleplay');
                       }}
                     >
-                      Ouvrir le laboratoire
+                      Accéder aux simulations
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
