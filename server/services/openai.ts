@@ -213,8 +213,8 @@ class OpenAIService {
       const requestBody: any = {
         messages: messages,
         temperature: temperature,
-        max_tokens: maxTokens
-        // N'incluez pas le champ "model", exactement comme dans la version originale
+        max_tokens: maxTokens,
+        model: "gpt-4o" // Azure OpenAI requiert explicitement un nom de modèle
       };
       
       // Ajouter le format de réponse JSON si demandé
@@ -432,8 +432,8 @@ class OpenAIService {
       const requestBody = {
         messages: [{ role: "user", content: "Test connection" }],
         max_tokens: 5,
-        temperature: 0
-        // N'incluez pas le champ "model", exactement comme dans la version originale
+        temperature: 0,
+        model: "gpt-4o" // Azure OpenAI requiert explicitement un nom de modèle
       };
       
       console.log(`Envoi d'une requête à ${url} avec le déploiement: ${config.deploymentName}`);
