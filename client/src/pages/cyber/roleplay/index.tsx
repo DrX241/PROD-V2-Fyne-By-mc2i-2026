@@ -35,8 +35,8 @@ const RoleplayHub: React.FC = () => {
   const scenarios = [
     {
       id: 'interview-test',
-      title: "Je suis Candidat",
-      description: "Je prépare un entretien d'embauche pour un poste en cybersécurité",
+      title: "Je suis Consultant Cyber",
+      description: "Je prépare une audition technique en cybersécurité",
       link: '/cyber/interview-test',
       icon: <Briefcase className="h-10 w-10 text-blue-300" />,
       color: 'blue',
