@@ -30,10 +30,21 @@ export default function SasCyberAcademie() {
           <PageTitle title="CYBER ACADÉMIE" />
         </div>
         
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10">
+        <div className="flex flex-col justify-center items-center mb-10 text-center">
+          <div className="mb-8 max-w-3xl">
+            <h1 className="text-4xl font-bold mb-4">Bienvenue dans la Cyber Académie</h1>
+            <p className="text-blue-200 text-lg mb-4">
+              Vous êtes dans l'espace dédié pour découvrir ou revoir les bases de la cybersécurité.
+              Notre académie vous propose un apprentissage adapté à vos besoins et votre rythme.
+            </p>
+            <div className="h-1 w-40 bg-gradient-to-r from-cyan-400 to-blue-500 mx-auto my-4"></div>
+            <p className="text-blue-100 mt-4">
+              Nous vous proposons deux approches complémentaires pour développer vos compétences. 
+              Choisissez celle qui vous convient le mieux ou alternez entre les deux !
+            </p>
+          </div>
           <div>
-            <h1 className="text-3xl font-bold">Choisissez votre mode d'apprentissage</h1>
-            <p className="text-blue-200 mt-1">Deux approches complémentaires pour développer vos compétences en cybersécurité</p>
+            <h2 className="text-2xl font-bold">Choisissez votre mode d'apprentissage</h2>
           </div>
         </div>
 
