@@ -32,6 +32,8 @@ import FyneAbout from "./pages/fyne-about";
 import CyberRoleplay from "./pages/cyber/roleplay/index";
 import CyberLab from "./pages/cyber/cyber-lab/index";
 import CyberLearningCenter from "./pages/cyber/learning-center/index";
+import SasCyberAcademie from "./pages/cyber/sas-academie";
+import CyberExpertLearning from "./pages/cyber/expert-learning";
 
 // Import des modules de la Cyber Académie - importés dynamiquement avec lazy pour améliorer les performances
 const IntroductionCybersecurite = lazy(() => import("./pages/cyber/learning-center/modules/intro-cybersecurite/index"));
@@ -60,7 +62,7 @@ import AmoaRoleplay from "./pages/amoa/roleplay/index";
 import AmoaAcademie from "./pages/amoa/academie/index";
 import InterviewSimulation from "./pages/amoa/interview-simulation";
 import ProspectPulse from "./pages/amoa/prospect-pulse";
-import ExpertLearning from "./pages/amoa/expert-learning";
+import AmoaExpertLearning from "./pages/amoa/expert-learning";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -111,7 +113,9 @@ function App() {
                 <Route path="/cyber-old" component={CyberModeSelection} />
                 <Route path="/cyber/roleplay" component={CyberRoleplay} />
                 <Route path="/cyber/cyber-lab" component={CyberLab} />
+                <Route path="/cyber/sas-academie" component={SasCyberAcademie} />
                 <Route path="/cyber/learning-center" component={CyberLearningCenter} />
+                <Route path="/cyber/expert-learning" component={ExpertLearning} />
                 
                 {/* Routes pour les modules de la Cyber Académie - avec Suspense pour chargement différé */}
                 <Route path="/cyber/learning-center/modules/intro-cybersecurite">
