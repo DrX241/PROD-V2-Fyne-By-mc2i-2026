@@ -205,7 +205,7 @@ export default function CyberV3() {
                   </div>
                 </div>
                 <h3 className="text-center text-2xl font-data-title mb-2">CYBER ACADÉMIE</h3>
-                <p className="text-center text-blue-300 mt-2">
+                <p className="text-center text-blue-300 mt-2 whitespace-nowrap overflow-hidden text-overflow-ellipsis px-2">
                   Centre de formation complet aux métiers de la cybersécurité
                 </p>
                 <div className="mt-6">
@@ -242,7 +242,7 @@ export default function CyberV3() {
                   </div>
                 </div>
                 <h3 className="text-center text-2xl font-data-title mb-2">CYBER ROLE PLAY</h3>
-                <p className="text-center text-cyan-300 mt-2">
+                <p className="text-center text-cyan-300 mt-2 whitespace-nowrap overflow-hidden text-overflow-ellipsis px-2">
                   Jeux de rôle immersifs pour l'apprentissage cyber
                 </p>
                 <div className="mt-6">
