@@ -968,7 +968,7 @@ const ReadMeIfYouCan = () => {
               </Button>
               <h1 className="text-2xl font-bold text-white ml-4 font-data-title flex items-center">
                 <Code className="mr-2 h-6 w-6 text-cyan-400" />
-                READ ME IF YOU CAN
+                Je suis Consultant Data & IA
               </h1>
             </div>
             
