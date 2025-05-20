@@ -709,7 +709,7 @@ export default function LearningCenter() {
     </motion.div>
   );
   
-  // Filtrer les parcours et modules selon les critères
+  // Filtrer les modules selon les critères et les catégoriser
   const filteredModules = allModules.filter(module => !module.comingSoon);
   const filteredPaths = filterPaths(learningPaths);
   
@@ -846,145 +846,204 @@ export default function LearningCenter() {
           </div>
         </div>
         
-        {/* Structure simplifiée comme AMOA Académie */}
-        <div className="mb-8">
-          <div className="bg-gradient-to-r from-blue-900/40 to-blue-950/60 border border-blue-700 rounded-lg p-6 mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold flex items-center">
-                <Shield className="mr-3 h-6 w-6 text-blue-400" />
-                Fondamentaux de la cybersécurité
-              </h2>
-              <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 px-3 py-1 text-sm">
-                {filteredModules.filter(m => m.category === 'fondamentaux').length} modules disponibles
-              </Badge>
-            </div>
-            <p className="text-blue-200 mb-6">
-              Une formation complète et structurée pour maîtriser les fondamentaux de la cybersécurité,
-              depuis la sensibilisation jusqu'aux techniques de protection avancées.
-            </p>
-            
-            {/* Modules de formation - Fondamentaux */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {basicModules.map((module) => (
-                <Link key={module.id} href={module.destination || '#'} className="block h-full">
-                  <Card className="h-full bg-blue-900/20 border border-blue-700 flex flex-col hover:shadow-md hover:border-blue-500 transition-all">
-                    <div className="flex p-4">
-                      <div className="p-2 rounded-full bg-blue-800/50 mr-3 h-10 w-10 flex items-center justify-center">
-                        {module.icon}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start">
-                          <h3 className="font-medium text-white">{module.title}</h3>
-                          <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 ml-2">
-                            {module.duration}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-blue-300 mt-1">{module.description}</p>
-                      </div>
-                    </div>
-                    <div className="mt-auto p-2 pl-4">
-                      <Button variant="link" className="text-blue-300 hover:text-blue-100 p-0 h-auto">
-                        {module.progress && module.progress > 0 ? 'Continuer' : 'Commencer'} →
-                      </Button>
-                    </div>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </div>
+        {/* Onglets de navigation */}
+        <Tabs defaultValue="modules" className="mb-10" onValueChange={setActiveTab}>
+          <TabsList className="bg-blue-950/70 border border-blue-800/60">
+            <TabsTrigger value="modules" className="data-[state=active]:bg-blue-700">
+              <Folder className="h-4 w-4 mr-2" />
+              Modules
+            </TabsTrigger>
+            <TabsTrigger value="my-learning" className="data-[state=active]:bg-blue-700">
+              <BookOpen className="h-4 w-4 mr-2" />
+              Mes apprentissages
+            </TabsTrigger>
+          </TabsList>
+          
+          {/* Contenu de l'onglet Modules */}
+          <TabsContent value="modules">
+            {(searchTerm || selectedLevel || selectedCategory || selectedDuration) ? (
+              // Résultats de recherche
+              <div>
+                <h2 className="text-white text-xl font-medium mb-4">Résultats ({filterModules(filteredModules).length})</h2>
+                {filterModules(filteredModules).length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filterModules(filteredModules).map((module, index) => renderModuleCard(module, index))}
+                  </div>
+                ) : (
+                  <div className="bg-blue-900/30 rounded-lg p-8 text-center">
+                    <p className="text-blue-300 mb-4">Aucun module ne correspond à vos critères de recherche.</p>
+                    <Button
+                      variant="outline"
+                      className="border-blue-500/30 text-blue-300 hover:bg-blue-900/20"
+                      onClick={() => {
+                        setSearchTerm('');
+                        setSelectedLevel('');
+                        setSelectedCategory('');
+                        setSelectedDuration('');
+                      }}
+                    >
+                      Réinitialiser les filtres
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              // Affichage par catégories dans la nouvelle structure similaire à AMOA
+              <div className="space-y-8">
+                {/* Fondamentaux de la cybersécurité */}
+                <div className="bg-gradient-to-r from-blue-900/40 to-blue-950/60 border border-blue-700 rounded-lg p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-2xl font-bold flex items-center">
+                      <Shield className="mr-3 h-6 w-6 text-blue-400" />
+                      Fondamentaux de la cybersécurité
+                    </h2>
+                    <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 px-3 py-1 text-sm">
+                      {filteredModules.filter(m => m.category === 'fondamentaux').length} modules
+                    </Badge>
+                  </div>
+                  <p className="text-blue-200 mb-6">
+                    Une formation complète et structurée pour maîtriser les fondamentaux de la cybersécurité,
+                    depuis la sensibilisation jusqu'aux techniques de protection avancées.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {filteredModules
+                      .filter(module => module.category === 'fondamentaux')
+                      .map((module, index) => (
+                        <Link key={module.id} href={module.destination || '#'} className="block h-full">
+                          <Card className="h-full bg-blue-900/20 border border-blue-700 flex flex-col hover:shadow-md hover:border-blue-500 transition-all">
+                            <div className="flex p-4">
+                              <div className="p-2 rounded-full bg-blue-800/50 mr-3 h-10 w-10 flex items-center justify-center">
+                                {module.icon}
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex justify-between items-start">
+                                  <h3 className="font-medium text-white">{module.title}</h3>
+                                  <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 ml-2">
+                                    {module.duration}
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-blue-300 mt-1">{module.description}</p>
+                              </div>
+                            </div>
+                            <div className="mt-auto p-2 pl-4">
+                              <Button variant="link" className="text-blue-300 hover:text-blue-100 p-0 h-auto">
+                                {module.progress && module.progress > 0 ? 'Continuer' : 'Commencer'} →
+                              </Button>
+                            </div>
+                          </Card>
+                        </Link>
+                    ))}
+                  </div>
+                </div>
 
-          {/* Modules techniques */}
-          <div className="bg-gradient-to-r from-blue-900/40 to-blue-950/60 border border-blue-700 rounded-lg p-6 mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold flex items-center">
-                <Code className="mr-3 h-6 w-6 text-blue-400" />
-                Sécurité technique
-              </h2>
-              <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 px-3 py-1 text-sm">
-                {filteredModules.filter(m => m.category === 'technique').length} modules disponibles
-              </Badge>
-            </div>
-            <p className="text-blue-200 mb-6">
-              Développez vos compétences techniques en cybersécurité avec des modules spécialisés
-              couvrant réseaux, cloud, applications, et plus encore.
-            </p>
-            
-            {/* Modules de formation - Technique */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {technicalModules.map((module) => (
-                <Link key={module.id} href={module.destination || '#'} className="block h-full">
-                  <Card className="h-full bg-blue-900/20 border border-blue-700 flex flex-col hover:shadow-md hover:border-blue-500 transition-all">
-                    <div className="flex p-4">
-                      <div className="p-2 rounded-full bg-blue-800/50 mr-3 h-10 w-10 flex items-center justify-center">
-                        {module.icon}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start">
-                          <h3 className="font-medium text-white">{module.title}</h3>
-                          <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 ml-2">
-                            {module.duration}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-blue-300 mt-1">{module.description}</p>
-                      </div>
-                    </div>
-                    <div className="mt-auto p-2 pl-4">
-                      <Button variant="link" className="text-blue-300 hover:text-blue-100 p-0 h-auto">
-                        {module.progress && module.progress > 0 ? 'Continuer' : 'Commencer'} →
-                      </Button>
-                    </div>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </div>
+                {/* Modules techniques */}
+                <div className="bg-gradient-to-r from-blue-900/40 to-blue-950/60 border border-blue-700 rounded-lg p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-2xl font-bold flex items-center">
+                      <Code className="mr-3 h-6 w-6 text-blue-400" />
+                      Sécurité technique
+                    </h2>
+                    <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 px-3 py-1 text-sm">
+                      {filteredModules.filter(m => m.category === 'technique').length} modules
+                    </Badge>
+                  </div>
+                  <p className="text-blue-200 mb-6">
+                    Développez vos compétences techniques en cybersécurité avec des modules spécialisés
+                    couvrant les réseaux, le cloud, les applications, et plus encore.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {filteredModules
+                      .filter(module => module.category === 'technique')
+                      .map((module, index) => (
+                        <Link key={module.id} href={module.destination || '#'} className="block h-full">
+                          <Card className="h-full bg-blue-900/20 border border-blue-700 flex flex-col hover:shadow-md hover:border-blue-500 transition-all">
+                            <div className="flex p-4">
+                              <div className="p-2 rounded-full bg-blue-800/50 mr-3 h-10 w-10 flex items-center justify-center">
+                                {module.icon}
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex justify-between items-start">
+                                  <h3 className="font-medium text-white">{module.title}</h3>
+                                  <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 ml-2">
+                                    {module.duration}
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-blue-300 mt-1">{module.description}</p>
+                              </div>
+                            </div>
+                            <div className="mt-auto p-2 pl-4">
+                              <Button variant="link" className="text-blue-300 hover:text-blue-100 p-0 h-auto">
+                                {module.progress && module.progress > 0 ? 'Continuer' : 'Commencer'} →
+                              </Button>
+                            </div>
+                          </Card>
+                        </Link>
+                    ))}
+                  </div>
+                </div>
 
-          {/* Modules de gouvernance */}
-          <div className="bg-gradient-to-r from-blue-900/40 to-blue-950/60 border border-blue-700 rounded-lg p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold flex items-center">
-                <ClipboardList className="mr-3 h-6 w-6 text-blue-400" />
-                Gouvernance et conformité
-              </h2>
-              <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 px-3 py-1 text-sm">
-                {filteredModules.filter(m => m.category === 'gouvernance').length} modules disponibles
-              </Badge>
+                {/* Modules de gouvernance */}
+                <div className="bg-gradient-to-r from-blue-900/40 to-blue-950/60 border border-blue-700 rounded-lg p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-2xl font-bold flex items-center">
+                      <FileText className="mr-3 h-6 w-6 text-blue-400" />
+                      Gouvernance et conformité
+                    </h2>
+                    <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 px-3 py-1 text-sm">
+                      {filteredModules.filter(m => m.category === 'gouvernance').length} modules
+                    </Badge>
+                  </div>
+                  <p className="text-blue-200 mb-6">
+                    Maîtrisez les aspects stratégiques, organisationnels et réglementaires de la cybersécurité
+                    avec des modules centrés sur la gouvernance et la conformité.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {filteredModules
+                      .filter(module => module.category === 'gouvernance')
+                      .map((module, index) => (
+                        <Link key={module.id} href={module.destination || '#'} className="block h-full">
+                          <Card className="h-full bg-blue-900/20 border border-blue-700 flex flex-col hover:shadow-md hover:border-blue-500 transition-all">
+                            <div className="flex p-4">
+                              <div className="p-2 rounded-full bg-blue-800/50 mr-3 h-10 w-10 flex items-center justify-center">
+                                {module.icon}
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex justify-between items-start">
+                                  <h3 className="font-medium text-white">{module.title}</h3>
+                                  <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 ml-2">
+                                    {module.duration}
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-blue-300 mt-1">{module.description}</p>
+                              </div>
+                            </div>
+                            <div className="mt-auto p-2 pl-4">
+                              <Button variant="link" className="text-blue-300 hover:text-blue-100 p-0 h-auto">
+                                {module.progress && module.progress > 0 ? 'Continuer' : 'Commencer'} →
+                              </Button>
+                            </div>
+                          </Card>
+                        </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </TabsContent>
+          
+          {/* Contenu de l'onglet Mes apprentissages */}
+          <TabsContent value="my-learning">
+            <div className="bg-blue-900/30 p-12 rounded-lg text-center">
+              <h3 className="text-2xl font-bold text-white mb-3">Suivez votre progression d'apprentissage</h3>
+              <p className="text-blue-300 mb-6">
+                Connectez-vous pour accéder à votre tableau de bord personnalisé, suivre votre progression et recevoir des recommandations adaptées à votre profil.
+              </p>
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                Se connecter
+              </Button>
             </div>
-            <p className="text-blue-200 mb-6">
-              Maîtrisez les aspects stratégiques, organisationnels et réglementaires de la cybersécurité
-              avec des modules centrés sur la gouvernance et la conformité.
-            </p>
-            
-            {/* Modules de formation - Gouvernance */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {governanceModules.map((module) => (
-                <Link key={module.id} href={module.destination || '#'} className="block h-full">
-                  <Card className="h-full bg-blue-900/20 border border-blue-700 flex flex-col hover:shadow-md hover:border-blue-500 transition-all">
-                    <div className="flex p-4">
-                      <div className="p-2 rounded-full bg-blue-800/50 mr-3 h-10 w-10 flex items-center justify-center">
-                        {module.icon}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start">
-                          <h3 className="font-medium text-white">{module.title}</h3>
-                          <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 ml-2">
-                            {module.duration}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-blue-300 mt-1">{module.description}</p>
-                      </div>
-                    </div>
-                    <div className="mt-auto p-2 pl-4">
-                      <Button variant="link" className="text-blue-300 hover:text-blue-100 p-0 h-auto">
-                        {module.progress && module.progress > 0 ? 'Continuer' : 'Commencer'} →
-                      </Button>
-                    </div>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
         
         {/* Panel Assistant IA */}
         {aiPanelOpen && (
