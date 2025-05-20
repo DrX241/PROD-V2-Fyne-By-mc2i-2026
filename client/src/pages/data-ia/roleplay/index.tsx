@@ -190,9 +190,9 @@ export default function DataIaRoleplay() {
                     <Code className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <h3 className="text-center text-2xl font-data-title mb-2">Je suis Data Scientist</h3>
+                <h3 className="text-center text-2xl font-data-title mb-2">Je suis Consultant Data & IA</h3>
                 <p className="text-center text-cyan-300 mt-2">
-                  je teste mes compétences d'analyse de code
+                  je teste mes compétences à travers des QCM
                 </p>
                 <div className="mt-6">
                   <p className="text-gray-300 text-center mb-4">
@@ -202,7 +202,7 @@ export default function DataIaRoleplay() {
                     <Button 
                       className="bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700 text-white px-6 py-5 w-full"
                       onClick={(e) => {
-                        setLocation('/data-ia/read-me-if-you-can');
+                        setLocation('/data-ia/roleplay/read-me-if-you-can');
                       }}
                     >
                       Commencer le défi
@@ -230,7 +230,7 @@ export default function DataIaRoleplay() {
                     <BsFileEarmarkCode className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <h3 className="text-center text-2xl font-data-title mb-2">Je suis Développeur Data</h3>
+                <h3 className="text-center text-2xl font-data-title mb-2">Je suis Data Scientist</h3>
                 <p className="text-center text-violet-300 mt-2">
                   je crée et teste des algorithmes d'analyse
                 </p>
@@ -242,7 +242,7 @@ export default function DataIaRoleplay() {
                     <Button 
                       className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 py-5 w-full"
                       onClick={(e) => {
-                        setLocation('/data-ia/ia-lab-trainer');
+                        setLocation('/data-ia/roleplay/ia-lab-trainer');
                       }}
                     >
                       Accéder au laboratoire

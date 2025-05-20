@@ -296,6 +296,20 @@ function App() {
                     </Suspense>
                   )}
                 </Route>
+                <Route path="/data-ia/roleplay/read-me-if-you-can">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      {React.createElement(lazy(() => import("./pages/data-ia/read-me-if-you-can")))}
+                    </Suspense>
+                  )}
+                </Route>
+                <Route path="/data-ia/roleplay/ia-lab-trainer">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      {React.createElement(lazy(() => import("./pages/data-ia/ia-lab-trainer")))}
+                    </Suspense>
+                  )}
+                </Route>
                 <Route path="/data-ia/data-ia-academy">
                   {(params) => (
                     <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
