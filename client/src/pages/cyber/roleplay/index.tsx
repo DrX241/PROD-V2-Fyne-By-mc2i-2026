@@ -36,7 +36,7 @@ const RoleplayHub: React.FC = () => {
     {
       id: 'debutant-cyber',
       title: "Je suis Débutant",
-      description: "Je découvre la cybersécurité et souhaite apprendre les bases essentielles",
+      description: "Je voudrais être sensibilisé aux risques cyber et apprendre à me protéger",
       link: '/cyber/learning-center/modules/debutant-cyber',
       icon: <Shield className="h-10 w-10 text-amber-300" />,
       color: 'amber',
