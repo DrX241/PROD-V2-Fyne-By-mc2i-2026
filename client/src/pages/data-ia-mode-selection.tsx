@@ -306,12 +306,11 @@ export default function DataIAModeSelection() {
 
                 {/* IA LAB TRAINER */}
                 <div 
-                  className={`cyber-edge-distort relative overflow-hidden p-6 cursor-pointer ${
+                  className={`cyber-edge-distort relative overflow-hidden p-6 ${
                     highContrastMode 
                       ? 'bg-gray-800 border border-gray-700' 
                       : 'bg-gradient-to-br from-violet-600 to-purple-900 border-2 border-violet-400/50 shadow-lg shadow-violet-500/50'
                   } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
-                  onClick={() => setLocation('/data-ia/ia-lab-trainer')}
                 >
                   <div className="flex items-center justify-center mb-4">
                     <div className={`p-3 rounded-lg ${
