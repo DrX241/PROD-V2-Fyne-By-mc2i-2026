@@ -340,21 +340,13 @@ export default function FyneAbout() {
             Rejoignez FYNE dès aujourd'hui et découvrez comment notre plateforme peut vous aider à 
             atteindre vos objectifs professionnels plus efficacement.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/cyber/roleplay">
+          <div className="flex justify-center">
+            <Link href="/">
               <CyberButton 
                 variant="primary" 
                 className="px-8 py-5 text-lg"
               >
-                Découvrir CYBER ACADEMY
-              </CyberButton>
-            </Link>
-            <Link href="/amoa/new">
-              <CyberButton 
-                variant="secondary" 
-                className="px-8 py-5 text-lg"
-              >
-                Explorer AMOA ACADEMY
+                Retour à l'accueil
               </CyberButton>
             </Link>
           </div>
