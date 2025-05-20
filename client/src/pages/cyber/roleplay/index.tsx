@@ -34,19 +34,6 @@ const RoleplayHub: React.FC = () => {
   // Liste des scénarios de jeu de rôle
   const scenarios = [
     {
-      id: 'cyber-arcade',
-      title: 'Cyber Arcade',
-      description: 'Apprenez les concepts de cybersécurité à travers des jeux interactifs amusants',
-      link: '/cyber/arcade',
-      icon: <Shield className="h-10 w-10 text-teal-300" />,
-      color: 'teal',
-      gradient: 'from-teal-900/70 to-teal-700/30',
-      border: 'border-teal-500/30',
-      buttonGradient: 'from-teal-700 to-teal-600',
-      buttonHover: 'hover:from-teal-600 hover:to-teal-500',
-      textColor: 'text-teal-300'
-    },
-    {
       id: 'interview-test',
       title: "Simulation d'entretien",
       description: "Simulez un entretien d'embauche pour un poste en cybersécurité avec un recruteur IA",
@@ -71,19 +58,6 @@ const RoleplayHub: React.FC = () => {
       buttonGradient: 'from-violet-700 to-violet-600',
       buttonHover: 'hover:from-violet-600 hover:to-violet-500',
       textColor: 'text-violet-300'
-    },
-    {
-      id: 'ascension',
-      title: 'CYBERASCENSION: La montée des Gardiens',
-      description: 'Évoluez de débutant à expert à travers une série de niveaux progressifs',
-      link: '/cyber/ascension',
-      icon: <Users className="h-10 w-10 text-amber-300" />,
-      color: 'amber',
-      gradient: 'from-amber-900/70 to-amber-700/30',
-      border: 'border-amber-500/30',
-      buttonGradient: 'from-amber-700 to-amber-600',
-      buttonHover: 'hover:from-amber-600 hover:to-amber-500',
-      textColor: 'text-amber-300'
     },
     {
       id: 'crisis-management',
