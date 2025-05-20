@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'wouter';
 import {
   ArrowLeft,
+  ArrowRight,
   BookOpen,
   Cpu,
   Eye,
@@ -13,6 +14,7 @@ import {
   Database,
   Code,
   LineChart,
+  Briefcase,
   Network,
   Wifi,
   FileText,
