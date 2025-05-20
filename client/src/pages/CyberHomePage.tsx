@@ -16,7 +16,8 @@ import {
   Brain,
   ChevronRight,
   Power,
-  Check
+  Check,
+  ArrowRight
 } from 'lucide-react';
 import mcLogoPath from "@assets/mc2i.png";
 import fyneCharacterPath from "../assets/fyne-character.png";
@@ -172,26 +173,12 @@ const CyberHomePage: React.FC = () => {
               <div className="flex items-center justify-center mt-10">
                 <motion.button
                   onClick={() => setLocation('/fyne-about')}
-                  className="px-8 py-4 bg-[#006a9e] hover:bg-[#006a9e]/90 text-white rounded-md text-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-5 bg-gradient-to-r from-[#006a9e] to-[#0085c7] hover:from-[#0085c7] hover:to-[#006a9e] text-white rounded-md text-lg font-semibold shadow-lg transition-all duration-300 flex items-center"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   <span>DÉCOUVREZ FYNE</span>
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    width="24" 
-                    height="24" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                    className="ml-2"
-                  >
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                  </svg>
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </motion.button>
               </div>
             </motion.div>
