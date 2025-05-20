@@ -839,35 +839,6 @@ export default function LearningCenter() {
                     </Card>
                   </Link>
               ))}
-              
-              {/* Module IA et Cybersécurité (déplacé depuis la section technique) */}
-              {filteredModules
-                .filter(module => module.id === 'ia-securite')
-                .map((module, index) => (
-                  <Link key={module.id} href={module.destination || '#'} className="block h-full">
-                    <Card className="h-full bg-blue-900/20 border border-blue-700 flex flex-col hover:shadow-md hover:border-blue-500 transition-all">
-                      <div className="flex p-4">
-                        <div className="p-2 rounded-full bg-blue-800/50 mr-3 h-10 w-10 flex items-center justify-center">
-                          {module.icon}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex justify-between items-start">
-                            <h3 className="font-medium text-white">{module.title}</h3>
-                            <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 ml-2">
-                              {module.duration}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-blue-300 mt-1">{module.description}</p>
-                        </div>
-                      </div>
-                      <div className="mt-auto p-2 pl-4">
-                        <Button variant="link" className="text-blue-300 hover:text-blue-100 p-0 h-auto">
-                          {module.progress && module.progress > 0 ? 'Continuer' : 'Commencer'} →
-                        </Button>
-                      </div>
-                    </Card>
-                  </Link>
-              ))}
             </div>
           </div>
         </div>
