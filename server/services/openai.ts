@@ -422,7 +422,8 @@ class OpenAIService {
       const testMessage = {
         messages: [{ role: "user", content: "Test connection" }],
         max_tokens: 5,
-        temperature: 0
+        temperature: 0,
+        model: config.modelName
       };
 
       // Formatage correct de l'URL : suppression des doubles slashes
@@ -432,14 +433,24 @@ class OpenAIService {
       }
       
       const url = `${baseEndpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
-
+      
+      // Adapter le corps de la requête selon les besoins d'Azure OpenAI
+      const requestBody = {
+        messages: testMessage.messages,
+        max_tokens: testMessage.max_tokens,
+        temperature: testMessage.temperature
+        // Ne pas inclure 'model' pour Azure OpenAI car le modèle est spécifié par le deploymentName
+      };
+      
+      console.log(`Envoi d'une requête à ${url} avec le déploiement: ${config.deploymentName}`);
+      
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'api-key': config.apiKey
         },
-        body: JSON.stringify(testMessage),
+        body: JSON.stringify(requestBody),
         signal: AbortSignal.timeout(5000)
       });
 

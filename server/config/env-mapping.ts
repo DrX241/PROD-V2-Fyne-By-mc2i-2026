@@ -4,22 +4,72 @@
 
 // Fonction pour mapper les variables d'environnement
 export function mapEnvironmentVariables() {
-  // Mapping pour GPT-4o
-  process.env.GPT4O_API_KEY = process.env.AZURE_OPENAI_KEY || '';
-  process.env.GPT4O_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT || '';
-  process.env.GPT4O_DEPLOYMENT_NAME = process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o';
-  process.env.GPT4O_API_VERSION = process.env.AZURE_OPENAI_API_VERSION || '2025-01-01-preview';
+  // Utilisation directe des noms de variables Azure OpenAI fournis
   
-  // Mapping pour GPT-4o-mini
-  process.env.GPT4O_MINI_API_KEY = process.env.AZURE_OPENAI_KEY || ''; // Utilise la même clé API
-  process.env.GPT4O_MINI_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT || ''; // Utilise le même endpoint
-  process.env.GPT4O_MINI_DEPLOYMENT_NAME = process.env.AZURE_OPENAI_MINI_DEPLOYMENT_NAME || 'gpt-4o-mini';
-  process.env.GPT4O_MINI_API_VERSION = process.env.AZURE_OPENAI_MINI_API_VERSION || '2024-12-01-preview';
+  // Pour GPT-4o, n'ajuster que si les variables ne sont pas déjà définies
+  if (!process.env.GPT4O_API_KEY) {
+    process.env.GPT4O_API_KEY = process.env.AZURE_OPENAI_KEY || '';
+  }
+  
+  if (!process.env.GPT4O_ENDPOINT) {
+    // S'assurer que l'endpoint est bien formaté avec https://
+    let endpoint = process.env.AZURE_OPENAI_ENDPOINT || '';
+    if (endpoint && !endpoint.startsWith('http')) {
+      endpoint = 'https://' + endpoint;
+    }
+    process.env.GPT4O_ENDPOINT = endpoint;
+  }
+  
+  if (!process.env.GPT4O_DEPLOYMENT_NAME) {
+    process.env.GPT4O_DEPLOYMENT_NAME = process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o';
+  }
+  
+  if (!process.env.GPT4O_API_VERSION) {
+    process.env.GPT4O_API_VERSION = process.env.AZURE_OPENAI_API_VERSION || '2025-01-01-preview';
+  }
+  
+  // Pour GPT-4o-mini, n'ajuster que si les variables ne sont pas déjà définies
+  if (!process.env.GPT4O_MINI_API_KEY) {
+    process.env.GPT4O_MINI_API_KEY = process.env.AZURE_OPENAI_KEY || ''; // Même clé API
+  }
+  
+  if (!process.env.GPT4O_MINI_ENDPOINT) {
+    // S'assurer que l'endpoint est bien formaté avec https://
+    let endpoint = process.env.AZURE_OPENAI_ENDPOINT || '';
+    if (endpoint && !endpoint.startsWith('http')) {
+      endpoint = 'https://' + endpoint;
+    }
+    process.env.GPT4O_MINI_ENDPOINT = endpoint;
+  }
+  
+  if (!process.env.GPT4O_MINI_DEPLOYMENT_NAME) {
+    process.env.GPT4O_MINI_DEPLOYMENT_NAME = process.env.AZURE_OPENAI_MINI_DEPLOYMENT_NAME || 'gpt-4o-mini';
+  }
+  
+  if (!process.env.GPT4O_MINI_API_VERSION) {
+    process.env.GPT4O_MINI_API_VERSION = process.env.AZURE_OPENAI_MINI_API_VERSION || '2024-12-01-preview';
+  }
+
+  // Vérifier que les URLs sont valides
+  if (process.env.GPT4O_ENDPOINT && !process.env.GPT4O_ENDPOINT.startsWith('http')) {
+    process.env.GPT4O_ENDPOINT = 'https://' + process.env.GPT4O_ENDPOINT;
+  }
+  
+  if (process.env.GPT4O_MINI_ENDPOINT && !process.env.GPT4O_MINI_ENDPOINT.startsWith('http')) {
+    process.env.GPT4O_MINI_ENDPOINT = 'https://' + process.env.GPT4O_MINI_ENDPOINT;
+  }
 
   // Vérifier les mappings
   console.log("=== Variables d'environnement mappées ===");
-  console.log(`GPT4O_ENDPOINT: ${process.env.GPT4O_ENDPOINT ? 'configuré' : 'non configuré'}`);
-  console.log(`GPT4O_MINI_ENDPOINT: ${process.env.GPT4O_MINI_ENDPOINT ? 'configuré' : 'non configuré'}`);
+  console.log(`GPT4O_API_KEY: ${process.env.GPT4O_API_KEY ? '***configuré' : 'non configuré'}`);
+  console.log(`GPT4O_ENDPOINT: ${process.env.GPT4O_ENDPOINT ? process.env.GPT4O_ENDPOINT : 'non configuré'}`);
+  console.log(`GPT4O_DEPLOYMENT_NAME: ${process.env.GPT4O_DEPLOYMENT_NAME || 'non configuré'}`);
+  console.log(`GPT4O_API_VERSION: ${process.env.GPT4O_API_VERSION || 'non configuré'}`);
+  
+  console.log(`GPT4O_MINI_API_KEY: ${process.env.GPT4O_MINI_API_KEY ? '***configuré' : 'non configuré'}`);
+  console.log(`GPT4O_MINI_ENDPOINT: ${process.env.GPT4O_MINI_ENDPOINT ? process.env.GPT4O_MINI_ENDPOINT : 'non configuré'}`);
+  console.log(`GPT4O_MINI_DEPLOYMENT_NAME: ${process.env.GPT4O_MINI_DEPLOYMENT_NAME || 'non configuré'}`);
+  console.log(`GPT4O_MINI_API_VERSION: ${process.env.GPT4O_MINI_API_VERSION || 'non configuré'}`);
 }
 
 // Exporter la fonction pour l'utiliser dans server/index.ts
