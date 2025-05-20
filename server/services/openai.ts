@@ -342,11 +342,12 @@ class OpenAIService {
       console.log(`Request parameters: temperature=${temperature}, max_tokens=${maxTokens}`);
       console.log(`Nombre de messages: ${messages.length}, Premier role: ${messages[0]?.role}`);
 
-      // Formater la requête pour l'API
+      // Formater la requête pour l'API avec le modèle requis par Azure OpenAI
       const requestBody: any = {
         messages: messages,
         temperature: temperature,
-        max_tokens: actualMaxTokens
+        max_tokens: actualMaxTokens,
+        model: config.deploymentName // Azure OpenAI a besoin du nom du modèle dans la requête
       };
 
       // Ajouter le format de réponse JSON si demandé
@@ -423,7 +424,8 @@ class OpenAIService {
       const testMessage = {
         messages: [{ role: "user", content: "Test connection" }],
         max_tokens: 5,
-        temperature: 0
+        temperature: 0,
+        model: config.deploymentName // Obligatoire pour Azure OpenAI
       };
 
       // Formatage correct de l'URL : suppression des doubles slashes
