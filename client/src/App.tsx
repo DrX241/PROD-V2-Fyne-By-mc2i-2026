@@ -49,6 +49,8 @@ const IASecurite = lazy(() => import("./pages/cyber/learning-center/modules/ia-s
 const MicroLearning = lazy(() => import("./pages/cyber/learning-center/modules/micro-learning/index"));
 const Ransomware = lazy(() => import("./pages/cyber/learning-center/modules/ransomware/index"));
 const PhishingDetection = lazy(() => import("./pages/cyber/learning-center/modules/phishing-detection/index"));
+const AnalyseRisques = lazy(() => import("./pages/cyber/learning-center/modules/analyse-risques/index"));
+const NormesStandards = lazy(() => import("./pages/cyber/learning-center/modules/normes-standards/index"));
 const MotDePasse = lazy(() => import("./pages/cyber/learning-center/modules/mot-de-passe/index"));
 const DevSecOps = lazy(() => import("./pages/cyber/learning-center/modules/devsecops/index"));
 const GouvernanceCyber = lazy(() => import("./pages/cyber/learning-center/modules/gouvernance-cyber/index"));
@@ -221,6 +223,20 @@ function App() {
                   {(params) => (
                     <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
                       <MotDePasse />
+                    </Suspense>
+                  )}
+                </Route>
+                <Route path="/cyber/learning-center/modules/analyse-risques">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      <AnalyseRisques />
+                    </Suspense>
+                  )}
+                </Route>
+                <Route path="/cyber/learning-center/modules/normes-standards">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      <NormesStandards />
                     </Suspense>
                   )}
                 </Route>
