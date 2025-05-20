@@ -6,31 +6,23 @@ import {
   ArrowRight,
   ArrowLeft,
   Code,
-  Database,
-  PieChart,
-  LineChart,
-  Bot,
 } from 'lucide-react';
-import { IoHome, IoSchoolOutline } from 'react-icons/io5';
 import { BsFileEarmarkCode } from 'react-icons/bs';
 import { FiSun, FiMoon } from 'react-icons/fi';
-import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
 
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTutorial } from '@/contexts/TutorialContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { DataButton } from '@/components/DataButton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import HomeLayout from '@/components/layout/HomeLayout';
-import PageTitle from '@/components/PageTitle';
+import PageTitle from '@/components/utils/PageTitle';
 
 export default function DataIaRoleplay() {
   const [, setLocation] = useLocation();
   const { currentTour, setCurrentTour, startTutorial } = useTutorial();
   const { themeMode } = useTheme();
   const [highContrastMode, setHighContrastMode] = useState(false);
-  const [textSize, setTextSize] = useState(1);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#041b36] to-[#0c142e] text-white pb-20">
