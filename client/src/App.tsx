@@ -236,6 +236,35 @@ function App() {
                 <Route path="/amoa/sas-academie" component={SasAcademie} />
                 <Route path="/amoa/roleplay" component={AmoaRoleplay} />
                 <Route path="/amoa/academie" component={AmoaAcademie} />
+                {/* Routes pour les modules AMOA Académie */}
+                <Route path="/amoa/academie/modules/intro-amoa">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      {React.createElement(lazy(() => import("./pages/amoa/academie/modules/intro-amoa/index")))}
+                    </Suspense>
+                  )}
+                </Route>
+                <Route path="/amoa/academie/modules/expression-besoins">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      {React.createElement(lazy(() => import("./pages/amoa/academie/modules/expression-besoins/index")))}
+                    </Suspense>
+                  )}
+                </Route>
+                <Route path="/amoa/academie/modules/specifications-fonctionnelles">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      {React.createElement(lazy(() => import("./pages/amoa/academie/modules/specifications-fonctionnelles/index")))}
+                    </Suspense>
+                  )}
+                </Route>
+                <Route path="/amoa/academie/modules/gestion-tests">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      {React.createElement(lazy(() => import("./pages/amoa/academie/modules/gestion-tests/index")))}
+                    </Suspense>
+                  )}
+                </Route>
                 <Route path="/amoa/interview-simulation" component={InterviewSimulation} />
                 <Route path="/amoa/prospect-pulse" component={ProspectPulse} />
                 <Route path="/amoa/expert-learning" component={ExpertLearning} />
