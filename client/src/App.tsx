@@ -268,8 +268,20 @@ function App() {
                 </Route>
                 
                 <Route path="/data-ia" component={DataIaModeSelection} />
-                <Route path="/data-ia/read-me-if-you-can" component={lazy(() => import("./pages/data-ia/read-me-if-you-can"))} />
-                <Route path="/data-ia/ia-lab-trainer" component={lazy(() => import("./pages/data-ia/ia-lab-trainer"))} />
+                <Route path="/data-ia/read-me-if-you-can">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      {React.createElement(lazy(() => import("./pages/data-ia/read-me-if-you-can")))}
+                    </Suspense>
+                  )}
+                </Route>
+                <Route path="/data-ia/ia-lab-trainer">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      {React.createElement(lazy(() => import("./pages/data-ia/ia-lab-trainer")))}
+                    </Suspense>
+                  )}
+                </Route>
                 <Route path="/amoa/new" component={AmoaModeSelectionNew} />
                 <Route path="/amoa/sas-academie" component={SasAcademie} />
                 <Route path="/amoa/roleplay" component={AmoaRoleplay} />
