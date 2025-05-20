@@ -15,7 +15,7 @@ import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
 
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
-import CyberScene from '@/components/CyberScene';
+//import CyberScene from '@/components/CyberScene';
 import { useTutorial } from '@/contexts/TutorialContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { DataButton } from '@/components/DataButton';
@@ -44,39 +44,15 @@ export default function CyberV3() {
         </style>
       </Helmet>
       
-      <div className="min-h-screen relative cyber-bg"
+      <div className="min-h-screen relative"
         style={{ 
           fontSize: `${textSize}rem`,
-          backgroundColor: '#000000',
-          backgroundImage: highContrastMode ? 'none' : 'url("data:image/svg+xml,%3Csvg width="20" height="20" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M1 1h18v18H1V1z" fill="none" stroke="rgba(6,182,212,0.05)" stroke-width="0.2"/%3E%3C/svg%3E")',
-          backgroundRepeat: 'repeat',
+          backgroundColor: '#000814',
+          backgroundImage: 'linear-gradient(rgba(0, 0, 30, 0.85), rgba(5, 15, 40, 0.95)), url("https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
         }}>
-        {/* Arrière-plan animé */}
-        <CyberScene />
-        
-        {/* Éléments visuels supplémentaires */}
-        {!highContrastMode && (
-          <>
-            {/* Circuit patterns cybernétiques */}
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXR0ZXJuIGlkPSJjaXJjdWl0IiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMGgxMDB2MTAwSDIwMHYxMDBoLTEwMHYtMTAwSDB6IiBmaWxsPSJub25lIiBzdHJva2U9IiMwZmIzZDEiIHN0cm9rZS13aWR0aD0iMSIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIwIiByPSIzIiBmaWxsPSIjMGZiM2QxIi8+PGNpcmNsZSBjeD0iMjAwIiBjeT0iMCIgcj0iMyIgZmlsbD0iIzBmYjNkMSIvPjxjaXJjbGUgY3g9IjAiIGN5PSIyMDAiIHI9IjMiIGZpbGw9IiMwZmIzZDEiLz48L3BhdHRlcm4+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNjaXJjdWl0KSIgb3BhY2l0eT0iMC4xNSIvPjwvc3ZnPg==')]" 
-                 style={{ opacity: 0.05 }}></div>
-            
-            {/* Scanlines animées */}
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="w-full h-full bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent bg-repeat-y" 
-                  style={{ 
-                    backgroundSize: '100% 8px', 
-                    animation: 'moveVertical 8s linear infinite',
-                    opacity: 0.2
-                  }}>
-              </div>
-            </div>
-            
-            {/* Points lumineux */}
-            <div className="absolute top-1/5 right-1/4 w-2 h-2 bg-cyan-300 rounded-full opacity-70 animate-pulse shadow-[0_0_30px_15px_rgba(34,211,238,0.5)]"></div>
-            <div className="absolute bottom-1/3 left-1/5 w-1 h-1 bg-pink-300 rounded-full opacity-60 animate-pulse shadow-[0_0_20px_10px_rgba(236,72,153,0.4)]"></div>
-          </>
-        )}
         
         {/* Navigation et contrôles */}
         <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">
