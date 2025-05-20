@@ -25,22 +25,10 @@ const DataTopNavigation: React.FC = () => {
             Retour
           </Button>
           
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => setLocation('/')}
-            className="hover:bg-blue-900/20"
-          >
-            <IoHome className="mr-1" />
-            Accueil
-          </Button>
+
         </div>
         
-        <div>
-          <Badge variant="outline" className="bg-blue-900/30 text-cyan-300 border-cyan-500/50">
-            DATA & IA
-          </Badge>
-        </div>
+
         
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
