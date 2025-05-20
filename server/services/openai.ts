@@ -213,8 +213,8 @@ class OpenAIService {
       const requestBody: any = {
         messages: messages,
         temperature: temperature,
-        max_tokens: maxTokens,
-        model: "gpt-4" // Utiliser le nom du modèle sous-jacent, pas le nom du déploiement
+        max_tokens: maxTokens
+        // Ne pas inclure de modèle car il est spécifié dans l'URL de déploiement
       };
       
       // Ajouter le format de réponse JSON si demandé
@@ -432,8 +432,8 @@ class OpenAIService {
       const requestBody = {
         messages: [{ role: "user", content: "Test connection" }],
         max_tokens: 5,
-        temperature: 0,
-        model: "gpt-4" // Utiliser le nom du modèle sous-jacent pour Azure OpenAI
+        temperature: 0
+        // Ne pas inclure le nom du modèle car il est déjà spécifié dans l'URL du déploiement
       };
       
       console.log(`Envoi d'une requête à ${url} avec le déploiement: ${config.deploymentName}`);
