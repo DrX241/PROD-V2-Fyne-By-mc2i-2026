@@ -48,7 +48,7 @@ export default function CyberV3() {
         style={{ 
           fontSize: `${textSize}rem`,
           backgroundColor: '#000814',
-          backgroundImage: 'linear-gradient(rgba(0, 10, 50, 0.7), rgba(10, 30, 60, 0.8)), url("https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3")',
+          backgroundImage: 'linear-gradient(rgba(0, 10, 30, 0.4), rgba(10, 20, 40, 0.6)), url("/attached_assets/image_1747732199272.png")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
