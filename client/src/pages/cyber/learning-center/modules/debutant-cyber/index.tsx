@@ -17,9 +17,19 @@ export default function DebutantCyber() {
   // États pour le module
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState(1);
-  const [quizAnswers, setQuizAnswers] = useState({});
+  const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
+  const [emailAnalysisInProgress, setEmailAnalysisInProgress] = useState(false);
+  const [emailAnalysisResult, setEmailAnalysisResult] = useState<{
+    isPhishing: boolean;
+    confidence: number;
+    reasons: string[];
+    techniques: string[];
+    riskLevel: 'high' | 'medium' | 'low';
+  } | null>(null);
   const [playgroundState, setPlaygroundState] = useState({
     passwordStrength: 0,
+    passwordCrackTime: '',
+    crackMethod: '',
     securityChecks: {
       updates: false,
       antivirus: false,
@@ -27,6 +37,14 @@ export default function DebutantCyber() {
       backup: false
     }
   });
+  const [simulatedHacker, setSimulatedHacker] = useState({
+    active: false,
+    progress: 0,
+    technique: '',
+    targetedSystem: '',
+    messageLog: [] as string[]
+  });
+  const [iaFeedback, setIaFeedback] = useState('');
   
   const { toast } = useToast();
   
@@ -87,30 +105,231 @@ export default function DebutantCyber() {
     });
   };
   
-  // Évaluer la force du mot de passe
-  const evaluatePassword = (password) => {
+  // Simuler l'analyse d'un email de phishing
+  const analyzeEmail = (emailContent: string) => {
+    setEmailAnalysisInProgress(true);
+    
+    // Simuler un délai d'analyse par l'IA
+    setTimeout(() => {
+      // Analyse simulée basée sur des indicateurs courants de phishing
+      const hasUrgentLanguage = emailContent.toLowerCase().includes('urgent') || 
+                               emailContent.toLowerCase().includes('immédiatement') ||
+                               emailContent.toLowerCase().includes('suspendre');
+      
+      const hasBadGrammar = emailContent.includes('votre compte sera suspendu') || 
+                           emailContent.includes('probleme');
+      
+      const hasUnusualSender = emailContent.includes('@gmaill.com') || 
+                              emailContent.includes('@banque-secure.net');
+      
+      const asksForPersonalInfo = emailContent.toLowerCase().includes('mot de passe') || 
+                                 emailContent.toLowerCase().includes('numéro de carte');
+      
+      // Calcul du score de confiance
+      let phishingIndicators = 0;
+      const reasons = [];
+      const techniques = [];
+      
+      if (hasUrgentLanguage) {
+        phishingIndicators += 1;
+        reasons.push("Utilisation d'un langage d'urgence pour créer une pression");
+        techniques.push("Manipulation psychologique (sentiment d'urgence)");
+      }
+      
+      if (hasBadGrammar) {
+        phishingIndicators += 1;
+        reasons.push("Erreurs grammaticales ou orthographiques");
+        techniques.push("Email rédigé à la hâte ou traduit automatiquement");
+      }
+      
+      if (hasUnusualSender) {
+        phishingIndicators += 2;
+        reasons.push("Adresse d'expéditeur suspecte imitant une organisation légitime");
+        techniques.push("Usurpation d'identité (spoofing)");
+      }
+      
+      if (asksForPersonalInfo) {
+        phishingIndicators += 2;
+        reasons.push("Demande d'informations personnelles ou sensibles");
+        techniques.push("Vol d'identité et d'informations bancaires");
+      }
+      
+      const confidence = Math.min(phishingIndicators * 20, 100);
+      const isPhishing = confidence >= 60;
+      
+      let riskLevel: 'high' | 'medium' | 'low' = 'low';
+      if (confidence >= 80) riskLevel = 'high';
+      else if (confidence >= 40) riskLevel = 'medium';
+      
+      // Mise à jour du résultat
+      setEmailAnalysisResult({
+        isPhishing,
+        confidence,
+        reasons,
+        techniques,
+        riskLevel
+      });
+      
+      // Feedback IA
+      setIaFeedback(isPhishing 
+        ? "J'ai détecté plusieurs signaux d'alerte dans cet email. Il s'agit très probablement d'une tentative de phishing."
+        : "Cet email présente peu d'indicateurs de phishing, mais restez vigilant.");
+      
+      setEmailAnalysisInProgress(false);
+      
+      // Notification
+      toast({
+        title: "Analyse terminée",
+        description: isPhishing 
+          ? "Attention! Cet email semble être une tentative de phishing." 
+          : "L'email semble légitime, mais restez vigilant.",
+        variant: isPhishing ? "destructive" : "default"
+      });
+    }, 2000);
+  };
+  
+  // Évaluer la force du mot de passe avec analyse avancée
+  const evaluatePassword = (password: string) => {
     let strength = 0;
     
-    if (password.length > 8) strength += 25;
-    if (password.match(/[A-Z]/)) strength += 25;
-    if (password.match(/[0-9]/)) strength += 25;
-    if (password.match(/[^A-Za-z0-9]/)) strength += 25;
+    // Critères de base
+    if (password.length >= 8) strength += 10;
+    if (password.length >= 12) strength += 10;
+    if (password.length >= 16) strength += 5;
     
+    if (password.match(/[A-Z]/)) strength += 15;
+    if (password.match(/[0-9]/)) strength += 15;
+    if (password.match(/[^A-Za-z0-9]/)) strength += 20;
+    
+    // Critères avancés
+    if (password.match(/[A-Z].*[A-Z]/)) strength += 5; // Au moins 2 majuscules
+    if (password.match(/[0-9].*[0-9]/)) strength += 5; // Au moins 2 chiffres
+    if (password.match(/[^A-Za-z0-9].*[^A-Za-z0-9]/)) strength += 5; // Au moins 2 caractères spéciaux
+    
+    // Pénalités pour les motifs communs
+    if (password.toLowerCase().includes('123')) strength -= 10;
+    if (password.toLowerCase().includes('password')) strength -= 20;
+    if (password.toLowerCase().includes('azerty')) strength -= 15;
+    if (password.toLowerCase().includes('qwerty')) strength -= 15;
+    
+    // Limiter la force entre 0 et 100
+    strength = Math.max(0, Math.min(100, strength));
+    
+    // Estimer le temps de craquage (simulation)
+    let crackTime = '';
+    let crackMethod = '';
+    
+    if (strength < 20) {
+      crackTime = 'Instantané à quelques secondes';
+      crackMethod = 'Attaque par dictionnaire simple';
+    } else if (strength < 40) {
+      crackTime = 'Quelques minutes à quelques heures';
+      crackMethod = 'Attaque par dictionnaire avancée';
+    } else if (strength < 60) {
+      crackTime = 'Quelques jours à quelques semaines';
+      crackMethod = 'Attaque par force brute ciblée';
+    } else if (strength < 80) {
+      crackTime = 'Quelques mois à quelques années';
+      crackMethod = 'Force brute avec règles personnalisées';
+    } else {
+      crackTime = 'Des dizaines à des centaines d\'années';
+      crackMethod = 'Force brute avec supercalculateur';
+    }
+    
+    // Mise à jour de l'état
     setPlaygroundState({
       ...playgroundState,
-      passwordStrength: strength
+      passwordStrength: strength,
+      passwordCrackTime: crackTime,
+      crackMethod: crackMethod,
+      securityChecks: {
+        ...playgroundState.securityChecks,
+        password: strength >= 70
+      }
     });
     
-    if (strength >= 75) {
-      setPlaygroundState({
-        ...playgroundState,
-        passwordStrength: strength,
-        securityChecks: {
-          ...playgroundState.securityChecks,
-          password: true
-        }
-      });
-    }
+    // Feedback IA
+    const feedback = strength >= 70 
+      ? "Excellent! Votre mot de passe est robuste et résisterait à la plupart des attaques."
+      : strength >= 40 
+        ? "Ce mot de passe offre une protection moyenne. Essayez de le renforcer davantage."
+        : "Ce mot de passe est faible et facilement piratable. Je vous recommande de le changer.";
+        
+    setIaFeedback(feedback);
+  };
+  
+  // Simuler une attaque en temps réel
+  const simulateAttack = (targetSystem: string) => {
+    if (simulatedHacker.active) return;
+    
+    const techniques = {
+      'wifi': 'Sniffing de réseau WiFi non sécurisé',
+      'password': 'Attaque par force brute sur le mot de passe',
+      'phishing': 'Hameçonnage et ingénierie sociale',
+      'malware': 'Infection par logiciel malveillant'
+    };
+    
+    const technique = techniques[targetSystem as keyof typeof techniques] || 'Technique inconnue';
+    
+    setSimulatedHacker({
+      active: true,
+      progress: 0,
+      technique,
+      targetedSystem: targetSystem,
+      messageLog: [`Début de l'attaque sur ${targetSystem}...`]
+    });
+    
+    const hackerMessages = {
+      'wifi': [
+        "Recherche des réseaux WiFi à proximité...",
+        "Réseau non sécurisé détecté!",
+        "Interception du trafic en cours...",
+        "Capture des cookies de session...",
+        "Collecte des identifiants non chiffrés...",
+        "Données sensibles interceptées!"
+      ],
+      'password': [
+        "Tentative d'accès au compte...",
+        "Échec de connexion, essai avec une liste de mots de passe courants...",
+        "Mot de passe faible détecté, craquage en cours...",
+        "25% du mot de passe découvert...",
+        "50% du mot de passe découvert...",
+        "Mot de passe complet découvert: 'azerty123'!"
+      ],
+      'phishing': [
+        "Création d'un email imitant votre banque...",
+        "Email envoyé avec un lien vers un site frauduleux...",
+        "L'utilisateur a cliqué sur le lien malveillant!",
+        "Page de connexion falsifiée affichée...",
+        "L'utilisateur a saisi ses identifiants...",
+        "Identifiants bancaires compromis!"
+      ],
+      'malware': [
+        "Préparation d'une pièce jointe malveillante...",
+        "Document infecté envoyé à l'utilisateur...",
+        "L'utilisateur a ouvert la pièce jointe!",
+        "Installation du logiciel malveillant en cours...",
+        "Prise de contrôle de l'appareil...",
+        "Accès complet au système obtenu!"
+      ]
+    };
+    
+    let step = 0;
+    const interval = setInterval(() => {
+      if (step < hackerMessages[targetSystem as keyof typeof hackerMessages].length) {
+        const progress = Math.min(100, Math.round((step + 1) * 100 / hackerMessages[targetSystem as keyof typeof hackerMessages].length));
+        
+        setSimulatedHacker(prev => ({
+          ...prev,
+          progress,
+          messageLog: [...prev.messageLog, hackerMessages[targetSystem as keyof typeof hackerMessages][step]]
+        }));
+        
+        step++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 2000);
   };
   
   return (
