@@ -468,6 +468,14 @@ La demande de rançon s'élève à 500 000 € en Bitcoin, avec une menace de pu
           </div>
         </div>
         
+        {/* Bannière en cours de développement */}
+        <div className="mx-auto max-w-4xl mb-4 mt-2">
+          <div className="flex items-center justify-center gap-2 px-4 py-3 bg-amber-900/30 border border-amber-500/30 rounded-md">
+            <AlertTriangle className="h-5 w-5 text-amber-500" />
+            <p className="font-medium text-amber-400">Module en cours de développement (15% terminé)</p>
+          </div>
+        </div>
+        
         {/* Contenu principal */}
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-screen">

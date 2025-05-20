@@ -197,13 +197,8 @@ const RoleplayHub: React.FC = () => {
       </div>
 
       {/* Note en bas de page */}
-      <div className="text-center mt-12 space-y-3">
-        <div className="flex items-center justify-center gap-2 text-amber-500">
-          <AlertTriangle className="h-4 w-4" />
-          <p className="font-medium">Module en cours de développement (15% terminé)</p>
-        </div>
-        <p className="text-gray-500 text-sm">Les scénarios sont en phase de développement initial et seront progressivement enrichis de nouvelles fonctionnalités.</p>
-        <p className="text-gray-500 text-sm">Tous les scénarios sont alimentés par Azure OpenAI pour offrir une expérience d'apprentissage dynamique et personnalisée.</p>
+      <div className="text-center text-gray-500 mt-12 text-sm">
+        <p>Les scénarios sont conçus pour offrir une expérience d'apprentissage dynamique et personnalisée.</p>
       </div>
     </div>
   );
