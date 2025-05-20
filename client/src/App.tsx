@@ -268,6 +268,20 @@ function App() {
                 </Route>
                 
                 <Route path="/data-ia" component={DataIaModeSelection} />
+                <Route path="/data-ia/sas-academie">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      {React.createElement(lazy(() => import("./pages/data-ia/sas-academie")))}
+                    </Suspense>
+                  )}
+                </Route>
+                <Route path="/data-ia/expert-learning">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      {React.createElement(lazy(() => import("./pages/data-ia/expert-learning")))}
+                    </Suspense>
+                  )}
+                </Route>
                 <Route path="/data-ia/roleplay">
                   {(params) => (
                     <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
