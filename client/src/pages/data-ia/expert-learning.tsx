@@ -13,19 +13,8 @@ import {
   ChevronUp
 } from 'lucide-react';
 import { IoHome } from 'react-icons/io5';
-// Note: Ce contexte n'existe pas encore, donc nous simulons ses fonctionnalités
-// import { useOpenAI } from '@/contexts/OpenAIContext';
-const useOpenAI = () => {
-  const [currentModel, setCurrentModel] = useState('gpt-4o-mini');
-  const toggleModel = () => {
-    setCurrentModel(prev => prev === 'gpt-4o' ? 'gpt-4o-mini' : 'gpt-4o');
-  };
-  return {
-    connectionStatus: 'connected',
-    currentModel,
-    toggleModel
-  };
-};
+// Utilisation du hook useOpenAI réel
+import { useOpenAI } from '@/hooks/useOpenAI';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { DataButton } from '@/components/DataButton';
@@ -58,15 +47,7 @@ const MarkdownRenderer = ({ content }: { content: string }) => {
   
   return <div>{formattedContent}</div>;
 };
-// Composant simple pour simuler OpenAIStatusIndicator
-const OpenAIStatusIndicator = () => {
-  return (
-    <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-medium">
-      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-      <span>Connecté</span>
-    </div>
-  );
-};
+// Utilise le composant OpenAIStatusIndicator importé
 
 // Type pour un message dans la conversation
 interface Message {
@@ -119,32 +100,61 @@ export default function DataIaExpertLearning() {
     setIsLoading(true);
     
     try {
-      // Simulation d'une réponse de l'API (à remplacer par l'appel réel à Azure OpenAI)
-      setTimeout(() => {
+      // Créer le contexte pour l'appel API avec un prompt qui encourage l'expert à:
+      // - vulgariser les concepts
+      // - donner des exemples concrets
+      // - créer des petits jeux ou challenges
+      // - mettre l'utilisateur en situation
+      // - expliquer les outils/stacks de manière accessible
+      // - maintenir l'engagement avec des questions de suivi
+      const messagesForAPI = [
+        {
+          role: 'system',
+          content: `Tu es un expert pédagogue en Data Science et Intelligence Artificielle. 
+Ta mission est d'aider l'utilisateur à apprendre et comprendre les concepts de Data & IA de manière engageante:
+
+1. VULGARISATION: Simplifie les concepts complexes avec des analogies et explications accessibles.
+2. EXEMPLES CONCRETS: Illustre chaque concept avec des exemples du monde réel et cas d'usage.
+3. INTERACTIVITÉ: Propose de petits défis, quiz ou jeux pour tester la compréhension.
+4. MISES EN SITUATION: Place l'utilisateur dans des scénarios pratiques de data scientist.
+5. EXPLORATION GUIDÉE: Explique les outils, bibliothèques et stacks techniques avec des exemples de code simples.
+6. ENGAGEMENT CONSTANT: Termine toujours par une question ouverte pour encourager la poursuite de la discussion.
+
+Sois synthétique mais complet. Adresse-toi à l'utilisateur directement ("tu"). Évite le jargon trop technique sauf si l'utilisateur semble à l'aise avec ces termes. Sois enthousiaste et encourage l'utilisateur à découvrir davantage.`
+        },
+        ...messages.filter(m => m.role !== 'system').map(m => ({
+          role: m.role,
+          content: m.content
+        }))
+      ];
+      
+      // Appel à l'API Azure OpenAI via le hook useOpenAI
+      const result = await sendChatMessage(messagesForAPI, 0.7, 1000);
+      
+      if (result && result.response) {
         const assistantMessage: Message = {
           role: 'assistant',
-          content: "Cette version de démonstration utilise des réponses simulées. Dans la version complète, cette fonctionnalité serait connectée à Azure OpenAI pour générer des réponses personnalisées et précises à vos questions sur la Data Science et l'IA.",
+          content: result.response,
           timestamp: new Date()
         };
         
         setMessages(prevMessages => [...prevMessages, assistantMessage]);
-        setIsLoading(false);
-      }, 1500);
-      
-      // Note: ici viendrait normalement un appel à l'API Azure OpenAI
-      
+      } else {
+        throw new Error('Réponse invalide de l\'API');
+      }
     } catch (error) {
       console.error('Erreur lors de l\'envoi du message:', error);
-      setIsLoading(false);
       
       // Message d'erreur
       const errorMessage: Message = {
         role: 'assistant',
-        content: "Désolé, une erreur s'est produite lors de la communication avec l'assistant IA. Veuillez réessayer.",
+        content: "Désolé, une erreur s'est produite lors de la communication avec l'expert IA. Veuillez réessayer dans quelques instants.",
         timestamp: new Date()
       };
       
       setMessages(prevMessages => [...prevMessages, errorMessage]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -217,7 +227,15 @@ export default function DataIaExpertLearning() {
           </div>
           
           <div className="flex items-center gap-3">
-            <OpenAIStatusIndicator />
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-medium">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+              <span>FYNE Connecté</span>
+              {currentModel === 'gpt-4o' ? (
+                <Zap className="ml-1 h-3 w-3 text-yellow-400" />
+              ) : (
+                <ZapOff className="ml-1 h-3 w-3 text-blue-400" />
+              )}
+            </div>
             
             <TooltipProvider>
               <Tooltip>
