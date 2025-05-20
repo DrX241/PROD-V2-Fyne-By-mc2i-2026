@@ -206,7 +206,7 @@ export default function CyberV3() {
 
           {/* Modules Cyber */}
           <div className="mt-8 px-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-center max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center max-w-4xl mx-auto">
               {/* CYBER ACADÉMIE */}
               <motion.div 
                 whileHover={{ scale: 1.03 }}
