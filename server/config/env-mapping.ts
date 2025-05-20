@@ -43,7 +43,7 @@ export function mapEnvironmentVariables() {
   }
   
   if (!process.env.GPT4O_MINI_DEPLOYMENT_NAME) {
-    // Utiliser le nom exact du déploiement observé dans les logs du site original
+    // Utiliser le nom exact du déploiement fourni par l'utilisateur
     process.env.GPT4O_MINI_DEPLOYMENT_NAME = process.env.AZURE_OPENAI_MINI_DEPLOYMENT_NAME || 'Eddy-02-2025-gpt-4o-mini';
   }
   

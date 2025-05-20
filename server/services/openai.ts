@@ -213,9 +213,11 @@ class OpenAIService {
       const requestBody: any = {
         messages: messages,
         temperature: temperature,
-        max_tokens: maxTokens
-        // Ne pas inclure le modèle, il est déjà dans l'URL
+        max_tokens: maxTokens,
+        model: config.modelName // Le nom du modèle est requis par Azure OpenAI
       };
+      
+      console.log(`Requête formatée pour ${config.deploymentName}`);
       
       // Ajouter le format de réponse JSON si demandé
       if (options.responseFormat === 'json_object') {
@@ -428,12 +430,12 @@ class OpenAIService {
       
       const url = `${baseEndpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
       
-      // Adapter le corps de la requête pour Azure OpenAI en suivant l'exemple Python
+      // Adapter le corps de la requête pour Azure OpenAI
       const requestBody = {
         messages: [{ role: "user", content: "Test connection" }],
         max_tokens: 5,
-        temperature: 0
-        // Ne pas inclure le modèle, il est déjà dans l'URL
+        temperature: 0,
+        model: "gpt-4o-mini" // Le nom du modèle est requis par Azure OpenAI
       };
       
       console.log(`Envoi d'une requête à ${url} avec le déploiement: ${config.deploymentName}`);
