@@ -234,7 +234,7 @@ export default function CyberV3() {
                     <Button 
                       className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-5 w-full"
                       onClick={(e) => {
-                        setLocation('/cyber/learning-center');
+                        setLocation('/cyber/sas-academie');
                       }}
                     >
                       Explorer l'académie
