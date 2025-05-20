@@ -709,7 +709,7 @@ export default function DebutantCyber() {
               </motion.div>
             )}
             
-            {/* Étape 3: Quiz interactif */}
+            {/* Étape 3: Quiz interactif et mise en situation */}
             {currentStep === 3 && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -719,13 +719,22 @@ export default function DebutantCyber() {
               >
                 <Card className="bg-amber-950/40 border-amber-800/40 shadow-xl">
                   <CardContent className="p-6">
-                    <h2 className="text-2xl font-bold text-white mb-4">Quiz: Testez vos connaissances</h2>
+                    <h2 className="text-2xl font-bold text-white mb-4">Mise en pratique interactive</h2>
                     
                     <p className="text-amber-200 mb-6">
-                      Mettez en pratique ce que vous avez appris en répondant à ces questions sur la cybersécurité de base.
+                      Mettez en pratique ce que vous avez appris avec ces exercices immersifs et interactifs sur la cybersécurité.
                     </p>
                     
-                    <div className="space-y-8">
+                    <Tabs defaultValue="quiz" className="w-full">
+                      <TabsList className="grid grid-cols-3 mb-6">
+                        <TabsTrigger value="quiz" className="data-[state=active]:bg-amber-700">Quiz</TabsTrigger>
+                        <TabsTrigger value="password" className="data-[state=active]:bg-amber-700">Test de mot de passe</TabsTrigger>
+                        <TabsTrigger value="phishing" className="data-[state=active]:bg-amber-700">Analyse d'email</TabsTrigger>
+                      </TabsList>
+                      
+                      {/* Onglet Quiz */}
+                      <TabsContent value="quiz">
+                        <div className="space-y-8">
                       {/* Question 1 */}
                       <div className="bg-amber-900/20 p-5 rounded-lg border border-amber-700/50">
                         <h3 className="text-lg font-medium text-white mb-3">Question 1: Le phishing, c'est...</h3>
