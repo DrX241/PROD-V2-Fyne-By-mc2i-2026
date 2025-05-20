@@ -58,9 +58,9 @@ const CyberHomePage: React.FC = () => {
       title: 'I AM CYBER',
       description: 'Plongez au cœur des enjeux de la cybersécurité avec des simulations réalistes',
       icon: <ShieldCheck size={24} />,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
-      accentColor: 'border-purple-500',
+      color: 'text-indigo-600',
+      bgColor: 'bg-indigo-100',
+      accentColor: 'border-indigo-500',
       route: '/cyber'
     },
     {
@@ -205,12 +205,12 @@ const CyberHomePage: React.FC = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="flex flex-wrap justify-center gap-8 mx-auto max-w-6xl">
               {modules.map((module) => (
                 <motion.div 
                   key={module.id}
-                  className={`bg-white rounded-3xl overflow-hidden shadow-lg transition-all duration-300 
-                    ${module.id === 'cyber' ? 'border-t-8 border-t-purple-500' : ''}
+                  className={`bg-white rounded-3xl overflow-hidden shadow-lg transition-all duration-300 flex-1 min-w-[300px] max-w-[380px]
+                    ${module.id === 'cyber' ? 'border-t-8 border-t-indigo-500' : ''}
                     ${module.id === 'data' ? 'border-t-8 border-t-purple-500' : ''}
                     ${module.id === 'mc2i' ? 'border-t-8 border-t-emerald-500' : ''}
                     ${module.id === 'generator' ? 'border-t-8 border-t-rose-500' : ''}`
