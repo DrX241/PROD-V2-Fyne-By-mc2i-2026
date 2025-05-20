@@ -585,7 +585,7 @@ export default function LearningCenter() {
     startTutorial();
   };
   
-  // Rendu du module
+  // Rendu du module avec lien direct vers la page du module
   const renderModuleCard = (module: Module, index: number) => (
     <motion.div
       key={module.id}
@@ -593,7 +593,7 @@ export default function LearningCenter() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
     >
-      <Link href={module.destination || '#'} className="block">
+      <Link href={module.destination || '#'} className="block h-full">
         <Card className="h-full bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 cursor-pointer overflow-hidden group">
           <div className="p-5">
             <div className="flex items-start mb-4">
