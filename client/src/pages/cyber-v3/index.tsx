@@ -281,43 +281,7 @@ export default function CyberV3() {
                 </div>
               </motion.div>
 
-              {/* CYBER LAB */}
-              <motion.div 
-                whileHover={{ scale: 1.03 }}
-                className={`cyber-edge-distort relative overflow-hidden p-6 ${
-                  highContrastMode 
-                    ? 'bg-gray-800 border border-gray-700' 
-                    : 'bg-gradient-to-br from-violet-600 to-blue-900 border-2 border-violet-400/50 shadow-lg shadow-violet-500/50'
-                } hover:shadow-xl transition-all duration-300`}
-              >
-                <div className="flex items-center justify-center mb-4">
-                  <div className={`p-3 rounded-lg ${
-                    highContrastMode 
-                      ? 'bg-violet-900' 
-                      : 'bg-gradient-to-r from-violet-600 to-blue-600 shadow-md'
-                  }`}>
-                    <Terminal className="h-8 w-8 text-white" />
-                  </div>
-                </div>
-                <h3 className="text-center text-2xl font-data-title mb-2">CYBER LAB</h3>
-                <p className="text-center text-violet-300 mt-2">
-                  Environnement pratique d'analyse de sécurité
-                </p>
-                <div className="mt-4">
-                  <div className="text-center">
-                    <Button 
-                      className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white px-6 py-5"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation('/cyber/cyber-lab');
-                      }}
-                    >
-                      Accéder au laboratoire
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
+
             </div>
           </div>
         </div>
