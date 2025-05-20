@@ -35,8 +35,8 @@ const RoleplayHub: React.FC = () => {
   const scenarios = [
     {
       id: 'interview-test',
-      title: "Simulation d'entretien",
-      description: "Simulez un entretien d'embauche pour un poste en cybersécurité avec un recruteur IA",
+      title: "Je suis Candidat",
+      description: "Je prépare un entretien d'embauche pour un poste en cybersécurité",
       link: '/cyber/interview-test',
       icon: <Briefcase className="h-10 w-10 text-blue-300" />,
       color: 'blue',
@@ -48,8 +48,8 @@ const RoleplayHub: React.FC = () => {
     },
     {
       id: 'test-technique',
-      title: 'Test Technique de Cybersécurité',
-      description: "Mettez vos compétences techniques à l'épreuve dans des situations réalistes",
+      title: 'Je suis Expert Technique',
+      description: "Je me teste sur des problématiques réelles de cybersécurité",
       link: '/cyber/test-technique',
       icon: <Terminal className="h-10 w-10 text-violet-300" />,
       color: 'violet',
@@ -61,8 +61,8 @@ const RoleplayHub: React.FC = () => {
     },
     {
       id: 'crisis-management',
-      title: 'Gestion de Crise',
-      description: "Prenez des décisions critiques lors d'incidents majeurs de cybersécurité",
+      title: 'Je suis RSSI',
+      description: "Je dois gérer une crise suite à un incident de cybersécurité majeur",
       link: '/cyber/crisis-management',
       icon: <AlertTriangle className="h-10 w-10 text-rose-300" />,
       color: 'rose',
@@ -71,19 +71,6 @@ const RoleplayHub: React.FC = () => {
       buttonGradient: 'from-rose-700 to-rose-600',
       buttonHover: 'hover:from-rose-600 hover:to-rose-500',
       textColor: 'text-rose-300'
-    },
-    {
-      id: 'expert-cyber',
-      title: 'Expert Cybersécurité',
-      description: "Dialoguez librement avec un assistant spécialisé en cybersécurité",
-      link: '/cyber/expert-learning',
-      icon: <BrainCircuit className="h-10 w-10 text-cyan-300" />,
-      color: 'cyan',
-      gradient: 'from-cyan-900/70 to-cyan-700/30',
-      border: 'border-cyan-500/30',
-      buttonGradient: 'from-cyan-700 to-cyan-600',
-      buttonHover: 'hover:from-cyan-600 hover:to-cyan-500',
-      textColor: 'text-cyan-300'
     }
   ];
 
