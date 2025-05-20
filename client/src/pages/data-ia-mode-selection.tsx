@@ -227,7 +227,7 @@ export default function DataIAModeSelection() {
 
             {/* Modules Data & IA */}
             <div className="mt-8 px-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-center max-w-6xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center max-w-4xl mx-auto">
                 {/* DATA & IA ACADEMY - CAMPUS FORMATION */}
                 <div 
                   className={`cyber-edge-distort relative overflow-hidden p-6 ${
@@ -265,46 +265,8 @@ export default function DataIAModeSelection() {
                     </Button>
                   </div>
                 </div>
-              
-                {/* READ ME IF YOU CAN */}
-                <div 
-                  className={`cyber-edge-distort relative overflow-hidden p-6 ${
-                    highContrastMode 
-                      ? 'bg-gray-800 border border-gray-700' 
-                      : 'bg-gradient-to-br from-indigo-600 to-cyan-900 border-2 border-cyan-400/50 shadow-lg shadow-cyan-500/50'
-                  } hover:shadow-lg hover:scale-[1.02] transition-all duration-300`}
-                >
-                  <div className="flex items-center justify-center mb-4">
-                    <div className={`p-3 rounded-lg ${
-                      highContrastMode 
-                        ? 'bg-blue-900' 
-                        : 'bg-gradient-to-r from-blue-500 to-cyan-500 shadow-md'
-                    }`}>
-                      <Code className="h-8 w-8 text-white" />
-                    </div>
-                  </div>
-                  <h3 className="text-center text-2xl font-data-title mb-2">ESPACE D'ENTRAINEMENT</h3>
-                  <p className="text-center text-cyan-300 mt-2">
-                    Testez et améliorez vos compétences en Data Science et IA pratique
-                  </p>
-                  <div className="text-center flex flex-col items-center mt-4">
-                    <p className="text-gray-200 mb-4">
-                      Résolvez des problèmes concrets et développez vos capacités en Python, SQL et Data
-                    </p>
-                    <Button 
-                      className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-6 py-5"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation('/data-ia/data-studio');
-                      }}
-                    >
-                      Accéder à l'entraînement
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
 
-                {/* IA LAB TRAINER */}
+                {/* DATA & IA ROLE PLAY */}
                 <div 
                   className={`cyber-edge-distort relative overflow-hidden p-6 ${
                     highContrastMode 
