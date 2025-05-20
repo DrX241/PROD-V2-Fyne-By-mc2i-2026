@@ -57,7 +57,7 @@ const CyberHomePage: React.FC = () => {
       id: 'cyber',
       title: 'I AM CYBER',
       description: 'Plongez au cœur des enjeux de la cybersécurité avec des simulations réalistes',
-      icon: <ShieldCheck size={24} />,
+      icon: <div className="w-5 h-5 bg-indigo-500"></div>,
       color: 'text-indigo-600',
       bgColor: 'bg-indigo-100',
       accentColor: 'border-indigo-500',
@@ -67,7 +67,7 @@ const CyberHomePage: React.FC = () => {
       id: 'data',
       title: 'I AM DATA & IA',
       description: 'Maîtrisez les technologies d\'analyse de données et d\'intelligence artificielle',
-      icon: <Brain size={24} />,
+      icon: <div className="w-5 h-5 bg-purple-500"></div>,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
       accentColor: 'border-purple-500',
@@ -77,7 +77,7 @@ const CyberHomePage: React.FC = () => {
       id: 'mc2i',
       title: 'I AM mc2i',
       description: 'Développez vos compétences en assistance à maîtrise d\'ouvrage',
-      icon: <RocketIcon size={24} />,
+      icon: <div className="w-5 h-5 bg-emerald-500"></div>,
       color: 'text-emerald-600',
       bgColor: 'bg-emerald-100',
       accentColor: 'border-emerald-500',
@@ -87,7 +87,7 @@ const CyberHomePage: React.FC = () => {
       id: 'generator',
       title: 'SOYEZ QUI VOUS VOULEZ',
       description: 'Créez vos propres modules de formation personnalisés',
-      icon: <Zap size={24} />,
+      icon: <div className="w-5 h-5 bg-rose-500"></div>,
       color: 'text-rose-600',
       bgColor: 'bg-rose-100',
       accentColor: 'border-rose-500',
@@ -169,7 +169,7 @@ const CyberHomePage: React.FC = () => {
                 Découvrez une nouvelle dimension d'apprentissage interactif avec nos modules IA innovants qui s'adaptent parfaitement à votre progression.
               </p>
               
-              <div className="flex items-center justify-center md:justify-start mt-10">
+              <div className="flex items-center justify-center mt-10">
                 <motion.button
                   onClick={() => setLocation('/fyne-about')}
                   className="px-8 py-4 bg-[#006a9e] hover:bg-[#006a9e]/90 text-white rounded-md text-lg font-semibold shadow-lg transition-all duration-300 flex items-center space-x-2"
@@ -215,11 +215,11 @@ const CyberHomePage: React.FC = () => {
               </p>
             </div>
             
-            <div className="flex flex-wrap justify-center gap-8 mx-auto max-w-6xl">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mx-auto max-w-7xl">
               {modules.map((module) => (
                 <motion.div 
                   key={module.id}
-                  className={`bg-white rounded-3xl overflow-hidden shadow-lg transition-all duration-300 flex-1 min-w-[300px] max-w-[380px]
+                  className={`bg-white rounded-3xl overflow-hidden shadow-lg transition-all duration-300
                     ${module.id === 'cyber' ? 'border-t-8 border-t-indigo-500' : ''}
                     ${module.id === 'data' ? 'border-t-8 border-t-purple-500' : ''}
                     ${module.id === 'mc2i' ? 'border-t-8 border-t-emerald-500' : ''}
@@ -234,18 +234,18 @@ const CyberHomePage: React.FC = () => {
                   onClick={() => setLocation(module.route)}
                   style={{ cursor: 'pointer' }}
                 >
-                  <div className="p-8">
+                  <div className="p-6">
                     <div 
-                      className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 
                         ${module.bgColor}`
                       }
                     >
-                      <div className={module.color}>
+                      <div>
                         {module.icon}
                       </div>
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-gray-800">{module.title}</h3>
-                    <p className="text-gray-600 mb-6">{module.description}</p>
+                    <h3 className="text-lg font-bold mb-3 text-gray-800">{module.title}</h3>
+                    <p className="text-sm text-gray-600 mb-4">{module.description}</p>
                     <div className="flex items-center text-sm font-medium">
                       <span className={module.color}>
                         Explorer
