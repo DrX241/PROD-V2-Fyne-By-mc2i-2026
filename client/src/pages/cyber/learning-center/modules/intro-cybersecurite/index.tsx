@@ -239,23 +239,19 @@ export default function IntroductionCybersecurite() {
                 <h3 className="text-lg font-semibold text-white mb-4">Modules complémentaires</h3>
                 
                 <div className="space-y-3">
-                  <Link href="/cyber/learning-center/modules/zero-trust">
-                    <div className="block p-3 bg-blue-900/30 rounded-lg hover:bg-blue-900/50 transition-colors">
-                      <div className="flex items-center">
-                        <Shield className="h-4 w-4 text-blue-300 mr-2" />
-                        <span className="text-blue-200">Zero Trust</span>
-                      </div>
+                  <div className="block p-3 bg-blue-900/30 rounded-lg">
+                    <div className="flex items-center">
+                      <Shield className="h-4 w-4 text-blue-300 mr-2" />
+                      <span className="text-blue-200">Zero Trust</span>
                     </div>
-                  </Link>
+                  </div>
                   
-                  <Link href="/cyber/learning-center/modules/ransomware">
-                    <div className="block p-3 bg-blue-900/30 rounded-lg hover:bg-blue-900/50 transition-colors">
-                      <div className="flex items-center">
-                        <Lock className="h-4 w-4 text-blue-300 mr-2" />
-                        <span className="text-blue-200">Protection contre les ransomwares</span>
-                      </div>
+                  <div className="block p-3 bg-blue-900/30 rounded-lg">
+                    <div className="flex items-center">
+                      <Lock className="h-4 w-4 text-blue-300 mr-2" />
+                      <span className="text-blue-200">Protection contre les ransomwares</span>
                     </div>
-                  </Link>
+                  </div>
                 </div>
               </CardContent>
             </Card>

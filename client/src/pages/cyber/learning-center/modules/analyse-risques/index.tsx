@@ -271,23 +271,19 @@ export default function AnalyseRisques() {
                 <h3 className="text-lg font-semibold text-white mb-4">Modules complémentaires</h3>
                 
                 <div className="space-y-3">
-                  <Link href="/cyber/learning-center/modules/normes-standards">
-                    <div className="block p-3 bg-blue-900/30 rounded-lg hover:bg-blue-900/50 transition-colors">
-                      <div className="flex items-center">
-                        <BookOpen className="h-4 w-4 text-blue-300 mr-2" />
-                        <span className="text-blue-200">Normes et standards de sécurité</span>
-                      </div>
+                  <div className="block p-3 bg-blue-900/30 rounded-lg">
+                    <div className="flex items-center">
+                      <BookOpen className="h-4 w-4 text-blue-300 mr-2" />
+                      <span className="text-blue-200">Normes et standards de sécurité</span>
                     </div>
-                  </Link>
+                  </div>
                   
-                  <Link href="/cyber/learning-center/modules/gouvernance-cyber">
-                    <div className="block p-3 bg-blue-900/30 rounded-lg hover:bg-blue-900/50 transition-colors">
-                      <div className="flex items-center">
-                        <Shield className="h-4 w-4 text-blue-300 mr-2" />
-                        <span className="text-blue-200">Gouvernance de la cybersécurité</span>
-                      </div>
+                  <div className="block p-3 bg-blue-900/30 rounded-lg">
+                    <div className="flex items-center">
+                      <Shield className="h-4 w-4 text-blue-300 mr-2" />
+                      <span className="text-blue-200">Gouvernance de la cybersécurité</span>
                     </div>
-                  </Link>
+                  </div>
                 </div>
               </CardContent>
             </Card>
