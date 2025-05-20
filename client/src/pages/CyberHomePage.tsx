@@ -141,19 +141,31 @@ const CyberHomePage: React.FC = () => {
             </div>
 
             <motion.div 
-              className="max-w-4xl mx-auto text-center md:text-left md:ml-0 md:mr-auto relative z-20"
+              className="max-w-5xl mx-auto text-center relative z-20"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
             >
-              <h1 className="text-5xl md:text-7xl font-bold mb-12 tracking-tight text-gray-900">
-                <span className="block">Améliorez </span>
-                <span className="text-[#006a9e]">votre </span>
-                <span className="text-[#dd0061]">expertise</span><br className="hidden md:inline" />
-                <span className="block mt-1">avec <span className="text-[#006a9e]">FYNE</span></span>
+              <h1 className="text-4xl md:text-5xl font-bold mb-3 tracking-tight">
+                <span className="text-[#dd0061]">F</span><span className="text-[#006a9e]">or </span>
+                <span className="text-[#dd0061]">Y</span><span className="text-[#006a9e]">our </span>
+                <span className="text-[#dd0061]">N</span><span className="text-[#006a9e]">ext </span>
+                <span className="text-[#dd0061]">E</span><span className="text-[#006a9e]">xperience</span>
               </h1>
               
-              <p className="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed max-w-3xl">
+              <div className="w-32 h-1 bg-[#006a9e] mx-auto mb-12"></div>
+              
+              <h2 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
+                <span className="text-gray-900">Améliorez </span>
+                <span className="text-[#006a9e]">votre expertise</span>
+              </h2>
+              
+              <h2 className="text-5xl md:text-7xl font-bold mb-12 tracking-tight">
+                <span className="text-gray-900">avec </span>
+                <span className="text-[#006a9e]">FYNE</span>
+              </h2>
+              
+              <p className="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed max-w-3xl mx-auto">
                 Découvrez une nouvelle dimension d'apprentissage interactif avec nos modules IA innovants qui s'adaptent parfaitement à votre progression.
               </p>
               
