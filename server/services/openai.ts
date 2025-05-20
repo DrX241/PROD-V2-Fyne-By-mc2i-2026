@@ -432,8 +432,8 @@ class OpenAIService {
       const requestBody = {
         messages: [{ role: "user", content: "Test connection" }],
         max_tokens: 5,
-        temperature: 0
-        // Ne pas inclure le nom du modèle car il est déjà spécifié dans l'URL du déploiement
+        temperature: 0,
+        model: config.modelName // Pour Azure OpenAI, le modèle doit être spécifié
       };
       
       console.log(`Envoi d'une requête à ${url} avec le déploiement: ${config.deploymentName}`);
