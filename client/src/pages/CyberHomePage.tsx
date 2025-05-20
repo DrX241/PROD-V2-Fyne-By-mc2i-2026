@@ -155,10 +155,10 @@ const CyberHomePage: React.FC = () => {
                 </h1>
               </div>
               
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 max-w-3xl mx-auto">
-                Améliorez<span className="text-[#006a9e]"> votre </span><span className="text-[#dd0061]">expertise</span><br />avec <span className="text-[#006a9e]">FYNE</span>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 max-w-4xl mx-auto">
+                Améliorez<span className="text-[#006a9e]"> votre </span><span className="text-[#dd0061]">expertise</span> avec <span className="text-[#006a9e]">FYNE</span>
               </h2>
-              <p className="text-lg md:text-xl text-[#061019] mb-8 leading-relaxed max-w-3xl mx-auto">
+              <p className="text-xl md:text-2xl text-[#061019] mb-10 leading-relaxed max-w-4xl mx-auto">
                 Découvrez une nouvelle dimension d'apprentissage interactif avec nos modules IA innovants qui s'adaptent parfaitement à votre progression.
               </p>
               
