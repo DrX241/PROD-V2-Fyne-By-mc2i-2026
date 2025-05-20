@@ -31,44 +31,44 @@ class OpenAIService {
 
   constructor() {
     console.log("Initializing Azure OpenAI Service with configuration from secrets");
-    
+
     // Récupération des infos pour GPT-4o depuis les variables d'environnement
     const gpt4oApiKey = process.env.GPT4O_API_KEY || "";
     const gpt4oEndpoint = process.env.GPT4O_ENDPOINT || "";
     const gpt4oDeploymentName = process.env.GPT4O_DEPLOYMENT_NAME || "gpt-4o";
     const gpt4oApiVersion = process.env.GPT4O_API_VERSION || "2025-01-01-preview";
-    
+
     // Récupération des infos pour GPT-4o-mini depuis les variables d'environnement
     const gpt4oMiniApiKey = process.env.GPT4O_MINI_API_KEY || "";
     const gpt4oMiniEndpoint = process.env.GPT4O_MINI_ENDPOINT || "";
     const gpt4oMiniDeploymentName = process.env.GPT4O_MINI_DEPLOYMENT_NAME || "gpt-4o-mini";
     const gpt4oMiniApiVersion = process.env.GPT4O_MINI_API_VERSION || "2024-12-01-preview";
-    
+
     // Log pour le debug des valeurs (sans exposer la clé complète)
     console.log(`GPT-4o API Key: ***${gpt4oApiKey ? gpt4oApiKey.slice(-5) : "non définie"}`);
     console.log(`GPT-4o Endpoint: ${gpt4oEndpoint}`);
     console.log(`GPT-4o Deployment Name: ${gpt4oDeploymentName}`);
     console.log(`GPT-4o API Version: ${gpt4oApiVersion}`);
-    
+
     console.log(`GPT-4o-mini API Key: ***${gpt4oMiniApiKey ? gpt4oMiniApiKey.slice(-5) : "non définie"}`);
     console.log(`GPT-4o-mini Endpoint: ${gpt4oMiniEndpoint}`);
     console.log(`GPT-4o-mini Deployment Name: ${gpt4oMiniDeploymentName}`);
     console.log(`GPT-4o-mini API Version: ${gpt4oMiniApiVersion}`);
-    
+
     // Vérification des valeurs pour GPT-4o
     if (!gpt4oApiKey) {
       console.error("ERREUR: Aucune clé API fournie pour GPT-4o");
     }
-    
+
     if (!this.isValidURL(gpt4oEndpoint)) {
       console.error("ERREUR: L'endpoint GPT-4o n'est pas une URL valide");
     }
-    
+
     // Vérification des valeurs pour GPT-4o-mini
     if (!gpt4oMiniApiKey) {
       console.error("ERREUR: Aucune clé API fournie pour GPT-4o-mini");
     }
-    
+
     if (!this.isValidURL(gpt4oMiniEndpoint)) {
       console.error("ERREUR: L'endpoint GPT-4o-mini n'est pas une URL valide");
     }
@@ -90,25 +90,25 @@ class OpenAIService {
       apiVersion: gpt4oMiniApiVersion,
       modelName: "gpt-4o-mini"
     };
-    
+
     console.log(`Azure OpenAI Service initialized with primary model: ${this.primaryConfig.modelName}`);
     console.log(`Azure OpenAI Service initialized with secondary model: ${this.secondaryConfig.modelName}`);
-    
+
     // Vérification initiale de la connexion avec le service Azure OpenAI
     // Formatage correct de l'URL : suppression des doubles slashes
     let baseEndpoint = this.secondaryConfig.endpoint;
     if (baseEndpoint.endsWith('/')) {
       baseEndpoint = baseEndpoint.slice(0, -1);
     }
-    
+
     console.log(`Checking connection to Azure OpenAI at: ${baseEndpoint}/openai/deployments/${this.secondaryConfig.deploymentName}/chat/completions?api-version=${this.secondaryConfig.apiVersion}`);
-    
+
     this.checkConnection();
-    
+
     // Démarrer la vérification périodique de connexion
     this.startPeriodicConnectionCheck();
   }
-  
+
   // Démarre une vérification périodique de la connexion
   private startPeriodicConnectionCheck(): void {
     // Vérification toutes les minutes
@@ -122,7 +122,7 @@ class OpenAIService {
       });
     }, this.CONNECTION_CHECK_INTERVAL);
   }
-  
+
   // Démarre le processus de reconnexion
   private startReconnectionProcess(): void {
     // Arrêter tout intervalle de reconnexion précédent
@@ -130,20 +130,20 @@ class OpenAIService {
       clearInterval(this.reconnectInterval);
       this.reconnectInterval = null;
     }
-    
+
     this.connectionStatus = 'reconnecting';
     this.reconnectAttempts = 0;
-    
+
     // Tenter de se reconnecter toutes les 10 secondes
     this.reconnectInterval = setInterval(() => {
       this.reconnectAttempts++;
       console.log(`Reconnection attempt ${this.reconnectAttempts} of ${this.MAX_RECONNECT_ATTEMPTS}...`);
-      
+
       this.checkConnection().then(isConnected => {
         if (isConnected) {
           console.log('Reconnection successful!');
           this.connectionStatus = 'connected';
-          
+
           // Arrêter les tentatives de reconnexion
           if (this.reconnectInterval) {
             clearInterval(this.reconnectInterval);
@@ -152,7 +152,7 @@ class OpenAIService {
         } else if (this.reconnectAttempts >= this.MAX_RECONNECT_ATTEMPTS) {
           console.log('Max reconnection attempts reached. Giving up.');
           this.connectionStatus = 'disconnected';
-          
+
           // Arrêter les tentatives de reconnexion
           if (this.reconnectInterval) {
             clearInterval(this.reconnectInterval);
@@ -194,37 +194,35 @@ class OpenAIService {
     try {
       // Utiliser le modèle principal (GPT-4o) ou secondaire (GPT-4o-mini) selon le paramètre
       const config = usePrimaryModel ? this.primaryConfig : this.secondaryConfig;
-      
+
       // Formatage correct de l'URL : suppression des doubles slashes
       let baseEndpoint = config.endpoint;
       if (baseEndpoint.endsWith('/')) {
         baseEndpoint = baseEndpoint.slice(0, -1);
       }
-      
+
       const url = `${baseEndpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
 
       console.log(`Making API request to: ${url} with ${config.modelName} ${usePrimaryModel ? "(primary)" : ""}`);
-      
+
       // Afficher plus de détails sur les paramètres de la requête (sans la clé API)
       console.log(`Request parameters: temperature=${temperature}, max_tokens=${maxTokens}`);
       console.log(`Nombre de messages: ${messages.length}, Premier role: ${messages[0]?.role}`);
-      
+
       // Formater la requête pour l'API
       const requestBody: any = {
         messages: messages,
         temperature: temperature,
         max_tokens: maxTokens,
-        model: config.modelName // Le nom du modèle est requis par Azure OpenAI
+        model: config.deploymentName // Ajout du nom du modèle dans la requête comme requis par Azure OpenAI
       };
-      
-      console.log(`Requête formatée pour ${config.deploymentName}`);
-      
+
       // Ajouter le format de réponse JSON si demandé
       if (options.responseFormat === 'json_object') {
         requestBody.response_format = { type: "json_object" };
         console.log('Format de réponse JSON demandé');
       }
-      
+
       console.log(`Requête formatée pour ${config.deploymentName}`);
 
       const response = await fetch(url, {
@@ -242,7 +240,7 @@ class OpenAIService {
         console.error(`Endpoint: ${url}`);
         console.error(`Modèle: ${config.modelName}, Deployment: ${config.deploymentName}, API version: ${config.apiVersion}`);
         this.connectionStatus = 'disconnected';
-        
+
         // Analyser le texte d'erreur pour des détails plus clairs
         let detailedError = `Azure OpenAI API error (${response.status})`;
         try {
@@ -260,7 +258,7 @@ class OpenAIService {
           // Si ce n'est pas un JSON valide, utiliser simplement le texte brut
           detailedError += `: ${errorText}`;
         }
-        
+
         throw new Error(detailedError);
       }
 
@@ -288,7 +286,7 @@ class OpenAIService {
     maxTokens: number,
     options?: { responseFormat?: string }
   ): Promise<string>;
-  
+
   // Version simplifiée pour les appels depuis les routes immersives
   async getChatCompletion(
     messages: ChatCompletionRequestMessage[],
@@ -296,7 +294,7 @@ class OpenAIService {
     maxTokens?: number,
     options?: { responseFormat?: string, useSecondaryKey?: boolean }
   ): Promise<string>;
-  
+
   // Surcharge de la méthode pour compatibilité avec l'interface d'origine
   async getChatCompletion(
     messages: ChatCompletionRequestMessage[],
@@ -310,7 +308,7 @@ class OpenAIService {
     let temperature: number = 0.7;
     let actualMaxTokens: number = 2000;
     let responseFormat: string | undefined = options?.responseFormat;
-    
+
     if (typeof temperatureOrUseSecondary === 'boolean') {
       // Si le second paramètre est un booléen, c'est useSecondaryKey
       useSecondaryKey = temperatureOrUseSecondary;
@@ -321,42 +319,42 @@ class OpenAIService {
       temperature = typeof temperatureOrUseSecondary === 'number' ? temperatureOrUseSecondary : 0.7;
       actualMaxTokens = typeof maxTokensOrTemperature === 'number' ? maxTokensOrTemperature : 2000;
     }
-    
+
     // Si useSecondaryKey est vrai, on force l'utilisation du modèle secondaire
     if (useSecondaryKey) {
       this.currentConfig = 'secondary';
     }
-    
+
     try {
       const config = this.getCurrentConfig();
-      
+
       // Formatage correct de l'URL : suppression des doubles slashes
       let baseEndpoint = config.endpoint;
       if (baseEndpoint.endsWith('/')) {
         baseEndpoint = baseEndpoint.slice(0, -1);
       }
-      
+
       const url = `${baseEndpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
 
       console.log(`Making API request to: ${url} with ${config.modelName}`);
-      
+
       // Afficher plus de détails sur les paramètres de la requête (sans la clé API)
       console.log(`Request parameters: temperature=${temperature}, max_tokens=${maxTokens}`);
       console.log(`Nombre de messages: ${messages.length}, Premier role: ${messages[0]?.role}`);
-      
+
       // Formater la requête pour l'API
       const requestBody: any = {
         messages: messages,
         temperature: temperature,
         max_tokens: actualMaxTokens
       };
-      
+
       // Ajouter le format de réponse JSON si demandé
       if (responseFormat === 'json_object') {
         requestBody.response_format = { type: "json_object" };
         console.log('Format de réponse JSON demandé');
       }
-      
+
       console.log(`Requête formatée pour ${config.deploymentName}`);
 
       const response = await fetch(url, {
@@ -374,7 +372,7 @@ class OpenAIService {
         console.error(`Endpoint: ${url}`);
         console.error(`Modèle: ${config.modelName}, Deployment: ${config.deploymentName}, API version: ${config.apiVersion}`);
         this.connectionStatus = 'disconnected';
-        
+
         // Analyser le texte d'erreur pour des détails plus clairs
         let detailedError = `Azure OpenAI API error (${response.status})`;
         try {
@@ -392,7 +390,7 @@ class OpenAIService {
           // Si ce n'est pas un JSON valide, utiliser simplement le texte brut
           detailedError += `: ${errorText}`;
         }
-        
+
         throw new Error(detailedError);
       }
 
@@ -422,31 +420,27 @@ class OpenAIService {
       this.lastConnectionCheck = now;
       const config = this.getCurrentConfig();
 
+      const testMessage = {
+        messages: [{ role: "user", content: "Test connection" }],
+        max_tokens: 5,
+        temperature: 0
+      };
+
       // Formatage correct de l'URL : suppression des doubles slashes
       let baseEndpoint = config.endpoint;
       if (baseEndpoint.endsWith('/')) {
         baseEndpoint = baseEndpoint.slice(0, -1);
       }
-      
+
       const url = `${baseEndpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
-      
-      // Adapter le corps de la requête pour Azure OpenAI
-      const requestBody = {
-        messages: [{ role: "user", content: "Test connection" }],
-        max_tokens: 5,
-        temperature: 0,
-        model: "gpt-4o-mini" // Le nom du modèle est requis par Azure OpenAI
-      };
-      
-      console.log(`Envoi d'une requête à ${url} avec le déploiement: ${config.deploymentName}`);
-      
+
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'api-key': config.apiKey
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify(testMessage),
         signal: AbortSignal.timeout(5000)
       });
 
@@ -461,7 +455,7 @@ class OpenAIService {
       try {
         const errorText = await response.text();
         console.error(`Connection check failed response: ${errorText}`);
-        
+
         try {
           // Tenter de parser l'erreur JSON
           const errorJson = JSON.parse(errorText);
@@ -475,7 +469,7 @@ class OpenAIService {
       } catch (textErr) {
         console.error('Could not read error response', textErr);
       }
-      
+
       console.error(`Connection check failed: ${response.status} ${response.statusText}${errorDetails}`);
       console.error(`API endpoint: ${url}, model: ${config.modelName}, deployment: ${config.deploymentName}`);
       this.connectionStatus = 'disconnected';
@@ -502,32 +496,32 @@ class OpenAIService {
   getCurrentModelName(): string {
     return this.getCurrentConfig().modelName;
   }
-  
+
   // Force une tentative de reconnexion immédiate
   async forceReconnect(): Promise<boolean> {
     console.log('Force reconnection requested');
-    
+
     // Réinitialiser l'état de connexion
     this.connectionStatus = 'reconnecting';
     this.lastConnectionCheck = 0;
     this.reconnectAttempts = 0;
-    
+
     // Arrêter les intervalles de reconnexion existants
     if (this.reconnectInterval) {
       clearInterval(this.reconnectInterval);
       this.reconnectInterval = null;
     }
-    
+
     // Tenter une reconnexion immédiate
     const isConnected = await this.checkConnection();
-    
+
     if (!isConnected) {
       // Si la reconnexion immédiate échoue, démarrer le processus automatique
       this.startReconnectionProcess();
     } else {
       console.log('Force reconnection successful!');
     }
-    
+
     return isConnected;
   }
 
@@ -549,7 +543,7 @@ class OpenAIService {
       responseFormat?: string
     }
   ): Promise<string>;
-  
+
   // Implémentation de la méthode
   async getChatCompletionWithCache(
     messagesOrOptions: ChatCompletionRequestMessage[] | {
@@ -569,7 +563,7 @@ class OpenAIService {
     let actualMaxTokens = maxTokens;
     let actualUseSecondaryKey = useSecondaryKey;
     let responseFormat: string | undefined;
-    
+
     if (!Array.isArray(messagesOrOptions)) {
       // Si c'est un objet d'options
       messages = messagesOrOptions.messages;
@@ -616,24 +610,24 @@ class OpenAIService {
   }) {
     try {
       const config = this.secondaryConfig;
-      
+
       // Formatage correct de l'URL : suppression des doubles slashes
       let baseEndpoint = config.endpoint;
       if (baseEndpoint.endsWith('/')) {
         baseEndpoint = baseEndpoint.slice(0, -1);
       }
-      
+
       const url = `${baseEndpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
-      
+
       console.log(`Making secondary API request to: ${url} with ${config.modelName}`);
-      
+
       // Formater la requête pour l'API
       const requestBody = {
         messages: options.messages,
         temperature: options.temperature || 0.7,
         max_tokens: options.max_tokens || 1024
       };
-      
+
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -802,7 +796,7 @@ Tu es ${name}, ${description}. Tu es spécialisé dans le domaine: ${domain}.
       // Configuration de la gamification
       if (gamificationLevel && gamificationLevel !== "none") {
         systemPrompt += `\n\n## NIVEAU DE GAMIFICATION: ${gamificationLevel.toUpperCase()}`;
-        
+
         switch (gamificationLevel) {
           case "low":
             systemPrompt += `\nIntègre occasionnellement des éléments ludiques comme:`;
