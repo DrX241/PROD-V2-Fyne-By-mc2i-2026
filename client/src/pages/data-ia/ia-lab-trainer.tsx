@@ -610,7 +610,7 @@ const IALabTrainer: React.FC = () => {
             <div>
               <h1 className="text-2xl font-bold text-white flex items-center">
                 <Brain className="mr-3 h-6 w-6 text-cyan-400" />
-                IA LAB TRAINER
+                Je suis Data Scientist
               </h1>
               <p className="text-gray-400">
                 Développez vos compétences en programmation avec l'aide de l'IA
