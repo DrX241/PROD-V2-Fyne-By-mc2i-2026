@@ -43,7 +43,8 @@ export function mapEnvironmentVariables() {
   }
   
   if (!process.env.GPT4O_MINI_DEPLOYMENT_NAME) {
-    process.env.GPT4O_MINI_DEPLOYMENT_NAME = process.env.AZURE_OPENAI_MINI_DEPLOYMENT_NAME || 'gpt-4o-mini';
+    // Utiliser le nom exact du déploiement observé dans les logs du site original
+    process.env.GPT4O_MINI_DEPLOYMENT_NAME = process.env.AZURE_OPENAI_MINI_DEPLOYMENT_NAME || 'Eddy-02-2025-gpt-4o-mini';
   }
   
   if (!process.env.GPT4O_MINI_API_VERSION) {
