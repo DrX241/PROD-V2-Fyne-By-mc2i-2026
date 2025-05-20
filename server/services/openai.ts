@@ -213,8 +213,8 @@ class OpenAIService {
       const requestBody: any = {
         messages: messages,
         temperature: temperature,
-        max_tokens: maxTokens
-        // Ne pas inclure le modèle pour Azure OpenAI, il est spécifié dans l'URL
+        max_tokens: maxTokens,
+        model: config.deploymentName // Pour Azure OpenAI, spécifier le nom du déploiement comme modèle
       };
       
       // Ajouter le format de réponse JSON si demandé
@@ -420,13 +420,6 @@ class OpenAIService {
       this.lastConnectionCheck = now;
       const config = this.getCurrentConfig();
 
-      const testMessage = {
-        messages: [{ role: "user", content: "Test connection" }],
-        max_tokens: 5,
-        temperature: 0,
-        model: config.modelName
-      };
-
       // Formatage correct de l'URL : suppression des doubles slashes
       let baseEndpoint = config.endpoint;
       if (baseEndpoint.endsWith('/')) {
@@ -435,12 +428,12 @@ class OpenAIService {
       
       const url = `${baseEndpoint}/openai/deployments/${config.deploymentName}/chat/completions?api-version=${config.apiVersion}`;
       
-      // Adapter le corps de la requête selon les besoins d'Azure OpenAI
-      // Pour Azure OpenAI, ne pas spécifier le modèle dans le body de la requête
+      // Adapter le corps de la requête pour Azure OpenAI
       const requestBody = {
-        messages: testMessage.messages,
-        max_tokens: testMessage.max_tokens,
-        temperature: testMessage.temperature
+        messages: [{ role: "user", content: "Test connection" }],
+        max_tokens: 5,
+        temperature: 0
+        // Ne pas inclure de modèle car il est spécifié dans l'URL
       };
       
       console.log(`Envoi d'une requête à ${url} avec le déploiement: ${config.deploymentName}`);
