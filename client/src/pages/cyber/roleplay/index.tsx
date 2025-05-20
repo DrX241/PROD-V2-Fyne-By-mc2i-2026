@@ -34,6 +34,19 @@ const RoleplayHub: React.FC = () => {
   // Liste des scénarios de jeu de rôle
   const scenarios = [
     {
+      id: 'debutant-cyber',
+      title: "Je suis Débutant",
+      description: "Je découvre la cybersécurité et souhaite apprendre les bases essentielles",
+      link: '/cyber/learning-center/modules/debutant-cyber',
+      icon: <Shield className="h-10 w-10 text-amber-300" />,
+      color: 'amber',
+      gradient: 'from-amber-900/70 to-amber-700/30',
+      border: 'border-amber-500/30',
+      buttonGradient: 'from-amber-700 to-amber-600',
+      buttonHover: 'hover:from-amber-600 hover:to-amber-500',
+      textColor: 'text-amber-300'
+    },
+    {
       id: 'interview-test',
       title: "Je suis Consultant Cyber",
       description: "Je prépare une audition technique en cybersécurité",
