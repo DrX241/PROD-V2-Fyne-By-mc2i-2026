@@ -249,8 +249,7 @@ export default function DataIAModeSelection() {
                   <p className="text-center text-blue-300 mt-2">
                     Centre de formation complet en data science, IA et métiers de la data
                   </p>
-                  <div className="text-center flex flex-col items-center mt-4">
-
+                  <div className="text-center flex flex-col items-center mt-6">
                     <Button 
                       className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-5"
                       onClick={(e) => {
@@ -285,8 +284,7 @@ export default function DataIAModeSelection() {
                   <p className="text-center text-violet-300 mt-2">
                     Jeux de rôle immersifs pour l'apprentissage data et IA
                   </p>
-                  <div className="text-center flex flex-col items-center mt-4">
-
+                  <div className="text-center flex flex-col items-center mt-6">
                     <Button 
                       className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-5"
                       onClick={(e) => {
