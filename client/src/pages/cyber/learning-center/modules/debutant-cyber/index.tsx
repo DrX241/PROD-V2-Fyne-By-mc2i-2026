@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,10 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, CheckCircle2, BookOpen, Shield, AlertTriangle, Lock, Eye, User, Smartphone, Laptop, Wifi, Lightbulb, HardDrive, Bot, Mail, Search, Loader2, Bomb, InfoIcon } from "lucide-react";
+import { ArrowLeft, CheckCircle2, BookOpen, Shield, AlertTriangle, Lock, Eye, User, Smartphone, Laptop, Wifi, Lightbulb, HardDrive, Bot, Mail, Search, Loader2, Bomb, InfoIcon, BrainCircuit } from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import PageTitle from "@/components/utils/PageTitle";
+import { useOpenAI } from "@/hooks/useOpenAI";
 
 export default function DebutantCyber() {
   // États pour le module
@@ -45,6 +46,13 @@ export default function DebutantCyber() {
     messageLog: [] as string[]
   });
   const [iaFeedback, setIaFeedback] = useState('');
+  const [iaThinking, setIaThinking] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [customEmailInput, setCustomEmailInput] = useState('');
+  const [phishingScenario, setPhishingScenario] = useState<string | null>(null);
+  
+  // Utilisation du hook OpenAI
+  const { sendChatMessage, connectionStatus } = useOpenAI();
   
   const { toast } = useToast();
   
@@ -105,157 +113,368 @@ export default function DebutantCyber() {
     });
   };
   
-  // Simuler l'analyse d'un email de phishing
-  const analyzeEmail = (emailContent: string) => {
-    setEmailAnalysisInProgress(true);
-    
-    // Simuler un délai d'analyse par l'IA
-    setTimeout(() => {
-      // Analyse simulée basée sur des indicateurs courants de phishing
-      const hasUrgentLanguage = emailContent.toLowerCase().includes('urgent') || 
-                               emailContent.toLowerCase().includes('immédiatement') ||
-                               emailContent.toLowerCase().includes('suspendre');
-      
-      const hasBadGrammar = emailContent.includes('votre compte sera suspendu') || 
-                           emailContent.includes('probleme');
-      
-      const hasUnusualSender = emailContent.includes('@gmaill.com') || 
-                              emailContent.includes('@banque-secure.net');
-      
-      const asksForPersonalInfo = emailContent.toLowerCase().includes('mot de passe') || 
-                                 emailContent.toLowerCase().includes('numéro de carte');
-      
-      // Calcul du score de confiance
-      let phishingIndicators = 0;
-      const reasons = [];
-      const techniques = [];
-      
-      if (hasUrgentLanguage) {
-        phishingIndicators += 1;
-        reasons.push("Utilisation d'un langage d'urgence pour créer une pression");
-        techniques.push("Manipulation psychologique (sentiment d'urgence)");
-      }
-      
-      if (hasBadGrammar) {
-        phishingIndicators += 1;
-        reasons.push("Erreurs grammaticales ou orthographiques");
-        techniques.push("Email rédigé à la hâte ou traduit automatiquement");
-      }
-      
-      if (hasUnusualSender) {
-        phishingIndicators += 2;
-        reasons.push("Adresse d'expéditeur suspecte imitant une organisation légitime");
-        techniques.push("Usurpation d'identité (spoofing)");
-      }
-      
-      if (asksForPersonalInfo) {
-        phishingIndicators += 2;
-        reasons.push("Demande d'informations personnelles ou sensibles");
-        techniques.push("Vol d'identité et d'informations bancaires");
-      }
-      
-      const confidence = Math.min(phishingIndicators * 20, 100);
-      const isPhishing = confidence >= 60;
-      
-      let riskLevel: 'high' | 'medium' | 'low' = 'low';
-      if (confidence >= 80) riskLevel = 'high';
-      else if (confidence >= 40) riskLevel = 'medium';
-      
-      // Mise à jour du résultat
-      setEmailAnalysisResult({
-        isPhishing,
-        confidence,
-        reasons,
-        techniques,
-        riskLevel
-      });
-      
-      // Feedback IA
-      setIaFeedback(isPhishing 
-        ? "J'ai détecté plusieurs signaux d'alerte dans cet email. Il s'agit très probablement d'une tentative de phishing."
-        : "Cet email présente peu d'indicateurs de phishing, mais restez vigilant.");
-      
-      setEmailAnalysisInProgress(false);
-      
-      // Notification
+  // Générer un scénario de phishing avec l'IA
+  const generatePhishingScenario = async () => {
+    if (connectionStatus !== 'connected') {
       toast({
-        title: "Analyse terminée",
-        description: isPhishing 
-          ? "Attention! Cet email semble être une tentative de phishing." 
-          : "L'email semble légitime, mais restez vigilant.",
-        variant: isPhishing ? "destructive" : "default"
+        title: "Service IA non disponible",
+        description: "La connexion à l'IA n'est pas établie. Réessayez plus tard.",
+        variant: "destructive"
       });
-    }, 2000);
-  };
-  
-  // Évaluer la force du mot de passe avec analyse avancée
-  const evaluatePassword = (password: string) => {
-    let strength = 0;
-    
-    // Critères de base
-    if (password.length >= 8) strength += 10;
-    if (password.length >= 12) strength += 10;
-    if (password.length >= 16) strength += 5;
-    
-    if (password.match(/[A-Z]/)) strength += 15;
-    if (password.match(/[0-9]/)) strength += 15;
-    if (password.match(/[^A-Za-z0-9]/)) strength += 20;
-    
-    // Critères avancés
-    if (password.match(/[A-Z].*[A-Z]/)) strength += 5; // Au moins 2 majuscules
-    if (password.match(/[0-9].*[0-9]/)) strength += 5; // Au moins 2 chiffres
-    if (password.match(/[^A-Za-z0-9].*[^A-Za-z0-9]/)) strength += 5; // Au moins 2 caractères spéciaux
-    
-    // Pénalités pour les motifs communs
-    if (password.toLowerCase().includes('123')) strength -= 10;
-    if (password.toLowerCase().includes('password')) strength -= 20;
-    if (password.toLowerCase().includes('azerty')) strength -= 15;
-    if (password.toLowerCase().includes('qwerty')) strength -= 15;
-    
-    // Limiter la force entre 0 et 100
-    strength = Math.max(0, Math.min(100, strength));
-    
-    // Estimer le temps de craquage (simulation)
-    let crackTime = '';
-    let crackMethod = '';
-    
-    if (strength < 20) {
-      crackTime = 'Instantané à quelques secondes';
-      crackMethod = 'Attaque par dictionnaire simple';
-    } else if (strength < 40) {
-      crackTime = 'Quelques minutes à quelques heures';
-      crackMethod = 'Attaque par dictionnaire avancée';
-    } else if (strength < 60) {
-      crackTime = 'Quelques jours à quelques semaines';
-      crackMethod = 'Attaque par force brute ciblée';
-    } else if (strength < 80) {
-      crackTime = 'Quelques mois à quelques années';
-      crackMethod = 'Force brute avec règles personnalisées';
-    } else {
-      crackTime = 'Des dizaines à des centaines d\'années';
-      crackMethod = 'Force brute avec supercalculateur';
+      return;
     }
     
-    // Mise à jour de l'état
-    setPlaygroundState({
-      ...playgroundState,
-      passwordStrength: strength,
-      passwordCrackTime: crackTime,
-      crackMethod: crackMethod,
-      securityChecks: {
-        ...playgroundState.securityChecks,
-        password: strength >= 70
+    setIaThinking(true);
+    try {
+      const messages = [
+        {
+          role: "system",
+          content: "Vous êtes un expert en cybersécurité qui crée des scénarios de phishing éducatifs pour aider les utilisateurs à reconnaître les tentatives de phishing. Générez un exemple réaliste d'email de phishing en français, qui utilise des techniques courantes."
+        },
+        {
+          role: "user",
+          content: "Créez un exemple d'email de phishing qui pourrait sembler venir d'une banque. Incluez des indices subtils qui permettraient à un utilisateur attentif de reconnaître qu'il s'agit d'une tentative de phishing."
+        }
+      ];
+      
+      const response = await sendChatMessage(messages, 0.7, 500);
+      if (response && response.choices && response.choices[0]) {
+        setPhishingScenario(response.choices[0].message.content);
       }
-    });
+    } catch (error) {
+      console.error("Erreur lors de la génération du scénario:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer un scénario pour le moment. Réessayez plus tard.",
+        variant: "destructive"
+      });
+    } finally {
+      setIaThinking(false);
+    }
+  };
+
+  // Analyser un email de phishing avec l'IA
+  const analyzeEmail = async (emailContent: string) => {
+    setEmailAnalysisInProgress(true);
+    setIaFeedback('');
     
-    // Feedback IA
-    const feedback = strength >= 70 
-      ? "Excellent! Votre mot de passe est robuste et résisterait à la plupart des attaques."
-      : strength >= 40 
-        ? "Ce mot de passe offre une protection moyenne. Essayez de le renforcer davantage."
-        : "Ce mot de passe est faible et facilement piratable. Je vous recommande de le changer.";
+    if (connectionStatus !== 'connected') {
+      // Analyse sans IA si le service n'est pas disponible
+      setTimeout(() => {
+        const hasUrgentLanguage = emailContent.toLowerCase().includes('urgent') || 
+                                 emailContent.toLowerCase().includes('immédiatement');
+        const hasUnusualSender = emailContent.includes('@gmaill.com') || 
+                                emailContent.includes('bank-secure');
+        const asksForPersonalInfo = emailContent.toLowerCase().includes('mot de passe') || 
+                                   emailContent.toLowerCase().includes('numéro de carte');
         
-    setIaFeedback(feedback);
+        const reasons = [];
+        const techniques = [];
+        let confidence = 0;
+        
+        if (hasUrgentLanguage) {
+          reasons.push("Langage urgent créant un sentiment de pression");
+          techniques.push("Manipulation psychologique");
+          confidence += 30;
+        }
+        
+        if (hasUnusualSender) {
+          reasons.push("Adresse d'expéditeur suspecte");
+          techniques.push("Usurpation d'identité");
+          confidence += 40;
+        }
+        
+        if (asksForPersonalInfo) {
+          reasons.push("Demande d'informations sensibles");
+          techniques.push("Vol d'identité");
+          confidence += 40;
+        }
+        
+        confidence = Math.min(confidence, 100);
+        const isPhishing = confidence >= 60;
+        let riskLevel: 'high' | 'medium' | 'low' = 'low';
+        if (confidence >= 80) riskLevel = 'high';
+        else if (confidence >= 40) riskLevel = 'medium';
+        
+        setEmailAnalysisResult({
+          isPhishing,
+          confidence,
+          reasons,
+          techniques,
+          riskLevel
+        });
+        
+        setIaFeedback(isPhishing 
+          ? "J'ai détecté plusieurs signaux d'alerte dans cet email. Il s'agit probablement d'une tentative de phishing."
+          : "Cet email présente peu d'indicateurs de phishing, mais restez vigilant.");
+        
+        setEmailAnalysisInProgress(false);
+        
+        toast({
+          title: "Analyse terminée (mode hors-ligne)",
+          description: isPhishing ? "Attention! Cet email semble être une tentative de phishing." : "L'email semble légitime, mais restez vigilant.",
+          variant: isPhishing ? "destructive" : "default"
+        });
+      }, 1500);
+      return;
+    }
+    
+    try {
+      const messages = [
+        {
+          role: "system",
+          content: `Vous êtes un expert en cybersécurité spécialisé dans la détection des tentatives de phishing. 
+          Analysez l'email fourni et déterminez s'il s'agit d'une tentative de phishing ou d'un email légitime.
+          Identifiez les signaux d'alerte spécifiques, évaluez le niveau de risque (faible, moyen, élevé) 
+          et expliquez les techniques utilisées par l'attaquant si c'est du phishing.
+          Ne commentez que le contenu de l'email, pas la structure JSON de votre réponse.
+          Répondez sous format JSON uniquement avec cette structure:
+          {
+            "isPhishing": true/false,
+            "confidence": [pourcentage de 0 à 100],
+            "reasons": ["raison 1", "raison 2", ...],
+            "techniques": ["technique 1", "technique 2", ...],
+            "riskLevel": "low"/"medium"/"high",
+            "explanation": "Explication détaillée mais concise"
+          }`
+        },
+        {
+          role: "user",
+          content: emailContent
+        }
+      ];
+      
+      const response = await sendChatMessage(messages, 0.7, 800);
+      if (response && response.choices && response.choices[0]) {
+        try {
+          const jsonResponse = JSON.parse(response.choices[0].message.content);
+          const { isPhishing, confidence, reasons, techniques, riskLevel, explanation } = jsonResponse;
+          
+          setEmailAnalysisResult({
+            isPhishing,
+            confidence,
+            reasons,
+            techniques,
+            riskLevel
+          });
+          
+          setIaFeedback(explanation || (isPhishing 
+            ? "Cet email présente plusieurs caractéristiques typiques d'une tentative de phishing."
+            : "Cet email semble légitime, mais restez toujours vigilant.")
+          );
+          
+          toast({
+            title: "Analyse terminée",
+            description: isPhishing 
+              ? `Attention! Risque ${riskLevel === 'high' ? 'élevé' : riskLevel === 'medium' ? 'moyen' : 'faible'} de phishing détecté.` 
+              : "L'email semble légitime, mais restez vigilant.",
+            variant: isPhishing ? "destructive" : "default"
+          });
+        } catch (parseError) {
+          console.error("Erreur lors du parsing de la réponse:", parseError);
+          setIaFeedback(response.choices[0].message.content);
+          setEmailAnalysisResult({
+            isPhishing: true,
+            confidence: 70,
+            reasons: ["Format de réponse incorrect"],
+            techniques: ["Analyse manuelle requise"],
+            riskLevel: 'medium'
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'analyse de l'email:", error);
+      setEmailAnalysisResult({
+        isPhishing: false,
+        confidence: 0,
+        reasons: ["Erreur lors de l'analyse"],
+        techniques: [],
+        riskLevel: 'low'
+      });
+      setIaFeedback("Une erreur s'est produite lors de l'analyse. Veuillez réessayer.");
+      
+      toast({
+        title: "Erreur d'analyse",
+        description: "Impossible d'analyser l'email pour le moment. Réessayez plus tard.",
+        variant: "destructive"
+      });
+    } finally {
+      setEmailAnalysisInProgress(false);
+    }
+  };
+  
+  // Évaluer la force du mot de passe avec analyse IA
+  const evaluatePassword = async (password: string) => {
+    if (!password || password.trim() === '') {
+      toast({
+        title: "Mot de passe vide",
+        description: "Veuillez entrer un mot de passe pour l'analyser.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIaThinking(true);
+    
+    // Analyse de base si l'IA n'est pas disponible
+    if (connectionStatus !== 'connected') {
+      let strength = 0;
+      
+      // Critères de base
+      if (password.length >= 8) strength += 10;
+      if (password.length >= 12) strength += 10;
+      if (password.length >= 16) strength += 5;
+      
+      if (password.match(/[A-Z]/)) strength += 15;
+      if (password.match(/[0-9]/)) strength += 15;
+      if (password.match(/[^A-Za-z0-9]/)) strength += 20;
+      
+      // Critères avancés
+      if (password.match(/[A-Z].*[A-Z]/)) strength += 5; // Au moins 2 majuscules
+      if (password.match(/[0-9].*[0-9]/)) strength += 5; // Au moins 2 chiffres
+      if (password.match(/[^A-Za-z0-9].*[^A-Za-z0-9]/)) strength += 5; // Au moins 2 caractères spéciaux
+      
+      // Pénalités pour les motifs communs
+      if (password.toLowerCase().includes('123')) strength -= 10;
+      if (password.toLowerCase().includes('password')) strength -= 20;
+      if (password.toLowerCase().includes('azerty')) strength -= 15;
+      if (password.toLowerCase().includes('qwerty')) strength -= 15;
+      
+      // Limiter la force entre 0 et 100
+      strength = Math.max(0, Math.min(100, strength));
+      
+      // Estimer le temps de craquage (simulation)
+      let crackTime = '';
+      let crackMethod = '';
+      
+      if (strength < 20) {
+        crackTime = 'Instantané à quelques secondes';
+        crackMethod = 'Attaque par dictionnaire simple';
+      } else if (strength < 40) {
+        crackTime = 'Quelques minutes à quelques heures';
+        crackMethod = 'Attaque par dictionnaire avancée';
+      } else if (strength < 60) {
+        crackTime = 'Quelques jours à quelques semaines';
+        crackMethod = 'Attaque par force brute ciblée';
+      } else if (strength < 80) {
+        crackTime = 'Quelques mois à quelques années';
+        crackMethod = 'Force brute avec règles personnalisées';
+      } else {
+        crackTime = 'Des dizaines à des centaines d\'années';
+        crackMethod = 'Force brute avec supercalculateur';
+      }
+      
+      // Mise à jour de l'état
+      setPlaygroundState({
+        ...playgroundState,
+        passwordStrength: strength,
+        passwordCrackTime: crackTime,
+        crackMethod: crackMethod,
+        securityChecks: {
+          ...playgroundState.securityChecks,
+          password: strength >= 70
+        }
+      });
+      
+      // Feedback de base
+      const feedback = strength >= 70 
+        ? "Excellent! Votre mot de passe est robuste et résisterait à la plupart des attaques."
+        : strength >= 40 
+          ? "Ce mot de passe offre une protection moyenne. Essayez de le renforcer davantage."
+          : "Ce mot de passe est faible et facilement piratable. Je vous recommande de le changer.";
+          
+      setIaFeedback(feedback);
+      setIaThinking(false);
+      return;
+    }
+    
+    try {
+      const messages = [
+        {
+          role: "system",
+          content: `Vous êtes un expert en sécurité informatique spécialisé dans l'analyse de mots de passe.
+          Evaluez la force du mot de passe fourni et déterminez sa résistance face aux différentes techniques de piratage.
+          Analysez sa longueur, complexité, présence dans des dictionnaires communs, et vulnérabilités potentielles.
+          Estimez le temps approximatif qu'il faudrait pour le craquer et par quelle méthode.
+          Répondez en JSON uniquement avec cette structure:
+          {
+            "strength": [score de 0 à 100],
+            "crackTime": "estimation du temps de craquage",
+            "crackMethod": "méthode la plus efficace pour le craquer",
+            "vulnerabilities": ["vulnérabilité 1", "vulnérabilité 2", ...],
+            "recommendations": ["recommandation 1", "recommandation 2", ...],
+            "feedback": "analyse détaillée mais concise"
+          }`
+        },
+        {
+          role: "user",
+          content: `Analysez ce mot de passe: ${password}`
+        }
+      ];
+      
+      const response = await sendChatMessage(messages, 0.7, 800);
+      if (response && response.choices && response.choices[0]) {
+        try {
+          const jsonResponse = JSON.parse(response.choices[0].message.content);
+          const { strength, crackTime, crackMethod, vulnerabilities, recommendations, feedback } = jsonResponse;
+          
+          // Mise à jour de l'état
+          setPlaygroundState({
+            ...playgroundState,
+            passwordStrength: strength,
+            passwordCrackTime: crackTime,
+            crackMethod: crackMethod,
+            securityChecks: {
+              ...playgroundState.securityChecks,
+              password: strength >= 70
+            }
+          });
+          
+          // Feedback détaillé de l'IA
+          setIaFeedback(feedback || (strength >= 70 
+            ? "Excellent! Votre mot de passe est robuste et résisterait à la plupart des attaques."
+            : strength >= 40 
+              ? "Ce mot de passe offre une protection moyenne. Essayez de le renforcer davantage."
+              : "Ce mot de passe est faible et facilement piratable. Je vous recommande de le changer.")
+          );
+          
+          // Notification
+          toast({
+            title: strength >= 70 ? "Mot de passe fort" : strength >= 40 ? "Mot de passe moyen" : "Mot de passe faible",
+            description: `Pourrait être cracké en: ${crackTime}`,
+            variant: strength >= 70 ? "default" : strength >= 40 ? "default" : "destructive"
+          });
+        } catch (parseError) {
+          console.error("Erreur lors du parsing de la réponse:", parseError);
+          setIaFeedback(response.choices[0].message.content);
+          
+          // Valeurs par défaut
+          setPlaygroundState({
+            ...playgroundState,
+            passwordStrength: 50,
+            passwordCrackTime: "Impossible à déterminer avec précision",
+            crackMethod: "Analyse non concluante",
+            securityChecks: {
+              ...playgroundState.securityChecks,
+              password: false
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'analyse du mot de passe:", error);
+      
+      // Feedback en cas d'erreur
+      setIaFeedback("Une erreur s'est produite lors de l'analyse. Veuillez réessayer.");
+      
+      toast({
+        title: "Erreur d'analyse",
+        description: "Impossible d'analyser le mot de passe pour le moment. Réessayez plus tard.",
+        variant: "destructive"
+      });
+    } finally {
+      setIaThinking(false);
+    }
   };
   
   // Simuler une attaque en temps réel
@@ -346,13 +565,6 @@ export default function DebutantCyber() {
             </Button>
           </Link>
           <h1 className="text-xl text-white font-medium">Premiers pas en cybersécurité</h1>
-          
-          <div className="ml-auto flex items-center">
-            <div className="w-48 mr-4">
-              <Progress value={progress} className="h-2 bg-amber-950 text-amber-500" />
-            </div>
-            <span className="text-sm text-amber-300">{progress}% complété</span>
-          </div>
         </div>
       </div>
       
