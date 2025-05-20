@@ -34,23 +34,23 @@ import CyberLab from "./pages/cyber/cyber-lab/index";
 import CyberLearningCenter from "./pages/cyber/learning-center/index";
 
 // Import des modules de la Cyber Académie
-import ZeroTrustModule from "./pages/cyber/learning-center/modules/zero-trust/index";
+import ZeroTrust from "./pages/cyber/learning-center/modules/zero-trust/index";
 import FichesCyberExpress from "./pages/cyber/learning-center/modules/fiches-cyber-express/index";
 import QuizAdaptatifIA from "./pages/cyber/learning-center/modules/quiz-adaptatif-ia/index";
 import GlossaireVisuel from "./pages/cyber/learning-center/modules/glossaire-visuel/index";
 import MemoIAPersonnalise from "./pages/cyber/learning-center/modules/memo-ia-personnalise/index";
 import BYODSecurite from "./pages/cyber/learning-center/modules/byod-securite/index";
-import SecuriteReseauxModule from "./pages/cyber/learning-center/modules/securite-reseaux/index";
-import SecuriteCloudModule from "./pages/cyber/learning-center/modules/securite-cloud/index";
-import SecuriteDonneesModule from "./pages/cyber/learning-center/modules/securite-donnees/index";
-import SecuriteOTModule from "./pages/cyber/learning-center/modules/securite-ot/index";
-import IASecuriteModule from "./pages/cyber/learning-center/modules/ia-securite/index";
-import MicroLearningHub from "./pages/cyber/learning-center/modules/micro-learning/index";
-import RansomwareModule from "./pages/cyber/learning-center/modules/ransomware/index";
+import SecuriteReseaux from "./pages/cyber/learning-center/modules/securite-reseaux/index";
+import SecuriteCloud from "./pages/cyber/learning-center/modules/securite-cloud/index";
+import SecuriteDonnees from "./pages/cyber/learning-center/modules/securite-donnees/index";
+import SecuriteOT from "./pages/cyber/learning-center/modules/securite-ot/index";
+import IASecurite from "./pages/cyber/learning-center/modules/ia-securite/index";
+import MicroLearning from "./pages/cyber/learning-center/modules/micro-learning/index";
+import Ransomware from "./pages/cyber/learning-center/modules/ransomware/index";
 import PhishingDetection from "./pages/cyber/learning-center/modules/phishing-detection/index";
-import MotDePasseSecurite from "./pages/cyber/learning-center/modules/mot-de-passe/index";
-import DevSecOpsModule from "./pages/cyber/learning-center/modules/devsecops/index";
-import GouvernanceCyberModule from "./pages/cyber/learning-center/modules/gouvernance-cyber/index";
+import MotDePasse from "./pages/cyber/learning-center/modules/mot-de-passe/index";
+import DevSecOps from "./pages/cyber/learning-center/modules/devsecops/index";
+import GouvernanceCyber from "./pages/cyber/learning-center/modules/gouvernance-cyber/index";
 // Import des pages AMOA
 import SasAcademie from "./pages/amoa/sas-academie";
 import AmoaRoleplay from "./pages/amoa/roleplay/index";
@@ -111,7 +111,57 @@ function App() {
                 <Route path="/cyber/learning-center" component={CyberLearningCenter} />
                 
                 {/* Routes pour les modules de la Cyber Académie */}
-                <Route path="/cyber/learning-center/modules/*" component={CyberLearningCenter} />
+                <Route path="/cyber/learning-center/modules/zero-trust">
+                  {(params) => <ZeroTrust />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/fiches-cyber-express">
+                  {(params) => <FichesCyberExpress />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/quiz-adaptatif-ia">
+                  {(params) => <QuizAdaptatifIA />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/glossaire-visuel">
+                  {(params) => <GlossaireVisuel />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/memo-ia-personnalise">
+                  {(params) => <MemoIAPersonnalise />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/gouvernance-cyber">
+                  {(params) => <GouvernanceCyber />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/securite-reseaux">
+                  {(params) => <SecuriteReseaux />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/securite-cloud">
+                  {(params) => <SecuriteCloud />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/securite-donnees">
+                  {(params) => <SecuriteDonnees />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/securite-ot">
+                  {(params) => <SecuriteOT />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/ia-securite">
+                  {(params) => <IASecurite />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/micro-learning">
+                  {(params) => <MicroLearning />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/ransomware">
+                  {(params) => <Ransomware />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/phishing-detection">
+                  {(params) => <PhishingDetection />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/mot-de-passe">
+                  {(params) => <MotDePasse />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/byod-securite">
+                  {(params) => <BYODSecurite />}
+                </Route>
+                <Route path="/cyber/learning-center/modules/devsecops">
+                  {(params) => <DevSecOps />}
+                </Route>
                 
                 <Route path="/data-ia" component={DataIaModeSelection} />
                 <Route path="/amoa/new" component={AmoaModeSelectionNew} />
