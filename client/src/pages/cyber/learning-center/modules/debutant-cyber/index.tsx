@@ -921,7 +921,7 @@ export default function DebutantCyber() {
               </motion.div>
             )}
             
-            {/* Étape 3: Quiz interactif */}
+            {/* Étape 3: Quiz interactif avec l'IA */}
             {currentStep === 3 && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -931,10 +931,14 @@ export default function DebutantCyber() {
               >
                 <Card className="bg-amber-950/40 border-amber-800/40 shadow-xl">
                   <CardContent className="p-6">
-                    <h2 className="text-2xl font-bold text-white mb-4">Quiz: Testez vos connaissances</h2>
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-2xl font-bold text-white">Entraînement pratique avec l'IA</h2>
+                      <Badge className="bg-blue-600 hover:bg-blue-700 text-white">IA intégrée</Badge>
+                    </div>
                     
                     <p className="text-amber-200 mb-6">
-                      Mettez en pratique ce que vous avez appris en répondant à ces questions sur la cybersécurité de base.
+                      Mettez-vous en situation avec des scénarios interactifs pour tester vos compétences en cybersécurité.
+                      L'IA analysera vos réponses et vous fournira un feedback personnalisé.
                     </p>
                     
                     <div className="space-y-8">
