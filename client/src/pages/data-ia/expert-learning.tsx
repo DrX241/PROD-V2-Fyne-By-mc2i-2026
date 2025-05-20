@@ -72,7 +72,7 @@ export default function DataIaExpertLearning() {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { connectionStatus, currentModel, toggleModel } = useOpenAI();
+  const { connectionStatus, currentModel, toggleModel, sendChatMessage } = useOpenAI();
   const [showPrompt, setShowPrompt] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState('');
   // const [isFullScreen, setIsFullScreen] = useState(false);
@@ -107,10 +107,7 @@ export default function DataIaExpertLearning() {
       // - mettre l'utilisateur en situation
       // - expliquer les outils/stacks de manière accessible
       // - maintenir l'engagement avec des questions de suivi
-      const messagesForAPI = [
-        {
-          role: 'system',
-          content: `Tu es un expert pédagogue en Data Science et Intelligence Artificielle. 
+      const systemPrompt = `Tu es un expert pédagogue en Data Science et Intelligence Artificielle. 
 Ta mission est d'aider l'utilisateur à apprendre et comprendre les concepts de Data & IA de manière engageante:
 
 1. VULGARISATION: Simplifie les concepts complexes avec des analogies et explications accessibles.
@@ -120,16 +117,33 @@ Ta mission est d'aider l'utilisateur à apprendre et comprendre les concepts de 
 5. EXPLORATION GUIDÉE: Explique les outils, bibliothèques et stacks techniques avec des exemples de code simples.
 6. ENGAGEMENT CONSTANT: Termine toujours par une question ouverte pour encourager la poursuite de la discussion.
 
-Sois synthétique mais complet. Adresse-toi à l'utilisateur directement ("tu"). Évite le jargon trop technique sauf si l'utilisateur semble à l'aise avec ces termes. Sois enthousiaste et encourage l'utilisateur à découvrir davantage.`
-        },
+Sois synthétique mais complet. Adresse-toi à l'utilisateur directement ("tu"). Évite le jargon trop technique sauf si l'utilisateur semble à l'aise avec ces termes. Sois enthousiaste et encourage l'utilisateur à découvrir davantage.`;
+      
+      // Préparer les messages pour l'API (en excluant le message système d'origine)
+      const messagesForAPI = [
+        { role: 'system', content: systemPrompt },
         ...messages.filter(m => m.role !== 'system').map(m => ({
           role: m.role,
           content: m.content
         }))
       ];
       
-      // Appel à l'API Azure OpenAI via le hook useOpenAI
-      const result = await sendChatMessage(messagesForAPI, 0.7, 1000);
+      // Appel réel à l'API Azure OpenAI via fetch directement
+      const response = await fetch('/api/openai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: messagesForAPI,
+          model: currentModel,
+          temperature: 0.7,
+          max_tokens: 1000
+        })
+      });
+      
+      // Traiter la réponse
+      const result = await response.json();
       
       if (result && result.response) {
         const assistantMessage: Message = {

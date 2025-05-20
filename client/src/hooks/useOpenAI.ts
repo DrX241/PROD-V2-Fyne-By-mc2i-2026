@@ -78,14 +78,10 @@ export function useOpenAI() {
   // Fonction pour effectuer un appel à l'API Chat
   const sendChatMessage = useCallback(async (messages: any[], temperature = 0.7, max_tokens = 500) => {
     try {
-      // Vérifier que le service est connecté
+      // On vérifie le statut mais on n'empêche pas l'exécution
       if (status !== 'connected') {
         await checkStatus();
-        // Ne pas bloquer l'exécution, permettre l'appel même si le statut n'est pas 'connected'
-        // simplement logger l'avertissement
-        if (status !== 'connected') {
-          console.warn('Le service OpenAI pourrait ne pas être disponible actuellement.');
-        }
+        console.warn('Statut de la connexion:', status);
       }
 
       const response = await fetch('/api/openai/chat', {
