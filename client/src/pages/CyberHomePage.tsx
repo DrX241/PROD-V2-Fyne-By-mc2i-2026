@@ -146,19 +146,14 @@ const CyberHomePage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
             >
-              <div className="text-3xl md:text-5xl font-bold mb-8 tracking-widest">
-                <h1 className="font-bold tracking-widest">
-                  <span className="text-[#dd0061]">F</span><span className="text-[#006a9e]">OR </span>
-                  <span className="text-[#dd0061]">Y</span><span className="text-[#006a9e]">OUR </span>
-                  <span className="text-[#dd0061]">N</span><span className="text-[#006a9e]">EXT </span>
-                  <span className="text-[#dd0061]">E</span><span className="text-[#006a9e]">XPERIENCE</span>
-                </h1>
-              </div>
+              <h1 className="text-5xl md:text-7xl font-bold mb-12 tracking-tight text-gray-900">
+                <span className="block">Améliorez </span>
+                <span className="text-[#006a9e]">votre </span>
+                <span className="text-[#dd0061]">expertise</span><br className="hidden md:inline" />
+                <span className="block mt-1">avec <span className="text-[#006a9e]">FYNE</span></span>
+              </h1>
               
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 max-w-4xl mx-auto">
-                Améliorez<span className="text-[#006a9e]"> votre </span><span className="text-[#dd0061]">expertise</span> avec <span className="text-[#006a9e]">FYNE</span>
-              </h2>
-              <p className="text-xl md:text-2xl text-[#061019] mb-10 leading-relaxed max-w-4xl mx-auto">
+              <p className="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed max-w-3xl">
                 Découvrez une nouvelle dimension d'apprentissage interactif avec nos modules IA innovants qui s'adaptent parfaitement à votre progression.
               </p>
               
