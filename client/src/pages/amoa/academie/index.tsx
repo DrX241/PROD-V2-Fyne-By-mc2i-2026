@@ -29,7 +29,8 @@ export default function AmoaAcademie() {
       icon: <BookOpen className="h-5 w-5 text-indigo-300" />,
       duration: '2-3h',
       level: 'débutant',
-      comingSoon: true
+      destination: '/amoa/academie/modules/intro-amoa',
+      comingSoon: false
     },
     {
       id: 'expression-besoins',
@@ -38,7 +39,8 @@ export default function AmoaAcademie() {
       icon: <FileText className="h-5 w-5 text-indigo-300" />,
       duration: '3-4h',
       level: 'débutant',
-      comingSoon: true
+      destination: '/amoa/academie/modules/expression-besoins',
+      comingSoon: false
     },
     {
       id: 'specifications-fonctionnelles',
@@ -47,7 +49,8 @@ export default function AmoaAcademie() {
       icon: <FileQuestion className="h-5 w-5 text-indigo-300" />,
       duration: '4-5h',
       level: 'intermédiaire',
-      comingSoon: true
+      destination: '/amoa/academie/modules/specifications-fonctionnelles',
+      comingSoon: false
     },
     {
       id: 'gestion-tests',
@@ -56,7 +59,8 @@ export default function AmoaAcademie() {
       icon: <ListChecks className="h-5 w-5 text-indigo-300" />,
       duration: '3-4h',
       level: 'intermédiaire',
-      comingSoon: true
+      destination: '/amoa/academie/modules/gestion-tests',
+      comingSoon: false
     }
   ];
 
