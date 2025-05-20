@@ -836,7 +836,7 @@ export default function LearningCenter() {
                           <div className="flex justify-between items-start">
                             <h3 className="font-medium text-white">{module.title}</h3>
                           </div>
-                          <p className="text-sm text-blue-300 mt-1 truncate">{module.description}</p>
+                          <p className="text-sm text-blue-300 mt-1 line-clamp-2">{module.description}</p>
                         </div>
                       </div>
                       <div className="mt-auto p-2 pl-4">
