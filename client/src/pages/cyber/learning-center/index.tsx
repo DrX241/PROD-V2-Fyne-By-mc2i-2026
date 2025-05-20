@@ -867,23 +867,104 @@ export default function LearningCenter() {
               Explorez les différentes carrières et spécialisations dans le domaine de la cybersécurité. Découvrez les compétences requises, 
               les missions et les parcours pour devenir un professionnel de la cybersécurité.
             </p>
-            <div className="flex justify-center">
-              <Link href="/cyber/profil-pro" className="block w-full md:w-2/3 lg:w-1/2">
-                <Card className="bg-cyan-900/30 border border-cyan-700 flex flex-col hover:shadow-md hover:border-cyan-500 transition-all">
-                  <div className="p-5 flex flex-col items-center">
-                    <div className="p-3 rounded-full bg-cyan-800/50 mb-4 h-16 w-16 flex items-center justify-center">
-                      <Briefcase className="h-8 w-8 text-cyan-300" />
-                    </div>
-                    <h3 className="font-medium text-white text-xl text-center">Dans la peau de votre métier</h3>
-                    <p className="text-cyan-300 mt-3 text-center mb-4">
-                      Découvrez les métiers de la cybersécurité à travers des simulations immersives et des parcours interactifs
-                    </p>
-                    <Button className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white w-full mt-2">
-                      Explorer les profils professionnels
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
+            
+            {/* Grille des profils professionnels */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+              {/* RSSI */}
+              <Card className="bg-cyan-900/20 border border-cyan-700 hover:border-cyan-500 transition-all overflow-hidden">
+                <div className="bg-blue-600 p-3 flex items-center">
+                  <div className="bg-white/10 rounded-full p-2">
+                    <Shield className="h-6 w-6 text-white" />
                   </div>
-                </Card>
+                  <h3 className="ml-3 text-white font-bold text-sm md:text-base">Responsable Sécurité SI (RSSI)</h3>
+                </div>
+                <CardContent className="p-4">
+                  <p className="text-cyan-200 text-sm mb-3 line-clamp-2">Pilotez la stratégie de sécurité et supervisez les opérations de cybersécurité</p>
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {['Stratégie', 'Gouvernance', 'Risques'].map((skill, idx) => (
+                      <Badge key={idx} className="bg-blue-900/40 text-blue-200 text-xs">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                  <Button 
+                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white mt-2"
+                    disabled
+                  >
+                    <div className="flex items-center justify-center w-full">
+                      <Clock className="h-3 w-3 mr-2" />
+                      <span>Bientôt disponible</span>
+                    </div>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              {/* Analyste SOC */}
+              <Card className="bg-cyan-900/20 border border-cyan-700 hover:border-cyan-500 transition-all overflow-hidden">
+                <div className="bg-emerald-600 p-3 flex items-center">
+                  <div className="bg-white/10 rounded-full p-2">
+                    <Database className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="ml-3 text-white font-bold text-sm md:text-base">Analyste SOC / SecOps</h3>
+                </div>
+                <CardContent className="p-4">
+                  <p className="text-cyan-200 text-sm mb-3 line-clamp-2">Surveillez, détectez et répondez aux menaces de cybersécurité en temps réel</p>
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {['Détection', 'Réponse', 'Analyse'].map((skill, idx) => (
+                      <Badge key={idx} className="bg-emerald-900/40 text-emerald-200 text-xs">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                  <Button 
+                    className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white mt-2"
+                    disabled
+                  >
+                    <div className="flex items-center justify-center w-full">
+                      <Clock className="h-3 w-3 mr-2" />
+                      <span>Bientôt disponible</span>
+                    </div>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              {/* Pentesteur */}
+              <Card className="bg-cyan-900/20 border border-cyan-700 hover:border-cyan-500 transition-all overflow-hidden">
+                <div className="bg-red-600 p-3 flex items-center">
+                  <div className="bg-white/10 rounded-full p-2">
+                    <Code className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="ml-3 text-white font-bold text-sm md:text-base">Pentesteur / Ethical Hacker</h3>
+                </div>
+                <CardContent className="p-4">
+                  <p className="text-cyan-200 text-sm mb-3 line-clamp-2">Testez les systèmes pour trouver les vulnérabilités avant les attaquants</p>
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {['Offensive', 'Vulnérabilités', 'Exploitation'].map((skill, idx) => (
+                      <Badge key={idx} className="bg-red-900/40 text-red-200 text-xs">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                  <Button 
+                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white mt-2"
+                    disabled
+                  >
+                    <div className="flex items-center justify-center w-full">
+                      <Clock className="h-3 w-3 mr-2" />
+                      <span>Bientôt disponible</span>
+                    </div>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+            
+            {/* Lien vers la page complète */}
+            <div className="mt-6 text-center">
+              <Link href="/cyber/profil-pro">
+                <Button variant="outline" className="border-cyan-600 text-cyan-300 hover:bg-cyan-800/30">
+                  Voir tous les métiers
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
               </Link>
             </div>
           </div>
