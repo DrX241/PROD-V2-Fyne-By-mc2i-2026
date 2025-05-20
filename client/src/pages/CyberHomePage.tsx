@@ -155,8 +155,11 @@ const CyberHomePage: React.FC = () => {
                 </h1>
               </div>
               
-              <p className="text-xl md:text-2xl text-[#061019] mb-8 leading-relaxed max-w-3xl mx-auto">
-                Transformez votre <span className="text-[#dd0061] font-semibold">expérience de formation</span> avec notre plateforme immersive alimentée par l'IA. <span className="text-[#006a9e] font-semibold">FYNE</span> redéfinit l'apprentissage pour l'adapter à vos besoins.
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 max-w-3xl mx-auto">
+                Améliorez<span className="text-[#006a9e]"> votre </span><span className="text-[#dd0061]">expertise</span><br />avec <span className="text-[#006a9e]">FYNE</span>
+              </h2>
+              <p className="text-lg md:text-xl text-[#061019] mb-8 leading-relaxed max-w-3xl mx-auto">
+                Découvrez une nouvelle dimension d'apprentissage interactif avec nos modules IA innovants qui s'adaptent parfaitement à votre progression.
               </p>
               
               <div className="flex items-center justify-center md:justify-start mt-10">
