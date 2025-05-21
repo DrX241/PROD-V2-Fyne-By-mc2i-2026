@@ -1,0 +1,40 @@
+Warning: Received &#x60;true&#x60; for a non-boolean attribute &#x60;jsx&#x60;.
+
+If you want to write it to the DOM, pass a string instead: jsx=&quot;true&quot; or jsx={value.toString()}.
+    at style
+    at div
+    at div
+    at main
+    at div
+    at HomeLayout (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/components/layout/HomeLayout.tsx:18:38)
+    at CrisisManagementPage (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/pages/cyber/crisis-management/index.tsx:60:35)
+    at Route (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4ced38a4:323:16)
+    at Switch (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4ced38a4:379:17)
+    at div
+    at TutorialProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/contexts/TutorialContext.tsx:235:36)
+    at ChatProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/contexts/ChatContext.tsx:346:32)
+    at ThemeProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/contexts/ThemeContext.tsx:33:33)
+    at QueryClientProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=4ced38a4:2805:3)
+    at App (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/App.tsx?v=lMQUMXEvUdOPHZsmglqom:98:49)
+    at AuthProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/contexts/AuthContext.tsx?v=lMQUMXEvUdOPHZsmglqom:21:32)
+    at _a (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-helmet-async.js?v=4ced38a4:624:5)
+Warning: Received &#x60;true&#x60; for a non-boolean attribute &#x60;global&#x60;.
+
+If you want to write it to the DOM, pass a string instead: global=&quot;true&quot; or global={value.toString()}.
+    at style
+    at div
+    at div
+    at main
+    at div
+    at HomeLayout (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/components/layout/HomeLayout.tsx:18:38)
+    at CrisisManagementPage (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/pages/cyber/crisis-management/index.tsx:60:35)
+    at Route (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4ced38a4:323:16)
+    at Switch (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4ced38a4:379:17)
+    at div
+    at TutorialProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/contexts/TutorialContext.tsx:235:36)
+    at ChatProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/contexts/ChatContext.tsx:346:32)
+    at ThemeProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/contexts/ThemeContext.tsx:33:33)
+    at QueryClientProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=4ced38a4:2805:3)
+    at App (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/App.tsx?v=lMQUMXEvUdOPHZsmglqom:98:49)
+    at AuthProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/contexts/AuthContext.tsx?v=lMQUMXEvUdOPHZsmglqom:21:32)
+    at _a (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-helmet-async.js?v=4ced38a4:624:5)

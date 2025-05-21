@@ -2558,7 +2558,7 @@ Réponds de façon brève (maximum 2-3 phrases), avec la personnalité indiquée
         )}
       </div>
       
-      <style jsx global>{`
+      <style>{`
         @keyframes typing {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-5px); }
