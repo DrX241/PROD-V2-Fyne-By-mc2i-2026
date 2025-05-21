@@ -59,8 +59,7 @@ const PREDEFINED_AUDIT_CONTEXTS: AuditContext[] = [
       "Connaissance du secteur retail",
       "Certification PMP, Prince2 ou équivalent",
       "Expérience en méthodologies agiles"
-    ],
-    sectorFocus: "Retail"
+    ]
   },
   {
     id: "banking-compliance",
@@ -81,8 +80,7 @@ const PREDEFINED_AUDIT_CONTEXTS: AuditContext[] = [
       "Expérience en analyse fonctionnelle",
       "Capacité à dialoguer avec les autorités de régulation",
       "Rigueur et sens du détail"
-    ],
-    sectorFocus: "Banque & Assurance"
+    ]
   },
   {
     id: "healthcare-system",
