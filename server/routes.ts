@@ -4966,9 +4966,15 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
       ];
       
       // Utiliser le modèle secondaire (GPT-4o-mini) pour économiser les tokens
-      openAIService.setActiveModel('secondary');
-      const content = await openAIService.getChatCompletion(messages, 0.7, 1500);
-      const response = { content };
+      try {
+        // Vérifier si la méthode switchApiKey existe et l'utiliser si c'est le cas
+        if (typeof openAIService.switchApiKey === 'function') {
+          openAIService.switchApiKey('secondary');
+        }
+        
+        // Appeler l'API pour générer la réponse
+        const content = await openAIService.getChatCompletion(messages, 0.7, 1500);
+        const response = { content };
 
       if (!response || !response.content) {
         return res.status(500).json({ 
