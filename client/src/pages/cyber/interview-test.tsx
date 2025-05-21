@@ -6,7 +6,27 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Clock, CheckCircle2, AlertCircle, ArrowRight, ArrowLeft, TimerReset } from 'lucide-react';
+import { 
+  Clock, CheckCircle2, AlertCircle, ArrowRight, ArrowLeft, TimerReset, 
+  FileText, ClipboardPaste, Settings, BookOpen, Briefcase, FileCode, 
+  FileQuestion, ShieldCheck, Info
+} from 'lucide-react';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Types de questions possibles
 type QuestionType = 'presentation' | 'reflex' | 'incident' | 'analysis' | 'ethical' | 'client' | 'projection';
@@ -36,6 +56,94 @@ type TestDuration = 3 | 5 | 10;
 
 // État de test (en cours, terminé, etc.)
 type TestState = 'intro' | 'in-progress' | 'submitting' | 'results';
+
+// Liste des contextes d'audition prédéfinis
+const PREDEFINED_CONTEXTS: JobContext[] = [
+  {
+    id: "rssi",
+    title: "Responsable de la Sécurité des Systèmes d'Information (RSSI)",
+    description: "Poste de RSSI au sein d'une entreprise du secteur bancaire",
+    organization: "BanqueSecure, établissement financier de taille moyenne (2000 employés)",
+    technicalContext: "Environnement hybride (cloud et on-premise), utilisation de technologies Microsoft, infrastructure critique soumise aux réglementations bancaires",
+    responsibilities: [
+      "Définir et piloter la stratégie de sécurité du SI",
+      "Gérer les risques cyber et assurer la conformité réglementaire (RGPD, DSP2, etc.)",
+      "Superviser la gestion des incidents de sécurité",
+      "Animer la gouvernance de la sécurité et conseiller la direction générale",
+      "Mettre en place un programme de sensibilisation à la cybersécurité"
+    ],
+    requirements: [
+      "5+ ans d'expérience en cybersécurité, dont 3 ans à un poste de management",
+      "Certification ISO 27001 Lead Implementer, CISSP ou équivalent",
+      "Expérience en gestion de crise cyber",
+      "Connaissance du secteur bancaire et de ses réglementations",
+      "Compétences en leadership et communication"
+    ]
+  },
+  {
+    id: "consultant",
+    title: "Consultant(e) Cybersécurité Senior",
+    description: "Poste de consultant(e) senior au sein d'un cabinet de conseil IT",
+    organization: "CyberConsult, cabinet de conseil en cybersécurité (250 consultants)",
+    technicalContext: "Missions variées auprès de clients de différents secteurs, audits techniques et organisationnels, tests d'intrusion, accompagnement SOC/CERT",
+    responsibilities: [
+      "Réaliser des missions d'audit de sécurité (techniques et organisationnels)",
+      "Mener des analyses de risques cyber pour les clients",
+      "Accompagner les clients dans la mise en place de leur stratégie de sécurité",
+      "Réaliser des tests d'intrusion et security reviews",
+      "Participer au développement commercial et à la rédaction de propositions"
+    ],
+    requirements: [
+      "4+ ans d'expérience en cybersécurité, idéalement en cabinet de conseil",
+      "Certifications techniques (CEH, OSCP) et/ou organisationnelles (ISO 27001)",
+      "Expérience en tests d'intrusion et/ou audits de sécurité",
+      "Excellentes compétences en communication et rédaction",
+      "Maîtrise de l'anglais professionnel"
+    ]
+  },
+  {
+    id: "pentester",
+    title: "Pentester / Ethical Hacker",
+    description: "Poste de testeur d'intrusion au sein d'une équipe offensive security",
+    organization: "SecureOffense, entreprise spécialisée dans les services de cybersécurité offensifs",
+    technicalContext: "Tests d'intrusion (web, mobile, infrastructure, IoT), red teaming, recherche de vulnérabilités, simulations d'attaques avancées",
+    responsibilities: [
+      "Réaliser des tests d'intrusion sur applications web, mobiles et infrastructures",
+      "Effectuer des opérations de red teaming et simulations d'attaques ciblées",
+      "Identifier, analyser et documenter les vulnérabilités découvertes",
+      "Rédiger des rapports détaillés avec recommandations",
+      "Contribuer à l'amélioration des méthodologies internes de tests"
+    ],
+    requirements: [
+      "3+ ans d'expérience en tests d'intrusion",
+      "Certifications techniques (OSCP, OSCE, OSWE ou équivalent)",
+      "Maîtrise des outils de pentest et des techniques d'exploitation",
+      "Connaissance des langages de programmation et scripting",
+      "Esprit méthodique et sens éthique"
+    ]
+  },
+  {
+    id: "soc-analyst",
+    title: "Analyste SOC",
+    description: "Poste d'analyste au sein d'un Centre Opérationnel de Sécurité",
+    organization: "IndustriSecure, entreprise industrielle majeure avec SOC interne",
+    technicalContext: "Environnement SOC avec technologies SIEM, EDR, NDR; supervision d'infrastructures IT et OT, utilisation de playbooks d'incident",
+    responsibilities: [
+      "Surveiller et analyser les alertes de sécurité en temps réel",
+      "Qualifier et investiguer les incidents de sécurité détectés",
+      "Prendre les mesures appropriées selon les procédures définies",
+      "Documenter les incidents et contribuer à l'amélioration des processus",
+      "Participer à la veille sur les menaces et vulnérabilités"
+    ],
+    requirements: [
+      "2+ ans d'expérience en cybersécurité opérationnelle",
+      "Compétences en analyse de logs et détection d'intrusion",
+      "Connaissance des techniques d'attaque et IoCs",
+      "Expérience avec les outils SIEM (Splunk, QRadar, etc.)",
+      "Capacité à travailler en équipe et sous pression"
+    ]
+  }
+];
 
 // Liste des questions possibles
 const QUESTIONS: Question[] = [
