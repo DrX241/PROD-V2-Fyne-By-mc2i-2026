@@ -204,30 +204,25 @@ Les questions doivent être pertinentes par rapport à ce contexte spécifique d
     }
 
     if (currentQuestionIndex === 0) {
-      // Génération de la première question technique basée sur la présentation
+      // Génération de la première question technique qui demande au candidat de reformuler le contexte et les enjeux
       systemPrompt = `
 Tu es un recruteur cybersécurité expérimenté qui fait passer un entretien technique adaptatif.
 
-Tu dois analyser la présentation d'un candidat et générer une première question technique pertinente adaptée à son profil.
+Tu dois analyser la présentation d'un candidat et générer une première question technique pertinente.
 ${contextBlock}
+
+IMPORTANT: Pour la deuxième question (après la présentation), tu DOIS demander au candidat de restituer sa compréhension du besoin et du contexte de l'entreprise. L'objectif est d'évaluer sa capacité d'écoute et d'analyse du contexte business.
 
 IMPORTANT : Ta réponse doit être au format JSON suivant, sans aucun texte en dehors du JSON :
 {
   "id": "q2",
-  "type": "technical",
-  "question": "Ta question adaptée au profil du candidat et au contexte d'audition",
-  "hint": "Un indice pour guider le candidat (max 1 ligne)",
-  "placeholder": "Un exemple de début de réponse"
+  "type": "analysis",
+  "question": "Une question qui demande au candidat de reformuler sa compréhension du besoin, du contexte de l'entreprise et des enjeux du poste",
+  "hint": "Un indice pour guider le candidat à bien reformuler les enjeux business et techniques (max 1 ligne)",
+  "placeholder": "Un exemple de début de réponse orienté compréhension du contexte"
 }
 
-Choisis l'un des types de question suivants selon le profil et le contexte d'audition : 
-- "technical" (question technique)
-- "incident" (gestion d'incident)
-- "reflex" (réflexes de sécurité)
-- "ethical" (dilemme éthique)
-- "analysis" (analyse de situation)
-- "client" (relation client)
-- "projection" (vision future)
+Le type de la question DOIT être "analysis" car c'est une question de compréhension du contexte.
 `;
 
       userPrompt = `
@@ -238,6 +233,20 @@ Voici la présentation du candidat en cybersécurité :
 Analyse son profil (expérience, niveau, expertise) et génère une première question pertinente qui va permettre d'évaluer ses compétences de manière adaptée${jobContext ? ` par rapport au poste de ${jobContext.title}` : ''}.
 `;
     } else {
+      // Progression logique des questions en fonction de l'étape de l'entretien
+      let questionStage;
+
+      // Déterminer l'étape de l'entretien (après présentation et compréhension du contexte)
+      if (currentQuestionIndex <= 2) {
+        questionStage = "adéquation_profil"; // Questions sur pourquoi ce poste, adéquation du profil
+      } else if (currentQuestionIndex <= 4) {
+        questionStage = "technique"; // Questions techniques liées au poste
+      } else if (currentQuestionIndex <= 6) {
+        questionStage = "fonctionnel"; // Questions fonctionnelles et opérationnelles
+      } else {
+        questionStage = "stratégique"; // Questions stratégiques et projection
+      }
+
       // Génération des questions suivantes basées sur toutes les réponses précédentes
       systemPrompt = `
 Tu es un recruteur cybersécurité expérimenté qui fait passer un entretien technique adaptatif.
@@ -245,26 +254,34 @@ Tu es un recruteur cybersécurité expérimenté qui fait passer un entretien te
 Tu dois analyser les réponses précédentes d'un candidat et générer la question suivante la plus pertinente pour évaluer ses compétences.
 ${contextBlock}
 
+PROGRESSION LOGIQUE DE L'ENTRETIEN:
+L'entretien suit une progression spécifique:
+1. Présentation du candidat (déjà faite)
+2. Compréhension du contexte d'audition (déjà faite)
+3. Adéquation du profil avec le poste (pourquoi vous?, points forts/faibles pertinents pour ce poste)
+4. Questions techniques spécifiques au poste
+5. Questions fonctionnelles et opérationnelles
+6. Questions stratégiques et de projection
+
+Nous sommes actuellement à l'étape: "${questionStage}".
+
 IMPORTANT : Ta réponse doit être au format JSON suivant, sans aucun texte en dehors du JSON :
 {
   "id": "${currentQuestionIndex + 1}",
-  "type": "Choisis un type approprié",
-  "question": "Ta question adaptée au profil du candidat et au contexte d'audition",
+  "type": "Choisis un type approprié selon l'étape actuelle",
+  "question": "Ta question adaptée au profil du candidat, au contexte d'audition et à l'étape actuelle de l'entretien",
   "hint": "Un indice pour guider le candidat (max 1 ligne)",
   "placeholder": "Un exemple de début de réponse"
 }
 
-Choisis l'un des types de question suivants selon le profil et le contexte d'audition, MAIS en évitant de répéter des types déjà utilisés : 
-- "technical" (question technique)
-- "incident" (gestion d'incident)
-- "reflex" (réflexes de sécurité)
-- "ethical" (dilemme éthique)
-- "analysis" (analyse de situation)
-- "client" (relation client)
-- "projection" (vision future)
+Choisis le type de question en fonction de l'étape actuelle:
+- Pour "adéquation_profil": "analysis" ou "client" (pertinence du profil, motivation)
+- Pour "technique": "technical", "reflex", ou "incident" (compétences techniques spécifiques)
+- Pour "fonctionnel": "client" ou "ethical" (aspects fonctionnels, opérationnels)
+- Pour "stratégique": "projection" ou "analysis" (vision, stratégie)
 
-Le niveau de ta question doit s'adapter au niveau perçu du candidat : plus basique s'il semble débutant, plus complexe s'il démontre une expertise.
-Garde toujours les questions pertinentes par rapport au contexte d'audition fourni.
+Le niveau de ta question doit s'adapter au niveau perçu du candidat: plus basique s'il semble débutant, plus complexe s'il démontre une expertise.
+Les questions doivent être très spécifiques au contexte d'audition fourni et au poste visé.
 `;
 
       // Format des réponses précédentes
@@ -373,11 +390,11 @@ Analyse ces réponses et génère la question suivante la plus pertinente pour a
 }
 
 /**
- * Évalue les réponses du test d'entretien cyber
+ * Évalue les réponses du test d'entretien cyber avec une approche objective basée sur des preuves
  */
 export async function evaluateInterviewTest(req: Request, res: Response) {
   try {
-    const { questions, answers } = req.body;
+    const { questions, answers, jobContext } = req.body;
 
     if (!questions || !answers || !Array.isArray(questions) || !Array.isArray(answers)) {
       return res.status(400).json({
@@ -387,35 +404,70 @@ export async function evaluateInterviewTest(req: Request, res: Response) {
     }
 
     // Préparation des données pour l'analyse par Azure OpenAI
-    const formattedQuestions = questions.map((q: Question) => 
-      `Question (${q.type}): ${q.question}`
+    const formattedQuestions = questions.map((q: Question, index: number) => 
+      `Question ${index + 1} (${q.type}): ${q.question}`
     ).join('\n\n');
 
-    const formattedAnswers = answers.map((a: Answer) => {
+    const formattedAnswers = answers.map((a: Answer, index: number) => {
       const question = questions.find((q: Question) => q.id === a.questionId);
-      return `Réponse à "${question?.question || a.questionId}":\n${a.answer || "[Pas de réponse]"}`;
+      return `Réponse ${index + 1} (${question?.type || 'inconnue'}):\n"${a.answer || "[Pas de réponse]"}"`;
     }).join('\n\n');
 
-    // Prompt pour Azure OpenAI
+    // Création du bloc de contexte d'audition s'il est disponible
+    let contextBlock = '';
+    if (jobContext) {
+      contextBlock = `
+CONTEXTE D'AUDITION :
+- Poste : ${jobContext.title}
+- Organisation : ${jobContext.organization}
+- Description : ${jobContext.description}
+- Contexte technique : ${jobContext.technicalContext}
+- Responsabilités : ${jobContext.responsibilities.join(', ')}
+- Prérequis : ${jobContext.requirements.join(', ')}
+
+Toute l'évaluation doit être faite en tenant compte de ce contexte spécifique.
+`;
+    }
+
+    // Prompt pour Azure OpenAI avec l'accent sur l'objectivité et les citations
     const systemPrompt = `
-Tu es un recruteur cybersécurité expérimenté. Tu viens de faire passer un test de 15 minutes à un candidat.
-Lis l'ensemble de ses réponses, puis rédige un profil d'évaluation structuré avec :
+Tu es un recruteur expert en cybersécurité qui vient de faire passer un entretien à un candidat.
+${contextBlock}
 
-1. Profil général (3 lignes) : posture, niveau perçu, comportement pro.
-2. Forces (3 points) : réflexes, raisonnement, qualités professionnelles.
-3. Axes de progression (3 points) : limites techniques ou comportementales.
-4. Badge final : nom du badge (ex : Cyber Guardian Junior) + 1 ligne de justification.
+CONSIGNE D'ÉVALUATION:
+Ta mission est d'évaluer objectivement les réponses du candidat et de produire une synthèse d'entretien rigoureuse.
+Pour chaque point fort ou axe d'amélioration que tu identifies, tu DOIS citer des extraits précis des réponses du candidat.
 
-Le ton doit être bienveillant, professionnel et orienté progression. Ne donne aucun score.
+Rédige un profil d'évaluation structuré avec:
+
+1. Profil général (3-4 lignes): niveau technique perçu, posture professionnelle, adéquation au poste visé.
+
+2. Points forts (3 points): compétences, connaissances ou qualités démontrées par le candidat.
+   Pour chaque point fort, CITE UN EXTRAIT PRÉCIS de ses réponses entre guillemets qui le démontre.
+
+3. Axes de progression (3 points): lacunes techniques, connaissance à approfondir ou comportements à améliorer.
+   Pour chaque axe d'amélioration, CITE UN EXTRAIT PRÉCIS de ses réponses entre guillemets qui illustre ce besoin.
+
+4. Badge: attribue un badge qui résume son profil avec une justification qui synthétise l'évaluation.
+
+LE TON: Objectif, factuel, basé sur des preuves tangibles (citations).
 
 IMPORTANT : Ta réponse doit être au format JSON suivant, sans aucun texte en dehors du JSON :
 {
-  "profile": "Texte de 3 lignes maximum décrivant le profil général",
-  "strengths": ["Force 1", "Force 2", "Force 3"],
-  "improvements": ["Axe d'amélioration 1", "Axe d'amélioration 2", "Axe d'amélioration 3"],
+  "profile": "Texte de 3-4 lignes décrivant le profil général avec évaluation de l'adéquation au poste de [titre du poste]",
+  "strengths": [
+    "Point fort 1 avec citation: \"[extrait de réponse exact]\"",
+    "Point fort 2 avec citation: \"[extrait de réponse exact]\"",
+    "Point fort 3 avec citation: \"[extrait de réponse exact]\""
+  ],
+  "improvements": [
+    "Axe d'amélioration 1 avec citation: \"[extrait de réponse exact]\"",
+    "Axe d'amélioration 2 avec citation: \"[extrait de réponse exact]\"",
+    "Axe d'amélioration 3 avec citation: \"[extrait de réponse exact]\""
+  ],
   "badge": {
-    "name": "Nom du badge",
-    "justification": "Une ligne expliquant pourquoi ce badge"
+    "name": "Nom du badge représentatif",
+    "justification": "Synthèse factuelle des forces et limites principales en lien avec le poste visé"
   }
 }
 `;
