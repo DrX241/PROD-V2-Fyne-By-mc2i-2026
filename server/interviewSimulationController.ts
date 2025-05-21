@@ -6,12 +6,17 @@ import { openAIService } from '../I_AM_CYBER/services/openai';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Configuration de l'API SendGrid si la clé est disponible
-const sendgridApiKey = process.env.SENDGRID_API_KEY;
+// Configuration de l'API SendGrid
+// Utiliser la clé fournie par .env ou la clé en dur (si .env ne fonctionne pas)
+const sendgridApiKey = process.env.SENDGRID_API_KEY || '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';
+
+// Vérifier si la clé est présente
 if (sendgridApiKey) {
   console.log('🔑 Initialisation de SendGrid avec la clé API');
   sgMail.setApiKey(sendgridApiKey);
-  console.log('✅ SendGrid configuré avec succès');
+  // Afficher uniquement les premiers caractères de la clé pour la sécurité
+  const visibleKeyPart = sendgridApiKey.substring(0, 10) + '...';
+  console.log(`✅ SendGrid configuré avec succès. Clé utilisée: ${visibleKeyPart}`);
 } else {
   console.log('⚠️ Aucune clé API SendGrid n\'a été trouvée. L\'envoi d\'emails réels ne sera pas disponible.');
 }
