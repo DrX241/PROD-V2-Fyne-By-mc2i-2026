@@ -650,6 +650,23 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Erreur API (finalisation):", errorText);
+        
+        // Analyser l'erreur pour afficher un message plus informatif
+        try {
+          const errorObj = JSON.parse(errorText);
+          if (errorObj.error && errorObj.error.includes("trop courte pour être évaluée")) {
+            toast({
+              variant: "warning",
+              title: "Entretien trop court",
+              description: "L'audition est trop courte pour être évaluée. Veuillez poursuivre l'échange avant de finaliser.",
+            });
+            setIsLoading(false);
+            return;
+          }
+        } catch (e) {
+          // Si le parsing échoue, utiliser le message d'erreur générique
+        }
+        
         throw new Error('Erreur lors de la finalisation de la simulation');
       }
       
