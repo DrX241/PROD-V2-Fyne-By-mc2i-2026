@@ -1054,8 +1054,14 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
               console.log('- Expéditeur:', 'eddy.missoni@mc2i.fr');
               console.log('- Clé API SendGrid disponible:', !!sendgridApiKey);
               
+              // Envoyer l'email avec SendGrid
               await sgMail.send(msg);
-              console.log('Email envoyé avec SendGrid à', emailToUse);
+              console.log('📧 Email envoyé avec succès via SendGrid à', emailToUse);
+              console.log('=====================================');
+              console.log('✅ NOTIFICATION : EMAIL ENVOYÉ AVEC SUCCÈS');
+              console.log('✅ Destinataire:', emailToUse);
+              console.log('✅ Objet:', domain === 'amoa' ? `Évaluation de préparation d'audition - ${candidateName}` : `Évaluation d'entretien technique - ${candidateName}`);
+              console.log('=====================================');
             } catch (sendgridError: any) {
               console.error('Erreur lors de l\'envoi avec SendGrid:', sendgridError.code);
               
