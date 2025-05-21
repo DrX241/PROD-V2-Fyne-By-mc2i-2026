@@ -158,7 +158,8 @@ export async function processInterviewMessage(req: Request, res: Response) {
       messages,
       profileType,
       experienceLevel,
-      sectorFocus
+      sectorFocus,
+      auditContext
     } = req.body;
     
     if (!domain || !profileType || !experienceLevel || !messages) {
@@ -198,7 +199,7 @@ export async function processInterviewMessage(req: Request, res: Response) {
     if (domain === 'cyber') {
       systemPrompt = generateCyberStepPrompt(step, profileType, experienceLevel);
     } else {
-      systemPrompt = generateAmoaStepPrompt(step, profileType, experienceLevel, sectorFocus || '');
+      systemPrompt = generateAmoaStepPrompt(step, profileType, experienceLevel, sectorFocus || '', auditContext);
     }
 
     // Renforcement critique pour assurer une évaluation technique rigoureuse et exigeante
@@ -1448,7 +1449,7 @@ Garde un ton direct et préoccupé (150 mots max). Ne joue pas le rôle du consu
 /**
  * Génère le prompt pour une étape spécifique de l'audition AMOA
  */
-function generateAmoaStepPrompt(step: number, profileType: string, experienceLevel: string, sectorFocus: string): string {
+function generateAmoaStepPrompt(step: number, profileType: string, experienceLevel: string, sectorFocus: string, auditContext?: AuditContextData): string {
   // Adapter la difficulté en fonction de l'étape et du niveau d'expérience
   let baseComplexity = 'intermédiaire';
   switch (experienceLevel.toLowerCase()) {
