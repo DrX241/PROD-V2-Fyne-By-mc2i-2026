@@ -150,7 +150,8 @@ class OpenAIService {
       const requestBody = {
         messages: messages,
         temperature: temperature,
-        max_tokens: maxTokens
+        max_tokens: maxTokens,
+        model: config.modelName
       };
       
       console.log(`Requête formatée pour ${config.deploymentName}`);
@@ -221,7 +222,8 @@ class OpenAIService {
       const testMessage = {
         messages: [{ role: "user", content: "Test connection" }],
         max_tokens: 5,
-        temperature: 0
+        temperature: 0,
+        model: config.modelName
       };
 
       // Formatage correct de l'URL : suppression des doubles slashes
