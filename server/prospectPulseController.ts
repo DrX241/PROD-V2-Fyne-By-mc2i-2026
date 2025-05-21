@@ -264,10 +264,28 @@ export async function generateClientMessage(req: Request, res: Response) {
     const communicationStyle = getCommunicationStyle(clientProfile.type);
     const objectives = getClientObjectives(clientProfile.type);
     
+    // Calculer la durée de la conversation en minutes, si disponible
+    let sessionDuration = 0;
+    if (sessionHistory && sessionHistory.length > 0) {
+      const firstTimestamp = new Date(sessionHistory[0].timestamp).getTime();
+      const now = Date.now();
+      sessionDuration = Math.floor((now - firstTimestamp) / (1000 * 60)); // en minutes
+    }
+
+    // Déterminer si le client va mettre fin à la conversation à cause du temps écoulé
+    const shouldEndConversation = sessionDuration >= 2 && 
+                                 sessionHistory.length > 3 && 
+                                 clientProfile.type === 'pressé' &&
+                                 !isTimeout && !isInitial &&
+                                 Math.random() < 0.7; // 70% de chance de terminer
+
     // Construction d'un système de prompt plus détaillé et riche
     const systemPrompt = `Tu joues le rôle d'un client réaliste et cohérent dans un scénario de prospection commerciale.
 
 VOTRE PROFIL EN DÉTAIL :
+- Nom : ${clientProfile.name || "Client"}
+- Poste : ${clientProfile.position || "Professionnel"}
+- Entreprise : ${clientProfile.company || "Entreprise"}
 - Type de client : ${clientProfile.type}
 - Personnalité : ${clientProfile.personality}
 - Contexte professionnel : ${clientProfile.context}
@@ -288,12 +306,13 @@ DIRECTIVES DE RÉPONSE :
 1. Reste fidèle à ton personnage à tout moment
 2. Utilise les expressions typiques et le vocabulaire approprié au profil
 3. Maintiens une cohérence émotionnelle tout au long de la conversation
-4. Réagis de façon réaliste aux propositions du consultant
+4. Réagis de façon réaliste aux propositions du consultant - SOIS RÉCEPTIF SI LES PROPOSITIONS SONT COHÉRENTES
 5. Pose des questions spécifiques qui révèlent tes préoccupations
 ${isTimeout ? "6. Montre clairement ton impatience face au délai de réponse, mais sans exagération irréaliste" : ""}
-${isInitial ? "7. Ce message est ton premier contact - commence par une accroche qui reflète ton caractère et ton besoin principal" : ""}
+${isInitial ? "7. Ce message est ton premier contact - commence par te présenter avec ton nom, ton poste et ton entreprise" : ""}
+${shouldEndConversation ? "8. IMPORTANT: Tu dois mettre fin à la conversation car tu manques de temps. Explique poliment que tu dois partir, donne 1-2 raisons pour lesquelles tu n'es pas encore complètement convaincu, et propose éventuellement de reprendre contact ultérieurement." : ""}
 
-N'utilise PAS de formules génériques ou impersonnelles. Donne une vraie personnalité à tes réponses.`;
+N'utilise PAS de formules génériques ou impersonnelles. Donne une vraie personnalité à tes réponses. Montre-toi intelligent dans tes négociations - si le consultant est convaincant, tu peux te montrer progressivement plus réceptif.`;
 
     // Construction du contexte pour l'IA
     let userPrompt = `Voici l'historique de la conversation entre toi (Client) et un Consultant senior d'un cabinet de conseil:
@@ -407,7 +426,12 @@ ${conversationText}
 
 Donne une note globale sur 10.
 
-Fournis également un feedback constructif sur les points forts et les axes d'amélioration en 3-5 phrases.
+IMPORTANT - Ton feedback doit être TRÈS CONCRET et basé uniquement sur cette conversation réelle:
+1. Cite des EXEMPLES SPÉCIFIQUES de ce que le consultant a dit ou aurait dû dire
+2. Réfère-toi à des MOMENTS PRÉCIS de l'échange (par exemple: "Quand le client a mentionné X, votre réponse Y était...")
+3. Propose des FORMULATIONS ALTERNATIVES concrètes pour les points à améliorer
+4. N'invente aucun élément qui n'est pas dans la conversation
+5. Structure ton feedback avec des points forts (Efficace) et des axes d'amélioration (À améliorer)
 
 Format de réponse (JSON):
 {

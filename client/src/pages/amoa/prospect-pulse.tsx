@@ -65,6 +65,10 @@ interface Message {
 interface ClientProfile {
   id: string;
   type: 'pressé' | 'hostile' | 'indécis' | 'technique' | 'débutant';
+  name: string;
+  gender: 'male' | 'female';
+  position: string;
+  company: string;
   personality: string;
   context: string;
   initialMessage: string;
@@ -116,37 +120,112 @@ export default function ProspectPulse() {
     {
       id: 'pressed',
       type: 'pressé',
+      name: 'Thomas Lefort',
+      gender: 'male',
+      position: 'Directeur Transformation Digitale',
+      company: 'TechVision Solutions',
       personality: 'Impatient, direct, regarde souvent sa montre, veut aller à l\'essentiel, coupe la parole si on s\'égare',
       context: 'Doit résoudre un problème stratégique d\'ici demain midi, a très peu de temps disponible',
-      initialMessage: 'Bonjour. J\'ai très peu de temps. On doit trancher d\'ici demain sur un projet critique, mais il reste trop d\'incertitudes. Tu peux m\'aider ou pas ? Sois direct stp.'
+      initialMessage: 'Bonjour, je suis Thomas Lefort, Directeur de la Transformation Digitale chez TechVision Solutions. J\'ai très peu de temps aujourd\'hui. On doit trancher d\'ici demain sur un projet critique, mais il reste trop d\'incertitudes. Tu peux m\'aider concrètement ou pas ?'
+    },
+    {
+      id: 'pressed-f',
+      type: 'pressé',
+      name: 'Sophie Mercier',
+      gender: 'female',
+      position: 'Directrice des Opérations',
+      company: 'Groupe Hermes',
+      personality: 'Directe, efficace, peu de patience pour les digressions, centrée sur les résultats',
+      context: 'En pleine réorganisation d\'équipe avec un calendrier serré, a besoin de solutions rapides',
+      initialMessage: 'Bonjour, je suis Sophie Mercier, Directrice des Opérations chez Groupe Hermes. Je n\'ai que 20 minutes. Nous sommes en pleine restructuration et j\'ai besoin de savoir rapidement ce que vous pouvez apporter à notre équipe. Soyons efficaces.'
     },
     {
       id: 'hostile',
       type: 'hostile',
+      name: 'Laurent Dubois',
+      gender: 'male',
+      position: 'DSI',
+      company: 'Assurances Nationales',
       personality: 'Méfiant, critique, teste constamment vos réponses, veut des preuves pas des promesses, peut être sec',
       context: 'A eu de mauvaises expériences avec plusieurs prestataires, compare activement les cabinets',
-      initialMessage: 'Bonjour. On m\'a recommandé votre cabinet, mais franchement j\'ai des doutes. Vous êtes le troisième que je contacte ce mois-ci. Dites-moi ce que vous avez de différent, et vite.'
+      initialMessage: 'Bonjour, je suis Laurent Dubois, DSI chez Assurances Nationales. On m\'a recommandé votre cabinet, mais franchement j\'ai des doutes. Vous êtes le troisième que je contacte ce mois-ci. Le dernier nous a fait perdre temps et argent. Alors, dites-moi ce que vous avez vraiment de différent.'
+    },
+    {
+      id: 'hostile-f',
+      type: 'hostile',
+      name: 'Nadia Moulin',
+      gender: 'female',
+      position: 'Directrice Financière',
+      company: 'Industrie Lemaire',
+      personality: 'Analytique, exigeante, attentive aux détails, besoin de justifications concrètes',
+      context: 'A connu plusieurs échecs coûteux avec des consultants, méfiante envers les promesses commerciales',
+      initialMessage: 'Bonjour, Nadia Moulin, Directrice Financière d\'Industrie Lemaire. Soyons clairs, nous avons déjà investi plus de 200K€ dans des prestations de conseil qui n\'ont pas abouti. J\'ai besoin de garanties concrètes, pas de discours commercial. Qu\'est-ce qui me prouve que vous êtes différents ?'
     },
     {
       id: 'indecis',
       type: 'indécis',
+      name: 'Julien Moreau',
+      gender: 'male',
+      position: 'Responsable Innovation',
+      company: 'MediaTech',
       personality: 'Hésitant, pose beaucoup de questions parfois redondantes, change régulièrement d\'avis, a besoin d\'être rassuré',
       context: 'Son entreprise vit une période floue, n\'arrive pas à déterminer clairement ses besoins ou priorités',
-      initialMessage: 'Bonjour... Je ne suis pas encore certain que ce soit ce qu\'il nous faut, mais voilà. On a un projet de transformation, ou peut-être juste une réorganisation partielle. Bref, c\'est un peu flou. Tu peux m\'aider à y voir clair ?'
+      initialMessage: 'Bonjour, je m\'appelle Julien Moreau, je suis Responsable Innovation chez MediaTech. Je ne suis pas encore certain que ce soit ce qu\'il nous faut, mais voilà. On a un projet de transformation, ou peut-être juste une réorganisation partielle. Bref, c\'est un peu flou. Tu penses pouvoir nous aider à y voir plus clair ?'
+    },
+    {
+      id: 'indecis-f',
+      type: 'indécis',
+      name: 'Claire Dufresne',
+      gender: 'female',
+      position: 'Directrice Marketing',
+      company: 'ConsumerFirst',
+      personality: 'Réfléchie, prudente, hésite entre plusieurs options, cherche des conseils extérieurs',
+      context: 'Doit piloter une transformation digitale mais manque de vision claire sur la direction à prendre',
+      initialMessage: 'Bonjour, je suis Claire Dufresne, Directrice Marketing de ConsumerFirst. Nous sommes à un carrefour stratégique pour notre transformation digitale. J\'hésite entre plusieurs approches et je n\'arrive pas à trancher... D\'un côté la personnalisation client, de l\'autre l\'automatisation... Qu\'est-ce qui serait le plus pertinent selon vous ?'
     },
     {
       id: 'technique',
       type: 'technique',
+      name: 'Marc Tellier',
+      gender: 'male',
+      position: 'Architecte Solutions',
+      company: 'BanqueDigitale',
       personality: 'Exigeant, précis, rigoureux, utilise un vocabulaire métier avancé, teste vos connaissances techniques',
       context: 'Fait face à un problème technique critique en interne, veut mesurer votre expertise concrète',
-      initialMessage: 'Bonjour. On rencontre actuellement des problèmes de latence sur une architecture hybride cloud/on-prem. Je cherche un cabinet capable d\'apporter un diagnostic fiable et une roadmap. Est-ce dans vos cordes ?'
+      initialMessage: 'Bonjour, Marc Tellier, Architecte Solutions chez BanqueDigitale. Nous rencontrons actuellement des problèmes de latence sur une architecture hybride cloud/on-prem avec des microservices qui ne scalent pas correctement en période de forte charge. Je cherche un cabinet capable d\'apporter un diagnostic fiable et une roadmap d\'évolution. Est-ce dans vos cordes ?'
+    },
+    {
+      id: 'technique-f',
+      type: 'technique',
+      name: 'Emma Leclerc',
+      gender: 'female',
+      position: 'Lead DevOps',
+      company: 'SecurNet',
+      personality: 'Analytique, factuelle, axée sur les détails techniques, peu de patience pour les généralités',
+      context: 'Cherche à moderniser une infrastructure vieillissante tout en maintenant des niveaux élevés de sécurité',
+      initialMessage: 'Bonjour, je suis Emma Leclerc, Lead DevOps chez SecurNet. Nous cherchons à migrer notre infrastructure monolithique vers une architecture en microservices conteneurisée, tout en renforçant notre conformité avec les normes ISO 27001 et 27017. Avez-vous de l\'expérience avec ce type de transformation en environnement hautement sécurisé ?'
     },
     {
       id: 'debutant',
       type: 'débutant',
+      name: 'Antoine Martin',
+      gender: 'male',
+      position: 'Responsable PME',
+      company: 'ArtisanTech',
       personality: 'Curieux mais perdu, pose des questions naïves, ne connaît pas les termes techniques, a besoin d\'explications simples',
       context: 'Premier contact avec un cabinet de conseil, ne sait pas comment fonctionnent les prestations',
-      initialMessage: 'Bonjour, c\'est la première fois que je fais appel à un cabinet de conseil. On a un projet, mais je ne sais pas trop comment ça marche. Tu peux m\'expliquer ce que vous faites, et comment ça se passe si on travaille ensemble ?'
+      initialMessage: 'Bonjour, je m\'appelle Antoine Martin, je dirige la PME ArtisanTech. C\'est la première fois que je fais appel à un cabinet de conseil. On a un projet de développement, mais je ne sais pas trop comment ça marche avec vous. Tu peux m\'expliquer concrètement ce que vous faites, et comment ça se passe si on travaille ensemble ?'
+    },
+    {
+      id: 'debutant-f',
+      type: 'débutant',
+      name: 'Marie Petit',
+      gender: 'female',
+      position: 'Fondatrice',
+      company: 'EcoStart',
+      personality: 'Enthousiaste mais novice, souhaite apprendre, cherche des explications accessibles',
+      context: 'Startup en croissance qui s\'interroge sur la meilleure façon de structurer son développement',
+      initialMessage: 'Bonjour, je m\'appelle Marie Petit, je suis la fondatrice d\'EcoStart, une startup dans l\'économie circulaire. Nous sommes en pleine croissance et j\'envisage de faire appel à un cabinet de conseil pour la première fois. Pouvez-vous m\'expliquer simplement comment vous pourriez nous aider et comment se déroulerait une collaboration ?'
     }
   ]);
   
