@@ -250,10 +250,10 @@ export default function CrisisManagementPage() {
       isAvailable: true
     },
     {
-      id: "ceo",
+      id: "dir-finance",
       name: "Vincent Terrier",
-      role: "Directeur Général",
-      avatar: generateAvatar("Vincent Terrier", "Dir. Général", "Executive"),
+      role: "Senior Partner, Directeur Financier",
+      avatar: generateAvatar("Vincent Terrier", "Dir. Financier", "Executive"),
       personality: "authoritative",
       department: "Executive",
       expertise: 8,
@@ -264,7 +264,7 @@ export default function CrisisManagementPage() {
     {
       id: "dir-comm",
       name: "Marion Lopez",
-      role: "Directrice Communication",
+      role: "Senior Partner, Directrice Communication et Marketing",
       avatar: generateAvatar("Marion Lopez", "Dir. Communication", "Communication"),
       personality: "diplomatic",
       department: "Communication",
@@ -274,27 +274,27 @@ export default function CrisisManagementPage() {
       isAvailable: true
     },
     {
-      id: "dir-tech",
-      name: "Thomas Durand",
-      role: "Directeur Technique",
-      avatar: generateAvatar("Thomas Durand", "Dir. Technique", "IT"),
-      personality: "technical",
-      department: "IT",
-      expertise: 10,
+      id: "president",
+      name: "Arnaud Gauthier",
+      role: "Président",
+      avatar: generateAvatar("Arnaud Gauthier", "Président", "Executive"),
+      personality: "calm",
+      department: "Executive",
+      expertise: 9,
       stress: 60,
-      trust: 90,
+      trust: 95,
       isAvailable: true
     },
     {
-      id: "dir-juridique",
-      name: "Sophie Legrand",
-      role: "Directrice Juridique",
-      avatar: generateAvatar("Sophie Legrand", "Dir. Juridique", "Legal"),
-      personality: "calm",
-      department: "Legal",
-      expertise: 9,
+      id: "dg",
+      name: "Olivier Hervo",
+      role: "Directeur Général",
+      avatar: generateAvatar("Olivier Hervo", "Dir. Général", "Executive"),
+      personality: "technical",
+      department: "Executive",
+      expertise: 10,
       stress: 75,
-      trust: 85,
+      trust: 90,
       isAvailable: true
     }
   ];
@@ -598,8 +598,9 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
                 { systemId: "vpn-gateway", newStatus: "isolated", recoveryChange: 0 }
               ],
               stakeholderChanges: [
-                { stakeholderId: "ceo", stressChange: 20, trustChange: -15 },
-                { stakeholderId: "dir-tech", stressChange: -10, trustChange: 10 }
+                { stakeholderId: "dg", stressChange: 20, trustChange: -15 },
+                { stakeholderId: "president", stressChange: 25, trustChange: -5 },
+                { stakeholderId: "dir-finance", stressChange: -10, trustChange: 10 }
               ]
             }
           },
@@ -608,14 +609,14 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
             text: "Isoler uniquement les systèmes visiblement affectés et les systèmes critiques",
             stakeholderReactions: [
               {
-                stakeholderId: "ceo",
+                stakeholderId: "dg",
                 reaction: "approve",
                 comment: "Une approche plus équilibrée, j'approuve."
               },
               {
-                stakeholderId: "dir-tech",
+                stakeholderId: "dir-finance",
                 reaction: "neutral",
-                comment: "C'est un compromis, mais risqué car certains systèmes pourraient être infectés sans symptômes visibles."
+                comment: "C'est un compromis financier acceptable, mais surveillons l'impact potentiel sur notre activité."
               }
             ],
             consequences: {
@@ -635,14 +636,14 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
             text: "Surveiller attentivement sans isoler de systèmes pour l'instant",
             stakeholderReactions: [
               {
-                stakeholderId: "ceo",
+                stakeholderId: "dg",
                 reaction: "approve",
                 comment: "Cela nous permet de rester opérationnels, c'est ma préférence."
               },
               {
-                stakeholderId: "dir-tech",
+                stakeholderId: "dir-comm",
                 reaction: "strongly-disapprove",
-                comment: "C'est extrêmement risqué ! Le ransomware continue de se propager en ce moment même !"
+                comment: "C'est extrêmement risqué pour notre réputation ! Nous devons montrer que nous agissons de manière proactive !"
               }
             ],
             consequences: {

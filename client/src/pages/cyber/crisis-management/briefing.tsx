@@ -171,26 +171,26 @@ export default function CrisisBriefingPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div className="bg-gray-800 p-4 rounded-md">
                       <h3 className="font-semibold text-blue-400 mb-1">Vincent Terrier</h3>
-                      <p className="text-sm text-gray-300 mb-2">Directeur Général</p>
-                      <p className="text-sm">Préoccupé par l'impact sur l'activité et la réputation de mc2i. Attend des informations claires et des solutions rapides.</p>
+                      <p className="text-sm text-gray-300 mb-2">Senior Partner, Directeur Financier</p>
+                      <p className="text-sm">Préoccupé par l'impact sur les finances et la réputation de mc2i. Attend des informations claires et des solutions rapides.</p>
                     </div>
                     
                     <div className="bg-gray-800 p-4 rounded-md">
                       <h3 className="font-semibold text-amber-400 mb-1">Marion Lopez</h3>
-                      <p className="text-sm text-gray-300 mb-2">Directrice Communication</p>
+                      <p className="text-sm text-gray-300 mb-2">Senior Partner, Directrice Communication et Marketing</p>
                       <p className="text-sm">Doit gérer la communication interne et externe. Besoin de savoir quoi dire aux clients et partenaires.</p>
                     </div>
                     
                     <div className="bg-gray-800 p-4 rounded-md">
-                      <h3 className="font-semibold text-green-400 mb-1">Thomas Durand</h3>
-                      <p className="text-sm text-gray-300 mb-2">Directeur Technique</p>
-                      <p className="text-sm">En première ligne pour la partie technique. A besoin de vos directives pour coordonner ses équipes.</p>
+                      <h3 className="font-semibold text-green-400 mb-1">Arnaud Gauthier</h3>
+                      <p className="text-sm text-gray-300 mb-2">Président</p>
+                      <p className="text-sm">Inquiet des implications stratégiques de la crise sur l'ensemble du cabinet. Veut être tenu au courant de l'évolution de la situation.</p>
                     </div>
                     
                     <div className="bg-gray-800 p-4 rounded-md">
-                      <h3 className="font-semibold text-purple-400 mb-1">Sophie Legrand</h3>
-                      <p className="text-sm text-gray-300 mb-2">Directrice Juridique</p>
-                      <p className="text-sm">Préoccupée par les aspects légaux et réglementaires, notamment les obligations RGPD en cas de fuite de données.</p>
+                      <h3 className="font-semibold text-purple-400 mb-1">Olivier Hervo</h3>
+                      <p className="text-sm text-gray-300 mb-2">Directeur Général</p>
+                      <p className="text-sm">Préoccupé par l'impact opérationnel global et la coordination entre les différents départements pendant la crise.</p>
                     </div>
                   </div>
                   
