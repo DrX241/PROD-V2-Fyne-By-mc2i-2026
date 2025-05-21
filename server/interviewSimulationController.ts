@@ -49,6 +49,12 @@ async function sendWithEthereal(trainerEmail: string, candidateName: string, ema
   }
 }
 
+// Structure pour le contexte d'audition
+interface AuditContextData {
+  contextType: 'predefined' | 'custom';
+  contextData: any;
+}
+
 // Structure des données de simulation d'audition client
 interface InterviewSimulationData {
   domain: 'cyber' | 'amoa';
@@ -57,6 +63,7 @@ interface InterviewSimulationData {
   profileType: string;
   experienceLevel: string;
   sectorFocus?: string; // Utilisé uniquement pour AMOA
+  auditContext?: AuditContextData; // Contexte d'audition pour AMOA
   messages: Array<any>;
   duration?: number;
 }
@@ -72,8 +79,14 @@ export async function startInterviewSimulation(req: Request, res: Response) {
       candidateName,
       profileType,
       experienceLevel,
-      sectorFocus
+      sectorFocus,
+      auditContext
     } = req.body;
+
+    console.log("Démarrage simulation avec contexte:", domain, profileType, experienceLevel, sectorFocus);
+    if (auditContext) {
+      console.log("Contexte d'audition fourni de type:", auditContext.contextType);
+    }
 
     if (!domain || !profileType || !experienceLevel) {
       return res.status(400).json({ 
@@ -106,7 +119,7 @@ export async function startInterviewSimulation(req: Request, res: Response) {
     if (domain === 'cyber') {
       systemPrompt = generateCyberSystemPrompt(profileType, experienceLevel);
     } else {
-      systemPrompt = generateAmoaSystemPrompt(profileType, experienceLevel, sectorFocus || '');
+      systemPrompt = generateAmoaSystemPrompt(profileType, experienceLevel, sectorFocus || '', auditContext);
     }
 
     // Générer le scénario initial avec l'IA
@@ -1041,7 +1054,7 @@ QUESTIONS TECHNIQUES EXIGEANTES À UTILISER (adapte au profil):
 Commence par une brève présentation de l'entreprise puis pose immédiatement une première question technique ciblée et exigeante.`;
 }
 
-function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, sectorFocus: string): string {
+function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, sectorFocus: string, auditContext?: AuditContextData): string {
   // Création de contextes d'entreprise variés pour le secteur spécifié
   const sectorCompanies = {
     "Banque/Finance": [
