@@ -206,7 +206,7 @@ export default function CyberV3() {
                 </div>
                 <h3 className="text-center text-2xl font-data-title mb-2">CYBER ACADÉMIE</h3>
                 <p className="text-center text-blue-300 mt-2 whitespace-nowrap overflow-hidden text-overflow-ellipsis px-2">
-                  Centre de formation complet aux métiers de la cybersécurité
+                  Centre de formation complet au métier de la cybersécurité
                 </p>
                 <div className="mt-6">
                   <div className="text-center">
