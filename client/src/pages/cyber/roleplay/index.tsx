@@ -51,7 +51,7 @@ const RoleplayHub: React.FC = () => {
         "Questions adaptées au niveau et à la spécialité visée",
         "Analyse détaillée de vos réponses pour progresser"
       ],
-      comingSoon: true
+      comingSoon: false
     },
     {
       id: 'pentest-lab',
@@ -70,7 +70,7 @@ const RoleplayHub: React.FC = () => {
         "Scénarios adaptés à votre niveau technique",
         "Méthodologie structurée de tests d'intrusion"
       ],
-      comingSoon: true
+      comingSoon: false
     },
     {
       id: 'crisis-management',
@@ -89,7 +89,7 @@ const RoleplayHub: React.FC = () => {
         "Décisions stratégiques en temps sous pression",
         "Gestion de la communication interne et externe"
       ],
-      comingSoon: true
+      comingSoon: false
     },
     {
       id: 'debutant-cyber',
