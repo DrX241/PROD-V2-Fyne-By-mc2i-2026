@@ -204,6 +204,9 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
   const [isAnalyzingNotes, setIsAnalyzingNotes] = useState(false);
   const [synthesisResult, setSynthesisResult] = useState<any>(null);
   
+  // État pour le contexte d'audit
+  const [auditContextData, setAuditContextData] = useState<any>({});
+  
   // Référence pour le défilement
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
@@ -278,24 +281,27 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
     
     try {
       // Préparation des données du contexte d'audition
-      let auditContextData = {};
+      let contextData = {};
       
       if (values.auditContextType === 'predefined' && values.selectedAuditContext) {
         const selectedContext = PREDEFINED_AUDIT_CONTEXTS.find(ctx => ctx.id === values.selectedAuditContext);
         if (selectedContext) {
-          auditContextData = {
+          contextData = {
             contextType: 'predefined',
             contextData: selectedContext
           };
         }
       } else if (values.auditContextType === 'custom' && values.customAuditContext) {
-        auditContextData = {
+        contextData = {
           contextType: 'custom',
           contextData: {
             description: values.customAuditContext
           }
         };
       }
+      
+      // Mise à jour de l'état du contexte d'audit
+      setAuditContextData(contextData);
       
       const response = await fetch('/api/amoa/interview-simulation/start', {
         method: 'POST',
@@ -305,7 +311,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
         body: JSON.stringify({
           domain: 'amoa',
           ...values,
-          auditContext: auditContextData
+          auditContext: contextData
         })
       });
       
@@ -401,6 +407,9 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
           }
         };
       }
+      
+      // Mise à jour de l'état du contexte d'audit global
+      setAuditContextData(auditContextData);
       
       // Préparer les données à envoyer (sans les informations de contact)
       const payload = {
