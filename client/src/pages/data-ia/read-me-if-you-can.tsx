@@ -787,7 +787,7 @@ const ReadMeIfYouCan = () => {
   const [highContrastMode, setHighContrastMode] = useState(false);
   const [consecutiveFailures, setConsecutiveFailures] = useState(0);
   
-  // Fonction pour récupérer un nouveau challenge
+  // Fonction pour récupérer un nouveau challenge via l'API
   const fetchNewChallenge = async () => {
     setIsLoading(true);
     setShowResult(false);
@@ -796,26 +796,32 @@ const ReadMeIfYouCan = () => {
     setHintRequested(false);
     
     try {
-      // Délai simulé d'appel d'API
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Appeler l'API pour générer un challenge unique avec l'IA
+      const response = await fetch('/api/data-ia/generate-code-challenge', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          language: selectedLanguage,
+          difficulty: selectedDifficulty,
+          mode: selectedMode
+        }),
+      });
       
-      // Sélectionner un générateur de challenge aléatoire en fonction du langage et du niveau
-      const generators = codeGenerators[selectedLanguage][selectedDifficulty];
-      const randomIndex = Math.floor(Math.random() * generators.length);
-      const generatorFunction = generators[randomIndex];
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erreur lors de la génération du challenge");
+      }
       
-      // Générer un nouveau challenge et s'assurer qu'il a toutes les propriétés nécessaires
-      const baseChallenge = generatorFunction();
+      const data = await response.json();
       
-      // Créer un objet challenge complet avec toutes les propriétés requises
-      const challengeWithId: CodeChallenge = {
-        ...baseChallenge,
-        id: `${selectedLanguage}-${selectedDifficulty}-${Date.now()}`,
-        language: selectedLanguage,
-        difficulty: selectedDifficulty
-      };
+      if (!data.success || !data.challenge) {
+        throw new Error("Format de réponse invalide");
+      }
       
-      setCurrentChallenge(challengeWithId);
+      // Mettre à jour le challenge avec celui généré par l'IA
+      setCurrentChallenge(data.challenge);
       setQuestionCount(prev => prev + 1);
       
       // Si mode vitesse, initialiser le timer
@@ -824,11 +830,35 @@ const ReadMeIfYouCan = () => {
         setTimerActive(true);
       }
     } catch (error) {
+      console.error("Erreur lors de la génération du challenge:", error);
+      
+      // Afficher l'erreur sur fond rouge
       toast({
         title: "Erreur",
-        description: "Impossible de générer un nouveau challenge. Veuillez réessayer.",
+        description: error instanceof Error 
+          ? error.message 
+          : "Impossible de générer un nouveau challenge. Veuillez réessayer.",
         variant: "destructive",
       });
+      
+      // Fallback sur un générateur local en cas d'erreur
+      try {
+        const generators = codeGenerators[selectedLanguage][selectedDifficulty];
+        const randomIndex = Math.floor(Math.random() * generators.length);
+        const generatorFunction = generators[randomIndex];
+        const baseChallenge = generatorFunction();
+        
+        const challengeWithId: CodeChallenge = {
+          ...baseChallenge,
+          id: `${selectedLanguage}-${selectedDifficulty}-${Date.now()}`,
+          language: selectedLanguage,
+          difficulty: selectedDifficulty
+        };
+        
+        setCurrentChallenge(challengeWithId);
+      } catch (fallbackError) {
+        console.error("Erreur aussi avec le générateur de secours:", fallbackError);
+      }
     } finally {
       setIsLoading(false);
     }

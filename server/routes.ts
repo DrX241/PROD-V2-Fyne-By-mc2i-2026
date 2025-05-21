@@ -4960,13 +4960,15 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
       - Adapte le challenge au mode de jeu spécifié`;
 
       // Appeler Azure OpenAI pour générer le défi
-      const response = await openAIService.generateCompletion({
-        systemMessage: systemPrompt,
-        userMessage: `Génère un défi de code en ${language === 'python' ? 'Python' : 'SQL'} adapté au niveau "${difficulty}" et au mode "${mode}".`,
-        temperature: 0.7,
-        model: 'secondary', // Utiliser le modèle secondaire (GPT-4o-mini) pour économiser les tokens
-        maxTokens: 1500
-      });
+      const messages: ChatCompletionRequestMessage[] = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Génère un défi de code en ${language === 'python' ? 'Python' : 'SQL'} adapté au niveau "${difficulty}" et au mode "${mode}".` }
+      ];
+      
+      // Utiliser le modèle secondaire (GPT-4o-mini) pour économiser les tokens
+      openAIService.setActiveModel('secondary');
+      const content = await openAIService.getChatCompletion(messages, 0.7, 1500);
+      const response = { content };
 
       if (!response || !response.content) {
         return res.status(500).json({ 
