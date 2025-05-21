@@ -1212,12 +1212,7 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
         generateAIResponse(focusedStakeholderId, userMessageContent);
       }, 1000);
     }
-          .filter(msg => !msg.isTyping) // Exclure les messages "typing"
-          .slice(-10)
-          .map(msg => ({
-            role: msg.senderId === "player" ? "user" : "assistant",
-            content: msg.content
-          }));
+  };
         
         // Créer le prompt système pour Azure OpenAI
         const systemPrompt = `Tu incarnes ${stakeholder.name}, ${stakeholder.role} chez mc2i, une entreprise de conseil en transformation numérique. 
