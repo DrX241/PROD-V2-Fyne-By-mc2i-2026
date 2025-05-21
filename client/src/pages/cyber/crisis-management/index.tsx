@@ -224,18 +224,6 @@ export default function CrisisManagementPage() {
       isAvailable: true
     },
     {
-      id: "dga-energie",
-      name: "Anthony Frescal",
-      role: "DGA et Directeur du pôle ENERGIES & UTILITIES",
-      avatar: generateAvatar("Anthony Frescal", "DGA Énergie", "Operations"),
-      personality: "technical",
-      department: "Operations",
-      expertise: 9,
-      stress: 70,
-      trust: 95,
-      isAvailable: true
-    },
-    {
       id: "dga-impulse",
       name: "Guillaume Lechevallier",
       role: "DGA et Directeur du pôle IMPULSE",
@@ -260,25 +248,25 @@ export default function CrisisManagementPage() {
       isAvailable: true
     },
     {
-      id: "ciso",
-      name: "Julie Moreau",
-      role: "Responsable de la Sécurité des Systèmes d'Information",
-      avatar: generateAvatar("Julie Moreau", "RSSI", "IT"),
-      personality: "technical",
-      department: "IT",
-      expertise: 10,
-      stress: 90,
-      trust: 95,
+      id: "dir-finance",
+      name: "Vincent Terrier",
+      role: "Senior Partner et Directeur Financier",
+      avatar: generateAvatar("Vincent Terrier", "Dir. Financier", "Executive"),
+      personality: "calm",
+      department: "Executive",
+      expertise: 8,
+      stress: 65,
+      trust: 90,
       isAvailable: true
     },
     {
-      id: "legal-counsel",
-      name: "Marc Durand",
-      role: "Directeur Juridique",
-      avatar: generateAvatar("Marc Durand", "Juridique", "Legal"),
-      personality: "calm",
-      department: "Legal",
-      expertise: 8,
+      id: "dir-comm",
+      name: "Marion Lopez",
+      role: "Senior Partner et Directrice Communication et Marketing",
+      avatar: generateAvatar("Marion Lopez", "Dir. Communication", "Communication"),
+      personality: "diplomatic",
+      department: "Communication",
+      expertise: 7,
       stress: 70,
       trust: 85,
       isAvailable: true
@@ -427,17 +415,6 @@ export default function CrisisManagementPage() {
             }
           ];
           break;
-        case "dga-energie":
-          initialMessages = [
-            {
-              id: uuidv4(),
-              senderId: "dga-energie",
-              content: "J'ai analysé les premiers éléments techniques de l'attaque, nous sommes face à un incident critique. Doit-on isoler complètement les réseaux ou privilégier une approche plus ciblée ?",
-              timestamp: new Date(new Date().getTime() - 1700000),
-              reactionType: "neutral"
-            }
-          ];
-          break;
         case "dga-bfa":
           initialMessages = [
             {
@@ -460,25 +437,25 @@ export default function CrisisManagementPage() {
             }
           ];
           break;
-        case "legal-counsel":
+        case "dir-finance":
           initialMessages = [
             {
               id: uuidv4(),
-              senderId: "legal-counsel",
-              content: "Nous avons des obligations légales précises en cas de violation de données. Avons-nous des indices de fuite d'informations ? Quand devrons-nous notifier la CNIL selon vous ?",
+              senderId: "dir-finance",
+              content: "En tant que Directeur Financier, je dois évaluer l'impact économique de cette attaque. Avez-vous une estimation des coûts potentiels pour les différents scénarios de résolution ?",
               timestamp: new Date(new Date().getTime() - 1700000),
               reactionType: "neutral"
             }
           ];
           break;
-        case "ciso":
+        case "dir-comm":
           initialMessages = [
             {
               id: uuidv4(),
-              senderId: "ciso",
-              content: "Nous collaborons étroitement sur cette crise. Mes premières analyses montrent que l'attaque exploite une vulnérabilité récente. Quelles actions de confinement voulez-vous prioriser ?",
-              timestamp: new Date(new Date().getTime() - 1500000),
-              reactionType: "negative"
+              senderId: "dir-comm",
+              content: "La communication est cruciale dans cette crise. Nous devons préparer une stratégie à destination des clients et des médias. Quelles informations puis-je communiquer sans aggraver notre situation ?",
+              timestamp: new Date(new Date().getTime() - 1650000),
+              reactionType: "neutral"
             }
           ];
           break;
