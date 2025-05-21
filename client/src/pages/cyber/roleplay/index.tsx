@@ -34,42 +34,6 @@ const RoleplayHub: React.FC = () => {
   // Liste des scénarios de jeu de rôle
   const scenarios = [
     {
-      id: 'debutant-cyber',
-      title: "Je suis Débutant",
-      description: "Je voudrais être sensibilisé aux risques cyber et apprendre à me protéger",
-      link: '/cyber/learning-center/modules/debutant-cyber',
-      icon: <Shield className="h-10 w-10 text-amber-300" />,
-      color: 'amber',
-      gradient: 'from-amber-900/70 to-amber-700/30',
-      border: 'border-amber-500/30',
-      buttonGradient: 'from-amber-700 to-amber-600',
-      buttonHover: 'hover:from-amber-600 hover:to-amber-500',
-      textColor: 'text-amber-300',
-      details: [
-        "Contenu adapté aux débutants sans connaissances préalables",
-        "Exercices pratiques pour sécuriser vos appareils personnels",
-        "Apprentissage des bons réflexes face aux menaces courantes"
-      ]
-    },
-    {
-      id: 'comex-member',
-      title: "Je suis Membre du COMEX",
-      description: "Je voudrais m'approprier les enjeux et les clés stratégiques de la sécurité numérique",
-      link: '/cyber/comex-training',
-      icon: <BrainCircuit className="h-10 w-10 text-emerald-300" />,
-      color: 'emerald',
-      gradient: 'from-emerald-900/70 to-emerald-700/30',
-      border: 'border-emerald-500/30',
-      buttonGradient: 'from-emerald-700 to-emerald-600',
-      buttonHover: 'hover:from-emerald-600 hover:to-emerald-500',
-      textColor: 'text-emerald-300',
-      details: [
-        "Formation stratégique adaptée aux dirigeants d'entreprise",
-        "Mesure et priorisation des risques numériques",
-        "Préparation à la gestion de crise cybernétique"
-      ]
-    },
-    {
       id: 'interview-test',
       title: "Je suis Consultant Cyber",
       description: "Je prépare une audition en cybersécurité et je voudrais m'entraîner et être mis en situation",
@@ -85,7 +49,8 @@ const RoleplayHub: React.FC = () => {
         "Simulations d'entretiens techniques avec feedback immédiat",
         "Questions adaptées au niveau et à la spécialité visée",
         "Analyse détaillée de vos réponses pour progresser"
-      ]
+      ],
+      comingSoon: false
     },
     {
       id: 'pentest-lab',
@@ -103,7 +68,8 @@ const RoleplayHub: React.FC = () => {
         "Environnement web vulnérable pour pratiquer l'exploitation",
         "Scénarios progressifs adaptés à votre niveau technique",
         "Méthodologie structurée de tests d'intrusion"
-      ]
+      ],
+      comingSoon: false
     },
     {
       id: 'crisis-management',
@@ -121,7 +87,46 @@ const RoleplayHub: React.FC = () => {
         "Simulation de crise cyber avec multiples parties prenantes",
         "Décisions stratégiques en temps limité et sous pression",
         "Gestion de la communication interne et externe"
-      ]
+      ],
+      comingSoon: false
+    },
+    {
+      id: 'debutant-cyber',
+      title: "Je suis Débutant",
+      description: "Je voudrais être sensibilisé aux risques cyber et apprendre à me protéger",
+      link: '/cyber/learning-center/modules/debutant-cyber',
+      icon: <Shield className="h-10 w-10 text-amber-300" />,
+      color: 'amber',
+      gradient: 'from-amber-900/70 to-amber-700/30',
+      border: 'border-amber-500/30',
+      buttonGradient: 'from-amber-700 to-amber-600',
+      buttonHover: 'hover:from-amber-600 hover:to-amber-500',
+      textColor: 'text-amber-300',
+      details: [
+        "Contenu adapté aux débutants sans connaissances préalables",
+        "Exercices pratiques pour sécuriser vos appareils personnels",
+        "Apprentissage des bons réflexes face aux menaces courantes"
+      ],
+      comingSoon: true
+    },
+    {
+      id: 'comex-member',
+      title: "Je suis Membre du COMEX",
+      description: "Je voudrais m'approprier les enjeux et les clés stratégiques de la sécurité numérique",
+      link: '/cyber/comex-training',
+      icon: <BrainCircuit className="h-10 w-10 text-emerald-300" />,
+      color: 'emerald',
+      gradient: 'from-emerald-900/70 to-emerald-700/30',
+      border: 'border-emerald-500/30',
+      buttonGradient: 'from-emerald-700 to-emerald-600',
+      buttonHover: 'hover:from-emerald-600 hover:to-emerald-500',
+      textColor: 'text-emerald-300',
+      details: [
+        "Formation stratégique adaptée aux dirigeants d'entreprise",
+        "Mesure et priorisation des risques numériques",
+        "Préparation à la gestion de crise cybernétique"
+      ],
+      comingSoon: true
     }
   ];
 
@@ -227,9 +232,19 @@ const RoleplayHub: React.FC = () => {
                 <Button 
                   className={`w-full py-6 bg-gradient-to-r ${scenario.buttonGradient} ${scenario.buttonHover} text-white group`}
                   onClick={() => setLocation(scenario.link)}
+                  disabled={scenario.comingSoon}
                 >
-                  <span>Accéder au scénario</span>
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  {scenario.comingSoon ? (
+                    <span className="flex items-center">
+                      <Clock className="mr-2 h-4 w-4" />
+                      Bientôt disponible
+                    </span>
+                  ) : (
+                    <span className="flex items-center">
+                      Accéder au scénario
+                      <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  )}
                 </Button>
               </CardFooter>
             </Card>
