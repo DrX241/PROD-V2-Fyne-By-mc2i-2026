@@ -390,15 +390,9 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
         data = { response: "Je suis désolé, il semble y avoir un problème technique. Pouvez-vous reformuler votre question?" };
       }
       
-      // Limiter à 5 échanges maximum
-      if (messages.filter(m => m.role === 'user').length >= 5) {
-        completeSimulation();
-        toast({
-          title: "Limite atteinte",
-          description: "La simulation est limitée à 5 questions. Finalisation en cours..."
-        });
-        return;
-      }
+      // Nous avons supprimé la limite de 5 échanges maximum
+      // La simulation continue jusqu'à ce que le temps soit écoulé
+      // ou que l'utilisateur décide de la terminer
       
       const assistantMessage = {
         id: Date.now().toString(),
@@ -634,7 +628,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4">Préparation d'audition auprès d'un client</h1>
           <p className="text-blue-100 max-w-3xl mx-auto">
-            Cette simulation vous permet de préparer vos consultants AMOA à des auditions auprès de clients ou partenaires commerciaux à travers une conversation de 10 minutes avec un client potentiel simulé par l'IA.
+            Cette simulation vous permet de préparer vos consultants AMOA à des auditions auprès de clients ou partenaires commerciaux à travers une conversation sans limite de questions avec un client potentiel simulé par l'IA. L'entretien est chronométré sur 10 minutes et vous pouvez le terminer à tout moment.
           </p>
         </div>
         
@@ -911,13 +905,6 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
                     }}
                     disabled={isLoading || simulationComplete}
                   />
-                  <Button
-                    className="ml-2 bg-green-600 hover:bg-green-700"
-                    onClick={sendMessage}
-                    disabled={isLoading || simulationComplete || !userInput.trim()}
-                  >
-                    <Send className="w-5 h-5" />
-                  </Button>
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
@@ -928,13 +915,27 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
                 >
                   Nouvelle simulation
                 </Button>
-                <Button
-                  onClick={completeSimulation}
-                  className="bg-green-600 hover:bg-green-700"
-                  disabled={messages.length < 2 || simulationComplete || isLoading}
-                >
-                  {isLoading ? "Chargement..." : "Terminer la simulation"}
-                </Button>
+                
+                <div className="flex gap-3">
+                  <Button
+                    onClick={completeSimulation}
+                    variant="outline"
+                    className="border-amber-600 text-amber-400 hover:bg-amber-950"
+                    disabled={simulationComplete || isLoading}
+                  >
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Terminer l'entretien 
+                  </Button>
+                  
+                  <Button
+                    onClick={sendMessage}
+                    className="bg-green-600 hover:bg-green-700"
+                    disabled={!userInput.trim() || isLoading || simulationComplete}
+                  >
+                    <Send className="w-5 h-5" />
+                    Envoyer
+                  </Button>
+                </div>
               </CardFooter>
             </Card>
           </TabsContent>

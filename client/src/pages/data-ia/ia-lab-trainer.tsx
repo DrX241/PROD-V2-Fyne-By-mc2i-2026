@@ -156,9 +156,9 @@ for i, importance in enumerate(feature_importance):
     title: "Concepts de base de Python",
     description: "Un exemple de base pour les débutants en Python.",
     code: `# Variables et types de données
-nom = "Alice"
-age = 30
-taille = 1.75
+nom = "mc2i"
+age = 35
+taille = 1500
 est_etudiant = False
 
 # Affichage et concaténation
@@ -183,16 +183,16 @@ for i in range(5, 0, -1):
 print("Décollage!")
 
 # Listes
-fruits = ["pomme", "banane", "orange", "fraise", "kiwi"]
-print("\\nListe de fruits:")
-for index, fruit in enumerate(fruits):
-    print(f"{index+1}. {fruit}")
+expertise = ["cyber", "agilité", "amoa", "data&IA", "UX/UI"]
+print("\\nListe des expertises:")
+for index, expertise in enumerate(expertise):
+    print(f"{index+1}. {expertise}")
 
 # Fonctions
 def calculer_imc(poids, taille):
     return poids / (taille ** 2)
 
-poids = 70
+poids = 180
 imc = calculer_imc(poids, taille)
 print(f"\\nPour un poids de {poids}kg et une taille de {taille}m:")
 print(f"IMC = {imc:.2f}")
