@@ -9,7 +9,11 @@ import * as path from 'path';
 // Configuration de l'API SendGrid si la clé est disponible
 const sendgridApiKey = process.env.SENDGRID_API_KEY;
 if (sendgridApiKey) {
+  console.log('🔑 Initialisation de SendGrid avec la clé API');
   sgMail.setApiKey(sendgridApiKey);
+  console.log('✅ SendGrid configuré avec succès');
+} else {
+  console.log('⚠️ Aucune clé API SendGrid n\'a été trouvée. L\'envoi d\'emails réels ne sera pas disponible.');
 }
 
 /**
@@ -1034,10 +1038,18 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
 
         // Envoi de l'email selon l'environnement
         try {
+          // Forcer l'utilisation de l'adresse email saisie
+          const emailToUse = trainerEmail ? trainerEmail.trim() : '';
+          
+          // Vérifier qu'une adresse email a été fournie
+          if (!emailToUse) {
+            console.log('⚠️ Aucune adresse email de destination fournie. Email non envoyé.');
+            // Continuer sans envoyer d'email
+          } 
           // Vérifier si SendGrid est configuré
-          if (sendgridApiKey) {
+          else if (sendgridApiKey) {
             try {
-              const emailToUse = trainerEmail.trim();
+              console.log('🚀 Tentative d\'envoi via SendGrid à:', emailToUse);
               
               const msg = {
                 to: emailToUse,
@@ -1049,31 +1061,38 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
                 html: emailHtml,
               };
               
-              console.log('Envoi d\'email via SendGrid avec configuration:');
+              console.log('✉️ Configuration de l\'email:');
               console.log('- Destinataire:', emailToUse);
               console.log('- Expéditeur:', 'eddy.missoni@mc2i.fr');
-              console.log('- Clé API SendGrid disponible:', !!sendgridApiKey);
+              console.log('- Objet:', msg.subject);
               
               // Envoyer l'email avec SendGrid
               await sgMail.send(msg);
-              console.log('📧 Email envoyé avec succès via SendGrid à', emailToUse);
+              
+              // Notification très visible de réussite
+              console.log('\n');
               console.log('=====================================');
-              console.log('✅ NOTIFICATION : EMAIL ENVOYÉ AVEC SUCCÈS');
+              console.log('✅ EMAIL ENVOYÉ AVEC SUCCÈS VIA SENDGRID');
               console.log('✅ Destinataire:', emailToUse);
-              console.log('✅ Objet:', domain === 'amoa' ? `Évaluation de préparation d'audition - ${candidateName}` : `Évaluation d'entretien technique - ${candidateName}`);
+              console.log('✅ Heure:', new Date().toLocaleTimeString());
               console.log('=====================================');
+              console.log('\n');
             } catch (sendgridError: any) {
-              console.error('Erreur lors de l\'envoi avec SendGrid:', sendgridError.code);
+              console.error('❌ Erreur lors de l\'envoi avec SendGrid:', sendgridError);
+              console.error('📋 Code d\'erreur:', sendgridError.code);
+              console.error('📝 Message d\'erreur:', sendgridError.message);
               
               // En cas d'erreur SendGrid, tenter avec Ethereal comme plan B
+              console.log('⚠️ Utilisation du service de test Ethereal comme solution de secours...');
               await testSendMail(trainerEmail, candidateName || 'consultant', emailHtml);
             }
           } else {
             // Utiliser Ethereal si SendGrid n'est pas disponible
+            console.log('ℹ️ SendGrid non configuré, utilisation du service de test Ethereal...');
             await testSendMail(trainerEmail, candidateName || 'consultant', emailHtml);
           }
         } catch (emailError) {
-          console.error('Erreur lors de l\'envoi de l\'email:', emailError);
+          console.error('❌ Erreur générale lors de l\'envoi de l\'email:', emailError);
           // Continuer malgré l'erreur d'email
         }
       }
