@@ -512,13 +512,15 @@ export default function ProspectPulse() {
   const generateClientMessage = async (
     clientProfile: ClientProfile,
     currentMessages: Message[],
-    isInitial: boolean = false
+    isInitial: boolean = false,
+    isTimeout: boolean = false
   ): Promise<string> => {
     try {
       // Formatage de l'historique des messages pour le serveur
       const sessionHistory = currentMessages.map(msg => ({
         content: msg.content,
-        sender: msg.sender
+        sender: msg.sender,
+        timestamp: msg.timestamp
       }));
       
       // Laisser le serveur gérer le système prompt sophistiqué
@@ -529,7 +531,8 @@ export default function ProspectPulse() {
           : '',
         clientProfile: clientProfile,
         sessionHistory: sessionHistory,
-        isInitial: isInitial
+        isInitial: isInitial,
+        isTimeout: isTimeout
       };
       
       const response = await fetch('/api/prospect-pulse/generate-message', {
