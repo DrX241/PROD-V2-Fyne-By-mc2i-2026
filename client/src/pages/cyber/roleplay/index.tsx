@@ -93,25 +93,6 @@ const RoleplayHub: React.FC = () => {
       comingSoon: false
     },
     {
-      id: 'debutant-cyber',
-      title: "Je suis Débutant",
-      description: "Je voudrais être sensibilisé aux risques cyber et apprendre à me protéger",
-      link: '/cyber/learning-center/modules/debutant-cyber',
-      icon: <Shield className="h-10 w-10 text-amber-300" />,
-      color: 'amber',
-      gradient: 'from-amber-900/70 to-amber-700/30',
-      border: 'border-amber-500/30',
-      buttonGradient: 'from-amber-700 to-amber-600',
-      buttonHover: 'hover:from-amber-600 hover:to-amber-500',
-      textColor: 'text-amber-300',
-      details: [
-        "Contenu adapté aux débutants sans connaissances",
-        "Exercices pratiques pour sécuriser vos appareils",
-        "Apprentissage des bons réflexes face aux menaces"
-      ],
-      comingSoon: true
-    },
-    {
       id: 'comex-member',
       title: "Je suis Membre du COMEX",
       description: "Je voudrais m'approprier les enjeux et les clés stratégiques de la sécurité numérique",
@@ -131,8 +112,27 @@ const RoleplayHub: React.FC = () => {
       comingSoon: true
     },
     {
+      id: 'debutant-cyber',
+      title: "Je suis Débutant",
+      description: "Je voudrais être sensibilisé aux risques cyber et apprendre à me protéger",
+      link: '/cyber/learning-center/modules/debutant-cyber',
+      icon: <Shield className="h-10 w-10 text-amber-300" />,
+      color: 'amber',
+      gradient: 'from-amber-900/70 to-amber-700/30',
+      border: 'border-amber-500/30',
+      buttonGradient: 'from-amber-700 to-amber-600',
+      buttonHover: 'hover:from-amber-600 hover:to-amber-500',
+      textColor: 'text-amber-300',
+      details: [
+        "Contenu adapté aux débutants sans connaissances",
+        "Exercices pratiques pour sécuriser vos appareils",
+        "Apprentissage des bons réflexes face aux menaces"
+      ],
+      comingSoon: true
+    },
+    {
       id: 'assistant-creator',
-      title: "Je suis Créateur d'IA",
+      title: "Je suis Créateur de Chatbot",
       description: "Je souhaite créer mon propre assistant virtuel spécialisé en cybersécurité",
       link: '/cyber/tools/assistant-cyber',
       icon: <Bot className="h-10 w-10 text-cyan-300" />,
@@ -143,8 +143,8 @@ const RoleplayHub: React.FC = () => {
       buttonHover: 'hover:from-cyan-600 hover:to-cyan-500',
       textColor: 'text-cyan-300',
       details: [
-        "Création d'un assistant IA personnalisé en cybersécurité",
-        "Définition de ses compétences et domaines d'expertise",
+        "Création d'un assistant IA personnalisé en cyber",
+        "Définition de ses domaines d'expertise",
         "Partage et utilisation collaborative de l'assistant"
       ],
       comingSoon: false
