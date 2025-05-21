@@ -153,9 +153,6 @@ const formSchema = z.object({
   experienceLevel: z.string().min(1, {
     message: "Veuillez sélectionner un niveau d'expérience.",
   }),
-  sectorFocus: z.string().min(1, {
-    message: "Veuillez sélectionner un secteur d'activité.",
-  }),
 });
 
 // Schéma pour le formulaire de contact à la fin de la simulation (tous les champs sont obligatoires)
@@ -175,9 +172,6 @@ const contactFormSchema = z.object({
   }),
   experienceLevel: z.string().min(1, {
     message: "Veuillez sélectionner un niveau d'expérience.",
-  }),
-  sectorFocus: z.string().min(1, {
-    message: "Veuillez sélectionner un secteur d'activité.",
   }),
 });
 
@@ -271,7 +265,6 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
       customAuditContext: '',
       profileType: '',
       experienceLevel: '',
-      sectorFocus: '',
     },
   });
   
@@ -1093,36 +1086,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
                           )}
                         />
                         
-                        <FormField
-                          control={form.control}
-                          name="sectorFocus"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-blue-100">Secteur d'activité</FormLabel>
-                              <Select 
-                                onValueChange={field.onChange} 
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="bg-blue-900 border-blue-600 text-white">
-                                    <SelectValue placeholder="Sélectionnez un secteur d'activité" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="bg-blue-800 border-blue-700 text-white">
-                                  <SelectItem value="Banque & Assurance">Banque & Assurance</SelectItem>
-                                  <SelectItem value="Industrie">Industrie</SelectItem>
-                                  <SelectItem value="Énergie">Énergie</SelectItem>
-                                  <SelectItem value="Secteur Public">Secteur Public</SelectItem>
-                                  <SelectItem value="Retail">Retail</SelectItem>
-                                  <SelectItem value="Santé">Santé</SelectItem>
-                                  <SelectItem value="Luxe">Luxe</SelectItem>
-                                  <SelectItem value="Transport & Logistique">Transport & Logistique</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        {/* Champ sectorFocus supprimé car déjà inclus dans le contexte d'audition */}
                       </div>
                     </div>
                     
