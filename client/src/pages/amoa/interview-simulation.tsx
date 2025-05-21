@@ -823,7 +823,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
           defaultValue="configuration" 
           value={activeTab}
           onValueChange={setActiveTab}
-          className="w-full max-w-4xl mx-auto"
+          className="w-full max-w-5xl mx-auto"
         >
           <TabsList className="grid grid-cols-3 mb-8">
             <TabsTrigger 
