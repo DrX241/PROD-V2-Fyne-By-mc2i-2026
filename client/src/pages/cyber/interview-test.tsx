@@ -264,6 +264,12 @@ export default function CyberInterviewTest() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // États pour le contexte d'audition
+  const [useCustomContext, setUseCustomContext] = useState(false);
+  const [selectedContextId, setSelectedContextId] = useState("rssi");
+  const [customContext, setCustomContext] = useState("");
+  const [contextTabValue, setContextTabValue] = useState("predefined");
 
   // Initialisation du test
   useEffect(() => {
@@ -315,6 +321,33 @@ export default function CyberInterviewTest() {
 
   // Démarrer le test
   const handleStartTest = () => {
+    // Vérifier si un contexte a été sélectionné quand l'utilisateur est en mode personnalisé
+    if (contextTabValue === 'custom' && customContext.trim().length < 10) {
+      toast({
+        title: "Contexte incomplet",
+        description: "Veuillez fournir un contexte d'audition personnalisé plus détaillé ou sélectionner un contexte prédéfini.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Stocker le contexte d'audition sélectionné ou personnalisé
+    const jobContext = contextTabValue === 'custom' 
+      ? { 
+          id: 'custom',
+          title: 'Contexte personnalisé',
+          description: customContext,
+          // Valeurs par défaut pour les autres champs non utilisés en mode personnalisé
+          organization: '',
+          technicalContext: '',
+          responsibilities: [],
+          requirements: []
+        } 
+      : PREDEFINED_CONTEXTS.find(c => c.id === selectedContextId) || PREDEFINED_CONTEXTS[0];
+    
+    // Stockage du contexte dans la session pour usage futur
+    sessionStorage.setItem('interviewJobContext', JSON.stringify(jobContext));
+    
     setTestState('in-progress');
   };
 
@@ -736,6 +769,92 @@ export default function CyberInterviewTest() {
                 </p>
               </div>
 
+              {/* Sélection du contexte d'audition */}
+              <div className="bg-blue-900/50 backdrop-blur-sm border border-green-800/50 p-5 rounded-md">
+                <h3 className="font-semibold mb-3 flex items-center text-white text-lg">
+                  <Briefcase className="h-5 w-5 mr-2 text-green-400" />
+                  Contexte d'audition
+                </h3>
+                
+                <Tabs value={contextTabValue} onValueChange={setContextTabValue} className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-4 bg-blue-950/40">
+                    <TabsTrigger value="predefined" className="data-[state=active]:bg-blue-700">Contextes prédéfinis</TabsTrigger>
+                    <TabsTrigger value="custom" className="data-[state=active]:bg-blue-700">Contexte personnalisé</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="predefined" className="mt-0">
+                    <div className="space-y-3">
+                      <Select
+                        value={selectedContextId}
+                        onValueChange={setSelectedContextId}
+                      >
+                        <SelectTrigger className="w-full bg-blue-950/50 border-blue-700/50 text-white">
+                          <SelectValue placeholder="Sélectionner un contexte" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-blue-950 border-blue-800 text-white">
+                          {PREDEFINED_CONTEXTS.map(context => (
+                            <SelectItem key={context.id} value={context.id} className="focus:bg-blue-800 focus:text-white">
+                              {context.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      {selectedContextId && (
+                        <div className="bg-blue-950/50 p-3 rounded border border-blue-800/50 mt-3 text-sm">
+                          {(() => {
+                            const selectedContext = PREDEFINED_CONTEXTS.find(c => c.id === selectedContextId);
+                            if (!selectedContext) return null;
+                            
+                            return (
+                              <>
+                                <h4 className="font-medium text-green-300 mb-1">{selectedContext.title}</h4>
+                                <p className="text-blue-200 mb-2">{selectedContext.description}</p>
+                                <p className="text-blue-200 mb-2 text-xs"><span className="text-green-300">Organisation:</span> {selectedContext.organization}</p>
+                                <p className="text-blue-200 mb-2 text-xs"><span className="text-green-300">Contexte technique:</span> {selectedContext.technicalContext}</p>
+                                
+                                <div className="mt-2">
+                                  <h5 className="text-xs text-green-300 mb-1">Responsabilités principales:</h5>
+                                  <ul className="list-disc list-inside text-xs text-blue-200 ml-1">
+                                    {selectedContext.responsibilities.map((resp, idx) => (
+                                      <li key={idx}>{resp}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                                
+                                <div className="mt-2">
+                                  <h5 className="text-xs text-green-300 mb-1">Prérequis:</h5>
+                                  <ul className="list-disc list-inside text-xs text-blue-200 ml-1">
+                                    {selectedContext.requirements.map((req, idx) => (
+                                      <li key={idx}>{req}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              </>
+                            );
+                          })()}
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="custom" className="mt-0">
+                    <div className="space-y-3">
+                      <Textarea 
+                        placeholder="Décrivez le contexte d'audition personnalisé (poste visé, entreprise, contexte technique, etc.)"
+                        className="min-h-[150px] bg-blue-950/50 border-blue-700/50 text-white placeholder:text-blue-400/70"
+                        value={customContext}
+                        onChange={(e) => setCustomContext(e.target.value)}
+                      />
+                      <p className="text-xs text-blue-300">
+                        Exemple: "Poste de RSSI pour une PME industrielle avec une infrastructure hybride (cloud AWS et on-premise) 
+                        et des enjeux IoT/OT. L'entreprise compte 450 employés et a récemment subi une cyberattaque."
+                      </p>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
+              
               <div className="bg-blue-900/50 backdrop-blur-sm border border-amber-800/50 p-5 rounded-md">
                 <h3 className="font-semibold mb-3 flex items-center text-white text-lg">
                   <AlertCircle className="h-5 w-5 mr-2 text-amber-400" />
