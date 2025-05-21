@@ -879,7 +879,7 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
     if (domain === 'cyber') {
       systemPrompt = generateCyberEvaluationPrompt(candidateName || 'consultant', profileType, experienceLevel);
     } else {
-      systemPrompt = generateAmoaEvaluationPrompt(candidateName || 'consultant', profileType, experienceLevel, sectorFocus || '');
+      systemPrompt = generateAmoaEvaluationPrompt(candidateName || 'consultant', profileType, experienceLevel, sectorFocus || '', auditContext);
     }
 
     // Construction de l'historique de conversation pour l'évaluation
@@ -1120,11 +1120,80 @@ function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, 
   // Sélection d'un dirigeant
   const executive = executives[Math.floor(Math.random() * executives.length)];
   
-  return `Tu es ${executive.name}, ${executive.title} chez ${companyInfo.name} à ${companyInfo.city}, une entreprise de ${companyInfo.size} du secteur ${sectorFocus}.
+  // Variables pour le contexte personnalisé
+  let executiveName = executive.name;
+  let executiveTitle = executive.title;
+  let executiveStyle = executive.style;
+  let organizationName = companyInfo.name;
+  let cityName = companyInfo.city;
+  let orgSize = companyInfo.size;
+  let projectDescription = companyInfo.project;
+  let projectChallenge = companyInfo.challenge;
+  let contextTitle = "";
+  let customDescription = "";
+  
+  // Incorporer les informations du contexte d'audit si disponible
+  if (auditContext) {
+    console.log("Utilisation d'un contexte d'audition dans System Prompt:", auditContext.contextType);
+    
+    if (auditContext.contextType === 'predefined' && auditContext.contextData) {
+      const context = auditContext.contextData;
+      contextTitle = context.title || "";
+      
+      // Remplacer les informations de l'entreprise par celles du contexte prédéfini
+      if (context.organization) {
+        // Extraction du nom et de la taille si présents dans le format "Nom (taille)"
+        const orgParts = context.organization.split('(');
+        if (orgParts.length > 1) {
+          organizationName = orgParts[0].trim();
+          orgSize = orgParts[1].replace(')', '').trim();
+        } else {
+          organizationName = context.organization;
+        }
+      }
+      
+      if (context.projectContext) {
+        projectDescription = context.projectContext;
+      }
+      
+      if (context.challenge) {
+        projectChallenge = context.challenge;
+      }
+      
+      if (context.executive) {
+        const executiveParts = context.executive.split(',');
+        if (executiveParts.length > 1) {
+          executiveName = executiveParts[0].trim();
+          executiveTitle = executiveParts[1].trim();
+        } else {
+          executiveName = context.executive;
+        }
+      }
+      
+    } else if (auditContext.contextType === 'custom' && auditContext.contextData) {
+      // Pour un contexte entièrement personnalisé
+      customDescription = auditContext.contextData.description || "";
+      
+      if (auditContext.contextData.organization) {
+        organizationName = auditContext.contextData.organization;
+      }
+      
+      if (auditContext.contextData.executive) {
+        executiveName = auditContext.contextData.executive;
+      }
+    }
+  }
+  
+  // Intégrer la description personnalisée si elle existe
+  const customContextText = customDescription 
+    ? `\nCONTEXTE PERSONNALISÉ: ${customDescription}\n` 
+    : '';
+  
+  return `Tu es ${executiveName}, ${executiveTitle} chez ${organizationName} à ${cityName}, une entreprise de ${orgSize} du secteur ${sectorFocus}.
 
-PERSONNALITÉ: Tu as un style de management ${executive.style}. Tu es responsable du projet de "${companyInfo.project}" qui rencontre actuellement des difficultés liées à "${companyInfo.challenge}". Tu as une véritable personnalité avec des préoccupations concrètes.
-
-MISSION: Simuler une audition client RÉALISTE pour évaluer un consultant AMOA (profil: ${profileType}, niveau: ${experienceLevel}).
+PERSONNALITÉ: Tu as un style de management ${executiveStyle}. Tu es responsable du projet de "${projectDescription}" qui rencontre actuellement des difficultés liées à "${projectChallenge}". Tu as une véritable personnalité avec des préoccupations concrètes.
+${customContextText}
+MISSION: Simuler une audition client RÉALISTE pour évaluer ${contextTitle ? `un ${contextTitle}` : `un consultant AMOA (profil: ${profileType}, niveau: ${experienceLevel})`}.
 
 RÈGLES DE SIMULATION:
 1. Commence par une présentation BRÈVE (2 phrases max) puis expose ton besoin projet (contexte et problèmes).
@@ -1506,6 +1575,20 @@ function generateAmoaStepPrompt(step: number, profileType: string, experienceLev
     }
   }
   
+  // Intégration du contexte d'audition si disponible
+  let customChallenge = "";
+  if (auditContext) {
+    if (auditContext.contextType === 'predefined' && auditContext.contextData) {
+      if (auditContext.contextData.challenge) {
+        customChallenge = auditContext.contextData.challenge;
+      }
+    } else if (auditContext.contextType === 'custom' && auditContext.contextData) {
+      if (auditContext.contextData.description) {
+        customChallenge = auditContext.contextData.description;
+      }
+    }
+  }
+  
   // Scénarios de difficulté spécifiques au secteur AMOA
   const sectorScenarios = {
     // Des problèmes communs dans chaque secteur, adaptés à l'étape
@@ -1744,6 +1827,24 @@ EXIGENCES MÉTHODOLOGIQUES:
  * Génère le prompt pour l'évaluation finale d'une audition client AMOA
  */
 function generateAmoaEvaluationPrompt(candidateName: string, profileType: string, experienceLevel: string, sectorFocus: string, auditContext?: AuditContextData): string {
+  // Variables pour le contexte personnalisé
+  let contextTitle = "";
+  let contextDescription = "";
+  let organization = "";
+  let projectContext = "";
+  
+  // Incorporer les informations du contexte d'audit si disponible
+  if (auditContext) {
+    if (auditContext.contextType === 'predefined' && auditContext.contextData) {
+      const context = auditContext.contextData;
+      contextTitle = context.title || "";
+      organization = context.organization || "";
+      projectContext = context.projectContext || "";
+    } else if (auditContext.contextType === 'custom' && auditContext.contextData) {
+      contextDescription = auditContext.contextData.description || "";
+    }
+  }
+  
   return `Tu es un expert en évaluation des performances de consultants AMOA (Assistance à Maîtrise d'Ouvrage) chez mc2i lors d'auditions client.
 
 Tu dois évaluer une audition client professionnelle qui vient de se terminer:
@@ -1751,6 +1852,10 @@ Tu dois évaluer une audition client professionnelle qui vient de se terminer:
 - Type de profil visé: ${profileType}
 - Niveau d'expérience déclaré: ${experienceLevel}
 - Secteur d'activité: ${sectorFocus}
+${contextTitle ? `- Contexte spécifique: ${contextTitle}` : ''}
+${organization ? `- Organisation cliente: ${organization}` : ''}
+${projectContext ? `- Projet: ${projectContext}` : ''}
+${contextDescription ? `- Description du contexte: ${contextDescription}` : ''}
 
 IMPORTANT - TON ÉVALUATION DOIT ÊTRE STRUCTURÉE EXACTEMENT AVEC LES SECTIONS SUIVANTES:
 
