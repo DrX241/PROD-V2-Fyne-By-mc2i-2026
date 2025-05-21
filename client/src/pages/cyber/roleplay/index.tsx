@@ -47,11 +47,11 @@ const RoleplayHub: React.FC = () => {
       buttonHover: 'hover:from-blue-600 hover:to-blue-500',
       textColor: 'text-blue-300',
       details: [
-        "Simulations d'entretiens techniques avec feedback immédiat",
+        "Simulations d'entretiens techniques avec feedback",
         "Questions adaptées au niveau et à la spécialité visée",
         "Analyse détaillée de vos réponses pour progresser"
       ],
-      comingSoon: false
+      comingSoon: true
     },
     {
       id: 'pentest-lab',
@@ -66,11 +66,11 @@ const RoleplayHub: React.FC = () => {
       buttonHover: 'hover:from-purple-600 hover:to-purple-500',
       textColor: 'text-purple-300',
       details: [
-        "Environnement web vulnérable pour pratiquer l'exploitation",
-        "Scénarios progressifs adaptés à votre niveau technique",
+        "Environnement web pour pratiquer l'exploitation",
+        "Scénarios adaptés à votre niveau technique",
         "Méthodologie structurée de tests d'intrusion"
       ],
-      comingSoon: false
+      comingSoon: true
     },
     {
       id: 'crisis-management',
@@ -85,11 +85,11 @@ const RoleplayHub: React.FC = () => {
       buttonHover: 'hover:from-rose-600 hover:to-rose-500',
       textColor: 'text-rose-300',
       details: [
-        "Simulation de crise cyber avec multiples parties prenantes",
-        "Décisions stratégiques en temps limité et sous pression",
+        "Simulation de crise avec multiples parties prenantes",
+        "Décisions stratégiques en temps sous pression",
         "Gestion de la communication interne et externe"
       ],
-      comingSoon: false
+      comingSoon: true
     },
     {
       id: 'debutant-cyber',
@@ -104,9 +104,9 @@ const RoleplayHub: React.FC = () => {
       buttonHover: 'hover:from-amber-600 hover:to-amber-500',
       textColor: 'text-amber-300',
       details: [
-        "Contenu adapté aux débutants sans connaissances préalables",
-        "Exercices pratiques pour sécuriser vos appareils personnels",
-        "Apprentissage des bons réflexes face aux menaces courantes"
+        "Contenu adapté aux débutants sans connaissances",
+        "Exercices pratiques pour sécuriser vos appareils",
+        "Apprentissage des bons réflexes face aux menaces"
       ],
       comingSoon: true
     },
@@ -123,7 +123,7 @@ const RoleplayHub: React.FC = () => {
       buttonHover: 'hover:from-emerald-600 hover:to-emerald-500',
       textColor: 'text-emerald-300',
       details: [
-        "Formation stratégique adaptée aux dirigeants d'entreprise",
+        "Formation adaptée aux dirigeants d'entreprise",
         "Mesure et priorisation des risques numériques",
         "Préparation à la gestion de crise cybernétique"
       ],
