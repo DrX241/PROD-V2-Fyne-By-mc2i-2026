@@ -44,7 +44,12 @@ const RoleplayHub: React.FC = () => {
       border: 'border-amber-500/30',
       buttonGradient: 'from-amber-700 to-amber-600',
       buttonHover: 'hover:from-amber-600 hover:to-amber-500',
-      textColor: 'text-amber-300'
+      textColor: 'text-amber-300',
+      details: [
+        "Contenu adapté aux débutants sans connaissances préalables",
+        "Exercices pratiques pour sécuriser vos appareils personnels",
+        "Apprentissage des bons réflexes face aux menaces courantes"
+      ]
     },
     {
       id: 'comex-member',
@@ -57,7 +62,12 @@ const RoleplayHub: React.FC = () => {
       border: 'border-emerald-500/30',
       buttonGradient: 'from-emerald-700 to-emerald-600',
       buttonHover: 'hover:from-emerald-600 hover:to-emerald-500',
-      textColor: 'text-emerald-300'
+      textColor: 'text-emerald-300',
+      details: [
+        "Formation stratégique adaptée aux dirigeants d'entreprise",
+        "Mesure et priorisation des risques numériques",
+        "Préparation à la gestion de crise cybernétique"
+      ]
     },
     {
       id: 'interview-test',
@@ -70,7 +80,12 @@ const RoleplayHub: React.FC = () => {
       border: 'border-blue-500/30',
       buttonGradient: 'from-blue-700 to-blue-600',
       buttonHover: 'hover:from-blue-600 hover:to-blue-500',
-      textColor: 'text-blue-300'
+      textColor: 'text-blue-300',
+      details: [
+        "Simulations d'entretiens techniques avec feedback immédiat",
+        "Questions adaptées au niveau et à la spécialité visée",
+        "Analyse détaillée de vos réponses pour progresser"
+      ]
     },
     {
       id: 'pentest-lab',
@@ -83,7 +98,12 @@ const RoleplayHub: React.FC = () => {
       border: 'border-purple-500/30',
       buttonGradient: 'from-purple-700 to-purple-600',
       buttonHover: 'hover:from-purple-600 hover:to-purple-500',
-      textColor: 'text-purple-300'
+      textColor: 'text-purple-300',
+      details: [
+        "Environnement web vulnérable pour pratiquer l'exploitation",
+        "Scénarios progressifs adaptés à votre niveau technique",
+        "Méthodologie structurée de tests d'intrusion"
+      ]
     },
     {
       id: 'crisis-management',
@@ -96,7 +116,12 @@ const RoleplayHub: React.FC = () => {
       border: 'border-rose-500/30',
       buttonGradient: 'from-rose-700 to-rose-600',
       buttonHover: 'hover:from-rose-600 hover:to-rose-500',
-      textColor: 'text-rose-300'
+      textColor: 'text-rose-300',
+      details: [
+        "Simulation de crise cyber avec multiples parties prenantes",
+        "Décisions stratégiques en temps limité et sous pression",
+        "Gestion de la communication interne et externe"
+      ]
     }
   ];
 
@@ -188,24 +213,14 @@ const RoleplayHub: React.FC = () => {
               </CardHeader>
               <CardContent className="pt-6">
                 <ul className={`space-y-2 ${scenario.textColor} text-sm`}>
-                  <li className="flex items-start">
-                    <div className={`p-1 rounded-full bg-${scenario.color}-900/50 mr-2 mt-0.5`}>
-                      <ArrowRight className="h-3 w-3" />
-                    </div>
-                    <span>Interactions réalistes guidées par l'IA</span>
-                  </li>
-                  <li className="flex items-start">
-                    <div className={`p-1 rounded-full bg-${scenario.color}-900/50 mr-2 mt-0.5`}>
-                      <ArrowRight className="h-3 w-3" />
-                    </div>
-                    <span>Mise en situation immersive et personnalisée</span>
-                  </li>
-                  <li className="flex items-start">
-                    <div className={`p-1 rounded-full bg-${scenario.color}-900/50 mr-2 mt-0.5`}>
-                      <ArrowRight className="h-3 w-3" />
-                    </div>
-                    <span>Feedback détaillé pour améliorer vos compétences</span>
-                  </li>
+                  {scenario.details.map((detail, index) => (
+                    <li key={index} className="flex items-start">
+                      <div className={`p-1 rounded-full bg-${scenario.color}-900/50 mr-2 mt-0.5`}>
+                        <ArrowRight className="h-3 w-3" />
+                      </div>
+                      <span>{detail}</span>
+                    </li>
+                  ))}
                 </ul>
               </CardContent>
               <CardFooter>
