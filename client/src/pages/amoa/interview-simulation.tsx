@@ -923,7 +923,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
                     className="border-amber-600 text-amber-400 hover:bg-amber-950"
                     disabled={simulationComplete || isLoading}
                   >
-                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    <CheckCircle className="mr-2 h-4 w-4" />
                     Terminer l'entretien 
                   </Button>
                   
