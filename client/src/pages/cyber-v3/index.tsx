@@ -253,7 +253,7 @@ export default function CyberV3() {
                         setLocation('/cyber/roleplay');
                       }}
                     >
-                      Je découvre un rôle
+                      J'incarne un rôle
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>

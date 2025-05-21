@@ -47,6 +47,19 @@ const RoleplayHub: React.FC = () => {
       textColor: 'text-amber-300'
     },
     {
+      id: 'comex-member',
+      title: "Je suis Membre du COMEX",
+      description: "Je voudrais m'approprier les enjeux et les clés stratégiques de la sécurité numérique",
+      link: '/cyber/comex-training',
+      icon: <BrainCircuit className="h-10 w-10 text-emerald-300" />,
+      color: 'emerald',
+      gradient: 'from-emerald-900/70 to-emerald-700/30',
+      border: 'border-emerald-500/30',
+      buttonGradient: 'from-emerald-700 to-emerald-600',
+      buttonHover: 'hover:from-emerald-600 hover:to-emerald-500',
+      textColor: 'text-emerald-300'
+    },
+    {
       id: 'interview-test',
       title: "Je suis Consultant Cyber",
       description: "Je prépare une audition en cybersécurité et je voudrais m'entraîner et être mis en situation",
