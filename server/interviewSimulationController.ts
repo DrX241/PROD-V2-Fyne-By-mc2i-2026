@@ -847,7 +847,8 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
       experienceLevel,
       sectorFocus,
       messages,
-      duration
+      duration,
+      auditContext
     } = req.body;
 
     if (!domain || !profileType || !experienceLevel || !messages || messages.length === 0) {
@@ -1742,7 +1743,7 @@ EXIGENCES MÉTHODOLOGIQUES:
 /**
  * Génère le prompt pour l'évaluation finale d'une audition client AMOA
  */
-function generateAmoaEvaluationPrompt(candidateName: string, profileType: string, experienceLevel: string, sectorFocus: string): string {
+function generateAmoaEvaluationPrompt(candidateName: string, profileType: string, experienceLevel: string, sectorFocus: string, auditContext?: AuditContextData): string {
   return `Tu es un expert en évaluation des performances de consultants AMOA (Assistance à Maîtrise d'Ouvrage) chez mc2i lors d'auditions client.
 
 Tu dois évaluer une audition client professionnelle qui vient de se terminer:
