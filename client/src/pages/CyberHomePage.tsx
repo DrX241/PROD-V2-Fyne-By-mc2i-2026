@@ -235,7 +235,7 @@ const CyberHomePage: React.FC = () => {
                     <p className="text-sm text-gray-600 mb-4">{module.description}</p>
                     <div className="flex items-center text-sm font-medium">
                       <span className={module.color}>
-                        Bientôt disponible
+                        Explorer
                       </span>
                       <ChevronRight className={`ml-1 w-4 h-4 ${module.color}`} />
                     </div>
