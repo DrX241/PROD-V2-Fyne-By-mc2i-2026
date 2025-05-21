@@ -325,12 +325,14 @@ export default function ProspectPulse() {
         if (prev === null || prev <= 1) {
           clearInterval(countdownTimer);
           setShowSurpriseAlert(false);
-          // L'utilisateur n'a pas répondu à temps
-          toast({
-            title: "Session manquée!",
-            description: "Vous n'avez pas répondu à temps à la demande du client.",
-            variant: "destructive",
-          });
+          // L'utilisateur n'a pas répondu à temps - déplacer le toast dans un setTimeout
+          setTimeout(() => {
+            toast({
+              title: "Session manquée!",
+              description: "Vous n'avez pas répondu à temps à la demande du client.",
+              variant: "destructive",
+            });
+          }, 0);
           return null;
         }
         return prev - 1;
@@ -346,11 +348,14 @@ export default function ProspectPulse() {
     if (accept) {
       startNewSession();
     } else {
-      toast({
-        title: "Session déclinée",
-        description: "Vous avez décliné la demande du client. Une autre opportunité se présentera plus tard.",
-        variant: "default",
-      });
+      // Déplacer l'appel toast dans un setTimeout pour éviter les erreurs pendant le rendu
+      setTimeout(() => {
+        toast({
+          title: "Session déclinée",
+          description: "Vous avez décliné la demande du client. Une autre opportunité se présentera plus tard.",
+          variant: "default",
+        });
+      }, 0);
     }
   };
   
@@ -569,11 +574,14 @@ export default function ProspectPulse() {
   const endSessionWithTimeout = () => {
     if (!activeSession) return;
     
-    toast({
-      title: "Temps écoulé !",
-      description: "Le temps imparti pour cette session est terminé.",
-      variant: "destructive",
-    });
+    // Déplacer l'appel toast dans un setTimeout pour éviter les erreurs pendant le rendu
+    setTimeout(() => {
+      toast({
+        title: "Temps écoulé !",
+        description: "Le temps imparti pour cette session est terminé.",
+        variant: "destructive",
+      });
+    }, 0);
     
     completeSession(true);
   };
