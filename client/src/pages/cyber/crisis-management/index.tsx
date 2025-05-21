@@ -250,11 +250,11 @@ export default function CrisisManagementPage() {
       isAvailable: true
     },
     {
-      id: "dir-finance",
+      id: "ceo",
       name: "Vincent Terrier",
-      role: "Senior Partner et Directeur Financier",
-      avatar: generateAvatar("Vincent Terrier", "Dir. Financier", "Executive"),
-      personality: "calm",
+      role: "Directeur Général",
+      avatar: generateAvatar("Vincent Terrier", "Dir. Général", "Executive"),
+      personality: "authoritative",
       department: "Executive",
       expertise: 8,
       stress: 65,
@@ -264,7 +264,7 @@ export default function CrisisManagementPage() {
     {
       id: "dir-comm",
       name: "Marion Lopez",
-      role: "Senior Partner et Directrice Communication et Marketing",
+      role: "Directrice Communication",
       avatar: generateAvatar("Marion Lopez", "Dir. Communication", "Communication"),
       personality: "diplomatic",
       department: "Communication",
@@ -274,16 +274,28 @@ export default function CrisisManagementPage() {
       isAvailable: true
     },
     {
-      id: "cyber-expert",
-      name: "Sophie Lambert",
-      role: "Experte Cybersécurité",
-      avatar: generateAvatar("Sophie Lambert", "Cyber Expert", "IT"),
+      id: "dir-tech",
+      name: "Thomas Durand",
+      role: "Directeur Technique",
+      avatar: generateAvatar("Thomas Durand", "Dir. Technique", "IT"),
       personality: "technical",
       department: "IT",
       expertise: 10,
       stress: 60,
       trust: 90,
-      isAvailable: false // Sera disponible plus tard dans le scénario
+      isAvailable: true
+    },
+    {
+      id: "dir-juridique",
+      name: "Sophie Legrand",
+      role: "Directrice Juridique",
+      avatar: generateAvatar("Sophie Legrand", "Dir. Juridique", "Legal"),
+      personality: "calm",
+      department: "Legal",
+      expertise: 9,
+      stress: 75,
+      trust: 85,
+      isAvailable: true
     }
   ];
   
@@ -587,7 +599,7 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
               ],
               stakeholderChanges: [
                 { stakeholderId: "ceo", stressChange: 20, trustChange: -15 },
-                { stakeholderId: "it-ops", stressChange: -10, trustChange: 10 }
+                { stakeholderId: "dir-tech", stressChange: -10, trustChange: 10 }
               ]
             }
           },
@@ -601,7 +613,7 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
                 comment: "Une approche plus équilibrée, j'approuve."
               },
               {
-                stakeholderId: "security-analyst",
+                stakeholderId: "dir-tech",
                 reaction: "neutral",
                 comment: "C'est un compromis, mais risqué car certains systèmes pourraient être infectés sans symptômes visibles."
               }
@@ -628,7 +640,7 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
                 comment: "Cela nous permet de rester opérationnels, c'est ma préférence."
               },
               {
-                stakeholderId: "security-analyst",
+                stakeholderId: "dir-tech",
                 reaction: "strongly-disapprove",
                 comment: "C'est extrêmement risqué ! Le ransomware continue de se propager en ce moment même !"
               }
