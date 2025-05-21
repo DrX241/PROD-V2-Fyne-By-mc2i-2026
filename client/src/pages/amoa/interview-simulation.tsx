@@ -696,10 +696,20 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
       setSimulationComplete(true);
       setActiveTab('evaluation');
       
-      toast({
-        title: "Simulation terminée",
-        description: "L'évaluation de l'audition est disponible.",
-      });
+      // Notification différente selon si un email a été envoyé
+      if (data.emailSent) {
+        toast({
+          title: "Simulation terminée",
+          description: "L'évaluation est disponible et a été envoyée par email.",
+          variant: "default",
+          className: "bg-green-100 border-green-400 text-green-900"
+        });
+      } else {
+        toast({
+          title: "Simulation terminée",
+          description: "L'évaluation de l'audition est disponible.",
+        });
+      }
     } catch (error) {
       console.error('Erreur:', error);
       toast({
