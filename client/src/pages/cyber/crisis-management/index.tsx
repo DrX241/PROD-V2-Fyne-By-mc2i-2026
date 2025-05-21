@@ -2025,7 +2025,10 @@ Réponds de façon brève (maximum 2-3 phrases), avec la personnalité indiquée
                                   ? 'ring-2 ring-red-500/50'
                                   : ''
                                 }`}
-                                onClick={() => consultStakeholder(stakeholder.id)}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  setFocusedStakeholderId(stakeholder.id);
+                                }}
                               >
                                 {/* Indicateur de consultation requise */}
                                 {requiredConsultations.required.includes(stakeholder.id) && !requiredConsultations.consulted.includes(stakeholder.id) && (
