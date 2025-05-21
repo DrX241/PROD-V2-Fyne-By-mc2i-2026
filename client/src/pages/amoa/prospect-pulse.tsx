@@ -866,7 +866,7 @@ export default function ProspectPulse() {
     
     return (
       <Dialog open={!!sessionResults} onOpenChange={(open) => !open && setSessionResults(null)}>
-        <DialogContent className="bg-gradient-to-b from-blue-900 to-blue-950 border-blue-700 max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-gradient-to-b from-blue-900 to-blue-950 border-blue-700 max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white flex items-center gap-2">
               <BarChart className="h-5 w-5 text-blue-400" />
