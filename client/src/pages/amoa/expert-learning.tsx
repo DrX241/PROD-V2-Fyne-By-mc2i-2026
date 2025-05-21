@@ -341,7 +341,7 @@ function ExpertLearningPageContent() {
         
         <div className="relative z-10 max-w-6xl w-full mx-auto px-4 py-8 sm:px-6 sm:py-12">
           {/* Bouton de retour - style console AMOA */}
-          <div className="absolute top-4 left-8 mt-6">
+          <div className="mb-4">
             <Button 
               variant="outline" 
               onClick={handleReturnToPrevious}
