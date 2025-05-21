@@ -843,17 +843,15 @@ const ReadMeIfYouCan = () => {
         variant: "destructive",
       });
       
-      // Ne JAMAIS utiliser de fallback local - forcer une nouvelle requête API si nécessaire
-      setTimeout(() => {
-        setIsLoading(false);
-        
-        // Afficher un message demandant à l'utilisateur de réessayer
-        toast({
-          title: "Information",
-          description: "Veuillez réessayer de générer une question",
-          variant: "default",
-        });
-      }, 500);
+      // Arrêter immédiatement le chargement en cas d'erreur
+      setIsLoading(false);
+      
+      // Afficher un message demandant à l'utilisateur de réessayer
+      toast({
+        title: "Information",
+        description: "Veuillez réessayer de générer une question",
+        variant: "default",
+      });
     }
   };
 
