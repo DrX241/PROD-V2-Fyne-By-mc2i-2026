@@ -1242,7 +1242,7 @@ const ReadMeIfYouCan = () => {
                         {currentChallenge.responses.map((response) => (
                           <div 
                             key={response.id} 
-                            className={`flex items-start space-x-3 p-3 rounded-md ${
+                            className={`flex items-start p-3 rounded-md ${
                               showResult && response.isCorrect 
                                 ? 'bg-green-900/30 border border-green-500/50' 
                                 : showResult && selectedAnswer === response.id && !response.isCorrect
@@ -1252,40 +1252,40 @@ const ReadMeIfYouCan = () => {
                                     : 'bg-blue-900/40 border border-blue-700/30 hover:bg-blue-800/50'
                             } transition-colors`}
                           >
-                            <div className="flex items-center">
+                            <div className="flex items-start gap-3 w-full">
                               <RadioGroupItem 
                                 value={response.id} 
                                 id={`answer-${response.id}`}
                                 disabled={showResult}
                               />
+                              <Label 
+                                htmlFor={`answer-${response.id}`} 
+                                className={`text-sm flex-grow ${
+                                  showResult && response.isCorrect
+                                    ? 'text-green-300'
+                                    : showResult && selectedAnswer === response.id && !response.isCorrect
+                                      ? 'text-red-300'
+                                      : 'text-gray-200'
+                                }`}
+                              >
+                                <div className="flex flex-wrap items-center">
+                                  <span className="font-semibold mr-1">{response.id.toUpperCase()}:</span> 
+                                  <span>{response.text}</span>
+                                  
+                                  {showResult && response.isCorrect && (
+                                    <span className="ml-2 text-green-400 text-xs font-semibold">
+                                      ✓ CORRECT
+                                    </span>
+                                  )}
+                                  
+                                  {showResult && selectedAnswer === response.id && !response.isCorrect && (
+                                    <span className="ml-2 text-red-400 text-xs font-semibold">
+                                      ✗ INCORRECT
+                                    </span>
+                                  )}
+                                </div>
+                              </Label>
                             </div>
-                            <Label 
-                              htmlFor={`answer-${response.id}`} 
-                              className={`text-sm flex-grow pl-2 ${
-                                showResult && response.isCorrect
-                                  ? 'text-green-300'
-                                  : showResult && selectedAnswer === response.id && !response.isCorrect
-                                    ? 'text-red-300'
-                                    : 'text-gray-200'
-                              }`}
-                            >
-                              <div className="flex flex-wrap items-center">
-                                <span className="font-semibold mr-1">{response.id.toUpperCase()}:</span> 
-                                <span>{response.text}</span>
-                                
-                                {showResult && response.isCorrect && (
-                                  <span className="ml-2 text-green-400 text-xs font-semibold">
-                                    ✓ CORRECT
-                                  </span>
-                                )}
-                                
-                                {showResult && selectedAnswer === response.id && !response.isCorrect && (
-                                  <span className="ml-2 text-red-400 text-xs font-semibold">
-                                    ✗ INCORRECT
-                                  </span>
-                                )}
-                              </div>
-                            </Label>
                           </div>
                         ))}
                       </RadioGroup>
