@@ -801,8 +801,110 @@ function extractJsonFromOpenAiResponse(response: string): any | null {
 }
 
 /**
- * Crée un objet JSON de secours à partir du texte de la réponse
+ * Extrait un résumé du texte d'évaluation
  */
+function extractSummary(text: string): string {
+  // Recherche de sections avec des titres communs de résumé
+  const summaryKeywords = ['résumé', 'synthèse', 'évaluation générale', 'aperçu'];
+  
+  for (const keyword of summaryKeywords) {
+    const regex = new RegExp(`(?:#{1,3}\\s*${keyword}[^#]*?|${keyword}[^:]*?:)([\\s\\S]*?)(?:(?:#{1,3}|\\n\\n)|$)`, 'i');
+    const match = text.match(regex);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+  
+  // Si aucun résumé n'est trouvé, prendre les premiers paragraphes
+  const paragraphs = text.split('\n\n');
+  if (paragraphs.length > 0) {
+    // Prendre le premier paragraphe qui ne semble pas être un titre
+    for (const paragraph of paragraphs.slice(0, 3)) {
+      if (paragraph.length > 50 && !paragraph.match(/^#{1,3}/)) {
+        return paragraph.trim();
+      }
+    }
+    // Sinon prendre le premier paragraphe
+    return paragraphs[0].trim();
+  }
+  
+  return "Aucun résumé disponible.";
+}
+
+// Extrait une section spécifique du texte
+function extractSection(text: string, ...keywords: string[]): string {
+  for (const keyword of keywords) {
+    // Rechercher les titres de section (format Markdown ou texte normal)
+    const regex = new RegExp(`(?:#{1,3}\\s*[^#]*?${keyword}[^#]*?|${keyword}[^:]*?:)([\\s\\S]*?)(?:(?:#{1,3}|\\n\\n)|$)`, 'i');
+    const match = text.match(regex);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+  
+  return "";
+}
+
+// Extrait une liste d'éléments à partir de mots-clés
+function extractListItems(text: string, ...keywords: string[]): string[] {
+  let items: string[] = [];
+  
+  // D'abord, essayer de trouver une section contenant les mots-clés
+  let sectionText = '';
+  for (const keyword of keywords) {
+    const section = extractSection(text, keyword);
+    if (section) {
+      sectionText = section;
+      break;
+    }
+  }
+  
+  if (sectionText) {
+    // Chercher des listes à puces
+    const bulletPoints = sectionText.match(/(?:^|\n)[-*•]+(.*?)(?=(?:\n[-*•]+|\n\n|$))/g);
+    if (bulletPoints && bulletPoints.length > 0) {
+      items = bulletPoints.map(point => point.replace(/^[-*•\s]+/, '').trim()).filter(item => item.length > 0);
+    } else {
+      // Si pas de liste à puces, diviser par lignes
+      const lines = sectionText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+      items = lines;
+    }
+  }
+  
+  // Si aucun élément n'est trouvé, chercher dans tout le texte
+  if (items.length === 0) {
+    // Chercher des points à puces dans tout le texte
+    const allBulletPoints = text.match(/(?:^|\n)[-*•]+(.*?)(?=(?:\n[-*•]+|\n\n|$))/g);
+    if (allBulletPoints && allBulletPoints.length > 0) {
+      // Filtrer les points qui contiennent les mots-clés
+      const relevantPoints = allBulletPoints.filter(point => {
+        return keywords.some(keyword => point.toLowerCase().includes(keyword.toLowerCase()));
+      });
+      if (relevantPoints.length > 0) {
+        items = relevantPoints.map(point => point.replace(/^[-*•\s]+/, '').trim());
+      }
+    }
+  }
+  
+  // Cas où on n'a trouvé aucun élément
+  if (items.length === 0) {
+    // Chercher des phrases contenant les mots-clés
+    for (const keyword of keywords) {
+      const regex = new RegExp(`[^.!?]*${keyword}[^.!?]*[.!?]`, 'gi');
+      const matches = text.match(regex);
+      if (matches && matches.length > 0) {
+        items = matches.map(match => match.trim());
+        break;
+      }
+    }
+  }
+  
+  // Limiter le nombre d'éléments et leur longueur
+  return items.slice(0, 5).map(item => {
+    return item.length > 150 ? item.substring(0, 147) + '...' : item;
+  });
+}
+
 function createFallbackJson(response: string, expectedFields: string[]): any | null {
   try {
     const result: Record<string, string> = {};
@@ -970,9 +1072,28 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
         }
       }
 
+      // Tenter de parser le résultat en JSON si possible
+      let structuredEvaluation;
+      try {
+        structuredEvaluation = JSON.parse(evaluationResponse);
+      } catch (parseError) {
+        console.log('Réponse d\'évaluation n\'est pas au format JSON, création d\'une structure manuelle');
+        
+        // Créer une structure d'évaluation à partir du texte
+        structuredEvaluation = {
+          summary: extractSummary(evaluationResponse),
+          strengths: extractListItems(evaluationResponse, 'forces', 'points forts'),
+          improvements: extractListItems(evaluationResponse, 'amélioration', 'faiblesses', 'points d\'amélioration'),
+          detailedNotes: evaluationResponse,
+          recommendations: extractListItems(evaluationResponse, 'recommandation'),
+          sectorFitEvaluation: extractSection(evaluationResponse, 'adéquation', 'contexte'),
+          conclusion: extractSection(evaluationResponse, 'conclusion')
+        };
+      }
+
       return res.json({
         success: true,
-        evaluation: evaluationResponse,
+        evaluation: structuredEvaluation,
         emailSent: !!trainerEmail
       });
     } catch (apiError) {
