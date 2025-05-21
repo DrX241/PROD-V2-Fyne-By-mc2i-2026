@@ -38,7 +38,7 @@ class OpenAIService {
     // Récupération des infos pour GPT-4o-mini depuis les variables d'environnement
     const gpt4oMiniApiKey = process.env.GPT4O_MINI_API_KEY || "";
     const gpt4oMiniEndpoint = process.env.GPT4O_MINI_ENDPOINT || "";
-    const gpt4oMiniDeploymentName = process.env.GPT4O_MINI_DEPLOYMENT_NAME || "gpt-4o-mini";
+    const gpt4oMiniDeploymentName = process.env.GPT4O_MINI_DEPLOYMENT_NAME || "Eddy-02-2025-gpt-4o-mini";
     const gpt4oMiniApiVersion = process.env.GPT4O_MINI_API_VERSION || "2024-12-01-preview";
     
     // Log pour le debug des valeurs (sans exposer la clé complète)
@@ -85,7 +85,7 @@ class OpenAIService {
       apiKey: gpt4oMiniApiKey,
       deploymentName: gpt4oMiniDeploymentName,
       apiVersion: gpt4oMiniApiVersion,
-      modelName: "gpt-4o-mini"
+      modelName: gpt4oMiniDeploymentName // Utilise le nom de déploiement comme nom de modèle
     };
     
     console.log(`Azure OpenAI Service initialized with primary model: ${this.primaryConfig.modelName}`);
