@@ -7,7 +7,8 @@ import {
   BookOpen,
   GraduationCap,
   Database,
-  Code
+  Code,
+  Clock
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -84,10 +85,10 @@ export default function DataIaSasAcademie() {
               <CardFooter className="flex justify-center">
                 <Button 
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-5"
-                  onClick={() => navigate('/data-ia/expert-learning')}
+                  disabled
                 >
-                  Discuter avec un expert
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <Clock className="mr-2 h-4 w-4" />
+                  Bientôt disponible
                 </Button>
               </CardFooter>
             </Card>
@@ -133,10 +134,10 @@ export default function DataIaSasAcademie() {
               <CardFooter className="flex justify-center">
                 <Button 
                   className="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-5"
-                  onClick={() => navigate('/data-ia/data-studio')}
+                  disabled
                 >
-                  Accéder à l'espace d'entraînement
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <Clock className="mr-2 h-4 w-4" />
+                  Bientôt disponible
                 </Button>
               </CardFooter>
             </Card>
