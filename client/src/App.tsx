@@ -127,6 +127,13 @@ function App() {
                 <Route path="/cyber/test-technique" component={TestTechniquePage} />
                 <Route path="/cyber/crisis-management" component={CrisisManagementPage} />
                 <Route path="/cyber/pentest-lab" component={PentestLab} />
+                <Route path="/cyber/tools/assistant-cyber">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement de l'assistant...</div>}>
+                      {React.createElement(lazy(() => import("./pages/cyber/tools/assistant-cyber")))}
+                    </Suspense>
+                  )}
+                </Route>
                 
                 {/* Routes pour les modules de la Cyber Académie - avec Suspense pour chargement différé */}
                 <Route path="/cyber/learning-center/modules/intro-cybersecurite">
