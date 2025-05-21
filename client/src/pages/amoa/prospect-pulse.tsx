@@ -461,8 +461,32 @@ export default function ProspectPulse() {
           setIsTyping(false);
           setMessages((prev) => [...prev, clientMessage]);
           
-          // Réinitialiser le timer de réponse
-          setResponseTimeLeft(settings.responseTimeLimit);
+          // Vérifier si le client met fin à la conversation
+          const endsConversation = clientResponse.includes("dois partir") || 
+                                 clientResponse.includes("doit partir") ||
+                                 clientResponse.includes("fin de l'entretien") ||
+                                 clientResponse.includes("mettre fin") ||
+                                 clientResponse.includes("terminons") ||
+                                 clientResponse.includes("dois vous quitter") ||
+                                 clientResponse.includes("recontacterons") ||
+                                 (clientResponse.includes("autre rendez-vous") && 
+                                  (clientResponse.includes("reprendre") || clientResponse.includes("revoir")));
+          
+          if (endsConversation) {
+            // Le client met fin à la conversation - Afficher un toast pour informer l'utilisateur
+            toast({
+              title: "Le client met fin à la conversation",
+              description: "Le client a décidé de terminer l'entretien. Une évaluation de votre performance sera générée.",
+              variant: "default",
+            });
+            
+            // Compléter la session avec le feedback automatique
+            setTimeout(() => completeSession(false), 2000);
+          } else {
+            // Réinitialiser le timer de réponse pour la poursuite de la conversation
+            setResponseTimeLeft(settings.responseTimeLimit);
+          }
+          
           setIsFetchingResponse(false);
         }, 1000 + Math.random() * 2000); // Délai aléatoire pour simuler la frappe
       } else {
@@ -549,7 +573,7 @@ export default function ProspectPulse() {
   };
   
   // Fonction pour gérer le timeout de réponse
-  const handleTimeoutForResponse = () => {
+  const handleTimeoutForResponse = async () => {
     if (!activeSession) return;
     
     toast({
@@ -558,16 +582,65 @@ export default function ProspectPulse() {
       variant: "destructive",
     });
     
-    // Ajouter un message d'impatience du client
-    const timeoutMessage: Message = {
-      id: `msg-${Date.now()}`,
-      content: "Vous mettez beaucoup de temps à répondre... J'ai d'autres rendez-vous, je ne peux pas attendre indéfiniment.",
-      sender: 'client',
-      timestamp: new Date()
-    };
-    
-    setMessages((prev) => [...prev, timeoutMessage]);
-    setResponseTimeLeft(settings.responseTimeLimit);
+    // Générer un message d'impatience via l'API qui sera plus personnalisé
+    try {
+      // Générer une réponse d'impatience personnalisée
+      const timeoutResponse = await generateClientMessage(
+        activeSession.clientProfile,
+        messages,
+        false,
+        true // indique que c'est un timeout
+      );
+      
+      // Ajouter le message d'impatience du client
+      const timeoutMessage: Message = {
+        id: `msg-${Date.now()}`,
+        content: timeoutResponse || `Écoutez, je n'ai pas toute la journée. ${activeSession.clientProfile.name ? activeSession.clientProfile.name + " ici. " : ""}Pouvons-nous avancer ou dois-je mettre fin à cette conversation ?`,
+        sender: 'client',
+        timestamp: new Date()
+      };
+      
+      setMessages((prev) => [...prev, timeoutMessage]);
+      
+      // Vérifier si c'est un client pressé qui est depuis longtemps en conversation
+      const firstTimestamp = messages.length > 0 ? new Date(messages[0].timestamp).getTime() : Date.now();
+      const conversationDuration = Math.floor((Date.now() - firstTimestamp) / (1000 * 60)); // en minutes
+      
+      if (conversationDuration >= 2 && activeSession.clientProfile.type === 'pressé') {
+        // Pour un client pressé après 2 minutes, 80% de chances de mettre fin à la conversation après un timeout
+        if (Math.random() < 0.8) {
+          setTimeout(() => {
+            const endMessage: Message = {
+              id: `msg-${Date.now()}`,
+              content: `Je vois que vous n'êtes pas réactif. Je dois malheureusement mettre fin à cette réunion. Peut-être pourrons-nous reprendre ultérieurement quand vous serez plus disponible.`,
+              sender: 'client',
+              timestamp: new Date()
+            };
+            
+            setMessages((prev) => [...prev, endMessage]);
+            
+            // Terminer la session avec évaluation
+            setTimeout(() => completeSession(true), 2000);
+          }, 4000); // Délai avant message de fin de session
+        }
+      }
+      
+      // Réinitialiser le timer de réponse
+      setResponseTimeLeft(settings.responseTimeLimit);
+    } catch (error) {
+      console.error("Erreur lors de la génération du message d'impatience:", error);
+      
+      // Message de secours en cas d'erreur
+      const timeoutMessage: Message = {
+        id: `msg-${Date.now()}`,
+        content: "Vous mettez beaucoup de temps à répondre... J'ai d'autres rendez-vous, je ne peux pas attendre indéfiniment.",
+        sender: 'client',
+        timestamp: new Date()
+      };
+      
+      setMessages((prev) => [...prev, timeoutMessage]);
+      setResponseTimeLeft(settings.responseTimeLimit);
+    }
   };
   
   // Fonction pour terminer volontairement la session
