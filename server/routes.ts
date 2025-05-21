@@ -102,6 +102,7 @@ import {
 } from "./amoaExpertController";
 import dataAcademieController from "./controllers/dataAcademieController";
 import { executePythonCode, executeSQLCode, resetSessionVariables } from "./controllers/codeExecutionController";
+import openaiRoutes from "./routes/openai-routes";
 
 
 import {

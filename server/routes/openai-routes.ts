@@ -1,62 +1,56 @@
 import { Router } from 'express';
-import { openai, openaiMini } from '../openaiService';
+import { OpenAIClient, AzureKeyCredential, ChatCompletionRequestMessage } from "@azure/openai";
 
 const router = Router();
 
-// Vérifier l'état de connexion à Azure OpenAI
-router.get('/openai/status', async (req, res) => {
+// Route pour générer une réponse de conversation
+router.post('/generate-response', async (req, res) => {
   try {
-    const connectionStatus = {
-      connectionStatus: "connected",
-      currentModel: process.env.GPT4O_MINI_DEPLOYMENT_NAME || "gpt-4o-mini",
-      keyType: "secondary",
-      lastCheck: Date.now()
-    };
+    const { systemPrompt, messages, model = "gpt-4o-mini", temperature = 0.7, max_tokens = 150 } = req.body;
     
-    res.json(connectionStatus);
-  } catch (error) {
-    console.error("Error checking OpenAI connection:", error);
-    res.status(500).json({ 
-      connectionStatus: "error", 
-      message: error.message 
-    });
-  }
-});
-
-// Endpoint pour générer des réponses pour le module de gestion de crise
-router.post('/openai/generate-response', async (req, res) => {
-  try {
-    const { model, systemPrompt, messages, temperature = 0.7, max_tokens = 150 } = req.body;
-    
-    if (!systemPrompt || !messages) {
-      return res.status(400).json({ 
-        error: "Les paramètres systemPrompt et messages sont requis"
-      });
+    if (!Array.isArray(messages)) {
+      return res.status(400).json({ error: "Les messages doivent être fournis sous forme de tableau" });
     }
     
-    // Préparer les messages avec le prompt système
-    const formattedMessages = [
+    // Configuration Azure OpenAI
+    const endpoint = process.env.GPT4O_MINI_ENDPOINT || "";
+    const apiKey = process.env.GPT4O_MINI_API_KEY || "";
+    const deploymentName = process.env.GPT4O_MINI_DEPLOYMENT_NAME || "";
+    
+    if (!endpoint || !apiKey || !deploymentName) {
+      return res.status(500).json({ error: "Configuration Azure OpenAI manquante" });
+    }
+    
+    // Initialiser le client Azure OpenAI
+    const client = new OpenAIClient(
+      endpoint,
+      new AzureKeyCredential(apiKey)
+    );
+    
+    // Préparer les messages pour l'API OpenAI
+    const chatMessages: ChatCompletionRequestMessage[] = [
       { role: "system", content: systemPrompt },
-      ...messages
+      ...messages.map((msg: any) => ({
+        role: msg.role as "user" | "assistant",
+        content: msg.content
+      }))
     ];
     
-    // Utiliser OpenAI mini par défaut pour les réponses rapides
-    const response = await openaiMini.chat.completions.create({
-      model: process.env.GPT4O_MINI_DEPLOYMENT_NAME || "Eddy-02-2025-gpt-4o-mini",
-      messages: formattedMessages,
-      temperature,
-      max_tokens,
-    });
+    // Appeler l'API OpenAI
+    const response = await client.getChatCompletions(
+      deploymentName,
+      chatMessages,
+      { temperature, maxTokens: max_tokens }
+    );
     
-    const responseContent = response.choices[0].message.content;
+    // Extraire la réponse
+    const responseContent = response.choices[0]?.message?.content || "Je n'ai pas de réponse à fournir pour le moment.";
     
-    res.json({ response: responseContent });
+    return res.json({ response: responseContent });
+    
   } catch (error) {
-    console.error("Error generating OpenAI response:", error);
-    res.status(500).json({ 
-      error: "Erreur lors de la génération de la réponse",
-      details: error.message 
-    });
+    console.error("Erreur lors de la génération de la réponse OpenAI:", error);
+    return res.status(500).json({ error: "Erreur lors de la génération de la réponse" });
   }
 });
 

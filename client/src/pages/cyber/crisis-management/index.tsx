@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import axios from "axios";
+import { getStakeholderResponse } from "@/utils/stakeholderResponse";
 
 // Types des parties prenantes (PNJ) dans la crise
 interface Stakeholder {
@@ -1044,20 +1045,125 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
     }
   };
   
+  // Générer une réponse IA pour un stakeholder
+  const generateAIResponse = async (stakeholderId: string, userMessage: string) => {
+    try {
+      if (!scenario) return;
+      
+      // Trouver le stakeholder
+      const stakeholder = scenario.stakeholders.find(s => s.id === stakeholderId);
+      if (!stakeholder) return;
+      
+      // Trouver la conversation
+      const conversation = scenario.conversations.find(c => c.stakeholderId === stakeholderId);
+      if (!conversation) return;
+      
+      // Créer un message de "typing" (..." pour indiquer que l'IA est en train d'écrire)
+      const typingMessage: Message = {
+        id: uuidv4(),
+        senderId: stakeholderId,
+        content: "...",
+        timestamp: new Date(),
+        isTyping: true
+      };
+      
+      // Ajouter le message "typing" temporairement
+      setScenario(prev => {
+        if (!prev) return prev;
+        
+        const conversationIndex = prev.conversations.findIndex(c => c.stakeholderId === stakeholderId);
+        if (conversationIndex === -1) return prev;
+        
+        const updatedConversations = [...prev.conversations];
+        updatedConversations[conversationIndex] = {
+          ...updatedConversations[conversationIndex],
+          messages: [...updatedConversations[conversationIndex].messages, typingMessage],
+          lastActivity: new Date()
+        };
+        
+        return {
+          ...prev,
+          conversations: updatedConversations
+        };
+      });
+      
+      // Activer l'indicateur d'état "typing"
+      setIsTyping(true);
+      
+      // Attendre la réponse de l'IA via le service dédié
+      const { message, stressChange, trustChange } = await getStakeholderResponse(
+        stakeholder,
+        conversation.messages,
+        userMessage
+      );
+      
+      // Mettre à jour le scénario avec la réponse de l'IA
+      setScenario(prev => {
+        if (!prev) return prev;
+        
+        const conversationIndex = prev.conversations.findIndex(c => c.stakeholderId === stakeholderId);
+        if (conversationIndex === -1) return prev;
+        
+        // Filtrer pour retirer le message "typing"
+        const filteredMessages = prev.conversations[conversationIndex].messages
+          .filter(msg => !msg.isTyping);
+        
+        const updatedConversations = [...prev.conversations];
+        updatedConversations[conversationIndex] = {
+          ...updatedConversations[conversationIndex],
+          messages: [...filteredMessages, message],
+          lastActivity: new Date()
+        };
+        
+        // Mise à jour des statistiques du stakeholder
+        const updatedStakeholders = prev.stakeholders.map(s => {
+          if (s.id === stakeholderId) {
+            return {
+              ...s,
+              stress: Math.max(0, Math.min(100, s.stress + stressChange)),
+              trust: Math.max(0, Math.min(100, s.trust + trustChange))
+            };
+          }
+          return s;
+        });
+        
+        return {
+          ...prev,
+          conversations: updatedConversations,
+          stakeholders: updatedStakeholders
+        };
+      });
+      
+    } catch (error) {
+      console.error("Erreur lors de la génération de la réponse:", error);
+      toast({
+        title: "Erreur de communication",
+        description: "Impossible de générer une réponse pour ce contact.",
+        variant: "destructive",
+      });
+    } finally {
+      // Désactiver l'indicateur de frappe
+      setIsTyping(false);
+    }
+  };
+  
   // Gérer l'envoi de messages dans la conversation
-  const handleSendMessage = async () => {
+  const handleSendMessage = () => {
     if (!messageInput.trim() || !scenario) return;
     
-    const currentMessage = messageInput; // Sauvegarder le message pour l'utiliser dans le setTimeout
+    const userMessageContent = messageInput; // Sauvegarder le contenu
     setIsSending(true);
     
-    // Construire le nouveau message
+    // Construire le nouveau message du joueur
     const newMessage: Message = {
       id: uuidv4(),
       senderId: "player",
-      content: currentMessage,
+      content: userMessageContent,
       timestamp: new Date()
     };
+    
+    // Effacer le message après l'envoi
+    setMessageInput("");
     
     // Destination du message selon l'onglet actif
     if (activeTab === 'warroom') {
@@ -1069,6 +1175,10 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
           warRoom: [...prev.warRoom, newMessage]
         };
       });
+      
+      // Terminer l'envoi du message
+      setIsSending(false);
+      
     } else if (activeTab === 'stakeholders' && focusedStakeholderId) {
       // Message privé à une partie prenante spécifique
       setScenario(prev => {
@@ -1093,60 +1203,15 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
         };
       });
       
-      // Activer l'indicateur de frappe du PNJ
-      setIsTyping(true);
+      // Terminer l'envoi du message
+      setIsSending(false);
       
-      // Créer un message temporaire de "typing"
-      const typingMessage: Message = {
-        id: uuidv4(),
-        senderId: focusedStakeholderId,
-        content: "...",
-        timestamp: new Date(),
-        isTyping: true
-      };
-      
-      // Ajouter le message typing à la conversation
-      setScenario(prev => {
-        if (!prev) return prev;
-        
-        const conversationIndex = prev.conversations.findIndex(
-          c => c.stakeholderId === focusedStakeholderId
-        );
-        
-        if (conversationIndex === -1) return prev;
-        
-        const updatedConversations = [...prev.conversations];
-        updatedConversations[conversationIndex] = {
-          ...updatedConversations[conversationIndex],
-          messages: [...updatedConversations[conversationIndex].messages, typingMessage],
-          lastActivity: new Date()
-        };
-        
-        return {
-          ...prev,
-          conversations: updatedConversations
-        };
-      });
-      
-      try {
-        // Trouver le stakeholder
-        const stakeholder = scenario.stakeholders.find(s => s.id === focusedStakeholderId);
-        
-        if (!stakeholder) {
-          throw new Error("Stakeholder non trouvé");
-        }
-        
-        // Récupérer l'historique de la conversation pour le contexte
-        const conversation = scenario.conversations.find(
-          c => c.stakeholderId === focusedStakeholderId
-        );
-        
-        if (!conversation) {
-          throw new Error("Conversation non trouvée");
-        }
-        
-        // Limiter à un maximum de 10 derniers messages pour le contexte
-        const recentMessages = conversation.messages
+      // Déclencher une réponse du PNJ après un court délai
+      setTimeout(() => {
+        // Appeler la fonction de génération de réponse IA
+        generateAIResponse(focusedStakeholderId, userMessageContent);
+      }, 1000);
+    }
           .filter(msg => !msg.isTyping) // Exclure les messages "typing"
           .slice(-10)
           .map(msg => ({
