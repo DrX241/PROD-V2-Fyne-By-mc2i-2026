@@ -474,6 +474,69 @@ function generateSynthesisHtml(
 export async function registerRoutes(app: Express): Promise<Server> {
     // Aucune authentification dans cette version
   
+  // Routes OpenAI pour les conversations du module de crise
+  app.get('/api/openai/status', async (req, res) => {
+    try {
+      const connectionStatus = {
+        connectionStatus: "connected",
+        currentModel: process.env.GPT4O_MINI_DEPLOYMENT_NAME || "gpt-4o-mini",
+        keyType: "secondary",
+        lastCheck: Date.now()
+      };
+      
+      res.json(connectionStatus);
+    } catch (error: any) {
+      console.error("Error checking OpenAI connection:", error);
+      res.status(500).json({ 
+        connectionStatus: "error", 
+        message: error.message 
+      });
+    }
+  });
+
+  // Endpoint pour générer des réponses pour le module de gestion de crise
+  app.post('/api/openai/generate-response', async (req, res) => {
+    try {
+      const { model, systemPrompt, messages, temperature = 0.7, max_tokens = 150 } = req.body;
+      
+      if (!systemPrompt || !messages) {
+        return res.status(400).json({ 
+          error: "Les paramètres systemPrompt et messages sont requis"
+        });
+      }
+      
+      // Préparer les messages avec le prompt système
+      const formattedMessages = [
+        { role: "system", content: systemPrompt },
+        ...messages
+      ];
+      
+      // Utiliser OpenAI mini pour les réponses rapides
+      const openai = new OpenAI({
+        apiKey: process.env.GPT4O_MINI_API_KEY,
+        baseURL: `${process.env.GPT4O_MINI_ENDPOINT}openai/deployments/${process.env.GPT4O_MINI_DEPLOYMENT_NAME}`,
+        defaultQuery: { "api-version": process.env.GPT4O_MINI_API_VERSION },
+      });
+      
+      const response = await openai.chat.completions.create({
+        model: process.env.GPT4O_MINI_DEPLOYMENT_NAME || "Eddy-02-2025-gpt-4o-mini",
+        messages: formattedMessages,
+        temperature,
+        max_tokens,
+      });
+      
+      const responseContent = response.choices[0].message.content;
+      
+      res.json({ response: responseContent });
+    } catch (error: any) {
+      console.error("Error generating OpenAI response:", error);
+      res.status(500).json({ 
+        error: "Erreur lors de la génération de la réponse",
+        details: error.message 
+      });
+    }
+  });
+  
   // Routes pour l'IA de pentest et les défis dynamiques
   const { generateChallenge, analyzeSolution, getCustomHint } = await import("./controllers/pentestAIController").then(module => module.default);
   
