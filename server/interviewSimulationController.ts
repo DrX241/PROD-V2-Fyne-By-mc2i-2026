@@ -199,7 +199,7 @@ export async function processInterviewMessage(req: Request, res: Response) {
     if (domain === 'cyber') {
       systemPrompt = generateCyberStepPrompt(step, profileType, experienceLevel);
     } else {
-      systemPrompt = generateAmoaStepPrompt(step, profileType, experienceLevel, sectorFocus || '', auditContext);
+      systemPrompt = generateAmoaStepPrompt(step, profileType, experienceLevel, auditContext);
     }
 
     // Renforcement critique pour assurer une évaluation technique rigoureuse et exigeante
@@ -1531,7 +1531,7 @@ Garde un ton direct et préoccupé (150 mots max). Ne joue pas le rôle du consu
 /**
  * Génère le prompt pour une étape spécifique de l'audition AMOA
  */
-function generateAmoaStepPrompt(step: number, profileType: string, experienceLevel: string, sectorFocus: string, auditContext?: AuditContextData): string {
+function generateAmoaStepPrompt(step: number, profileType: string, experienceLevel: string, auditContext?: AuditContextData): string {
   // Adapter la difficulté en fonction de l'étape et du niveau d'expérience
   let baseComplexity = 'intermédiaire';
   switch (experienceLevel.toLowerCase()) {
@@ -1654,8 +1654,21 @@ function generateAmoaStepPrompt(step: number, profileType: string, experienceLev
     ]
   };
 
-  // Sélection d'un scénario basé sur le secteur et l'étape
-  let selectedScenarios = sectorScenarios[sectorFocus as keyof typeof sectorScenarios] || 
+  // Sélection d'un scénario basé sur le contexte d'audit et l'étape
+  let sectorKey = "Public/Parapublic"; // Secteur par défaut
+  
+  if (auditContext && auditContext.contextType === 'predefined') {
+    // Détermine le secteur d'activité en fonction du titre du contexte prédéfini
+    if (auditContext.contextData.title.includes("Retail")) sectorKey = "Commerce/Distribution";
+    else if (auditContext.contextData.title.includes("Banking")) sectorKey = "Banque/Finance";
+    else if (auditContext.contextData.title.includes("Health")) sectorKey = "Santé/Pharma";
+    else if (auditContext.contextData.title.includes("Energy")) sectorKey = "Énergie/Utilities";
+  } else if (auditContext && auditContext.contextType === 'custom' && auditContext.contextData.sector) {
+    // Si un secteur est spécifié dans le contexte personnalisé
+    sectorKey = auditContext.contextData.sector;
+  }
+  
+  let selectedScenarios = sectorScenarios[sectorKey as keyof typeof sectorScenarios] || 
                         sectorScenarios["Public/Parapublic"];
   let scenario = selectedScenarios[step % selectedScenarios.length];
   
@@ -1678,7 +1691,7 @@ function generateAmoaStepPrompt(step: number, profileType: string, experienceLev
       objective: `Cette phase vise à évaluer la capacité du consultant à :
       - Proposer une approche méthodologique adaptée
       - Gérer efficacement des parties prenantes aux intérêts divergents
-      - Résoudre des problèmes complexes typiques du secteur ${sectorFocus}
+      - Résoudre des problèmes complexes typiques du contexte d'audit
       - Démontrer son expertise technique dans le domaine`
     },
     {
@@ -1780,7 +1793,7 @@ function generateAmoaStepPrompt(step: number, profileType: string, experienceLev
     ? `\nORGANISATION: ${organizationName}\n` 
     : '';
   
-  return `Tu es un CLIENT EXPERT du secteur ${sectorFocus}. Tu évalues un ${profileTitle} lors d'une audition - ÉTAPE ${step}.
+  return `Tu es un CLIENT EXPERT dans ton domaine. Tu évalues un ${profileTitle} lors d'une audition - ÉTAPE ${step}.
 
 CONSIGNE PRINCIPALE: Tu dois avoir une vraie intelligence dans tes réponses, réagir de façon spécifique à ce que dit le consultant, et rebondir naturellement dans la conversation en restant dans le contexte.
 ${organizationSection}
@@ -1940,6 +1953,6 @@ CONSIGNES ESSENTIELLES:
 - Ton analyse doit être factuelle et basée uniquement sur le contenu des échanges
 - Ne reprends pas de longs extraits des réponses du consultant
 - Concentre-toi sur l'analyse des compétences démontrées et non sur le contenu des questions
-- Évalue particulièrement l'adéquation entre les compétences démontrées et les exigences spécifiques du secteur ${sectorFocus}
+- Évalue particulièrement l'adéquation entre les compétences démontrées et les exigences spécifiques du contexte d'audit
 - Sois précis et constructif, même en cas de performance limitée`;
 }
