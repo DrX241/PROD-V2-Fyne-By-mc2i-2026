@@ -855,66 +855,7 @@ export default function LearningCenter() {
             </div>
           </div>
           
-          {/* Je suis débutant en cybersécurité */}
-          <div className="bg-gradient-to-r from-amber-900/40 to-amber-950/60 border border-amber-700 rounded-lg p-6 mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold flex items-center">
-                <UserIcon className="mr-3 h-6 w-6 text-amber-400" />
-                Je suis débutant en cybersécurité
-              </h2>
-              <Badge variant="outline" className="bg-amber-800/30 border-amber-600 text-amber-200 px-3 py-1 text-sm">
-                Nouveauté
-              </Badge>
-            </div>
-            <p className="text-amber-200 mb-6">
-              Vous découvrez complètement la cybersécurité et souhaitez apprendre les bases essentielles pour vous protéger et comprendre les enjeux. Notre module débutant vous permet d'acquérir les connaissances fondamentales de manière interactive.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Module débutant */}
-              <Link href="/cyber/learning-center/modules/debutant-cyber" className="block h-full lg:col-span-3">
-                <Card className="h-full bg-amber-950/50 border-amber-700/50 hover:bg-amber-900/40 hover:border-amber-600 transition-all duration-200 overflow-hidden">
-                  <div className="flex flex-col md:flex-row p-6">
-                    <div className="flex-shrink-0 mb-4 md:mb-0 md:mr-6">
-                      <div className="mx-auto md:mx-0 p-4 rounded-full bg-gradient-to-r from-amber-600 to-amber-500 h-24 w-24 flex items-center justify-center">
-                        <BookOpen className="h-12 w-12 text-white" />
-                      </div>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-white text-center md:text-left">Premiers pas en cybersécurité</h3>
-                      <p className="text-amber-200 my-3 text-center md:text-left">Ce module interactif vous guidera à travers les concepts fondamentaux de la cybersécurité avec des explications simples et des exercices pratiques.</p>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        <Badge className="bg-amber-900/50 text-amber-200">Aucun prérequis</Badge>
-                        <Badge className="bg-amber-900/50 text-amber-200">45 minutes</Badge>
-                        <Badge className="bg-amber-900/50 text-amber-200">Interactif</Badge>
-                      </div>
-                      <div className="mt-2">
-                        <ul className="space-y-2">
-                          <li className="flex items-start">
-                            <CheckCircle2 className="h-5 w-5 text-amber-400 mr-2 flex-shrink-0 mt-0.5" />
-                            <span className="text-amber-100">Comprendre les risques principaux du quotidien</span>
-                          </li>
-                          <li className="flex items-start">
-                            <CheckCircle2 className="h-5 w-5 text-amber-400 mr-2 flex-shrink-0 mt-0.5" />
-                            <span className="text-amber-100">Apprendre à sécuriser vos appareils et comptes</span>
-                          </li>
-                          <li className="flex items-start">
-                            <CheckCircle2 className="h-5 w-5 text-amber-400 mr-2 flex-shrink-0 mt-0.5" />
-                            <span className="text-amber-100">Playground interactif pour tester vos connaissances</span>
-                          </li>
-                        </ul>
-                      </div>
-                      <div className="mt-6 text-center md:text-left">
-                        <Button className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white px-6 py-6">
-                          <Lightbulb className="mr-2 h-5 w-5" />
-                          Démarrer l'apprentissage
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </Link>
-            </div>
-          </div>
+
           
           {/* Découvrez les différents métiers en cyber */}
           <div className="bg-gradient-to-r from-cyan-900/40 to-cyan-950/60 border border-cyan-700 rounded-lg p-6">
