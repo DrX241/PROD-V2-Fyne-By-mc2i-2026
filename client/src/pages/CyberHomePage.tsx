@@ -33,6 +33,7 @@ interface Module {
   bgColor: string;
   accentColor: string;
   route: string;
+  comingSoon?: boolean;
 }
 
 const CyberHomePage: React.FC = () => {
@@ -92,7 +93,8 @@ const CyberHomePage: React.FC = () => {
       color: 'text-rose-600',
       bgColor: 'bg-rose-100',
       accentColor: 'border-rose-500',
-      route: '/playground/module-generator'
+      route: '/playground/module-generator',
+      comingSoon: true
     }
   ];
 
@@ -218,8 +220,8 @@ const CyberHomePage: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
-                  onClick={() => setLocation(module.route)}
-                  style={{ cursor: 'pointer' }}
+                  onClick={() => !module.comingSoon && setLocation(module.route)}
+                  style={{ cursor: module.comingSoon ? 'default' : 'pointer' }}
                 >
                   <div className="p-6">
                     <div 
@@ -234,10 +236,18 @@ const CyberHomePage: React.FC = () => {
                     <h3 className="text-lg font-bold mb-3 text-gray-800">{module.title}</h3>
                     <p className="text-sm text-gray-600 mb-4">{module.description}</p>
                     <div className="flex items-center text-sm font-medium">
-                      <span className={module.color}>
-                        Explorer
-                      </span>
-                      <ChevronRight className={`ml-1 w-4 h-4 ${module.color}`} />
+                      {module.comingSoon ? (
+                        <span className="text-gray-500 flex items-center">
+                          Bientôt disponible
+                        </span>
+                      ) : (
+                        <>
+                          <span className={module.color}>
+                            Explorer
+                          </span>
+                          <ChevronRight className={`ml-1 w-4 h-4 ${module.color}`} />
+                        </>
+                      )}
                     </div>
                   </div>
                 </motion.div>
