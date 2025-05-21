@@ -209,7 +209,7 @@ const getInitialQuestion = (): Question[] => {
   return presentationQuestion ? [presentationQuestion] : [QUESTIONS[0]];
 };
 
-// Génère une question adaptative basée sur les réponses précédentes
+// Génère une question adaptative basée sur les réponses précédentes et le contexte d'audition
 const generateAdaptiveQuestion = async (
   presentationAnswer: string,
   currentQuestionIndex: number,
@@ -221,6 +221,17 @@ const generateAdaptiveQuestion = async (
   }>
 ): Promise<Question | null> => {
   try {
+    // Récupération du contexte d'audition stocké dans la session
+    let jobContext: JobContext | null = null;
+    try {
+      const storedContext = sessionStorage.getItem('interviewJobContext');
+      if (storedContext) {
+        jobContext = JSON.parse(storedContext);
+      }
+    } catch (e) {
+      console.error('Erreur lors de la récupération du contexte d\'audition:', e);
+    }
+    
     const response = await fetch('/api/cyber/interview-test/generate-question', {
       method: 'POST',
       headers: {
@@ -230,6 +241,7 @@ const generateAdaptiveQuestion = async (
         presentationAnswer,
         currentQuestionIndex,
         previousAnswers,
+        jobContext // Ajout du contexte d'audition pour personnaliser les questions
       }),
     });
 
@@ -575,6 +587,17 @@ export default function CyberInterviewTest() {
     setIsSubmitting(true);
 
     try {
+      // Récupération du contexte d'audition stocké dans la session
+      let jobContext: JobContext | null = null;
+      try {
+        const storedContext = sessionStorage.getItem('interviewJobContext');
+        if (storedContext) {
+          jobContext = JSON.parse(storedContext);
+        }
+      } catch (e) {
+        console.error('Erreur lors de la récupération du contexte d\'audition:', e);
+      }
+
       // Instructions d'évaluation objective pour l'IA avec exigence d'exemples concrets pour chaque observation
       const objectiveInstructions = {
         evaluationGuidelines: {
@@ -592,8 +615,10 @@ export default function CyberInterviewTest() {
           analytical: "Présenter une analyse critique et non une simple description des réponses",
           citations: "Format requis pour les citations : 'Par exemple, quand vous dites \"[citation exacte]\"...'",
           negativeBias: "Mettre l'accent sur les faiblesses pour garantir une évaluation rigoureuse",
-          clarity: "Éviter les généralités et les formulations vagues qui pourraient s'appliquer à n'importe quel candidat"
+          clarity: "Éviter les généralités et les formulations vagues qui pourraient s'appliquer à n'importe quel candidat",
+          contextAlignment: jobContext ? "Évaluer les réponses en fonction de l'adéquation avec le contexte d'audition sélectionné" : undefined
         },
+        jobContext: jobContext, // Transmission du contexte d'audition pour l'évaluation
         strengthsFormat: [
           "Chaque force doit être présentée sous la forme: '[Force spécifique] : Exemple tiré de vos réponses : \"[citation exacte]\"'",
           "Maximum 5 forces, uniquement celles explicitement démontrées dans les réponses",
@@ -627,6 +652,7 @@ export default function CyberInterviewTest() {
           type: q.type,
           question: q.question
         })),
+        jobContext: jobContext, // Inclure le contexte d'audition dans les données envoyées
         answers: Object.keys(finalAnswers).map(qId => ({
           questionId: qId,
           answer: finalAnswers[qId]
