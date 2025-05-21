@@ -1019,24 +1019,83 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
 
       let emailHtml = '';
       if (trainerEmail) {
-        // Formatage du contenu de l'email
+        // Traitement du contenu de l'évaluation pour le rendre plus lisible
+        let formattedEvaluation = evaluationResponse;
+        
+        // Transformer le Markdown en HTML propre
+        formattedEvaluation = formattedEvaluation
+          // Titres
+          .replace(/##\s+(.*?)[\n\r]/g, '<h3 style="color: #006a9e; margin-top: 25px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #eaeaea;">$1</h3>')
+          .replace(/###\s+(.*?)[\n\r]/g, '<h4 style="color: #333; margin-top: 20px; margin-bottom: 8px;">$1</h4>')
+          
+          // Listes à puces
+          .replace(/^\s*[-*+]\s+(.*?)[\n\r]/gm, '<li style="margin-bottom: 8px;">$1</li>')
+          .replace(/(<li.*?<\/li>)\s*(<li)/g, '$1\n<ul style="margin-top: 8px; margin-bottom: 15px;">$2')
+          .replace(/(<\/li>)\s*(?!<li|<\/ul)/g, '$1</ul>\n')
+          
+          // Formatage basique
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(/`(.*?)`/g, '<code style="background-color: #f0f0f0; padding: 2px 4px; border-radius: 3px; font-family: monospace;">$1</code>')
+          
+          // Paragraphes
+          .replace(/\n\n/g, '</p><p style="margin-top: 12px; margin-bottom: 12px; line-height: 1.5;">')
+          
+          // Sauts de ligne
+          .replace(/\n/g, '<br>');
+        
+        // Entourer le contenu d'un paragraphe si ce n'est pas déjà fait
+        if (!formattedEvaluation.startsWith('<h3') && !formattedEvaluation.startsWith('<p')) {
+          formattedEvaluation = '<p style="margin-top: 12px; margin-bottom: 12px; line-height: 1.5;">' + formattedEvaluation;
+        }
+        if (!formattedEvaluation.endsWith('</p>')) {
+          formattedEvaluation += '</p>';
+        }
+          
+        // Formatage du contenu de l'email avec un design professionnel
         emailHtml = `
-          <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
-              <h2 style="color: #333; margin-top: 0;">Évaluation d'audition client</h2>
-              <p><strong>Consultant évalué:</strong> ${candidateName || 'Non spécifié'}</p>
-              <p><strong>Type de profil:</strong> ${profileType}</p>
-              <p><strong>Niveau d'expérience:</strong> ${experienceLevel}</p>
-              ${domain === 'amoa' && auditContext ? `<p><strong>Contexte d'audit:</strong> ${auditContext.contextType === 'predefined' ? auditContext.contextData.title : 'Personnalisé'}</p>` : ''}
-              <p><strong>Durée de la simulation:</strong> ${duration ? Math.floor(duration / 60) + ' min ' + (duration % 60) + ' sec' : 'Non disponible'}</p>
-              <p><strong>Date de l'évaluation:</strong> ${new Date().toLocaleDateString('fr-FR')}</p>
+          <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; color: #333;">
+            <div style="background-color: #006a9e; padding: 20px; border-radius: 5px; margin-bottom: 20px; color: white;">
+              <h2 style="margin-top: 0; margin-bottom: 15px; font-size: 24px;">Évaluation d'audition client</h2>
+              <p style="margin: 0; opacity: 0.9;">${new Date().toLocaleDateString('fr-FR')} | FYNE - Plateforme d'évaluation</p>
             </div>
             
-            <div style="background-color: white; padding: 20px; border-radius: 5px; border: 1px solid #ddd;">
-              <h3 style="color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;">Synthèse d'évaluation</h3>
-              <div style="white-space: pre-wrap; font-family: 'Courier New', monospace; background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
-                ${evaluationResponse.replace(/\n/g, '<br>')}
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #e9ecef;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 10px; width: 40%; vertical-align: top;"><strong>Consultant évalué:</strong></td>
+                  <td style="padding: 8px 10px; vertical-align: top;">${candidateName || 'Non spécifié'}</td>
+                </tr>
+                <tr style="background-color: #ffffff;">
+                  <td style="padding: 8px 10px; vertical-align: top;"><strong>Type de profil:</strong></td>
+                  <td style="padding: 8px 10px; vertical-align: top;">${profileType}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 10px; vertical-align: top;"><strong>Niveau d'expérience:</strong></td>
+                  <td style="padding: 8px 10px; vertical-align: top;">${experienceLevel}</td>
+                </tr>
+                ${domain === 'amoa' && auditContext ? `
+                <tr style="background-color: #ffffff;">
+                  <td style="padding: 8px 10px; vertical-align: top;"><strong>Contexte d'audit:</strong></td>
+                  <td style="padding: 8px 10px; vertical-align: top;">${auditContext.contextType === 'predefined' ? auditContext.contextData.title : 'Personnalisé'}</td>
+                </tr>` : ''}
+                <tr ${domain === 'amoa' && auditContext ? `style="background-color: #ffffff;"` : ''}>
+                  <td style="padding: 8px 10px; vertical-align: top;"><strong>Durée de la simulation:</strong></td>
+                  <td style="padding: 8px 10px; vertical-align: top;">${duration ? Math.floor(duration / 60) + ' min ' + (duration % 60) + ' sec' : 'Non disponible'}</td>
+                </tr>
+              </table>
+            </div>
+            
+            <div style="background-color: white; padding: 20px; border-radius: 5px; border: 1px solid #ddd; margin-bottom: 20px;">
+              <h3 style="color: #006a9e; margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid #eee; font-size: 18px;">Synthèse d'évaluation</h3>
+              <div style="font-family: Arial, sans-serif; color: #333; padding: 10px 0;">
+                ${formattedEvaluation}
               </div>
+            </div>
+            
+            <div style="padding: 15px; background-color: #f8f9fa; border-radius: 5px; font-size: 14px; color: #666; text-align: center; border-top: 3px solid #006a9e;">
+              <p style="margin: 0;">Ce rapport a été généré automatiquement par la plateforme FYNE.</p>
+              <p style="margin: 5px 0 0 0;">Pour toute question, contactez <a href="mailto:support@fyne.fr" style="color: #006a9e; text-decoration: none;">support@fyne.fr</a></p>
             </div>
           </div>
         `;
@@ -2011,6 +2070,14 @@ function generateAmoaStepPrompt(step: number, profileType: string, experienceLev
     ? `\nORGANISATION: ${organizationName}\n` 
     : '';
   
+  // Définir un nom de contexte pour éviter "secteur undefined"
+  let contextName = "notre contexte d'entreprise";
+  if (auditContext && auditContext.contextType === 'predefined' && auditContext.contextData.title) {
+    contextName = auditContext.contextData.title;
+  } else if (organizationName) {
+    contextName = organizationName;
+  }
+
   return `Tu es un CLIENT EXPERT dans ton domaine. Tu évalues un ${profileTitle} lors d'une audition - ÉTAPE ${step}.
 
 CONSIGNE PRINCIPALE: Tu dois avoir une vraie intelligence dans tes réponses, réagir de façon spécifique à ce que dit le consultant, et rebondir naturellement dans la conversation en restant dans le contexte.
@@ -2026,22 +2093,23 @@ OBJECTIFS D'ÉVALUATION:
 ${phaseObjective}
 
 RÉACTION INTELLIGENTE - Analyse critique de la réponse précédente:
-- Si la réponse est TROP GÉNÉRIQUE: Demande des exemples concrets ("Pouvez-vous me donner un exemple précis de...")
-- Si la réponse est INCOMPLÈTE: Demande un approfondissement sur l'aspect manquant
-- Si la réponse est PERTINENTE: Creuse davantage ou pose un nouveau défi
-- Si la réponse est HORS-SUJET: Recentre poliment ("Je comprends, mais ce qui m'intéresse plus spécifiquement...")
+- Si la réponse est PERTINENTE ET DÉTAILLÉE: Valorise la réponse en commençant par un commentaire positif ("C'est une approche intéressante...", "Je vois que vous avez bien cerné...")
+- Si la réponse est CORRECTE MAIS GÉNÉRIQUE: Demande poliment des exemples concrets ("Pourriez-vous préciser avec un exemple...")
+- Si la réponse est PARTIELLEMENT INCOMPLÈTE: Orientez vers le point manquant sans sembler trop critique
+- Si la réponse est RÉELLEMENT INSUFFISANTE: Seulement dans ce cas, mentionner que la réponse manque de précision
+- Si tu notes une RÉELLE CONTRADICTION: Souligne-la factuellement, pas pour des nuances mineures
 
 FORMAT DE TA RÉPONSE:
-1. Réaction brève et spécifique à la réponse du consultant (1-2 phrases)
-2. Question principale ou mise en situation concrète liée au contexte de l'audit et à la problématique: ${scenario}
-3. Maximum 2 paragraphes au total, ton direct
+1. Réaction équilibrée et professionnelle à la réponse du consultant (1-2 phrases)
+2. Question principale ou mise en situation concrète liée à "${contextName}" et à notre problématique
+3. Maximum 2 paragraphes au total, ton direct mais constructif
 
-RÈGLES STRICTES - NE JAMAIS:
-- Commencer par "Merci pour votre réponse" ou "Je comprends"
-- Proposer des solutions (c'est le rôle du consultant)
-- Utiliser un ton académique ou théorique (reste un client réel)
-- Dépasser 2 paragraphes ou 150 mots
-- Jouer le rôle du consultant ou oublier que TU ES LE CLIENT
+RÈGLES IMPORTANTES:
+- Ne fais JAMAIS référence au "secteur undefined" ou à des éléments techniques non définis
+- Équilibre les critiques et les encouragements selon la qualité des réponses
+- Reste un client réel avec des préoccupations métier authentiques
+- Limite-toi à 2 paragraphes ou 150 mots maximum
+- Tu es LE CLIENT, pas un évaluateur ou formateur
 
 Pour cette étape, pose une question sur: ${challenge}`;
 }
