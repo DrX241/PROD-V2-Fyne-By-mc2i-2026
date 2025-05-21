@@ -301,10 +301,10 @@ ${customInstructions}` : ''}
                   variant="outline"
                   size="sm"
                   className="text-blue-400 hover:text-blue-300 hover:bg-blue-950 border-blue-800"
-                  onClick={() => setLocation('/cyber')}
+                  onClick={() => setLocation('/cyber/roleplay')}
                 >
                   <ChevronLeft className="mr-2 h-4 w-4" />
-                  Retour à I AM CYBER
+                  Retour aux Jeux de rôle
                 </Button>
               </div>
             </CardHeader>
@@ -552,9 +552,9 @@ ${customInstructions}` : ''}
                             <div className="flex flex-col sm:flex-row gap-2">
                               <Button 
                                 className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
-                                onClick={() => setLocation('/cyber')}
+                                onClick={() => setLocation('/cyber/roleplay')}
                               >
-                                Retourner à I AM CYBER
+                                Retourner aux Jeux de rôle
                               </Button>
                             </div>
                           </div>
