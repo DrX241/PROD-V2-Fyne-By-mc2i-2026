@@ -641,7 +641,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
           candidateName,
           profileType,
           experienceLevel,
-          auditContext: auditContextData, // Ajout du contexte d'audit
+          auditContext: auditContextData, // Utilisation de l'état du contexte d'audit
           messages: messages.map(m => ({ role: m.role, content: m.content })),
           duration: 600 - timeRemaining,
         })
