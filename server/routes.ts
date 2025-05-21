@@ -4892,6 +4892,138 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   
   // Routes du joueur
   // Routes CyberQuest supprimées
+  
+  // Endpoint pour générer des questions pour le jeu Read Me If You Can
+  app.post('/api/data-ia/generate-code-challenge', async (req, res) => {
+    try {
+      const { language, difficulty, mode } = req.body;
+      
+      if (!language || !difficulty || !mode) {
+        return res.status(400).json({ error: "Les paramètres language, difficulty et mode sont requis" });
+      }
+
+      // Vérifier si OpenAI est configuré
+      if (!openAIService) {
+        return res.status(500).json({ 
+          error: "Le service OpenAI n'est pas disponible actuellement." 
+        });
+      }
+
+      // Créer un prompt adapté au langage, à la difficulté et au mode de jeu
+      let systemPrompt = `Tu es un expert en programmation chargé de créer des défis de code pour un jeu éducatif appelé "Read Me If You Can".
+      
+      TÂCHE: Générer un défi de code complet en ${language === 'python' ? 'Python' : 'SQL'} avec une difficulté "${difficulty}" et pour le mode de jeu "${mode}".
+
+      NIVEAU DE DIFFICULTÉ:
+      - débutant: Concepts de base, syntaxe simple, peu d'opérations.
+      - intermédiaire: Utilisation de structures plus complexes, algorithmes simples.
+      - avancé: Concepts avancés, optimisation, cas d'utilisation réels complexes.
+
+      MODE DE JEU:
+      - normal: Questions classiques de compréhension du code "que fait ce code?"
+      - analyse: Questions qui demandent d'expliquer le fonctionnement détaillé
+      - défense: Code contenant des bugs ou failles à identifier
+      - vitesse: Questions rapides avec une réponse évidente pour un expert
+
+      SPÉCIFICITÉS PAR LANGAGE:
+      - Python: ${language === 'python' ? `
+        * Débutant: variables, boucles simples, conditions, listes
+        * Intermédiaire: fonctions, dictionnaires, exceptions, traitement de fichiers
+        * Avancé: classes, décorateurs, générateurs, optimisation, frameworks
+      ` : ''}
+      - SQL: ${language === 'sql' ? `
+        * Débutant: SELECT simples, filtrages basiques, jointures simples
+        * Intermédiaire: GROUP BY, agrégations, sous-requêtes
+        * Avancé: CTE, window functions, optimisation de requêtes
+      ` : ''}
+
+      FORMAT DE SORTIE (JSON):
+      {
+        "code": "Le code du défi (avec sauts de ligne)",
+        "question": "La question posée à l'utilisateur",
+        "responses": [
+          {"id": "a", "text": "Première réponse", "isCorrect": true},
+          {"id": "b", "text": "Deuxième réponse", "isCorrect": false},
+          {"id": "c", "text": "Troisième réponse", "isCorrect": false},
+          {"id": "d", "text": "Quatrième réponse", "isCorrect": false}
+        ],
+        "explanation": "Explication détaillée de la réponse correcte",
+        "hint": "Un indice pour aider l'utilisateur (optionnel)"
+      }
+
+      IMPORTANT:
+      - La question et les réponses doivent être STRICTEMENT en français
+      - Le défi doit être unique et original (pas de code générique ou déjà utilisé)
+      - Le code doit être réaliste et applicable dans un contexte professionnel
+      - Les options de réponse doivent être plausibles et distinctes
+      - L'explication doit être pédagogique et détaillée
+      - Adapte le challenge au mode de jeu spécifié`;
+
+      // Appeler Azure OpenAI pour générer le défi
+      const response = await openAIService.generateCompletion({
+        systemMessage: systemPrompt,
+        userMessage: `Génère un défi de code en ${language === 'python' ? 'Python' : 'SQL'} adapté au niveau "${difficulty}" et au mode "${mode}".`,
+        temperature: 0.7,
+        model: 'secondary', // Utiliser le modèle secondaire (GPT-4o-mini) pour économiser les tokens
+        maxTokens: 1500
+      });
+
+      if (!response || !response.content) {
+        return res.status(500).json({ 
+          error: "Impossible de générer un défi de code. Veuillez réessayer." 
+        });
+      }
+
+      try {
+        // Extraire le JSON de la réponse
+        const jsonMatch = response.content.match(/```json\s*([\s\S]*?)\s*```/) || 
+                        response.content.match(/{[\s\S]*}/);
+        
+        let parsedResponse;
+        
+        if (jsonMatch) {
+          parsedResponse = JSON.parse(jsonMatch[1] || jsonMatch[0]);
+        } else {
+          // Si le format n'est pas correct, essayer de parser directement
+          parsedResponse = JSON.parse(response.content);
+        }
+        
+        // Valider que la structure est correcte
+        if (!parsedResponse.code || !parsedResponse.question || !parsedResponse.responses || !parsedResponse.explanation) {
+          throw new Error("Structure de réponse invalide");
+        }
+        
+        // S'assurer qu'il y a exactement 4 réponses et une seule correcte
+        if (parsedResponse.responses.length !== 4 || 
+            !parsedResponse.responses.some(r => r.isCorrect) ||
+            parsedResponse.responses.filter(r => r.isCorrect).length !== 1) {
+          throw new Error("Format de réponses invalide");
+        }
+        
+        return res.json({
+          success: true,
+          challenge: {
+            ...parsedResponse,
+            language,
+            difficulty,
+            id: `${language}-${difficulty}-${Date.now()}`
+          }
+        });
+      } catch (parseError) {
+        console.error("Erreur lors du parsing de la réponse:", parseError);
+        console.log("Réponse brute:", response.content);
+        
+        return res.status(500).json({ 
+          error: "Format de réponse invalide. Veuillez réessayer." 
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la génération du défi:", error);
+      return res.status(500).json({ 
+        error: "Une erreur est survenue lors de la génération du défi." 
+      });
+    }
+  });
 
   return createServer(app);
 }
