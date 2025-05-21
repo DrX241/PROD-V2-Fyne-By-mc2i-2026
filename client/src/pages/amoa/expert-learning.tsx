@@ -499,7 +499,7 @@ function ExpertLearningPageContent() {
               
                     {/* Zone de saisie de message - masquée en mode décision */}
                     {!isDecisionMode && (
-                      <div className="bg-blue-900 p-4 rounded-b-md border-x border-b border-blue-400/30 shadow-[0_0_15px_rgba(139,178,250,0.1)]">
+                      <div className="bg-blue-900 p-4 rounded-b-md border-x border-b border-blue-400/30 shadow-[0_0_15px_rgba(139,178,250,0.1)] sticky bottom-0 z-10">
                         {/* Options d'interaction */}
                         <div className="flex justify-between items-center mb-3">
                           <div className="flex space-x-2">
