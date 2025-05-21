@@ -5,7 +5,7 @@ import numpy as np
 data = {
     'Nom': ['Eddy', 'Neil', 'Yousra', 'Fares', 'Guillaume', 'Nosing', 'Arnaud', 'Olivier'],
     'Role': ['Consultant data', 'Data scientist senior', 'Cheffe de projet', 'Consultant BI', 
-             'Directeur IMPULSE', 'Directeur IMPULSE', 'Président', 'Directeur Général'],
+             'Directeur IMPULSE', 'Directeur DIXIT', 'Président', 'Directeur Général'],
     'Experience': [3, 8, 5, 4, 15, 12, 20, 18],
     'Projets': [5, 12, 8, 6, 25, 20, 30, 28]
 }
