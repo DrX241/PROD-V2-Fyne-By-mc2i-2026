@@ -601,7 +601,7 @@ export default function ProspectPulse() {
     const newTimeoutCount = timeoutCounter + 1;
     setTimeoutCounter(newTimeoutCount);
     
-    // Limiter les notifications après la première relance
+    // Limiter les notifications et augmenter progressivement les délais
     if (newTimeoutCount <= 2) {
       // Déplacer l'appel toast dans un setTimeout pour éviter les erreurs pendant le rendu
       setTimeout(() => {
@@ -613,10 +613,16 @@ export default function ProspectPulse() {
       }, 0);
     }
     
+    // Calculer un délai progressif entre les relances
+    const delayMultiplier = Math.min(newTimeoutCount, 5); // Maximum 5x le délai initial
+    const newResponseTime = settings.responseTimeLimit * delayMultiplier;
+    
     // Si c'est la 3ème relance ou plus, on limite fortement la génération de messages
     if (newTimeoutCount > 3) {
-      // Mettre fin à la session après trop de relances
-      if (Math.random() < 0.9) {
+      // Probabilité croissante de mettre fin à la session avec plus de timeouts
+      const endProbability = Math.min(0.4 + (newTimeoutCount - 3) * 0.15, 0.9);
+      
+      if (Math.random() < endProbability) {
         setTimeout(() => {
           const endMessage: Message = {
             id: `msg-${Date.now()}`,
@@ -630,10 +636,11 @@ export default function ProspectPulse() {
           // Terminer la session avec évaluation
           setTimeout(() => completeSession(true), 2000);
         }, 2000);
+        return; // Sortir immédiatement, pas de nouveau message ou timer
       }
       
-      // Réinitialiser le timer avec un délai plus long
-      setResponseTimeLeft(settings.responseTimeLimit * 2);
+      // Réinitialiser le timer avec un délai beaucoup plus long
+      setResponseTimeLeft(newResponseTime);
       return; // Ne pas générer de message d'impatience supplémentaire
     }
     
@@ -859,7 +866,7 @@ export default function ProspectPulse() {
     
     return (
       <Dialog open={!!sessionResults} onOpenChange={(open) => !open && setSessionResults(null)}>
-        <DialogContent className="bg-gradient-to-b from-blue-900 to-blue-950 border-blue-700 max-w-2xl">
+        <DialogContent className="bg-gradient-to-b from-blue-900 to-blue-950 border-blue-700 max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white flex items-center gap-2">
               <BarChart className="h-5 w-5 text-blue-400" />
