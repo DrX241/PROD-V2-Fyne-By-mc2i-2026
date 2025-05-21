@@ -1079,15 +1079,71 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
       } catch (parseError) {
         console.log('Réponse d\'évaluation n\'est pas au format JSON, création d\'une structure manuelle');
         
+        // Fonction pour extraire des segments basés sur des mots-clés
+        const extractText = (text: string, ...keywords: string[]): string => {
+          for (const keyword of keywords) {
+            const pattern = new RegExp(`(?:${keyword}[^:]*:[^\\n]*\\n|${keyword}[^\\n]*\\n)([\\s\\S]*?)(?=\\n\\n|\\n#|$)`, 'i');
+            const match = pattern.exec(text);
+            if (match && match[1]) {
+              return match[1].trim();
+            }
+          }
+          return '';
+        };
+        
+        // Fonction pour extraire des éléments de liste
+        const extractList = (text: string, ...keywords: string[]): string[] => {
+          // Trouver une section avec le mot-clé
+          let section = '';
+          for (const keyword of keywords) {
+            const pattern = new RegExp(`(?:${keyword}[^:]*:|#+ ${keyword}[^\\n]*\\n)([\\s\\S]*?)(?=\\n\\n|\\n#|$)`, 'i');
+            const match = pattern.exec(text);
+            if (match && match[1]) {
+              section = match[1].trim();
+              break;
+            }
+          }
+          
+          if (!section) return [];
+          
+          // Extraire les éléments de liste à puces
+          const listItems: string[] = [];
+          const lines = section.split('\n');
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('-') || trimmed.startsWith('*')) {
+              listItems.push(trimmed.substring(1).trim());
+            }
+          }
+          
+          return listItems.length > 0 ? listItems : [section];
+        };
+        
+        // Extraire un résumé
+        let summary = extractText(evaluationResponse, 'résumé', 'synthèse', 'aperçu');
+        if (!summary) {
+          // Si pas de résumé évident, prendre le premier paragraphe substantiel
+          const paragraphs = evaluationResponse.split('\n\n');
+          for (const p of paragraphs) {
+            if (p.length > 30 && !p.startsWith('#')) {
+              summary = p;
+              break;
+            }
+          }
+          if (!summary && paragraphs.length > 0) {
+            summary = paragraphs[0];
+          }
+        }
+        
         // Créer une structure d'évaluation à partir du texte
         structuredEvaluation = {
-          summary: extractSummary(evaluationResponse),
-          strengths: extractListItems(evaluationResponse, 'forces', 'points forts'),
-          improvements: extractListItems(evaluationResponse, 'amélioration', 'faiblesses', 'points d\'amélioration'),
+          summary: summary || "Aucun résumé disponible",
+          strengths: extractList(evaluationResponse, 'forces', 'points forts', 'atouts'),
+          improvements: extractList(evaluationResponse, 'amélioration', 'faiblesses', 'points faibles'),
           detailedNotes: evaluationResponse,
-          recommendations: extractListItems(evaluationResponse, 'recommandation'),
-          sectorFitEvaluation: extractSection(evaluationResponse, 'adéquation', 'contexte'),
-          conclusion: extractSection(evaluationResponse, 'conclusion')
+          recommendations: extractList(evaluationResponse, 'recommandation', 'conseil'),
+          sectorFitEvaluation: extractText(evaluationResponse, 'adéquation', 'contexte', 'secteur'),
+          conclusion: extractText(evaluationResponse, 'conclusion')
         };
       }
 
