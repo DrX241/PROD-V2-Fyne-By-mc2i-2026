@@ -845,7 +845,6 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
       candidateName,
       profileType,
       experienceLevel,
-      sectorFocus,
       messages,
       duration,
       auditContext
@@ -879,7 +878,7 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
     if (domain === 'cyber') {
       systemPrompt = generateCyberEvaluationPrompt(candidateName || 'consultant', profileType, experienceLevel);
     } else {
-      systemPrompt = generateAmoaEvaluationPrompt(candidateName || 'consultant', profileType, experienceLevel, sectorFocus || '', auditContext);
+      systemPrompt = generateAmoaEvaluationPrompt(candidateName || 'consultant', profileType, experienceLevel, auditContext);
     }
 
     // Construction de l'historique de conversation pour l'évaluation
@@ -1101,8 +1100,21 @@ function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, 
     ]
   };
   
-  // Sélection des entreprises correspondant au secteur choisi (ou par défaut)
-  const sectorsToChooseFrom = sectorCompanies[sectorFocus as keyof typeof sectorCompanies] || 
+  // Sélection des entreprises correspondant au contexte d'audit
+  let sectorKey = "Public/Parapublic"; // Secteur par défaut
+  
+  if (auditContext && auditContext.contextType === 'predefined') {
+    // Détermine le secteur d'activité en fonction du titre du contexte prédéfini
+    if (auditContext.contextData.title.includes("Retail")) sectorKey = "Commerce/Distribution";
+    else if (auditContext.contextData.title.includes("Banking")) sectorKey = "Banque/Finance";
+    else if (auditContext.contextData.title.includes("Health")) sectorKey = "Santé/Pharma";
+    else if (auditContext.contextData.title.includes("Energy")) sectorKey = "Énergie/Utilities";
+  } else if (auditContext && auditContext.contextType === 'custom' && auditContext.contextData.sector) {
+    // Si un secteur est spécifié dans le contexte personnalisé
+    sectorKey = auditContext.contextData.sector;
+  }
+  
+  const sectorsToChooseFrom = sectorCompanies[sectorKey as keyof typeof sectorCompanies] || 
                              sectorCompanies["Public/Parapublic"]; // Secteur par défaut si non trouvé
   
   // Sélection aléatoire d'une entreprise dans ce secteur
@@ -1890,8 +1902,7 @@ Tu dois évaluer une audition client professionnelle qui vient de se terminer:
 - Nom du consultant: ${candidateName}
 - Type de profil visé: ${profileType}
 - Niveau d'expérience déclaré: ${experienceLevel}
-- Secteur d'activité: ${sectorFocus}
-${contextTitle ? `- Contexte spécifique: ${contextTitle}` : ''}
+- Contexte d'audit: ${contextTitle || (auditContext && auditContext.contextType === 'predefined' ? auditContext.contextData.title : 'personnalisé')}
 ${organization ? `- Organisation cliente: ${organization}` : ''}
 ${projectContext ? `- Projet: ${projectContext}` : ''}
 ${contextDescription ? `- Description du contexte: ${contextDescription}` : ''}
@@ -1905,7 +1916,7 @@ IMPORTANT - TON ÉVALUATION DOIT ÊTRE STRUCTURÉE EXACTEMENT AVEC LES SECTIONS 
 [Évaluer si le consultant a bien compris et reformulé le besoin client présenté de façon personnalisée, ou s'il s'est contenté de répéter textuellement les informations données. Donner des exemples concrets.]
 
 ## 3. Expertise méthodologique et connaissance sectorielle
-[Évaluer la pertinence des approches méthodologiques proposées pour le besoin exprimé et la connaissance du secteur ${sectorFocus}. Analyser si les méthodes sont adaptées au contexte sectoriel.]
+[Évaluer la pertinence des approches méthodologiques proposées pour le besoin exprimé et la connaissance du contexte d'audit. Analyser si les méthodes sont adaptées au contexte client spécifique.]
 
 ## 4. Forces identifiées
 - [Point fort 1 - Spécifique et illustré par un exemple]
@@ -1918,7 +1929,7 @@ IMPORTANT - TON ÉVALUATION DOIT ÊTRE STRUCTURÉE EXACTEMENT AVEC LES SECTIONS 
 - [Axe d'amélioration 3 - Concret avec suggestion]
 
 ## 6. Adéquation au niveau déclaré
-[Évaluer de façon détaillée si le niveau réel démontré correspond au niveau ${experienceLevel}. Justifier pourquoi il correspond ou non en comparant avec les standards attendus pour ce niveau d'expérience en AMOA dans le secteur ${sectorFocus}.]
+[Évaluer de façon détaillée si le niveau réel démontré correspond au niveau ${experienceLevel}. Justifier pourquoi il correspond ou non en comparant avec les standards attendus pour ce niveau d'expérience en AMOA dans le contexte d'audit présenté.]
 
 ## 7. Évaluation globale
 [Donner une note sur 5 et une évaluation synthétique de la prestation avec une recommandation finale (À recruter / À considérer / À renforcer).]
