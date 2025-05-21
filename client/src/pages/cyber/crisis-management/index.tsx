@@ -365,22 +365,22 @@ export default function CrisisManagementPage() {
   const initialWarRoomMessages: Message[] = [
     {
       id: uuidv4(),
-      senderId: "it-ops",
-      content: "Je viens de découvrir plusieurs serveurs affichant un message de rançon. Les fichiers semblent chiffrés. C'est une crise majeure !",
+      senderId: "dga-impulse",
+      content: "Alerte CRITIQUE : Notre infrastructure IT vient d'être touchée par une cyberattaque. Plusieurs serveurs affichent un message de rançon et les systèmes critiques sont inaccessibles.",
       timestamp: new Date(new Date().getTime() - 3600000), // 1 heure plus tôt
       reactionType: "negative"
     },
     {
       id: uuidv4(),
-      senderId: "security-analyst",
-      content: "Analyse préliminaire : il s'agit du ransomware BlackCrypt. Propagation via SMB, techniques d'escalade de privilèges avancées. Premier scan montre une compromission étendue.",
+      senderId: "ciso",
+      content: "Analyse préliminaire : il s'agit du ransomware BlackCrypt. Propagation via SMB, techniques d'escalade de privilèges avancées. Premier scan montre une compromission étendue de nos systèmes critiques.",
       timestamp: new Date(new Date().getTime() - 3000000), // 50 minutes plus tôt
       reactionType: "negative"
     },
     {
       id: uuidv4(),
-      senderId: "cio",
-      content: "Situation critique. Nous devons activer le PCA immédiatement. @RSSI, prenez la direction technique de cette crise.",
+      senderId: "dg",
+      content: "Situation extrêmement critique. Nous devons activer immédiatement le Plan de Continuité d'Activité. Tous les dirigeants doivent se mobiliser. @RSSI, coordonnez la réponse technique à cet incident.",
       timestamp: new Date(new Date().getTime() - 2400000), // 40 minutes plus tôt
       reactionType: "neutral"
     }
@@ -394,45 +394,89 @@ export default function CrisisManagementPage() {
       let initialMessages: Message[] = [];
       
       switch(stakeholder.id) {
-        case "cio":
+        case "president":
           initialMessages = [
             {
               id: uuidv4(),
-              senderId: "cio",
-              content: "C'est une situation grave. Nous devons coordonner une réponse efficace. Quelles sont vos premières directives en tant que RSSI ?",
+              senderId: "president",
+              content: "Cette attaque est inacceptable et menace directement notre réputation. Je veux une évaluation complète de la situation et des perspectives de résolution. Quelles sont vos directives immédiates ?",
               timestamp: new Date(new Date().getTime() - 2000000),
-              reactionType: "neutral"
+              reactionType: "negative"
             }
           ];
           break;
-        case "security-analyst":
+        case "dg":
           initialMessages = [
             {
               id: uuidv4(),
-              senderId: "security-analyst",
-              content: "J'ai des indicateurs de compromission qui montrent que l'attaque a probablement commencé il y a 48h. Les logs indiquent une connexion RDP suspecte suivie d'une élévation de privilèges.",
+              senderId: "dg",
+              content: "Nous devons gérer cette crise de manière stratégique. J'ai besoin de savoir les implications business précises et le délai de retour à la normale. Devons-nous envisager le paiement de la rançon ?",
+              timestamp: new Date(new Date().getTime() - 1950000),
+              reactionType: "negative"
+            }
+          ];
+          break;
+        case "dga-impulse":
+          initialMessages = [
+            {
+              id: uuidv4(),
+              senderId: "dga-impulse",
+              content: "Notre infrastructure IT est gravement compromise ! Tous nos systèmes critiques sont touchés. La situation est alarmante, nous avons besoin d'un plan d'action immédiat. Que devons-nous faire en priorité ?",
               timestamp: new Date(new Date().getTime() - 1800000),
               reactionType: "negative"
             }
           ];
           break;
-        case "it-ops":
+        case "dga-energie":
           initialMessages = [
             {
               id: uuidv4(),
-              senderId: "it-ops",
-              content: "Les utilisateurs ne peuvent plus accéder à leurs données ! Les téléphones n'arrêtent pas de sonner au support. Dois-je isoler tous les systèmes ou seulement ceux visiblement touchés ?",
+              senderId: "dga-energie",
+              content: "J'ai analysé les premiers éléments techniques de l'attaque, nous sommes face à un incident critique. Doit-on isoler complètement les réseaux ou privilégier une approche plus ciblée ?",
               timestamp: new Date(new Date().getTime() - 1700000),
-              reactionType: "negative"
+              reactionType: "neutral"
             }
           ];
           break;
-        case "ceo":
+        case "dga-bfa":
           initialMessages = [
             {
               id: uuidv4(),
-              senderId: "ceo",
-              content: "J'ai besoin d'un point de situation immédiat et d'une estimation de l'impact sur l'activité. Devons-nous payer la rançon pour reprendre rapidement ?",
+              senderId: "dga-bfa",
+              content: "Je m'inquiète particulièrement des implications financières de cette attaque. Pouvez-vous évaluer l'impact sur nos activités critiques et leurs conséquences économiques ?",
+              timestamp: new Date(new Date().getTime() - 1600000),
+              reactionType: "neutral"
+            }
+          ];
+          break;
+        case "dga-dev":
+          initialMessages = [
+            {
+              id: uuidv4(),
+              senderId: "dga-dev",
+              content: "Cette situation pourrait impacter gravement notre image auprès des clients. Comment prévoyez-vous de gérer la communication externe ? Devons-nous informer tous nos clients ?",
+              timestamp: new Date(new Date().getTime() - 1550000),
+              reactionType: "neutral"
+            }
+          ];
+          break;
+        case "legal-counsel":
+          initialMessages = [
+            {
+              id: uuidv4(),
+              senderId: "legal-counsel",
+              content: "Nous avons des obligations légales précises en cas de violation de données. Avons-nous des indices de fuite d'informations ? Quand devrons-nous notifier la CNIL selon vous ?",
+              timestamp: new Date(new Date().getTime() - 1700000),
+              reactionType: "neutral"
+            }
+          ];
+          break;
+        case "ciso":
+          initialMessages = [
+            {
+              id: uuidv4(),
+              senderId: "ciso",
+              content: "Nous collaborons étroitement sur cette crise. Mes premières analyses montrent que l'attaque exploite une vulnérabilité récente. Quelles actions de confinement voulez-vous prioriser ?",
               timestamp: new Date(new Date().getTime() - 1500000),
               reactionType: "negative"
             }
@@ -444,7 +488,7 @@ export default function CrisisManagementPage() {
             {
               id: uuidv4(),
               senderId: stakeholder.id,
-              content: `En tant que ${stakeholder.role}, j'ai besoin de directives claires sur cette crise. Quelle est la situation exacte ?`,
+              content: `En tant que ${stakeholder.role}, j'ai besoin de comprendre la situation exacte et les actions que vous préconisez pour gérer cette crise.`,
               timestamp: new Date(new Date().getTime() - Math.random() * 1800000),
               reactionType: "neutral"
             }
@@ -478,14 +522,16 @@ La demande de rançon s'élève à 500 000 € en Bitcoin, avec une menace de pu
 Tu joues le rôle de différentes parties prenantes (stakeholders) qui interagissent avec le joueur qui est le RSSI.
     
 Adapte tes réponses au style de personnalité de chaque stakeholder:
-- Thomas Rivière (CIO): autoritaire, orienté business, préoccupé par l'image de l'entreprise
-- Sophie Chen (Analyste): très technique, factuelle, précise
-- Marc Leroy (Communication): diplomatique, préoccupé par l'image publique
-- Camille Dubois (Juridique): prudente, orientée conformité réglementaire
-- Julien Mercier (IT Ops): anxieux, submergé, technique
-- François Bertrand (PDG): autoritaire, préoccupé par les finances et la réputation
+- Arnaud Gauthier (Président): autoritaire, orienté vision globale, préoccupé par la réputation de l'entreprise
+- Olivier Hervo (Directeur Général): autoritaire, stratégique, soucieux des implications business
+- Lorenzo Bertola (DGA pôle BFA): calme, analytique, attentif aux impacts financiers
+- Anthony Frescal (DGA pôle ENERGIES): technique, méthodique, pragmatique dans ses approches
+- Guillaume Lechevallier (DGA pôle IMPULSE): technique, anxieux face à la crise, orienté solutions informatiques
+- Vincent Pascal (DGA Développement): diplomatique, préoccupé par l'image publique et les relations clients
+- Marc Durand (Directeur Juridique): prudent, orienté conformité réglementaire, soucieux des implications légales
+- Sophie Lambert (Experte Cybersécurité): très technique, factuelle, précise dans ses analyses et recommandations
 
-Tu dois fournir des informations réalistes sur une crise ransomware et créer un sentiment d'urgence. Le ransomware s'appelle BlackCrypt et a chiffré plusieurs systèmes critiques. 
+Tu dois fournir des informations réalistes sur une crise ransomware et créer un sentiment d'urgence. Le ransomware s'appelle BlackCrypt et a chiffré plusieurs systèmes critiques de mc2i. 
 
 N'invente pas de résolution magique et n'accepte pas de raccourcis techniques irréalistes. Les décisions du joueur doivent avoir des conséquences réalistes.`,
     stakeholders: sampleStakeholders,
