@@ -1730,10 +1730,49 @@ function generateAmoaStepPrompt(step: number, profileType: string, experienceLev
   // Base de challenge pour avoir une question pertinente
   const challenge = challenges[step % challenges.length];
   
-  return `Tu es un CLIENT EXPERT du secteur ${sectorFocus}. Tu évalues un consultant AMOA lors d'une audition - ÉTAPE ${step}.
+  // Personnalisation basée sur le contexte d'audition
+  let profileTitle = `consultant AMOA`;
+  let customContext = "";
+  let organizationName = "";
+  let projectDescription = "";
+  
+  if (auditContext) {
+    if (auditContext.contextType === 'predefined' && auditContext.contextData) {
+      if (auditContext.contextData.title) {
+        profileTitle = auditContext.contextData.title;
+      }
+      
+      if (auditContext.contextData.organization) {
+        organizationName = auditContext.contextData.organization;
+      }
+      
+      if (auditContext.contextData.projectContext) {
+        projectDescription = auditContext.contextData.projectContext;
+        // Remplacer le scénario par le contexte du projet si disponible
+        scenario = projectDescription;
+      }
+    } else if (auditContext.contextType === 'custom' && auditContext.contextData) {
+      if (auditContext.contextData.description) {
+        customContext = auditContext.contextData.description;
+      }
+    }
+  }
+  
+  // Section contexte personnalisé, à afficher seulement si présent
+  const customContextSection = customContext 
+    ? `\nCONTEXTE PERSONNALISÉ: ${customContext}\n` 
+    : '';
+  
+  // Section organisation spécifique, à afficher seulement si présente
+  const organizationSection = organizationName 
+    ? `\nORGANISATION: ${organizationName}\n` 
+    : '';
+  
+  return `Tu es un CLIENT EXPERT du secteur ${sectorFocus}. Tu évalues un ${profileTitle} lors d'une audition - ÉTAPE ${step}.
 
 CONSIGNE PRINCIPALE: Tu dois avoir une vraie intelligence dans tes réponses, réagir de façon spécifique à ce que dit le consultant, et rebondir naturellement dans la conversation en restant dans le contexte.
-
+${organizationSection}
+${customContextSection}
 CONTEXTE ACTUEL:
 - Niveau d'expérience attendu du consultant: ${experienceLevel}
 - Complexité: ${complexity}
