@@ -36,7 +36,6 @@ interface AuditContext {
   projectContext: string;
   expectations: string[];
   requirements: string[];
-  sectorFocus: string;
 }
 
 // Liste des contextes d'audition prédéfinis pour AMOA
@@ -105,7 +104,7 @@ const PREDEFINED_AUDIT_CONTEXTS: AuditContext[] = [
       "Expérience en conduite du changement en milieu hospitalier",
       "Capacité à travailler avec des équipes pluridisciplinaires"
     ],
-    sectorFocus: "Santé"
+
   },
   {
     id: "energy-erp",
@@ -127,7 +126,7 @@ const PREDEFINED_AUDIT_CONTEXTS: AuditContext[] = [
       "Compétences en gestion de projet et planification",
       "Capacité à comprendre les enjeux techniques et métier"
     ],
-    sectorFocus: "Énergie"
+
   }
 ];
 
@@ -927,11 +926,8 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
                                   <Select 
                                     onValueChange={(value) => {
                                       field.onChange(value);
-                                      // Mettre à jour le secteur automatiquement en fonction du contexte sélectionné
+                                      // Le contexte d'audit prédéfini a été sélectionné
                                       const selectedContext = PREDEFINED_AUDIT_CONTEXTS.find(ctx => ctx.id === value);
-                                      if (selectedContext) {
-                                        form.setValue('sectorFocus', selectedContext.sectorFocus);
-                                      }
                                     }}
                                     defaultValue={field.value}
                                   >
