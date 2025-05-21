@@ -17,7 +17,7 @@ import prospectPulseRoutes from './routes/prospectPulseRoutes';
 import crisisCenterRoutes from './routes/crisisCenterRoutes';
 import audioRoutes from './routes/audioRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
-import { evaluateInterviewTest, generateAdaptiveQuestion } from './cyberInterviewTestController';
+import { evaluateInterviewTest, generateAdaptiveQuestion, generateInitialQuestion } from './cyberInterviewTestController';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
 import { generateCourseContent, answerQuestion, generateQuiz as generateDataIaQuiz } from './controllers/dataIaAcademyController';
 
@@ -763,6 +763,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Routes pour le test d'entretien cybersécurité
   app.post('/api/cyber/interview-test/evaluate', evaluateInterviewTest);
   app.post('/api/cyber/interview-test/generate-question', generateAdaptiveQuestion);
+  app.post('/api/cyber/interview-test/generate-initial-question', generateInitialQuestion);
   
   // Routes pour le jeu BrainHacker (ingénierie sociale)
   app.post('/api/cyber/arcade/brain-hacker/simulate', simulateTargetResponse);
