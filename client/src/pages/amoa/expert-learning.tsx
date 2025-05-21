@@ -339,9 +339,9 @@ function ExpertLearningPageContent() {
           </div>
         </div>
         
-        <div className="relative z-10 max-w-6xl w-full mx-auto px-4 py-8 sm:px-6 sm:py-12">
-          {/* Bouton de retour - style console AMOA */}
-          <div className="mb-4">
+        <div className="relative z-10 max-w-6xl w-full mx-auto px-4 py-4 sm:px-6 sm:py-6">
+          <div className="flex items-center justify-between mb-2">
+            {/* Bouton de retour - style console AMOA - décalé vers la gauche */}
             <Button 
               variant="outline" 
               onClick={handleReturnToPrevious}
@@ -350,13 +350,19 @@ function ExpertLearningPageContent() {
               <span className="text-blue-200">←</span>
               <span>RETOUR MODULES AMOA</span>
             </Button>
+            
+            {/* Titre de la section */}
+            <h2 className="text-blue-200 text-xl font-bold">Expert Learning AMOA</h2>
+            
+            {/* Espace pour équilibrer le layout */}
+            <div className="w-[150px]"></div>
           </div>
           
-          <div className="flex flex-col items-center justify-center h-full pt-6">
+          <div className="flex flex-col items-center justify-start h-full">
             {false ? ( // Désactivation complète de la page intermédiaire
               <div></div>
             ) : (
-              <div className="flex flex-col w-full max-w-4xl mx-auto">
+              <div className="flex flex-col w-full max-w-5xl mx-auto">
                 {/* Mode décision ou chat standard */}
                 {isDecisionMode && currentScenario ? (
                   <div className="w-full">
@@ -396,13 +402,14 @@ function ExpertLearningPageContent() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col w-full">
-                    {/* Zone de chat avec messages */}
+                  <div className="flex flex-col w-full relative" style={{ height: 'calc(100vh - 150px)' }}>
+                    {/* Zone de chat avec messages - agrandie et avec scrollbar interne */}
                     <div 
                       ref={chatContainerRef}
-                      className="flex-1 overflow-y-auto bg-blue-950/80 border border-blue-400/30 rounded-t-md shadow-[0_0_15px_rgba(139,178,250,0.1)] h-[calc(100vh-180px)] min-h-[700px] w-full"
+                      className="flex-1 overflow-y-auto bg-blue-950/80 border border-blue-400/30 rounded-t-md shadow-[0_0_15px_rgba(139,178,250,0.1)] h-full w-full"
+                      style={{ maxHeight: 'calc(100vh - 250px)' }}
                     >
-                      <div className="p-6 space-y-3">
+                      <div className="p-6 space-y-2">
                         {messages.map((message) => (
                           <div
                             key={message.id}
@@ -485,21 +492,21 @@ function ExpertLearningPageContent() {
                       </div>
                     </div>
               
-                    {/* Bouton de défilement vers le bas */}
+                    {/* Bouton de défilement vers le bas - à l'intérieur de la zone de chat */}
                     {showScrollButton && (
                       <Button
                         variant="outline"
                         size="icon"
-                        className="absolute bottom-32 right-8 rounded-full bg-blue-950 border-blue-400/30 text-blue-400 hover:bg-blue-900 hover:border-blue-400/50 shadow-[0_0_10px_rgba(139,178,250,0.2)]"
+                        className="fixed bottom-[200px] right-8 rounded-full bg-blue-950 border-blue-400/30 text-blue-400 hover:bg-blue-900 hover:border-blue-400/50 shadow-[0_0_10px_rgba(139,178,250,0.2)] z-20"
                         onClick={scrollToBottom}
                       >
                         <ChevronDown className="h-4 w-4" />
                       </Button>
                     )}
               
-                    {/* Zone de saisie de message - masquée en mode décision */}
+                    {/* Zone de saisie de message fixe en bas */}
                     {!isDecisionMode && (
-                      <div className="bg-blue-900 p-4 rounded-b-md border-x border-b border-blue-400/30 shadow-[0_0_15px_rgba(139,178,250,0.1)] sticky bottom-0 z-10">
+                      <div className="bg-blue-900 p-4 rounded-b-md border-x border-b border-blue-400/30 shadow-[0_0_15px_rgba(139,178,250,0.1)] fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-5xl">
                         {/* Options d'interaction */}
                         <div className="flex justify-between items-center mb-3">
                           <div className="flex space-x-2">
