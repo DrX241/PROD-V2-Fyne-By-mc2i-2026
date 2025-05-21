@@ -5,7 +5,7 @@ import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bot, ChevronDown, RefreshCw, Send, X } from "lucide-react";
+import { Bot, ChevronDown, RefreshCw, Send, X, Play, CheckSquare, Sparkles, Download } from "lucide-react";
 import HomeLayout from '@/components/layout/HomeLayout';
 import { DecisionProvider, useDecision } from '@/contexts/DecisionContext';
 
@@ -341,7 +341,7 @@ function ExpertLearningPageContent() {
         
         <div className="relative z-10 max-w-6xl w-full mx-auto px-4 py-8 sm:px-6 sm:py-12">
           {/* Bouton de retour - style console AMOA */}
-          <div className="absolute top-4 left-4 mt-4">
+          <div className="absolute top-4 left-8 mt-6">
             <Button 
               variant="outline" 
               onClick={handleReturnToPrevious}
@@ -400,9 +400,9 @@ function ExpertLearningPageContent() {
                     {/* Zone de chat avec messages */}
                     <div 
                       ref={chatContainerRef}
-                      className="flex-1 overflow-y-auto bg-blue-950/80 border border-blue-400/30 rounded-t-md shadow-[0_0_15px_rgba(139,178,250,0.1)] h-[calc(100vh-220px)] min-h-[600px] w-full"
+                      className="flex-1 overflow-y-auto bg-blue-950/80 border border-blue-400/30 rounded-t-md shadow-[0_0_15px_rgba(139,178,250,0.1)] h-[calc(100vh-180px)] min-h-[700px] w-full"
                     >
-                      <div className="p-4 space-y-4">
+                      <div className="p-6 space-y-3">
                         {messages.map((message) => (
                           <div
                             key={message.id}
@@ -411,9 +411,9 @@ function ExpertLearningPageContent() {
                             }`}
                           >
                             <div
-                              className={`max-w-[85%] p-3 rounded-md ${
+                              className={`max-w-[85%] p-4 rounded-md ${
                                 message.type === "user"
-                                  ? "bg-blue-600/30 text-white ml-auto"
+                                  ? "bg-blue-600/40 text-white ml-auto"
                                   : "bg-blue-900 border border-blue-400/20 text-white"
                               }`}
                             >
@@ -427,7 +427,7 @@ function ExpertLearningPageContent() {
                               ) : (
                                 <p className="text-blue-100">{message.content}</p>
                               )}
-                              <div className="text-xs text-blue-400/60 mt-1 text-right">
+                              <div className="text-xs text-blue-400/60 mt-2 text-right">
                                 {new Date(message.timestamp).toLocaleTimeString([], { 
                                   hour: '2-digit', 
                                   minute: '2-digit' 
@@ -438,11 +438,46 @@ function ExpertLearningPageContent() {
                         ))}
                         {isLoading && (
                           <div className="flex justify-start">
-                            <div className="max-w-[85%] p-3 rounded-md bg-blue-900 border border-blue-400/20 text-white">
+                            <div className="max-w-[85%] p-4 rounded-md bg-blue-900 border border-blue-400/20 text-white">
                               <div className="flex space-x-2">
                                 <div className="w-2 h-2 rounded-full bg-blue-400/30 animate-pulse"></div>
                                 <div className="w-2 h-2 rounded-full bg-blue-400/30 animate-pulse delay-150"></div>
                                 <div className="w-2 h-2 rounded-full bg-blue-400/30 animate-pulse delay-300"></div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Suggestions de questions interactives */}
+                        {messages.length > 0 && messages[messages.length-1].type === "bot" && !isLoading && (
+                          <div className="flex justify-start mt-2">
+                            <div className="max-w-[85%] p-3 rounded-md bg-blue-950 border border-blue-400/10 text-white">
+                              <p className="text-sm text-blue-300 mb-2">Questions suggérées :</p>
+                              <div className="flex flex-wrap gap-2">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={() => setInputMessage("Pouvez-vous m'expliquer le rôle d'un AMOA dans un projet Agile ?")}
+                                  className="text-xs bg-blue-900/40 border-blue-400/20 text-blue-200 hover:bg-blue-800/60"
+                                >
+                                  Rôle AMOA en Agile
+                                </Button>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={() => setInputMessage("Quelles sont les compétences clés pour réussir en tant qu'AMOA ?")}
+                                  className="text-xs bg-blue-900/40 border-blue-400/20 text-blue-200 hover:bg-blue-800/60"
+                                >
+                                  Compétences clés AMOA
+                                </Button>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={() => setInputMessage("Comment rédiger un bon cahier des charges ?")}
+                                  className="text-xs bg-blue-900/40 border-blue-400/20 text-blue-200 hover:bg-blue-800/60"
+                                >
+                                  Cahier des charges
+                                </Button>
                               </div>
                             </div>
                           </div>
@@ -465,6 +500,41 @@ function ExpertLearningPageContent() {
                     {/* Zone de saisie de message - masquée en mode décision */}
                     {!isDecisionMode && (
                       <div className="bg-blue-900 p-4 rounded-b-md border-x border-b border-blue-400/30 shadow-[0_0_15px_rgba(139,178,250,0.1)]">
+                        {/* Options d'interaction */}
+                        <div className="flex justify-between items-center mb-3">
+                          <div className="flex space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-blue-300 hover:text-blue-200 hover:bg-blue-800/60 text-xs flex items-center"
+                              onClick={() => setInputMessage("Mettons-nous en situation : je dois rédiger un cahier des charges pour un projet e-commerce.")}
+                            >
+                              <Play className="h-3.5 w-3.5 mr-1" />
+                              Simulation
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-blue-300 hover:text-blue-200 hover:bg-blue-800/60 text-xs flex items-center"
+                              onClick={() => setInputMessage("Propose-moi un quiz sur les rôles et responsabilités d'un AMOA.")}
+                            >
+                              <CheckSquare className="h-3.5 w-3.5 mr-1" />
+                              Quiz
+                            </Button>
+                          </div>
+                          <div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-blue-300 hover:text-blue-200 hover:bg-blue-800/60 text-xs"
+                              onClick={() => setInputMessage("Quelles sont les dernières tendances en matière d'AMOA ?")}
+                            >
+                              <Sparkles className="h-3.5 w-3.5 mr-1" />
+                              Tendances
+                            </Button>
+                          </div>
+                        </div>
+                        
                         <form onSubmit={handleSubmit} className="flex space-x-2">
                           <div className="flex-1 relative">
                             <textarea
@@ -473,7 +543,7 @@ function ExpertLearningPageContent() {
                               onChange={(e) => setInputMessage(e.target.value)}
                               onKeyDown={handleKeyDown}
                               placeholder="Posez votre question sur l'AMOA..."
-                              className="w-full p-3 bg-blue-950 text-blue-100 border border-blue-400/30 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400/50 resize-none min-h-[60px] max-h-[120px] overflow-y-auto"
+                              className="w-full p-4 bg-blue-950 text-blue-100 border border-blue-400/30 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400/50 resize-none min-h-[70px] max-h-[120px] overflow-y-auto"
                               disabled={isLoading}
                               rows={2}
                             />
@@ -484,7 +554,7 @@ function ExpertLearningPageContent() {
                           <Button 
                             type="submit" 
                             disabled={isLoading || !inputMessage.trim()} 
-                            className="bg-blue-600 hover:bg-blue-500 text-white self-end h-[60px] w-[60px]"
+                            className="bg-blue-600 hover:bg-blue-500 text-white self-end h-[70px] w-[70px]"
                           >
                             {isLoading ? (
                               <RefreshCw className="h-5 w-5 animate-spin" />
@@ -494,8 +564,17 @@ function ExpertLearningPageContent() {
                           </Button>
                         </form>
                         
-                        {/* Bouton de fin de session */}
-                        <div className="mt-3 flex justify-center">
+                        {/* Boutons d'action */}
+                        <div className="mt-3 flex justify-between">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {}}
+                            className="text-xs bg-blue-800/40 border-blue-400/20 text-blue-200 hover:bg-blue-800/60"
+                          >
+                            <Download className="h-3.5 w-3.5 mr-1" />
+                            Télécharger la conversation
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"
