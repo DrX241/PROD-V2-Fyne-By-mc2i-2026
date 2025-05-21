@@ -50,8 +50,10 @@ interface CodeChallenge {
   hint?: string;
 }
 
-// Générateurs de code pour différents niveaux et langages
-const codeGenerators = {
+// Suppression des générateurs de code pré-stockés pour assurer l'unicité des questions
+// Chaque question sera générée uniquement par l'API Azure OpenAI
+const codeGenerators = { 
+  // Structure vide - ne sera plus utilisée
   python: {
     débutant: [
       () => ({
@@ -841,9 +843,17 @@ const ReadMeIfYouCan = () => {
         variant: "destructive",
       });
       
-      // Ne pas utiliser de fallback local pour éviter les questions répétées
-    } finally {
-      setIsLoading(false);
+      // Ne JAMAIS utiliser de fallback local - forcer une nouvelle requête API si nécessaire
+      setTimeout(() => {
+        setIsLoading(false);
+        
+        // Afficher un message demandant à l'utilisateur de réessayer
+        toast({
+          title: "Information",
+          description: "Veuillez réessayer de générer une question",
+          variant: "default",
+        });
+      }, 500);
     }
   };
 
