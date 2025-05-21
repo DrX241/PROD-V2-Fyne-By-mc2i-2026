@@ -733,7 +733,7 @@ export default function CyberInterviewTest() {
             </Link>
             <h1 className="text-3xl font-bold font-[Rajdhani] tracking-wide text-white">TEST D'ENTRETIEN CYBERSÉCURITÉ</h1>
           </div>
-          <Card className="max-w-3xl mx-auto bg-blue-900/30 border-blue-800">
+          <Card className="max-w-5xl mx-auto bg-blue-900/30 border-blue-800">
             <CardHeader>
               <CardTitle className="text-3xl font-bold text-center text-white font-[Rajdhani]">Test d'entretien cybersécurité</CardTitle>
               <CardDescription className="text-center text-blue-100 text-lg mt-2">
