@@ -4959,10 +4959,11 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
       - L'explication doit être pédagogique et détaillée
       - Adapte le challenge au mode de jeu spécifié`;
 
-      // Appeler Azure OpenAI pour générer le défi
+      // Appeler Azure OpenAI pour générer le défi avec un paramètre timestamp pour garantir l'unicité
+      const timestamp = req.body.timestamp || Date.now();
       const messages: ChatCompletionRequestMessage[] = [
         { role: "system", content: systemPrompt },
-        { role: "user", content: `Génère un défi de code en ${language === 'python' ? 'Python' : 'SQL'} adapté au niveau "${difficulty}" et au mode "${mode}".` }
+        { role: "user", content: `Génère un défi de code en ${language === 'python' ? 'Python' : 'SQL'} adapté au niveau "${difficulty}" et au mode "${mode}". ID unique: ${timestamp} - assure-toi que ce défi soit complètement original et différent des précédents.` }
       ];
       
       // Utiliser le modèle secondaire (GPT-4o-mini) pour économiser les tokens

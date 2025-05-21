@@ -805,7 +805,9 @@ const ReadMeIfYouCan = () => {
         body: JSON.stringify({
           language: selectedLanguage,
           difficulty: selectedDifficulty,
-          mode: selectedMode
+          mode: selectedMode,
+          // Ajouter un timestamp pour s'assurer que chaque requête est différente
+          timestamp: Date.now()
         }),
       });
       
@@ -835,30 +837,11 @@ const ReadMeIfYouCan = () => {
       // Afficher l'erreur sur fond rouge
       toast({
         title: "Erreur",
-        description: error instanceof Error 
-          ? error.message 
-          : "Impossible de générer un nouveau challenge. Veuillez réessayer.",
+        description: "Impossible de générer un nouveau challenge. Veuillez réessayer.",
         variant: "destructive",
       });
       
-      // Fallback sur un générateur local en cas d'erreur
-      try {
-        const generators = codeGenerators[selectedLanguage][selectedDifficulty];
-        const randomIndex = Math.floor(Math.random() * generators.length);
-        const generatorFunction = generators[randomIndex];
-        const baseChallenge = generatorFunction();
-        
-        const challengeWithId: CodeChallenge = {
-          ...baseChallenge,
-          id: `${selectedLanguage}-${selectedDifficulty}-${Date.now()}`,
-          language: selectedLanguage,
-          difficulty: selectedDifficulty
-        };
-        
-        setCurrentChallenge(challengeWithId);
-      } catch (fallbackError) {
-        console.error("Erreur aussi avec le générateur de secours:", fallbackError);
-      }
+      // Ne pas utiliser de fallback local pour éviter les questions répétées
     } finally {
       setIsLoading(false);
     }
