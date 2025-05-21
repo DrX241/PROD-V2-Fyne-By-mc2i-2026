@@ -500,11 +500,14 @@ export default function ProspectPulse() {
       setIsFetchingResponse(false);
       setResponseTimeLeft(settings.responseTimeLimit);
       
-      toast({
-        title: "Erreur",
-        description: "Impossible de générer la réponse du client. Veuillez réessayer.",
-        variant: "destructive",
-      });
+      // Déplacer l'appel toast dans un setTimeout pour éviter l'erreur pendant le rendu
+      setTimeout(() => {
+        toast({
+          title: "Erreur",
+          description: "Impossible de générer la réponse du client. Veuillez réessayer.",
+          variant: "destructive",
+        });
+      }, 0);
     }
   };
   
@@ -732,11 +735,14 @@ export default function ProspectPulse() {
       setSessionResults(completedSession);
       setActiveSession(null);
       
-      toast({
-        title: "Erreur lors de l'évaluation",
-        description: "Nous avons rencontré un problème lors de l'évaluation. Une évaluation provisoire a été générée.",
-        variant: "destructive",
-      });
+      // Déplacer l'appel toast dans un setTimeout pour éviter l'erreur pendant le rendu
+      setTimeout(() => {
+        toast({
+          title: "Erreur lors de l'évaluation",
+          description: "Nous avons rencontré un problème lors de l'évaluation. Une évaluation provisoire a été générée.",
+          variant: "destructive",
+        });
+      }, 0);
     } finally {
       setIsLoading(false);
     }
@@ -1109,11 +1115,14 @@ export default function ProspectPulse() {
                               className="ml-2 rounded-full flex items-center justify-center p-1 bg-blue-900/50 hover:bg-blue-800/50 transition-colors border border-blue-700/30"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                toast({
-                                  title: "Fonctionnalité à venir",
-                                  description: "La synthèse vocale sera bientôt disponible",
-                                  variant: "default",
-                                });
+                                // Utiliser setTimeout pour éviter les erreurs React lors du rendu
+                                setTimeout(() => {
+                                  toast({
+                                    title: "Fonctionnalité à venir",
+                                    description: "La synthèse vocale sera bientôt disponible",
+                                    variant: "default",
+                                  });
+                                }, 0);
                               }}
                             >
                               <Volume2 className="h-3 w-3 text-blue-300" />
