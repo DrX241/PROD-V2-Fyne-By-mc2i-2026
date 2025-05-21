@@ -4982,17 +4982,44 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
 
       // Traiter la réponse JSON
       try {
-        // Extraire le JSON de la réponse
-        const jsonMatch = response.content.match(/```json\s*([\s\S]*?)\s*```/) || 
-                      response.content.match(/{[\s\S]*}/);
+        // Extraire le JSON de la réponse et nettoyer les délimiteurs markdown
+        let contentToParse = response.content;
+        
+        // Supprimer les délimiteurs de bloc de code markdown s'ils existent
+        if (contentToParse.includes('```json')) {
+          contentToParse = contentToParse.replace(/```json\s*/, '').replace(/\s*```\s*$/, '');
+        }
+        
+        // Assurer que la chaîne commence par { et se termine par }
+        const jsonRegex = /{[\s\S]*}/;
+        const jsonMatch = contentToParse.match(jsonRegex);
         
         let parsedResponse;
         
-        if (jsonMatch) {
-          parsedResponse = JSON.parse(jsonMatch[1] || jsonMatch[0]);
-        } else {
-          // Si le format n'est pas correct, essayer de parser directement
-          parsedResponse = JSON.parse(response.content);
+        try {
+          // Tenter de parser la réponse JSON
+          if (jsonMatch) {
+            parsedResponse = JSON.parse(jsonMatch[0]);
+          } else {
+            // Dernier recours: essayer de parser le contenu complet
+            parsedResponse = JSON.parse(contentToParse);
+          }
+        } catch (parseError) {
+          console.error("Erreur de parsing initial:", parseError);
+          
+          // Tentative de nettoyage supplémentaire et nouvelle analyse
+          try {
+            // Nettoyer les caractères d'échappement problématiques et réessayer
+            const cleanedContent = contentToParse
+              .replace(/\\'/g, "'")
+              .replace(/\\\\/g, "\\")
+              .replace(/\\n/g, "\n");
+              
+            parsedResponse = JSON.parse(cleanedContent);
+          } catch (secondError) {
+            console.error("Échec de parsing après nettoyage:", secondError);
+            throw new Error("Impossible de parser la réponse JSON");
+          }
         }
         
         // Valider que la structure est correcte
