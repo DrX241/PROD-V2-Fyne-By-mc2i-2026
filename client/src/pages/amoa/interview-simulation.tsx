@@ -355,22 +355,21 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
     console.log("Fonction skipInfoAndStart appelée");
     setIsSkippedInfo(true);
     
-    // Récupérer les valeurs obligatoires (type de profil, niveau d'expérience, secteur)
+    // Récupérer les valeurs obligatoires (type de profil, niveau d'expérience)
     const profileType = form.getValues('profileType');
     const experienceLevel = form.getValues('experienceLevel');
-    const sectorFocus = form.getValues('sectorFocus');
     
     // Vérifier que tous les champs obligatoires sont remplis
-    if (!profileType || !experienceLevel || !sectorFocus) {
+    if (!profileType || !experienceLevel) {
       toast({
         variant: "destructive",
         title: "Champs obligatoires manquants",
-        description: "Les champs Type de profil, Niveau d'expérience et Secteur d'activité sont obligatoires."
+        description: "Les champs Type de profil et Niveau d'expérience sont obligatoires."
       });
       return;
     }
     
-    console.log("Valeurs du formulaire:", { profileType, experienceLevel, sectorFocus });
+    console.log("Valeurs du formulaire:", { profileType, experienceLevel });
 
     // Appel direct à l'API sans passer par la validation complète du formulaire
     setIsLoading(true);
@@ -411,7 +410,6 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
         domain: 'amoa',
         profileType,
         experienceLevel,
-        sectorFocus,
         auditContext: auditContextData
       };
       
@@ -544,7 +542,6 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
           message: userMessage.content,
           profileType: form.getValues('profileType'),
           experienceLevel: form.getValues('experienceLevel'),
-          sectorFocus: form.getValues('sectorFocus'),
           auditContext: auditContextData,
           messages: messages.map(m => ({ role: m.role, content: m.content })),
         })
@@ -601,14 +598,12 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
     const candidateName = form.getValues('candidateName');
     const profileType = form.getValues('profileType');
     const experienceLevel = form.getValues('experienceLevel');
-    const sectorFocus = form.getValues('sectorFocus');
     
     // Si l'utilisateur a ignoré la saisie des informations de contact OU si email/nom manquent, demander les infos
     if (isSkippedInfo || !recruiterEmail || !candidateName) {
       // Pré-remplir le formulaire final avec les valeurs déjà entrées
       contactForm.setValue('profileType', profileType);
       contactForm.setValue('experienceLevel', experienceLevel);
-      contactForm.setValue('sectorFocus', sectorFocus);
       if (recruiterEmail) contactForm.setValue('recruiterEmail', recruiterEmail);
       if (candidateName) contactForm.setValue('candidateName', candidateName);
       
@@ -1294,7 +1289,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
                     </div>
                     
                     <div className="bg-blue-700 p-4 rounded-md">
-                      <h3 className="text-lg font-semibold mb-2">Adéquation avec le secteur {form.getValues('sectorFocus')}</h3>
+                      <h3 className="text-lg font-semibold mb-2">Adéquation avec le contexte d'audition</h3>
                       <p className="text-blue-100 mb-2">
                         {evaluationResult.sectorFitEvaluation || "Aucune évaluation d'adéquation sectorielle disponible."}
                       </p>
