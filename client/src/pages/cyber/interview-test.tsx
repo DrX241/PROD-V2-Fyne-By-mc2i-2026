@@ -40,6 +40,17 @@ interface Question {
   placeholder?: string;
 }
 
+// Structure pour le contexte d'audition
+interface JobContext {
+  id: string;
+  title: string;
+  description: string;
+  organization: string;
+  technicalContext: string;
+  responsibilities: string[];
+  requirements: string[];
+}
+
 // Structure pour les résultats d'évaluation
 interface EvaluationResult {
   profile: string;
