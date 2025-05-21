@@ -656,7 +656,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
           const errorObj = JSON.parse(errorText);
           if (errorObj.error && errorObj.error.includes("trop courte pour être évaluée")) {
             toast({
-              variant: "warning",
+              variant: "destructive",
               title: "Entretien trop court",
               description: "L'audition est trop courte pour être évaluée. Veuillez poursuivre l'échange avant de finaliser.",
             });
