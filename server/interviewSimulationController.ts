@@ -1207,7 +1207,12 @@ function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, 
     ? `\nCONTEXTE PERSONNALISÉ: ${customDescription}\n` 
     : '';
   
-  return `Tu es ${executiveName}, ${executiveTitle} chez ${organizationName} à ${cityName}, une entreprise de ${orgSize} du secteur ${sectorFocus}.
+  // Extraire le secteur d'activité de l'organisation si disponible
+  const sector = auditContext && auditContext.contextType === 'predefined' && auditContext.contextData.sector 
+    ? auditContext.contextData.sector 
+    : 'technologique';
+
+  return `Tu es ${executiveName}, ${executiveTitle} chez ${organizationName} à ${cityName}, une entreprise de ${orgSize} du secteur ${sector}.
 
 PERSONNALITÉ: Tu as un style de management ${executiveStyle}. Tu es responsable du projet de "${projectDescription}" qui rencontre actuellement des difficultés liées à "${projectChallenge}". Tu as une véritable personnalité avec des préoccupations concrètes.
 ${customContextText}
