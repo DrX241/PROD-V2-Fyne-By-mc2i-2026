@@ -2,7 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, AlertTriangle, Lock, Clock, Shield, ChevronRight, Info } from "lucide-react";
+import { 
+  ArrowLeft, AlertTriangle, Lock, Clock, Shield, ChevronRight, Info, 
+  AlertOctagon, Users, Activity, Banknote, Scale, ShieldAlert
+} from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@/hooks/use-toast";
 import HomeLayout from "@/components/layout/HomeLayout";
@@ -453,20 +456,75 @@ La demande de rançon s'élève à 500 000 € en Bitcoin, avec une menace de pu
           </Button>
         </div>
         
-        {/* Overlay d'éléments de crise en arrière-plan */}
-        <div className="absolute inset-0 z-0 overflow-hidden opacity-10">
-          <div className="absolute top-20 left-10 transform -rotate-12">
-            <div className="text-6xl font-mono text-rose-500">ERROR</div>
-            <div className="text-4xl font-mono text-rose-400">SECURITY BREACH</div>
+        {/* Overlay d'éléments de crise en arrière-plan - Effet visuel amélioré */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          {/* Grille de fond façon "réseau compromis" */}
+          <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+          
+          {/* Éléments dynamiques */}
+          <div className="absolute top-20 left-10 transform -rotate-12 animate-pulse">
+            <div className="text-6xl font-mono text-rose-500 font-bold tracking-tighter">ERROR</div>
+            <div className="text-4xl font-mono text-rose-400 tracking-wide">SECURITY BREACH</div>
           </div>
-          <div className="absolute bottom-20 right-10 transform rotate-12">
-            <div className="text-5xl font-mono text-rose-500">ALERT</div>
-            <div className="text-3xl font-mono text-rose-400">CRITICAL FAILURE</div>
+          
+          <div className="absolute bottom-20 right-10 transform rotate-12 animate-pulse" style={{animationDelay: '1.5s'}}>
+            <div className="text-5xl font-mono text-rose-500 font-bold tracking-tighter">ALERT</div>
+            <div className="text-3xl font-mono text-rose-400 tracking-wide">CRITICAL FAILURE</div>
           </div>
-          <div className="absolute top-1/2 left-1/3 transform -rotate-45">
-            <div className="text-7xl font-mono text-rose-500/50">INCIDENT</div>
+          
+          <div className="absolute top-1/3 left-1/3 transform -rotate-45 animate-pulse" style={{animationDelay: '0.8s'}}>
+            <div className="text-7xl font-mono text-rose-500/50 font-bold tracking-tighter">INCIDENT</div>
           </div>
+          
+          {/* Simulation d'écran de système compromis */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-10">
+            <div className="w-full h-full flex flex-col gap-3 overflow-hidden p-8">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="text-xs font-mono text-rose-500 whitespace-nowrap overflow-hidden" 
+                     style={{opacity: Math.random() * 0.7 + 0.3}}>
+                  {Array.from({ length: Math.floor(Math.random() * 20) + 10 }).map((_, j) => (
+                    <span key={j} className="inline-block mx-1">
+                      {Math.random() > 0.5 ? 
+                        (Math.random() > 0.7 ? "ACCESS_DENIED" : "ERROR_0x8007") : 
+                        (Math.random() > 0.6 ? "BREACH_DETECTED" : "SYSTEM_FAILURE")}
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Lignes et connexions simulant un réseau attaqué */}
+          <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#7f1d1d" stopOpacity="0.8" />
+                <stop offset="100%" stopColor="#991b1b" stopOpacity="0.2" />
+              </linearGradient>
+            </defs>
+            {Array.from({ length: 20 }).map((_, i) => {
+              const x1 = Math.random() * 100;
+              const y1 = Math.random() * 100;
+              const x2 = Math.random() * 100;
+              const y2 = Math.random() * 100;
+              return (
+                <line 
+                  key={i}
+                  x1={`${x1}%`} 
+                  y1={`${y1}%`} 
+                  x2={`${x2}%`} 
+                  y2={`${y2}%`} 
+                  stroke="url(#redGradient)" 
+                  strokeWidth="1"
+                  opacity={Math.random() * 0.5 + 0.2}
+                />
+              );
+            })}
+          </svg>
         </div>
+        
+        {/* Ajout d'un filtre sur tout le contenu pour renforcer l'ambiance de crise */}
+        <div className="absolute inset-0 bg-gradient-to-br from-rose-950/10 to-slate-950/10 mix-blend-multiply z-0"></div>
         
         {/* Bannière en cours de développement */}
         <div className="mx-auto max-w-4xl mb-4 mt-2">
@@ -547,73 +605,303 @@ La demande de rançon s'élève à 500 000 € en Bitcoin, avec une menace de pu
                     <CardContent>
                       <div className="space-y-3">
                         <div>
-                          <div className="flex justify-between text-xs mb-1">
-                            <span className="text-rose-200">Réputation</span>
-                            <span className="text-rose-300">{scenario.impactAreas.reputation}%</span>
+                          <div className="flex justify-between items-center text-xs mb-1">
+                            <div className="flex items-center">
+                              <ShieldAlert className="h-3 w-3 mr-1 text-rose-400" />
+                              <span className="text-rose-200">Réputation</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span 
+                                className={`text-rose-300 font-mono ${
+                                  scenario.impactAreas.reputation > 70 ? "text-red-400 animate-pulse" : ""
+                                }`}
+                              >
+                                {scenario.impactAreas.reputation}%
+                              </span>
+                              {scenario.impactAreas.reputation > 50 && (
+                                <AlertTriangle className="h-3 w-3 ml-1 text-red-400" />
+                              )}
+                            </div>
                           </div>
-                          <Progress value={scenario.impactAreas.reputation} className="h-2 bg-rose-950" indicatorClassName="bg-rose-500" />
+                          <Progress 
+                            value={scenario.impactAreas.reputation} 
+                            className="h-2 bg-rose-950" 
+                            indicatorClassName={`${
+                              scenario.impactAreas.reputation > 70 
+                                ? "bg-red-500 animate-pulse" 
+                                : scenario.impactAreas.reputation > 50 
+                                ? "bg-red-600" 
+                                : "bg-rose-500"
+                            }`} 
+                          />
                         </div>
                         <div>
-                          <div className="flex justify-between text-xs mb-1">
-                            <span className="text-rose-200">Opérations</span>
-                            <span className="text-rose-300">{scenario.impactAreas.operations}%</span>
+                          <div className="flex justify-between items-center text-xs mb-1">
+                            <div className="flex items-center">
+                              <Activity className="h-3 w-3 mr-1 text-rose-400" />
+                              <span className="text-rose-200">Opérations</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span 
+                                className={`text-rose-300 font-mono ${
+                                  scenario.impactAreas.operations > 70 ? "text-red-400 animate-pulse" : ""
+                                }`}
+                              >
+                                {scenario.impactAreas.operations}%
+                              </span>
+                              {scenario.impactAreas.operations > 50 && (
+                                <AlertTriangle className="h-3 w-3 ml-1 text-red-400" />
+                              )}
+                            </div>
                           </div>
-                          <Progress value={scenario.impactAreas.operations} className="h-2 bg-rose-950" indicatorClassName="bg-rose-500" />
+                          <Progress 
+                            value={scenario.impactAreas.operations} 
+                            className="h-2 bg-rose-950" 
+                            indicatorClassName={`${
+                              scenario.impactAreas.operations > 70 
+                                ? "bg-red-500 animate-pulse" 
+                                : scenario.impactAreas.operations > 50 
+                                ? "bg-red-600" 
+                                : "bg-rose-500"
+                            }`} 
+                          />
                         </div>
                         <div>
-                          <div className="flex justify-between text-xs mb-1">
-                            <span className="text-rose-200">Financier</span>
-                            <span className="text-rose-300">{scenario.impactAreas.financial}%</span>
+                          <div className="flex justify-between items-center text-xs mb-1">
+                            <div className="flex items-center">
+                              <Banknote className="h-3 w-3 mr-1 text-rose-400" />
+                              <span className="text-rose-200">Financier</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span 
+                                className={`text-rose-300 font-mono ${
+                                  scenario.impactAreas.financial > 70 ? "text-red-400 animate-pulse" : ""
+                                }`}
+                              >
+                                {scenario.impactAreas.financial}%
+                              </span>
+                              {scenario.impactAreas.financial > 50 && (
+                                <AlertTriangle className="h-3 w-3 ml-1 text-red-400" />
+                              )}
+                            </div>
                           </div>
-                          <Progress value={scenario.impactAreas.financial} className="h-2 bg-rose-950" indicatorClassName="bg-rose-500" />
+                          <Progress 
+                            value={scenario.impactAreas.financial} 
+                            className="h-2 bg-rose-950" 
+                            indicatorClassName={`${
+                              scenario.impactAreas.financial > 70 
+                                ? "bg-red-500 animate-pulse" 
+                                : scenario.impactAreas.financial > 50 
+                                ? "bg-red-600" 
+                                : "bg-rose-500"
+                            }`} 
+                          />
                         </div>
                         <div>
-                          <div className="flex justify-between text-xs mb-1">
-                            <span className="text-rose-200">Juridique</span>
-                            <span className="text-rose-300">{scenario.impactAreas.legal}%</span>
+                          <div className="flex justify-between items-center text-xs mb-1">
+                            <div className="flex items-center">
+                              <Scale className="h-3 w-3 mr-1 text-rose-400" />
+                              <span className="text-rose-200">Juridique</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span 
+                                className={`text-rose-300 font-mono ${
+                                  scenario.impactAreas.legal > 70 ? "text-red-400 animate-pulse" : ""
+                                }`}
+                              >
+                                {scenario.impactAreas.legal}%
+                              </span>
+                              {scenario.impactAreas.legal > 50 && (
+                                <AlertTriangle className="h-3 w-3 ml-1 text-red-400" />
+                              )}
+                            </div>
                           </div>
-                          <Progress value={scenario.impactAreas.legal} className="h-2 bg-rose-950" indicatorClassName="bg-rose-500" />
+                          <Progress 
+                            value={scenario.impactAreas.legal} 
+                            className="h-2 bg-rose-950" 
+                            indicatorClassName={`${
+                              scenario.impactAreas.legal > 70 
+                                ? "bg-red-500 animate-pulse" 
+                                : scenario.impactAreas.legal > 50 
+                                ? "bg-red-600" 
+                                : "bg-rose-500"
+                            }`} 
+                          />
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
                 
-                {/* Situation actuelle */}
-                <Card className="bg-slate-900/60 border-rose-900/40 mb-6">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-rose-300">Situation</CardTitle>
+                {/* Situation actuelle - Carte améliorée avec alertes visuelles */}
+                <Card className="bg-gradient-to-br from-slate-900/80 to-rose-950/40 border-rose-700/40 shadow-lg shadow-rose-900/20 mb-6 overflow-hidden relative">
+                  {/* Arrière-plan dynamique */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-800 to-red-500 opacity-70"></div>
+                    <div className="absolute inset-y-0 right-0 w-1 bg-gradient-to-b from-rose-800 to-transparent opacity-70"></div>
+                    <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent to-rose-800 opacity-70"></div>
+                    <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-transparent to-rose-800 opacity-70"></div>
+                  </div>
+                  
+                  <CardHeader className="pb-2 relative z-10">
+                    <CardTitle className="text-rose-300 flex items-center">
+                      <AlertOctagon className="h-5 w-5 mr-2 text-rose-500" />
+                      Situation actuelle
+                      {scenario.severity === "critical" && (
+                        <Badge variant="destructive" className="ml-3 bg-red-800 animate-pulse">CRITIQUE</Badge>
+                      )}
+                    </CardTitle>
+                    
+                    {/* Tags supplémentaires selon la situation */}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <span className="inline-flex items-center px-2 py-1 text-xs rounded-full bg-rose-950/50 text-rose-300 border border-rose-800/40">
+                        <Clock className="h-3 w-3 mr-1" /> Temps restant: {formatTimeRemaining(scenario.timeRemaining)}
+                      </span>
+                      <span className="inline-flex items-center px-2 py-1 text-xs rounded-full bg-rose-950/50 text-rose-300 border border-rose-800/40">
+                        <Shield className="h-3 w-3 mr-1" /> Systèmes impactés: {Math.floor(Math.random() * 5) + 3}
+                      </span>
+                      <span className="inline-flex items-center px-2 py-1 text-xs rounded-full bg-rose-950/50 text-rose-300 border border-rose-800/40">
+                        <Users className="h-3 w-3 mr-1" /> Équipes mobilisées: {Math.floor(Math.random() * 3) + 2}
+                      </span>
+                    </div>
                   </CardHeader>
-                  <CardContent className="prose prose-invert max-w-none">
-                    <p className="text-gray-300 whitespace-pre-line">{scenario.situation}</p>
+                  
+                  <CardContent className="prose prose-invert max-w-none relative z-10">
+                    {/* Encadré d'avertissement */}
+                    <div className="mb-4 p-3 bg-red-950/30 border-l-4 border-red-500 rounded">
+                      <div className="flex items-start">
+                        <AlertTriangle className="h-5 w-5 text-red-400 mr-2 flex-shrink-0 mt-0.5" />
+                        <p className="text-red-300 text-sm m-0">
+                          <span className="font-semibold">Alerte SOC:</span> La situation évolue rapidement et nécessite une prise de décision immédiate. Les impacts peuvent s'aggraver si aucune action n'est prise.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Contenu principal avec mise en évidence */}
+                    <div className="text-gray-200 whitespace-pre-line leading-relaxed">
+                      {scenario.situation.split('\n').map((paragraph, i) => (
+                        <p key={i} className={i === 0 ? "text-base font-medium text-rose-100" : "text-sm text-gray-300"}>
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
+                    
+                    {/* Indicateurs temps réel */}
+                    <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
+                      <div className="flex flex-col items-center justify-center p-2 bg-rose-950/30 rounded border border-rose-900/30">
+                        <span className="font-mono text-rose-300">CPU</span>
+                        <span className="font-mono text-rose-400 animate-pulse">{Math.floor(Math.random() * 25) + 75}%</span>
+                      </div>
+                      <div className="flex flex-col items-center justify-center p-2 bg-rose-950/30 rounded border border-rose-900/30">
+                        <span className="font-mono text-rose-300">MEM</span>
+                        <span className="font-mono text-rose-400">{Math.floor(Math.random() * 20) + 60}%</span>
+                      </div>
+                      <div className="flex flex-col items-center justify-center p-2 bg-rose-950/30 rounded border border-rose-900/30">
+                        <span className="font-mono text-rose-300">ALRT</span>
+                        <span className="font-mono text-rose-400">{Math.floor(Math.random() * 100) + 150}</span>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
                 
-                {/* Décision actuelle */}
-                <Card className="bg-rose-950/40 border-rose-800/50 mb-6">
-                  <CardHeader>
-                    <CardTitle className="text-xl text-rose-200">
-                      Décision {scenario.currentDecisionIndex + 1}/{scenario.decisions.length}
-                    </CardTitle>
-                    <CardDescription className="text-rose-300 text-lg font-medium mt-2">
+                {/* Décision actuelle - Redesign complet */}
+                <Card className="bg-gradient-to-br from-rose-950/50 to-black border-red-900/50 mb-6 overflow-hidden shadow-lg shadow-rose-900/20 relative">
+                  {/* Arrière-plan animé pour effet urgence */}
+                  <div className="absolute inset-0 overflow-hidden z-0">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-700 via-red-500 to-red-700 animate-pulse"></div>
+                    <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-red-700 via-red-500 to-transparent"></div>
+                    <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-500 to-red-700"></div>
+                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-red-700 via-red-500 to-transparent"></div>
+                  </div>
+                  
+                  <CardHeader className="relative z-10 pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-xl text-rose-100 flex items-center">
+                        <AlertTriangle className="h-5 w-5 mr-2 text-red-500 animate-pulse" />
+                        <span className="mr-2">Décision critique</span>
+                        <Badge className="bg-red-900 text-rose-100 animate-pulse">
+                          {scenario.currentDecisionIndex + 1}/{scenario.decisions.length}
+                        </Badge>
+                      </CardTitle>
+                      
+                      <div className="flex items-center">
+                        <Clock className="h-4 w-4 mr-1 text-rose-400" />
+                        <span className="text-sm font-mono text-rose-300">
+                          {formatTimeRemaining(scenario.timeRemaining)}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <CardDescription className="text-rose-100 text-lg font-medium mt-4 border-l-4 border-red-700 pl-3 py-1">
                       {scenario.decisions[scenario.currentDecisionIndex].question}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  
+                  <CardContent className="relative z-10">
+                    {/* Avertissement pré-décision */}
+                    <div className="mb-4 p-3 bg-red-950/40 rounded border border-red-900/40">
+                      <div className="flex items-start">
+                        <Info className="h-4 w-4 text-rose-400 mr-2 flex-shrink-0 mt-0.5" />
+                        <p className="text-sm text-rose-300 m-0">
+                          Chaque décision affectera différemment les indicateurs d'impact. Choisissez judicieusement en fonction de vos priorités de gestion de crise.
+                        </p>
+                      </div>
+                    </div>
+                    
                     <div className="space-y-3">
-                      {scenario.decisions[scenario.currentDecisionIndex].options.map((option) => (
-                        <Button
+                      {scenario.decisions[scenario.currentDecisionIndex].options.map((option, index) => (
+                        <div 
                           key={option.id}
-                          variant="outline"
-                          className="w-full justify-start py-6 px-4 border-rose-700/50 bg-slate-900/60 hover:bg-rose-900/40 hover:border-rose-600/50 text-left"
-                          onClick={() => makeDecision(option.id)}
+                          className="relative overflow-hidden rounded-md group transition-all duration-300"
                         >
-                          <div>
-                            <div className="font-medium text-rose-200">{option.text}</div>
-                          </div>
-                          <ChevronRight className="h-5 w-5 ml-auto text-rose-400" />
-                        </Button>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start py-6 px-4 border-rose-800/60 bg-gradient-to-r from-slate-900/80 to-rose-950/30 
+                                      hover:bg-gradient-to-r hover:from-rose-950/40 hover:to-slate-900/70 hover:border-red-600/70 text-left
+                                      group-hover:shadow-md group-hover:shadow-rose-900/30 transition-all duration-300"
+                            onClick={() => makeDecision(option.id)}
+                          >
+                            <div className="flex flex-col w-full">
+                              <div className="flex items-center mb-1">
+                                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-rose-900/50 mr-3 
+                                              border border-rose-800/50 group-hover:bg-rose-800 transition-colors duration-300">
+                                  <span className="text-rose-200 font-bold text-sm">{index + 1}</span>
+                                </div>
+                                <div className="font-medium text-rose-100 group-hover:text-white transition-colors duration-300">{option.text}</div>
+                              </div>
+                              
+                              {/* Affichage stylisé du type de réponse */}
+                              <div className="ml-10 mt-1 text-xs">
+                                <span className={`inline-block px-2 py-0.5 rounded-full ${
+                                  option.text.includes("immédiatement") || option.text.includes("urgent") ? 
+                                  "bg-red-900/40 text-red-300 border border-red-800/40" : 
+                                  option.text.includes("attendre") || option.text.includes("observer") ? 
+                                  "bg-amber-900/40 text-amber-300 border border-amber-800/40" :
+                                  "bg-blue-900/40 text-blue-300 border border-blue-800/40"
+                                }`}>
+                                  {option.text.includes("immédiatement") || option.text.includes("urgent") ? 
+                                    "Action immédiate" : 
+                                    option.text.includes("attendre") || option.text.includes("observer") ? 
+                                    "Approche progressive" :
+                                    "Action stratégique"}
+                                </span>
+                              </div>
+                            </div>
+                            <ChevronRight className="h-5 w-5 ml-auto text-rose-400 group-hover:text-white transition-colors duration-300" />
+                          </Button>
+                        </div>
                       ))}
+                    </div>
+                    
+                    {/* Rappel du temps restant */}
+                    <div className="mt-4 flex items-center justify-center">
+                      <div className="px-3 py-1 bg-gradient-to-r from-red-950/40 to-rose-950/40 rounded-full border border-rose-900/30 
+                                  animate-pulse flex items-center">
+                        <Clock className="h-3 w-3 mr-1 text-rose-400" />
+                        <span className="text-xs font-mono text-rose-300">
+                          Délai critique: {formatTimeRemaining(scenario.timeRemaining)}
+                        </span>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
