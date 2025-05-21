@@ -567,11 +567,8 @@ export default function CyberInterviewTest() {
     };
     setAnswers(updatedAnswers);
 
-    // Si c'est la 10ème question (index 9), on termine le test
-    if (currentQuestionIndex >= 9) {
-      handleSubmitTest();
-      return;
-    }
+    // On ne limite plus le nombre de questions, seul le temps est limitant
+    // L'utilisateur peut également terminer le test manuellement
 
     // Si on a déjà une question suivante chargée, on y passe simplement
     // Cela devrait être instantané, pas besoin d'attendre
@@ -821,10 +818,11 @@ export default function CyberInterviewTest() {
                 </h3>
                 <ul className="list-disc list-inside space-y-2 text-sm text-blue-100">
                   <li>Test chronométré adapté à vos disponibilités (durée à choisir ci-dessous)</li>
-                  <li>10 questions ouvertes mêlant aspects techniques et fonctionnels</li>
+                  <li>Questions ouvertes sans limite de nombre, suivant une progression logique</li>
                   <li>Répondez à chaque question de façon concise mais détaillée</li>
-                  <li>L'IA évalue la qualité et la pertinence de vos réponses en temps réel</li>
-                  <li>À la fin, vous recevrez une analyse objective de vos compétences, forces et axes d'amélioration</li>
+                  <li>Progression de l'entretien : présentation → contexte → profil → technique → fonctionnel → stratégique</li>
+                  <li>Vous pouvez continuer tant que le temps le permet ou terminer quand vous le souhaitez</li>
+                  <li>À la fin, vous recevrez une analyse objective avec citations exactes de vos réponses</li>
                 </ul>
               </div>
 
@@ -1152,27 +1150,38 @@ export default function CyberInterviewTest() {
               <ArrowLeft className="h-4 w-4" />
               Retour à I AM CYBER
             </Button>
-            <Button 
-              onClick={handleNextQuestion}
-              disabled={currentAnswer.trim().length < 5 || isLoadingNextQuestion}
-              className={`${
-                isLoadingNextQuestion 
-                  ? 'bg-blue-700 opacity-80' 
-                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
-              } min-w-[180px]`}
-            >
-              {isLoadingNextQuestion ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-t-transparent border-white rounded-full animate-spin mr-2"></div>
-                  Chargement...
-                </>
-              ) : (
-                <>
-                  {currentQuestionIndex < totalQuestions - 1 ? 'Question suivante' : 'Terminer le test'}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </>
-              )}
-            </Button>
+            <div className="flex gap-3">
+              <Button 
+                onClick={handleSubmitTest}
+                variant="outline"
+                className="border-amber-600 text-amber-400 hover:bg-amber-950"
+              >
+                Terminer l'entretien
+                <CheckCircle2 className="ml-2 h-4 w-4" />
+              </Button>
+              
+              <Button 
+                onClick={handleNextQuestion}
+                disabled={currentAnswer.trim().length < 5 || isLoadingNextQuestion}
+                className={`${
+                  isLoadingNextQuestion 
+                    ? 'bg-blue-700 opacity-80' 
+                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
+                } min-w-[180px]`}
+              >
+                {isLoadingNextQuestion ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-t-transparent border-white rounded-full animate-spin mr-2"></div>
+                    Chargement...
+                  </>
+                ) : (
+                  <>
+                    Question suivante
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </div>
           </CardFooter>
         </Card>
       </div>
