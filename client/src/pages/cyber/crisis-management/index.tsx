@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   ArrowLeft, AlertTriangle, Lock, Clock, Shield, ChevronRight, Info, 
-  AlertOctagon, Users, Activity, Banknote, Scale, ShieldAlert
+  AlertOctagon, Users, Activity, Banknote, Scale, ShieldAlert, Send,
+  Phone, FileText, PanelLeft, MessageSquare, Server, BellRing, BarChart,
+  UserCircle2, Crown, Mail, X, Check, Radiation
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +15,12 @@ import PageTitle from "@/components/utils/PageTitle";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // Types des parties prenantes (PNJ) dans la crise
 interface Stakeholder {
@@ -147,6 +155,10 @@ export default function CrisisManagementPage() {
   const [isTyping, setIsTyping] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [focusedStakeholderId, setFocusedStakeholderId] = useState<string | null>(null);
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const [consultationDialog, setConsultationDialog] = useState(false);
+  const [stakeholdersConsulted, setStakeholdersConsulted] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const { toast } = useToast();
@@ -155,12 +167,12 @@ export default function CrisisManagementPage() {
   // Générateur d'avatars pour les parties prenantes
   const generateAvatar = (name: string, role: string, department: string) => {
     const colorMap: Record<string, string> = {
-      'IT': 'bg-blue-600',
-      'Executive': 'bg-purple-700',
-      'Communication': 'bg-green-600',
-      'Legal': 'bg-amber-700',
-      'Operations': 'bg-orange-600',
-      'External': 'bg-slate-700'
+      'IT': 'blue-600',
+      'Executive': 'purple-700',
+      'Communication': 'green-600',
+      'Legal': 'amber-700',
+      'Operations': 'orange-600',
+      'External': 'slate-700'
     };
     
     const initials = name
@@ -170,7 +182,7 @@ export default function CrisisManagementPage() {
       .toUpperCase()
       .substring(0, 2);
     
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${colorMap[department].replace('bg-', '')}&color=fff&size=128`;
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${colorMap[department]}&color=fff&size=128`;
   };
   
   // Exemple de parties prenantes (PNJ)
@@ -629,221 +641,44 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
       "Un employé rapporte des comportements suspects sur son poste avant l'attaque",
       "Un client important signale ne plus pouvoir accéder au portail de commandes"
     ],
-    currentStakeholderInFocus: null,
-    timeline: [
-      { time: "7h30", event: "Détection initiale de l'incident" },
-      { time: "7h45", event: "Premier rapport technique confirmant le ransomware" },
-      { time: "8h00", event: "Réunion de crise initiale" },
-      { time: "8h15", event: "Évaluation préliminaire de l'impact" }
-    ],
-    decisions: [
-      {
-        id: "decision1",
-        question: "Quelle est votre première action prioritaire face à cette crise ?",
-        options: [
-          {
-            id: "d1-o1",
-            text: "Isoler immédiatement les systèmes infectés en déconnectant les serveurs du réseau",
-            consequences: {
-              description: "Vous avez rapidement isolé les systèmes infectés, limitant la propagation du ransomware. Cependant, cette action a temporairement impacté certains services critiques.",
-              impactChanges: { reputation: 0, operations: -10, financial: -5, legal: +10 }
-            }
-          },
-          {
-            id: "d1-o2",
-            text: "Contacter les autorités (ANSSI, police) avant toute action technique",
-            consequences: {
-              description: "Pendant que vous contactiez les autorités, le ransomware a continué sa propagation. Les autorités ont été informées rapidement, mais l'impact opérationnel s'est aggravé.",
-              impactChanges: { reputation: +5, operations: -20, financial: -15, legal: +15 }
-            }
-          },
-          {
-            id: "d1-o3",
-            text: "Activer le plan de continuité d'activité et basculer sur les systèmes de secours",
-            consequences: {
-              description: "Le basculement vers les systèmes de secours a permis de maintenir une partie des opérations. Cependant, certains systèmes de secours étaient également compromis.",
-              impactChanges: { reputation: +5, operations: -5, financial: -10, legal: 0 }
-            }
-          },
-          {
-            id: "d1-o4",
-            text: "Analyser d'abord l'étendue de l'infection avant de prendre des mesures",
-            consequences: {
-              description: "Le temps passé à analyser l'étendue a permis de mieux comprendre l'attaque, mais a laissé le ransomware se propager davantage.",
-              impactChanges: { reputation: -5, operations: -25, financial: -20, legal: -5 }
-            }
-          }
-        ]
-      },
-      {
-        id: "decision2",
-        question: "Comment gérez-vous la communication autour de cet incident ?",
-        options: [
-          {
-            id: "d2-o1",
-            text: "Communication limitée en interne uniquement aux équipes concernées",
-            consequences: {
-              description: "La limitation de la communication a créé de la confusion et des rumeurs en interne. Les employés n'ont pas su comment réagir correctement.",
-              impactChanges: { reputation: -10, operations: -15, financial: -5, legal: -10 }
-            }
-          },
-          {
-            id: "d2-o2",
-            text: "Communication transparente à tous les employés et parties prenantes externes",
-            consequences: {
-              description: "Votre transparence a été appréciée par les employés et clients, mais a temporairement impacté la réputation de l'entreprise et attiré l'attention médiatique.",
-              impactChanges: { reputation: -5, operations: +5, financial: -5, legal: +10 }
-            }
-          },
-          {
-            id: "d2-o3",
-            text: "Communication ciblée aux employés avec consignes précises et report de l'annonce externe",
-            consequences: {
-              description: "Cette approche équilibrée a permis de préparer les équipes internes tout en vous donnant le temps d'élaborer une stratégie de communication externe.",
-              impactChanges: { reputation: +5, operations: +10, financial: 0, legal: +5 }
-            }
-          },
-          {
-            id: "d2-o4",
-            text: "Aucune communication jusqu'à la résolution complète de l'incident",
-            consequences: {
-              description: "Le manque de communication a créé une atmosphère de méfiance et a empêché les employés de prendre les précautions nécessaires, aggravant la situation.",
-              impactChanges: { reputation: -20, operations: -20, financial: -10, legal: -15 }
-            }
-          }
-        ]
-      },
-      {
-        id: "decision3",
-        question: "Quelle est votre position concernant la demande de rançon ?",
-        options: [
-          {
-            id: "d3-o1",
-            text: "Refuser catégoriquement le paiement et se concentrer sur la restauration depuis les sauvegardes",
-            consequences: {
-              description: "Le refus de payer a envoyé un message fort, mais la restauration a pris plus de temps que prévu, prolongeant la période d'indisponibilité.",
-              impactChanges: { reputation: +10, operations: -15, financial: -10, legal: +15 }
-            }
-          },
-          {
-            id: "d3-o2",
-            text: "Négocier avec les attaquants pour gagner du temps pendant que vous restaurez les systèmes",
-            consequences: {
-              description: "La négociation a permis de gagner du temps pour restaurer certains systèmes critiques, sans payer la rançon ni encourager les attaquants.",
-              impactChanges: { reputation: 0, operations: +5, financial: -5, legal: +5 }
-            }
-          },
-          {
-            id: "d3-o3",
-            text: "Payer la rançon pour minimiser les temps d'arrêt et éviter la fuite de données",
-            consequences: {
-              description: "Le paiement a permis une récupération plus rapide mais a créé un précédent risqué. Des doutes subsistent sur la suppression réelle des données exfiltrées.",
-              impactChanges: { reputation: -15, operations: +15, financial: -25, legal: -20 }
-            }
-          },
-          {
-            id: "d3-o4",
-            text: "Consulter les experts en sécurité et les autorités avant de prendre une décision",
-            consequences: {
-              description: "Cette approche prudente a fourni de précieux conseils, mais a ralenti la prise de décision, prolongeant la période d'incertitude.",
-              impactChanges: { reputation: +5, operations: -10, financial: -5, legal: +10 }
-            }
-          }
-        ]
-      },
-      {
-        id: "decision4",
-        question: "Comment envisagez-vous la reprise d'activité ?",
-        options: [
-          {
-            id: "d4-o1",
-            text: "Restauration complète depuis les sauvegardes après nettoyage complet des systèmes",
-            consequences: {
-              description: "Cette approche prudente et méthodique a pris du temps mais a assuré un environnement propre et sécurisé pour la reprise.",
-              impactChanges: { reputation: +10, operations: -5, financial: -15, legal: +15 }
-            }
-          },
-          {
-            id: "d4-o2",
-            text: "Reprise progressive par ordre de priorité des services critiques",
-            consequences: {
-              description: "La reprise progressive a permis de rétablir rapidement les fonctions essentielles tout en maintenant un niveau de sécurité acceptable.",
-              impactChanges: { reputation: +15, operations: +10, financial: -5, legal: +5 }
-            }
-          },
-          {
-            id: "d4-o3",
-            text: "Reconstruire une infrastructure parallèle sécurisée puis migrer les données",
-            consequences: {
-              description: "Cette solution innovante a créé une nouvelle infrastructure plus sécurisée, mais le coût et le temps nécessaires ont été considérables.",
-              impactChanges: { reputation: +20, operations: -15, financial: -30, legal: +10 }
-            }
-          },
-          {
-            id: "d4-o4",
-            text: "Restauration rapide sans changement majeur pour minimiser les temps d'arrêt",
-            consequences: {
-              description: "La restauration rapide a limité l'impact financier immédiat, mais des vulnérabilités ont potentiellement subsisté, créant des risques futurs.",
-              impactChanges: { reputation: -5, operations: +15, financial: +5, legal: -20 }
-            }
-          }
-        ]
-      },
-      {
-        id: "decision5",
-        question: "Quelles mesures post-incident mettez-vous en place ?",
-        options: [
-          {
-            id: "d5-o1",
-            text: "Audit complet de sécurité et renforcement de l'infrastructure",
-            consequences: {
-              description: "L'audit a révélé plusieurs failles qui ont été corrigées, améliorant significativement la posture de sécurité de l'entreprise.",
-              impactChanges: { reputation: +15, operations: +5, financial: -10, legal: +10 }
-            }
-          },
-          {
-            id: "d5-o2",
-            text: "Formation intensive de tous les employés à la sécurité",
-            consequences: {
-              description: "Le programme de formation a considérablement amélioré la vigilance des employés, créant une première ligne de défense humaine plus efficace.",
-              impactChanges: { reputation: +10, operations: +10, financial: -5, legal: +5 }
-            }
-          },
-          {
-            id: "d5-o3",
-            text: "Investissement dans des solutions de détection et réponse avancées",
-            consequences: {
-              description: "Les nouvelles solutions technologiques ont renforcé la capacité de détection précoce, mais ont nécessité un investissement significatif.",
-              impactChanges: { reputation: +5, operations: +5, financial: -20, legal: +15 }
-            }
-          },
-          {
-            id: "d5-o4",
-            text: "Révision des plans de continuité et de reprise après sinistre",
-            consequences: {
-              description: "La mise à jour des plans a amélioré la préparation de l'entreprise aux futures crises, mais certaines vulnérabilités techniques n'ont pas été adressées.",
-              impactChanges: { reputation: +5, operations: +15, financial: -5, legal: +5 }
-            }
-          }
-        ]
-      }
-    ],
-    currentDecisionIndex: 0,
-    impactAreas: {
-      reputation: 70, // Sur 100
-      operations: 70, // Sur 100
-      financial: 70, // Sur 100
-      legal: 70 // Sur 100
-    },
-    severity: "critical",
-    timeRemaining: 600 // 10 minutes en secondes
+    currentStakeholderInFocus: null
   };
   
-  // Démarrer le scénario au chargement
+  // État pour suivre combien de parties prenantes doivent être consultées pour la décision actuelle
+  const [requiredConsultations, setRequiredConsultations] = useState<{
+    required: string[];
+    consulted: string[];
+  }>({ required: [], consulted: [] });
+  
+  // Initialisation du scénario
   useEffect(() => {
-    startScenario();
+    const initScenario = async () => {
+      setIsLoading(true);
+      // Simulation d'un chargement
+      setTimeout(() => {
+        setScenario(sampleScenario);
+        setIsLoading(false);
+        startTimer();
+        
+        // S'il y a des consultations requises, les initialiser
+        if (sampleScenario.decisions[0].requiredConsultation) {
+          setRequiredConsultations({
+            required: sampleScenario.decisions[0].requiredConsultation,
+            consulted: []
+          });
+        }
+        
+        toast({
+          title: "Simulation de crise démarrée",
+          description: "Attaque ransomware BlackCrypt en cours. Prenez vos premières décisions rapidement.",
+          variant: "destructive",
+        });
+      }, 1500);
+    };
     
-    // Nettoyage lors du démontage du composant
+    initScenario();
+    
+    // Cleanup
     return () => {
       if (timer) {
         clearInterval(timer);
@@ -851,165 +686,467 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
     };
   }, []);
   
-  // Fonction pour démarrer un scénario
-  const startScenario = () => {
-    setIsLoading(true);
-    setSessionId(uuidv4());
+  // Scroll automatique vers le bas des messages
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [scenario?.warRoom, focusedStakeholderId]);
+  
+  // Démarrer le timer de la crise
+  const startTimer = () => {
+    if (timer) {
+      clearInterval(timer);
+    }
     
-    // Utiliser le scénario d'exemple
-    setTimeout(() => {
-      setScenario(sampleScenario);
-      setIsLoading(false);
-      
-      // Démarrer le timer de 10 minutes
-      const interval = setInterval(() => {
-        setScenario(prevScenario => {
-          if (!prevScenario) return null;
-          
-          const newTimeRemaining = prevScenario.timeRemaining - 1;
-          
-          // Si le temps est écoulé, terminer le scénario
-          if (newTimeRemaining <= 0) {
-            clearInterval(interval);
-            setShowSummary(true);
-            return {
-              ...prevScenario,
-              timeRemaining: 0
-            };
-          }
-          
+    const newTimer = setInterval(() => {
+      setScenario((prev) => {
+        if (!prev) return prev;
+        
+        const newTimeRemaining = prev.timeRemaining - 1;
+        
+        if (newTimeRemaining <= 0) {
+          clearInterval(newTimer);
+          setShowSummary(true);
           return {
-            ...prevScenario,
-            timeRemaining: newTimeRemaining
+            ...prev,
+            timeRemaining: 0
           };
-        });
-      }, 1000);
-      
-      setTimer(interval);
-      
-      toast({
-        title: "Crise en cours",
-        description: "Vous êtes maintenant en charge de la gestion de cette crise. Prenez des décisions rapidement !",
-        duration: 5000
+        }
+        
+        // Déclencher des événements aléatoires occasionnellement
+        if (newTimeRemaining % 120 === 0 && Math.random() > 0.7) {
+          triggerRandomEvent();
+        }
+        
+        return {
+          ...prev,
+          timeRemaining: newTimeRemaining
+        };
       });
-    }, 1500);
+    }, 1000);
+    
+    setTimer(newTimer);
   };
   
-  // Fonction pour faire un choix de décision
+  // Trigger un événement aléatoire pendant la crise
+  const triggerRandomEvent = () => {
+    if (!scenario) return;
+    
+    const eventTypes = [
+      "Un employé vient de publier sur les réseaux sociaux à propos de l'incident.",
+      "Un journaliste a contacté le service communication à propos de rumeurs d'attaque.",
+      "Les premiers clients commencent à se plaindre de l'indisponibilité des services.",
+      "L'équipe juridique signale que les autorités doivent être notifiées rapidement.",
+      "Un nouveau groupe de fichiers vient d'être chiffré dans un département qui semblait épargné."
+    ];
+    
+    const randomEvent = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+    
+    setNotificationMessage(randomEvent);
+    setShowNotification(true);
+    
+    // Ajouter l'événement à la timeline
+    setScenario(prev => {
+      if (!prev) return prev;
+      const currentTime = new Date();
+      const timeString = `${currentTime.getHours()}:${currentTime.getMinutes().toString().padStart(2, '0')}`;
+      
+      return {
+        ...prev,
+        timeline: [...prev.timeline, {
+          time: timeString,
+          event: randomEvent,
+          severity: "medium"
+        }]
+      };
+    });
+    
+    // Notification
+    toast({
+      title: "Nouvel événement !",
+      description: randomEvent,
+      variant: "destructive",
+    });
+    
+    // Masquer la notification après quelques secondes
+    setTimeout(() => {
+      setShowNotification(false);
+    }, 5000);
+  };
+  
+  // Formater le temps restant en MM:SS
+  const formatTimeRemaining = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+  
+  // Gérer le choix d'une décision
   const makeDecision = (optionId: string) => {
     if (!scenario) return;
     
-    // Mise à jour du scénario avec la décision prise
-    setScenario(prevScenario => {
-      if (!prevScenario) return null;
+    // Vérifier si les consultations requises ont été faites
+    const currentDecision = scenario.decisions[scenario.currentDecisionIndex];
+    if (currentDecision.requiredConsultation && 
+        !currentDecision.requiredConsultation.every(stakeholderId => 
+          requiredConsultations.consulted.includes(stakeholderId))) {
       
-      const currentDecision = prevScenario.decisions[prevScenario.currentDecisionIndex];
-      const selectedOption = currentDecision.options.find(opt => opt.id === optionId);
+      // Ouvrir le dialogue de consultation si des parties prenantes n'ont pas été consultées
+      setConsultationDialog(true);
+      return;
+    }
+    
+    // Appliquer les conséquences de la décision
+    const decision = scenario.decisions[scenario.currentDecisionIndex];
+    const selectedOption = decision.options.find(opt => opt.id === optionId);
+    
+    if (!selectedOption) return;
+    
+    // Mettre à jour le scénario avec la décision prise
+    setScenario(prev => {
+      if (!prev) return prev;
       
-      if (!selectedOption) return prevScenario;
+      // Mettre à jour les indicateurs d'impact
+      const newImpactAreas = { ...prev.impactAreas };
+      Object.keys(selectedOption.consequences.impactChanges).forEach(key => {
+        const impactKey = key as keyof typeof newImpactAreas;
+        const currentValue = newImpactAreas[impactKey] || 0;
+        const change = selectedOption.consequences.impactChanges[impactKey as keyof typeof selectedOption.consequences.impactChanges] || 0;
+        
+        // Limiter les valeurs entre 0 et 100
+        newImpactAreas[impactKey] = Math.max(0, Math.min(100, currentValue + change));
+      });
       
-      // Calculer les nouveaux impacts
-      const newImpacts = { ...prevScenario.impactAreas };
-      const changes = selectedOption.consequences.impactChanges;
-      
-      newImpacts.reputation = Math.max(0, Math.min(100, newImpacts.reputation + changes.reputation));
-      newImpacts.operations = Math.max(0, Math.min(100, newImpacts.operations + changes.operations));
-      newImpacts.financial = Math.max(0, Math.min(100, newImpacts.financial + changes.financial));
-      newImpacts.legal = Math.max(0, Math.min(100, newImpacts.legal + changes.legal));
-      
-      // Mise à jour des décisions
-      const updatedDecisions = [...prevScenario.decisions];
-      updatedDecisions[prevScenario.currentDecisionIndex] = {
-        ...currentDecision,
-        selectedOption: optionId
-      };
-      
-      // Déterminer si c'est la dernière décision
-      const isLastDecision = prevScenario.currentDecisionIndex === prevScenario.decisions.length - 1;
-      
-      // Si c'est la dernière décision, montrer le résumé
-      if (isLastDecision) {
-        if (timer) {
-          clearInterval(timer);
-        }
-        setShowSummary(true);
+      // Mettre à jour les statuts des systèmes si spécifié
+      const newAffectedSystems = [...prev.affectedSystems];
+      if (selectedOption.consequences.systemStatusChanges) {
+        selectedOption.consequences.systemStatusChanges.forEach(change => {
+          const systemIndex = newAffectedSystems.findIndex(sys => sys.id === change.systemId);
+          if (systemIndex !== -1) {
+            newAffectedSystems[systemIndex] = {
+              ...newAffectedSystems[systemIndex],
+              status: change.newStatus,
+              recoveryProgress: newAffectedSystems[systemIndex].recoveryProgress + (change.recoveryChange || 0)
+            };
+          }
+        });
       }
       
-      // Retourner le scénario mis à jour
+      // Mettre à jour les parties prenantes si spécifié
+      const newStakeholders = [...prev.stakeholders];
+      if (selectedOption.consequences.stakeholderChanges) {
+        selectedOption.consequences.stakeholderChanges.forEach(change => {
+          const stakeholderIndex = newStakeholders.findIndex(s => s.id === change.stakeholderId);
+          if (stakeholderIndex !== -1) {
+            newStakeholders[stakeholderIndex] = {
+              ...newStakeholders[stakeholderIndex],
+              stress: Math.max(0, Math.min(100, newStakeholders[stakeholderIndex].stress + change.stressChange)),
+              trust: Math.max(0, Math.min(100, newStakeholders[stakeholderIndex].trust + change.trustChange))
+            };
+          }
+        });
+      }
+      
+      // Débloquer de nouvelles parties prenantes si spécifié
+      if (selectedOption.consequences.unlockNewStakeholders) {
+        selectedOption.consequences.unlockNewStakeholders.forEach(id => {
+          const stakeholderIndex = newStakeholders.findIndex(s => s.id === id);
+          if (stakeholderIndex !== -1) {
+            newStakeholders[stakeholderIndex] = {
+              ...newStakeholders[stakeholderIndex],
+              isAvailable: true
+            };
+            
+            // Notification nouveau PNJ disponible
+            toast({
+              title: "Nouveau contact disponible",
+              description: `${newStakeholders[stakeholderIndex].name} (${newStakeholders[stakeholderIndex].role}) est maintenant disponible pour consultation.`,
+              variant: "default",
+            });
+          }
+        });
+      }
+      
+      // Mettre à jour la timeline
+      const currentTime = new Date();
+      const timeString = `${currentTime.getHours()}:${currentTime.getMinutes().toString().padStart(2, '0')}`;
+      const newTimeline = [...prev.timeline, {
+        time: timeString,
+        event: `Décision prise: ${selectedOption.text}`,
+        severity: "high"
+      }];
+      
+      // Mettre à jour les décisions
+      const newDecisions = [...prev.decisions];
+      newDecisions[prev.currentDecisionIndex] = {
+        ...newDecisions[prev.currentDecisionIndex],
+        selectedOption: optionId,
+        consultedStakeholders: requiredConsultations.consulted
+      };
+      
+      // Si c'était la dernière décision
+      if (prev.currentDecisionIndex === prev.decisions.length - 1) {
+        // Fin de la simulation
+        return {
+          ...prev,
+          affectedSystems: newAffectedSystems,
+          stakeholders: newStakeholders,
+          impactAreas: newImpactAreas,
+          decisions: newDecisions,
+          timeline: newTimeline,
+          phase: "containment" // Avancer la phase
+        };
+      }
+      
+      // Si ce n'est pas la dernière décision, passer à la suivante
+      const nextRequiredConsultation = newDecisions[prev.currentDecisionIndex + 1].requiredConsultation || [];
+      setRequiredConsultations({
+        required: nextRequiredConsultation,
+        consulted: []
+      });
+      
       return {
-        ...prevScenario,
-        decisions: updatedDecisions,
-        currentDecisionIndex: isLastDecision ? prevScenario.currentDecisionIndex : prevScenario.currentDecisionIndex + 1,
-        impactAreas: newImpacts
+        ...prev,
+        affectedSystems: newAffectedSystems,
+        stakeholders: newStakeholders,
+        impactAreas: newImpactAreas,
+        decisions: newDecisions,
+        timeline: newTimeline,
+        currentDecisionIndex: prev.currentDecisionIndex + 1
       };
     });
     
-    // Notification de la décision prise
+    // Notification de décision prise
     toast({
-      title: "Décision enregistrée",
-      description: "Votre choix a un impact sur la gestion de crise.",
-      duration: 3000
+      title: "Décision prise",
+      description: selectedOption.consequences.description,
     });
   };
   
-  // Fonction pour formater le temps restant
-  const formatTimeRemaining = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  // Calculer un score global pour le résumé final
+  const calculateOverallScore = (): number => {
+    if (!scenario) return 0;
+    
+    const weights = {
+      reputation: 0.15,
+      operations: 0.25,
+      financial: 0.20,
+      legal: 0.15,
+      dataLoss: 0.15,
+      responseEfficiency: 0.10
+    };
+    
+    // Pour le score, on inverse certaines métriques (plus c'est bas, mieux c'est)
+    const inversedMetrics = ['dataLoss'];
+    
+    let score = 0;
+    Object.keys(weights).forEach(key => {
+      const metricKey = key as keyof typeof weights;
+      const weight = weights[metricKey];
+      let value = scenario.impactAreas[metricKey as keyof typeof scenario.impactAreas] || 0;
+      
+      // Inverser certaines métriques (100 - valeur)
+      if (inversedMetrics.includes(key)) {
+        value = 100 - value;
+      }
+      
+      score += weight * value;
+    });
+    
+    return Math.round(score);
   };
   
   // Fonction pour redémarrer le scénario
   const restartScenario = () => {
-    if (timer) {
-      clearInterval(timer);
-    }
+    setIsLoading(true);
     setShowSummary(false);
-    startScenario();
+    setFocusedStakeholderId(null);
+    setRequiredConsultations({ required: [], consulted: [] });
+    
+    // Simuler un temps de chargement
+    setTimeout(() => {
+      setScenario(sampleScenario);
+      setIsLoading(false);
+      startTimer();
+      
+      // Initialiser les consultations requises pour la première décision
+      if (sampleScenario.decisions[0].requiredConsultation) {
+        setRequiredConsultations({
+          required: sampleScenario.decisions[0].requiredConsultation,
+          consulted: []
+        });
+      }
+      
+      toast({
+        title: "Scénario redémarré",
+        description: "Nouvelle simulation lancée. Bonne chance !",
+        variant: "default",
+      });
+    }, 1500);
   };
   
   // Fonction pour retourner à la page précédente
   const handleReturnToPrevious = () => {
-    // Si un scénario est en cours, demander confirmation
-    if (scenario && !showSummary) {
-      if (window.confirm("Êtes-vous sûr de vouloir abandonner cette simulation ? Votre progression sera perdue.")) {
-        if (timer) {
-          clearInterval(timer);
-        }
-        setLocation("/cyber/roleplay");
-      }
-    } else {
-      // Si aucun scénario n'est en cours ou si le résumé est affiché, naviguer directement
-      setLocation("/cyber/roleplay");
+    setLocation('/cyber');
+  };
+  
+  // Gérer les consultations avec les parties prenantes
+  const consultStakeholder = (stakeholderId: string) => {
+    setFocusedStakeholderId(stakeholderId);
+    setActiveTab('stakeholders');
+    
+    // Marquer cette partie prenante comme consultée
+    if (requiredConsultations.required.includes(stakeholderId) && 
+        !requiredConsultations.consulted.includes(stakeholderId)) {
+      setRequiredConsultations(prev => ({
+        ...prev,
+        consulted: [...prev.consulted, stakeholderId]
+      }));
     }
   };
   
-  // Calculer le score global
-  const calculateOverallScore = () => {
-    if (!scenario) return 0;
+  // Gérer l'envoi de messages dans la conversation
+  const handleSendMessage = async () => {
+    if (!messageInput.trim() || !scenario) return;
     
-    const { reputation, operations, financial, legal } = scenario.impactAreas;
-    return Math.round((reputation + operations + financial + legal) / 4);
+    setIsSending(true);
+    
+    // Construire le nouveau message
+    const newMessage: Message = {
+      id: uuidv4(),
+      senderId: "player",
+      content: messageInput,
+      timestamp: new Date()
+    };
+    
+    // Destination du message selon l'onglet actif
+    if (activeTab === 'warroom') {
+      // Message dans la war room (tous les participants)
+      setScenario(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          warRoom: [...prev.warRoom, newMessage]
+        };
+      });
+    } else if (activeTab === 'stakeholders' && focusedStakeholderId) {
+      // Message privé à une partie prenante spécifique
+      setScenario(prev => {
+        if (!prev) return prev;
+        
+        const conversationIndex = prev.conversations.findIndex(
+          c => c.stakeholderId === focusedStakeholderId
+        );
+        
+        if (conversationIndex === -1) return prev;
+        
+        const updatedConversations = [...prev.conversations];
+        updatedConversations[conversationIndex] = {
+          ...updatedConversations[conversationIndex],
+          messages: [...updatedConversations[conversationIndex].messages, newMessage],
+          lastActivity: new Date()
+        };
+        
+        return {
+          ...prev,
+          conversations: updatedConversations
+        };
+      });
+      
+      // Simuler la réponse du PNJ
+      setIsTyping(true);
+      
+      // Ici, on simulerait l'appel à Azure OpenAI pour générer une réponse
+      // Pour l'instant, on simule un délai et une réponse statique
+      setTimeout(() => {
+        const stakeholder = scenario.stakeholders.find(s => s.id === focusedStakeholderId);
+        
+        let responseContent = "";
+        switch (stakeholder?.personality) {
+          case "technical":
+            responseContent = "D'un point de vue technique, nous devons considérer plusieurs facteurs clés pour résoudre efficacement cette situation. Je vais analyser votre approche et vous fournir des données précises pour appuyer la prise de décision.";
+            break;
+          case "anxious":
+            responseContent = "Je suis vraiment inquiet de l'impact que cela peut avoir ! Les équipes sont débordées et nous avons besoin de directives claires immédiatement. Comment pouvons-nous limiter les dégâts ?";
+            break;
+          case "authoritative":
+            responseContent = "J'attends de vous une réponse claire et des actions décisives. Nous devons protéger l'entreprise et rassurer nos partenaires. Quelles sont vos recommandations précises ?";
+            break;
+          case "diplomatic":
+            responseContent = "Je comprends la complexité de la situation. Nous devons trouver un équilibre entre la transparence et la protection de notre image. Quelle stratégie de communication suggérez-vous ?";
+            break;
+          case "calm":
+            responseContent = "Prenons le temps d'évaluer méthodiquement la situation. Nous devons suivre les procédures établies tout en restant agiles. Quelles sont les prochaines étapes selon vous ?";
+            break;
+          default:
+            responseContent = "Merci pour ces informations. Comment suggérez-vous que nous procédions maintenant ?";
+        }
+        
+        const responseMessage: Message = {
+          id: uuidv4(),
+          senderId: focusedStakeholderId,
+          content: responseContent,
+          timestamp: new Date(),
+          reactionType: "neutral"
+        };
+        
+        setScenario(prev => {
+          if (!prev) return prev;
+          
+          const conversationIndex = prev.conversations.findIndex(
+            c => c.stakeholderId === focusedStakeholderId
+          );
+          
+          if (conversationIndex === -1) return prev;
+          
+          const updatedConversations = [...prev.conversations];
+          updatedConversations[conversationIndex] = {
+            ...updatedConversations[conversationIndex],
+            messages: [...updatedConversations[conversationIndex].messages, responseMessage],
+            lastActivity: new Date()
+          };
+          
+          return {
+            ...prev,
+            conversations: updatedConversations
+          };
+        });
+        
+        setIsTyping(false);
+      }, 2000 + Math.random() * 2000); // Délai aléatoire pour simuler la réflexion
+    }
+    
+    setMessageInput('');
+    setIsSending(false);
   };
   
+  // Obtenir les messages de la conversation en cours
+  const getCurrentConversationMessages = () => {
+    if (!scenario) return [];
+    
+    if (activeTab === 'warroom') {
+      return scenario.warRoom;
+    } else if (activeTab === 'stakeholders' && focusedStakeholderId) {
+      const conversation = scenario.conversations.find(
+        c => c.stakeholderId === focusedStakeholderId
+      );
+      return conversation ? conversation.messages : [];
+    }
+    
+    return [];
+  };
+  
+  // Obtenir les informations du stakeholder en cours de conversation
+  const getFocusedStakeholder = () => {
+    if (!scenario || !focusedStakeholderId) return null;
+    return scenario.stakeholders.find(s => s.id === focusedStakeholderId);
+  };
+  
+  // Rendu de l'interface utilisateur
   return (
     <HomeLayout>
-      <PageTitle title="Gestion de Crise | Cybersécurité" />
-      
-      <div className="min-h-[calc(100vh-64px)] bg-gradient-to-b from-rose-950 to-slate-900 text-white relative overflow-hidden">
-        {/* Bouton de retour */}
-        <div className="absolute top-4 left-4 z-20">
-          <Button 
-            variant="outline"
-            size="sm"
-            className="bg-black/50 border-rose-800 text-rose-400 hover:bg-black/70 hover:text-rose-300"
-            onClick={handleReturnToPrevious}
-          >
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Retour
-          </Button>
-        </div>
-        
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white overflow-hidden relative">
         {/* Overlay d'éléments de crise en arrière-plan - Effet visuel amélioré */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           {/* Grille de fond façon "réseau compromis" */}
@@ -1079,464 +1216,1088 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
         
         {/* Ajout d'un filtre sur tout le contenu pour renforcer l'ambiance de crise */}
         <div className="absolute inset-0 bg-gradient-to-br from-rose-950/10 to-slate-950/10 mix-blend-multiply z-0"></div>
+
+        {/* Bouton de retour */}
+        <div className="relative z-10 p-4">
+          <Button 
+            variant="outline" 
+            onClick={handleReturnToPrevious}
+            className="bg-gray-900/60 text-gray-300 border-gray-700"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Retour
+          </Button>
+        </div>
         
         {/* Bannière en cours de développement */}
-        <div className="mx-auto max-w-4xl mb-4 mt-2">
+        <div className="mx-auto max-w-6xl mb-4 mt-2 relative z-10">
           <div className="flex items-center justify-center gap-2 px-4 py-3 bg-amber-900/30 border border-amber-500/30 rounded-md">
             <AlertTriangle className="h-5 w-5 text-amber-500" />
-            <p className="font-medium text-amber-400">Module en cours de développement (15% terminé)</p>
+            <p className="font-medium text-amber-400">Module en cours de développement</p>
           </div>
         </div>
         
+        {/* Notification d'événement en temps réel */}
+        {showNotification && (
+          <div className="fixed top-5 right-5 z-50 max-w-md animate-slide-in-right bg-red-900/90 border border-red-700 p-4 rounded-md shadow-lg">
+            <div className="flex items-start">
+              <BellRing className="h-6 w-6 text-red-400 mr-3 flex-shrink-0 animate-pulse" />
+              <div>
+                <h3 className="font-bold text-white">Alerte en temps réel</h3>
+                <p className="text-red-200 text-sm mt-1">{notificationMessage}</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Dialogue de consultation requise */}
+        <Dialog open={consultationDialog} onOpenChange={setConsultationDialog}>
+          <DialogContent className="bg-gray-900 border-red-900 max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-rose-300 flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-rose-500" />
+                Consultation requise
+              </DialogTitle>
+              <DialogDescription className="text-gray-300">
+                Vous devez consulter ces parties prenantes avant de prendre cette décision :
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-3 my-4">
+              {requiredConsultations.required.map(stakeholderId => {
+                const stakeholder = scenario?.stakeholders.find(s => s.id === stakeholderId);
+                if (!stakeholder) return null;
+                
+                const isConsulted = requiredConsultations.consulted.includes(stakeholderId);
+                
+                return (
+                  <div key={stakeholderId} className="flex items-center gap-3 p-3 rounded-md bg-gray-800/50 border border-gray-700">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={stakeholder.avatar} />
+                      <AvatarFallback className={`bg-${stakeholder.department === 'IT' ? 'blue' : stakeholder.department === 'Executive' ? 'purple' : 'amber'}-800`}>
+                        {stakeholder.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="text-white font-medium">{stakeholder.name}</p>
+                      <p className="text-gray-400 text-xs">{stakeholder.role}</p>
+                    </div>
+                    {isConsulted ? (
+                      <Badge className="bg-green-800 text-green-100">
+                        <Check className="h-3 w-3 mr-1" />
+                        Consulté
+                      </Badge>
+                    ) : (
+                      <Button size="sm" onClick={() => {
+                        consultStakeholder(stakeholderId);
+                        setConsultationDialog(false);
+                      }}>
+                        Consulter
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            
+            <DialogFooter>
+              <Button onClick={() => setConsultationDialog(false)}>Fermer</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         {/* Contenu principal */}
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center h-screen">
-            <AlertTriangle className="h-16 w-16 text-rose-500 animate-pulse" />
-            <h2 className="text-2xl font-bold mt-4">Initialisation de la simulation de crise...</h2>
-            <p className="text-gray-400 mt-2">Préparation du scénario d'incident</p>
+          <div className="flex flex-col items-center justify-center h-screen relative z-10">
+            <div className="flex flex-col items-center justify-center gap-4 max-w-md text-center">
+              <div className="relative w-24 h-24">
+                <div className="absolute inset-0 rounded-full bg-red-900/30 animate-ping"></div>
+                <div className="relative flex items-center justify-center w-24 h-24 rounded-full bg-red-900/50 border border-red-700 animate-pulse">
+                  <AlertTriangle className="h-12 w-12 text-red-500" />
+                </div>
+              </div>
+              <h2 className="text-2xl font-bold mt-4 text-white">Initialisation de la simulation de crise...</h2>
+              <p className="text-gray-400 mt-2">Connexion au SOC, préparation des intervenants et du scénario d'incident</p>
+              
+              <div className="w-full mt-6">
+                <div className="h-1 w-full bg-gray-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-red-900 to-rose-600 animate-progress-indeterminate"></div>
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
-          <div className="container mx-auto pt-16 pb-8 px-4 relative z-10">
+          <div className="container mx-auto px-4 pb-16 relative z-10">
             {scenario && !showSummary ? (
-              <div className="max-w-4xl mx-auto">
-                {/* En-tête avec infos de crise */}
-                <Card className="bg-rose-900/40 border-rose-700/50 mb-6">
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-center">
-                      <CardTitle className="text-rose-200 flex items-center">
-                        <AlertTriangle className="h-5 w-5 mr-2 text-rose-400" />
-                        {scenario.title}
-                        <Badge variant="destructive" className="ml-3 bg-rose-700">
-                          {scenario.severity === "critical" ? "CRITIQUE" : 
-                           scenario.severity === "high" ? "ÉLEVÉ" : 
-                           scenario.severity === "medium" ? "MOYEN" : "FAIBLE"}
-                        </Badge>
-                      </CardTitle>
-                      <div className="text-rose-300 text-xl font-mono font-bold flex items-center">
-                        <Clock className="h-5 w-5 mr-2" />
-                        {formatTimeRemaining(scenario.timeRemaining)}
-                      </div>
-                    </div>
-                    <CardDescription className="text-rose-300/80">
-                      {scenario.description}
-                    </CardDescription>
-                  </CardHeader>
-                </Card>
-                
-                {/* Ligne de temps et indicateurs d'impact */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-                  <Card className="bg-slate-900/60 border-rose-900/40 col-span-2">
+              <>
+                {/* En-tête d'information sur la crise */}
+                <div className="max-w-6xl mx-auto mb-6">
+                  <Card className="bg-gradient-to-r from-gray-900/90 to-rose-950/40 border-red-900/40 shadow-lg overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-700 via-red-500 to-red-700"></div>
+                    
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-rose-300">Chronologie des événements</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {scenario.timeline.map((event, index) => (
-                          <div key={index} className="flex items-start">
-                            <div className="bg-rose-800/30 text-rose-300 px-2 py-1 rounded font-mono text-xs w-14 text-center mr-3">
-                              {event.time}
+                      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                        <div>
+                          <CardTitle className="flex items-center text-2xl text-white">
+                            <AlertOctagon className="h-6 w-6 mr-2 text-red-500" />
+                            {scenario.title}
+                            <Badge variant="destructive" className="ml-3 bg-red-800 animate-pulse">
+                              {scenario.severity === "critical" ? "CRITIQUE" : 
+                               scenario.severity === "high" ? "ÉLEVÉ" : 
+                               scenario.severity === "medium" ? "MOYEN" : "FAIBLE"}
+                            </Badge>
+                          </CardTitle>
+                          <CardDescription className="text-gray-300 mt-1">
+                            Phase: <span className="text-red-400 font-medium">{
+                              scenario.phase === "detection" ? "Détection" :
+                              scenario.phase === "analysis" ? "Analyse" :
+                              scenario.phase === "containment" ? "Confinement" :
+                              scenario.phase === "eradication" ? "Éradication" :
+                              scenario.phase === "recovery" ? "Récupération" :
+                              "Retour d'expérience"
+                            }</span> | Type d'incident: <span className="text-red-400 font-medium">{
+                              scenario.incidentType === "ransomware" ? "Ransomware" :
+                              scenario.incidentType === "data-breach" ? "Violation de données" :
+                              scenario.incidentType === "ddos" ? "DDoS" :
+                              scenario.incidentType === "insider-threat" ? "Menace interne" :
+                              scenario.incidentType === "supply-chain" ? "Chaîne d'approvisionnement" :
+                              "Zero Day"
+                            }</span>
+                          </CardDescription>
+                        </div>
+                        
+                        <div className="flex items-center gap-3">
+                          <div className="px-4 py-2 bg-gray-800/70 rounded-md border border-gray-700 flex items-center">
+                            <Clock className="h-5 w-5 mr-2 text-red-400" />
+                            <div className="text-xl font-mono font-bold text-red-300 animate-pulse">
+                              {formatTimeRemaining(scenario.timeRemaining)}
                             </div>
-                            <div className="text-sm text-gray-300">{event.event}</div>
                           </div>
-                        ))}
-                        {/* Événement en cours */}
-                        <div className="flex items-start">
-                          <div className="bg-rose-600/50 text-white px-2 py-1 rounded font-mono text-xs w-14 text-center mr-3 animate-pulse">
-                            EN COURS
-                          </div>
-                          <div className="text-sm text-white font-medium">
-                            Prise de décision : Étape {scenario.currentDecisionIndex + 1}/{scenario.decisions.length}
+                          
+                          <div className="hidden md:flex px-4 py-2 bg-gray-800/70 rounded-md border border-gray-700 items-center">
+                            <Shield className="h-5 w-5 mr-2 text-amber-400" />
+                            <div className="text-sm text-gray-300">
+                              Score: <span className="text-amber-300 font-bold">{calculateOverallScore()}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="bg-slate-900/60 border-rose-900/40">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-rose-300">Indicateurs d'impact</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div>
-                          <div className="flex justify-between items-center text-xs mb-1">
-                            <div className="flex items-center">
-                              <ShieldAlert className="h-3 w-3 mr-1 text-rose-400" />
-                              <span className="text-rose-200">Réputation</span>
-                            </div>
-                            <div className="flex items-center">
-                              <span 
-                                className={`text-rose-300 font-mono ${
-                                  scenario.impactAreas.reputation > 70 ? "text-red-400 animate-pulse" : ""
-                                }`}
-                              >
-                                {scenario.impactAreas.reputation}%
-                              </span>
-                              {scenario.impactAreas.reputation > 50 && (
-                                <AlertTriangle className="h-3 w-3 ml-1 text-red-400" />
-                              )}
-                            </div>
-                          </div>
-                          <Progress 
-                            value={scenario.impactAreas.reputation} 
-                            className="h-2 bg-rose-950" 
-                            indicatorClassName={`${
-                              scenario.impactAreas.reputation > 70 
-                                ? "bg-red-500 animate-pulse" 
-                                : scenario.impactAreas.reputation > 50 
-                                ? "bg-red-600" 
-                                : "bg-rose-500"
-                            }`} 
-                          />
-                        </div>
-                        <div>
-                          <div className="flex justify-between items-center text-xs mb-1">
-                            <div className="flex items-center">
-                              <Activity className="h-3 w-3 mr-1 text-rose-400" />
-                              <span className="text-rose-200">Opérations</span>
-                            </div>
-                            <div className="flex items-center">
-                              <span 
-                                className={`text-rose-300 font-mono ${
-                                  scenario.impactAreas.operations > 70 ? "text-red-400 animate-pulse" : ""
-                                }`}
-                              >
-                                {scenario.impactAreas.operations}%
-                              </span>
-                              {scenario.impactAreas.operations > 50 && (
-                                <AlertTriangle className="h-3 w-3 ml-1 text-red-400" />
-                              )}
-                            </div>
-                          </div>
-                          <Progress 
-                            value={scenario.impactAreas.operations} 
-                            className="h-2 bg-rose-950" 
-                            indicatorClassName={`${
-                              scenario.impactAreas.operations > 70 
-                                ? "bg-red-500 animate-pulse" 
-                                : scenario.impactAreas.operations > 50 
-                                ? "bg-red-600" 
-                                : "bg-rose-500"
-                            }`} 
-                          />
-                        </div>
-                        <div>
-                          <div className="flex justify-between items-center text-xs mb-1">
-                            <div className="flex items-center">
-                              <Banknote className="h-3 w-3 mr-1 text-rose-400" />
-                              <span className="text-rose-200">Financier</span>
-                            </div>
-                            <div className="flex items-center">
-                              <span 
-                                className={`text-rose-300 font-mono ${
-                                  scenario.impactAreas.financial > 70 ? "text-red-400 animate-pulse" : ""
-                                }`}
-                              >
-                                {scenario.impactAreas.financial}%
-                              </span>
-                              {scenario.impactAreas.financial > 50 && (
-                                <AlertTriangle className="h-3 w-3 ml-1 text-red-400" />
-                              )}
-                            </div>
-                          </div>
-                          <Progress 
-                            value={scenario.impactAreas.financial} 
-                            className="h-2 bg-rose-950" 
-                            indicatorClassName={`${
-                              scenario.impactAreas.financial > 70 
-                                ? "bg-red-500 animate-pulse" 
-                                : scenario.impactAreas.financial > 50 
-                                ? "bg-red-600" 
-                                : "bg-rose-500"
-                            }`} 
-                          />
-                        </div>
-                        <div>
-                          <div className="flex justify-between items-center text-xs mb-1">
-                            <div className="flex items-center">
-                              <Scale className="h-3 w-3 mr-1 text-rose-400" />
-                              <span className="text-rose-200">Juridique</span>
-                            </div>
-                            <div className="flex items-center">
-                              <span 
-                                className={`text-rose-300 font-mono ${
-                                  scenario.impactAreas.legal > 70 ? "text-red-400 animate-pulse" : ""
-                                }`}
-                              >
-                                {scenario.impactAreas.legal}%
-                              </span>
-                              {scenario.impactAreas.legal > 50 && (
-                                <AlertTriangle className="h-3 w-3 ml-1 text-red-400" />
-                              )}
-                            </div>
-                          </div>
-                          <Progress 
-                            value={scenario.impactAreas.legal} 
-                            className="h-2 bg-rose-950" 
-                            indicatorClassName={`${
-                              scenario.impactAreas.legal > 70 
-                                ? "bg-red-500 animate-pulse" 
-                                : scenario.impactAreas.legal > 50 
-                                ? "bg-red-600" 
-                                : "bg-rose-500"
-                            }`} 
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
                   </Card>
                 </div>
                 
-                {/* Situation actuelle - Carte améliorée avec alertes visuelles */}
-                <Card className="bg-gradient-to-br from-slate-900/80 to-rose-950/40 border-rose-700/40 shadow-lg shadow-rose-900/20 mb-6 overflow-hidden relative">
-                  {/* Arrière-plan dynamique */}
-                  <div className="absolute inset-0 overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-800 to-red-500 opacity-70"></div>
-                    <div className="absolute inset-y-0 right-0 w-1 bg-gradient-to-b from-rose-800 to-transparent opacity-70"></div>
-                    <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent to-rose-800 opacity-70"></div>
-                    <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-transparent to-rose-800 opacity-70"></div>
-                  </div>
-                  
-                  <CardHeader className="pb-2 relative z-10">
-                    <CardTitle className="text-rose-300 flex items-center">
-                      <AlertOctagon className="h-5 w-5 mr-2 text-rose-500" />
-                      Situation actuelle
-                      {scenario.severity === "critical" && (
-                        <Badge variant="destructive" className="ml-3 bg-red-800 animate-pulse">CRITIQUE</Badge>
-                      )}
-                    </CardTitle>
-                    
-                    {/* Tags supplémentaires selon la situation */}
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      <span className="inline-flex items-center px-2 py-1 text-xs rounded-full bg-rose-950/50 text-rose-300 border border-rose-800/40">
-                        <Clock className="h-3 w-3 mr-1" /> Temps restant: {formatTimeRemaining(scenario.timeRemaining)}
-                      </span>
-                      <span className="inline-flex items-center px-2 py-1 text-xs rounded-full bg-rose-950/50 text-rose-300 border border-rose-800/40">
-                        <Shield className="h-3 w-3 mr-1" /> Systèmes impactés: {Math.floor(Math.random() * 5) + 3}
-                      </span>
-                      <span className="inline-flex items-center px-2 py-1 text-xs rounded-full bg-rose-950/50 text-rose-300 border border-rose-800/40">
-                        <Users className="h-3 w-3 mr-1" /> Équipes mobilisées: {Math.floor(Math.random() * 3) + 2}
-                      </span>
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent className="prose prose-invert max-w-none relative z-10">
-                    {/* Encadré d'avertissement */}
-                    <div className="mb-4 p-3 bg-red-950/30 border-l-4 border-red-500 rounded">
-                      <div className="flex items-start">
-                        <AlertTriangle className="h-5 w-5 text-red-400 mr-2 flex-shrink-0 mt-0.5" />
-                        <p className="text-red-300 text-sm m-0">
-                          <span className="font-semibold">Alerte SOC:</span> La situation évolue rapidement et nécessite une prise de décision immédiate. Les impacts peuvent s'aggraver si aucune action n'est prise.
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {/* Contenu principal avec mise en évidence */}
-                    <div className="text-gray-200 whitespace-pre-line leading-relaxed">
-                      {scenario.situation.split('\n').map((paragraph, i) => (
-                        <p key={i} className={i === 0 ? "text-base font-medium text-rose-100" : "text-sm text-gray-300"}>
-                          {paragraph}
-                        </p>
-                      ))}
-                    </div>
-                    
-                    {/* Indicateurs temps réel */}
-                    <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
-                      <div className="flex flex-col items-center justify-center p-2 bg-rose-950/30 rounded border border-rose-900/30">
-                        <span className="font-mono text-rose-300">CPU</span>
-                        <span className="font-mono text-rose-400 animate-pulse">{Math.floor(Math.random() * 25) + 75}%</span>
-                      </div>
-                      <div className="flex flex-col items-center justify-center p-2 bg-rose-950/30 rounded border border-rose-900/30">
-                        <span className="font-mono text-rose-300">MEM</span>
-                        <span className="font-mono text-rose-400">{Math.floor(Math.random() * 20) + 60}%</span>
-                      </div>
-                      <div className="flex flex-col items-center justify-center p-2 bg-rose-950/30 rounded border border-rose-900/30">
-                        <span className="font-mono text-rose-300">ALRT</span>
-                        <span className="font-mono text-rose-400">{Math.floor(Math.random() * 100) + 150}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                {/* Décision actuelle - Redesign complet */}
-                <Card className="bg-gradient-to-br from-rose-950/50 to-black border-red-900/50 mb-6 overflow-hidden shadow-lg shadow-rose-900/20 relative">
-                  {/* Arrière-plan animé pour effet urgence */}
-                  <div className="absolute inset-0 overflow-hidden z-0">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-700 via-red-500 to-red-700 animate-pulse"></div>
-                    <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-red-700 via-red-500 to-transparent"></div>
-                    <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-500 to-red-700"></div>
-                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-red-700 via-red-500 to-transparent"></div>
-                  </div>
-                  
-                  <CardHeader className="relative z-10 pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-xl text-rose-100 flex items-center">
-                        <AlertTriangle className="h-5 w-5 mr-2 text-red-500 animate-pulse" />
-                        <span className="mr-2">Décision critique</span>
-                        <Badge className="bg-red-900 text-rose-100 animate-pulse">
-                          {scenario.currentDecisionIndex + 1}/{scenario.decisions.length}
-                        </Badge>
-                      </CardTitle>
-                      
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-1 text-rose-400" />
-                        <span className="text-sm font-mono text-rose-300">
-                          {formatTimeRemaining(scenario.timeRemaining)}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <CardDescription className="text-rose-100 text-lg font-medium mt-4 border-l-4 border-red-700 pl-3 py-1">
-                      {scenario.decisions[scenario.currentDecisionIndex].question}
-                    </CardDescription>
-                  </CardHeader>
-                  
-                  <CardContent className="relative z-10">
-                    {/* Avertissement pré-décision */}
-                    <div className="mb-4 p-3 bg-red-950/40 rounded border border-red-900/40">
-                      <div className="flex items-start">
-                        <Info className="h-4 w-4 text-rose-400 mr-2 flex-shrink-0 mt-0.5" />
-                        <p className="text-sm text-rose-300 m-0">
-                          Chaque décision affectera différemment les indicateurs d'impact. Choisissez judicieusement en fonction de vos priorités de gestion de crise.
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      {scenario.decisions[scenario.currentDecisionIndex].options.map((option, index) => (
-                        <div 
-                          key={option.id}
-                          className="relative overflow-hidden rounded-md group transition-all duration-300"
+                {/* Interface principale divisée en tabs */}
+                <div className="max-w-6xl mx-auto">
+                  <Tabs 
+                    defaultValue="warroom" 
+                    value={activeTab} 
+                    onValueChange={(value) => setActiveTab(value as any)}
+                    className="w-full"
+                  >
+                    <div className="border-b border-gray-800 mb-4">
+                      <TabsList className="h-14 bg-transparent w-full justify-start border-b border-gray-800 rounded-none">
+                        <TabsTrigger 
+                          value="warroom"
+                          className="flex items-center gap-2 px-5 data-[state=active]:text-red-400 data-[state=active]:border-red-500"
                         >
-                          <Button
-                            variant="outline"
-                            className="w-full justify-start py-6 px-4 border-rose-800/60 bg-gradient-to-r from-slate-900/80 to-rose-950/30 
-                                      hover:bg-gradient-to-r hover:from-rose-950/40 hover:to-slate-900/70 hover:border-red-600/70 text-left
-                                      group-hover:shadow-md group-hover:shadow-rose-900/30 transition-all duration-300"
-                            onClick={() => makeDecision(option.id)}
-                          >
-                            <div className="flex flex-col w-full">
-                              <div className="flex items-center mb-1">
-                                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-rose-900/50 mr-3 
-                                              border border-rose-800/50 group-hover:bg-rose-800 transition-colors duration-300">
-                                  <span className="text-rose-200 font-bold text-sm">{index + 1}</span>
+                          <MessageSquare className="h-5 w-5" />
+                          <span>Salle de crise</span>
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="stakeholders"
+                          className="flex items-center gap-2 px-5 data-[state=active]:text-red-400 data-[state=active]:border-red-500"
+                        >
+                          <Users className="h-5 w-5" />
+                          <span>Parties prenantes</span>
+                          {focusedStakeholderId && (
+                            <Badge className="ml-2 bg-gray-700 text-gray-200">
+                              {scenario.stakeholders.find(s => s.id === focusedStakeholderId)?.name.split(' ')[0]}
+                            </Badge>
+                          )}
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="systems"
+                          className="flex items-center gap-2 px-5 data-[state=active]:text-red-400 data-[state=active]:border-red-500"
+                        >
+                          <Server className="h-5 w-5" />
+                          <span>Systèmes impactés</span>
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="decisions"
+                          className="flex items-center gap-2 px-5 data-[state=active]:text-red-400 data-[state=active]:border-red-500"
+                        >
+                          <FileText className="h-5 w-5" />
+                          <span>Décisions</span>
+                        </TabsTrigger>
+                      </TabsList>
+                    </div>
+                    
+                    {/* Contenu de l'onglet Salle de crise (War Room) */}
+                    <TabsContent value="warroom" className="m-0">
+                      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                        {/* Panneau gauche: Timeline des événements */}
+                        <div className="lg:col-span-1">
+                          <Card className="bg-gray-900/60 border-gray-800">
+                            <CardHeader className="pb-2">
+                              <CardTitle className="text-sm font-medium text-gray-300 flex items-center">
+                                <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                                Chronologie des événements
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <ScrollArea className="h-[400px] pr-4">
+                                <div className="space-y-2">
+                                  {scenario.timeline.map((event, index) => (
+                                    <div key={index} className="flex items-start group relative">
+                                      <div className={`flex-shrink-0 w-14 py-1 px-2 text-center rounded font-mono text-xs font-medium mr-3 ${
+                                        event.severity === "critical" ? "bg-red-900/60 text-red-300" :
+                                        event.severity === "high" ? "bg-amber-900/60 text-amber-300" :
+                                        event.severity === "medium" ? "bg-blue-900/60 text-blue-300" :
+                                        "bg-gray-800/60 text-gray-300"
+                                      }`}>
+                                        {event.time}
+                                      </div>
+                                      <div className="flex-1">
+                                        <div className={`text-sm pb-3 ${
+                                          event.severity === "critical" ? "text-red-200" :
+                                          event.severity === "high" ? "text-amber-200" :
+                                          event.severity === "medium" ? "text-blue-200" :
+                                          "text-gray-300"
+                                        }`}>
+                                          {event.event}
+                                        </div>
+                                        <div className="absolute left-[6.5px] top-[28px] bottom-0 w-1 bg-gray-800 group-last:hidden"></div>
+                                      </div>
+                                    </div>
+                                  ))}
                                 </div>
-                                <div className="font-medium text-rose-100 group-hover:text-white transition-colors duration-300">{option.text}</div>
+                              </ScrollArea>
+                            </CardContent>
+                          </Card>
+
+                          {/* Indicateurs d'impact */}
+                          <Card className="bg-gray-900/60 border-gray-800 mt-4">
+                            <CardHeader className="pb-2">
+                              <CardTitle className="text-sm font-medium text-gray-300 flex items-center">
+                                <BarChart className="h-4 w-4 mr-2 text-gray-400" />
+                                Indicateurs d'impact
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-3">
+                                <div>
+                                  <div className="flex justify-between items-center text-xs mb-1">
+                                    <div className="flex items-center">
+                                      <ShieldAlert className="h-3 w-3 mr-1 text-rose-400" />
+                                      <span className="text-gray-300">Réputation</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span 
+                                        className={`text-gray-300 font-mono ${
+                                          scenario.impactAreas.reputation > 70 ? "text-red-400 animate-pulse" : ""
+                                        }`}
+                                      >
+                                        {scenario.impactAreas.reputation}%
+                                      </span>
+                                      {scenario.impactAreas.reputation > 50 && (
+                                        <AlertTriangle className="h-3 w-3 ml-1 text-red-400" />
+                                      )}
+                                    </div>
+                                  </div>
+                                  <Progress 
+                                    value={scenario.impactAreas.reputation} 
+                                    className="h-1.5 bg-gray-800" 
+                                    indicatorClassName={`${
+                                      scenario.impactAreas.reputation > 70 
+                                        ? "bg-red-500 animate-pulse" 
+                                        : scenario.impactAreas.reputation > 50 
+                                        ? "bg-red-600" 
+                                        : "bg-rose-500"
+                                    }`} 
+                                  />
+                                </div>
+                                <div>
+                                  <div className="flex justify-between items-center text-xs mb-1">
+                                    <div className="flex items-center">
+                                      <Activity className="h-3 w-3 mr-1 text-rose-400" />
+                                      <span className="text-gray-300">Opérations</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span 
+                                        className={`text-gray-300 font-mono ${
+                                          scenario.impactAreas.operations > 70 ? "text-red-400 animate-pulse" : ""
+                                        }`}
+                                      >
+                                        {scenario.impactAreas.operations}%
+                                      </span>
+                                      {scenario.impactAreas.operations > 50 && (
+                                        <AlertTriangle className="h-3 w-3 ml-1 text-red-400" />
+                                      )}
+                                    </div>
+                                  </div>
+                                  <Progress 
+                                    value={scenario.impactAreas.operations} 
+                                    className="h-1.5 bg-gray-800" 
+                                    indicatorClassName={`${
+                                      scenario.impactAreas.operations > 70 
+                                        ? "bg-red-500 animate-pulse" 
+                                        : scenario.impactAreas.operations > 50 
+                                        ? "bg-red-600" 
+                                        : "bg-rose-500"
+                                    }`} 
+                                  />
+                                </div>
+                                <div>
+                                  <div className="flex justify-between items-center text-xs mb-1">
+                                    <div className="flex items-center">
+                                      <Banknote className="h-3 w-3 mr-1 text-rose-400" />
+                                      <span className="text-gray-300">Financier</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span 
+                                        className={`text-gray-300 font-mono ${
+                                          scenario.impactAreas.financial > 70 ? "text-red-400 animate-pulse" : ""
+                                        }`}
+                                      >
+                                        {scenario.impactAreas.financial}%
+                                      </span>
+                                      {scenario.impactAreas.financial > 50 && (
+                                        <AlertTriangle className="h-3 w-3 ml-1 text-red-400" />
+                                      )}
+                                    </div>
+                                  </div>
+                                  <Progress 
+                                    value={scenario.impactAreas.financial} 
+                                    className="h-1.5 bg-gray-800" 
+                                    indicatorClassName={`${
+                                      scenario.impactAreas.financial > 70 
+                                        ? "bg-red-500 animate-pulse" 
+                                        : scenario.impactAreas.financial > 50 
+                                        ? "bg-red-600" 
+                                        : "bg-rose-500"
+                                    }`} 
+                                  />
+                                </div>
+                                <div>
+                                  <div className="flex justify-between items-center text-xs mb-1">
+                                    <div className="flex items-center">
+                                      <Scale className="h-3 w-3 mr-1 text-rose-400" />
+                                      <span className="text-gray-300">Juridique</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span 
+                                        className={`text-gray-300 font-mono ${
+                                          scenario.impactAreas.legal > 70 ? "text-red-400 animate-pulse" : ""
+                                        }`}
+                                      >
+                                        {scenario.impactAreas.legal}%
+                                      </span>
+                                      {scenario.impactAreas.legal > 50 && (
+                                        <AlertTriangle className="h-3 w-3 ml-1 text-red-400" />
+                                      )}
+                                    </div>
+                                  </div>
+                                  <Progress 
+                                    value={scenario.impactAreas.legal} 
+                                    className="h-1.5 bg-gray-800" 
+                                    indicatorClassName={`${
+                                      scenario.impactAreas.legal > 70 
+                                        ? "bg-red-500 animate-pulse" 
+                                        : scenario.impactAreas.legal > 50 
+                                        ? "bg-red-600" 
+                                        : "bg-rose-500"
+                                    }`} 
+                                  />
+                                </div>
+                                <div>
+                                  <div className="flex justify-between items-center text-xs mb-1">
+                                    <div className="flex items-center">
+                                      <Radiation className="h-3 w-3 mr-1 text-rose-400" />
+                                      <span className="text-gray-300">Perte de données</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span 
+                                        className={`text-gray-300 font-mono ${
+                                          scenario.impactAreas.dataLoss > 70 ? "text-red-400 animate-pulse" : ""
+                                        }`}
+                                      >
+                                        {scenario.impactAreas.dataLoss}%
+                                      </span>
+                                      {scenario.impactAreas.dataLoss > 50 && (
+                                        <AlertTriangle className="h-3 w-3 ml-1 text-red-400" />
+                                      )}
+                                    </div>
+                                  </div>
+                                  <Progress 
+                                    value={scenario.impactAreas.dataLoss} 
+                                    className="h-1.5 bg-gray-800" 
+                                    indicatorClassName={`${
+                                      scenario.impactAreas.dataLoss > 70 
+                                        ? "bg-red-500 animate-pulse" 
+                                        : scenario.impactAreas.dataLoss > 50 
+                                        ? "bg-red-600" 
+                                        : "bg-rose-500"
+                                    }`} 
+                                  />
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                        
+                        {/* Panneau droit: Conversation en cours et messages */}
+                        <div className="lg:col-span-3">
+                          <Card className="bg-gray-900/60 border-gray-800 h-[600px] flex flex-col">
+                            <CardHeader className="pb-2 border-b border-gray-800 flex-shrink-0">
+                              <div className="flex items-center justify-between">
+                                <CardTitle className="text-gray-200 flex items-center text-base">
+                                  {activeTab === 'warroom' ? (
+                                    <>
+                                      <MessageSquare className="h-5 w-5 mr-2 text-red-400" />
+                                      Salle de crise - Communication d'équipe
+                                    </>
+                                  ) : activeTab === 'stakeholders' && focusedStakeholderId ? (
+                                    <>
+                                      <div className="flex items-center">
+                                        <Avatar className="h-8 w-8 mr-2">
+                                          <AvatarImage src={getFocusedStakeholder()?.avatar} />
+                                          <AvatarFallback className={`bg-${getFocusedStakeholder()?.department === 'IT' ? 'blue' : getFocusedStakeholder()?.department === 'Executive' ? 'purple' : 'amber'}-800`}>
+                                            {getFocusedStakeholder()?.name.split(' ').map(n => n[0]).join('')}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                          <div className="font-medium">{getFocusedStakeholder()?.name}</div>
+                                          <div className="text-xs text-gray-400">{getFocusedStakeholder()?.role}</div>
+                                        </div>
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <UserCircle2 className="h-5 w-5 mr-2 text-gray-400" />
+                                      Sélectionnez une partie prenante
+                                    </>
+                                  )}
+                                </CardTitle>
+                                
+                                {activeTab === 'stakeholders' && focusedStakeholderId && (
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => setFocusedStakeholderId(null)}
+                                    className="text-gray-400 hover:text-white"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            </CardHeader>
+                            
+                            <CardContent className="flex-1 overflow-y-auto py-4 px-4">
+                              <div className="space-y-4">
+                                {getCurrentConversationMessages().map((message) => {
+                                  const sender = message.senderId === "player" 
+                                    ? { name: "Vous (RSSI)", isPlayer: true } 
+                                    : {
+                                        name: scenario.stakeholders.find(s => s.id === message.senderId)?.name || "Inconnu",
+                                        department: scenario.stakeholders.find(s => s.id === message.senderId)?.department || "External",
+                                        avatar: scenario.stakeholders.find(s => s.id === message.senderId)?.avatar,
+                                        isPlayer: false
+                                      };
+                                  
+                                  return (
+                                    <div key={message.id} className={`flex ${sender.isPlayer ? 'justify-end' : 'justify-start'}`}>
+                                      <div className={`flex gap-3 max-w-[80%] ${sender.isPlayer ? 'flex-row-reverse' : 'flex-row'}`}>
+                                        {!sender.isPlayer && (
+                                          <Avatar className="h-8 w-8 flex-shrink-0">
+                                            <AvatarImage src={sender.avatar} />
+                                            <AvatarFallback className={`bg-${sender.department === 'IT' ? 'blue' : sender.department === 'Executive' ? 'purple' : sender.department === 'Communication' ? 'green' : sender.department === 'Legal' ? 'amber' : 'slate'}-800`}>
+                                              {sender.name.split(' ').map(n => n[0]).join('')}
+                                            </AvatarFallback>
+                                          </Avatar>
+                                        )}
+                                        
+                                        <div className={`flex flex-col ${sender.isPlayer ? 'items-end' : 'items-start'}`}>
+                                          <div className="flex items-center gap-2 mb-1">
+                                            <span className={`text-xs ${sender.isPlayer ? 'text-blue-400' : 'text-gray-400'}`}>
+                                              {sender.name}
+                                            </span>
+                                            <span className="text-xs text-gray-500">
+                                              {new Date(message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                            </span>
+                                            {message.reactionType && (
+                                              <Badge className={`${
+                                                message.reactionType === 'negative' ? 'bg-red-900/50 text-red-300' :
+                                                message.reactionType === 'positive' ? 'bg-green-900/50 text-green-300' :
+                                                'bg-gray-800 text-gray-300'
+                                              } text-[10px] px-1`}>
+                                                {message.reactionType === 'negative' ? '👎' :
+                                                 message.reactionType === 'positive' ? '👍' : '😐'}
+                                              </Badge>
+                                            )}
+                                          </div>
+                                          
+                                          <div className={`px-4 py-2 rounded-lg ${
+                                            sender.isPlayer 
+                                              ? 'bg-blue-900/40 text-blue-50 border border-blue-800/50' 
+                                              : 'bg-gray-800 text-gray-100 border border-gray-700'
+                                          }`}>
+                                            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                                
+                                {/* Indicateur de "X est en train d'écrire..." */}
+                                {isTyping && (
+                                  <div className="flex justify-start">
+                                    <div className="flex gap-3 max-w-[80%]">
+                                      {focusedStakeholderId && (
+                                        <Avatar className="h-8 w-8">
+                                          <AvatarImage src={getFocusedStakeholder()?.avatar} />
+                                          <AvatarFallback className={`bg-${getFocusedStakeholder()?.department === 'IT' ? 'blue' : getFocusedStakeholder()?.department === 'Executive' ? 'purple' : 'amber'}-800`}>
+                                            {getFocusedStakeholder()?.name.split(' ').map(n => n[0]).join('')}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                      )}
+                                      
+                                      <div className="px-4 py-3 rounded-lg bg-gray-800/80 border border-gray-700">
+                                        <div className="flex space-x-1">
+                                          <div className="w-2 h-2 rounded-full bg-gray-500 animate-typing"></div>
+                                          <div className="w-2 h-2 rounded-full bg-gray-500 animate-typing" style={{animationDelay: '0.2s'}}></div>
+                                          <div className="w-2 h-2 rounded-full bg-gray-500 animate-typing" style={{animationDelay: '0.4s'}}></div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                <div ref={messagesEndRef} /> {/* Pour le scroll automatique */}
+                              </div>
+                            </CardContent>
+                            
+                            {/* Zone de saisie de message */}
+                            <div className="p-4 border-t border-gray-800 mt-auto flex-shrink-0">
+                              <form 
+                                className="flex gap-2" 
+                                onSubmit={(e) => {
+                                  e.preventDefault();
+                                  handleSendMessage();
+                                }}
+                              >
+                                <Textarea 
+                                  value={messageInput}
+                                  onChange={(e) => setMessageInput(e.target.value)}
+                                  placeholder={`Écrivez un message ${activeTab === 'stakeholders' && focusedStakeholderId ? `à ${getFocusedStakeholder()?.name.split(' ')[0]}` : 'à l\'équipe de crise'}...`}
+                                  className="min-h-[42px] max-h-32 bg-gray-800 border-gray-700 focus-visible:ring-red-400"
+                                  disabled={activeTab === 'stakeholders' && !focusedStakeholderId}
+                                />
+                                <Button 
+                                  type="submit" 
+                                  size="icon"
+                                  disabled={(activeTab === 'stakeholders' && !focusedStakeholderId) || isSending || !messageInput.trim()}
+                                  className="h-[42px] w-[42px] bg-red-800 hover:bg-red-700 focus:ring-red-500"
+                                >
+                                  <Send className="h-5 w-5" />
+                                </Button>
+                              </form>
+                            </div>
+                          </Card>
+                        </div>
+                      </div>
+                    </TabsContent>
+                    
+                    {/* Contenu de l'onglet Parties prenantes */}
+                    <TabsContent value="stakeholders" className="m-0">
+                      {!focusedStakeholderId ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {scenario.stakeholders
+                            .filter(stakeholder => stakeholder.isAvailable)
+                            .map(stakeholder => (
+                              <Card 
+                                key={stakeholder.id}
+                                className={`bg-gray-900/60 border-gray-800 hover:border-gray-700 transition-all cursor-pointer relative overflow-hidden ${
+                                  requiredConsultations.required.includes(stakeholder.id) && !requiredConsultations.consulted.includes(stakeholder.id)
+                                  ? 'ring-2 ring-red-500/50'
+                                  : ''
+                                }`}
+                                onClick={() => consultStakeholder(stakeholder.id)}
+                              >
+                                {/* Indicateur de consultation requise */}
+                                {requiredConsultations.required.includes(stakeholder.id) && !requiredConsultations.consulted.includes(stakeholder.id) && (
+                                  <div className="absolute top-2 right-2 z-10">
+                                    <Badge className="bg-red-800 text-red-100 animate-pulse">
+                                      <AlertTriangle className="h-3 w-3 mr-1" />
+                                      Consultation requise
+                                    </Badge>
+                                  </div>
+                                )}
+                                
+                                {/* Indicateur de type de département */}
+                                <div className={`absolute top-0 left-0 w-1.5 h-full ${
+                                  stakeholder.department === 'IT' ? 'bg-blue-600' :
+                                  stakeholder.department === 'Executive' ? 'bg-purple-700' :
+                                  stakeholder.department === 'Communication' ? 'bg-green-600' :
+                                  stakeholder.department === 'Legal' ? 'bg-amber-700' :
+                                  stakeholder.department === 'Operations' ? 'bg-orange-600' :
+                                  'bg-slate-700'
+                                }`}></div>
+                                
+                                <CardContent className="flex items-start gap-4 p-6">
+                                  <Avatar className="h-16 w-16 rounded-md">
+                                    <AvatarImage src={stakeholder.avatar} />
+                                    <AvatarFallback className={`bg-${
+                                      stakeholder.department === 'IT' ? 'blue' :
+                                      stakeholder.department === 'Executive' ? 'purple' :
+                                      stakeholder.department === 'Communication' ? 'green' :
+                                      stakeholder.department === 'Legal' ? 'amber' :
+                                      stakeholder.department === 'Operations' ? 'orange' :
+                                      'slate'
+                                    }-800 rounded-md text-lg`}>
+                                      {stakeholder.name.split(' ').map(n => n[0]).join('')}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  
+                                  <div className="flex-1">
+                                    <h3 className="font-medium text-white">{stakeholder.name}</h3>
+                                    <p className="text-gray-400 text-sm">{stakeholder.role}</p>
+                                    
+                                    <div className="mt-3 flex items-center gap-1">
+                                      <Badge className={`${
+                                        stakeholder.department === 'IT' ? 'bg-blue-900/50 text-blue-300 border-blue-800/50' :
+                                        stakeholder.department === 'Executive' ? 'bg-purple-900/50 text-purple-300 border-purple-800/50' :
+                                        stakeholder.department === 'Communication' ? 'bg-green-900/50 text-green-300 border-green-800/50' :
+                                        stakeholder.department === 'Legal' ? 'bg-amber-900/50 text-amber-300 border-amber-800/50' :
+                                        stakeholder.department === 'Operations' ? 'bg-orange-900/50 text-orange-300 border-orange-800/50' :
+                                        'bg-slate-900/50 text-slate-300 border-slate-800/50'
+                                      }`}>
+                                        {stakeholder.department}
+                                      </Badge>
+                                      
+                                      <Badge className="bg-gray-800 text-gray-300 border-gray-700 ml-1">
+                                        {stakeholder.personality === 'technical' ? 'Technique' :
+                                        stakeholder.personality === 'anxious' ? 'Anxieux' :
+                                        stakeholder.personality === 'authoritative' ? 'Autoritaire' :
+                                        stakeholder.personality === 'diplomatic' ? 'Diplomatique' :
+                                        'Calme'}
+                                      </Badge>
+                                    </div>
+                                    
+                                    <div className="mt-4 space-y-2">
+                                      <div>
+                                        <div className="flex justify-between text-xs mb-1">
+                                          <span className="text-gray-400">Stress</span>
+                                          <span className={`${stakeholder.stress > 80 ? 'text-red-400' : 'text-gray-400'}`}>
+                                            {stakeholder.stress}%
+                                          </span>
+                                        </div>
+                                        <Progress 
+                                          value={stakeholder.stress} 
+                                          className="h-1 bg-gray-800" 
+                                          indicatorClassName={`${
+                                            stakeholder.stress > 80 ? 'bg-red-500' :
+                                            stakeholder.stress > 60 ? 'bg-amber-500' :
+                                            'bg-blue-500'
+                                          }`}
+                                        />
+                                      </div>
+                                      
+                                      <div>
+                                        <div className="flex justify-between text-xs mb-1">
+                                          <span className="text-gray-400">Confiance</span>
+                                          <span className={`${stakeholder.trust < 50 ? 'text-red-400' : 'text-gray-400'}`}>
+                                            {stakeholder.trust}%
+                                          </span>
+                                        </div>
+                                        <Progress 
+                                          value={stakeholder.trust} 
+                                          className="h-1 bg-gray-800" 
+                                          indicatorClassName={`${
+                                            stakeholder.trust < 50 ? 'bg-red-500' :
+                                            stakeholder.trust < 70 ? 'bg-amber-500' :
+                                            'bg-green-500'
+                                          }`}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
+                        </div>
+                      ) : (
+                        // Si une partie prenante est sélectionnée, nous sommes déjà dans l'interface de conversation
+                        // qui est gérée par l'onglet actif (activeTab)
+                        <div></div>
+                      )}
+                    </TabsContent>
+                    
+                    {/* Contenu de l'onglet Systèmes impactés */}
+                    <TabsContent value="systems" className="m-0">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {scenario.affectedSystems.map(system => (
+                          <Card 
+                            key={system.id}
+                            className={`bg-gray-900/60 border-gray-800 overflow-hidden relative ${
+                              system.status === 'compromised' ? 'border-l-4 border-l-red-700' :
+                              system.status === 'at-risk' ? 'border-l-4 border-l-amber-700' :
+                              system.status === 'isolated' ? 'border-l-4 border-l-blue-700' :
+                              system.status === 'secure' ? 'border-l-4 border-l-green-700' :
+                              'border-l-4 border-l-gray-700'
+                            }`}
+                          >
+                            <CardHeader className="pb-2">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <CardTitle className="text-lg text-white flex items-center gap-2">
+                                    {system.type === 'database' ? (
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                                      </svg>
+                                    ) : system.type === 'web-server' ? (
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                                        <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                                        <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                                        <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                                      </svg>
+                                    ) : system.type === 'network' ? (
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="6" y1="3" x2="6" y2="15"></line>
+                                        <circle cx="18" cy="6" r="3"></circle>
+                                        <circle cx="6" cy="18" r="3"></circle>
+                                        <path d="M18 9a9 9 0 0 1-9 9"></path>
+                                      </svg>
+                                    ) : (
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                                        <path d="M12 9v6"></path>
+                                        <path d="M9 12h6"></path>
+                                      </svg>
+                                    )}
+                                    {system.name}
+                                  </CardTitle>
+                                  <CardDescription className="text-gray-400 mt-1">
+                                    Type: {system.type === 'database' ? 'Base de données' :
+                                          system.type === 'web-server' ? 'Serveur web' :
+                                          system.type === 'network' ? 'Réseau' :
+                                          system.type === 'endpoint' ? 'Poste de travail' :
+                                          system.type === 'cloud-service' ? 'Service cloud' :
+                                          'Application'}
+                                  </CardDescription>
+                                </div>
+                                
+                                <Badge className={`${
+                                  system.status === 'compromised' ? 'bg-red-900/50 text-red-300 border-red-800/50' :
+                                  system.status === 'at-risk' ? 'bg-amber-900/50 text-amber-300 border-amber-800/50' :
+                                  system.status === 'isolated' ? 'bg-blue-900/50 text-blue-300 border-blue-800/50' :
+                                  system.status === 'secure' ? 'bg-green-900/50 text-green-300 border-green-800/50' :
+                                  'bg-gray-900/50 text-gray-300 border-gray-800/50'
+                                }`}>
+                                  {system.status === 'compromised' ? 'Compromis' :
+                                   system.status === 'at-risk' ? 'À risque' :
+                                   system.status === 'isolated' ? 'Isolé' :
+                                   system.status === 'secure' ? 'Sécurisé' :
+                                   'Statut inconnu'}
+                                </Badge>
+                              </div>
+                            </CardHeader>
+                            
+                            <CardContent>
+                              <div className="text-sm text-gray-300 mb-4 border-l-2 border-gray-700 pl-3 py-1">
+                                {system.impactDetails}
                               </div>
                               
-                              {/* Affichage stylisé du type de réponse */}
-                              <div className="ml-10 mt-1 text-xs">
-                                <span className={`inline-block px-2 py-0.5 rounded-full ${
-                                  option.text.includes("immédiatement") || option.text.includes("urgent") ? 
-                                  "bg-red-900/40 text-red-300 border border-red-800/40" : 
-                                  option.text.includes("attendre") || option.text.includes("observer") ? 
-                                  "bg-amber-900/40 text-amber-300 border border-amber-800/40" :
-                                  "bg-blue-900/40 text-blue-300 border border-blue-800/40"
-                                }`}>
-                                  {option.text.includes("immédiatement") || option.text.includes("urgent") ? 
-                                    "Action immédiate" : 
-                                    option.text.includes("attendre") || option.text.includes("observer") ? 
-                                    "Approche progressive" :
-                                    "Action stratégique"}
+                              <div className="space-y-3">
+                                <div>
+                                  <div className="flex justify-between items-center text-xs mb-1">
+                                    <span className="text-gray-400">Criticité</span>
+                                    <span className={`${system.criticalityLevel >= 8 ? 'text-red-400' : 'text-gray-400'}`}>
+                                      Niveau {system.criticalityLevel}/10
+                                    </span>
+                                  </div>
+                                  <Progress 
+                                    value={system.criticalityLevel * 10} 
+                                    className="h-1 bg-gray-800" 
+                                    indicatorClassName={`${
+                                      system.criticalityLevel >= 8 ? 'bg-red-500' :
+                                      system.criticalityLevel >= 5 ? 'bg-amber-500' :
+                                      'bg-blue-500'
+                                    }`}
+                                  />
+                                </div>
+                                
+                                <div>
+                                  <div className="flex justify-between items-center text-xs mb-1">
+                                    <span className="text-gray-400">Récupération</span>
+                                    <span className="text-gray-400">
+                                      {system.recoveryProgress}%
+                                    </span>
+                                  </div>
+                                  <Progress 
+                                    value={system.recoveryProgress} 
+                                    className="h-1 bg-gray-800" 
+                                    indicatorClassName="bg-green-500"
+                                  />
+                                </div>
+                                
+                                <div className="flex items-center justify-between text-xs pt-2">
+                                  <span className="text-gray-400">Confinement</span>
+                                  <Badge className={system.containmentStatus ? 'bg-green-900/50 text-green-300' : 'bg-gray-800 text-gray-300'}>
+                                    {system.containmentStatus ? 'Confiné' : 'Non confiné'}
+                                  </Badge>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </TabsContent>
+                    
+                    {/* Contenu de l'onglet Décisions */}
+                    <TabsContent value="decisions" className="m-0">
+                      <div className="max-w-4xl mx-auto">
+                        {/* Décision actuelle */}
+                        <Card className="bg-gradient-to-br from-gray-900/90 to-rose-950/30 border-red-900/40 mb-6 overflow-hidden shadow-lg relative">
+                          {/* Arrière-plan animé pour effet urgence */}
+                          <div className="absolute inset-0 overflow-hidden z-0">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-700 via-red-500 to-red-700 animate-pulse"></div>
+                            <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-red-700 via-red-500 to-transparent"></div>
+                            <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-500 to-red-700"></div>
+                            <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-red-700 via-red-500 to-transparent"></div>
+                          </div>
+                          
+                          <CardHeader className="relative z-10">
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="text-xl text-red-100 flex items-center">
+                                <AlertTriangle className="h-5 w-5 mr-2 text-red-500 animate-pulse" />
+                                <span className="mr-2">Décision critique</span>
+                                <Badge className="bg-red-900 text-red-100">
+                                  {scenario.currentDecisionIndex + 1}/{scenario.decisions.length}
+                                </Badge>
+                              </CardTitle>
+                              
+                              <div className="flex items-center">
+                                <Clock className="h-4 w-4 mr-1 text-red-400" />
+                                <span className="text-sm font-mono text-red-300 animate-pulse">
+                                  {formatTimeRemaining(scenario.timeRemaining)}
                                 </span>
                               </div>
                             </div>
-                            <ChevronRight className="h-5 w-5 ml-auto text-rose-400 group-hover:text-white transition-colors duration-300" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {/* Rappel du temps restant */}
-                    <div className="mt-4 flex items-center justify-center">
-                      <div className="px-3 py-1 bg-gradient-to-r from-red-950/40 to-rose-950/40 rounded-full border border-rose-900/30 
-                                  animate-pulse flex items-center">
-                        <Clock className="h-3 w-3 mr-1 text-rose-400" />
-                        <span className="text-xs font-mono text-rose-300">
-                          Délai critique: {formatTimeRemaining(scenario.timeRemaining)}
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                {/* Décisions précédentes */}
-                {scenario.currentDecisionIndex > 0 && (
-                  <Card className="bg-slate-900/60 border-rose-900/40 mb-6">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-rose-300">Décisions précédentes</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {scenario.decisions.slice(0, scenario.currentDecisionIndex).map((decision, index) => {
-                          if (!decision.selectedOption) return null;
-                          
-                          const selectedOption = decision.options.find(o => o.id === decision.selectedOption);
-                          if (!selectedOption) return null;
-                          
-                          return (
-                            <div key={index} className="bg-slate-800/40 p-3 rounded-md border border-rose-900/20">
-                              <div className="font-medium text-rose-200 text-sm mb-1">
-                                Décision {index + 1}: {decision.question}
+                            
+                            <CardDescription className="text-red-100 text-lg font-medium mt-4 border-l-4 border-red-700 pl-3 py-1">
+                              {scenario.decisions[scenario.currentDecisionIndex].question}
+                            </CardDescription>
+                            
+                            {scenario.decisions[scenario.currentDecisionIndex].context && (
+                              <div className="mt-3 text-gray-300 text-sm">
+                                {scenario.decisions[scenario.currentDecisionIndex].context}
                               </div>
-                              <div className="text-gray-400 text-xs flex items-start">
-                                <div className="bg-rose-900/30 p-1 rounded-full mr-2 mt-0.5">
-                                  <Shield className="h-3 w-3 text-rose-400" />
-                                </div>
+                            )}
+                          </CardHeader>
+                          
+                          <CardContent className="relative z-10">
+                            {/* Avertissement pré-décision */}
+                            {requiredConsultations.required.length > 0 && (
+                              <div className="mb-4 p-3 bg-amber-950/30 rounded border border-amber-900/40 flex items-start">
+                                <Info className="h-4 w-4 text-amber-400 mr-2 flex-shrink-0 mt-0.5" />
                                 <div>
-                                  <span className="text-rose-300">Votre choix:</span> {selectedOption.text}
+                                  <p className="text-sm text-amber-300 m-0 font-medium">
+                                    Consultation requise
+                                  </p>
+                                  <p className="text-xs text-amber-200/80 mt-1">
+                                    Vous devez consulter {requiredConsultations.required.map(id => 
+                                      scenario.stakeholders.find(s => s.id === id)?.name
+                                    ).join(' et ')} avant de prendre cette décision.
+                                  </p>
+                                  <div className="mt-2 flex flex-wrap gap-2">
+                                    {requiredConsultations.required.map(stakeholderId => {
+                                      const stakeholder = scenario.stakeholders.find(s => s.id === stakeholderId);
+                                      const isConsulted = requiredConsultations.consulted.includes(stakeholderId);
+                                      
+                                      return (
+                                        <Badge 
+                                          key={stakeholderId}
+                                          className={isConsulted ? 
+                                            "bg-green-900/50 text-green-300 border border-green-800/50" :
+                                            "bg-amber-900/50 text-amber-300 border border-amber-800/50"}
+                                        >
+                                          {isConsulted ? <Check className="h-3 w-3 mr-1" /> : <AlertTriangle className="h-3 w-3 mr-1" />}
+                                          {stakeholder?.name}
+                                        </Badge>
+                                      );
+                                    })}
+                                  </div>
                                 </div>
                               </div>
-                              <div className="mt-2 text-xs text-gray-400 italic border-l-2 border-rose-700/30 pl-2">
-                                {selectedOption.consequences.description}
+                            )}
+                            
+                            <div className="space-y-3">
+                              {scenario.decisions[scenario.currentDecisionIndex].options.map((option, index) => (
+                                <div 
+                                  key={option.id}
+                                  className="relative overflow-hidden rounded-md group transition-all duration-300"
+                                >
+                                  <Button
+                                    variant="outline"
+                                    className="w-full justify-start py-6 px-4 border-gray-800 bg-gradient-to-r from-gray-900/80 to-gray-950/90 
+                                              hover:bg-gradient-to-r hover:from-red-950/40 hover:to-gray-900/60 hover:border-red-900/70 text-left
+                                              group-hover:shadow-md group-hover:shadow-red-900/10 transition-all duration-300"
+                                    onClick={() => makeDecision(option.id)}
+                                  >
+                                    <div className="flex flex-col w-full">
+                                      <div className="flex items-center mb-2">
+                                        <div className="flex items-center justify-center w-7 h-7 rounded-full bg-gray-800 mr-3 
+                                                      border border-gray-700 group-hover:bg-red-900 transition-colors duration-300">
+                                          <span className="text-gray-200 font-bold text-sm">{index + 1}</span>
+                                        </div>
+                                        <div className="font-medium text-gray-100 group-hover:text-red-100 transition-colors duration-300">
+                                          {option.text}
+                                        </div>
+                                      </div>
+                                      
+                                      {/* Réactions des parties prenantes */}
+                                      {option.stakeholderReactions && (
+                                        <div className="ml-10 mt-2 flex flex-wrap gap-2">
+                                          {option.stakeholderReactions.map(reaction => {
+                                            const stakeholder = scenario.stakeholders.find(s => s.id === reaction.stakeholderId);
+                                            return (
+                                              <div key={reaction.stakeholderId} className="inline-flex items-center text-xs">
+                                                <Avatar className="h-5 w-5 mr-1">
+                                                  <AvatarImage src={stakeholder?.avatar} />
+                                                  <AvatarFallback className={`bg-${stakeholder?.department === 'IT' ? 'blue' : stakeholder?.department === 'Executive' ? 'purple' : 'amber'}-800 text-[8px]`}>
+                                                    {stakeholder?.name.split(' ').map(n => n[0]).join('')}
+                                                  </AvatarFallback>
+                                                </Avatar>
+                                                <Badge className={`
+                                                  ${reaction.reaction === 'strongly-approve' ? 'bg-green-900/50 text-green-300' :
+                                                   reaction.reaction === 'approve' ? 'bg-green-900/30 text-green-300' :
+                                                   reaction.reaction === 'neutral' ? 'bg-gray-800 text-gray-300' :
+                                                   reaction.reaction === 'disapprove' ? 'bg-red-900/30 text-red-300' :
+                                                   'bg-red-900/50 text-red-300'}
+                                                  `}
+                                                >
+                                                  {reaction.reaction === 'strongly-approve' ? '👍 Fortement favorable' :
+                                                   reaction.reaction === 'approve' ? '✓ Favorable' :
+                                                   reaction.reaction === 'neutral' ? '⚖️ Neutre' :
+                                                   reaction.reaction === 'disapprove' ? '✗ Défavorable' :
+                                                   '👎 Fortement défavorable'}
+                                                </Badge>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      )}
+                                    </div>
+                                    <ChevronRight className="h-5 w-5 ml-auto text-gray-400 group-hover:text-red-300 transition-colors duration-300" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                            
+                            {/* Rappel du temps restant */}
+                            <div className="mt-6 flex items-center justify-center">
+                              <div className="px-3 py-1 bg-gradient-to-r from-red-950/40 to-rose-950/40 rounded-full border border-red-900/30 
+                                          animate-pulse flex items-center">
+                                <Clock className="h-3 w-3 mr-1 text-red-400" />
+                                <span className="text-xs font-mono text-red-300">
+                                  Délai critique: {formatTimeRemaining(scenario.timeRemaining)}
+                                </span>
                               </div>
                             </div>
-                          );
-                        })}
+                          </CardContent>
+                        </Card>
+                        
+                        {/* Décisions précédentes */}
+                        {scenario.currentDecisionIndex > 0 && (
+                          <Card className="bg-gray-900/60 border-gray-800 mb-6">
+                            <CardHeader className="pb-2">
+                              <CardTitle className="text-sm font-medium text-gray-300 flex items-center">
+                                <FileText className="h-4 w-4 mr-2 text-gray-400" />
+                                Décisions précédentes
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-4">
+                                {scenario.decisions.slice(0, scenario.currentDecisionIndex).map((decision, index) => {
+                                  if (!decision.selectedOption) return null;
+                                  
+                                  const selectedOption = decision.options.find(o => o.id === decision.selectedOption);
+                                  if (!selectedOption) return null;
+                                  
+                                  return (
+                                    <div key={index} className="bg-gray-800/40 p-4 rounded-md border border-gray-700">
+                                      <div className="font-medium text-gray-200 mb-2">
+                                        Décision {index + 1}: {decision.question}
+                                      </div>
+                                      <div className="flex items-start">
+                                        <div className="bg-gray-700/50 p-1 rounded-full mr-2 mt-0.5">
+                                          <Shield className="h-3 w-3 text-gray-300" />
+                                        </div>
+                                        <div className="text-sm text-gray-300">
+                                          <strong>Votre choix:</strong> {selectedOption.text}
+                                        </div>
+                                      </div>
+                                      <div className="mt-2 text-sm text-gray-400 border-l-2 border-gray-700 pl-3 py-1">
+                                        <strong>Conséquence:</strong> {selectedOption.consequences.description}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        )}
                       </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              </>
             ) : showSummary && scenario ? (
+              // Résumé de la simulation
               <div className="max-w-4xl mx-auto">
-                {/* Résumé de la crise */}
-                <Card className="bg-slate-900/60 border-rose-700/50 mb-6">
+                <Card className="bg-gradient-to-br from-gray-900/90 to-gray-950/90 border-gray-800 mb-6 overflow-hidden">
                   <CardHeader>
-                    <div className="mx-auto mb-4 w-20 h-20 rounded-full bg-rose-900/50 flex items-center justify-center">
-                      <Shield className="h-10 w-10 text-rose-300" />
+                    <div className="flex flex-col items-center">
+                      <div className="w-24 h-24 rounded-full bg-gray-800/80 border-4 border-red-800/50 flex items-center justify-center mb-4">
+                        <Shield className="h-12 w-12 text-red-500" />
+                      </div>
+                      <CardTitle className="text-2xl text-center text-white">
+                        Simulation de crise terminée
+                      </CardTitle>
+                      <CardDescription className="text-center text-gray-300 text-lg mt-2">
+                        Score final: <span className="text-amber-400 font-bold">{calculateOverallScore()}/100</span>
+                      </CardDescription>
                     </div>
-                    <CardTitle className="text-2xl text-center text-rose-300">
-                      Simulation de crise terminée
-                    </CardTitle>
-                    <CardDescription className="text-center text-rose-200/80 text-lg mt-2">
-                      Votre score final: {calculateOverallScore()}/100
-                    </CardDescription>
                   </CardHeader>
+                  
                   <CardContent>
                     <div className="flex justify-center space-x-6 mb-8">
                       <div className="text-center">
-                        <div className="text-3xl font-bold text-rose-300">{scenario.impactAreas.reputation}%</div>
-                        <div className="text-xs text-rose-200/80">Réputation</div>
+                        <div className="text-3xl font-bold text-red-400">{scenario.impactAreas.reputation}%</div>
+                        <div className="text-xs text-gray-400">Réputation</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-3xl font-bold text-rose-300">{scenario.impactAreas.operations}%</div>
-                        <div className="text-xs text-rose-200/80">Opérations</div>
+                        <div className="text-3xl font-bold text-red-400">{scenario.impactAreas.operations}%</div>
+                        <div className="text-xs text-gray-400">Opérations</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-3xl font-bold text-rose-300">{scenario.impactAreas.financial}%</div>
-                        <div className="text-xs text-rose-200/80">Financier</div>
+                        <div className="text-3xl font-bold text-red-400">{scenario.impactAreas.financial}%</div>
+                        <div className="text-xs text-gray-400">Financier</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-3xl font-bold text-rose-300">{scenario.impactAreas.legal}%</div>
-                        <div className="text-xs text-rose-200/80">Juridique</div>
+                        <div className="text-3xl font-bold text-red-400">{scenario.impactAreas.legal}%</div>
+                        <div className="text-xs text-gray-400">Juridique</div>
                       </div>
                     </div>
                     
-                    <Separator className="mb-6 bg-rose-900/30" />
+                    <Separator className="mb-6 bg-gray-800" />
                     
                     <div className="space-y-6">
-                      <h3 className="text-lg font-medium text-rose-300">Résumé de vos décisions</h3>
+                      <h3 className="text-lg font-medium text-white">Résumé de vos décisions</h3>
                       {scenario.decisions.map((decision, index) => {
                         if (!decision.selectedOption) return null;
                         
@@ -1544,19 +2305,19 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
                         if (!selectedOption) return null;
                         
                         return (
-                          <div key={index} className="bg-slate-800/40 p-4 rounded-md border border-rose-900/20">
-                            <div className="font-medium text-rose-200 mb-2">
+                          <div key={index} className="bg-gray-800/40 p-4 rounded-md border border-gray-700">
+                            <div className="font-medium text-white mb-2">
                               Décision {index + 1}: {decision.question}
                             </div>
                             <div className="flex items-start">
-                              <div className="bg-rose-900/30 p-1 rounded-full mr-2 mt-0.5">
-                                <Shield className="h-3 w-3 text-rose-300" />
+                              <div className="bg-gray-700 p-1 rounded-full mr-2 mt-0.5">
+                                <Shield className="h-3 w-3 text-gray-300" />
                               </div>
                               <div className="text-sm text-gray-300">
                                 <strong>Votre choix:</strong> {selectedOption.text}
                               </div>
                             </div>
-                            <div className="mt-2 text-sm text-gray-400 border-l-2 border-rose-700/30 pl-3 py-1">
+                            <div className="mt-2 text-sm text-gray-400 border-l-2 border-gray-700 pl-3 py-1">
                               <strong>Conséquence:</strong> {selectedOption.consequences.description}
                             </div>
                           </div>
@@ -1564,39 +2325,40 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
                       })}
                     </div>
                     
-                    <div className="mt-8 p-4 bg-slate-800/50 rounded-md border border-rose-900/30">
+                    <div className="mt-8 p-4 bg-gray-800/50 rounded-md border border-gray-700">
                       <div className="flex items-start">
-                        <Info className="h-5 w-5 text-rose-400 mr-2 mt-0.5 flex-shrink-0" />
+                        <Info className="h-5 w-5 text-amber-400 mr-2 flex-shrink-0 mt-0.5" />
                         <div className="text-sm text-gray-300">
-                          <strong className="text-rose-300">Analyse:</strong> Votre gestion de crise montre {calculateOverallScore() >= 80 ? "une excellente" : calculateOverallScore() >= 60 ? "une bonne" : "une approche qui pourrait être améliorée"}. Les meilleures pratiques incluent l'isolement rapide des systèmes infectés, une communication transparente mais mesurée, et la mise en place d'un plan de reprise progressif.
+                          <strong className="text-amber-300">Analyse:</strong> Votre gestion de crise montre {calculateOverallScore() >= 80 ? "une excellente maîtrise" : calculateOverallScore() >= 60 ? "une bonne compréhension" : "des opportunités d'amélioration"}. Les meilleures pratiques en cas de ransomware incluent l'isolement rapide des systèmes infectés, une communication transparente mais mesurée avec les parties prenantes, et la mise en place d'un plan de récupération progressif plutôt que de céder aux demandes des attaquants.
                         </div>
                       </div>
                     </div>
                   </CardContent>
+                  
                   <CardFooter className="flex justify-center space-x-4">
                     <Button 
                       variant="outline" 
-                      className="border-rose-700 text-rose-300 hover:bg-rose-900/30"
+                      className="border-gray-700 text-gray-300 hover:bg-gray-800"
                       onClick={restartScenario}
                     >
                       Recommencer la simulation
                     </Button>
                     <Button 
-                      className="bg-rose-700 hover:bg-rose-600 text-white"
+                      className="bg-red-800 hover:bg-red-700 text-white"
                       onClick={handleReturnToPrevious}
                     >
-                      Retour aux scénarios
+                      Retour au menu principal
                     </Button>
                   </CardFooter>
                 </Card>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-screen">
-                <AlertTriangle className="h-16 w-16 text-rose-500 animate-pulse" />
-                <h2 className="text-2xl font-bold mt-4">Erreur de chargement du scénario</h2>
+              <div className="flex flex-col items-center justify-center h-[60vh]">
+                <AlertTriangle className="h-16 w-16 text-red-500 animate-pulse" />
+                <h2 className="text-2xl font-bold mt-4 text-white">Erreur de chargement du scénario</h2>
                 <Button 
-                  onClick={startScenario} 
-                  className="mt-4 bg-rose-700 hover:bg-rose-600"
+                  onClick={restartScenario} 
+                  className="mt-4 bg-red-800 hover:bg-red-700"
                 >
                   Réessayer
                 </Button>
@@ -1605,6 +2367,41 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
           </div>
         )}
       </div>
+      
+      <style jsx global>{`
+        @keyframes typing {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-5px); }
+        }
+        
+        @keyframes progress-indeterminate {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        
+        @keyframes slide-in-right {
+          0% { transform: translateX(100%); opacity: 0; }
+          100% { transform: translateX(0); opacity: 1; }
+        }
+        
+        .animate-typing {
+          animation: typing 1s infinite;
+        }
+        
+        .animate-progress-indeterminate {
+          animation: progress-indeterminate 1.5s infinite ease-in-out;
+        }
+        
+        .animate-slide-in-right {
+          animation: slide-in-right 0.3s forwards;
+        }
+        
+        .bg-grid-pattern {
+          background-image: linear-gradient(to right, #111 1px, transparent 1px), 
+                            linear-gradient(to bottom, #111 1px, transparent 1px);
+          background-size: 20px 20px;
+        }
+      `}</style>
     </HomeLayout>
   );
 }
