@@ -185,13 +185,13 @@ export default function CrisisManagementPage() {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${colorMap[department]}&color=fff&size=128`;
   };
   
-  // Exemple de parties prenantes (PNJ)
+  // Personnages clés customisés - Dirigeants mc2i
   const sampleStakeholders: Stakeholder[] = [
     {
-      id: "cio",
-      name: "Thomas Rivière",
-      role: "Directeur des Systèmes d'Information",
-      avatar: generateAvatar("Thomas Rivière", "DSI", "Executive"),
+      id: "president",
+      name: "Arnaud Gauthier",
+      role: "Président",
+      avatar: generateAvatar("Arnaud Gauthier", "Président", "Executive"),
       personality: "authoritative",
       department: "Executive",
       expertise: 8,
@@ -200,100 +200,100 @@ export default function CrisisManagementPage() {
       isAvailable: true
     },
     {
-      id: "security-analyst",
-      name: "Sophie Chen",
-      role: "Analyste Sécurité Senior",
-      avatar: generateAvatar("Sophie Chen", "Analyste", "IT"),
-      personality: "technical",
-      department: "IT",
-      expertise: 9,
-      stress: 75,
-      trust: 95,
-      isAvailable: true
-    },
-    {
-      id: "comms-director",
-      name: "Marc Leroy",
-      role: "Directeur de la Communication",
-      avatar: generateAvatar("Marc Leroy", "Communication", "Communication"),
-      personality: "diplomatic",
-      department: "Communication",
-      expertise: 6,
-      stress: 90,
-      trust: 70,
-      isAvailable: true
-    },
-    {
-      id: "legal-counsel",
-      name: "Camille Dubois",
-      role: "Conseillère Juridique",
-      avatar: generateAvatar("Camille Dubois", "Juridique", "Legal"),
-      personality: "calm",
-      department: "Legal",
-      expertise: 7,
-      stress: 65,
-      trust: 80,
-      isAvailable: true
-    },
-    {
-      id: "it-ops",
-      name: "Julien Mercier",
-      role: "Responsable Opérations IT",
-      avatar: generateAvatar("Julien Mercier", "Ops IT", "IT"),
-      personality: "anxious",
-      department: "IT",
-      expertise: 8,
-      stress: 95,
-      trust: 85,
-      isAvailable: true
-    },
-    {
-      id: "ceo",
-      name: "François Bertrand",
-      role: "PDG",
-      avatar: generateAvatar("François Bertrand", "PDG", "Executive"),
+      id: "dg",
+      name: "Olivier Hervo",
+      role: "Directeur Général",
+      avatar: generateAvatar("Olivier Hervo", "DG", "Executive"),
       personality: "authoritative",
       department: "Executive",
-      expertise: 4,
+      expertise: 7,
       stress: 80,
       trust: 85,
       isAvailable: true
     },
     {
-      id: "forensics",
-      name: "Alexandre Moreau",
-      role: "Expert Forensics",
-      avatar: generateAvatar("Alexandre Moreau", "Forensics", "IT"),
+      id: "dga-bfa",
+      name: "Lorenzo Bertola",
+      role: "DGA et Directeur du pôle BFA",
+      avatar: generateAvatar("Lorenzo Bertola", "DGA BFA", "Executive"),
+      personality: "calm",
+      department: "Executive",
+      expertise: 6,
+      stress: 75,
+      trust: 80,
+      isAvailable: true
+    },
+    {
+      id: "dga-energie",
+      name: "Anthony Frescal",
+      role: "DGA et Directeur du pôle ENERGIES & UTILITIES",
+      avatar: generateAvatar("Anthony Frescal", "DGA Énergie", "Operations"),
+      personality: "technical",
+      department: "Operations",
+      expertise: 9,
+      stress: 70,
+      trust: 95,
+      isAvailable: true
+    },
+    {
+      id: "dga-impulse",
+      name: "Guillaume Lechevallier",
+      role: "DGA et Directeur du pôle IMPULSE",
+      avatar: generateAvatar("Guillaume Lechevallier", "DGA Impulse", "IT"),
+      personality: "technical",
+      department: "IT",
+      expertise: 9,
+      stress: 95,
+      trust: 90,
+      isAvailable: true
+    },
+    {
+      id: "dga-dev",
+      name: "Vincent Pascal",
+      role: "DGA et Directeur du Développement",
+      avatar: generateAvatar("Vincent Pascal", "DGA Développement", "Communication"),
+      personality: "diplomatic",
+      department: "Communication",
+      expertise: 7,
+      stress: 65,
+      trust: 85,
+      isAvailable: true
+    },
+    {
+      id: "ciso",
+      name: "Julie Moreau",
+      role: "Responsable de la Sécurité des Systèmes d'Information",
+      avatar: generateAvatar("Julie Moreau", "RSSI", "IT"),
+      personality: "technical",
+      department: "IT",
+      expertise: 10,
+      stress: 90,
+      trust: 95,
+      isAvailable: true
+    },
+    {
+      id: "legal-counsel",
+      name: "Marc Durand",
+      role: "Directeur Juridique",
+      avatar: generateAvatar("Marc Durand", "Juridique", "Legal"),
+      personality: "calm",
+      department: "Legal",
+      expertise: 8,
+      stress: 70,
+      trust: 85,
+      isAvailable: true
+    },
+    {
+      id: "cyber-expert",
+      name: "Sophie Lambert",
+      role: "Experte Cybersécurité",
+      avatar: generateAvatar("Sophie Lambert", "Cyber Expert", "IT"),
       personality: "technical",
       department: "IT",
       expertise: 10,
       stress: 60,
       trust: 90,
       isAvailable: false // Sera disponible plus tard dans le scénario
-    },
-    {
-      id: "cnil-contact",
-      name: "Nathalie Renard",
-      role: "Représentante CNIL",
-      avatar: generateAvatar("Nathalie Renard", "CNIL", "External"),
-      personality: "authoritative",
-      department: "External",
-      expertise: 9,
-      stress: 40,
-      trust: 60,
-      isAvailable: false
-    },
-    {
-      id: "cyber-insurance",
-      name: "Philippe Martin",
-      role: "Assureur Cyber",
-      avatar: generateAvatar("Philippe Martin", "Assureur", "External"),
-      personality: "calm",
-      department: "External",
-      expertise: 7,
-      stress: 30,
-      trust: 75,
-      isAvailable: false
     }
   ];
   
