@@ -414,11 +414,14 @@ export default function ProspectPulse() {
     } catch (error) {
       console.error("Erreur lors du démarrage de la session:", error);
       setIsLoading(false);
-      toast({
-        title: "Erreur",
-        description: "Impossible de démarrer la session. Veuillez réessayer.",
-        variant: "destructive",
-      });
+      // Déplacer l'appel toast dans un setTimeout pour éviter les erreurs pendant le rendu
+      setTimeout(() => {
+        toast({
+          title: "Erreur",
+          description: "Impossible de démarrer la session. Veuillez réessayer.",
+          variant: "destructive",
+        });
+      }, 0);
     }
   };
   
