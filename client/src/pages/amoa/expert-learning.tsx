@@ -41,12 +41,12 @@ function formatTextWithStructure(text: string): string {
     // Citations plus subtiles 
     .replace(/^> (.*?)$/gm, '<div class="border-l-2 border-blue-500/40 pl-2 my-1 text-blue-300/80">$1</div>') 
     
-    // Listes simplifiées
-    .replace(/^- (.*?)$/gm, '<div class="flex mb-0">• <span class="ml-1">$1</span></div>') // Puces stylisées compactes
-    .replace(/^(\d+)\. (.*?)$/gm, '<div class="flex mb-0"><span class="text-blue-400 mr-1">$1.</span> <span>$2</span></div>') // Numération compacte
+    // Listes avec espacement réduit
+    .replace(/^- (.*?)$/gm, '<div class="flex mb-0 py-0">• <span class="ml-1">$1</span></div>') // Puces très compactes
+    .replace(/^(\d+)\. (.*?)$/gm, '<div class="flex mb-0 py-0"><span class="text-blue-400 mr-1">$1.</span> <span>$2</span></div>') // Numération très compacte
     
-    // Paragraphes et espacement naturel
-    .replace(/\n\n/g, '<div class="mt-1"></div>') // Espace réduit
+    // Paragraphes avec espacement minimal
+    .replace(/\n\n/g, '<div class="mt-0.5"></div>') // Espace très réduit
     .replace(/\n/g, '<br>'); // Simple saut de ligne
   
   return formatted;
@@ -419,7 +419,7 @@ function ExpertLearningPageContent() {
                             >
                               {message.type === "bot" ? (
                                 <div 
-                                  className="prose prose-invert max-w-none text-blue-100" 
+                                  className="prose prose-invert prose-p:my-1 prose-headings:mt-2 prose-headings:mb-1 prose-li:my-0 prose-ol:my-1 prose-ul:my-1 max-w-none text-blue-100" 
                                   dangerouslySetInnerHTML={{ 
                                     __html: DOMPurify.sanitize(formatTextWithStructure(message.content)) 
                                   }}
