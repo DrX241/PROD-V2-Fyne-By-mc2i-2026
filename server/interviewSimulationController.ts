@@ -106,11 +106,11 @@ export async function startInterviewSimulation(req: Request, res: Response) {
       });
     }
 
-    // Pour AMOA, vérifier que le secteur est spécifié
-    if (domain === 'amoa' && !sectorFocus) {
+    // Pour AMOA, vérifier que le contexte d'audit est fourni
+    if (domain === 'amoa' && !auditContext) {
       return res.status(400).json({
         success: false,
-        error: 'Le secteur d\'activité est requis pour les simulations AMOA.'
+        error: 'Le contexte d\'audition est requis pour les simulations AMOA.'
       });
     }
 
@@ -119,7 +119,7 @@ export async function startInterviewSimulation(req: Request, res: Response) {
     if (domain === 'cyber') {
       systemPrompt = generateCyberSystemPrompt(profileType, experienceLevel);
     } else {
-      systemPrompt = generateAmoaSystemPrompt(profileType, experienceLevel, sectorFocus || '', auditContext);
+      systemPrompt = generateAmoaSystemPrompt(profileType, experienceLevel, auditContext);
     }
 
     // Générer le scénario initial avec l'IA
@@ -635,7 +635,7 @@ CONTEXTE IMPORTANT:
 PROFIL DU CONSULTANT:
 - Type de profil: ${profileType.replace(/_/g, ' ')}
 - Niveau d'expérience déclaré: ${experienceLevel}
-- Secteur d'activité: ${sectorFocus || "général"}
+- Contexte d'audit: ${auditContext ? (auditContext.contextType === 'predefined' ? auditContext.contextData.title : 'personnalisé') : 'général'}
 
 INSTRUCTIONS DE STRUCTURATION:
 Structurez votre synthèse précisément selon les sections suivantes avec un contenu détaillé pour chaque partie:
@@ -858,11 +858,11 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
       });
     }
 
-    // AMOA nécessite un secteur
-    if (domain === 'amoa' && !sectorFocus) {
+    // AMOA nécessite un contexte d'audit
+    if (domain === 'amoa' && !auditContext) {
       return res.status(400).json({
         success: false,
-        error: 'Le secteur d\'activité est requis pour les simulations AMOA.'
+        error: 'Le contexte d\'audition est requis pour les simulations AMOA.'
       });
     }
 
