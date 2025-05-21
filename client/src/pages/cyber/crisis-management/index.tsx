@@ -14,14 +14,66 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
+// Types des parties prenantes (PNJ) dans la crise
+interface Stakeholder {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string; // URL de l'avatar
+  personality: "calm" | "anxious" | "authoritative" | "technical" | "diplomatic";
+  department: "IT" | "Executive" | "Communication" | "Legal" | "Operations" | "External";
+  expertise: number; // 1-10
+  stress: number; // 1-100
+  trust: number; // 1-100, confiance envers le RSSI (joueur)
+  isAvailable: boolean;
+}
+
+// Messages de conversation avec les parties prenantes
+interface Message {
+  id: string;
+  senderId: string; // ID de la partie prenante ou "player" pour le joueur
+  content: string;
+  timestamp: Date;
+  isPrivate?: boolean; // Message uniquement visible par certains participants
+  reactionType?: "positive" | "negative" | "neutral";
+}
+
+// Conversation avec une partie prenante
+interface Conversation {
+  id: string;
+  stakeholderId: string;
+  messages: Message[];
+  status: "active" | "paused" | "completed";
+  lastActivity: Date;
+}
+
+// Système technique impacté
+interface AffectedSystem {
+  id: string;
+  name: string;
+  type: "database" | "web-server" | "network" | "endpoint" | "cloud-service" | "application";
+  criticalityLevel: number; // 1-10
+  status: "compromised" | "at-risk" | "isolated" | "secure" | "unknown";
+  impactDetails: string;
+  recoveryProgress: number; // 0-100%
+  containmentStatus: boolean;
+}
+
 interface Scenario {
   id: string;
   title: string;
   description: string;
   situation: string;
+  incidentType: "ransomware" | "data-breach" | "ddos" | "insider-threat" | "supply-chain" | "zero-day";
+  aiMasterPrompt: string; // Prompt pour guider l'IA dans ses réponses
+  affectedSystems: AffectedSystem[];
+  stakeholders: Stakeholder[];
+  conversations: Conversation[];
+  warRoom: Message[]; // Messages dans la salle de crise (visible par tous)
   timeline: {
     time: string;
     event: string;
+    severity?: "critical" | "high" | "medium" | "low";
   }[];
   decisions: Decision[];
   currentDecisionIndex: number;
@@ -30,17 +82,31 @@ interface Scenario {
     operations: number;
     financial: number;
     legal: number;
+    dataLoss: number; // Nouveau: mesure les données perdues/compromises
+    responseEfficiency: number; // Nouveau: mesure l'efficacité globale de la réponse
   };
   severity: "critical" | "high" | "medium" | "low";
   timeRemaining: number;
+  phase: "detection" | "analysis" | "containment" | "eradication" | "recovery" | "lessons-learned";
+  realTimeEvents: string[]; // Nouveaux événements inattendus qui peuvent se produire
+  currentStakeholderInFocus: string | null; // ID du stakeholder actuellement en conversation
 }
 
 interface Decision {
   id: string;
   question: string;
+  context?: string; // Contexte supplémentaire pour la décision
+  requiredConsultation?: string[]; // IDs des parties prenantes qu'il faut consulter avant de décider
+  timeLimit?: number; // Temps limité pour prendre la décision (secondes)
   options: {
     id: string;
     text: string;
+    requiredExpertise?: string; // Expertise nécessaire pour comprendre cette option
+    stakeholderReactions?: {
+      stakeholderId: string;
+      reaction: "strongly-approve" | "approve" | "neutral" | "disapprove" | "strongly-disapprove";
+      comment: string;
+    }[];
     consequences: {
       description: string;
       impactChanges: {
@@ -48,10 +114,26 @@ interface Decision {
         operations: number;
         financial: number;
         legal: number;
+        dataLoss: number;
+        responseEfficiency: number;
       };
+      systemStatusChanges?: { 
+        systemId: string; 
+        newStatus: AffectedSystem["status"];
+        recoveryChange: number;
+      }[];
+      stakeholderChanges?: {
+        stakeholderId: string;
+        stressChange: number;
+        trustChange: number;
+      }[];
+      unlockNewStakeholders?: string[]; // IDs des nouvelles parties prenantes débloquées
+      triggerEvents?: string[]; // Événements déclenchés par cette décision
     };
   }[];
   selectedOption?: string;
+  consultedStakeholders?: string[]; // IDs des parties prenantes qui ont été consultées
+  timeSpent?: number; // Temps passé à prendre la décision
 }
 
 export default function CrisisManagementPage() {
@@ -60,22 +142,494 @@ export default function CrisisManagementPage() {
   const [showSummary, setShowSummary] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+  const [activeTab, setActiveTab] = useState<'warroom' | 'stakeholders' | 'systems' | 'decisions'>('warroom');
+  const [messageInput, setMessageInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [focusedStakeholderId, setFocusedStakeholderId] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   
+  // Générateur d'avatars pour les parties prenantes
+  const generateAvatar = (name: string, role: string, department: string) => {
+    const colorMap: Record<string, string> = {
+      'IT': 'bg-blue-600',
+      'Executive': 'bg-purple-700',
+      'Communication': 'bg-green-600',
+      'Legal': 'bg-amber-700',
+      'Operations': 'bg-orange-600',
+      'External': 'bg-slate-700'
+    };
+    
+    const initials = name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+    
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${colorMap[department].replace('bg-', '')}&color=fff&size=128`;
+  };
+  
+  // Exemple de parties prenantes (PNJ)
+  const sampleStakeholders: Stakeholder[] = [
+    {
+      id: "cio",
+      name: "Thomas Rivière",
+      role: "Directeur des Systèmes d'Information",
+      avatar: generateAvatar("Thomas Rivière", "DSI", "Executive"),
+      personality: "authoritative",
+      department: "Executive",
+      expertise: 8,
+      stress: 85,
+      trust: 90,
+      isAvailable: true
+    },
+    {
+      id: "security-analyst",
+      name: "Sophie Chen",
+      role: "Analyste Sécurité Senior",
+      avatar: generateAvatar("Sophie Chen", "Analyste", "IT"),
+      personality: "technical",
+      department: "IT",
+      expertise: 9,
+      stress: 75,
+      trust: 95,
+      isAvailable: true
+    },
+    {
+      id: "comms-director",
+      name: "Marc Leroy",
+      role: "Directeur de la Communication",
+      avatar: generateAvatar("Marc Leroy", "Communication", "Communication"),
+      personality: "diplomatic",
+      department: "Communication",
+      expertise: 6,
+      stress: 90,
+      trust: 70,
+      isAvailable: true
+    },
+    {
+      id: "legal-counsel",
+      name: "Camille Dubois",
+      role: "Conseillère Juridique",
+      avatar: generateAvatar("Camille Dubois", "Juridique", "Legal"),
+      personality: "calm",
+      department: "Legal",
+      expertise: 7,
+      stress: 65,
+      trust: 80,
+      isAvailable: true
+    },
+    {
+      id: "it-ops",
+      name: "Julien Mercier",
+      role: "Responsable Opérations IT",
+      avatar: generateAvatar("Julien Mercier", "Ops IT", "IT"),
+      personality: "anxious",
+      department: "IT",
+      expertise: 8,
+      stress: 95,
+      trust: 85,
+      isAvailable: true
+    },
+    {
+      id: "ceo",
+      name: "François Bertrand",
+      role: "PDG",
+      avatar: generateAvatar("François Bertrand", "PDG", "Executive"),
+      personality: "authoritative",
+      department: "Executive",
+      expertise: 4,
+      stress: 80,
+      trust: 85,
+      isAvailable: true
+    },
+    {
+      id: "forensics",
+      name: "Alexandre Moreau",
+      role: "Expert Forensics",
+      avatar: generateAvatar("Alexandre Moreau", "Forensics", "IT"),
+      personality: "technical",
+      department: "IT",
+      expertise: 10,
+      stress: 60,
+      trust: 90,
+      isAvailable: false // Sera disponible plus tard dans le scénario
+    },
+    {
+      id: "cnil-contact",
+      name: "Nathalie Renard",
+      role: "Représentante CNIL",
+      avatar: generateAvatar("Nathalie Renard", "CNIL", "External"),
+      personality: "authoritative",
+      department: "External",
+      expertise: 9,
+      stress: 40,
+      trust: 60,
+      isAvailable: false
+    },
+    {
+      id: "cyber-insurance",
+      name: "Philippe Martin",
+      role: "Assureur Cyber",
+      avatar: generateAvatar("Philippe Martin", "Assureur", "External"),
+      personality: "calm",
+      department: "External",
+      expertise: 7,
+      stress: 30,
+      trust: 75,
+      isAvailable: false
+    }
+  ];
+  
+  // Exemples de systèmes affectés
+  const sampleAffectedSystems: AffectedSystem[] = [
+    {
+      id: "crm-system",
+      name: "Système CRM",
+      type: "application",
+      criticalityLevel: 9,
+      status: "compromised",
+      impactDetails: "Base de données client chiffrée. Accès aux données commerciales impossible.",
+      recoveryProgress: 0,
+      containmentStatus: false
+    },
+    {
+      id: "email-server",
+      name: "Serveur de messagerie",
+      type: "web-server",
+      criticalityLevel: 8,
+      status: "at-risk",
+      impactDetails: "Service encore fonctionnel mais présente des signes de compromission.",
+      recoveryProgress: 0,
+      containmentStatus: false
+    },
+    {
+      id: "financial-db",
+      name: "Base de données financière",
+      type: "database",
+      criticalityLevel: 10,
+      status: "compromised",
+      impactDetails: "Chiffrement complet. Données comptables et financières inaccessibles.",
+      recoveryProgress: 0,
+      containmentStatus: false
+    },
+    {
+      id: "file-servers",
+      name: "Serveurs de fichiers",
+      type: "network",
+      criticalityLevel: 7,
+      status: "compromised",
+      impactDetails: "Partages réseau inaccessibles. Fichiers de travail chiffrés.",
+      recoveryProgress: 0,
+      containmentStatus: false
+    },
+    {
+      id: "vpn-gateway",
+      name: "Passerelle VPN",
+      type: "network",
+      criticalityLevel: 8,
+      status: "at-risk",
+      impactDetails: "Connexions à distance compromises. Potentiel point d'entrée.",
+      recoveryProgress: 0,
+      containmentStatus: false
+    },
+    {
+      id: "erp-system",
+      name: "Système ERP",
+      type: "application",
+      criticalityLevel: 9,
+      status: "compromised",
+      impactDetails: "Gestion des stocks et chaîne d'approvisionnement affectée.",
+      recoveryProgress: 0,
+      containmentStatus: false
+    }
+  ];
+  
+  // Initialisation des conversations
+  const initialWarRoomMessages: Message[] = [
+    {
+      id: uuidv4(),
+      senderId: "it-ops",
+      content: "Je viens de découvrir plusieurs serveurs affichant un message de rançon. Les fichiers semblent chiffrés. C'est une crise majeure !",
+      timestamp: new Date(new Date().getTime() - 3600000), // 1 heure plus tôt
+      reactionType: "negative"
+    },
+    {
+      id: uuidv4(),
+      senderId: "security-analyst",
+      content: "Analyse préliminaire : il s'agit du ransomware BlackCrypt. Propagation via SMB, techniques d'escalade de privilèges avancées. Premier scan montre une compromission étendue.",
+      timestamp: new Date(new Date().getTime() - 3000000), // 50 minutes plus tôt
+      reactionType: "negative"
+    },
+    {
+      id: uuidv4(),
+      senderId: "cio",
+      content: "Situation critique. Nous devons activer le PCA immédiatement. @RSSI, prenez la direction technique de cette crise.",
+      timestamp: new Date(new Date().getTime() - 2400000), // 40 minutes plus tôt
+      reactionType: "neutral"
+    }
+  ];
+  
+  // Construction des conversations 1:1
+  const initialConversations: Conversation[] = sampleStakeholders
+    .filter(s => s.isAvailable)
+    .map(stakeholder => {
+      // Messages personnalisés selon le rôle
+      let initialMessages: Message[] = [];
+      
+      switch(stakeholder.id) {
+        case "cio":
+          initialMessages = [
+            {
+              id: uuidv4(),
+              senderId: "cio",
+              content: "C'est une situation grave. Nous devons coordonner une réponse efficace. Quelles sont vos premières directives en tant que RSSI ?",
+              timestamp: new Date(new Date().getTime() - 2000000),
+              reactionType: "neutral"
+            }
+          ];
+          break;
+        case "security-analyst":
+          initialMessages = [
+            {
+              id: uuidv4(),
+              senderId: "security-analyst",
+              content: "J'ai des indicateurs de compromission qui montrent que l'attaque a probablement commencé il y a 48h. Les logs indiquent une connexion RDP suspecte suivie d'une élévation de privilèges.",
+              timestamp: new Date(new Date().getTime() - 1800000),
+              reactionType: "negative"
+            }
+          ];
+          break;
+        case "it-ops":
+          initialMessages = [
+            {
+              id: uuidv4(),
+              senderId: "it-ops",
+              content: "Les utilisateurs ne peuvent plus accéder à leurs données ! Les téléphones n'arrêtent pas de sonner au support. Dois-je isoler tous les systèmes ou seulement ceux visiblement touchés ?",
+              timestamp: new Date(new Date().getTime() - 1700000),
+              reactionType: "negative"
+            }
+          ];
+          break;
+        case "ceo":
+          initialMessages = [
+            {
+              id: uuidv4(),
+              senderId: "ceo",
+              content: "J'ai besoin d'un point de situation immédiat et d'une estimation de l'impact sur l'activité. Devons-nous payer la rançon pour reprendre rapidement ?",
+              timestamp: new Date(new Date().getTime() - 1500000),
+              reactionType: "negative"
+            }
+          ];
+          break;
+        default:
+          // Messages génériques pour les autres parties prenantes
+          initialMessages = [
+            {
+              id: uuidv4(),
+              senderId: stakeholder.id,
+              content: `En tant que ${stakeholder.role}, j'ai besoin de directives claires sur cette crise. Quelle est la situation exacte ?`,
+              timestamp: new Date(new Date().getTime() - Math.random() * 1800000),
+              reactionType: "neutral"
+            }
+          ];
+      }
+      
+      return {
+        id: uuidv4(),
+        stakeholderId: stakeholder.id,
+        messages: initialMessages,
+        status: "active",
+        lastActivity: initialMessages[0]?.timestamp || new Date()
+      };
+    });
+  
   // Échantillon de scénario de crise (ransomware)
   const sampleScenario: Scenario = {
     id: uuidv4(),
-    title: "Crise Ransomware - Attaque majeure",
+    title: "Crise Ransomware - Attaque BlackCrypt",
     description: "Votre entreprise est victime d'une attaque par ransomware. En tant que RSSI, vous devez gérer la crise et minimiser les impacts.",
     situation: `Il est 7h30 du matin lorsque vous recevez un appel d'urgence du responsable des opérations IT. 
     
 Un message de rançon est apparu sur plusieurs serveurs critiques et des postes de travail dans toute l'entreprise. Les fichiers semblent être chiffrés et inaccessibles.
 
-L'équipe technique confirme une propagation rapide du ransomware. Plusieurs systèmes sont déjà hors service, dont le système de gestion des commandes clients et la base de données produits. 
+L'équipe technique confirme une propagation rapide du ransomware BlackCrypt. Plusieurs systèmes critiques sont déjà hors service, dont le système CRM, la base de données financière, et les serveurs de fichiers.
 
 La demande de rançon s'élève à 500 000 € en Bitcoin, avec une menace de publication des données exfiltrées et une augmentation du montant après 48 heures.`,
+    incidentType: "ransomware",
+    aiMasterPrompt: `Tu es le maître du jeu d'une simulation de crise cybersécurité de type ransomware. 
+    
+Tu joues le rôle de différentes parties prenantes (stakeholders) qui interagissent avec le joueur qui est le RSSI.
+    
+Adapte tes réponses au style de personnalité de chaque stakeholder:
+- Thomas Rivière (CIO): autoritaire, orienté business, préoccupé par l'image de l'entreprise
+- Sophie Chen (Analyste): très technique, factuelle, précise
+- Marc Leroy (Communication): diplomatique, préoccupé par l'image publique
+- Camille Dubois (Juridique): prudente, orientée conformité réglementaire
+- Julien Mercier (IT Ops): anxieux, submergé, technique
+- François Bertrand (PDG): autoritaire, préoccupé par les finances et la réputation
+
+Tu dois fournir des informations réalistes sur une crise ransomware et créer un sentiment d'urgence. Le ransomware s'appelle BlackCrypt et a chiffré plusieurs systèmes critiques. 
+
+N'invente pas de résolution magique et n'accepte pas de raccourcis techniques irréalistes. Les décisions du joueur doivent avoir des conséquences réalistes.`,
+    stakeholders: sampleStakeholders,
+    affectedSystems: sampleAffectedSystems,
+    conversations: initialConversations,
+    warRoom: initialWarRoomMessages,
+    timeline: [
+      {
+        time: "05:23",
+        event: "Premières traces d'activité suspecte détectées dans les logs VPN",
+        severity: "low"
+      },
+      {
+        time: "06:15",
+        event: "Activité anormale sur plusieurs serveurs - exécution de scripts PowerShell non identifiés",
+        severity: "medium"
+      },
+      {
+        time: "06:42",
+        event: "Première apparition du fichier de rançon sur un serveur de fichiers",
+        severity: "high"
+      },
+      {
+        time: "07:05",
+        event: "Multiplication rapide des fichiers chiffrés à travers le réseau",
+        severity: "critical"
+      },
+      {
+        time: "07:21",
+        event: "Alerte des équipes IT - Confirmation de l'attaque par ransomware",
+        severity: "critical"
+      },
+      {
+        time: "07:30",
+        event: "Activation de la cellule de crise - Début de la gestion d'incident",
+        severity: "high"
+      }
+    ],
+    decisions: [
+      {
+        id: "initial-containment",
+        question: "Quelle stratégie d'isolement initiale recommandez-vous ?",
+        context: "L'attaque est en cours et les systèmes continuent d'être infectés. Une action rapide est nécessaire pour limiter la propagation.",
+        requiredConsultation: ["security-analyst", "it-ops"],
+        options: [
+          {
+            id: "isolate-all",
+            text: "Isoler immédiatement TOUS les systèmes informatiques du réseau",
+            stakeholderReactions: [
+              {
+                stakeholderId: "ceo",
+                reaction: "strongly-disapprove",
+                comment: "C'est radical ! Avons-nous vraiment besoin d'arrêter toute l'activité ?"
+              },
+              {
+                stakeholderId: "security-analyst",
+                reaction: "strongly-approve",
+                comment: "C'est la seule façon d'être certain de stopper la propagation immédiatement."
+              }
+            ],
+            consequences: {
+              description: "La propagation a été stoppée net, mais toutes les opérations informatiques sont à l'arrêt, paralysant l'entreprise.",
+              impactChanges: {
+                reputation: 10,
+                operations: 80,
+                financial: 60,
+                legal: 5,
+                dataLoss: 25,
+                responseEfficiency: 80
+              },
+              systemStatusChanges: [
+                { systemId: "email-server", newStatus: "isolated", recoveryChange: 0 },
+                { systemId: "vpn-gateway", newStatus: "isolated", recoveryChange: 0 }
+              ],
+              stakeholderChanges: [
+                { stakeholderId: "ceo", stressChange: 20, trustChange: -15 },
+                { stakeholderId: "it-ops", stressChange: -10, trustChange: 10 }
+              ]
+            }
+          },
+          {
+            id: "isolate-affected",
+            text: "Isoler uniquement les systèmes visiblement affectés et les systèmes critiques",
+            stakeholderReactions: [
+              {
+                stakeholderId: "ceo",
+                reaction: "approve",
+                comment: "Une approche plus équilibrée, j'approuve."
+              },
+              {
+                stakeholderId: "security-analyst",
+                reaction: "neutral",
+                comment: "C'est un compromis, mais risqué car certains systèmes pourraient être infectés sans symptômes visibles."
+              }
+            ],
+            consequences: {
+              description: "La propagation a ralenti mais continue sur certains systèmes non-isolés. L'activité est partiellement maintenue.",
+              impactChanges: {
+                reputation: 20,
+                operations: 45,
+                financial: 40,
+                legal: 20,
+                dataLoss: 50,
+                responseEfficiency: 50
+              }
+            }
+          },
+          {
+            id: "monitor-only",
+            text: "Surveiller attentivement sans isoler de systèmes pour l'instant",
+            stakeholderReactions: [
+              {
+                stakeholderId: "ceo",
+                reaction: "approve",
+                comment: "Cela nous permet de rester opérationnels, c'est ma préférence."
+              },
+              {
+                stakeholderId: "security-analyst",
+                reaction: "strongly-disapprove",
+                comment: "C'est extrêmement risqué ! Le ransomware continue de se propager en ce moment même !"
+              }
+            ],
+            consequences: {
+              description: "La propagation continue sans entrave, infectant de plus en plus de systèmes. Les opérations continuent temporairement mais la situation s'aggrave.",
+              impactChanges: {
+                reputation: 40,
+                operations: 20,
+                financial: 15,
+                legal: 50,
+                dataLoss: 90,
+                responseEfficiency: 10
+              }
+            }
+          }
+        ],
+        selectedOption: undefined
+      }
+    ],
+    currentDecisionIndex: 0,
+    impactAreas: {
+      reputation: 20,
+      operations: 40,
+      financial: 35,
+      legal: 25,
+      dataLoss: 30,
+      responseEfficiency: 50
+    },
+    severity: "critical",
+    timeRemaining: 3600, // 1 heure en secondes
+    phase: "detection",
+    realTimeEvents: [
+      "Le PDG vient d'être contacté par des journalistes au sujet d'une possible fuite de données",
+      "Un employé rapporte des comportements suspects sur son poste avant l'attaque",
+      "Un client important signale ne plus pouvoir accéder au portail de commandes"
+    ],
+    currentStakeholderInFocus: null,
     timeline: [
       { time: "7h30", event: "Détection initiale de l'incident" },
       { time: "7h45", event: "Premier rapport technique confirmant le ransomware" },
