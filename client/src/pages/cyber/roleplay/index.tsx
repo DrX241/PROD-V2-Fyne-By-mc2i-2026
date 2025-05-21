@@ -8,7 +8,8 @@ import {
   Terminal, 
   Shield, 
   AlertTriangle,
-  BrainCircuit
+  BrainCircuit,
+  Clock
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
