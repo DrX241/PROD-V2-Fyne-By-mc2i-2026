@@ -479,11 +479,14 @@ export default function ProspectPulse() {
           
           if (endsConversation) {
             // Le client met fin à la conversation - Afficher un toast pour informer l'utilisateur
-            toast({
-              title: "Le client met fin à la conversation",
-              description: "Le client a décidé de terminer l'entretien. Une évaluation de votre performance sera générée.",
-              variant: "default",
-            });
+            // Déplacer l'appel toast dans un setTimeout pour éviter les erreurs pendant le rendu
+            setTimeout(() => {
+              toast({
+                title: "Le client met fin à la conversation",
+                description: "Le client a décidé de terminer l'entretien. Une évaluation de votre performance sera générée.",
+                variant: "default",
+              });
+            }, 0);
             
             // Compléter la session avec le feedback automatique
             setTimeout(() => completeSession(false), 2000);
@@ -590,11 +593,14 @@ export default function ProspectPulse() {
   const handleTimeoutForResponse = async () => {
     if (!activeSession) return;
     
-    toast({
-      title: "Attention !",
-      description: "Vous avez mis trop de temps à répondre. Le client s'impatiente.",
-      variant: "destructive",
-    });
+    // Déplacer l'appel toast dans un setTimeout pour éviter les erreurs pendant le rendu
+    setTimeout(() => {
+      toast({
+        title: "Attention !",
+        description: "Vous avez mis trop de temps à répondre. Le client s'impatiente.",
+        variant: "destructive",
+      });
+    }, 0);
     
     // Générer un message d'impatience via l'API qui sera plus personnalisé
     try {
@@ -939,11 +945,14 @@ export default function ProspectPulse() {
                 <button 
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 bg-slate-700`}
                   onClick={() => {
-                    toast({
-                      title: "Fonctionnalité à venir",
-                      description: "La synthèse vocale sera bientôt disponible",
-                      variant: "default",
-                    });
+                    // Déplacer l'appel toast dans un setTimeout pour éviter les erreurs pendant le rendu
+                    setTimeout(() => {
+                      toast({
+                        title: "Fonctionnalité à venir",
+                        description: "La synthèse vocale sera bientôt disponible",
+                        variant: "default",
+                      });
+                    }, 0);
                   }}
                 >
                   <span className={`inline-block h-4 w-4 transform rounded-full bg-white translate-x-1`} />

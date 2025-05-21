@@ -1,0 +1,27 @@
+Warning: Cannot update a component (&#x60;Toaster&#x60;) while rendering a different component (&#x60;ProspectPulse&#x60;). To locate the bad setState() call inside &#x60;ProspectPulse&#x60;, follow the stack trace as described in https://reactjs.org/link/setstate-in-render
+    at ProspectPulse (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/pages/amoa/prospect-pulse.tsx?t=1747844027174:66:35)
+    at Route (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4ced38a4:323:16)
+    at Switch (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4ced38a4:379:17)
+    at div
+    at TutorialProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/contexts/TutorialContext.tsx:235:36)
+    at ChatProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/contexts/ChatContext.tsx:346:32)
+    at ThemeProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/contexts/ThemeContext.tsx:33:33)
+    at QueryClientProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=4ced38a4:2805:3)
+    at App (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/App.tsx?t=1747844027174&v=RfVXg94sVa1K4YYTCMG3T:97:49)
+    at AuthProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/contexts/AuthContext.tsx?v=RfVXg94sVa1K4YYTCMG3T:21:32)
+    at _a (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-helmet-async.js?v=4ced38a4:624:5)
+at ProspectPulse (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/pages/amoa/prospect-pulse.tsx?t=1747844027174:66:35)
+at Route (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4ced38a4:323:16)
+at Switch (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4ced38a4:379:17)
+at div
+at TutorialProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/contexts/TutorialContext.tsx:235:36)
+at ChatProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/contexts/ChatContext.tsx:346:32)
+at ThemeProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/contexts/ThemeContext.tsx:33:33)
+at QueryClientProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=4ced38a4:2805:3)
+at App (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/App.tsx?t=1747844027174&amp;v=RfVXg94sVa1K4YYTCMG3T:97:49)
+at AuthProvider (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/src/contexts/AuthContext.tsx?v=RfVXg94sVa1K4YYTCMG3T:21:32)
+at _a (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-helmet-async.js?v=4ced38a4:624:5)
+at t.value (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
