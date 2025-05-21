@@ -202,10 +202,49 @@ const QUESTIONS: Question[] = [
   }
 ];
 
-// Récupère uniquement la question de présentation
-const getInitialQuestion = (): Question[] => {
+// Génère la première question adaptée au contexte d'audition
+const getInitialQuestion = async (): Promise<Question[]> => {
+  try {
+    // Récupération du contexte d'audition stocké dans la session
+    let jobContext: JobContext | null = null;
+    try {
+      const storedContext = sessionStorage.getItem('interviewJobContext');
+      if (storedContext) {
+        jobContext = JSON.parse(storedContext);
+      }
+    } catch (e) {
+      console.error('Erreur lors de la récupération du contexte d\'audition:', e);
+    }
+    
+    // Si nous avons un contexte d'audition, générer une question de présentation adaptée
+    if (jobContext) {
+      try {
+        const response = await fetch('/api/cyber/interview-test/generate-initial-question', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            jobContext,
+          }),
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.question) {
+            return [data.question];
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors de la génération de la question initiale contextualisée:', error);
+      }
+    }
+  } catch (error) {
+    console.error('Erreur dans getInitialQuestion:', error);
+  }
+  
+  // Fallback sur la question de présentation standard si la génération échoue
   const presentationQuestion = QUESTIONS.find(q => q.type === 'presentation');
-
   return presentationQuestion ? [presentationQuestion] : [QUESTIONS[0]];
 };
 
@@ -294,8 +333,42 @@ export default function CyberInterviewTest() {
       setTimeLeft(testDuration * 60); // Conversion en secondes basée sur la durée sélectionnée
       setEvaluationResult(null);
     } else if (testState === 'in-progress' && questions.length === 0) {
-      // Commencer par la question de présentation uniquement
-      setQuestions(getInitialQuestion());
+      // Afficher un indicateur de chargement pendant la génération des questions
+      setIsLoadingNextQuestion(true);
+      
+      // Générer les questions initiales adaptées au contexte d'audition
+      const initializeContextualizedQuestions = async () => {
+        try {
+          // Récupérer la première question contextualisée
+          const initialQuestions = await getInitialQuestion();
+          // Vérifier que la question a bien été générée
+          if (initialQuestions && initialQuestions.length > 0) {
+            setQuestions(initialQuestions);
+          } else {
+            throw new Error("Aucune question générée");
+          }
+        } catch (error) {
+          console.error('Erreur lors de l\'initialisation des questions:', error);
+          
+          // En cas d'erreur, utiliser la question par défaut
+          const presentationQuestion = QUESTIONS.find(q => q.type === 'presentation');
+          if (presentationQuestion) {
+            setQuestions([presentationQuestion]);
+          } else {
+            setQuestions([QUESTIONS[0]]);
+          }
+          
+          toast({
+            title: "Information",
+            description: "Utilisation des questions standards pour ce test.",
+            variant: "default"
+          });
+        } finally {
+          setIsLoadingNextQuestion(false);
+        }
+      };
+      
+      initializeContextualizedQuestions();
     }
   }, [testState, testDuration]);
 
@@ -933,7 +1006,7 @@ export default function CyberInterviewTest() {
             </Link>
             <h1 className="text-3xl font-bold font-[Rajdhani] tracking-wide text-white">RÉSULTATS DU TEST</h1>
           </div>
-          <Card className="max-w-3xl mx-auto bg-blue-900/30 border-blue-800">
+          <Card className="max-w-5xl mx-auto bg-blue-900/30 border-blue-800">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold text-white font-[Rajdhani]">Évaluation terminée</CardTitle>
               <CardDescription className="text-blue-100">
@@ -1024,7 +1097,7 @@ export default function CyberInterviewTest() {
           </Link>
           <h1 className="text-3xl font-bold font-[Rajdhani] tracking-wide text-white">TEST TECHNIQUE</h1>
         </div>
-        <Card className="max-w-3xl mx-auto bg-blue-900/30 border-blue-800">
+        <Card className="max-w-5xl mx-auto bg-blue-900/30 border-blue-800">
           <CardHeader>
             <div className="flex justify-between items-center">
               <div>
