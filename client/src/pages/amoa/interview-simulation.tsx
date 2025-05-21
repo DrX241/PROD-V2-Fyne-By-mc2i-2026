@@ -611,7 +611,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
       return;
     }
     
-    await finalizeSimulation(recruiterEmail, candidateName, profileType, experienceLevel, sectorFocus);
+    await finalizeSimulation(recruiterEmail, candidateName, profileType, experienceLevel);
   };
   
   // Traitement final effectif de la simulation avec toutes les données nécessaires
@@ -619,8 +619,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
     recruiterEmail: string,
     candidateName: string,
     profileType: string,
-    experienceLevel: string,
-    sectorFocus: string
+    experienceLevel: string
   ) => {
     setIsLoading(true);
     
@@ -636,7 +635,6 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
           candidateName,
           profileType,
           experienceLevel,
-          sectorFocus,
           messages: messages.map(m => ({ role: m.role, content: m.content })),
           duration: 600 - timeRemaining,
         })
@@ -698,7 +696,6 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
       candidateName: '',
       profileType: form.getValues('profileType') || '',
       experienceLevel: form.getValues('experienceLevel') || '',
-      sectorFocus: form.getValues('sectorFocus') || '',
     },
   });
   
@@ -715,8 +712,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
       values.recruiterEmail,
       values.candidateName,
       values.profileType,
-      values.experienceLevel,
-      values.sectorFocus
+      values.experienceLevel
     );
   };
   
@@ -757,7 +753,6 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
           candidateName: form.getValues('candidateName') || contactForm.getValues('candidateName') || 'Consultant',
           profileType: form.getValues('profileType') || contactForm.getValues('profileType'),
           experienceLevel: form.getValues('experienceLevel') || contactForm.getValues('experienceLevel'),
-          sectorFocus: form.getValues('sectorFocus') || contactForm.getValues('sectorFocus'),
         })
       });
       
