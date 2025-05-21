@@ -4966,11 +4966,9 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
         { role: "user", content: `Génère un défi de code en ${language === 'python' ? 'Python' : 'SQL'} adapté au niveau "${difficulty}" et au mode "${mode}". ID unique: ${timestamp} - assure-toi que ce défi soit complètement original et différent des précédents.` }
       ];
       
-      // Utiliser un modèle spécifique selon le besoin de performance
-      // Le modèle principal (GPT-4o) est plus rapide mais plus coûteux en tokens
+      // Utiliser le modèle secondaire (GPT-4o-mini) pour économiser les tokens
       if (typeof openAIService.switchApiKey === 'function') {
-        // Utiliser le modèle principal pour des réponses plus rapides
-        openAIService.switchApiKey('primary');
+        openAIService.switchApiKey('secondary');
       }
       
       // Appeler l'API pour générer la réponse
