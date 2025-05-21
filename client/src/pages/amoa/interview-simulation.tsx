@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { UserCircle, Send, Clock, CheckCircle, AlertCircle, FileCheck, ArrowLeft, Mail, User } from 'lucide-react';
+import { UserCircle, Send, Clock, CheckCircle, AlertCircle, FileCheck, ArrowLeft, Mail, User, Building, Briefcase, FileEdit } from 'lucide-react';
 import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
 import { 
   Form, 
@@ -27,6 +27,110 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import HomeLayout from '@/components/layout/HomeLayout';
 
+// Interface pour définir le contexte d'audition AMOA
+interface AuditContext {
+  id: string;
+  title: string;
+  description: string;
+  organization: string;
+  projectContext: string;
+  expectations: string[];
+  requirements: string[];
+  sectorFocus: string;
+}
+
+// Liste des contextes d'audition prédéfinis pour AMOA
+const PREDEFINED_AUDIT_CONTEXTS: AuditContext[] = [
+  {
+    id: "digital-transformation",
+    title: "Chef de projet transformation digitale",
+    description: "Chef de projet pour accompagner une transformation digitale globale",
+    organization: "RetailPlus, enseigne de distribution nationale (3000 employés)",
+    projectContext: "Projet de transformation digitale visant à moderniser l'ensemble des processus commerciaux, du parcours client à la gestion des stocks. Budget de 5M€ sur 3 ans.",
+    expectations: [
+      "Cadrer le projet de transformation et accompagner les parties prenantes",
+      "Identifier les processus à optimiser en priorité",
+      "Piloter les équipes techniques et les prestataires",
+      "Gérer le changement auprès des équipes métier",
+      "Mesurer et communiquer sur les résultats du projet"
+    ],
+    requirements: [
+      "5+ ans d'expérience en gestion de projet digital",
+      "Compétence en conduite du changement",
+      "Connaissance du secteur retail",
+      "Certification PMP, Prince2 ou équivalent",
+      "Expérience en méthodologies agiles"
+    ],
+    sectorFocus: "Retail"
+  },
+  {
+    id: "banking-compliance",
+    title: "Consultant AMOA conformité réglementaire",
+    description: "Consultant spécialisé en conformité réglementaire bancaire",
+    organization: "FinSecure, établissement bancaire de taille importante (8000 employés)",
+    projectContext: "Mise en conformité avec les nouvelles directives européennes sur les paiements et la lutte anti-blanchiment. Projet critique avec échéance réglementaire de 12 mois.",
+    expectations: [
+      "Analyser les impacts des nouvelles réglementations sur les SI existants",
+      "Rédiger les spécifications fonctionnelles détaillées",
+      "Accompagner les équipes de développement",
+      "Assurer la recette fonctionnelle des évolutions",
+      "Produire la documentation réglementaire nécessaire"
+    ],
+    requirements: [
+      "3+ ans d'expérience en AMOA secteur bancaire",
+      "Connaissance approfondie des réglementations DSP2, RGPD et LCB-FT",
+      "Expérience en analyse fonctionnelle",
+      "Capacité à dialoguer avec les autorités de régulation",
+      "Rigueur et sens du détail"
+    ],
+    sectorFocus: "Banque & Assurance"
+  },
+  {
+    id: "healthcare-system",
+    title: "AMOA Systèmes d'information santé",
+    description: "Assistant à maîtrise d'ouvrage pour le déploiement d'un nouveau SI hospitalier",
+    organization: "Centre Hospitalier Régional, établissement public de santé (5000 personnels)",
+    projectContext: "Déploiement d'un nouveau système d'information patient intégré pour remplacer plusieurs applications obsolètes. Enjeux de continuité de service et confidentialité des données.",
+    expectations: [
+      "Recueillir et formaliser les besoins des différents services hospitaliers",
+      "Participer à la sélection des solutions et prestataires",
+      "Coordonner les phases de paramétrage et de test",
+      "Former les référents métiers et accompagner le déploiement",
+      "Assurer le suivi post-déploiement et les ajustements nécessaires"
+    ],
+    requirements: [
+      "4+ ans d'expérience en AMOA systèmes d'information",
+      "Connaissance du secteur de la santé et de ses contraintes",
+      "Maîtrise de la gestion de données sensibles (RGPD santé)",
+      "Expérience en conduite du changement en milieu hospitalier",
+      "Capacité à travailler avec des équipes pluridisciplinaires"
+    ],
+    sectorFocus: "Santé"
+  },
+  {
+    id: "energy-erp",
+    title: "AMOA ERP secteur énergie",
+    description: "Assistant à maîtrise d'ouvrage spécialisé en ERP pour le secteur énergétique",
+    organization: "EnerGreen, producteur et distributeur d'énergie renouvelable (1200 employés)",
+    projectContext: "Implémentation d'un ERP pour unifier la gestion des opérations après plusieurs acquisitions. Enjeux d'intégration des systèmes existants et d'adaptation aux spécificités du secteur.",
+    expectations: [
+      "Cartographier les processus métier actuels et définir les processus cibles",
+      "Définir les exigences fonctionnelles et non-fonctionnelles",
+      "Superviser les phases de paramétrage et de développements spécifiques",
+      "Organiser et suivre les tests d'acceptation",
+      "Coordonner la migration des données et la mise en production"
+    ],
+    requirements: [
+      "5+ ans d'expérience en implémentation d'ERP",
+      "Connaissance du secteur énergétique",
+      "Expertise en gestion des processus d'entreprise",
+      "Compétences en gestion de projet et planification",
+      "Capacité à comprendre les enjeux techniques et métier"
+    ],
+    sectorFocus: "Énergie"
+  }
+];
+
 // Schéma de formulaire pour la configuration de l'entretien
 const formSchema = z.object({
   // Champs optionnels (peuvent être ignorés au début)
@@ -36,6 +140,11 @@ const formSchema = z.object({
   candidateName: z.string().min(2, {
     message: "Le nom du consultant doit contenir au moins 2 caractères.",
   }).optional().or(z.literal('')),
+  
+  // Contexte d'audition personnalisé ou prédéfini
+  auditContextType: z.enum(["predefined", "custom"]).optional(),
+  selectedAuditContext: z.string().optional(),
+  customAuditContext: z.string().optional(),
   
   // Champs obligatoires pour la simulation
   profileType: z.string().min(1, {
@@ -157,6 +266,9 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
     defaultValues: {
       recruiterEmail: '',
       candidateName: '',
+      auditContextType: 'predefined',
+      selectedAuditContext: '',
+      customAuditContext: '',
       profileType: '',
       experienceLevel: '',
       sectorFocus: '',
@@ -175,6 +287,26 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
     }
     
     try {
+      // Préparation des données du contexte d'audition
+      let auditContextData = {};
+      
+      if (values.auditContextType === 'predefined' && values.selectedAuditContext) {
+        const selectedContext = PREDEFINED_AUDIT_CONTEXTS.find(ctx => ctx.id === values.selectedAuditContext);
+        if (selectedContext) {
+          auditContextData = {
+            contextType: 'predefined',
+            contextData: selectedContext
+          };
+        }
+      } else if (values.auditContextType === 'custom' && values.customAuditContext) {
+        auditContextData = {
+          contextType: 'custom',
+          contextData: {
+            description: values.customAuditContext
+          }
+        };
+      }
+      
       const response = await fetch('/api/amoa/interview-simulation/start', {
         method: 'POST',
         headers: {
@@ -183,6 +315,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
         body: JSON.stringify({
           domain: 'amoa',
           ...values,
+          auditContext: auditContextData
         })
       });
       
@@ -712,6 +845,144 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
                       </div>
                     </div>
                     
+                    <div className="bg-blue-700 p-4 rounded-md mb-6">
+                      <h3 className="text-lg font-semibold mb-4">Contexte d'audition</h3>
+                      <div className="grid grid-cols-1 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="auditContextType"
+                          render={({ field }) => (
+                            <FormItem className="space-y-3">
+                              <FormLabel className="text-blue-100">Type de contexte</FormLabel>
+                              <div className="flex flex-col space-y-2">
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    value="predefined"
+                                    checked={field.value === 'predefined'}
+                                    onChange={() => field.onChange('predefined')}
+                                    className="w-4 h-4 text-blue-600"
+                                  />
+                                  <span className="text-blue-100">Utiliser un contexte prédéfini</span>
+                                </label>
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    value="custom"
+                                    checked={field.value === 'custom'}
+                                    onChange={() => field.onChange('custom')}
+                                    className="w-4 h-4 text-blue-600"
+                                  />
+                                  <span className="text-blue-100">Définir un contexte personnalisé</span>
+                                </label>
+                              </div>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {form.watch('auditContextType') === 'predefined' && (
+                          <>
+                            <FormField
+                              control={form.control}
+                              name="selectedAuditContext"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-blue-100">Sélectionner un contexte</FormLabel>
+                                  <Select 
+                                    onValueChange={(value) => {
+                                      field.onChange(value);
+                                      // Mettre à jour le secteur automatiquement en fonction du contexte sélectionné
+                                      const selectedContext = PREDEFINED_AUDIT_CONTEXTS.find(ctx => ctx.id === value);
+                                      if (selectedContext) {
+                                        form.setValue('sectorFocus', selectedContext.sectorFocus);
+                                      }
+                                    }}
+                                    defaultValue={field.value}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger className="bg-blue-900 border-blue-600 text-white">
+                                        <SelectValue placeholder="Sélectionnez un contexte d'audition" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="bg-blue-800 border-blue-700 text-white">
+                                      {PREDEFINED_AUDIT_CONTEXTS.map((context) => (
+                                        <SelectItem key={context.id} value={context.id}>
+                                          {context.title}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {form.watch('selectedAuditContext') && (
+                              <div className="bg-blue-800 p-3 rounded-md border border-blue-700">
+                                {(() => {
+                                  const contextId = form.watch('selectedAuditContext');
+                                  const selectedContext = PREDEFINED_AUDIT_CONTEXTS.find(ctx => ctx.id === contextId);
+                                  
+                                  if (!selectedContext) return null;
+                                  
+                                  return (
+                                    <div className="space-y-2 text-sm">
+                                      <p className="font-semibold text-white">{selectedContext.title}</p>
+                                      <p className="text-blue-100">{selectedContext.description}</p>
+                                      <p><span className="text-blue-300">Organisation:</span> {selectedContext.organization}</p>
+                                      <p><span className="text-blue-300">Contexte du projet:</span> {selectedContext.projectContext}</p>
+                                      
+                                      <div>
+                                        <p className="text-blue-300">Responsabilités attendues:</p>
+                                        <ul className="list-disc list-inside text-blue-100 ml-2">
+                                          {selectedContext.expectations.map((item, i) => (
+                                            <li key={i}>{item}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                      
+                                      <div>
+                                        <p className="text-blue-300">Prérequis du poste:</p>
+                                        <ul className="list-disc list-inside text-blue-100 ml-2">
+                                          {selectedContext.requirements.map((item, i) => (
+                                            <li key={i}>{item}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        {form.watch('auditContextType') === 'custom' && (
+                          <FormField
+                            control={form.control}
+                            name="customAuditContext"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-blue-100">Décrivez le contexte d'audition</FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder="Décrivez le contexte d'audition, l'entreprise, le poste, les responsabilités et les prérequis..."
+                                    className="min-h-[120px] bg-blue-900 border-blue-600 text-white"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <p className="text-blue-300 text-xs mt-1">
+                                  Soyez précis pour que la simulation soit pertinente. Plus vous donnez de détails, plus les questions seront adaptées au contexte.
+                                </p>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+                      </div>
+                    </div>
+
                     <div className="bg-blue-700 p-4 rounded-md">
                       <h3 className="text-lg font-semibold mb-4">Paramètres de simulation (requis)</h3>
                       <div className="grid grid-cols-1 gap-4">
