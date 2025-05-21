@@ -153,7 +153,7 @@ export default function ProspectPulse() {
   // Paramètres de la simulation
   const [settings, setSettings] = useState({
     globalTimeLimit: 5 * 60, // 5 minutes en secondes
-    responseTimeLimit: 20, // 20 secondes
+    responseTimeLimit: 180, // 3 minutes (augmenté de 20s à 180s)
     surpriseFrequency: [10, 30], // entre 10 et 30 minutes
     selectedClientType: 'random'
   });
