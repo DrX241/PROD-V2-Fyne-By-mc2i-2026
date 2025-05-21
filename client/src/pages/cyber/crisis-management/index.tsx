@@ -1048,13 +1048,14 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
   const handleSendMessage = async () => {
     if (!messageInput.trim() || !scenario) return;
     
+    const currentMessage = messageInput; // Sauvegarder le message pour l'utiliser dans le setTimeout
     setIsSending(true);
     
     // Construire le nouveau message
     const newMessage: Message = {
       id: uuidv4(),
       senderId: "player",
-      content: messageInput,
+      content: currentMessage,
       timestamp: new Date()
     };
     
