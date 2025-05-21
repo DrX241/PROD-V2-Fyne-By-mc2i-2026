@@ -6,7 +6,7 @@ import {
   ArrowLeft, AlertTriangle, Lock, Clock, Shield, ChevronRight, Info, 
   AlertOctagon, Users, Activity, Banknote, Scale, ShieldAlert, Send,
   Phone, FileText, PanelLeft, MessageSquare, Server, BellRing, BarChart,
-  UserCircle2, Crown, Mail, X, Check, Radiation
+  UserCircle2, Crown, Mail, X, Check, Radiation, Loader, Bot
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +21,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import axios from "axios";
 
 // Types des parties prenantes (PNJ) dans la crise
 interface Stakeholder {
@@ -44,6 +45,7 @@ interface Message {
   timestamp: Date;
   isPrivate?: boolean; // Message uniquement visible par certains participants
   reactionType?: "positive" | "negative" | "neutral";
+  isTyping?: boolean; // Indique si le message est en cours de frappe (animation "...")
 }
 
 // Conversation avec une partie prenante
@@ -1077,43 +1079,121 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
         };
       });
       
-      // Simuler la réponse du PNJ
+      // Activer l'indicateur de frappe du PNJ
       setIsTyping(true);
       
-      // Ici, on simulerait l'appel à Azure OpenAI pour générer une réponse
-      // Pour l'instant, on simule un délai et une réponse statique
-      setTimeout(() => {
+      // Créer un message temporaire de "typing"
+      const typingMessage: Message = {
+        id: uuidv4(),
+        senderId: focusedStakeholderId,
+        content: "...",
+        timestamp: new Date(),
+        isTyping: true
+      };
+      
+      // Ajouter le message typing à la conversation
+      setScenario(prev => {
+        if (!prev) return prev;
+        
+        const conversationIndex = prev.conversations.findIndex(
+          c => c.stakeholderId === focusedStakeholderId
+        );
+        
+        if (conversationIndex === -1) return prev;
+        
+        const updatedConversations = [...prev.conversations];
+        updatedConversations[conversationIndex] = {
+          ...updatedConversations[conversationIndex],
+          messages: [...updatedConversations[conversationIndex].messages, typingMessage],
+          lastActivity: new Date()
+        };
+        
+        return {
+          ...prev,
+          conversations: updatedConversations
+        };
+      });
+      
+      try {
+        // Trouver le stakeholder
         const stakeholder = scenario.stakeholders.find(s => s.id === focusedStakeholderId);
         
-        let responseContent = "";
-        switch (stakeholder?.personality) {
-          case "technical":
-            responseContent = "D'un point de vue technique, nous devons considérer plusieurs facteurs clés pour résoudre efficacement cette situation. Je vais analyser votre approche et vous fournir des données précises pour appuyer la prise de décision.";
-            break;
-          case "anxious":
-            responseContent = "Je suis vraiment inquiet de l'impact que cela peut avoir ! Les équipes sont débordées et nous avons besoin de directives claires immédiatement. Comment pouvons-nous limiter les dégâts ?";
-            break;
-          case "authoritative":
-            responseContent = "J'attends de vous une réponse claire et des actions décisives. Nous devons protéger l'entreprise et rassurer nos partenaires. Quelles sont vos recommandations précises ?";
-            break;
-          case "diplomatic":
-            responseContent = "Je comprends la complexité de la situation. Nous devons trouver un équilibre entre la transparence et la protection de notre image. Quelle stratégie de communication suggérez-vous ?";
-            break;
-          case "calm":
-            responseContent = "Prenons le temps d'évaluer méthodiquement la situation. Nous devons suivre les procédures établies tout en restant agiles. Quelles sont les prochaines étapes selon vous ?";
-            break;
-          default:
-            responseContent = "Merci pour ces informations. Comment suggérez-vous que nous procédions maintenant ?";
+        if (!stakeholder) {
+          throw new Error("Stakeholder non trouvé");
         }
         
+        // Récupérer l'historique de la conversation pour le contexte
+        const conversation = scenario.conversations.find(
+          c => c.stakeholderId === focusedStakeholderId
+        );
+        
+        if (!conversation) {
+          throw new Error("Conversation non trouvée");
+        }
+        
+        // Limiter à un maximum de 10 derniers messages pour le contexte
+        const recentMessages = conversation.messages
+          .filter(msg => !msg.isTyping) // Exclure les messages "typing"
+          .slice(-10)
+          .map(msg => ({
+            role: msg.senderId === "player" ? "user" : "assistant",
+            content: msg.content
+          }));
+        
+        // Créer le prompt système pour Azure OpenAI
+        const systemPrompt = `Tu incarnes ${stakeholder.name}, ${stakeholder.role} chez mc2i, une entreprise de conseil en transformation numérique. 
+Tu fais face à une attaque par ransomware critique qui a touché les systèmes informatiques de l'entreprise.
+Ta personnalité est "${stakeholder.personality === "technical" ? "technique et analytique" : 
+                       stakeholder.personality === "anxious" ? "stressée et inquiète" :
+                       stakeholder.personality === "authoritative" ? "autoritaire et exigeante" :
+                       stakeholder.personality === "diplomatic" ? "diplomatique et mesurée" : "calme et réfléchie"}".
+Ton niveau de stress actuel est ${stakeholder.stress < 30 ? "faible" : stakeholder.stress < 70 ? "modéré" : "très élevé"}.
+Ta confiance envers le RSSI (l'utilisateur) est ${stakeholder.trust < 50 ? "limitée" : stakeholder.trust < 80 ? "moyenne" : "élevée"}.
+Tu t'occupes de ${stakeholder.department === "IT" ? "l'informatique et la technologie" :
+                 stakeholder.department === "Executive" ? "la direction stratégique" :
+                 stakeholder.department === "Communication" ? "la communication et les relations publiques" :
+                 stakeholder.department === "Legal" ? "les aspects juridiques et réglementaires" : "les opérations"}.
+Réponds de façon brève (maximum 2-3 phrases), avec la personnalité indiquée, en tenant compte de la crise actuelle. Ne dépasse pas 150 mots.`;
+        
+        // Appel à l'API Azure OpenAI
+        const response = await axios.post('/api/openai/generate-response', {
+          model: "gpt-4o-mini",
+          systemPrompt,
+          messages: recentMessages,
+          temperature: 0.7,
+          max_tokens: 150
+        });
+        
+        const aiResponse = response.data?.response || 
+          "Je dois réfléchir à la situation avant de vous donner une réponse complète.";
+        
+        // Déterminer le ton émotionnel de la réponse
+        let reactionType: "positive" | "negative" | "neutral" = "neutral";
+        
+        if (aiResponse.toLowerCase().includes("inqui") || 
+            aiResponse.toLowerCase().includes("préoccup") || 
+            aiResponse.toLowerCase().includes("stress") || 
+            aiResponse.toLowerCase().includes("urgent") || 
+            aiResponse.toLowerCase().includes("crise")) {
+          reactionType = "negative";
+        } else if (aiResponse.toLowerCase().includes("satisf") || 
+                  aiResponse.toLowerCase().includes("confian") || 
+                  aiResponse.toLowerCase().includes("bien") || 
+                  aiResponse.toLowerCase().includes("solution") || 
+                  aiResponse.toLowerCase().includes("d'accord")) {
+          reactionType = "positive";
+        }
+        
+        // Créer la réponse finale
         const responseMessage: Message = {
           id: uuidv4(),
           senderId: focusedStakeholderId,
-          content: responseContent,
+          content: aiResponse,
           timestamp: new Date(),
-          reactionType: "neutral"
+          reactionType: reactionType
         };
         
+        // Mettre à jour le scénario en remplaçant le message "typing"
         setScenario(prev => {
           if (!prev) return prev;
           
@@ -1123,10 +1203,91 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
           
           if (conversationIndex === -1) return prev;
           
+          // Filtrer pour retirer le message "typing"
+          const filteredMessages = prev.conversations[conversationIndex].messages
+            .filter(msg => !msg.isTyping);
+          
           const updatedConversations = [...prev.conversations];
           updatedConversations[conversationIndex] = {
             ...updatedConversations[conversationIndex],
-            messages: [...updatedConversations[conversationIndex].messages, responseMessage],
+            messages: [...filteredMessages, responseMessage],
+            lastActivity: new Date()
+          };
+          
+          // Mise à jour des statistiques du stakeholder
+          const updatedStakeholders = prev.stakeholders.map(s => {
+            if (s.id === focusedStakeholderId) {
+              // Calculer les changements en fonction du contenu
+              let stressChange = 0;
+              let trustChange = 0;
+              
+              if (messageInput.toLowerCase().includes("plan") || 
+                  messageInput.toLowerCase().includes("solution") || 
+                  messageInput.toLowerCase().includes("sécuris")) {
+                stressChange = -5;
+                trustChange = +3;
+              } else if (messageInput.toLowerCase().includes("problème") || 
+                        messageInput.toLowerCase().includes("risque") || 
+                        messageInput.toLowerCase().includes("urgent")) {
+                stressChange = +3;
+                trustChange = -2;
+              }
+              
+              // Ajuster en fonction de la réaction de l'IA
+              if (reactionType === "positive") {
+                stressChange -= 2;
+                trustChange += 2;
+              } else if (reactionType === "negative") {
+                stressChange += 2;
+                trustChange -= 1;
+              }
+              
+              return {
+                ...s,
+                stress: Math.max(0, Math.min(100, s.stress + stressChange)),
+                trust: Math.max(0, Math.min(100, s.trust + trustChange))
+              };
+            }
+            return s;
+          });
+          
+          return {
+            ...prev,
+            conversations: updatedConversations,
+            stakeholders: updatedStakeholders
+          };
+        });
+
+      } catch (error) {
+        console.error("Erreur lors de la génération de réponse IA:", error);
+        
+        // Fallback en cas d'erreur d'API
+        setScenario(prev => {
+          if (!prev) return prev;
+          
+          const conversationIndex = prev.conversations.findIndex(
+            c => c.stakeholderId === focusedStakeholderId
+          );
+          
+          if (conversationIndex === -1) return prev;
+          
+          // Filtrer pour retirer le message "typing"
+          const filteredMessages = prev.conversations[conversationIndex].messages
+            .filter(msg => !msg.isTyping);
+          
+          // Message de fallback
+          const fallbackMessage: Message = {
+            id: uuidv4(),
+            senderId: focusedStakeholderId,
+            content: "Je dois réfléchir à la situation. Revenons à ça dans un moment.",
+            timestamp: new Date(),
+            reactionType: "neutral"
+          };
+          
+          const updatedConversations = [...prev.conversations];
+          updatedConversations[conversationIndex] = {
+            ...updatedConversations[conversationIndex],
+            messages: [...filteredMessages, fallbackMessage],
             lastActivity: new Date()
           };
           
@@ -1136,8 +1297,14 @@ N'invente pas de résolution magique et n'accepte pas de raccourcis techniques i
           };
         });
         
+        toast({
+          title: "Problème de communication",
+          description: "Impossible de joindre ce contact pour le moment.",
+          variant: "destructive",
+        });
+      } finally {
         setIsTyping(false);
-      }, 2000 + Math.random() * 2000); // Délai aléatoire pour simuler la réflexion
+      }
     }
     
     setMessageInput('');
