@@ -388,12 +388,38 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
     try {
       console.log("Envoi de la requête API...");
       
+      // Récupérer les informations de contexte d'audition
+      const auditContextType = form.getValues('auditContextType');
+      const selectedAuditContext = form.getValues('selectedAuditContext');
+      const customAuditContext = form.getValues('customAuditContext');
+      
+      // Préparation des données du contexte d'audition
+      let auditContextData = {};
+      
+      if (auditContextType === 'predefined' && selectedAuditContext) {
+        const selectedContext = PREDEFINED_AUDIT_CONTEXTS.find(ctx => ctx.id === selectedAuditContext);
+        if (selectedContext) {
+          auditContextData = {
+            contextType: 'predefined',
+            contextData: selectedContext
+          };
+        }
+      } else if (auditContextType === 'custom' && customAuditContext) {
+        auditContextData = {
+          contextType: 'custom',
+          contextData: {
+            description: customAuditContext
+          }
+        };
+      }
+      
       // Préparer les données à envoyer (sans les informations de contact)
       const payload = {
         domain: 'amoa',
         profileType,
         experienceLevel,
-        sectorFocus
+        sectorFocus,
+        auditContext: auditContextData
       };
       
       console.log("Payload:", payload);
@@ -490,6 +516,31 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
     setIsLoading(true);
     
     try {
+      // Récupérer les informations de contexte d'audition
+      const auditContextType = form.getValues('auditContextType');
+      const selectedAuditContext = form.getValues('selectedAuditContext');
+      const customAuditContext = form.getValues('customAuditContext');
+      
+      // Préparation des données du contexte d'audition
+      let auditContextData = {};
+      
+      if (auditContextType === 'predefined' && selectedAuditContext) {
+        const selectedContext = PREDEFINED_AUDIT_CONTEXTS.find(ctx => ctx.id === selectedAuditContext);
+        if (selectedContext) {
+          auditContextData = {
+            contextType: 'predefined',
+            contextData: selectedContext
+          };
+        }
+      } else if (auditContextType === 'custom' && customAuditContext) {
+        auditContextData = {
+          contextType: 'custom',
+          contextData: {
+            description: customAuditContext
+          }
+        };
+      }
+      
       const response = await fetch('/api/amoa/interview-simulation/message', {
         method: 'POST',
         headers: {
@@ -501,6 +552,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
           profileType: form.getValues('profileType'),
           experienceLevel: form.getValues('experienceLevel'),
           sectorFocus: form.getValues('sectorFocus'),
+          auditContext: auditContextData,
           messages: messages.map(m => ({ role: m.role, content: m.content })),
         })
       });
