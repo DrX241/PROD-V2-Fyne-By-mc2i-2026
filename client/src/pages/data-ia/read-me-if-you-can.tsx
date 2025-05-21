@@ -977,10 +977,13 @@ const ReadMeIfYouCan = () => {
     };
   }, [timerActive, timeLeft]);
   
-  // Charger un challenge au montage du composant
+  // Charger un challenge au montage du composant (une seule fois)
   useEffect(() => {
-    fetchNewChallenge();
-  }, []);
+    // Utiliser une référence pour s'assurer que le chargement n'est fait qu'une seule fois
+    if (questionCount === 0) {
+      fetchNewChallenge();
+    }
+  }, [questionCount]);
 
   return (
     <div className={`min-h-screen ${highContrastMode ? 'bg-gray-900' : 'bg-gradient-to-b from-blue-900 to-blue-950'}`}>
