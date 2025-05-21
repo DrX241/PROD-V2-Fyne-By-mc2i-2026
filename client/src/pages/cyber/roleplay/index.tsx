@@ -9,7 +9,8 @@ import {
   Shield, 
   AlertTriangle,
   BrainCircuit,
-  Clock
+  Clock,
+  Bot
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -128,6 +129,25 @@ const RoleplayHub: React.FC = () => {
         "Préparation à la gestion de crise cybernétique"
       ],
       comingSoon: true
+    },
+    {
+      id: 'assistant-creator',
+      title: "Je suis Créateur d'IA",
+      description: "Je souhaite créer mon propre assistant virtuel spécialisé en cybersécurité",
+      link: '/cyber/tools/assistant-cyber',
+      icon: <Bot className="h-10 w-10 text-cyan-300" />,
+      color: 'cyan',
+      gradient: 'from-cyan-900/70 to-cyan-700/30',
+      border: 'border-cyan-500/30',
+      buttonGradient: 'from-cyan-700 to-cyan-600',
+      buttonHover: 'hover:from-cyan-600 hover:to-cyan-500',
+      textColor: 'text-cyan-300',
+      details: [
+        "Création d'un assistant IA personnalisé en cybersécurité",
+        "Définition de ses compétences et domaines d'expertise",
+        "Partage et utilisation collaborative de l'assistant"
+      ],
+      comingSoon: false
     }
   ];
 

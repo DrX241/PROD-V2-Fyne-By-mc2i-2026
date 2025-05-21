@@ -58,7 +58,7 @@ const CyberHomePage: React.FC = () => {
     {
       id: 'cyber',
       title: 'I AM CYBER',
-      description: 'Plongez au cœur des enjeux de la cybersécurité avec des simulations réalistes',
+      description: 'Plongez au cœur des enjeux de la cyber avec des simulations réalistes',
       icon: <div className="w-5 h-5 bg-indigo-500"></div>,
       color: 'text-indigo-600',
       bgColor: 'bg-indigo-100',

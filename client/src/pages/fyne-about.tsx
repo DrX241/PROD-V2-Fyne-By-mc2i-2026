@@ -315,7 +315,7 @@ export default function FyneAbout() {
               En quelques semaines un premier prototype opérationnel a été créé. Il est testé immédiatement en interne chez mc2i, dans des contextes concrets :
             </p>
             <ul className="list-disc pl-6 mb-6 space-y-2 text-gray-300">
-              <li>Simulations cyber pour des consultants juniors</li>
+              <li>Simulations cyber pour des consultants</li>
               <li>Tests de mise en situation pour recruter des profils spécialisés</li>
               <li>Entraînement express avant une soutenance client</li>
             </ul>
@@ -323,7 +323,7 @@ export default function FyneAbout() {
               FYNE est un produit né du terrain, testé chez nous et validé par nos clients.
             </p>
             <p className="text-gray-200 font-semibold">
-              C'est un concentré de notre expertise cyber, de notre vision pédagogique, et de notre engagement en matière d'innovation utile et responsable.
+              C'est un concentré de notre expertise cyber et IA, de notre vision pédagogique, et de notre engagement en matière d'innovation utile et responsable.
             </p>
           </div>
         </motion.section>
