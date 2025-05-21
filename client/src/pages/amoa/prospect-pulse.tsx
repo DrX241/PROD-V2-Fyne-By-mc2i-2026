@@ -1041,9 +1041,15 @@ export default function ProspectPulse() {
                 className="w-full bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-slate-200"
               >
                 <option value="random">Aléatoire</option>
-                {clientTypes.map(client => (
-                  <option key={client.id} value={client.id}>{client.type}</option>
-                ))}
+                {/* Filtrer les types de clients pour éviter les doublons */}
+                {Array.from(new Set(clientTypes.map(client => client.type))).map(type => {
+                  // Prendre le premier client de chaque type
+                  const client = clientTypes.find(c => c.type === type);
+                  if (!client) return null;
+                  return (
+                    <option key={client.id} value={client.id}>{type}</option>
+                  );
+                })}
               </select>
             </div>
             
