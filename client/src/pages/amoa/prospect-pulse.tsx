@@ -116,6 +116,7 @@ export default function ProspectPulse() {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingResponse, setIsFetchingResponse] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [timeoutCounter, setTimeoutCounter] = useState(0); // Compteur pour limiter les relances du client
   const [clientTypes] = useState<ClientProfile[]>([
     {
       id: 'pressed',
@@ -596,14 +597,45 @@ export default function ProspectPulse() {
   const handleTimeoutForResponse = async () => {
     if (!activeSession) return;
     
-    // Déplacer l'appel toast dans un setTimeout pour éviter les erreurs pendant le rendu
-    setTimeout(() => {
-      toast({
-        title: "Attention !",
-        description: "Vous avez mis trop de temps à répondre. Le client s'impatiente.",
-        variant: "destructive",
-      });
-    }, 0);
+    // Incrémenter le compteur de timeout
+    const newTimeoutCount = timeoutCounter + 1;
+    setTimeoutCounter(newTimeoutCount);
+    
+    // Limiter les notifications après la première relance
+    if (newTimeoutCount <= 2) {
+      // Déplacer l'appel toast dans un setTimeout pour éviter les erreurs pendant le rendu
+      setTimeout(() => {
+        toast({
+          title: "Attention !",
+          description: "Vous avez mis trop de temps à répondre. Le client s'impatiente.",
+          variant: "destructive",
+        });
+      }, 0);
+    }
+    
+    // Si c'est la 3ème relance ou plus, on limite fortement la génération de messages
+    if (newTimeoutCount > 3) {
+      // Mettre fin à la session après trop de relances
+      if (Math.random() < 0.9) {
+        setTimeout(() => {
+          const endMessage: Message = {
+            id: `msg-${Date.now()}`,
+            content: `Je constate que vous êtes indisponible. Nous reprendrons cette discussion à un autre moment.`,
+            sender: 'client',
+            timestamp: new Date()
+          };
+          
+          setMessages((prev) => [...prev, endMessage]);
+          
+          // Terminer la session avec évaluation
+          setTimeout(() => completeSession(true), 2000);
+        }, 2000);
+      }
+      
+      // Réinitialiser le timer avec un délai plus long
+      setResponseTimeLeft(settings.responseTimeLimit * 2);
+      return; // Ne pas générer de message d'impatience supplémentaire
+    }
     
     // Générer un message d'impatience via l'API qui sera plus personnalisé
     try {
@@ -629,9 +661,12 @@ export default function ProspectPulse() {
       const firstTimestamp = messages.length > 0 ? new Date(messages[0].timestamp).getTime() : Date.now();
       const conversationDuration = Math.floor((Date.now() - firstTimestamp) / (1000 * 60)); // en minutes
       
-      if (conversationDuration >= 2 && activeSession.clientProfile.type === 'pressé') {
-        // Pour un client pressé après 2 minutes, 80% de chances de mettre fin à la conversation après un timeout
-        if (Math.random() < 0.8) {
+      // Augmenter la probabilité de fin de session avec le nombre de relances
+      const timeoutProbability = newTimeoutCount * 0.2 + 0.3; // 0.5 pour 1 timeout, 0.7 pour 2, 0.9 pour 3
+      
+      if ((conversationDuration >= 2 && activeSession.clientProfile.type === 'pressé') || newTimeoutCount >= 2) {
+        // Pour un client pressé après 2 minutes ou après 2 timeouts, fortes chances de mettre fin à la conversation
+        if (Math.random() < timeoutProbability) {
           setTimeout(() => {
             const endMessage: Message = {
               id: `msg-${Date.now()}`,
@@ -648,8 +683,8 @@ export default function ProspectPulse() {
         }
       }
       
-      // Réinitialiser le timer de réponse
-      setResponseTimeLeft(settings.responseTimeLimit);
+      // Réinitialiser le timer de réponse avec un délai croissant pour éviter les relances trop fréquentes
+      setResponseTimeLeft(settings.responseTimeLimit * (1 + (newTimeoutCount * 0.3))); // Augmente progressivement le délai
     } catch (error) {
       console.error("Erreur lors de la génération du message d'impatience:", error);
       
