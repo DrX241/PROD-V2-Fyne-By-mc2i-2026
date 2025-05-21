@@ -635,7 +635,13 @@ CONTEXTE IMPORTANT:
 PROFIL DU CONSULTANT:
 - Type de profil: ${profileType.replace(/_/g, ' ')}
 - Niveau d'expérience déclaré: ${experienceLevel}
-- Contexte d'audit: ${auditContext ? (auditContext.contextType === 'predefined' ? auditContext.contextData.title : 'personnalisé') : 'général'}
+- Contexte d'audit: ${
+  auditContext 
+    ? (auditContext.contextType === 'predefined' 
+       ? auditContext.contextData.title 
+       : 'personnalisé') 
+    : 'général'
+}
 
 INSTRUCTIONS DE STRUCTURATION:
 Structurez votre synthèse précisément selon les sections suivantes avec un contenu détaillé pour chaque partie:
@@ -910,7 +916,7 @@ export async function completeInterviewSimulation(req: Request, res: Response) {
               <p><strong>Consultant évalué:</strong> ${candidateName || 'Non spécifié'}</p>
               <p><strong>Type de profil:</strong> ${profileType}</p>
               <p><strong>Niveau d'expérience:</strong> ${experienceLevel}</p>
-              ${domain === 'amoa' ? `<p><strong>Secteur d'activité:</strong> ${sectorFocus}</p>` : ''}
+              ${domain === 'amoa' && auditContext ? `<p><strong>Contexte d'audit:</strong> ${auditContext.contextType === 'predefined' ? auditContext.contextData.title : 'Personnalisé'}</p>` : ''}
               <p><strong>Durée de la simulation:</strong> ${duration ? Math.floor(duration / 60) + ' min ' + (duration % 60) + ' sec' : 'Non disponible'}</p>
               <p><strong>Date de l'évaluation:</strong> ${new Date().toLocaleDateString('fr-FR')}</p>
             </div>
@@ -1815,7 +1821,7 @@ RÉACTION INTELLIGENTE - Analyse critique de la réponse précédente:
 
 FORMAT DE TA RÉPONSE:
 1. Réaction brève et spécifique à la réponse du consultant (1-2 phrases)
-2. Question principale ou mise en situation concrète liée au contexte (${sectorFocus} et ${scenario})
+2. Question principale ou mise en situation concrète liée au contexte de l'audit et à la problématique: ${scenario}
 3. Maximum 2 paragraphes au total, ton direct
 
 RÈGLES STRICTES - NE JAMAIS:
@@ -1890,7 +1896,7 @@ EXIGENCES MÉTHODOLOGIQUES:
 /**
  * Génère le prompt pour l'évaluation finale d'une audition client AMOA
  */
-function generateAmoaEvaluationPrompt(candidateName: string, profileType: string, experienceLevel: string, sectorFocus: string, auditContext?: AuditContextData): string {
+function generateAmoaEvaluationPrompt(candidateName: string, profileType: string, experienceLevel: string, auditContext?: AuditContextData): string {
   // Variables pour le contexte personnalisé
   let contextTitle = "";
   let contextDescription = "";
