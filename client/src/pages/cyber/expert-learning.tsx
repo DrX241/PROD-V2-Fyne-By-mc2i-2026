@@ -559,24 +559,6 @@ function ExpertLearningPageContent() {
               </Card>
             ) : (
               <div className="flex flex-col w-full max-w-6xl mx-auto">
-                {/* Bouton de retour - repositionné en haut et aligné à gauche */}
-                <div className="flex items-center justify-between mb-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={handleReturnToPrevious}
-                    className="bg-[#091525] border-[#00b4d8]/30 text-[#00b4d8] hover:bg-[#112641] hover:border-[#00b4d8]/50 flex items-center gap-2 font-mono text-xs shadow-[0_0_10px_rgba(0,180,216,0.1)]"
-                  >
-                    <span className="text-[#00b4d8]">←</span>
-                    <span>RETOUR AU CYBER CENTER</span>
-                  </Button>
-                  
-                  {/* Titre de la section */}
-                  <h2 className="text-[#00b4d8] text-xl font-bold font-mono">CYBER EXPERT</h2>
-                  
-                  {/* Espace pour équilibrer le layout */}
-                  <div className="w-[160px]"></div>
-                </div>
-
                 {/* Mode décision ou chat standard */}
                 {decision.isInDecisionMode && decision.currentScenario ? (
                   <CyberDecisionFlow 
@@ -588,7 +570,7 @@ function ExpertLearningPageContent() {
                     summary={decision.summary}
                   />
                 ) : (
-                  <div className="flex flex-col w-full relative" style={{ height: 'calc(100vh - 150px)' }}>
+                  <div className="flex flex-col w-full">
                     {/* Barre de statut et de progression */}
                     <div className="bg-[#091525] border border-[#00b4d8]/30 border-b-0 rounded-t-md p-3 flex items-center justify-between">
                       <div className="flex items-center space-x-4">
@@ -615,13 +597,12 @@ function ExpertLearningPageContent() {
                       </div>
                     </div>
                 
-                    {/* Zone de chat avec messages et guides contextuels - agrandie avec scrollbar interne */}
+                    {/* Zone de chat avec messages et guides contextuels */}
                     <div 
                       ref={chatContainerRef}
-                      className="flex-1 overflow-y-auto custom-scrollbar cyber-expert bg-[#091525]/80 border border-[#00b4d8]/30 shadow-[0_0_20px_rgba(0,180,216,0.15)] h-full w-full"
-                      style={{ maxHeight: 'calc(100vh - 250px)' }}
+                      className="flex-1 overflow-y-auto custom-scrollbar cyber-expert bg-[#091525]/80 border border-[#00b4d8]/30 rounded-none shadow-[0_0_20px_rgba(0,180,216,0.15)] h-[calc(100vh-350px)] min-h-[450px]"
                     >
-                      <div className="p-6 space-y-4">
+                      <div className="p-6 space-y-6">
                         {/* Barre de progression de l'apprentissage - toujours visible */}
                         <div className="bg-[#121e2e] p-3 rounded-md border border-[#00b4d8]/30 mb-6">
                           <div className="flex items-center justify-between mb-2">
@@ -767,21 +748,21 @@ function ExpertLearningPageContent() {
                       </div>
                     </div>
               
-                    {/* Bouton de défilement vers le bas - repositionné */}
+                    {/* Bouton de défilement vers le bas */}
                     {showScrollButton && (
                       <Button
                         variant="outline"
                         size="icon"
-                        className="fixed bottom-[250px] right-8 rounded-full bg-[#091525] border-[#00b4d8]/30 text-[#00b4d8] hover:bg-[#112641] hover:border-[#00b4d8]/50 shadow-[0_0_10px_rgba(0,180,216,0.2)] z-20"
+                        className="absolute bottom-32 right-8 rounded-full bg-[#091525] border-[#00b4d8]/30 text-[#00b4d8] hover:bg-[#112641] hover:border-[#00b4d8]/50 shadow-[0_0_10px_rgba(0,180,216,0.2)]"
                         onClick={scrollToBottom}
                       >
                         <ChevronDown className="h-4 w-4" />
                       </Button>
                     )}
               
-                    {/* Zone de saisie de message fixe en bas de l'écran */}
+                    {/* Zone de saisie de message - masquée en mode décision */}
                     {!decision.isInDecisionMode && (
-                      <div className="bg-[#121e2e] p-6 rounded-b-md border-x border-b border-[#00b4d8]/30 shadow-[0_0_20px_rgba(0,180,216,0.15)] fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-6xl">
+                      <div className="bg-[#121e2e] p-6 rounded-b-md border-x border-b border-[#00b4d8]/30 shadow-[0_0_20px_rgba(0,180,216,0.15)]">
                         {/* Suggestions de questions pour guider l'utilisateur */}
                         <div className="mb-4 px-1">
                           <p className="text-[#00b4d8] text-sm font-mono mb-2 flex items-center">
