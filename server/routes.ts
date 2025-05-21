@@ -4905,7 +4905,7 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
       // Vérifier si OpenAI est configuré
       if (!openAIService) {
         return res.status(500).json({ 
-          error: "Le service OpenAI n'est pas disponible actuellement." 
+          error: "Le service Azure OpenAI n'est pas disponible actuellement." 
         });
       }
 
@@ -4966,15 +4966,13 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
       ];
       
       // Utiliser le modèle secondaire (GPT-4o-mini) pour économiser les tokens
-      try {
-        // Vérifier si la méthode switchApiKey existe et l'utiliser si c'est le cas
-        if (typeof openAIService.switchApiKey === 'function') {
-          openAIService.switchApiKey('secondary');
-        }
-        
-        // Appeler l'API pour générer la réponse
-        const content = await openAIService.getChatCompletion(messages, 0.7, 1500);
-        const response = { content };
+      if (typeof openAIService.switchApiKey === 'function') {
+        openAIService.switchApiKey('secondary');
+      }
+      
+      // Appeler l'API pour générer la réponse
+      const content = await openAIService.getChatCompletion(messages, 0.7, 1500);
+      const response = { content };
 
       if (!response || !response.content) {
         return res.status(500).json({ 
@@ -4982,10 +4980,11 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
         });
       }
 
+      // Traiter la réponse JSON
       try {
         // Extraire le JSON de la réponse
         const jsonMatch = response.content.match(/```json\s*([\s\S]*?)\s*```/) || 
-                        response.content.match(/{[\s\S]*}/);
+                      response.content.match(/{[\s\S]*}/);
         
         let parsedResponse;
         
