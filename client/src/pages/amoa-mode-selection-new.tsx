@@ -20,7 +20,41 @@ export default function AmoaModeSelectionNew() {
   // États
   const [highContrastMode, setHighContrastMode] = useState(false);
   const [textSize, setTextSize] = useState(1); // 1 = normal, >1 = larger, <1 = smaller
+  const [simplifiedUI, setSimplifiedUI] = useState(false);
+  const [animationsReduced, setAnimationsReduced] = useState(false);
+  const [accessibilityPanelOpen, setAccessibilityPanelOpen] = useState(false);
   const [, navigate] = useLocation();
+  
+  // Chargement des préférences d'accessibilité
+  React.useEffect(() => {
+    const storedTextSize = localStorage.getItem('amoaTextSize');
+    if (storedTextSize) {
+      setTextSize(parseFloat(storedTextSize));
+    }
+    
+    const storedHighContrastMode = localStorage.getItem('amoaHighContrastMode');
+    if (storedHighContrastMode) {
+      setHighContrastMode(storedHighContrastMode === 'true');
+    }
+    
+    const storedSimplifiedUI = localStorage.getItem('amoaSimplifiedUI');
+    if (storedSimplifiedUI) {
+      setSimplifiedUI(storedSimplifiedUI === 'true');
+    }
+    
+    const storedAnimationsReduced = localStorage.getItem('amoaAnimationsReduced');
+    if (storedAnimationsReduced) {
+      setAnimationsReduced(storedAnimationsReduced === 'true');
+    }
+  }, []);
+  
+  // Sauvegarde des préférences d'accessibilité
+  React.useEffect(() => {
+    localStorage.setItem('amoaTextSize', textSize.toString());
+    localStorage.setItem('amoaHighContrastMode', highContrastMode.toString());
+    localStorage.setItem('amoaSimplifiedUI', simplifiedUI.toString());
+    localStorage.setItem('amoaAnimationsReduced', animationsReduced.toString());
+  }, [textSize, highContrastMode, simplifiedUI, animationsReduced]);
 
   return (
     <HomeLayout>

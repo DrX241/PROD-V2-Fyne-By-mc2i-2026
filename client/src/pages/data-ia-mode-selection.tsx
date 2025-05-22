@@ -231,18 +231,31 @@ export default function DataIAModeSelection() {
               className="text-center mb-16 relative"
               data-id="main-title"
             >
-              <h1 className="text-5xl font-bold mb-4 font-data-title relative">
-                <span className="text-white">Centre de Formation</span>
+              <h1 className="font-bold mb-4 font-data-title relative" style={{ fontSize: `calc(3rem * ${textSize})` }}>
+                <span className={`${highContrastMode ? 'text-yellow-100' : 'text-white'}`}>
+                  Centre de Formation
+                </span>
                 <br />
-                <span className="text-6xl mt-2 block tracking-wider bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
+                <span className={`mt-2 block tracking-wider ${
+                  highContrastMode 
+                    ? 'text-yellow-300' 
+                    : 'bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent'
+                }`} style={{ fontSize: `calc(3.5rem * ${textSize})` }}>
                   I AM DATA & IA
                 </span>
               </h1>
-              <div className="w-40 h-1 bg-gradient-to-r from-blue-400 to-indigo-500 mx-auto my-6 rounded-full"></div>
-              <p className={`max-w-3xl mx-auto text-xl ${
+              <div className={`w-40 h-1 bg-gradient-to-r from-blue-400 to-indigo-500 mx-auto my-6 rounded-full`} 
+                style={{ width: `calc(10rem * ${textSize})` }}></div>
+              <p className={`max-w-3xl mx-auto ${
                 highContrastMode ? 'text-gray-300' : 'text-blue-100' 
-              }`}>
-                Trouvez votre parcours d'apprentissage personnalisé en <span className="font-semibold text-blue-300">Data Science</span> et <span className="font-semibold text-purple-300">Intelligence Artificielle</span>
+              }`} style={{ fontSize: `calc(1.25rem * ${textSize})` }}>
+                Trouvez votre parcours d'apprentissage personnalisé en 
+                <span className={`font-semibold ${highContrastMode ? 'text-yellow-300' : 'text-blue-300'}`}>
+                  Data Science
+                </span> et 
+                <span className={`font-semibold ${highContrastMode ? 'text-yellow-300' : 'text-purple-300'}`}>
+                  Intelligence Artificielle
+                </span>
               </p>
             </motion.div>
 
@@ -263,11 +276,24 @@ export default function DataIAModeSelection() {
                         ? 'bg-blue-800' 
                         : 'bg-gradient-to-r from-blue-500 to-blue-700 shadow-md'
                     }`}>
-                      <IoBookOutline className="h-8 w-8 text-white" />
+                      <IoBookOutline 
+                        className={`${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
+                        style={{ 
+                          height: `calc(2rem * ${textSize})`, 
+                          width: `calc(2rem * ${textSize})` 
+                        }} 
+                      />
                     </div>
                   </div>
-                  <h3 className="text-center text-2xl font-data-title mb-2">DATA & IA ACADÉMIE</h3>
-                  <p className="text-center text-blue-300 mt-2">
+                  <h3 className={`text-center font-data-title mb-2 ${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
+                    style={{ 
+                      fontSize: `calc(1.5rem * ${textSize})`,
+                      lineHeight: "1.2"
+                    }}>
+                    DATA & IA ACADÉMIE
+                  </h3>
+                  <p className={`text-center ${highContrastMode ? 'text-gray-300' : 'text-blue-300'} mt-2`}
+                    style={{ fontSize: `calc(1rem * ${textSize})` }}>
                     Centre de formation complet en data science, IA et métiers de la data
                   </p>
                   <div className="text-center flex flex-col items-center mt-6">
@@ -298,11 +324,24 @@ export default function DataIAModeSelection() {
                         ? 'bg-purple-900' 
                         : 'bg-gradient-to-r from-purple-600 to-indigo-600 shadow-md'
                     }`}>
-                      <BsFileEarmarkCode className="h-8 w-8 text-white" />
+                      <BsFileEarmarkCode 
+                      className={`${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
+                      style={{ 
+                        height: `calc(2rem * ${textSize})`, 
+                        width: `calc(2rem * ${textSize})` 
+                      }} 
+                    />
                     </div>
                   </div>
-                  <h3 className="text-center text-2xl font-data-title mb-2">DATA & IA ROLE PLAY</h3>
-                  <p className="text-center text-violet-300 mt-2">
+                  <h3 className={`text-center font-data-title mb-2 ${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
+                    style={{ 
+                      fontSize: `calc(1.5rem * ${textSize})`,
+                      lineHeight: "1.2"
+                    }}>
+                    DATA & IA ROLE PLAY
+                  </h3>
+                  <p className={`text-center ${highContrastMode ? 'text-gray-300' : 'text-violet-300'} mt-2`}
+                    style={{ fontSize: `calc(1rem * ${textSize})` }}>
                     Jeux de rôle immersifs pour l'apprentissage data et IA
                   </p>
                   <div className="text-center flex flex-col items-center mt-6">
