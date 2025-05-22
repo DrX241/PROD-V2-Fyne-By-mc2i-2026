@@ -240,37 +240,34 @@ export default function CyberV3() {
             className="text-center mb-16 relative z-10"
             style={{ fontSize: `${textSize}rem` }}
           >
-            <h1 className={`font-bold mb-4 font-data-title relative ${
-              simplifiedUI ? 'text-4xl' : 'text-5xl'
-            }`} style={{ fontSize: `calc(1.5rem * ${textSize})` }}>
-              <span className={`${
+            <h1 className="font-bold mb-4 font-data-title relative">
+              <div className={`${
                 highContrastMode ? 'text-yellow-300' : 'text-white'
-              }`}>Centre de Formation</span>
-              <br />
-              <span className={`mt-2 block tracking-wider ${
+              }`} style={{ fontSize: `calc(2.5rem * ${textSize})` }}>Centre de Formation</div>
+              <div className={`mt-4 block tracking-wider ${
                 highContrastMode 
                   ? 'text-white'
                   : simplifiedUI
                     ? 'text-blue-300'
                     : 'bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent'
-              } ${simplifiedUI ? 'text-5xl' : 'text-6xl'}`} style={{ fontSize: `calc(2rem * ${textSize})` }}>
+              }`} style={{ fontSize: `calc(3.5rem * ${textSize})` }}>
                 I AM CYBER
-              </span>
+              </div>
             </h1>
-            <div className={`h-1 mx-auto my-6 rounded-full ${
+            <div className={`h-2 mx-auto my-6 rounded-full ${
               highContrastMode 
-                ? 'w-40 bg-white' 
+                ? 'w-48 bg-white' 
                 : simplifiedUI
-                  ? 'w-32 bg-blue-500'
-                  : 'w-40 bg-gradient-to-r from-cyan-400 to-blue-500'
+                  ? 'w-48 bg-blue-500'
+                  : 'w-48 bg-gradient-to-r from-cyan-400 to-blue-500'
             }`}></div>
-            <p className={`max-w-3xl mx-auto text-xl ${
+            <p className={`max-w-3xl mx-auto ${
               highContrastMode 
                 ? 'text-white' 
                 : simplifiedUI
                   ? 'text-blue-50'
                   : 'text-blue-100' 
-            }`} style={{ fontSize: `calc(1.1rem * ${textSize})` }}>
+            }`} style={{ fontSize: `calc(1.8rem * ${textSize})` }}>
               Trouvez votre parcours d'apprentissage personnalisé en <span className={`font-semibold ${
                 highContrastMode 
                   ? 'text-yellow-300' 
@@ -304,13 +301,35 @@ export default function CyberV3() {
                         ? 'bg-blue-700'
                         : 'bg-gradient-to-r from-blue-500 to-blue-700 shadow-md'
                   }`}>
-                    <IoSchoolOutline className={`h-8 w-8 ${highContrastMode ? 'text-yellow-300' : 'text-white'}`} />
+                    <IoSchoolOutline className={`${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
+                      style={{ 
+                        height: `calc(2rem * ${textSize})`, 
+                        width: `calc(2rem * ${textSize})` 
+                      }} />
                   </div>
                 </div>
-                <h3 className={`text-center text-2xl font-data-title mb-2 ${highContrastMode ? 'text-yellow-300' : 'text-white'}`} style={{ fontSize: `calc(1.5rem * ${textSize})` }}>CYBER ACADÉMIE</h3>
-                <p className={`text-center mt-2 whitespace-nowrap overflow-hidden text-overflow-ellipsis px-2 ${
+                <h3 className={`text-center font-data-title mb-2 ${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
+                  style={{ 
+                    fontSize: `calc(1.75rem * ${textSize})`,
+                    lineHeight: "1.2",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: "2.5rem"
+                  }}>
+                  CYBER ACADÉMIE
+                </h3>
+                <p className={`text-center mt-2 px-2 ${
                   highContrastMode ? 'text-white' : simplifiedUI ? 'text-blue-100' : 'text-blue-300'
-                }`}>
+                }`} style={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  display: "-webkit-box",
+                  WebkitLineClamp: "2",
+                  WebkitBoxOrient: "vertical",
+                  minHeight: "3rem",
+                  lineHeight: "1.4"
+                }}>
                   Centre de formation complet au métier de la cyber
                 </p>
                 <div className="mt-6">
@@ -327,7 +346,11 @@ export default function CyberV3() {
                         setLocation('/cyber/sas-academie');
                       }}
                     >
-                      <span style={{ fontSize: `${textSize}rem` }}>Je découvre l'académie</span>
+                      <span style={{ 
+                        fontSize: `calc(1.1rem * ${textSize})`,
+                        lineHeight: "1.2", 
+                        display: "block" 
+                      }}>Je découvre l'académie</span>
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
@@ -354,13 +377,35 @@ export default function CyberV3() {
                         ? 'bg-cyan-700'
                         : 'bg-gradient-to-r from-cyan-500 to-blue-500 shadow-md'
                   }`}>
-                    <BsShieldLock className={`h-8 w-8 ${highContrastMode ? 'text-yellow-300' : 'text-white'}`} />
+                    <BsShieldLock className={`${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
+                      style={{ 
+                        height: `calc(2rem * ${textSize})`, 
+                        width: `calc(2rem * ${textSize})` 
+                      }} />
                   </div>
                 </div>
-                <h3 className={`text-center text-2xl font-data-title mb-2 ${highContrastMode ? 'text-yellow-300' : 'text-white'}`} style={{ fontSize: `calc(1.5rem * ${textSize})` }}>CYBER ROLE PLAY</h3>
-                <p className={`text-center mt-2 whitespace-nowrap overflow-hidden text-overflow-ellipsis px-2 ${
+                <h3 className={`text-center font-data-title mb-2 ${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
+                  style={{ 
+                    fontSize: `calc(1.75rem * ${textSize})`,
+                    lineHeight: "1.2",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: "2.5rem"
+                  }}>
+                  CYBER ROLE PLAY
+                </h3>
+                <p className={`text-center mt-2 px-2 ${
                   highContrastMode ? 'text-white' : simplifiedUI ? 'text-cyan-100' : 'text-cyan-300'
-                }`}>
+                }`} style={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis", 
+                  display: "-webkit-box",
+                  WebkitLineClamp: "2",
+                  WebkitBoxOrient: "vertical",
+                  minHeight: "3rem",
+                  lineHeight: "1.4"
+                }}>
                   Jeux de rôle immersifs pour l'apprentissage en cyber
                 </p>
                 <div className="mt-6">
@@ -377,7 +422,11 @@ export default function CyberV3() {
                         setLocation('/cyber/roleplay');
                       }}
                     >
-                      <span style={{ fontSize: `${textSize}rem` }}>J'incarne un rôle</span>
+                      <span style={{ 
+                        fontSize: `calc(1.1rem * ${textSize})`,
+                        lineHeight: "1.2", 
+                        display: "block" 
+                      }}>J'incarne un rôle</span>
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
