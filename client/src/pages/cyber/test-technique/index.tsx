@@ -281,7 +281,9 @@ export default function CyberTestTechnique() {
           name: userName,
           category: selectedCategory,
           difficulty: selectedDifficulty,
-          score: evaluationResults?.score
+          score: evaluationResults?.score,
+          correctCount: evaluationResults?.correctCount,
+          totalQuestions: evaluationResults?.totalQuestions
         })
       });
       return response;
