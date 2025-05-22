@@ -545,14 +545,30 @@ export default function CyberTestTechnique() {
       </div>
 
       <div className="p-6 border-t border-blue-800 flex justify-between">
-        <Button 
-          variant="outline" 
-          onClick={() => window.location.href = '/cyber'}
-          className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30"
-        >
-          <Home className="mr-2 h-4 w-4" />
-          Retour
-        </Button>
+        <div className="flex space-x-3">
+          <Button 
+            variant="outline" 
+            onClick={() => window.location.href = '/cyber/roleplay'}
+            className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30"
+          >
+            <Home className="mr-2 h-4 w-4" />
+            Retour
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="bg-amber-900/20 border-amber-700 text-amber-300 hover:bg-amber-800/30"
+            onClick={() => toast({
+              title: "Fonctionnalité en développement",
+              description: "La création de tests personnalisés sera bientôt disponible.",
+              variant: "default"
+            })}
+          >
+            <FileText className="mr-2 h-4 w-4" />
+            Créer un test
+          </Button>
+        </div>
+        
         <Button 
           onClick={startQuiz} 
           disabled={isLoadingOptions || !selectedCategory || !selectedDifficulty || !selectedExerciseType || generateQuestionsMutation.isPending}
@@ -1106,7 +1122,7 @@ export default function CyberTestTechnique() {
           <Button 
             variant="outline" 
             className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30 hover:text-white"
-            onClick={() => window.location.href = '/cyber'}
+            onClick={() => window.location.href = '/cyber/roleplay'}
           >
             <Home className="h-4 w-4 mr-2" />
             Retour
