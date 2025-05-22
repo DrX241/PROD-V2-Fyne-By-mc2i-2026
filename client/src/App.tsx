@@ -36,8 +36,7 @@ import SasCyberAcademie from "./pages/cyber/sas-academie";
 import ExpertLearningPage from "./pages/cyber/expert-learning";
 import InterviewTestPage from "./pages/cyber/interview-test";
 import TestTechniquePage from "./pages/cyber/test-technique";
-import CrisisManagementPage from "./pages/cyber/crisis-management/index-fixed";
-import CrisisBriefing from "./pages/cyber/crisis-management/briefing";
+import CrisisManagementPage from "./pages/cyber/crisis-management";
 import PentestLab from "./pages/cyber/pentest-lab";
 import ProfilPro from "./pages/cyber/profil-pro";
 
@@ -126,7 +125,6 @@ function App() {
                 <Route path="/cyber/expert-learning" component={ExpertLearningPage} />
                 <Route path="/cyber/interview-test" component={InterviewTestPage} />
                 <Route path="/cyber/test-technique" component={TestTechniquePage} />
-                <Route path="/cyber/crisis-management/briefing" component={CrisisBriefing} />
                 <Route path="/cyber/crisis-management" component={CrisisManagementPage} />
                 <Route path="/cyber/pentest-lab" component={PentestLab} />
                 <Route path="/cyber/tools/assistant-cyber">
