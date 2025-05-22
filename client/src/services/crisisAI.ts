@@ -40,7 +40,7 @@ export interface CrisisMessage {
 }
 
 export class CrisisAIService {
-  private apiStatus: 'connected' | 'disconnected' = 'disconnected';
+  private apiStatus: string = 'disconnected';
   private currentModel: string = '';
   private isLoading: boolean = false;
 
@@ -79,9 +79,9 @@ export class CrisisAIService {
     conversationHistory: CrisisMessage[],
     userMessage: string
   ): Promise<string> {
-    if (this.apiStatus !== 'connected') {
+    if (this.apiStatus === 'disconnected') {
       await this.checkConnection();
-      if (this.apiStatus !== 'connected') {
+      if (this.apiStatus === 'disconnected') {
         return "Je suis désolé, mais je ne peux pas répondre pour le moment. Veuillez vérifier la connexion à l'API Azure OpenAI.";
       }
     }
