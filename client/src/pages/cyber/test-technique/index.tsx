@@ -399,31 +399,44 @@ export default function CyberTestTechnique() {
       return;
     }
 
-    // Vérifiez si toutes les questions ont été répondues
-    const unansweredCount = responses.filter((r, index) => {
+    // Vérifier combien de questions ont été répondues
+    const answeredQuestions = responses.filter((r, index) => {
       if (!questions || index >= questions.length) return false;
       const questionType = questions[index].type;
-
-      // Pour les QCM, vérifier si la réponse est -1 (non répondue)
-      if (questionType === 'mcq' && r.answer === -1) {
+      
+      // Pour les QCM, vérifier si la réponse est autre chose que -1 (non répondue)
+      if (questionType === 'mcq' && r.answer !== -1) {
         return true;
       }
-
-      // Pour les autres types, vérifier si la réponse est une chaîne vide
-      if (questionType !== 'mcq' && (r.answer === '' || r.answer === undefined)) {
+      
+      // Pour les autres types, vérifier si la réponse n'est pas une chaîne vide
+      if (questionType !== 'mcq' && r.answer !== '' && r.answer !== undefined) {
         return true;
       }
-
+      
       return false;
     }).length;
+    
+    // Vérifier s'il y a au moins 7 réponses
+    if (answeredQuestions < 7) {
+      toast({
+        title: "Réponses insuffisantes",
+        description: `Vous avez répondu à ${answeredQuestions} question(s) sur ${questions.length}. Veuillez répondre à au moins 7 questions pour soumettre le test.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Vérifier si toutes les questions ont été répondues
+    const unansweredCount = questions.length - answeredQuestions;
 
     if (unansweredCount > 0 && timeLeft > 10) {
       toast({
         title: "Réponses manquantes",
         description: `Vous n'avez pas répondu à ${unansweredCount} question(s). Êtes-vous sûr de vouloir soumettre?`,
-        variant: "destructive",
+        variant: "warning",
       });
-      return;
+      // Continuer sans demander confirmation supplémentaire car l'utilisateur a déjà indiqué qu'il veut terminer
     }
 
     evaluateResponsesMutation.mutate();
@@ -710,17 +723,57 @@ export default function CyberTestTechnique() {
             </div>
 
             <div className="flex justify-between pt-4">
-              <Button 
-                variant="outline" 
-                onClick={goToPreviousQuestion} 
-                disabled={currentQuestion === 0}
-                className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30"
-              >
-                <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Précédent
-              </Button>
+              <div className="flex space-x-3">
+                <Button 
+                  variant="outline" 
+                  onClick={goToPreviousQuestion} 
+                  disabled={currentQuestion === 0}
+                  className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30"
+                >
+                  <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Précédent
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    // Vérifier si au moins 7 questions ont été répondues
+                    const answeredQuestions = responses.filter((r, index) => {
+                      if (!questions || index >= questions.length) return false;
+                      const questionType = questions[index].type;
+                      
+                      // Pour les QCM, vérifier si la réponse est autre chose que -1 (non répondue)
+                      if (questionType === 'mcq' && r.answer !== -1) {
+                        return true;
+                      }
+                      
+                      // Pour les autres types, vérifier si la réponse n'est pas une chaîne vide
+                      if (questionType !== 'mcq' && r.answer !== '' && r.answer !== undefined) {
+                        return true;
+                      }
+                      
+                      return false;
+                    }).length;
+                    
+                    if (answeredQuestions < 7) {
+                      toast({
+                        title: "Trop peu de réponses",
+                        description: `Vous avez répondu à ${answeredQuestions} question(s) sur ${questions.length}. Veuillez répondre à au moins 7 questions pour soumettre le test.`,
+                        variant: "destructive",
+                      });
+                    } else {
+                      if (window.confirm(`Êtes-vous sûr de vouloir terminer le test maintenant ? Il vous reste encore ${questions.length - currentQuestion - 1} questions.`)) {
+                        submitQuiz();
+                      }
+                    }
+                  }}
+                  className="bg-slate-800/60 border-slate-600 text-slate-200 hover:bg-slate-700/70"
+                >
+                  Fin anticipée
+                </Button>
+              </div>
 
               {currentQuestion < questions.length - 1 ? (
                 <Button 
