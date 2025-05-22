@@ -777,10 +777,10 @@ export default function CyberTestTechnique() {
             <div className="p-5 bg-blue-900/50 rounded-lg border border-blue-700">
               <div className="flex items-center mb-4">
                 <div className="w-16 h-16 rounded-full flex items-center justify-center bg-blue-800 border-4 border-blue-700">
-                  <span className="text-xl font-bold text-white">{Math.round((evaluationResults.score / evaluationResults.totalQuestions) * 100)}%</span>
+                  <span className="text-xl font-bold text-white">{Math.round((evaluationResults.correctCount / evaluationResults.totalQuestions) * 100)}%</span>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-lg font-medium text-white font-rajdhani">Score: {evaluationResults.score}/{evaluationResults.totalQuestions}</h3>
+                  <h3 className="text-lg font-medium text-white font-rajdhani">Score: {evaluationResults.correctCount}/{evaluationResults.totalQuestions}</h3>
                   <p className="text-blue-200">Réponses correctes: {evaluationResults.correctCount} sur {evaluationResults.totalQuestions}</p>
                 </div>
               </div>
@@ -810,9 +810,13 @@ export default function CyberTestTechnique() {
                   <div>
                     <h4 className="text-green-300 font-medium mb-1">Points forts</h4>
                     <ul className="list-disc pl-5 space-y-1">
-                      {evaluationResults.analysis.strengths.map((strength, index) => (
-                        <li key={index} className="text-blue-200">{strength}</li>
-                      ))}
+                      {evaluationResults.analysis.strengths.length > 0 ? (
+                        evaluationResults.analysis.strengths.map((strength, index) => (
+                          <li key={index} className="text-blue-200">{strength}</li>
+                        ))
+                      ) : (
+                        <li className="text-blue-200">Actuellement, nous n'avons pas pu détecter de points forts dans votre candidature. Continuez à développer vos compétences cybersécurité.</li>
+                      )}
                     </ul>
                   </div>
 
