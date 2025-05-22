@@ -36,7 +36,7 @@ import SasCyberAcademie from "./pages/cyber/sas-academie";
 import ExpertLearningPage from "./pages/cyber/expert-learning";
 import InterviewTestPage from "./pages/cyber/interview-test";
 import TestTechniquePage from "./pages/cyber/test-technique";
-import CrisisManagementPage from "./pages/cyber/crisis-management";
+import CrisisManagementPage from "./pages/cyber/crisis-management/index-fixed";
 import CrisisBriefing from "./pages/cyber/crisis-management/briefing";
 import PentestLab from "./pages/cyber/pentest-lab";
 import ProfilPro from "./pages/cyber/profil-pro";
