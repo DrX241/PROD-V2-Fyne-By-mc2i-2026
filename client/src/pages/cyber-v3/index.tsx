@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { 
@@ -7,6 +7,8 @@ import {
   Shield,
   Terminal,
   Users,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';
 import { IoHome, IoSchoolOutline } from 'react-icons/io5';
 import { BsShieldLock } from 'react-icons/bs';
@@ -23,14 +25,55 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { DataButton } from '@/components/DataButton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import HomeLayout from '@/components/layout/HomeLayout';
-import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 export default function CyberV3() {
   const [, setLocation] = useLocation();
   const { currentTour, setCurrentTour, startTutorial } = useTutorial();
-  const { themeMode } = useTheme();
+  const { themeMode, setThemeMode } = useTheme();
   const [highContrastMode, setHighContrastMode] = useState(false);
   const [textSize, setTextSize] = useState(1);
+  const [simplifiedUI, setSimplifiedUI] = useState(false);
+  const [animationsReduced, setAnimationsReduced] = useState(false);
+  const [accessibilityPanelOpen, setAccessibilityPanelOpen] = useState(false);
+  
+  // Utilisation d'useEffect pour initialiser les paramètres depuis localStorage
+  useEffect(() => {
+    const storedTextSize = localStorage.getItem('cyberTextSize');
+    if (storedTextSize) {
+      setTextSize(parseFloat(storedTextSize));
+    }
+    
+    const storedHighContrastMode = localStorage.getItem('cyberHighContrastMode');
+    if (storedHighContrastMode) {
+      setHighContrastMode(storedHighContrastMode === 'true');
+    }
+    
+    const storedSimplifiedUI = localStorage.getItem('cyberSimplifiedUI');
+    if (storedSimplifiedUI) {
+      setSimplifiedUI(storedSimplifiedUI === 'true');
+    }
+    
+    const storedAnimationsReduced = localStorage.getItem('cyberAnimationsReduced');
+    if (storedAnimationsReduced) {
+      setAnimationsReduced(storedAnimationsReduced === 'true');
+    }
+  }, []);
+  
+  // Sauvegarde des préférences utilisateur
+  useEffect(() => {
+    localStorage.setItem('cyberTextSize', textSize.toString());
+    localStorage.setItem('cyberHighContrastMode', highContrastMode.toString());
+    localStorage.setItem('cyberSimplifiedUI', simplifiedUI.toString());
+    localStorage.setItem('cyberAnimationsReduced', animationsReduced.toString());
+  }, [textSize, highContrastMode, simplifiedUI, animationsReduced]);
 
   return (
     <HomeLayout>
@@ -79,7 +122,111 @@ export default function CyberV3() {
 
             </div>
             
-            {/* Les contrôles ont été supprimés à la demande de l'utilisateur */}
+            {/* Panneau d'accessibilité */}
+            <div className="flex items-center gap-2">
+              <Popover open={accessibilityPanelOpen} onOpenChange={setAccessibilityPanelOpen}>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="secondary"
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white border-blue-400"
+                    size="sm"
+                    aria-label="Options d'accessibilité"
+                  >
+                    <Users className="h-4 w-4" />
+                    <span>Accessibilité</span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 bg-slate-900 border border-blue-500 text-white p-4" align="end">
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-lg text-center text-blue-300">Options d'accessibilité</h3>
+                    
+                    {/* Taille du texte */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <Label htmlFor="text-size" className="text-blue-100">Taille du texte</Label>
+                        <span className="text-blue-300 text-sm">{Math.round(textSize * 100)}%</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-7 w-7 rounded-full bg-slate-800 border-blue-500/50"
+                          onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
+                          aria-label="Réduire la taille du texte"
+                        >
+                          <AiOutlineZoomOut className="h-3.5 w-3.5 text-blue-300" />
+                        </Button>
+                        <Slider 
+                          id="text-size"
+                          min={0.8} 
+                          max={1.5} 
+                          step={0.05} 
+                          value={[textSize]} 
+                          onValueChange={(value) => setTextSize(value[0])}
+                          className="flex-1"
+                          aria-label="Ajuster la taille du texte"
+                        />
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-7 w-7 rounded-full bg-slate-800 border-blue-500/50"
+                          onClick={() => setTextSize(Math.min(1.5, textSize + 0.1))}
+                          aria-label="Augmenter la taille du texte"
+                        >
+                          <ZoomIn className="h-3.5 w-3.5 text-blue-300" />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {/* Mode haut contraste */}
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="high-contrast" className="text-blue-100">Mode haut contraste</Label>
+                        <Switch 
+                          id="high-contrast" 
+                          checked={highContrastMode} 
+                          onCheckedChange={setHighContrastMode}
+                          aria-label="Activer le mode haut contraste"
+                        />
+                      </div>
+                      
+                      {/* Interface simplifiée */}
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="simplified-ui" className="text-blue-100">Interface simplifiée</Label>
+                        <Switch 
+                          id="simplified-ui" 
+                          checked={simplifiedUI} 
+                          onCheckedChange={setSimplifiedUI}
+                          aria-label="Activer l'interface simplifiée"
+                        />
+                      </div>
+                      
+                      {/* Réduire les animations */}
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="reduce-animations" className="text-blue-100">Réduire les animations</Label>
+                        <Switch 
+                          id="reduce-animations" 
+                          checked={animationsReduced} 
+                          onCheckedChange={setAnimationsReduced}
+                          aria-label="Réduire les animations"
+                        />
+                      </div>
+                      
+                      {/* Mode clair/sombre */}
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="dark-mode" className="text-blue-100">Mode sombre</Label>
+                        <Switch 
+                          id="dark-mode" 
+                          checked={themeMode === 'dark'} 
+                          onCheckedChange={(checked) => setThemeMode(checked ? 'dark' : 'light')}
+                          aria-label="Activer le mode sombre"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
           
           {/* Titre et sous-titre */}
