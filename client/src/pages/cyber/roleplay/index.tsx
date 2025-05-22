@@ -148,6 +148,25 @@ const RoleplayHub: React.FC = () => {
         "Partage et utilisation collaborative de l'assistant"
       ],
       comingSoon: false
+    },
+    {
+      id: 'recruiter',
+      title: "Je suis Recruteur",
+      description: "Je souhaite évaluer les compétences techniques d'un candidat en cybersécurité",
+      link: '/cyber/test-technique',
+      icon: <Users className="h-10 w-10 text-indigo-300" />,
+      color: 'indigo',
+      gradient: 'from-indigo-900/70 to-indigo-700/30',
+      border: 'border-indigo-500/30',
+      buttonGradient: 'from-indigo-700 to-indigo-600',
+      buttonHover: 'hover:from-indigo-600 hover:to-indigo-500',
+      textColor: 'text-indigo-300',
+      details: [
+        "Évaluation des compétences techniques des candidats",
+        "Tests adaptés aux différents profils cyber",
+        "Rapports détaillés sur les forces et points d'amélioration"
+      ],
+      comingSoon: false
     }
   ];
 
