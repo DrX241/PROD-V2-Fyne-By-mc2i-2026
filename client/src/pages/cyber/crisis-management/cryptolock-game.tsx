@@ -29,7 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
+
 
 // Types pour le jeu
 type GameRole = 'DSI' | 'RSSI' | 'DG' | 'Juriste' | 'Communication' | 'Expert Forensic';

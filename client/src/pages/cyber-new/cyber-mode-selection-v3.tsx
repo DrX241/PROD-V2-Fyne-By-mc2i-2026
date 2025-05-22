@@ -36,7 +36,7 @@ import { Helmet } from 'react-helmet';
 import { Button } from '@/components/ui/button';
 import CyberScene from '@/components/CyberScene';
 import { useTutorial } from '@/contexts/TutorialContext';
-import { useTheme } from '@/contexts/ThemeContext';
+
 import {
   Tooltip,
   TooltipContent,
@@ -52,7 +52,6 @@ export default function CyberModeSelectionV3() {
   const [highContrastMode, setHighContrastMode] = useState(false);
   const [textSize, setTextSize] = useState(1);
   const { currentTour, setCurrentTour, startTutorial } = useTutorial();
-  const { theme } = useTheme();
   
   // Utilisation d'useEffect pour initialiser le textSize à partir de localStorage
   useEffect(() => {
