@@ -3,10 +3,7 @@ import { Link, useLocation } from 'wouter';
 import '../styles/data-ia.css';
 import { motion } from 'framer-motion';
 import { 
-  ArrowRight, 
-  HelpCircle, 
-  Search,
-  Code
+  ArrowRight
 } from 'lucide-react';
 
 // Fond d'écran optimisé via CSS au lieu d'image lourde
@@ -31,15 +28,11 @@ import {
   BsBriefcase,
   BsGraphUp,
 } from 'react-icons/bs';
-import { FiSun, FiMoon } from 'react-icons/fi';
-import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
 
 import { Button } from '@/components/ui/button';
 import HomeLayout from '@/components/layout/HomeLayout';
 import { useTutorial } from '@/contexts/TutorialContext';
-import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
 import { DataButton } from '@/components/DataButton';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import PageTitle from '@/components/utils/PageTitle';
 
 export default function DataIAModeSelection() {
@@ -110,95 +103,7 @@ export default function DataIAModeSelection() {
                 <PageTitle title="I AM DATA & IA" />
               </div>
               
-              <div className="flex items-center gap-4">
-                {/* Bouton d'aide */}
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <DataButton 
-                        variant="outline"
-                        className="w-11 h-11 p-0 flex items-center justify-center rounded-full text-blue-300 border-blue-300/30 hover:bg-blue-900/20"
-                        onClick={() => {
-                          setCurrentTour('data-ia-mode-selection');
-                          startTutorial();
-                        }}
-                        data-id="help-button"
-                      >
-                        <HelpCircle className="h-5 w-5" />
-                      </DataButton>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Afficher le guide</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                
-                {/* Contrôle mode haut contraste */}
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <DataButton 
-                        variant="outline"
-                        className={`w-11 h-11 p-0 flex items-center justify-center rounded-full ${
-                          highContrastMode 
-                            ? 'bg-gray-800 border-gray-700 text-white hover:bg-gray-700' 
-                            : 'text-blue-300 border-blue-300/30 hover:bg-blue-900/20'
-                        }`}
-                        onClick={() => setHighContrastMode(!highContrastMode)}
-                        data-id="contrast-button"
-                      >
-                        {highContrastMode ? (
-                          <FiSun className="h-5 w-5" />
-                        ) : (
-                          <FiMoon className="h-5 w-5" />
-                        )}
-                      </DataButton>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{highContrastMode ? 'Désactiver' : 'Activer'} le mode haut contraste</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                
-                {/* Contrôle taille du texte */}
-                <div className="flex items-center gap-2">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <DataButton 
-                          variant="outline"
-                          className="w-10 h-10 p-0 flex items-center justify-center rounded-full text-blue-300 border-blue-300/30 hover:bg-blue-900/20"
-                          onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
-                          data-id="text-smaller-button"
-                        >
-                          <AiOutlineZoomOut className="h-4 w-4" />
-                        </DataButton>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Réduire la taille du texte</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <DataButton 
-                          variant="outline"
-                          className="w-10 h-10 p-0 flex items-center justify-center rounded-full text-blue-300 border-blue-300/30 hover:bg-blue-900/20"
-                          onClick={() => setTextSize(Math.min(1.2, textSize + 0.1))}
-                          data-id="text-larger-button"
-                        >
-                          <AiOutlineZoomIn className="h-4 w-4" />
-                        </DataButton>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Augmenter la taille du texte</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              </div>
+              {/* Les contrôles ont été supprimés à la demande de l'utilisateur */}
             </div>
             
             {/* Titre et sous-titre */}
