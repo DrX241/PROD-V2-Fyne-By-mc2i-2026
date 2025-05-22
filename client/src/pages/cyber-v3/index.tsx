@@ -269,7 +269,7 @@ export default function CyberV3() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center max-w-4xl mx-auto">
               {/* CYBER ACADÉMIE */}
               <motion.div 
-                whileHover={animationsReduced ? {} : { scale: 1.03 }}
+                whileHover={simplifiedUI ? {} : { scale: 1.03 }}
                 className={`cyber-edge-distort relative overflow-hidden p-6 ${
                   highContrastMode 
                     ? 'bg-black border-2 border-white' 
@@ -345,7 +345,7 @@ export default function CyberV3() {
             
               {/* CYBER ROLE PLAY */}
               <motion.div 
-                whileHover={animationsReduced ? {} : { scale: 1.03 }}
+                whileHover={simplifiedUI ? {} : { scale: 1.03 }}
                 className={`cyber-edge-distort relative overflow-hidden p-6 ${
                   highContrastMode 
                     ? 'bg-black border-2 border-white' 
