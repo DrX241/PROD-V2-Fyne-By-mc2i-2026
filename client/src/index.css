@@ -48,8 +48,30 @@
 @layer base {
   html {
     -webkit-tap-highlight-color: transparent;
+  }
+
     touch-action: manipulation;
     -webkit-text-size-adjust: 100%;
+  }
+
+  /* Amélioration du contraste des textes pour tous les modes */
+  .dark-optimized-text {
+    color: rgba(255, 255, 255, 0.95) !important;
+  }
+  
+  /* Styles pour assurer la lisibilité en mode clair */
+  :root:not(.dark) .force-contrast-text {
+    color: rgba(0, 0, 0, 0.87) !important;
+  }
+  
+  /* Augmentation du contraste des éléments bleus en mode clair */
+  :root:not(.dark) .blue-text {
+    color: #003366 !important;
+  }
+  
+  /* Styles spécifiques pour le mode sombre */
+  .dark .force-contrast-text {
+    color: rgba(255, 255, 255, 0.95) !important;
   }
   
   /* Base styles pour tous les écrans */
