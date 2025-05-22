@@ -319,8 +319,15 @@ export default function AmoaModeSelectionNew() {
                     />
                   </div>
                 </div>
-                <h3 className="text-center text-2xl font-bold mb-2">mc2i ROLE PLAY</h3>
-                <p className="text-center text-blue-300 mt-2">
+                <h3 className={`text-center font-bold mb-2 ${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
+                  style={{ 
+                    fontSize: `calc(1.5rem * ${textSize})`,
+                    lineHeight: "1.2"
+                  }}>
+                  mc2i ROLE PLAY
+                </h3>
+                <p className={`text-center ${highContrastMode ? 'text-gray-300' : 'text-blue-300'} mt-2`}
+                  style={{ fontSize: `calc(1rem * ${textSize})` }}>
                   Simulations métier et situations professionnelles interactives
                 </p>
                 <div className="text-center flex flex-col items-center mt-4">
