@@ -36,6 +36,25 @@ const RoleplayHub: React.FC = () => {
   // Liste des scénarios de jeu de rôle
   const scenarios = [
     {
+      id: 'recruiter',
+      title: "Je suis Recruteur",
+      description: "Je souhaite évaluer les compétences techniques d'un candidat en cybersécurité",
+      link: '/cyber/test-technique',
+      icon: <Users className="h-10 w-10 text-indigo-300" />,
+      color: 'indigo',
+      gradient: 'from-indigo-900/70 to-indigo-700/30',
+      border: 'border-indigo-500/30',
+      buttonGradient: 'from-indigo-700 to-indigo-600',
+      buttonHover: 'hover:from-indigo-600 hover:to-indigo-500',
+      textColor: 'text-indigo-300',
+      details: [
+        "Évaluation des compétences techniques des candidats",
+        "Tests standardisés pour profils cybersécurité",
+        "Simulation d'entretien technique pour recrutement"
+      ],
+      comingSoon: false
+    },
+    {
       id: 'interview-test',
       title: "Je suis Consultant Cyber",
       description: "Je prépare une audition en cybersécurité et je voudrais m'entraîner et être mis en situation",
@@ -112,25 +131,6 @@ const RoleplayHub: React.FC = () => {
       comingSoon: true
     },
     {
-      id: 'debutant-cyber',
-      title: "Je suis Débutant",
-      description: "Je voudrais être sensibilisé aux risques cyber et apprendre à me protéger",
-      link: '/cyber/learning-center/modules/debutant-cyber',
-      icon: <Shield className="h-10 w-10 text-amber-300" />,
-      color: 'amber',
-      gradient: 'from-amber-900/70 to-amber-700/30',
-      border: 'border-amber-500/30',
-      buttonGradient: 'from-amber-700 to-amber-600',
-      buttonHover: 'hover:from-amber-600 hover:to-amber-500',
-      textColor: 'text-amber-300',
-      details: [
-        "Contenu adapté aux débutants sans connaissances",
-        "Exercices pratiques pour sécuriser vos appareils",
-        "Apprentissage des bons réflexes face aux menaces"
-      ],
-      comingSoon: true
-    },
-    {
       id: 'assistant-creator',
       title: "Je suis Créateur de Chatbot",
       description: "Je souhaite créer mon propre assistant virtuel spécialisé en cybersécurité",
@@ -150,23 +150,23 @@ const RoleplayHub: React.FC = () => {
       comingSoon: false
     },
     {
-      id: 'recruiter',
-      title: "Je suis Recruteur",
-      description: "Je souhaite évaluer les compétences techniques d'un candidat en cybersécurité",
-      link: '/cyber/test-technique',
-      icon: <Users className="h-10 w-10 text-indigo-300" />,
-      color: 'indigo',
-      gradient: 'from-indigo-900/70 to-indigo-700/30',
-      border: 'border-indigo-500/30',
-      buttonGradient: 'from-indigo-700 to-indigo-600',
-      buttonHover: 'hover:from-indigo-600 hover:to-indigo-500',
-      textColor: 'text-indigo-300',
+      id: 'debutant-cyber',
+      title: "Je suis Monsieur tout le monde",
+      description: "Je voudrais être sensibilisé aux risques cyber et apprendre à me protéger",
+      link: '/cyber/learning-center/modules/debutant-cyber',
+      icon: <Shield className="h-10 w-10 text-amber-300" />,
+      color: 'amber',
+      gradient: 'from-amber-900/70 to-amber-700/30',
+      border: 'border-amber-500/30',
+      buttonGradient: 'from-amber-700 to-amber-600',
+      buttonHover: 'hover:from-amber-600 hover:to-amber-500',
+      textColor: 'text-amber-300',
       details: [
-        "Évaluation des compétences techniques des candidats",
-        "Tests standardisés pour profils cybersécurité",
-        "Simulation d'entretien technique pour recrutement"
+        "Contenu adapté aux débutants sans connaissances",
+        "Exercices pratiques pour sécuriser vos appareils",
+        "Apprentissage des bons réflexes face aux menaces"
       ],
-      comingSoon: false
+      comingSoon: true
     }
   ];
 
