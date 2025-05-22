@@ -163,8 +163,8 @@ const RoleplayHub: React.FC = () => {
       textColor: 'text-indigo-300',
       details: [
         "Évaluation des compétences techniques des candidats",
-        "Tests adaptés aux différents profils cyber",
-        "Rapports détaillés sur les forces et points d'amélioration"
+        "Tests standardisés pour profils cybersécurité",
+        "Simulation d'entretien technique pour recrutement"
       ],
       comingSoon: false
     }
