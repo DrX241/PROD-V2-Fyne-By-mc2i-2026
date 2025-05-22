@@ -913,12 +913,12 @@ Réponds avec un JSON de la forme:
  */
 export async function generateCertificate(req: Request, res: Response) {
   try {
-    const { name, category, difficulty, score, correctCount, totalQuestions, timestamp } = req.body;
+    const { name, category, difficulty, score, timestamp } = req.body;
 
-    if (!name || !category || !difficulty || score === undefined || correctCount === undefined || totalQuestions === undefined) {
+    if (!name || !category || !difficulty || score === undefined) {
       return res.status(400).json({
         success: false,
-        message: 'Name, category, difficulty, score, correctCount, and totalQuestions are required'
+        message: 'Name, category, difficulty, and score are required'
       });
     }
 
@@ -942,19 +942,6 @@ export async function generateCertificate(req: Request, res: Response) {
 
     // Génération d'un ID de certificat
     const certificateId = `CERT-${category.substr(0, 3).toUpperCase()}-${Math.floor(Math.random() * 10000)}-${Math.floor(Date.now() / 1000).toString(36).toUpperCase()}`;
-
-    // Calcul du pourcentage de réussite
-    const scorePercent = Math.round((correctCount / totalQuestions) * 100);
-    
-    // Détermination du statut de réussite (seuil à 60%)
-    const isSuccess = scorePercent >= 60;
-    const certificateStatus = isSuccess ? "VALIDÉE" : "PARTICIPATION";
-    const statusColor = isSuccess ? "#006a9e" : "#c0392b";
-    const statusBorderColor = isSuccess ? "#006a9e" : "#c0392b";
-    const certificateTitle = isSuccess ? "Certificat de Réussite" : "Attestation de Participation";
-    const certificationText = isSuccess 
-      ? `a démontré ses compétences en cybersécurité en complétant avec succès le test technique dans la catégorie "${categoryInfo.name}" avec un niveau "${difficultyInfo.name}".`
-      : `a participé au test technique de cybersécurité dans la catégorie "${categoryInfo.name}" avec un niveau "${difficultyInfo.name}". Nous vous encourageons à continuer votre parcours d'apprentissage.`;
 
     // Certificat au format HTML (pour pouvoir être imprimé ou converti en PDF côté client)
     const certificateHTML = `
