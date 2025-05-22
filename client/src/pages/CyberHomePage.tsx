@@ -5,7 +5,7 @@ import CyberButton from '@/components/CyberButton';
 import { useChatContext } from "@/contexts/ChatContext";
 import { useTheme } from "@/contexts/ThemeContext";
 // Le contexte GptModel a été temporairement retiré
-import OpenAIStatusIndicator from "@/components/OpenAIStatusIndicator";
+
 import { 
   RocketIcon, 
   Zap, 

@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { UserCircle, Send, Clock, CheckCircle, AlertCircle, FileCheck, ArrowLeft, Mail, User, Building, Briefcase, FileEdit } from 'lucide-react';
-import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
+
 import { 
   Form, 
   FormControl, 
