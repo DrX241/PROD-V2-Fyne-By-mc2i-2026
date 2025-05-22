@@ -9,8 +9,7 @@ import {
   Code
 } from 'lucide-react';
 
-// Import du fond d'écran
-import dataNetworkBg from '@/assets/backgrounds/data-network-bg.jpg';
+// Fond d'écran optimisé via CSS au lieu d'image lourde
 import { 
   IoHome, 
   IoBookOutline, 
@@ -83,7 +82,7 @@ export default function DataIAModeSelection() {
         fontSize: `${textSize}rem`,
         backgroundImage: highContrastMode 
           ? 'none' 
-          : `url(${dataNetworkBg})`,
+          : 'linear-gradient(135deg, #1a365d 0%, #0f2240 100%), radial-gradient(circle at 30% 40%, rgba(59, 130, 246, 0.2) 0%, transparent 70%), radial-gradient(circle at 70% 60%, rgba(139, 92, 246, 0.15) 0%, transparent 70%)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',

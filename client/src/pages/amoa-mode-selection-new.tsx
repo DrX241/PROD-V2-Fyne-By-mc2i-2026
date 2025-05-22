@@ -44,8 +44,7 @@ export default function AmoaModeSelectionNew() {
               style={{
                 backgroundImage: `url(${mc2iSloganImage})`,
                 filter: 'contrast(1.1) brightness(1.05)',
-                backgroundSize: 'cover',
-                loading: 'lazy'
+                backgroundSize: 'cover'
               }}
             ></div>
           </div>
@@ -57,8 +56,7 @@ export default function AmoaModeSelectionNew() {
               style={{
                 backgroundImage: `url(${mc2iLogoImage})`,
                 filter: 'contrast(1.2) brightness(1.1)',
-                backgroundSize: 'cover',
-                loading: 'lazy'
+                backgroundSize: 'cover'
               }}
             ></div>
           </div>
