@@ -29,24 +29,38 @@ export default function AmoaModeSelectionNew() {
         className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-[#006a9e] to-blue-900"
         style={{ fontSize: `${textSize}rem` }}
       >
-        {/* Arrière-plan optimisé - utilisation de CSS au lieu d'images lourdes */}
+        {/* Images mc2i en arrière-plan avec chargement progressif */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          {/* Overlay principal pour le fond */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900 to-indigo-900 z-5"></div>
+          {/* Overlay semi-transparent pour améliorer le contraste avec le contenu */}
+          <div className="absolute inset-0 bg-blue-950/40 z-10"></div>
           
-          {/* Overlay avec motif semi-transparent pour améliorer le contraste */}
-          <div className="absolute inset-0 bg-blue-950/40 z-10 
-            bg-[radial-gradient(ellipse_at_center,_rgba(100,116,139,0.2)_0%,rgba(15,23,42,0)_70%)]"></div>
+          {/* Fond de base qui s'affiche immédiatement */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900 to-indigo-900"></div>
           
-          {/* Éléments graphiques décoratifs pour remplacer les images lourdes */}
-          <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] rounded-full bg-blue-400/10 blur-3xl"></div>
-          <div className="absolute bottom-[20%] right-[15%] w-[25%] h-[25%] rounded-full bg-indigo-500/10 blur-3xl"></div>
-          <div className="absolute top-[40%] right-[20%] w-[15%] h-[35%] rounded-full bg-sky-400/10 blur-3xl"></div>
+          {/* Première moitié de l'écran - Slogan */}
+          <div className="absolute top-0 left-0 w-1/2 h-full flex items-center justify-center opacity-60">
+            <div 
+              className="w-full h-full bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${mc2iSloganImage})`,
+                filter: 'contrast(1.1) brightness(1.05)',
+                backgroundSize: 'cover',
+                loading: 'lazy'
+              }}
+            ></div>
+          </div>
           
-          {/* Logo mc2i stylisé en CSS plutôt qu'en image */}
-          <div className="absolute top-[10%] right-[10%] text-4xl font-bold text-white/10">
-            <span className="text-blue-500/20 font-extrabold">mc</span>
-            <span className="text-indigo-500/20 font-extrabold">2i</span>
+          {/* Seconde moitié de l'écran - Logo */}
+          <div className="absolute top-0 right-0 w-1/2 h-full flex items-center justify-center bg-blue-950 opacity-60">
+            <div 
+              className="w-full h-full bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${mc2iLogoImage})`,
+                filter: 'contrast(1.2) brightness(1.1)',
+                backgroundSize: 'cover',
+                loading: 'lazy'
+              }}
+            ></div>
           </div>
         </div>
         {/* Bouton retour à l'accueil */}
