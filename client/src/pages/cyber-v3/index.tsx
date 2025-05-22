@@ -220,9 +220,9 @@ export default function CyberV3() {
           
           {/* Titre et sous-titre */}
           <motion.div 
-            initial={animationsReduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            initial={simplifiedUI ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={animationsReduced ? { duration: 0 } : { duration: 0.5 }}
+            transition={simplifiedUI ? { duration: 0 } : { duration: 0.5 }}
             className="text-center mb-16 relative z-10"
             style={{ fontSize: `${textSize}rem` }}
           >
