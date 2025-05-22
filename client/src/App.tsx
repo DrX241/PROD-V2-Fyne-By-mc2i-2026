@@ -3,11 +3,10 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
-import React, { Suspense, lazy, startTransition, useState, useEffect } from "react";
+import React, { Suspense, lazy, startTransition } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { TutorialProvider } from "./contexts/TutorialContext";
-import AuthScreen from "@/components/auth/AuthScreen";
 
 // Importation des composants directement car le lazy loading provoque des problèmes
 // avec wouter dans cette implémentation
@@ -72,35 +71,6 @@ import ProspectPulse from "./pages/amoa/prospect-pulse";
 import AmoaExpertLearning from "./pages/amoa/expert-learning";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  useEffect(() => {
-    const checkAuth = () => {
-      // Simuler une vérification d'authentification
-      setTimeout(() => {
-        // On considère que l'utilisateur est toujours authentifié pour faciliter les tests
-        setIsAuthenticated(true);
-        setIsLoading(false);
-      }, 500);
-    };
-    
-    checkAuth();
-  }, []);
-  
-  // Si l'utilisateur n'est pas authentifié, afficher l'écran d'authentification
-  if (!isAuthenticated) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <AuthScreen setIsAuthenticated={setIsAuthenticated} />
-          <Toaster />
-        </ThemeProvider>
-      </QueryClientProvider>
-    );
-  }
-  
-  // Si authentifié, afficher l'application complète
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
