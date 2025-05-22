@@ -145,6 +145,12 @@ interface Decision {
 }
 
 export default function CrisisManagementPage() {
+  // Bannière de développement
+  const ModuleUnderDevelopment = () => (
+    <div className="fixed top-0 left-0 w-full bg-red-700 text-white py-2 text-center z-50">
+      Module en développement - La navigation et les interactions sont limitées
+    </div>
+  );
   const [scenario, setScenario] = useState<Scenario | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showSummary, setShowSummary] = useState(false);
