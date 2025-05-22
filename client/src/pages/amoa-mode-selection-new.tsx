@@ -12,6 +12,15 @@ import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Users, ZoomIn, ZoomOut } from 'lucide-react';
 // Import des images mc2i
 import mc2iSloganImage from "@assets/image_1747585779637.png";
 import mc2iLogoImage from "@assets/image_1747585797449.png";
@@ -107,7 +116,100 @@ export default function AmoaModeSelectionNew() {
           </Button>
         </div>
 
-        {/* Les contrôles ont été supprimés à la demande de l'utilisateur */}
+        {/* Panneau d'accessibilité */}
+        <div className="absolute top-4 right-4 z-20">
+          <Popover open={accessibilityPanelOpen} onOpenChange={setAccessibilityPanelOpen}>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="secondary"
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white border-blue-400"
+                size="sm"
+                aria-label="Options d'accessibilité"
+              >
+                <Users className="h-4 w-4" />
+                <span>Accessibilité</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 bg-slate-900 border border-blue-500 text-white p-4" align="end">
+              <div className="space-y-4">
+                <h3 className="font-bold text-lg text-center text-blue-300">Options d'accessibilité</h3>
+                
+                {/* Taille du texte */}
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label htmlFor="text-size" className="text-blue-100">Taille du texte</Label>
+                    <span className="text-blue-300 text-sm">{Math.round(textSize * 100)}%</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      className="h-7 w-7 rounded-full bg-slate-800 border-blue-500/50"
+                      onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
+                      aria-label="Réduire la taille du texte"
+                    >
+                      <ZoomOut className="h-3.5 w-3.5 text-blue-300" />
+                    </Button>
+                    <Slider 
+                      id="text-size"
+                      min={0.8} 
+                      max={1.5} 
+                      step={0.05} 
+                      value={[textSize]} 
+                      onValueChange={(value) => setTextSize(value[0])}
+                      className="flex-1"
+                      aria-label="Ajuster la taille du texte"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      className="h-7 w-7 rounded-full bg-slate-800 border-blue-500/50"
+                      onClick={() => setTextSize(Math.min(1.5, textSize + 0.1))}
+                      aria-label="Augmenter la taille du texte"
+                    >
+                      <ZoomIn className="h-3.5 w-3.5 text-blue-300" />
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  {/* Mode haut contraste */}
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="high-contrast" className="text-blue-100">Mode haut contraste</Label>
+                    <Switch 
+                      id="high-contrast" 
+                      checked={highContrastMode} 
+                      onCheckedChange={setHighContrastMode}
+                      aria-label="Activer le mode haut contraste"
+                    />
+                  </div>
+                  
+                  {/* Interface simplifiée */}
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="simplified-ui" className="text-blue-100">Interface simplifiée</Label>
+                    <Switch 
+                      id="simplified-ui" 
+                      checked={simplifiedUI} 
+                      onCheckedChange={setSimplifiedUI}
+                      aria-label="Activer l'interface simplifiée"
+                    />
+                  </div>
+                  
+                  {/* Réduire les animations */}
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="reduce-animations" className="text-blue-100">Réduire les animations</Label>
+                    <Switch 
+                      id="reduce-animations" 
+                      checked={animationsReduced} 
+                      onCheckedChange={setAnimationsReduced}
+                      aria-label="Réduire les animations"
+                    />
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
         
         {/* Contenu principal */}
         <div className="relative z-10 max-w-[1600px] w-full mx-auto px-4 py-12 sm:px-6 sm:py-16">
@@ -118,18 +220,28 @@ export default function AmoaModeSelectionNew() {
             className="text-center mb-16 relative"
             data-id="main-title"
           >
-            <h1 className="text-5xl font-bold mb-4 font-data-title relative">
-              <span className="text-white">Centre de Formation</span>
+            <h1 className="font-bold mb-4 font-data-title relative" style={{ fontSize: `calc(3rem * ${textSize})` }}>
+              <span className={`${highContrastMode ? 'text-yellow-100' : 'text-white'}`}>
+                Centre de Formation
+              </span>
               <br />
-              <span className="text-6xl mt-2 block tracking-wider bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
+              <span className={`mt-2 block tracking-wider ${
+                highContrastMode 
+                  ? 'text-yellow-300' 
+                  : 'bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent'
+              }`} style={{ fontSize: `calc(3.5rem * ${textSize})` }}>
                 I AM mc2i
               </span>
             </h1>
-            <div className="w-40 h-1 bg-gradient-to-r from-blue-400 to-indigo-500 mx-auto my-6 rounded-full"></div>
-            <p className={`max-w-3xl mx-auto text-xl ${
+            <div className={`h-1 bg-gradient-to-r from-blue-400 to-indigo-500 mx-auto my-6 rounded-full`} 
+              style={{ width: `calc(10rem * ${textSize})` }}></div>
+            <p className={`max-w-3xl mx-auto ${
               highContrastMode ? 'text-gray-300' : 'text-blue-100' 
-            }`}>
-              Assistant de formation intelligent pour les métiers de la <span className="font-semibold text-blue-300">transformation numérique</span>
+            }`} style={{ fontSize: `calc(1.25rem * ${textSize})` }}>
+              Assistant de formation intelligent pour les métiers de la 
+              <span className={`font-semibold ${highContrastMode ? 'text-yellow-300' : 'text-blue-300'}`}>
+                transformation numérique
+              </span>
             </p>
           </motion.div>
 
@@ -150,11 +262,24 @@ export default function AmoaModeSelectionNew() {
                       ? 'bg-indigo-800' 
                       : 'bg-gradient-to-r from-indigo-500 to-indigo-700 shadow-md'
                   }`}>
-                    <BsClipboardCheck className="h-8 w-8 text-white" />
+                    <BsClipboardCheck 
+                      className={`${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
+                      style={{ 
+                        height: `calc(2rem * ${textSize})`, 
+                        width: `calc(2rem * ${textSize})` 
+                      }} 
+                    />
                   </div>
                 </div>
-                <h3 className="text-center text-2xl font-bold mb-2">mc2i ACADEMIE</h3>
-                <p className="text-center text-indigo-300 mt-2">
+                <h3 className={`text-center font-bold mb-2 ${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
+                  style={{ 
+                    fontSize: `calc(1.5rem * ${textSize})`,
+                    lineHeight: "1.2"
+                  }}>
+                  mc2i ACADEMIE
+                </h3>
+                <p className={`text-center ${highContrastMode ? 'text-gray-300' : 'text-indigo-300'} mt-2`}
+                  style={{ fontSize: `calc(1rem * ${textSize})` }}>
                   Centre de formation aux méthodes et outils de gestion de projet mc2i
                 </p>
                 <div className="text-center flex flex-col items-center mt-4">
@@ -185,7 +310,13 @@ export default function AmoaModeSelectionNew() {
                       ? 'bg-blue-800' 
                       : 'bg-gradient-to-r from-blue-500 to-blue-700 shadow-md'
                   }`}>
-                    <IoVideocam className="h-8 w-8 text-white" />
+                    <IoVideocam 
+                      className={`${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
+                      style={{ 
+                        height: `calc(2rem * ${textSize})`, 
+                        width: `calc(2rem * ${textSize})` 
+                      }} 
+                    />
                   </div>
                 </div>
                 <h3 className="text-center text-2xl font-bold mb-2">mc2i ROLE PLAY</h3>
