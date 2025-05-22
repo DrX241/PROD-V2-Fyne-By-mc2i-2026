@@ -213,11 +213,14 @@ export default function CyberModeSelection() {
           </Button>
         </div>
         
-        {/* Arrière-plan cybersécurité simplifié */}
+        {/* Arrière-plan cybersécurité optimisé pour chargement rapide */}
         <div className="absolute inset-0 w-full h-full opacity-20">
-          {/* Fond cybersécurité statique avec motif simplifié */}
-          <div className="absolute inset-0 bg-[#001529] overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 bottom-0 grid grid-cols-12 gap-3 opacity-30">
+          {/* Fond généré avec CSS pour une performance optimale */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#001529] to-[#00264d] overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 bottom-0 opacity-30" 
+                 style={{
+                   backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(0, 128, 255, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(64, 179, 255, 0.1) 0%, transparent 50%)'
+                 }}>
               {Array.from({ length: 12 }).map((_, i) => (
                 <div key={i} className="border-r border-blue-500/20 h-full"></div>
               ))}
