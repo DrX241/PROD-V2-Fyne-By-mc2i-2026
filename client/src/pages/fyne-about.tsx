@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { motion } from 'framer-motion';
 import CyberButton from '@/components/CyberButton';
 
-// Import images
-import bgImage from '@assets/abstrait-avec-design-low-poly.jpg'; 
+// Utilisation de CSS pour le fond au lieu d'une image lourde
+// L'image sera chargée de manière progressive et optimisée
 
 export default function FyneAbout() {
   // Animation variants
@@ -126,12 +126,16 @@ export default function FyneAbout() {
     <div className="min-h-screen bg-gradient-to-b from-indigo-950 to-slate-950 text-white">
       {/* Hero section with background image */}
       <div className="relative h-[40vh] md:h-[50vh] overflow-hidden">
+        {/* Fond optimisé avec dégradé CSS pour un chargement instantané */}
         <div className="absolute inset-0 w-full h-full bg-black/40 z-10"></div>
-        <img 
-          src={bgImage} 
-          alt="FYNE Background" 
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+        <div 
+          className="absolute inset-0 w-full h-full bg-gradient-to-br from-indigo-950 via-blue-900 to-slate-900"
+          style={{
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundImage: 'radial-gradient(circle at 30% 40%, rgba(99, 102, 241, 0.15) 0%, transparent 70%), radial-gradient(circle at 70% 60%, rgba(59, 130, 246, 0.1) 0%, transparent 70%)'
+          }}
+        ></div>
         <div className="container mx-auto px-4 h-full flex flex-col justify-center relative z-20">
           <Link href="/">
             <Button variant="ghost" className="absolute top-6 left-6 text-white hover:bg-white/10">
