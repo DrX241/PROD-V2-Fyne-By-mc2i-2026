@@ -13,8 +13,7 @@ import { BsShieldLock } from 'react-icons/bs';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
 
-// Import de l'image d'arrière-plan
-import cyberBackgroundImage from '../../assets/cyber-background.jpg';
+// Arrière-plan optimisé en CSS pur pour un chargement rapide
 
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
@@ -49,13 +48,19 @@ export default function CyberV3() {
       
       <div className="min-h-screen relative"
         style={{ 
-          fontSize: `${textSize}rem`,
-          backgroundColor: '#000814',
-          backgroundImage: `linear-gradient(rgba(0, 10, 30, 0.4), rgba(5, 15, 30, 0.5)), url(${cyberBackgroundImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
+          fontSize: `${textSize}rem`
         }}>
+        {/* Fond optimisé avec CSS pour chargement ultra-rapide */}
+        <div className="absolute inset-0 z-0" 
+          style={{
+            backgroundImage: 'linear-gradient(135deg, #000814 0%, #001233 100%), radial-gradient(circle at 30% 40%, rgba(0, 150, 255, 0.15) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(32, 128, 208, 0.1) 0%, transparent 50%)'
+          }}
+        >
+          {/* Éléments décoratifs pour créer un effet cyber */}
+          <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-blue-900/20 to-transparent"></div>
+          <div className="absolute top-[20%] right-[10%] w-[30%] h-[40%] rounded-full bg-blue-500/5 blur-3xl"></div>
+          <div className="absolute bottom-[30%] left-[20%] w-[20%] h-[30%] rounded-full bg-cyan-500/5 blur-3xl"></div>
+        </div>
         
         {/* Navigation et contrôles */}
         <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">
