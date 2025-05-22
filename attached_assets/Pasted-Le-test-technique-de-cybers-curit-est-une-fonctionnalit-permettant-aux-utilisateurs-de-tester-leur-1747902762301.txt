@@ -1,0 +1,53 @@
+Le test technique de cybersécurité est une fonctionnalité permettant aux utilisateurs de tester leurs connaissances dans différentes catégories de cybersécurité. Voici les composants clés qui font fonctionner cette page :
+
+1. Structure principale
+Le composant principal CyberTestTechnique gère trois étapes différentes :
+
+select : Sélection des paramètres du test (catégorie, difficulté, type d'exercice)
+quiz : Passage du test avec les questions générées
+results : Affichage des résultats et analyses
+2. États (State)
+La page utilise plusieurs états React pour gérer :
+
+Les sélections de l'utilisateur (catégorie, difficulté, type d'exercice)
+Les questions générées par l'API
+Les réponses de l'utilisateur
+La progression (question actuelle, temps restant)
+Les résultats d'évaluation
+L'affichage du certificat
+3. Fonctions principales
+Bien que nous n'ayons pas vu la définition explicite de handleResponseChange, je peux déduire qu'elle met à jour le tableau responses quand un utilisateur clique sur une option. Son implémentation probable serait :
+
+const handleResponseChange = (questionIndex: number, optionIndex: number) => {
+  const updatedResponses = [...responses];
+  updatedResponses[questionIndex] = {
+    ...updatedResponses[questionIndex],
+    answer: optionIndex
+  };
+  setResponses(updatedResponses);
+};
+Autres fonctions importantes :
+
+startQuiz() : Démarre le test en générant des questions
+submitQuiz() : Envoie les réponses pour évaluation
+goToNextQuestion() et goToPreviousQuestion() : Navigation entre les questions
+resetQuiz() : Réinitialise le test
+4. Interaction avec l'API
+Le composant utilise plusieurs mutations pour interagir avec le backend :
+
+generateQuestionsMutation : Génère les questions du test
+evaluateResponsesMutation : Évalue les réponses de l'utilisateur
+analyzeResultsMutation : Génère une analyse critique des performances
+generateCertificateMutation : Crée un certificat pour l'utilisateur
+5. Interface utilisateur
+L'interface est divisée en sections distinctes selon l'étape :
+
+renderSelectionStep() : Formulaire pour paramétrer le test
+renderQuizStep() : Affichage des questions avec timer
+renderResultsStep() : Présentation des résultats, analyse et certificat
+6. Fonctionnalités spéciales
+Timer : Chronomètre pour limiter le temps de réponse
+Progression : Barre de progression pour visualiser l'avancement
+Analyse critique : IA pour évaluer les compétences et fournir des recommandations
+Certificat : Génération d'un document attestant la réussite du test
+Cette page est donc une application complète de test de connaissances qui utilise l'IA pour analyser les performances de l'utilisateur et fournir un feedback personnalisé.

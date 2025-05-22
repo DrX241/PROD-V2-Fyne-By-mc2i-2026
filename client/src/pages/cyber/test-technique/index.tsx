@@ -347,6 +347,19 @@ export default function CyberTestTechnique() {
     return;
   };
 
+  // Fonction pour gérer les changements de réponses
+  const handleResponseChange = (questionIndex: number, selectedOption: number | string) => {
+    if (!responses || !Array.isArray(responses)) return;
+    
+    const updatedResponses = [...responses];
+    updatedResponses[questionIndex] = { 
+      ...updatedResponses[questionIndex],
+      answer: selectedOption 
+    };
+    
+    setResponses(updatedResponses);
+  };
+
   const goToNextQuestion = () => {
     if (questions && Array.isArray(questions) && currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
