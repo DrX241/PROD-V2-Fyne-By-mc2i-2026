@@ -19,6 +19,7 @@ import audioRoutes from './routes/audioRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { evaluateInterviewTest, generateAdaptiveQuestion, generateInitialQuestion } from './cyberInterviewTestController';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
+import { crisisManagementController } from './crisisManagementController';
 import { generateCourseContent, answerQuestion, generateQuiz as generateDataIaQuiz } from './controllers/dataIaAcademyController';
 
 // Récupérer le chemin du répertoire actuel en module ES
@@ -50,17 +51,19 @@ import { analyzeDefenseStrategy, generateAttackScenario, generateTacticalTip } f
 import { generateLivrable } from "./livrablesGeneratorController";
 import { generateClientMessage as generateProspectMessage, evaluateSession as evaluateProspectSession } from "./prospectPulseController";
 import {
+  // Les anciennes fonctions de crise sont temporairement commentées pour éviter les erreurs
+  /*
   getAvailableScenarios,
   startCrisisSession,
   getCrisisSessionDetails,
   sendCrisisMessage,
   pauseCrisisSession,
   resumeCrisisSession,
-  endCrisisSession,
   updateResourceAllocation,
   recordDecision,
   markStakeholderMessagesAsRead,
   respondToStakeholder
+  */
 } from "./crisisManagementController";
 import { 
   generateCode, 
@@ -4861,20 +4864,33 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
     return res.status(200).json({ success: true, message: 'Test route is working' });
   });
   
+  // Anciennes routes commentées pour éviter les erreurs - À réactiver plus tard
   app.get('/api/crisis-management/scenarios', (req, res) => {
     console.log('Get scenarios route was called!');
-    return getAvailableScenarios(req, res);
+    // return getAvailableScenarios(req, res);
+    return res.json({ message: "Cette route est temporairement désactivée", scenarios: [] });
   });
-  app.post('/api/crisis-management/start', startCrisisSession);
+  
+  app.post('/api/crisis-management/start', (req, res) => {
+    // startCrisisSession(req, res);
+    return res.json({ message: "Cette route est temporairement désactivée", sessionId: null });
+  });
+  // Anciennes routes commentées pour éviter les erreurs - À réactiver plus tard
+  /*
   app.get('/api/crisis-management/sessions/:sessionId', getCrisisSessionDetails);
   app.post('/api/crisis-management/message', sendCrisisMessage);
   app.post('/api/crisis-management/pause', pauseCrisisSession);
   app.post('/api/crisis-management/resume', resumeCrisisSession);
-  app.post('/api/crisis-management/end', endCrisisSession);
   app.post('/api/crisis-management/resources', updateResourceAllocation);
   app.post('/api/crisis-management/decision', recordDecision);
   app.post('/api/crisis-management/stakeholder/mark-read', markStakeholderMessagesAsRead);
   app.post('/api/crisis-management/stakeholder/respond', respondToStakeholder);
+  */
+  
+  // Nouvelles routes pour le module de gestion de crise avec IA
+  app.post('/api/crisis-management/ai/stakeholder-response', crisisManagementController.generateStakeholderResponse);
+  app.post('/api/crisis-management/ai/analyze-decision', crisisManagementController.analyzeDecisionImpact);
+  app.post('/api/crisis-management/ai/generate-event', crisisManagementController.generateUnexpectedEvent);
   
   // Route pour le générateur de livrables
   app.post('/api/mc2i/generateur-livrables', generateLivrable);
