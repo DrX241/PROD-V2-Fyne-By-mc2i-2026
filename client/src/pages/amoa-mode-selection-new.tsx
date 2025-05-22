@@ -189,17 +189,6 @@ export default function AmoaModeSelectionNew() {
                       aria-label="Activer l'interface simplifiée"
                     />
                   </div>
-                  
-                  {/* Réduire les animations */}
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="reduce-animations" className="text-blue-100">Réduire les animations</Label>
-                    <Switch 
-                      id="reduce-animations" 
-                      checked={animationsReduced} 
-                      onCheckedChange={setAnimationsReduced}
-                      aria-label="Réduire les animations"
-                    />
-                  </div>
                 </div>
               </div>
             </PopoverContent>

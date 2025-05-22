@@ -41,39 +41,34 @@ export default function CyberV3() {
   const [highContrastMode, setHighContrastMode] = useState(false);
   const [textSize, setTextSize] = useState(1);
   const [simplifiedUI, setSimplifiedUI] = useState(false);
-  const [animationsReduced, setAnimationsReduced] = useState(false);
   const [accessibilityPanelOpen, setAccessibilityPanelOpen] = useState(false);
   
-  // Utilisation d'useEffect pour initialiser les paramètres depuis localStorage
+  // Utilisation d'useEffect pour initialiser les paramètres depuis localStorage avec des clés globales
   useEffect(() => {
-    const storedTextSize = localStorage.getItem('cyberTextSize');
+    // Utiliser des clés globales pour garantir la cohérence entre tous les modules
+    const storedTextSize = localStorage.getItem('accessibilityTextSize');
     if (storedTextSize) {
       setTextSize(parseFloat(storedTextSize));
     }
     
-    const storedHighContrastMode = localStorage.getItem('cyberHighContrastMode');
+    const storedHighContrastMode = localStorage.getItem('accessibilityHighContrastMode');
     if (storedHighContrastMode) {
       setHighContrastMode(storedHighContrastMode === 'true');
     }
     
-    const storedSimplifiedUI = localStorage.getItem('cyberSimplifiedUI');
+    const storedSimplifiedUI = localStorage.getItem('accessibilitySimplifiedUI');
     if (storedSimplifiedUI) {
       setSimplifiedUI(storedSimplifiedUI === 'true');
     }
-    
-    const storedAnimationsReduced = localStorage.getItem('cyberAnimationsReduced');
-    if (storedAnimationsReduced) {
-      setAnimationsReduced(storedAnimationsReduced === 'true');
-    }
   }, []);
   
-  // Sauvegarde des préférences utilisateur
+  // Sauvegarde des préférences utilisateur avec des clés globales
   useEffect(() => {
-    localStorage.setItem('cyberTextSize', textSize.toString());
-    localStorage.setItem('cyberHighContrastMode', highContrastMode.toString());
-    localStorage.setItem('cyberSimplifiedUI', simplifiedUI.toString());
-    localStorage.setItem('cyberAnimationsReduced', animationsReduced.toString());
-  }, [textSize, highContrastMode, simplifiedUI, animationsReduced]);
+    // Utiliser des clés globales pour garantir la cohérence entre tous les modules
+    localStorage.setItem('accessibilityTextSize', textSize.toString());
+    localStorage.setItem('accessibilityHighContrastMode', highContrastMode.toString());
+    localStorage.setItem('accessibilitySimplifiedUI', simplifiedUI.toString());
+  }, [textSize, highContrastMode, simplifiedUI]);
 
   return (
     <HomeLayout>
@@ -204,16 +199,7 @@ export default function CyberV3() {
                         />
                       </div>
                       
-                      {/* Réduire les animations */}
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="reduce-animations" className="text-blue-100">Réduire les animations</Label>
-                        <Switch 
-                          id="reduce-animations" 
-                          checked={animationsReduced} 
-                          onCheckedChange={setAnimationsReduced}
-                          aria-label="Réduire les animations"
-                        />
-                      </div>
+
                       
                       {/* Mode sombre */}
                       <div className="flex items-center justify-between">
