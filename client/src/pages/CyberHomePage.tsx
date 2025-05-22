@@ -119,7 +119,7 @@ const CyberHomePage: React.FC = () => {
             
             <div className="flex items-center gap-5">
               <div className="flex items-center gap-2">
-                <OpenAIStatusIndicator position="in-header" showModelToggle={true} />
+                {/* L'indicateur a été supprimé à la demande de l'utilisateur */}
               </div>
             </div>
           </div>
