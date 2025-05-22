@@ -164,6 +164,26 @@ export default function CrisisManagementPage() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   
+  // Vérifier si l'utilisateur a consulté le briefing
+  const [hasBriefing, setHasBriefing] = useState<boolean>(false);
+  
+  useEffect(() => {
+    // Vérifier si l'utilisateur a déjà consulté le briefing
+    const briefingConsulted = sessionStorage.getItem('crisis_briefing_consulted');
+    
+    if (!briefingConsulted) {
+      // Rediriger vers la page de briefing
+      toast({
+        title: "Briefing requis",
+        description: "Veuillez d'abord consulter le briefing de mission avant d'accéder à la salle de crise.",
+        variant: "default",
+      });
+      setLocation('/cyber/crisis-management/briefing');
+    } else {
+      setHasBriefing(true);
+    }
+  }, [setLocation, toast]);
+  
   // Générateur d'avatars pour les parties prenantes
   const generateAvatar = (name: string, role: string, department: string) => {
     const colorMap: Record<string, string> = {

@@ -104,6 +104,10 @@ const CrisisBriefing = () => {
 
   const handleAccept = () => {
     setIsAccepting(true);
+    
+    // Marquer le briefing comme consulté
+    sessionStorage.setItem('crisis_briefing_consulted', 'true');
+    
     setTimeout(() => {
       toast({
         title: "Alerte de crise activée",
