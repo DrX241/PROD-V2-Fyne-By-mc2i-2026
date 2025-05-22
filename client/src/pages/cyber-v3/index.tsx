@@ -173,7 +173,7 @@ export default function CyberV3() {
                           onClick={() => setTextSize(Math.min(1.5, textSize + 0.1))}
                           aria-label="Augmenter la taille du texte"
                         >
-                          <ZoomIn className="h-3.5 w-3.5 text-blue-300" />
+                          <AiOutlineZoomIn className="h-3.5 w-3.5 text-blue-300" />
                         </Button>
                       </div>
                     </div>
@@ -212,13 +212,13 @@ export default function CyberV3() {
                         />
                       </div>
                       
-                      {/* Mode clair/sombre */}
+                      {/* Mode sombre */}
                       <div className="flex items-center justify-between">
                         <Label htmlFor="dark-mode" className="text-blue-100">Mode sombre</Label>
                         <Switch 
                           id="dark-mode" 
                           checked={themeMode === 'dark'} 
-                          onCheckedChange={(checked) => setThemeMode(checked ? 'dark' : 'light')}
+                          onCheckedChange={(checked) => setThemeMode(checked ? 'dark' : 'futuristic')}
                           aria-label="Activer le mode sombre"
                         />
                       </div>
