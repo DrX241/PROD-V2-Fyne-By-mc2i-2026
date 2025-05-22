@@ -49,40 +49,35 @@ export default function DataIAModeSelection() {
   const [highContrastMode, setHighContrastMode] = useState(false);
   const [textSize, setTextSize] = useState(1);
   const [simplifiedUI, setSimplifiedUI] = useState(false);
-  const [animationsReduced, setAnimationsReduced] = useState(false);
   const [accessibilityPanelOpen, setAccessibilityPanelOpen] = useState(false);
   const { currentTour, setCurrentTour, startTutorial } = useTutorial();
   
   // Utilisation d'useEffect pour initialiser le textSize à partir de localStorage
   useEffect(() => {
-    const storedTextSize = localStorage.getItem('dataIATextSize');
+    // Utiliser des clés globales pour garantir la cohérence entre tous les modules
+    const storedTextSize = localStorage.getItem('accessibilityTextSize');
     if (storedTextSize) {
       setTextSize(parseFloat(storedTextSize));
     }
     
-    const storedHighContrastMode = localStorage.getItem('dataIAHighContrastMode');
+    const storedHighContrastMode = localStorage.getItem('accessibilityHighContrastMode');
     if (storedHighContrastMode) {
       setHighContrastMode(storedHighContrastMode === 'true');
     }
     
-    const storedSimplifiedUI = localStorage.getItem('dataIASimplifiedUI');
+    const storedSimplifiedUI = localStorage.getItem('accessibilitySimplifiedUI');
     if (storedSimplifiedUI) {
       setSimplifiedUI(storedSimplifiedUI === 'true');
-    }
-    
-    const storedAnimationsReduced = localStorage.getItem('dataIAAnimationsReduced');
-    if (storedAnimationsReduced) {
-      setAnimationsReduced(storedAnimationsReduced === 'true');
     }
   }, []);
   
   // Utilisation d'useEffect pour stocker les préférences utilisateur
   useEffect(() => {
-    localStorage.setItem('dataIATextSize', textSize.toString());
-    localStorage.setItem('dataIAHighContrastMode', highContrastMode.toString());
-    localStorage.setItem('dataIASimplifiedUI', simplifiedUI.toString());
-    localStorage.setItem('dataIAAnimationsReduced', animationsReduced.toString());
-  }, [textSize, highContrastMode, simplifiedUI, animationsReduced]);
+    // Utiliser des clés globales pour garantir la cohérence entre tous les modules
+    localStorage.setItem('accessibilityTextSize', textSize.toString());
+    localStorage.setItem('accessibilityHighContrastMode', highContrastMode.toString());
+    localStorage.setItem('accessibilitySimplifiedUI', simplifiedUI.toString());
+  }, [textSize, highContrastMode, simplifiedUI]);
   
   const startTour = () => {
     console.log('Démarrage du tutoriel:', currentTour);
@@ -206,16 +201,7 @@ export default function DataIAModeSelection() {
                           />
                         </div>
                         
-                        {/* Réduire les animations */}
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor="reduce-animations" className="text-blue-100">Réduire les animations</Label>
-                          <Switch 
-                            id="reduce-animations" 
-                            checked={animationsReduced} 
-                            onCheckedChange={setAnimationsReduced}
-                            aria-label="Réduire les animations"
-                          />
-                        </div>
+
                       </div>
                     </div>
                   </PopoverContent>

@@ -30,40 +30,35 @@ export default function AmoaModeSelectionNew() {
   const [highContrastMode, setHighContrastMode] = useState(false);
   const [textSize, setTextSize] = useState(1); // 1 = normal, >1 = larger, <1 = smaller
   const [simplifiedUI, setSimplifiedUI] = useState(false);
-  const [animationsReduced, setAnimationsReduced] = useState(false);
   const [accessibilityPanelOpen, setAccessibilityPanelOpen] = useState(false);
   const [, navigate] = useLocation();
   
   // Chargement des préférences d'accessibilité
   React.useEffect(() => {
-    const storedTextSize = localStorage.getItem('amoaTextSize');
+    // Utiliser des clés globales pour garantir la cohérence entre tous les modules
+    const storedTextSize = localStorage.getItem('accessibilityTextSize');
     if (storedTextSize) {
       setTextSize(parseFloat(storedTextSize));
     }
     
-    const storedHighContrastMode = localStorage.getItem('amoaHighContrastMode');
+    const storedHighContrastMode = localStorage.getItem('accessibilityHighContrastMode');
     if (storedHighContrastMode) {
       setHighContrastMode(storedHighContrastMode === 'true');
     }
     
-    const storedSimplifiedUI = localStorage.getItem('amoaSimplifiedUI');
+    const storedSimplifiedUI = localStorage.getItem('accessibilitySimplifiedUI');
     if (storedSimplifiedUI) {
       setSimplifiedUI(storedSimplifiedUI === 'true');
-    }
-    
-    const storedAnimationsReduced = localStorage.getItem('amoaAnimationsReduced');
-    if (storedAnimationsReduced) {
-      setAnimationsReduced(storedAnimationsReduced === 'true');
     }
   }, []);
   
   // Sauvegarde des préférences d'accessibilité
   React.useEffect(() => {
-    localStorage.setItem('amoaTextSize', textSize.toString());
-    localStorage.setItem('amoaHighContrastMode', highContrastMode.toString());
-    localStorage.setItem('amoaSimplifiedUI', simplifiedUI.toString());
-    localStorage.setItem('amoaAnimationsReduced', animationsReduced.toString());
-  }, [textSize, highContrastMode, simplifiedUI, animationsReduced]);
+    // Utiliser des clés globales pour garantir la cohérence entre tous les modules
+    localStorage.setItem('accessibilityTextSize', textSize.toString());
+    localStorage.setItem('accessibilityHighContrastMode', highContrastMode.toString());
+    localStorage.setItem('accessibilitySimplifiedUI', simplifiedUI.toString());
+  }, [textSize, highContrastMode, simplifiedUI]);
 
   return (
     <HomeLayout>
