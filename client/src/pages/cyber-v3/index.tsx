@@ -84,9 +84,10 @@ export default function CyberV3() {
         </style>
       </Helmet>
       
-      <div className="min-h-screen relative"
+      <div className="min-h-screen h-screen flex flex-col relative"
         style={{ 
-          fontSize: `${textSize}rem`
+          fontSize: `${textSize}rem`,
+          overflowY: "auto"
         }}>
         {/* Fond dynamique cybersécurité en CSS pur - Chargement instantané */}
         <div className="absolute inset-0 z-0 overflow-hidden"> 
