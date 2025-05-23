@@ -25,21 +25,7 @@ import { Users, ZoomIn, ZoomOut } from 'lucide-react';
 import mc2iSloganImage from "@assets/image_1747585779637.png";
 import mc2iLogoImage from "@assets/image_1747585797449.png";
 
-// Préchargement des images au niveau du module (exécuté avant le rendu du composant)
-(() => {
-  const preloadImage = (src) => {
-    const img = new Image();
-    img.src = src;
-    // Ajout des attributs de chargement prioritaire
-    img.fetchPriority = "high";
-    img.loading = "eager";
-    return img;
-  };
-  
-  // Préchargement des images de fond
-  preloadImage(mc2iSloganImage);
-  preloadImage(mc2iLogoImage);
-})();
+// Abandon du préchargement d'images au profit d'un fond en CSS pur
 
 export default function AmoaModeSelectionNew() {
   // États
@@ -83,41 +69,64 @@ export default function AmoaModeSelectionNew() {
         className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-[#006a9e] to-blue-900"
         style={{ fontSize: `${textSize}rem` }}
       >
-        {/* Images mc2i en arrière-plan avec préchargement optimisé */}
+        {/* Fond d'écran élégant en CSS pur avec tracés graphiques */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           {/* Overlay semi-transparent pour améliorer le contraste avec le contenu */}
           <div className="absolute inset-0 bg-blue-950/40 z-10"></div>
           
-          {/* Fond de base qui s'affiche immédiatement */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900 to-indigo-900"></div>
+          {/* Fond de base dégradé qui s'affiche immédiatement */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-800"></div>
           
-          {/* Première moitié de l'écran - Slogan - Chargement prioritaire */}
-          <div className="absolute top-0 left-0 w-1/2 h-full flex items-center justify-center opacity-60">
-            <img 
-              src={mc2iSloganImage}
-              alt="mc2i Slogan" 
-              className="w-full h-full object-cover"
-              style={{
-                filter: 'contrast(1.1) brightness(1.05)',
-              }}
-              loading="eager"
-              fetchpriority="high"
-            />
+          {/* Motifs géométriques abstraits - côté gauche */}
+          <div className="absolute top-0 left-0 w-1/2 h-full opacity-15">
+            {/* Cercles concentriques */}
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full border-4 border-blue-300 opacity-20"></div>
+            <div className="absolute top-1/4 left-1/4 w-72 h-72 rounded-full border-2 border-blue-400 opacity-25 ml-12 mt-12"></div>
+            
+            {/* Lignes diagonales */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
+              <div className="absolute top-0 left-1/3 w-1 h-[150%] bg-gradient-to-b from-transparent via-blue-400 to-transparent transform rotate-45 opacity-20"></div>
+              <div className="absolute top-0 left-1/2 w-1 h-[150%] bg-gradient-to-b from-transparent via-blue-400 to-transparent transform rotate-45 opacity-15"></div>
+              <div className="absolute top-0 left-2/3 w-1 h-[150%] bg-gradient-to-b from-transparent via-blue-400 to-transparent transform rotate-45 opacity-10"></div>
+            </div>
+            
+            {/* Grille de points */}
+            <div className="absolute inset-0 opacity-20" 
+                 style={{
+                   backgroundImage: 'radial-gradient(circle, rgba(147,197,253,0.5) 1px, transparent 1px)',
+                   backgroundSize: '30px 30px'
+                 }}>
+            </div>
           </div>
           
-          {/* Seconde moitié de l'écran - Logo - Chargement prioritaire */}
-          <div className="absolute top-0 right-0 w-1/2 h-full flex items-center justify-center bg-blue-950 opacity-60">
-            <img 
-              src={mc2iLogoImage}
-              alt="mc2i Logo" 
-              className="w-full h-full object-cover"
-              style={{
-                filter: 'contrast(1.2) brightness(1.1)',
-              }}
-              loading="eager"
-              fetchpriority="high"
-            />
+          {/* Motifs géométriques abstraits - côté droit */}
+          <div className="absolute top-0 right-0 w-1/2 h-full bg-blue-950/30">
+            {/* Hexagones */}
+            <div className="absolute inset-0 opacity-20"
+                 style={{
+                   backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'28\' height=\'49\' viewBox=\'0 0 28 49\'%3E%3Cg fill-rule=\'evenodd\'%3E%3Cg id=\'hexagons\' fill=\'%236366f1\' fill-opacity=\'0.25\' fill-rule=\'nonzero\'%3E%3Cpath d=\'M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")'
+                 }}>
+            </div>
+            
+            {/* Vagues stylisées */}
+            <div className="absolute bottom-0 right-0 w-full h-2/3 opacity-20"
+                 style={{
+                   backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 1200 120\' preserveAspectRatio=\'none\'%3E%3Cpath d=\'M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z\' fill=\'%233b82f6\' fill-opacity=\'0.3\'%3E%3C/path%3E%3C/svg%3E")',
+                   backgroundSize: 'cover',
+                   backgroundPosition: 'center'
+                 }}>
+            </div>
+            
+            {/* Cercle lumineux */}
+            <div className="absolute top-1/3 right-1/3 w-64 h-64 rounded-full opacity-30"
+                 style={{
+                   background: 'radial-gradient(circle, rgba(96,165,250,0.4) 0%, rgba(37,99,235,0) 70%)'
+                 }}>
+            </div>
           </div>
+          
+          {/* Ligne de séparation centrale avec animation subtile */}
+          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-px h-full bg-gradient-to-b from-transparent via-blue-400 to-transparent opacity-50"></div>
         </div>
         {/* Bouton retour à l'accueil */}
         <div className="absolute top-4 left-4 z-20">
