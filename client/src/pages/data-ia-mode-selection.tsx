@@ -86,24 +86,79 @@ export default function DataIAModeSelection() {
 
   return (
     <HomeLayout>
-      <div id="data-ia-mode-selection" className={`min-h-screen pb-20 ${
+      <div id="data-ia-mode-selection" className={`min-h-screen pb-20 relative ${
         highContrastMode 
           ? 'bg-black text-white' 
           : 'text-white'
-      }`} style={{ 
-        fontSize: `${textSize}rem`,
-        backgroundImage: highContrastMode 
-          ? 'none' 
-          : 'linear-gradient(135deg, #1a365d 0%, #0f2240 100%), radial-gradient(circle at 30% 40%, rgba(59, 130, 246, 0.2) 0%, transparent 70%), radial-gradient(circle at 70% 60%, rgba(139, 92, 246, 0.15) 0%, transparent 70%)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        position: 'relative',
-      }}>
-        {/* Overlay pour assurer la lisibilité du contenu */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#1e3a5f]/80 to-[#102848]/90 z-0"></div>
+      }`} style={{ fontSize: `${textSize}rem` }}>
         
-        {/* Contenu de la page, avec z-10 pour le mettre au-dessus de l'overlay */}
+        {/* Fond innovant Data & IA en CSS pur - Chargement instantané */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          {/* Dégradé de base plus moderne et vibrant */}
+          <div 
+            className="absolute inset-0" 
+            style={{
+              backgroundColor: highContrastMode ? '#000000' : simplifiedUI ? '#1E1E3F' : 'transparent',
+              backgroundImage: highContrastMode || simplifiedUI
+                ? 'none'
+                : 'linear-gradient(135deg, #231942 0%, #5E548E 100%)'
+            }}
+          ></div>
+          
+          {/* Grille de données - Matrices et vecteurs */}
+          {!highContrastMode && !simplifiedUI && (
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute w-full h-full" style={{
+                backgroundImage: 'linear-gradient(90deg, rgba(147,51,234,0.1) 1px, transparent 1px), linear-gradient(180deg, rgba(147,51,234,0.1) 1px, transparent 1px)',
+                backgroundSize: '25px 25px'
+              }}></div>
+            </div>
+          )}
+          
+          {/* Éléments symbolisant des structures de données */}
+          {!highContrastMode && !simplifiedUI && (
+            <div className="absolute inset-0 opacity-30">
+              <div className="absolute w-full h-full" style={{
+                backgroundImage: 'radial-gradient(circle, rgba(192,132,252,0.3) 1px, transparent 1px)',
+                backgroundSize: '40px 40px'
+              }}></div>
+            </div>
+          )}
+          
+          {/* Motif représentant des connexions neuronales */}
+          {!highContrastMode && !simplifiedUI && (
+            <div 
+              className="absolute inset-0 opacity-20" 
+              style={{
+                backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 100 100\'%3E%3Cg fill-rule=\'evenodd\'%3E%3Cg fill=\'%239C92AC\' fill-opacity=\'0.3\'%3E%3Cpath opacity=\'.5\' d=\'M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+                backgroundSize: '100px 100px'
+              }}
+            ></div>
+          )}
+          
+          {/* Clusters lumineux représentant les centres de données */}
+          <div className="absolute top-[20%] right-[20%] w-[35%] h-[35%] rounded-full" style={{
+            background: 'radial-gradient(circle, rgba(167,139,250,0.4) 0%, transparent 70%)'
+          }}></div>
+          
+          <div className="absolute bottom-[10%] left-[25%] w-[30%] h-[40%] rounded-full" style={{
+            background: 'radial-gradient(circle, rgba(139,92,246,0.35) 0%, transparent 70%)'
+          }}></div>
+          
+          {/* Effet de vagues de données */}
+          <div className="absolute bottom-0 left-0 w-full h-[50%]" style={{
+            backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 1200 120\' preserveAspectRatio=\'none\'%3E%3Cpath d=\'M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z\' fill=\'%238b5cf6\' fill-opacity=\'0.2\'%3E%3C/path%3E%3C/svg%3E")',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            opacity: '0.4'
+          }}></div>
+          
+          {/* Lignes horizontales symbolisant le traitement parallèle des données */}
+          <div className="absolute top-[30%] left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-60"></div>
+          <div className="absolute top-[70%] left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-60"></div>
+        </div>
+        
+        {/* Contenu de la page, avec z-10 pour le mettre au-dessus du fond */}
         <div className="relative z-10">
           {/* Navigation et contrôles */}
           <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">

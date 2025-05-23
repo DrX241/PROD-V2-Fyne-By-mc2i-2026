@@ -88,19 +88,68 @@ export default function CyberV3() {
         style={{ 
           fontSize: `${textSize}rem`
         }}>
-        {/* Fond optimisé avec CSS pour chargement ultra-rapide */}
-        <div className="absolute inset-0 z-0" 
-          style={{
-            backgroundColor: highContrastMode ? '#000000' : simplifiedUI ? '#091428' : 'transparent',
-            backgroundImage: highContrastMode || simplifiedUI 
-              ? 'none' 
-              : 'linear-gradient(135deg, #000814 0%, #001233 100%), radial-gradient(circle at 30% 40%, rgba(0, 150, 255, 0.15) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(32, 128, 208, 0.1) 0%, transparent 50%)'
-          }}
-        >
-          {/* Éléments décoratifs pour créer un effet cyber */}
-          <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-blue-900/20 to-transparent"></div>
-          <div className="absolute top-[20%] right-[10%] w-[30%] h-[40%] rounded-full bg-blue-500/5 blur-3xl"></div>
-          <div className="absolute bottom-[30%] left-[20%] w-[20%] h-[30%] rounded-full bg-cyan-500/5 blur-3xl"></div>
+        {/* Fond dynamique cybersécurité en CSS pur - Chargement instantané */}
+        <div className="absolute inset-0 z-0 overflow-hidden"> 
+          {/* Arrière-plan de base avec dégradé plus visible et dynamique */}
+          <div 
+            className="absolute inset-0" 
+            style={{
+              backgroundColor: highContrastMode ? '#000000' : simplifiedUI ? '#091428' : 'transparent',
+              backgroundImage: highContrastMode || simplifiedUI 
+                ? 'none' 
+                : 'linear-gradient(135deg, #000c29 0%, #0a2342 100%)'
+            }}
+          ></div>
+          
+          {/* Grille de sécurité numérique - Motif hexagonal */}
+          {!highContrastMode && !simplifiedUI && (
+            <div 
+              className="absolute inset-0 opacity-40" 
+              style={{
+                backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'40\' viewBox=\'0 0 24 24\'%3E%3Cpath fill=\'%230ea5e9\' fill-opacity=\'0.15\' d=\'M12,4.5C7,4.5,2.73,7.61,1,12c1.73,4.39,6,7.5,11,7.5s9.27-3.11,11-7.5C21.27,7.61,17,4.5,12,4.5z M12,17c-2.76,0-5-2.24-5-5s2.24-5,5-5,5,2.24,5,5S14.76,17,12,17z M12,9c-1.66,0-3,1.34-3,3s1.34,3,3,3,3-1.34,3-3S13.66,9,12,9z\'/%3E%3C/svg%3E")',
+                backgroundSize: '40px 40px'
+              }}
+            ></div>
+          )}
+          
+          {/* Circuit board effect - Lignes verticales et horizontales */}
+          {!highContrastMode && !simplifiedUI && (
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute w-full h-full" style={{ 
+                backgroundImage: 'linear-gradient(90deg, rgba(56,189,248,0.1) 1px, transparent 1px), linear-gradient(180deg, rgba(56,189,248,0.1) 1px, transparent 1px)',
+                backgroundSize: '20px 20px'
+              }}></div>
+            </div>
+          )}
+          
+          {/* Points de connexion - Symbolise les noeuds d'un réseau */}
+          {!highContrastMode && !simplifiedUI && (
+            <div className="absolute inset-0 opacity-30">
+              <div className="absolute w-full h-full" style={{
+                backgroundImage: 'radial-gradient(circle, rgba(14,165,233,0.3) 1px, transparent 1px)',
+                backgroundSize: '60px 60px'
+              }}></div>
+            </div>
+          )}
+          
+          {/* Éléments lumineux pour un effet "cyber" plus visible */}
+          <div className="absolute top-[10%] right-[15%] w-[30%] h-[40%] rounded-full" style={{
+            background: 'radial-gradient(circle, rgba(14,165,233,0.3) 0%, transparent 70%)'
+          }}></div>
+          
+          <div className="absolute bottom-[20%] left-[15%] w-[35%] h-[30%] rounded-full" style={{
+            background: 'radial-gradient(circle, rgba(6,182,212,0.25) 0%, transparent 70%)'
+          }}></div>
+          
+          {/* Animation digitale symbolisant les flux de données */}
+          <div className="absolute inset-0 opacity-30" style={{
+            backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(56, 189, 248, 0.1) 25%, rgba(56, 189, 248, 0.1) 26%, transparent 27%, transparent 74%, rgba(56, 189, 248, 0.1) 75%, rgba(56, 189, 248, 0.1) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(56, 189, 248, 0.1) 25%, rgba(56, 189, 248, 0.1) 26%, transparent 27%, transparent 74%, rgba(56, 189, 248, 0.1) 75%, rgba(56, 189, 248, 0.1) 76%, transparent 77%, transparent)',
+            backgroundSize: '80px 80px',
+            animation: 'moveVertical 8s linear infinite'
+          }}></div>
+          
+          {/* Ligne horizontale lumineuse représentant l'analyse en temps réel */}
+          <div className="absolute top-[50%] left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-60"></div>
         </div>
         
         {/* Navigation et contrôles */}
