@@ -296,25 +296,25 @@ const CyberHomePage: React.FC = () => {
               <div>
                 <h4 className="text-[#006a9e] font-bold mb-4 text-sm uppercase tracking-wider">Ressources</h4>
                 <ul className="space-y-2">
-                  <li><a href="#" className="text-gray-600 hover:text-[#dd0061] transition-colors duration-300 text-sm">Documentation</a></li>
-                  <li><a href="#" className="text-gray-600 hover:text-[#dd0061] transition-colors duration-300 text-sm">Tutoriels</a></li>
-                  <li><a href="#" className="text-gray-600 hover:text-[#dd0061] transition-colors duration-300 text-sm">Blog</a></li>
-                  <li><a href="#" className="text-gray-600 hover:text-[#dd0061] transition-colors duration-300 text-sm">Support</a></li>
+                  <li><span className="text-gray-400 cursor-not-allowed text-sm">Documentation</span></li>
+                  <li><span className="text-gray-400 cursor-not-allowed text-sm">Tutoriels</span></li>
+                  <li><span className="text-gray-400 cursor-not-allowed text-sm">Blog</span></li>
+                  <li><span className="text-gray-400 cursor-not-allowed text-sm">Support</span></li>
                 </ul>
               </div>
               
               <div>
                 <h4 className="text-[#006a9e] font-bold mb-4 text-sm uppercase tracking-wider">Contact</h4>
                 <div className="flex items-center gap-4">
-                  <a href="#" className="text-gray-600 hover:text-[#dd0061] transition-colors duration-300">
+                  <span className="text-gray-400 cursor-not-allowed">
                     <Globe size={20} />
-                  </a>
-                  <a href="#" className="text-gray-600 hover:text-[#dd0061] transition-colors duration-300">
+                  </span>
+                  <span className="text-gray-400 cursor-not-allowed">
                     <Share2 size={20} />
-                  </a>
-                  <a href="#" className="text-gray-600 hover:text-[#dd0061] transition-colors duration-300">
+                  </span>
+                  <span className="text-gray-400 cursor-not-allowed">
                     <Users size={20} />
-                  </a>
+                  </span>
                 </div>
               </div>
             </div>
