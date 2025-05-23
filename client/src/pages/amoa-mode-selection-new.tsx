@@ -75,34 +75,26 @@ export default function AmoaModeSelectionNew() {
           {/* Fond de base qui s'affiche immédiatement */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-900 to-indigo-900"></div>
           
-          {/* Première moitié de l'écran - Slogan optimisé */}
+          {/* Première moitié de l'écran - Slogan */}
           <div className="absolute top-0 left-0 w-1/2 h-full flex items-center justify-center opacity-60">
             <div 
               className="w-full h-full bg-cover bg-center"
               style={{
                 backgroundImage: `url(${mc2iSloganImage})`,
-                filter: 'contrast(1.1) brightness(1.05) blur(1px)',
-                backgroundSize: 'contain',
-                imageRendering: 'optimizeSpeed',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'center center',
-                backgroundColor: '#0f2b58'
+                filter: 'contrast(1.1) brightness(1.05)',
+                backgroundSize: 'cover'
               }}
             ></div>
           </div>
           
-          {/* Seconde moitié de l'écran - Logo optimisé */}
+          {/* Seconde moitié de l'écran - Logo */}
           <div className="absolute top-0 right-0 w-1/2 h-full flex items-center justify-center bg-blue-950 opacity-60">
             <div 
               className="w-full h-full bg-cover bg-center"
               style={{
                 backgroundImage: `url(${mc2iLogoImage})`,
-                filter: 'contrast(1.2) brightness(1.1) blur(1px)',
-                backgroundSize: 'contain',
-                imageRendering: 'optimizeSpeed',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'center center',
-                backgroundColor: '#0a1c3c'
+                filter: 'contrast(1.2) brightness(1.1)',
+                backgroundSize: 'cover'
               }}
             ></div>
           </div>
