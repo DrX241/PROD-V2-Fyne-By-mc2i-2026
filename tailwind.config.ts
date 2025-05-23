@@ -87,6 +87,17 @@ export default {
             height: "0",
           },
         },
+        "pulse-slow": {
+          "0%": {
+            opacity: "1",
+          },
+          "50%": {
+            opacity: "0.9",
+          },
+          "100%": {
+            opacity: "1",
+          },
+        },
         "float": {
           "0%": {
             transform: "translateY(0px) rotate(0deg)",
@@ -155,6 +166,7 @@ export default {
         "float": "float 10s ease-in-out infinite",
         "blob": "blob 25s ease-in-out infinite",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
+        "pulse-slow": "pulse-slow 8s ease-in-out infinite",
         "game-float": "game-float 3s ease-in-out infinite",
       },
     },

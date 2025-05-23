@@ -129,11 +129,17 @@ export default function FyneAbout() {
         {/* Fond optimisé avec dégradé CSS pour un chargement instantané */}
         <div className="absolute inset-0 w-full h-full bg-black/40 z-10"></div>
         <div 
-          className="absolute inset-0 w-full h-full bg-gradient-to-br from-indigo-950 via-blue-900 to-slate-900"
+          className="absolute inset-0 w-full h-full bg-gradient-to-br from-indigo-950 via-blue-900 to-slate-900 animate-pulse-slow"
           style={{
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            backgroundImage: 'radial-gradient(circle at 30% 40%, rgba(99, 102, 241, 0.15) 0%, transparent 70%), radial-gradient(circle at 70% 60%, rgba(59, 130, 246, 0.1) 0%, transparent 70%)'
+            backgroundImage: `
+              radial-gradient(circle at 30% 40%, rgba(99, 102, 241, 0.25) 0%, transparent 50%), 
+              radial-gradient(circle at 70% 60%, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
+              linear-gradient(60deg, rgba(79, 70, 229, 0.1) 0%, transparent 50%),
+              repeating-linear-gradient(45deg, rgba(30, 64, 175, 0.05) 0%, rgba(30, 64, 175, 0.05) 2px, transparent 2px, transparent 8px),
+              radial-gradient(circle at 20% 20%, rgba(147, 197, 253, 0.15) 0%, transparent 40%)
+            `
           }}
         ></div>
         <div className="container mx-auto px-4 h-full flex flex-col justify-center relative z-20">
@@ -313,7 +319,7 @@ export default function FyneAbout() {
           </h2>
           <div className="max-w-3xl mx-auto bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border border-blue-800/30 rounded-lg p-8">
             <p className="text-gray-200 mb-6">
-              Déclaré vainqueur à la suite d'un challenge intrapreneurial mc2i lancé en 2024, FYNE a été développé par 4 collaborateurs mêlant expertises en cybersécurité, formation, IA générative et développement.
+              Issu d'un challenge intrapreneurial mc2i lancé en 2024, FYNE a été développé par 4 collaborateurs mêlant expertises en cybersécurité, formation, IA générative et développement.
             </p>
             <p className="text-gray-200 mb-6">
               En quelques semaines un premier prototype opérationnel a été créé. Il est testé immédiatement en interne chez mc2i, dans des contextes concrets :
