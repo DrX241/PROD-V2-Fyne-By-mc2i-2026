@@ -69,7 +69,7 @@ export default function AmoaModeSelectionNew() {
         className="h-screen flex flex-col relative overflow-hidden bg-gradient-to-b from-gray-800 via-[#006a9e] to-blue-900"
         style={{ 
           fontSize: `${textSize}rem`,
-          overflowY: "auto"
+          overflow: "hidden"
         }}
       >
         {/* Fond d'écran élégant en CSS pur avec tracés graphiques - version plus claire */}

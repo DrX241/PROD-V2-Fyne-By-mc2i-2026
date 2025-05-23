@@ -87,7 +87,7 @@ export default function CyberV3() {
       <div className="min-h-screen h-screen flex flex-col relative"
         style={{ 
           fontSize: `${textSize}rem`,
-          overflowY: "auto"
+          overflow: "hidden"
         }}>
         {/* Fond dynamique cybersécurité en CSS pur - Chargement instantané */}
         <div className="absolute inset-0 z-0 overflow-hidden"> 
@@ -268,7 +268,7 @@ export default function CyberV3() {
             initial={simplifiedUI ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={simplifiedUI ? { duration: 0 } : { duration: 0.5 }}
-            className="text-center mb-16 relative z-10"
+            className="text-center mb-8 relative z-10"
             style={{ fontSize: `${textSize}rem` }}
           >
             <h1 className="font-bold mb-4 font-data-title relative">

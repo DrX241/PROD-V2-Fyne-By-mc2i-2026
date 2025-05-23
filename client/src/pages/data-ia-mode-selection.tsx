@@ -92,7 +92,7 @@ export default function DataIAModeSelection() {
           : 'text-white'
       }`} style={{ 
         fontSize: `${textSize}rem`,
-        overflowY: "auto"
+        overflow: "hidden"
       }}>
         
         {/* Fond innovant Data & IA en CSS pur - Chargement instantané */}
@@ -164,8 +164,8 @@ export default function DataIAModeSelection() {
         {/* Contenu de la page, avec z-10 pour le mettre au-dessus du fond */}
         <div className="relative z-10">
           {/* Navigation et contrôles */}
-          <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">
-            <div className="flex justify-between items-center mb-10">
+          <div className="px-8 py-4 relative max-w-[1600px] w-full mx-auto">
+            <div className="flex justify-between items-center mb-4">
               <div className="flex items-center">
                 <div
                   onClick={() => {
