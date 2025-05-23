@@ -747,7 +747,7 @@ export default function LearningCenter() {
   const filteredModules = updateModules();
   
   return (
-    <div className="min-h-screen bg-[#0a1429]">
+    <div className="bg-[#0a1429]">
       <PageTitle title="Cyber Académie | Centre de formation" />
       
       {/* En-tête avec navigation et titre */}
