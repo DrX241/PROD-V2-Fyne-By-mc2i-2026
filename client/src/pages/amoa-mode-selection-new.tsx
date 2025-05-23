@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
@@ -25,7 +25,7 @@ import { Users, ZoomIn, ZoomOut } from 'lucide-react';
 import mc2iSloganImage from "@assets/image_1747585779637.png";
 import mc2iLogoImage from "@assets/image_1747585797449.png";
 
-// Abandon du préchargement d'images au profit d'un fond en CSS pur
+// Optimisation de la navigation avec mise en cache du composant
 
 export default function AmoaModeSelectionNew() {
   // États

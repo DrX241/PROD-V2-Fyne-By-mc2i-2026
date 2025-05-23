@@ -3,10 +3,17 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
-import React, { Suspense, lazy, startTransition } from "react";
+import React, { Suspense, lazy, startTransition, useEffect } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { TutorialProvider } from "./contexts/TutorialContext";
+
+// Déclaration du type de la variable globale pour TypeScript
+declare global {
+  interface Window {
+    __PRELOADED_MODULES: Record<string, any>;
+  }
+}
 
 // Importation des composants directement car le lazy loading provoque des problèmes
 // avec wouter dans cette implémentation
