@@ -86,14 +86,11 @@ export default function DataIAModeSelection() {
 
   return (
     <HomeLayout>
-      <div id="data-ia-mode-selection" className={`h-screen flex flex-col relative ${
+      <div id="data-ia-mode-selection" className={`min-h-screen pb-20 relative ${
         highContrastMode 
           ? 'bg-black text-white' 
           : 'text-white'
-      }`} style={{ 
-        fontSize: `${textSize}rem`,
-        overflow: "hidden"
-      }}>
+      }`} style={{ fontSize: `${textSize}rem` }}>
         
         {/* Fond innovant Data & IA en CSS pur - Chargement instantané */}
         <div className="absolute inset-0 z-0 overflow-hidden">
@@ -164,8 +161,8 @@ export default function DataIAModeSelection() {
         {/* Contenu de la page, avec z-10 pour le mettre au-dessus du fond */}
         <div className="relative z-10">
           {/* Navigation et contrôles */}
-          <div className="px-8 py-4 relative max-w-[1600px] w-full mx-auto">
-            <div className="flex justify-between items-center mb-4">
+          <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">
+            <div className="flex justify-between items-center mb-10">
               <div className="flex items-center">
                 <div
                   onClick={() => {
