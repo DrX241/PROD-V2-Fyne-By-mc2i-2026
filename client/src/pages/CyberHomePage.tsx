@@ -83,7 +83,7 @@ const CyberHomePage: React.FC = () => {
       color: 'text-emerald-600',
       bgColor: 'bg-emerald-100',
       accentColor: 'border-emerald-500',
-      route: '/amoa/new'
+      route: '/amoa-mode-selection-new'
     },
     {
       id: 'generator',
