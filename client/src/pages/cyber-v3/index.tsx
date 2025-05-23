@@ -84,7 +84,7 @@ export default function CyberV3() {
         </style>
       </Helmet>
       
-      <div className="min-h-screen h-screen flex flex-col relative"
+      <div className="min-h-screen relative"
         style={{ 
           fontSize: `${textSize}rem`
         }}>
@@ -152,120 +152,115 @@ export default function CyberV3() {
           <div className="absolute top-[50%] left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-60"></div>
         </div>
         
-        {/* Navigation et contrôles - Position fixe */}
-        <div className="sticky top-0 left-0 right-0 z-50 bg-blue-900/80 backdrop-blur-sm border-b border-blue-500/30 shadow-md">
-          <div className="px-8 py-4 max-w-[1600px] w-full mx-auto">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <div
-                  onClick={() => {
-                    setLocation('/');
-                    // Force le scroll vers la section modules après que la page soit chargée
-                    setTimeout(() => {
-                      document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' });
-                    }, 100);
-                  }}
+        {/* Navigation et contrôles */}
+        <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">
+          <div className="flex justify-between items-center mb-10">
+            <div className="flex items-center">
+              <div
+                onClick={() => {
+                  setLocation('/');
+                  // Force le scroll vers la section modules après que la page soit chargée
+                  setTimeout(() => {
+                    document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
+                }}
+              >
+                <DataButton 
+                  variant="outline"
+                  size="lg"
+                  className="text-cyan-300 border-cyan-300/30 hover:bg-cyan-900/20 cursor-pointer"
+                  startIcon={<IoHome className="h-6 w-6" />}
                 >
-                  <DataButton 
-                    variant="outline"
-                    size="lg"
-                    className="text-cyan-300 border-cyan-300/30 hover:bg-cyan-900/20 cursor-pointer"
-                    startIcon={<IoHome className="h-6 w-6" />}
-                  >
-                    Accueil
-                  </DataButton>
-                </div>
+                  Accueil
+                </DataButton>
               </div>
-              
-              {/* Panneau d'accessibilité */}
-              <div className="flex items-center gap-2">
-                <Popover open={accessibilityPanelOpen} onOpenChange={setAccessibilityPanelOpen}>
-                  <PopoverTrigger asChild>
-                    <Button 
-                      variant="secondary"
-                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white border-blue-400"
-                      size="sm"
-                      aria-label="Options d'accessibilité"
-                    >
-                      <Users className="h-4 w-4" />
-                      <span>Accessibilité</span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80 bg-slate-900 border border-blue-500 text-white p-4" align="end">
-                    <div className="space-y-4">
-                      <h3 className="font-bold text-lg text-center text-blue-300">Options d'accessibilité</h3>
-                      
-                      {/* Taille du texte */}
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <Label htmlFor="text-size" className="text-blue-100">Taille du texte</Label>
-                          <span className="text-blue-300 text-sm">{Math.round(textSize * 100)}%</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button 
-                            variant="outline" 
-                            size="icon" 
-                            className="h-7 w-7 rounded-full bg-slate-800 border-blue-500/50"
-                            onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
-                            aria-label="Réduire la taille du texte"
-                          >
-                            <AiOutlineZoomOut className="h-3.5 w-3.5 text-blue-300" />
-                          </Button>
-                          <Slider 
-                            id="text-size"
-                            min={0.8} 
-                            max={1.5} 
-                            step={0.05} 
-                            value={[textSize]} 
-                            onValueChange={(value) => setTextSize(value[0])}
-                            className="flex-1"
-                            aria-label="Ajuster la taille du texte"
-                          />
-                          <Button 
-                            variant="outline" 
-                            size="icon" 
-                            className="h-7 w-7 rounded-full bg-slate-800 border-blue-500/50"
-                            onClick={() => setTextSize(Math.min(1.5, textSize + 0.1))}
-                            aria-label="Augmenter la taille du texte"
-                          >
-                            <AiOutlineZoomIn className="h-3.5 w-3.5 text-blue-300" />
-                          </Button>
-                        </div>
+
+            </div>
+            
+            {/* Panneau d'accessibilité */}
+            <div className="flex items-center gap-2">
+              <Popover open={accessibilityPanelOpen} onOpenChange={setAccessibilityPanelOpen}>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="secondary"
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white border-blue-400"
+                    size="sm"
+                    aria-label="Options d'accessibilité"
+                  >
+                    <Users className="h-4 w-4" />
+                    <span>Accessibilité</span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 bg-slate-900 border border-blue-500 text-white p-4" align="end">
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-lg text-center text-blue-300">Options d'accessibilité</h3>
+                    
+                    {/* Taille du texte */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <Label htmlFor="text-size" className="text-blue-100">Taille du texte</Label>
+                        <span className="text-blue-300 text-sm">{Math.round(textSize * 100)}%</span>
                       </div>
-                      
-                      <div className="space-y-3">
-                        {/* Mode haut contraste */}
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor="high-contrast" className="text-blue-100">Mode haut contraste</Label>
-                          <Switch 
-                            id="high-contrast" 
-                            checked={highContrastMode} 
-                            onCheckedChange={setHighContrastMode}
-                            aria-label="Activer le mode haut contraste"
-                          />
-                        </div>
-                        
-                        {/* Interface simplifiée */}
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor="simplified-ui" className="text-blue-100">Interface simplifiée</Label>
-                          <Switch 
-                            id="simplified-ui" 
-                            checked={simplifiedUI} 
-                            onCheckedChange={setSimplifiedUI}
-                            aria-label="Activer l'interface simplifiée"
-                          />
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-7 w-7 rounded-full bg-slate-800 border-blue-500/50"
+                          onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
+                          aria-label="Réduire la taille du texte"
+                        >
+                          <AiOutlineZoomOut className="h-3.5 w-3.5 text-blue-300" />
+                        </Button>
+                        <Slider 
+                          id="text-size"
+                          min={0.8} 
+                          max={1.5} 
+                          step={0.05} 
+                          value={[textSize]} 
+                          onValueChange={(value) => setTextSize(value[0])}
+                          className="flex-1"
+                          aria-label="Ajuster la taille du texte"
+                        />
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-7 w-7 rounded-full bg-slate-800 border-blue-500/50"
+                          onClick={() => setTextSize(Math.min(1.5, textSize + 0.1))}
+                          aria-label="Augmenter la taille du texte"
+                        >
+                          <AiOutlineZoomIn className="h-3.5 w-3.5 text-blue-300" />
+                        </Button>
                       </div>
                     </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
+                    
+                    <div className="space-y-3">
+                      {/* Mode haut contraste */}
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="high-contrast" className="text-blue-100">Mode haut contraste</Label>
+                        <Switch 
+                          id="high-contrast" 
+                          checked={highContrastMode} 
+                          onCheckedChange={setHighContrastMode}
+                          aria-label="Activer le mode haut contraste"
+                        />
+                      </div>
+                      
+                      {/* Interface simplifiée */}
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="simplified-ui" className="text-blue-100">Interface simplifiée</Label>
+                        <Switch 
+                          id="simplified-ui" 
+                          checked={simplifiedUI} 
+                          onCheckedChange={setSimplifiedUI}
+                          aria-label="Activer l'interface simplifiée"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
-        </div>
-        
-        {/* Contenu principal avec marge pour éviter le chevauchement avec la navigation fixe */}
-        <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto mt-4">
           
           {/* Titre et sous-titre */}
           <motion.div 

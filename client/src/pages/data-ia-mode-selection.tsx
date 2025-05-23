@@ -86,13 +86,11 @@ export default function DataIAModeSelection() {
 
   return (
     <HomeLayout>
-      <div id="data-ia-mode-selection" className={`min-h-screen flex flex-col relative ${
+      <div id="data-ia-mode-selection" className={`min-h-screen pb-20 relative ${
         highContrastMode 
           ? 'bg-black text-white' 
           : 'text-white'
-      }`} style={{ 
-        fontSize: `${textSize}rem`
-      }}>
+      }`} style={{ fontSize: `${textSize}rem` }}>
         
         {/* Fond innovant Data & IA en CSS pur - Chargement instantané */}
         <div className="absolute inset-0 z-0 overflow-hidden">
@@ -160,11 +158,12 @@ export default function DataIAModeSelection() {
           <div className="absolute top-[70%] left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-60"></div>
         </div>
         
-        {/* Barre de navigation fixe */}
-        <div className="sticky top-0 left-0 right-0 z-50 bg-indigo-900/80 backdrop-blur-sm border-b border-purple-500/30 shadow-md">
-          <div className="px-8 py-4 max-w-[1600px] w-full mx-auto">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
+        {/* Contenu de la page, avec z-10 pour le mettre au-dessus du fond */}
+        <div className="relative z-10">
+          {/* Navigation et contrôles */}
+          <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">
+            <div className="flex justify-between items-center mb-10">
+              <div className="flex items-center">
                 <div
                   onClick={() => {
                     setLocation('/');
@@ -183,7 +182,7 @@ export default function DataIAModeSelection() {
                     Accueil
                   </DataButton>
                 </div>
-                <h2 className="text-xl font-bold text-purple-200">I AM DATA & IA</h2>
+                <PageTitle title="I AM DATA & IA" />
               </div>
               
               {/* Panneau d'accessibilité */}
@@ -272,16 +271,13 @@ export default function DataIAModeSelection() {
                 </Popover>
               </div>
             </div>
-        </div>
-        
-        {/* Contenu principal avec marge pour éviter le chevauchement avec la navigation fixe */}
-        <div className="relative z-10 px-8 py-8 max-w-[1600px] w-full mx-auto">
+            
             {/* Titre et sous-titre */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="text-center mb-16 relative mt-4"
+              className="text-center mb-16 relative"
               data-id="main-title"
             >
               <h1 className="font-bold mb-4 font-data-title relative" style={{ fontSize: `calc(3rem * ${textSize})` }}>

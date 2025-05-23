@@ -66,11 +66,8 @@ export default function AmoaModeSelectionNew() {
     <HomeLayout>
       <PageTitle title="I AM mc2i" />
       <div 
-        className="h-screen flex flex-col relative overflow-hidden bg-gradient-to-b from-gray-800 via-[#006a9e] to-blue-900"
-        style={{ 
-          fontSize: `${textSize}rem`,
-          overflowY: "auto"
-        }}
+        className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-[#006a9e] to-blue-900"
+        style={{ fontSize: `${textSize}rem` }}
       >
         {/* Fond d'écran élégant en CSS pur avec tracés graphiques - version plus claire */}
         <div className="absolute inset-0 z-0 overflow-hidden">
@@ -149,42 +146,20 @@ export default function AmoaModeSelectionNew() {
           </Button>
         </div>
 
-        {/* Barre de navigation fixe */}
-        <div className="sticky top-0 left-0 right-0 z-50 bg-blue-900/80 backdrop-blur-sm border-b border-blue-500/30 shadow-md">
-          <div className="px-8 py-4 max-w-[1600px] w-full mx-auto flex justify-between items-center">
-            <div
-              onClick={() => {
-                setLocation('/');
-                // Force le scroll vers la section modules après que la page soit chargée
-                setTimeout(() => {
-                  document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-              }}
-            >
+        {/* Panneau d'accessibilité */}
+        <div className="absolute top-4 right-4 z-20">
+          <Popover open={accessibilityPanelOpen} onOpenChange={setAccessibilityPanelOpen}>
+            <PopoverTrigger asChild>
               <Button 
-                variant="outline"
-                size="lg"
-                className="text-blue-300 border-blue-300/30 hover:bg-cyan-900/20 cursor-pointer"
+                variant="secondary"
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white border-blue-400"
+                size="sm"
+                aria-label="Options d'accessibilité"
               >
-                <IoHomeIcon className="h-6 w-6 mr-2" />
-                Accueil
+                <Users className="h-4 w-4" />
+                <span>Accessibilité</span>
               </Button>
-            </div>
-            
-            {/* Panneau d'accessibilité */}
-            <div>
-              <Popover open={accessibilityPanelOpen} onOpenChange={setAccessibilityPanelOpen}>
-                <PopoverTrigger asChild>
-                  <Button 
-                    variant="secondary"
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white border-blue-400"
-                    size="sm"
-                    aria-label="Options d'accessibilité"
-                  >
-                    <Users className="h-4 w-4" />
-                    <span>Accessibilité</span>
-                  </Button>
-                </PopoverTrigger>
+            </PopoverTrigger>
             <PopoverContent className="w-80 bg-slate-900 border border-blue-500 text-white p-4" align="end">
               <div className="space-y-4">
                 <h3 className="font-bold text-lg text-center text-blue-300">Options d'accessibilité</h3>
