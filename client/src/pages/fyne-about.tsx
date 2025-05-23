@@ -129,11 +129,11 @@ export default function FyneAbout() {
         {/* Fond optimisé avec dégradé CSS pour un chargement instantané */}
         <div className="absolute inset-0 w-full h-full bg-black/40 z-10"></div>
         <div 
-          className="absolute inset-0 w-full h-full"
+          className="absolute inset-0 w-full h-full bg-gradient-to-br from-indigo-950 via-blue-900 to-slate-900"
           style={{
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            backgroundImage: 'url("/attached_assets/abstrait-avec-design-low-poly-min.jpg")'
+            backgroundImage: 'radial-gradient(circle at 30% 40%, rgba(99, 102, 241, 0.15) 0%, transparent 70%), radial-gradient(circle at 70% 60%, rgba(59, 130, 246, 0.1) 0%, transparent 70%)'
           }}
         ></div>
         <div className="container mx-auto px-4 h-full flex flex-col justify-center relative z-20">
