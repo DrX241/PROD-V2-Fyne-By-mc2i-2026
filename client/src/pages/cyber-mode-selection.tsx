@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { ArrowRight, Home, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,7 @@ interface ModeOption {
 }
 
 export default function CyberModeSelection() {
+  const [, setLocation] = useLocation();
   const [hoveredMode, setHoveredMode] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   
@@ -195,7 +196,7 @@ export default function CyberModeSelection() {
           <Button 
             variant="outline" 
             className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
-            onClick={() => window.location.href = '/'}
+            onClick={() => setLocation('/')}
           >
             <Home className="h-4 w-4 mr-2" />
             Accueil

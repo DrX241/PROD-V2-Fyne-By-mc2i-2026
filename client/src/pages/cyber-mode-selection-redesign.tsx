@@ -76,6 +76,7 @@ interface LearningObjective {
 }
 
 export default function CyberModeSelectionRedesign() {
+  const [, setLocation] = useLocation();
   // États
   const [searchTerm, setSearchTerm] = useState('');
   const [activeView, setActiveView] = useState<'grid' | 'list'>('grid');
