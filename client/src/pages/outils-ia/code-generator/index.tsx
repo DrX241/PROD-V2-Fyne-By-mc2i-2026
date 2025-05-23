@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import {
   Code,
@@ -168,6 +169,7 @@ const defaultPromptExamples = [
 ];
 
 export default function CodeGeneratorPage() {
+  const [, setLocation] = useLocation();
   const { themeMode } = useTheme();
   const isFuturistic = themeMode === 'futuristic';
   const { toast } = useToast();
