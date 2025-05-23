@@ -25,6 +25,22 @@ import { Users, ZoomIn, ZoomOut } from 'lucide-react';
 import mc2iSloganImage from "@assets/image_1747585779637.png";
 import mc2iLogoImage from "@assets/image_1747585797449.png";
 
+// Préchargement des images au niveau du module (exécuté avant le rendu du composant)
+(() => {
+  const preloadImage = (src) => {
+    const img = new Image();
+    img.src = src;
+    // Ajout des attributs de chargement prioritaire
+    img.fetchPriority = "high";
+    img.loading = "eager";
+    return img;
+  };
+  
+  // Préchargement des images de fond
+  preloadImage(mc2iSloganImage);
+  preloadImage(mc2iLogoImage);
+})();
+
 export default function AmoaModeSelectionNew() {
   // États
   const [highContrastMode, setHighContrastMode] = useState(false);
@@ -67,7 +83,7 @@ export default function AmoaModeSelectionNew() {
         className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-[#006a9e] to-blue-900"
         style={{ fontSize: `${textSize}rem` }}
       >
-        {/* Images mc2i en arrière-plan avec chargement progressif */}
+        {/* Images mc2i en arrière-plan avec préchargement optimisé */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           {/* Overlay semi-transparent pour améliorer le contraste avec le contenu */}
           <div className="absolute inset-0 bg-blue-950/40 z-10"></div>
@@ -75,28 +91,32 @@ export default function AmoaModeSelectionNew() {
           {/* Fond de base qui s'affiche immédiatement */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-900 to-indigo-900"></div>
           
-          {/* Première moitié de l'écran - Slogan */}
+          {/* Première moitié de l'écran - Slogan - Chargement prioritaire */}
           <div className="absolute top-0 left-0 w-1/2 h-full flex items-center justify-center opacity-60">
-            <div 
-              className="w-full h-full bg-cover bg-center"
+            <img 
+              src={mc2iSloganImage}
+              alt="mc2i Slogan" 
+              className="w-full h-full object-cover"
               style={{
-                backgroundImage: `url(${mc2iSloganImage})`,
                 filter: 'contrast(1.1) brightness(1.05)',
-                backgroundSize: 'cover'
               }}
-            ></div>
+              loading="eager"
+              fetchpriority="high"
+            />
           </div>
           
-          {/* Seconde moitié de l'écran - Logo */}
+          {/* Seconde moitié de l'écran - Logo - Chargement prioritaire */}
           <div className="absolute top-0 right-0 w-1/2 h-full flex items-center justify-center bg-blue-950 opacity-60">
-            <div 
-              className="w-full h-full bg-cover bg-center"
+            <img 
+              src={mc2iLogoImage}
+              alt="mc2i Logo" 
+              className="w-full h-full object-cover"
               style={{
-                backgroundImage: `url(${mc2iLogoImage})`,
                 filter: 'contrast(1.2) brightness(1.1)',
-                backgroundSize: 'cover'
               }}
-            ></div>
+              loading="eager"
+              fetchpriority="high"
+            />
           </div>
         </div>
         {/* Bouton retour à l'accueil */}
