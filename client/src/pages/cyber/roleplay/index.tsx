@@ -249,10 +249,10 @@ const RoleplayHub: React.FC = () => {
                     {scenario.icon}
                   </div>
                 </div>
-                <CardTitle className={`text-3xl font-bold text-center ${scenario.textColor}`}>
+                <CardTitle className={`text-2xl font-bold text-center ${scenario.textColor}`}>
                   {scenario.title}
                 </CardTitle>
-                <CardDescription className="text-gray-300 text-center">
+                <CardDescription className="text-lg text-gray-300 text-center font-medium">
                   {scenario.description}
                 </CardDescription>
               </CardHeader>
