@@ -56,8 +56,8 @@ const RoleplayHub: React.FC = () => {
     },
     {
       id: 'interview-test',
-      title: "Je suis Consultant Cyber",
-      description: "Je prépare une audition en cybersécurité et je voudrais m'entraîner et être mis en situation",
+      title: "Je suis un professionnel de la cyber",
+      description: "Je prépare une audition auprès d'un client",
       link: '/cyber/interview-test',
       icon: <Briefcase className="h-10 w-10 text-blue-300" />,
       color: 'blue',
@@ -75,8 +75,8 @@ const RoleplayHub: React.FC = () => {
     },
     {
       id: 'pentest-lab',
-      title: 'Je suis Pentester',
-      description: "J'explore et j'exploite des vulnérabilités web en environnement contrôlé",
+      title: 'Je suis un expert technique',
+      description: "J'exploite des vulnérabilités web dans un lab sécurisé",
       link: '/cyber/pentest-lab',
       icon: <Terminal className="h-10 w-10 text-purple-300" />,
       color: 'purple',
@@ -95,7 +95,7 @@ const RoleplayHub: React.FC = () => {
     {
       id: 'crisis-management',
       title: 'Je suis RSSI',
-      description: "Je dois gérer une crise suite à un incident de cybersécurité majeur",
+      description: "Je gère une crise majeure de cybersécurité",
       link: '/cyber/crisis-management',
       icon: <AlertTriangle className="h-10 w-10 text-rose-300" />,
       color: 'rose',
@@ -114,7 +114,7 @@ const RoleplayHub: React.FC = () => {
     {
       id: 'comex-member',
       title: "Je suis Membre du COMEX",
-      description: "Je voudrais m'approprier les enjeux et les clés stratégiques de la sécurité numérique",
+      description: "Je veux comprendre les enjeux stratégiques de cybersécurité",
       link: '/cyber/comex-training',
       icon: <BrainCircuit className="h-10 w-10 text-emerald-300" />,
       color: 'emerald',
@@ -132,8 +132,8 @@ const RoleplayHub: React.FC = () => {
     },
     {
       id: 'assistant-creator',
-      title: "Je suis Créateur de Chatbot",
-      description: "Je souhaite créer mon propre assistant virtuel spécialisé en cybersécurité",
+      title: "Je suis Créateur d'IA",
+      description: "Je développe un assistant cyber personnalisé",
       link: '/cyber/tools/assistant-cyber',
       icon: <Bot className="h-10 w-10 text-cyan-300" />,
       color: 'cyan',
@@ -152,7 +152,7 @@ const RoleplayHub: React.FC = () => {
     {
       id: 'debutant-cyber',
       title: "Je suis Monsieur tout le monde",
-      description: "Je voudrais être sensibilisé aux risques cyber et apprendre à me protéger",
+      description: "Je veux apprendre à me protéger des risques cyber",
       link: '/cyber/learning-center/modules/debutant-cyber',
       icon: <Shield className="h-10 w-10 text-amber-300" />,
       color: 'amber',
@@ -249,7 +249,7 @@ const RoleplayHub: React.FC = () => {
                     {scenario.icon}
                   </div>
                 </div>
-                <CardTitle className={`text-2xl text-center ${scenario.textColor}`}>
+                <CardTitle className={`text-3xl font-bold text-center ${scenario.textColor}`}>
                   {scenario.title}
                 </CardTitle>
                 <CardDescription className="text-gray-300 text-center">
