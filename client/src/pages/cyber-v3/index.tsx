@@ -84,9 +84,10 @@ export default function CyberV3() {
         </style>
       </Helmet>
       
-      <div className="min-h-screen relative"
+      <div className="min-h-screen h-screen flex flex-col relative"
         style={{ 
-          fontSize: `${textSize}rem`
+          fontSize: `${textSize}rem`,
+          overflowY: "auto"
         }}>
         {/* Fond dynamique cybersécurité en CSS pur - Chargement instantané */}
         <div className="absolute inset-0 z-0 overflow-hidden"> 
@@ -159,7 +160,10 @@ export default function CyberV3() {
               <div
                 onClick={() => {
                   setLocation('/');
-                  // Navigation directe sans animation de défilement automatique
+                  // Force le scroll vers la section modules après que la page soit chargée
+                  setTimeout(() => {
+                    document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
                 }}
               >
                 <DataButton 

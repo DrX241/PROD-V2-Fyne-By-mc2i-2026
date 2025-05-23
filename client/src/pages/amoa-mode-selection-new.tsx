@@ -66,8 +66,11 @@ export default function AmoaModeSelectionNew() {
     <HomeLayout>
       <PageTitle title="I AM mc2i" />
       <div 
-        className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-[#006a9e] to-blue-900"
-        style={{ fontSize: `${textSize}rem` }}
+        className="h-screen flex flex-col relative overflow-hidden bg-gradient-to-b from-gray-800 via-[#006a9e] to-blue-900"
+        style={{ 
+          fontSize: `${textSize}rem`,
+          overflowY: "auto"
+        }}
       >
         {/* Fond d'écran élégant en CSS pur avec tracés graphiques - version plus claire */}
         <div className="absolute inset-0 z-0 overflow-hidden">
@@ -135,7 +138,10 @@ export default function AmoaModeSelectionNew() {
             className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-md border-0 hover:from-blue-700 hover:to-blue-800"
             onClick={() => {
               navigate('/');
-              // Navigation directe sans animation de défilement automatique
+              // Force le scroll vers la section modules après que la page soit chargée
+              setTimeout(() => {
+                document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' });
+              }, 100);
             }}
           >
             <IoHomeIcon className="h-4 w-4 mr-2" />

@@ -86,11 +86,14 @@ export default function DataIAModeSelection() {
 
   return (
     <HomeLayout>
-      <div id="data-ia-mode-selection" className={`min-h-screen pb-20 relative ${
+      <div id="data-ia-mode-selection" className={`h-screen flex flex-col relative ${
         highContrastMode 
           ? 'bg-black text-white' 
           : 'text-white'
-      }`} style={{ fontSize: `${textSize}rem` }}>
+      }`} style={{ 
+        fontSize: `${textSize}rem`,
+        overflowY: "auto"
+      }}>
         
         {/* Fond innovant Data & IA en CSS pur - Chargement instantané */}
         <div className="absolute inset-0 z-0 overflow-hidden">
@@ -167,7 +170,10 @@ export default function DataIAModeSelection() {
                 <div
                   onClick={() => {
                     setLocation('/');
-                    // Navigation directe sans animation de défilement automatique
+                    // Force le scroll vers la section modules après que la page soit chargée
+                    setTimeout(() => {
+                      document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
                   }}
                 >
                   <DataButton 

@@ -565,7 +565,10 @@ export default function CodeGeneratorPage() {
           className="bg-white/10 border-white/20 text-gray-800 hover:bg-white/20"
           onClick={() => {
             setLocation('/');
-            // Navigation directe sans animation de défilement automatique
+            // Force le scroll vers la section modules après que la page soit chargée
+            setTimeout(() => {
+              document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
           }}
         >
           <Home className="h-4 w-4 mr-2" />
