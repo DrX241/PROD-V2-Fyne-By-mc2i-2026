@@ -127,21 +127,58 @@ export default function FyneAbout() {
       {/* Hero section with background image */}
       <div className="relative h-[40vh] md:h-[50vh] overflow-hidden">
         {/* Fond optimisé avec dégradé CSS pour un chargement instantané */}
-        <div className="absolute inset-0 w-full h-full bg-black/40 z-10"></div>
+        <div className="absolute inset-0 w-full h-full bg-black/30 z-10"></div>
+        
+        {/* Premier calque de fond avec animation pulse */}
         <div 
-          className="absolute inset-0 w-full h-full bg-gradient-to-br from-indigo-950 via-blue-900 to-slate-900 animate-pulse-slow"
+          className="absolute inset-0 w-full h-full bg-gradient-to-br from-indigo-950 via-blue-900 to-slate-900 animate-pulse-glow"
+          style={{
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        ></div>
+        
+        {/* Deuxième calque avec motifs animés */}
+        <div 
+          className="absolute inset-0 w-full h-full"
           style={{
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundImage: `
-              radial-gradient(circle at 30% 40%, rgba(99, 102, 241, 0.25) 0%, transparent 50%), 
-              radial-gradient(circle at 70% 60%, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
-              linear-gradient(60deg, rgba(79, 70, 229, 0.1) 0%, transparent 50%),
-              repeating-linear-gradient(45deg, rgba(30, 64, 175, 0.05) 0%, rgba(30, 64, 175, 0.05) 2px, transparent 2px, transparent 8px),
-              radial-gradient(circle at 20% 20%, rgba(147, 197, 253, 0.15) 0%, transparent 40%)
-            `
+              radial-gradient(circle at 30% 40%, rgba(99, 102, 241, 0.4) 0%, transparent 50%), 
+              radial-gradient(circle at 70% 60%, rgba(59, 130, 246, 0.35) 0%, transparent 50%)
+            `,
+            animation: 'blob 20s ease-in-out infinite'
           }}
         ></div>
+        
+        {/* Troisième calque avec grille et points lumineux */}
+        <div 
+          className="absolute inset-0 w-full h-full"
+          style={{
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundImage: `
+              linear-gradient(60deg, rgba(79, 70, 229, 0.2) 0%, transparent 50%),
+              repeating-linear-gradient(45deg, rgba(30, 64, 175, 0.08) 0%, rgba(30, 64, 175, 0.08) 2px, transparent 2px, transparent 8px),
+              radial-gradient(circle at 20% 20%, rgba(147, 197, 253, 0.3) 0%, transparent 40%)
+            `,
+            opacity: 0.8,
+            animation: 'pulse-glow 4s ease-in-out infinite alternate'
+          }}
+        ></div>
+        
+        {/* Éléments lumineux flottants */}
+        <div className="absolute inset-0 w-full h-full overflow-hidden z-5">
+          <div className="absolute h-2 w-2 rounded-full bg-blue-400/60 shadow-lg shadow-blue-400/40" 
+            style={{ top: '20%', left: '15%', filter: 'blur(1px)', animation: 'float 10s ease-in-out infinite' }}></div>
+          <div className="absolute h-3 w-3 rounded-full bg-indigo-500/60 shadow-lg shadow-indigo-500/40" 
+            style={{ top: '40%', left: '75%', filter: 'blur(1px)', animation: 'float 15s ease-in-out infinite' }}></div>
+          <div className="absolute h-1.5 w-1.5 rounded-full bg-violet-400/70 shadow-lg shadow-violet-400/40" 
+            style={{ top: '65%', left: '35%', filter: 'blur(1px)', animation: 'float 12s ease-in-out infinite' }}></div>
+          <div className="absolute h-2.5 w-2.5 rounded-full bg-sky-300/70 shadow-lg shadow-sky-300/40" 
+            style={{ top: '15%', left: '65%', filter: 'blur(1px)', animation: 'float 8s ease-in-out infinite' }}></div>
+        </div>
         <div className="container mx-auto px-4 h-full flex flex-col justify-center relative z-20">
           <Link href="/">
             <Button variant="ghost" className="absolute top-6 left-6 text-white hover:bg-white/10">
