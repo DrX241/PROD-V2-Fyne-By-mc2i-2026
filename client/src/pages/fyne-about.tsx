@@ -126,61 +126,55 @@ export default function FyneAbout() {
     <div className="min-h-screen bg-gradient-to-b from-indigo-950 to-slate-950 text-white">
       {/* Hero section with background image */}
       <div className="relative h-[40vh] md:h-[50vh] overflow-hidden">
-        {/* Fond d'écran élégant en CSS pur avec tracés graphiques */}
+        {/* Fond d'écran moderne avec effet 3D en CSS pur */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           {/* Overlay semi-transparent pour améliorer le contraste avec le contenu */}
-          <div className="absolute inset-0 bg-indigo-950/30 z-10"></div>
+          <div className="absolute inset-0 bg-black/40 z-10"></div>
           
-          {/* Fond de base dégradé qui s'affiche immédiatement */}
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-blue-900 to-slate-900"></div>
+          {/* Fond de base avec dégradé cosmos */}
+          <div className="absolute inset-0 bg-gradient-to-b from-purple-950 via-indigo-950 to-black"></div>
           
-          {/* Motifs géométriques abstraits - côté gauche */}
-          <div className="absolute top-0 left-0 w-1/2 h-full">
-            {/* Cercles concentriques */}
-            <div className="absolute top-1/3 left-1/4 w-96 h-96 rounded-full border-4 border-indigo-300 opacity-30"></div>
-            <div className="absolute top-1/3 left-1/4 w-80 h-80 rounded-full border-2 border-blue-400 opacity-30 ml-8 mt-8"></div>
-            <div className="absolute top-1/3 left-1/4 w-64 h-64 rounded-full border-2 border-blue-300 opacity-30 ml-16 mt-16"></div>
-            
-            {/* Lignes diagonales */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-              <div className="absolute top-0 left-1/3 w-1 h-[150%] bg-gradient-to-b from-transparent via-blue-300 to-transparent transform rotate-45 opacity-30"></div>
-              <div className="absolute top-0 left-1/2 w-1 h-[150%] bg-gradient-to-b from-transparent via-indigo-400 to-transparent transform rotate-45 opacity-25"></div>
-              <div className="absolute top-0 left-2/3 w-1 h-[150%] bg-gradient-to-b from-transparent via-blue-300 to-transparent transform rotate-45 opacity-20"></div>
-            </div>
-            
-            {/* Grille de points */}
-            <div className="absolute inset-0 opacity-30" 
-                style={{
-                  backgroundImage: 'radial-gradient(circle, rgba(167,197,254,0.7) 1px, transparent 1px)',
-                  backgroundSize: '30px 30px'
-                }}>
-            </div>
-          </div>
+          {/* Effet de profondeur cosmique */}
+          <div 
+            className="absolute inset-0" 
+            style={{
+              backgroundImage: `
+                radial-gradient(circle at 20% 35%, rgba(76, 29, 149, 0.7) 0%, transparent 50%), 
+                radial-gradient(circle at 80% 45%, rgba(30, 64, 175, 0.6) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(17, 24, 39, 0.8) 0%, transparent 80%)
+              `
+            }}
+          ></div>
           
-          {/* Motifs géométriques abstraits - côté droit */}
-          <div className="absolute top-0 right-0 w-1/2 h-full">
-            {/* Hexagones */}
-            <div className="absolute inset-0 opacity-30"
-                style={{
-                  backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'28\' height=\'49\' viewBox=\'0 0 28 49\'%3E%3Cg fill-rule=\'evenodd\'%3E%3Cg id=\'hexagons\' fill=\'%238badff\' fill-opacity=\'0.6\' fill-rule=\'nonzero\'%3E%3Cpath d=\'M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")'
-                }}>
-            </div>
-            
-            {/* Lignes horizontales */}
-            <div className="absolute top-1/4 right-0 w-full h-1/2">
-              <div className="absolute top-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-30"></div>
-              <div className="absolute top-12 w-full h-px bg-gradient-to-r from-transparent via-indigo-400 to-transparent opacity-20"></div>
-              <div className="absolute top-24 w-full h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-30"></div>
-            </div>
-            
-            {/* Circuit imprimé stylisé */}
-            <div className="absolute bottom-0 right-0 w-full h-2/3 opacity-20"
-                style={{
-                  backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z\' fill=\'%238ba4ea\' fill-opacity=\'0.7\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
-                  backgroundSize: '50px 50px'
-                }}>
-            </div>
-          </div>
+          {/* Étoiles scintillantes */}
+          <div 
+            className="absolute inset-0 opacity-90" 
+            style={{
+              backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.8) 1px, transparent 1px), radial-gradient(circle at 40% 30%, rgba(255, 255, 255, 0.6) 1px, transparent 1px), radial-gradient(circle at 65% 65%, rgba(255, 255, 255, 0.7) 1px, transparent 1px)',
+              backgroundSize: '90px 90px, 120px 120px, 70px 70px',
+              backgroundPosition: '0 0, 30px 30px, 15px 15px'
+            }}
+          ></div>
+          
+          {/* Nébuleuse stylisée */}
+          <div 
+            className="absolute inset-0" 
+            style={{
+              backgroundImage: `
+                url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")
+              `,
+              opacity: 0.15
+            }}
+          ></div>
+                    
+          {/* Vague lumineuse */}
+          <div 
+            className="absolute inset-x-0 top-1/2 h-32 opacity-20" 
+            style={{
+              background: 'linear-gradient(90deg, transparent, rgba(106, 90, 205, 0.4), rgba(147, 51, 234, 0.5), rgba(106, 90, 205, 0.4), transparent)',
+              transform: 'translateY(-50%) rotate(-5deg) scale(1.2)'
+            }}
+          ></div>
         </div>
         <div className="container mx-auto px-4 h-full flex flex-col justify-center relative z-20">
           <Link href="/">
