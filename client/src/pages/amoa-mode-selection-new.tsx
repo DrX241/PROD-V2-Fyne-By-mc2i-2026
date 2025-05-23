@@ -133,7 +133,7 @@ export default function AmoaModeSelectionNew() {
           <Button 
             variant="outline" 
             className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-md border-0 hover:from-blue-700 hover:to-blue-800"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/#modules')}
           >
             <IoHomeIcon className="h-4 w-4 mr-2" />
             Accueil

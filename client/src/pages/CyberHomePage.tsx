@@ -188,7 +188,7 @@ const CyberHomePage: React.FC = () => {
         </section>
         
         {/* Section Modules */}
-        <section className="relative z-20 py-24 bg-gray-50">
+        <section id="modules" className="relative z-20 py-24 bg-gray-50">
           <div className="container mx-auto px-8">
             <div className="text-center mb-16">
               <div className="inline-block">

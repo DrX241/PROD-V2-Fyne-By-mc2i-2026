@@ -164,7 +164,7 @@ export default function DataIAModeSelection() {
           <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">
             <div className="flex justify-between items-center mb-10">
               <div className="flex items-center">
-                <Link href="/">
+                <Link href="/#modules">
                   <DataButton 
                     variant="outline"
                     size="lg"
