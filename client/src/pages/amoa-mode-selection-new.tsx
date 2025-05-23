@@ -251,7 +251,7 @@ export default function AmoaModeSelectionNew() {
             <p className={`max-w-3xl mx-auto ${
               highContrastMode ? 'text-gray-300' : 'text-blue-100' 
             }`} style={{ fontSize: `calc(1.25rem * ${textSize})` }}>
-              Assistant de formation intelligent pour les métiers de la 
+              Assistant de formation intelligent pour les métiers de la{' '}
               <span className={`font-semibold ${highContrastMode ? 'text-yellow-300' : 'text-blue-300'}`}>
                 transformation numérique
               </span>
