@@ -290,10 +290,10 @@ export default function DataIAModeSelection() {
               <p className={`max-w-3xl mx-auto ${
                 highContrastMode ? 'text-gray-300' : 'text-blue-100' 
               }`} style={{ fontSize: `calc(1.25rem * ${textSize})` }}>
-                Trouvez votre parcours d'apprentissage personnalisé en 
+                Trouvez votre parcours d'apprentissage personnalisé en{' '}
                 <span className={`font-semibold ${highContrastMode ? 'text-yellow-300' : 'text-blue-300'}`}>
                   Data Science
-                </span> et 
+                </span>{' '}et{' '}
                 <span className={`font-semibold ${highContrastMode ? 'text-yellow-300' : 'text-purple-300'}`}>
                   Intelligence Artificielle
                 </span>
