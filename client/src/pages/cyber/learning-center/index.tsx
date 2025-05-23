@@ -860,7 +860,7 @@ export default function LearningCenter() {
           {/* Découvrez les différents métiers en cyber */}
           <div className="bg-gradient-to-r from-cyan-900/40 to-cyan-950/60 border border-cyan-700 rounded-lg p-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold flex items-center">
+              <h2 className="text-2xl font-bold flex items-center text-white">
                 <Users className="mr-3 h-6 w-6 text-cyan-400" />
                 Découvrez les différents métiers en cyber
               </h2>
