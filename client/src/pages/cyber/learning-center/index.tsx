@@ -815,7 +815,7 @@ export default function LearningCenter() {
           {/* Fondamentaux de la cybersécurité */}
           <div className="bg-gradient-to-r from-blue-900/40 to-blue-950/60 border border-blue-700 rounded-lg p-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold flex items-center">
+              <h2 className="text-2xl font-bold flex items-center text-white">
                 <Shield className="mr-3 h-6 w-6 text-blue-400" />
                 Fondamentaux de la cybersécurité
               </h2>
