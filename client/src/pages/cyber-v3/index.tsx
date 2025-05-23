@@ -198,19 +198,6 @@ export default function CyberV3() {
                           aria-label="Activer l'interface simplifiée"
                         />
                       </div>
-                      
-
-                      
-                      {/* Mode sombre */}
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="dark-mode" className="text-blue-100">Mode sombre</Label>
-                        <Switch 
-                          id="dark-mode" 
-                          checked={themeMode === 'dark'} 
-                          onCheckedChange={(checked) => setThemeMode(checked ? 'dark' : 'futuristic')}
-                          aria-label="Activer le mode sombre"
-                        />
-                      </div>
                     </div>
                   </div>
                 </PopoverContent>
