@@ -278,16 +278,9 @@ const CyberHomePage: React.FC = () => {
                 <ul className="space-y-2">
                   {modules.map(module => (
                     <li key={module.id}>
-                      <Link 
-                        href={module.route}
-                        className="text-gray-600 hover:text-[#dd0061] transition-colors duration-300 text-sm"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setLocation(module.route);
-                        }}
-                      >
+                      <span className="text-gray-400 cursor-not-allowed text-sm">
                         {module.title}
-                      </Link>
+                      </span>
                     </li>
                   ))}
                 </ul>
