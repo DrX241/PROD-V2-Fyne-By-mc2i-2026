@@ -167,10 +167,7 @@ export default function DataIAModeSelection() {
                 <div
                   onClick={() => {
                     setLocation('/');
-                    // Force le scroll vers la section modules après que la page soit chargée
-                    setTimeout(() => {
-                      document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' });
-                    }, 100);
+                    // Navigation directe sans animation de défilement automatique
                   }}
                 >
                   <DataButton 

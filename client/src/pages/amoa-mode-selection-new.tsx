@@ -135,10 +135,7 @@ export default function AmoaModeSelectionNew() {
             className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-md border-0 hover:from-blue-700 hover:to-blue-800"
             onClick={() => {
               navigate('/');
-              // Force le scroll vers la section modules après que la page soit chargée
-              setTimeout(() => {
-                document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' });
-              }, 100);
+              // Navigation directe sans animation de défilement automatique
             }}
           >
             <IoHomeIcon className="h-4 w-4 mr-2" />
