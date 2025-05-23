@@ -257,6 +257,7 @@ function App() {
                 </Route>
                 
                 <Route path="/data-ia" component={DataIaModeSelection} />
+                <Route path="/amoa-mode-selection-new" component={AmoaModeSelectionNew} />
                 <Route path="/data-ia/sas-academie">
                   {(params) => (
                     <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
