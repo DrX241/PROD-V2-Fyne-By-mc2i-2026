@@ -561,7 +561,7 @@ export default function CodeGeneratorPage() {
         <Button 
           variant="outline" 
           className="bg-white/10 border-white/20 text-gray-800 hover:bg-white/20"
-          onClick={() => window.location.href = '/'}
+          onClick={() => setLocation('/')}
         >
           <Home className="h-4 w-4 mr-2" />
           Accueil
