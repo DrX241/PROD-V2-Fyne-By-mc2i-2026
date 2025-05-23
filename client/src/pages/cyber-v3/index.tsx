@@ -156,16 +156,24 @@ export default function CyberV3() {
         <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">
           <div className="flex justify-between items-center mb-10">
             <div className="flex items-center">
-              <Link href="/#modules">
+              <div
+                onClick={() => {
+                  setLocation('/');
+                  // Force le scroll vers la section modules après que la page soit chargée
+                  setTimeout(() => {
+                    document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
+                }}
+              >
                 <DataButton 
                   variant="outline"
                   size="lg"
-                  className="text-cyan-300 border-cyan-300/30 hover:bg-cyan-900/20"
+                  className="text-cyan-300 border-cyan-300/30 hover:bg-cyan-900/20 cursor-pointer"
                   startIcon={<IoHome className="h-6 w-6" />}
                 >
                   Accueil
                 </DataButton>
-              </Link>
+              </div>
 
             </div>
             

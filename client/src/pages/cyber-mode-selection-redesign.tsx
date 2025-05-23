@@ -455,7 +455,13 @@ export default function CyberModeSelectionRedesign() {
                   ? 'bg-gray-800 border-gray-600 text-white hover:bg-gray-700' 
                   : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
               }`}
-              onClick={() => setLocation('/#modules')}
+              onClick={() => {
+                setLocation('/');
+                // Force le scroll vers la section modules après que la page soit chargée
+                setTimeout(() => {
+                  document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+              }}
             >
               <Home className="h-4 w-4 mr-2" />
               Accueil
