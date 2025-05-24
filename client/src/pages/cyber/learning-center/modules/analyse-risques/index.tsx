@@ -1,23 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import PageTitle from "@/components/utils/PageTitle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, CheckCircle, BookOpen, Shield, AlertTriangle, BarChart3, PieChart, LineChart, TrendingUp, Table2 } from "lucide-react";
+import { 
+  ArrowLeft, CheckCircle, BookOpen, Shield, AlertTriangle, 
+  BarChart3, PieChart, LineChart, TrendingUp, Table2, 
+  Brain, BrainCircuit, Sparkles, MessageCircle, Cpu, Award, Trash2 
+} from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "@/hooks/use-toast";
 
 export default function AnalyseRisques() {
-  // État pour suivre la progression du module
-  const [progress, setProgress] = React.useState(0);
+  // États pour suivre la progression du module
+  const [progress, setProgress] = useState(0);
+  
+  // États pour l'assistant IA
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [chatHistory, setChatHistory] = useState<{role: string, content: string}[]>([]);
+  const [completedInteractions, setCompletedInteractions] = useState<string[]>([]);
+  const [userPoints, setUserPoints] = useState(0);
   
   // Simuler la progression lorsque la page est chargée
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       setProgress(10);
     }, 500);
@@ -246,6 +259,170 @@ export default function AnalyseRisques() {
           
           {/* Sidebar avec ressources et progression */}
           <div className="space-y-6">
+            {/* Expert IA en analyse des risques */}
+            <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                  <Brain className="h-5 w-5 mr-2 text-blue-400" />
+                  Expert IA en Analyse des Risques
+                </h3>
+                
+                <p className="text-sm text-blue-300 mb-4">
+                  Posez vos questions sur l'analyse et la gestion des risques à notre expert spécialisé.
+                </p>
+                
+                <div className="space-y-4">
+                  {/* Interface unifiée de l'assistant IA */}
+                  <div className="p-3 bg-blue-900/20 border border-blue-700/50 rounded-md">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-medium text-white flex items-center">
+                        <Sparkles className="h-3 w-3 mr-1 text-blue-400" />
+                        Discussion avec l'Expert IA
+                      </h4>
+                      <Badge className="bg-green-600/70">
+                        <Cpu className="h-3 w-3 mr-1" />
+                        IA CONNECTÉE
+                      </Badge>
+                    </div>
+                    
+                    <p className="text-xs text-blue-200 mb-3">
+                      Posez vos questions sur les méthodologies d'analyse des risques, les normes et les bonnes pratiques.
+                    </p>
+                    
+                    {/* Historique de conversation */}
+                    {chatHistory.length > 0 && (
+                      <div className="max-h-60 overflow-y-auto mb-3 space-y-3 bg-blue-950/70 p-3 rounded border border-blue-800/50">
+                        {chatHistory.map((msg, index) => (
+                          <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`max-w-[85%] p-2 rounded ${
+                              msg.role === 'user' 
+                                ? 'bg-blue-600/50 text-white' 
+                                : 'bg-blue-900/70 text-blue-200'
+                            }`}>
+                              <p className="text-xs whitespace-pre-line">{msg.content}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Interface de saisie */}
+                    <div className="flex items-center gap-2">
+                      <Input 
+                        placeholder="Ex: Comment prioriser les risques dans EBIOS RM?" 
+                        className="bg-blue-900/30 border-blue-700 text-white"
+                        value={aiPrompt}
+                        onChange={(e) => setAiPrompt(e.target.value)}
+                      />
+                      <Button 
+                        onClick={async () => {
+                          if (!aiPrompt.trim()) return;
+                          
+                          // Ajouter le message de l'utilisateur à l'historique
+                          const userMessage = { role: 'user', content: aiPrompt };
+                          const newHistory = [...chatHistory, userMessage];
+                          setChatHistory(newHistory);
+                          
+                          // Générer la réponse
+                          setIsGeneratingAI(true);
+                          
+                          try {
+                            const response = await fetch('/api/openai/chat', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify({
+                                messages: [
+                                  {
+                                    role: 'system',
+                                    content: 'Tu es un expert en analyse et gestion des risques de cybersécurité, spécialisé dans les méthodologies comme EBIOS RM, ISO 27005, NIST RMF et MEHARI. Tu fournis des réponses précises, techniques mais accessibles sur tous les sujets liés à l\'identification, l\'évaluation et le traitement des risques. Tes réponses doivent être structurées, basées sur les bonnes pratiques et les normes du secteur. Reste strictement dans le domaine de l\'analyse et la gestion des risques en cybersécurité.'
+                                  },
+                                  ...newHistory.map(msg => ({
+                                    role: msg.role,
+                                    content: msg.content
+                                  }))
+                                ],
+                                temperature: 0.3,
+                                max_tokens: 800
+                              }),
+                            });
+                            
+                            if (!response.ok) {
+                              throw new Error('Erreur API');
+                            }
+                            
+                            const data = await response.json();
+                            const aiContent = data.choices?.[0]?.message?.content || 
+                              "Je ne peux pas répondre à cette question actuellement. Veuillez réessayer.";
+                            
+                            // Ajouter la réponse à l'historique
+                            setChatHistory([...newHistory, { role: 'assistant', content: aiContent }]);
+                            
+                            // Ajouter des points si première utilisation
+                            if (!completedInteractions.includes('risk-ai-assistant')) {
+                              setUserPoints(prev => prev + 15);
+                              setCompletedInteractions(prev => [...prev, 'risk-ai-assistant']);
+                              
+                              toast({
+                                title: "Expert IA consulté !",
+                                description: "+15 points pour avoir dialogué avec l'expert en analyse des risques",
+                              });
+                            }
+                          } catch (error) {
+                            console.error('Erreur lors de l\'appel à l\'API:', error);
+                            toast({
+                              title: "Erreur de connexion",
+                              description: "Impossible de contacter l'assistant IA. Veuillez réessayer.",
+                              variant: "destructive"
+                            });
+                          } finally {
+                            setAiPrompt("");
+                            setIsGeneratingAI(false);
+                          }
+                        }}
+                        disabled={isGeneratingAI || !aiPrompt.trim()}
+                        className="whitespace-nowrap bg-blue-600 hover:bg-blue-700"
+                      >
+                        {isGeneratingAI ? (
+                          <>
+                            <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+                            Génération...
+                          </>
+                        ) : (
+                          <>
+                            <MessageCircle className="h-4 w-4 mr-2" />
+                            Envoyer
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    
+                    <div className="flex justify-between mt-3">
+                      <div className="text-xs text-gray-400 text-center">
+                        Propulsé par notre IA avancée
+                      </div>
+                      
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-300 hover:text-red-200 hover:bg-red-900/20 p-1 h-auto"
+                        onClick={() => {
+                          setChatHistory([]);
+                          toast({
+                            title: "Conversation réinitialisée",
+                            description: "L'historique a été effacé"
+                          });
+                        }}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
             <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold text-white mb-4">Ressources complémentaires</h3>
