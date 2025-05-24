@@ -1314,22 +1314,11 @@ export default function IntroductionCybersecurite() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
-                            onClick={() => {
-                              const currentCase = selectedCaseStudy;
-                              if (!completedInteractions.includes(`case-game-scenario-${currentCase}`)) {
-                                setUserPoints(prev => prev + 15);
-                                setCompletedInteractions(prev => [...prev, `case-game-scenario-${currentCase}`]);
-                                
-                                toast({
-                                  title: "Excellent plan de crise !",
-                                  description: "+15 points pour votre gestion de crise.",
-                                });
-                              }
-                            }}
+                            className="text-green-300 border-green-800/50 hover:bg-green-800/30"
+                            onClick={() => setShowMiniGameChat(!showMiniGameChat)}
                           >
-                            <Shield className="h-4 w-4 mr-2 text-green-400" />
-                            Valider mon plan de crise
+                            <MessageCircle className="h-4 w-4 mr-2 text-green-400" />
+                            {showMiniGameChat ? "Masquer le chat" : "Soumettre à l'expert pour validation"}
                           </Button>
                         </div>
                       </div>
@@ -1399,26 +1388,318 @@ export default function IntroductionCybersecurite() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
-                            onClick={() => {
-                              const currentCase = selectedCaseStudy;
-                              if (!completedInteractions.includes(`case-game-analyse-${currentCase}`)) {
-                                setUserPoints(prev => prev + 20);
-                                setCompletedInteractions(prev => [...prev, `case-game-analyse-${currentCase}`]);
-                                
-                                toast({
-                                  title: "Analyse technique complète !",
-                                  description: "+20 points pour votre analyse technique approfondie.",
-                                });
-                              }
-                            }}
+                            className="text-green-300 border-green-800/50 hover:bg-green-800/30"
+                            onClick={() => setShowMiniGameChat(!showMiniGameChat)}
                           >
-                            <Cpu className="h-4 w-4 mr-2 text-purple-400" />
-                            Valider mon analyse technique
+                            <MessageCircle className="h-4 w-4 mr-2 text-green-400" />
+                            {showMiniGameChat ? "Masquer le chat" : "Faire évaluer mon analyse par l'expert"}
                           </Button>
                         </div>
                       </div>
                     )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
+            {activeTab === "glossaire" && (
+              <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
+                <CardContent className="p-6">
+                  <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
+                    <BookOpen className="mr-3 h-6 w-6 text-blue-400" />
+                    Glossaire de la Cybersécurité
+                  </h2>
+                  
+                  <div className="prose prose-invert max-w-none">
+                    <p className="text-blue-200 mb-6">
+                      Ce glossaire vous permet de maîtriser les termes essentiels de la cybersécurité. Comprendre cette terminologie 
+                      est fondamental pour communiquer efficacement sur les risques et les mesures de protection.
+                    </p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                      <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                        <h3 className="text-lg font-medium text-white mb-3">Terminologie fondamentale</h3>
+                        
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="font-medium text-blue-300">APT (Advanced Persistent Threat)</h4>
+                            <p className="text-sm text-blue-200">Attaque complexe et ciblée où l'attaquant maintient une présence non détectée sur les systèmes pendant une longue période, souvent soutenue par des États.</p>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-medium text-blue-300">Blue Team / Red Team</h4>
+                            <p className="text-sm text-blue-200">Équipes de sécurité aux rôles complémentaires : la Blue Team défend les systèmes, tandis que la Red Team simule des attaques pour tester les défenses.</p>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-medium text-blue-300">CERT (Computer Emergency Response Team)</h4>
+                            <p className="text-sm text-blue-200">Organisation responsable de recevoir, analyser et répondre aux incidents de sécurité informatique.</p>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-medium text-blue-300">CSIRT (Computer Security Incident Response Team)</h4>
+                            <p className="text-sm text-blue-200">Équipe dédiée à la gestion des incidents de sécurité informatique au sein d'une organisation.</p>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-medium text-blue-300">CVE (Common Vulnerabilities and Exposures)</h4>
+                            <p className="text-sm text-blue-200">Système standardisé d'identification des vulnérabilités de sécurité connues.</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                        <h3 className="text-lg font-medium text-white mb-3">Concepts de sécurité</h3>
+                        
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="font-medium text-blue-300">Zero Trust</h4>
+                            <p className="text-sm text-blue-200">Modèle de sécurité qui ne fait confiance à aucun utilisateur ou appareil par défaut, même à l'intérieur du périmètre du réseau, nécessitant une vérification systématique.</p>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-medium text-blue-300">Defense in Depth</h4>
+                            <p className="text-sm text-blue-200">Stratégie utilisant plusieurs couches de sécurité pour protéger les ressources; si une couche est compromise, les autres continuent d'assurer la protection.</p>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-medium text-blue-300">Principe du moindre privilège</h4>
+                            <p className="text-sm text-blue-200">Restriction des droits d'accès au strict minimum nécessaire pour qu'un utilisateur ou un processus accomplisse sa tâche.</p>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-medium text-blue-300">Threat Intelligence</h4>
+                            <p className="text-sm text-blue-200">Collecte, analyse et utilisation d'informations sur les menaces potentielles pour améliorer les défenses de cybersécurité.</p>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-medium text-blue-300">DevSecOps</h4>
+                            <p className="text-sm text-blue-200">Intégration des considérations de sécurité tout au long du cycle de développement logiciel, et non seulement à la fin.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50 mb-6">
+                      <h3 className="text-lg font-medium text-white mb-3">Lexique des attaques</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <h4 className="font-medium text-blue-300">DDoS (Distributed Denial of Service)</h4>
+                          <p className="text-sm text-blue-200">Attaque visant à rendre indisponible un service en ligne en le submergeant de trafic provenant de multiples sources.</p>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-medium text-blue-300">Man-in-the-Middle</h4>
+                          <p className="text-sm text-blue-200">Attaque où l'attaquant s'interpose dans une communication entre deux parties pour intercepter, lire ou modifier les données échangées.</p>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-medium text-blue-300">Phishing</h4>
+                          <p className="text-sm text-blue-200">Technique d'ingénierie sociale visant à obtenir des informations sensibles en se faisant passer pour une entité de confiance.</p>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-medium text-blue-300">Ransomware</h4>
+                          <p className="text-sm text-blue-200">Logiciel malveillant qui chiffre les données de la victime et exige une rançon pour les déchiffrer.</p>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-medium text-blue-300">SQL Injection</h4>
+                          <p className="text-sm text-blue-200">Méthode d'exploitation des vulnérabilités dans une application pour injecter du code SQL malveillant qui peut manipuler la base de données.</p>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-medium text-blue-300">XSS (Cross-Site Scripting)</h4>
+                          <p className="text-sm text-blue-200">Vulnérabilité permettant l'injection de code malveillant dans des pages web consultées par d'autres utilisateurs.</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Button variant="outline" className="w-full text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
+                      onClick={() => {
+                        if (!completedInteractions.includes('glossaire-explore')) {
+                          setUserPoints(prev => prev + 15);
+                          setCompletedInteractions(prev => [...prev, 'glossaire-explore']);
+                          
+                          toast({
+                            title: "Glossaire exploré !",
+                            description: "+15 points pour l'exploration du glossaire cyber.",
+                          });
+                        }
+                      }}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2 text-green-400" />
+                      J'ai compris ces termes
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
+            {activeTab === "best-practices" && (
+              <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
+                <CardContent className="p-6">
+                  <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
+                    <Shield className="mr-3 h-6 w-6 text-green-400" />
+                    Bonnes Pratiques de Cybersécurité
+                  </h2>
+                  
+                  <div className="prose prose-invert max-w-none">
+                    <p className="text-blue-200 mb-6">
+                      Ces bonnes pratiques constituent les fondements d'une protection efficace contre les cybermenaces. 
+                      Leur application rigoureuse permet de réduire significativement la surface d'attaque de votre organisation.
+                    </p>
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
+                      <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                        <div className="flex items-center mb-3">
+                          <Users className="h-5 w-5 text-blue-300 mr-2" />
+                          <h3 className="text-lg font-medium text-white">Pour les utilisateurs</h3>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800/40">
+                            <h4 className="font-medium text-blue-300 text-sm">Authentification forte</h4>
+                            <p className="text-xs text-blue-200">Activez systématiquement l'authentification multifacteur (MFA) sur tous vos comptes, en particulier ceux contenant des données sensibles.</p>
+                          </div>
+                          
+                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800/40">
+                            <h4 className="font-medium text-blue-300 text-sm">Mots de passe robustes</h4>
+                            <p className="text-xs text-blue-200">Utilisez des phrases de passe complexes et uniques pour chaque service. Privilégiez un gestionnaire de mots de passe pour les stocker.</p>
+                          </div>
+                          
+                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800/40">
+                            <h4 className="font-medium text-blue-300 text-sm">Vigilance face au phishing</h4>
+                            <p className="text-xs text-blue-200">Méfiez-vous des emails, messages ou appels demandant des informations sensibles. Vérifiez toujours l'identité de l'expéditeur.</p>
+                          </div>
+                          
+                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800/40">
+                            <h4 className="font-medium text-blue-300 text-sm">Mises à jour régulières</h4>
+                            <p className="text-xs text-blue-200">Installez rapidement les mises à jour de sécurité sur tous vos appareils et applications pour corriger les vulnérabilités connues.</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                        <div className="flex items-center mb-3">
+                          <Server className="h-5 w-5 text-blue-300 mr-2" />
+                          <h3 className="text-lg font-medium text-white">Pour les administrateurs</h3>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800/40">
+                            <h4 className="font-medium text-blue-300 text-sm">Segmentation réseau</h4>
+                            <p className="text-xs text-blue-200">Divisez votre réseau en zones distinctes pour limiter la propagation d'une compromission et isoler les systèmes critiques.</p>
+                          </div>
+                          
+                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800/40">
+                            <h4 className="font-medium text-blue-300 text-sm">Principe du moindre privilège</h4>
+                            <p className="text-xs text-blue-200">Attribuez uniquement les permissions minimales nécessaires aux utilisateurs et services pour accomplir leurs tâches.</p>
+                          </div>
+                          
+                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800/40">
+                            <h4 className="font-medium text-blue-300 text-sm">Sauvegardes régulières</h4>
+                            <p className="text-xs text-blue-200">Mettez en place un système de sauvegarde 3-2-1 : 3 copies, sur 2 supports différents, dont 1 hors site, avec tests de restauration.</p>
+                          </div>
+                          
+                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800/40">
+                            <h4 className="font-medium text-blue-300 text-sm">Surveillance continue</h4>
+                            <p className="text-xs text-blue-200">Déployez des solutions de détection et de réponse pour identifier et bloquer rapidement les activités suspectes sur votre réseau.</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                        <div className="flex items-center mb-3">
+                          <FileCheck className="h-5 w-5 text-blue-300 mr-2" />
+                          <h3 className="text-lg font-medium text-white">Pour les organisations</h3>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800/40">
+                            <h4 className="font-medium text-blue-300 text-sm">Formation régulière</h4>
+                            <p className="text-xs text-blue-200">Sensibilisez tous les employés aux risques cyber par des formations régulières et des exercices pratiques (phishing simulé).</p>
+                          </div>
+                          
+                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800/40">
+                            <h4 className="font-medium text-blue-300 text-sm">Plan de réponse aux incidents</h4>
+                            <p className="text-xs text-blue-200">Préparez et testez régulièrement un plan de réponse détaillant les actions à mener en cas de compromission.</p>
+                          </div>
+                          
+                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800/40">
+                            <h4 className="font-medium text-blue-300 text-sm">Gestion des actifs</h4>
+                            <p className="text-xs text-blue-200">Maintenez un inventaire à jour de tous vos actifs matériels et logiciels pour identifier et protéger l'ensemble de votre surface d'attaque.</p>
+                          </div>
+                          
+                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800/40">
+                            <h4 className="font-medium text-blue-300 text-sm">Évaluations régulières</h4>
+                            <p className="text-xs text-blue-200">Réalisez des audits de sécurité, tests d'intrusion et examens de conformité pour identifier et corriger les vulnérabilités.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-green-900/20 p-4 rounded-lg border border-green-800/40 mb-6">
+                      <h3 className="text-lg font-medium text-white flex items-center mb-3">
+                        <CheckCircle className="h-5 w-5 text-green-400 mr-2" />
+                        Checklist de sécurité prioritaire
+                      </h3>
+                      
+                      <div className="space-y-3">
+                        <div className="flex items-start">
+                          <div className="bg-green-800/30 rounded-full p-1 mr-3 mt-0.5">
+                            <CheckCircle className="h-3 w-3 text-green-400" />
+                          </div>
+                          <p className="text-sm text-blue-200">Activer l'authentification multifacteur sur tous les comptes professionnels et personnels critiques</p>
+                        </div>
+                        
+                        <div className="flex items-start">
+                          <div className="bg-green-800/30 rounded-full p-1 mr-3 mt-0.5">
+                            <CheckCircle className="h-3 w-3 text-green-400" />
+                          </div>
+                          <p className="text-sm text-blue-200">Mettre en place un système de sauvegarde automatisé et testé régulièrement</p>
+                        </div>
+                        
+                        <div className="flex items-start">
+                          <div className="bg-green-800/30 rounded-full p-1 mr-3 mt-0.5">
+                            <CheckCircle className="h-3 w-3 text-green-400" />
+                          </div>
+                          <p className="text-sm text-blue-200">Configurer les mises à jour automatiques sur tous les systèmes et applications</p>
+                        </div>
+                        
+                        <div className="flex items-start">
+                          <div className="bg-green-800/30 rounded-full p-1 mr-3 mt-0.5">
+                            <CheckCircle className="h-3 w-3 text-green-400" />
+                          </div>
+                          <p className="text-sm text-blue-200">Utiliser un gestionnaire de mots de passe pour créer et stocker des mots de passe uniques et complexes</p>
+                        </div>
+                        
+                        <div className="flex items-start">
+                          <div className="bg-green-800/30 rounded-full p-1 mr-3 mt-0.5">
+                            <CheckCircle className="h-3 w-3 text-green-400" />
+                          </div>
+                          <p className="text-sm text-blue-200">Limiter les privilèges administratifs aux seuls utilisateurs qui en ont besoin</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Button variant="outline" className="w-full text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
+                      onClick={() => {
+                        if (!completedInteractions.includes('best-practices-explore')) {
+                          setUserPoints(prev => prev + 15);
+                          setCompletedInteractions(prev => [...prev, 'best-practices-explore']);
+                          
+                          toast({
+                            title: "Bonnes pratiques maîtrisées !",
+                            description: "+15 points pour l'exploration des bonnes pratiques.",
+                          });
+                        }
+                      }}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2 text-green-400" />
+                      J'ai pris connaissance de ces recommandations
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
