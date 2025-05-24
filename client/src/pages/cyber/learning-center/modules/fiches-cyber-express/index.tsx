@@ -677,19 +677,19 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
   }, []);
 
   return (
-    <div className="container max-w-7xl mx-auto px-4 py-8">
-      <div className="flex items-center mb-6">
-        <Link href="/cyber/learning-center">
-          <Button variant="ghost" size="icon" className="mr-2">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
-        <PageTitle title="Fiches Cyber Express" />
-        <div>
-          <h1 className="text-2xl font-bold">Fiches Cyber Express</h1>
-          <p className="text-muted-foreground">Consultez et apprenez rapidement avec nos fiches synthétiques</p>
+    <div className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white pb-20">
+      <div className="container max-w-7xl mx-auto px-4 py-8">
+        <div className="flex items-center mb-6">
+          <Link to="/cyber/learning-center">
+            <Button variant="ghost" size="icon" className="mr-2 text-blue-400 hover:text-blue-300 hover:bg-blue-950/30">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-blue-300">Fiches Cyber Express</h1>
+            <p className="text-gray-400">Consultez et apprenez rapidement avec nos fiches synthétiques</p>
+          </div>
         </div>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Panneau de gauche : Liste des fiches et recherche */}
