@@ -713,14 +713,14 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
                 <div className="w-px h-8 bg-border mx-2"></div>
                 <div className="flex flex-col">
                   <span className="text-sm text-muted-foreground">Lues</span>
-                <span className="font-medium">{readCount}/{fiches.length}</span>
+                  <span className="font-medium">{readCount}/{fiches.length}</span>
+                </div>
+                <div className="w-px h-8 bg-border mx-2"></div>
+                <div className="flex flex-col">
+                  <span className="text-sm text-muted-foreground">Favorites</span>
+                  <span className="font-medium">{favoriteCount}</span>
+                </div>
               </div>
-              <div className="w-px h-8 bg-border mx-2"></div>
-              <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground">Favorites</span>
-                <span className="font-medium">{favoriteCount}</span>
-              </div>
-            </div>
 
             <Button 
               variant="outline" 
