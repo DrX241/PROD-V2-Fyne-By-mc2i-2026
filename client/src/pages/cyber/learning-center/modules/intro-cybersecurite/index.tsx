@@ -193,21 +193,18 @@ export default function IntroductionCybersecurite() {
                 Quiz & Évaluation
               </TabsTrigger>
             </TabsList>
-          </Tabs>
-        </div>
-      </div>
-      
-      {/* Contenu principal du module */}
-      <div className="container mx-auto px-4 py-8">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="grid grid-cols-1 lg:grid-cols-4 gap-8"
-        >
-          {/* Section principale de contenu */}
-          <div className="lg:col-span-3 space-y-8">
-            <TabsContent value="principes" className="m-0">
+            
+            {/* Conteneur principal du module - à l'intérieur du composant Tabs */}
+            <div className="container mx-auto px-4 py-8">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="grid grid-cols-1 lg:grid-cols-4 gap-8"
+              >
+                {/* Section principale de contenu */}
+                <div className="lg:col-span-3 space-y-8">
+                  <TabsContent value="principes" className="m-0">
               <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
                 <CardContent className="p-6">
                   <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
