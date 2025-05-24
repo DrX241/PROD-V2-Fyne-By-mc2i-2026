@@ -209,7 +209,7 @@ export default function IntroductionCybersecurite() {
         >
           {/* Section principale de contenu */}
           <div className="lg:col-span-3 space-y-8">
-            <Tabs value={activeTab} className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="hidden">
                 <TabsTrigger value="principes">Principes</TabsTrigger>
                 <TabsTrigger value="menaces">Menaces</TabsTrigger>
@@ -887,6 +887,8 @@ export default function IntroductionCybersecurite() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+          </Tabs>
           </div>
         </motion.div>
       </div>
