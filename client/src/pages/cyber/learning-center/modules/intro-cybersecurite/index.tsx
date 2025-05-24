@@ -227,7 +227,60 @@ export default function IntroductionCybersecurite() {
       
       {/* Contenu principal du module */}
       <div className="container mx-auto px-4 py-8">
-        {/* Objectifs pédagogiques - Nouveau bloc */}
+        {/* Barre de progression et niveau - Nouveau bloc gamifié */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="mb-8"
+        >
+          <Card className="bg-gradient-to-r from-indigo-950/80 to-purple-950/80 border-blue-800/50 shadow-xl">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center">
+                  <div className="bg-purple-800/50 rounded-full h-14 w-14 flex items-center justify-center mr-4 border-2 border-purple-400">
+                    <span className="text-xl font-bold text-white">{currentLevel}</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Niveau {currentLevel}</h3>
+                    <p className="text-xs text-blue-200">{points} points accumulés</p>
+                  </div>
+                </div>
+                
+                <div className="flex-1 max-w-md">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-xs text-blue-200">Progression</span>
+                    <span className="text-xs text-blue-200">{progress}%</span>
+                  </div>
+                  <div className="h-2 bg-blue-950 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
+                      style={{ width: `${progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2">
+                  {badges.length > 0 ? (
+                    badges.map((badge, index) => (
+                      <div 
+                        key={index}
+                        className="bg-blue-900/30 h-10 w-10 rounded-full flex items-center justify-center border border-blue-400" 
+                        title={badge}
+                      >
+                        <span className="text-lg">{badge}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-sm text-blue-300 italic">Accomplissez des défis pour gagner des badges</div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      
+        {/* Objectifs pédagogiques */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
