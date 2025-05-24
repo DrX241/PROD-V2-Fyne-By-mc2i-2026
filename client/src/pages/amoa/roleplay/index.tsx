@@ -10,16 +10,9 @@ import PageTitle from '@/components/utils/PageTitle';
 
 export default function AmoaRoleplay() {
   const [_, setLocation] = useLocation();
-  
-  // Effet pour rediriger vers la nouvelle page roleplay-hub
-  React.useEffect(() => {
-    // Redirection automatique vers la nouvelle interface
-    setLocation('/amoa/roleplay-hub');
-  }, [setLocation]);
-  
   return (
     <HomeLayout>
-      <div style={{ height: 'auto', maxHeight: '100vh', overflowY: 'auto' }} className="bg-gradient-to-b from-blue-900 via-blue-950 to-gray-900 pt-16 pb-12 text-white">
+      <div className="min-h-screen bg-gradient-to-b from-blue-900 via-blue-950 to-gray-900 pt-16 pb-12 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* En-tête */}
           <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
@@ -39,7 +32,7 @@ export default function AmoaRoleplay() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mb-10 max-w-6xl mx-auto"
+            className="mb-10 max-w-4xl mx-auto"
           >
             <h2 className="text-2xl font-bold mb-3">Simulations métier et situations professionnelles interactives</h2>
             <p className="text-blue-200 mb-4">
@@ -56,7 +49,7 @@ export default function AmoaRoleplay() {
           </motion.div>
 
           {/* Types de jeux de rôle */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 mx-auto max-w-4xl">
             {/* Préparation d'audition */}
             <Card 
               className="bg-gradient-to-br from-blue-900/80 to-blue-950/90 border border-blue-800/30 backdrop-blur-sm hover:shadow-lg hover:border-blue-700/50 transition-all"
@@ -67,8 +60,8 @@ export default function AmoaRoleplay() {
                     <Briefcase className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-center text-2xl font-bold">Je suis Consultant</CardTitle>
-                <CardDescription className="text-center text-blue-300 text-lg">
+                <CardTitle className="text-center text-xl font-bold">Je suis Consultant</CardTitle>
+                <CardDescription className="text-center text-blue-300">
                   Je prépare une audition client
                 </CardDescription>
               </CardHeader>
@@ -112,8 +105,8 @@ export default function AmoaRoleplay() {
                     <Zap className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-center text-2xl font-bold">Je suis Sénior Manager</CardTitle>
-                <CardDescription className="text-center text-orange-300 text-lg">
+                <CardTitle className="text-center text-xl font-bold">Je suis Sénior Manager</CardTitle>
+                <CardDescription className="text-center text-orange-300">
                   Je prépare un RDV commercial
                 </CardDescription>
               </CardHeader>
@@ -153,7 +146,7 @@ export default function AmoaRoleplay() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-blue-950/50 border border-blue-900/30 rounded-xl p-6 max-w-6xl mx-auto"
+            className="bg-blue-950/50 border border-blue-900/30 rounded-xl p-6 max-w-4xl mx-auto"
           >
             <h3 className="text-xl font-bold mb-4 flex items-center">
               <FileText className="mr-2 h-5 w-5" />

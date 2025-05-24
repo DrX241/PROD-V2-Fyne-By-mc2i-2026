@@ -40,7 +40,7 @@ export default function MotDePasseSecurite() {
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
-
+  
   // États pour le générateur de mot de passe
   const [passwordLength, setPasswordLength] = useState(12);
   const [includeUppercase, setIncludeUppercase] = useState(true);
@@ -133,49 +133,49 @@ export default function MotDePasseSecurite() {
     const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
     const numberChars = "0123456789";
     const symbolChars = "!@#$%^&*()_+~`|}{[]:;?><,./-=";
-
+    
     let chars = "";
     if (includeUppercase) chars += uppercaseChars;
     if (includeLowercase) chars += lowercaseChars;
     if (includeNumbers) chars += numberChars;
     if (includeSymbols) chars += symbolChars;
-
+    
     if (chars === "") {
       chars = lowercaseChars + numberChars;
     }
-
+    
     let password = "";
     for (let i = 0; i < passwordLength; i++) {
       const randomIndex = Math.floor(Math.random() * chars.length);
       password += chars[randomIndex];
     }
-
+    
     setGeneratedPassword(password);
     calculatePasswordStrength(password);
   };
-
+  
   // Fonction pour calculer la force du mot de passe
   const calculatePasswordStrength = (password: string) => {
     // Un calcul simple de force basé sur diverses caractéristiques
     let strength = 0;
-
+    
     // Longueur (jusqu'à 40%)
     strength += Math.min(password.length * 3, 40);
-
+    
     // Présence de types de caractères (jusqu'à 60%)
     if (/[A-Z]/.test(password)) strength += 15;
     if (/[a-z]/.test(password)) strength += 10;
     if (/[0-9]/.test(password)) strength += 15;
     if (/[^A-Za-z0-9]/.test(password)) strength += 20;
-
+    
     // Variété des caractères
     const uniqueChars = new Set(password).size;
     const uniqueRatio = uniqueChars / password.length;
     strength += Math.round(uniqueRatio * 10);
-
+    
     // Limiter à 100
     strength = Math.min(strength, 100);
-
+    
     setPasswordStrength(strength);
   };
 
@@ -201,24 +201,24 @@ export default function MotDePasseSecurite() {
               </ul>
             </AlertDescription>
           </Alert>
-
+          
           <div className="mt-6 space-y-4">
             <h2 className="text-2xl font-bold">Les mots de passe : première ligne de défense</h2>
-
+            
             <p>
               Les mots de passe représentent la méthode d'authentification la plus répandue et constituent souvent la première - parfois l'unique - ligne de défense protégeant vos informations personnelles et professionnelles.
             </p>
-
+            
             <div className="bg-blue-900/20 border border-blue-800 rounded-md p-4 my-4">
               <h3 className="text-lg font-medium mb-2">Définition</h3>
               <p>
                 Un <strong>mot de passe</strong> est une chaîne de caractères utilisée pour vérifier l'identité d'un utilisateur et lui accorder l'accès à un système ou à des données. C'est un secret partagé uniquement entre l'utilisateur et le système.
               </p>
             </div>
-
+            
             <div className="mt-6">
               <h3 className="text-xl font-bold">L'importance cruciale des mots de passe</h3>
-
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
@@ -239,7 +239,7 @@ export default function MotDePasseSecurite() {
                     </ul>
                   </CardContent>
                 </Card>
-
+                
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg flex items-center">
@@ -259,10 +259,10 @@ export default function MotDePasseSecurite() {
                 </Card>
               </div>
             </div>
-
+            
             <div className="mt-4">
               <h3 className="text-xl font-bold">État des lieux en 2025</h3>
-
+              
               <div className="bg-blue-950 border border-blue-800 rounded-lg p-4 mt-3">
                 <h4 className="text-lg font-medium mb-2 flex items-center">
                   <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -275,7 +275,7 @@ export default function MotDePasseSecurite() {
                   <li>Les 5 mots de passe les plus courants en 2024 étaient toujours <strong>"123456"</strong>, <strong>"password"</strong>, <strong>"qwerty"</strong>, <strong>"admin"</strong> et <strong>"welcome"</strong></li>
                 </ul>
               </div>
-
+              
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 <Card className="bg-red-900/20 border-red-800">
                   <CardHeader className="pb-2">
@@ -293,7 +293,7 @@ export default function MotDePasseSecurite() {
                     </ul>
                   </CardContent>
                 </Card>
-
+                
                 <Card className="bg-green-900/20 border-green-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md flex items-center">
@@ -310,7 +310,7 @@ export default function MotDePasseSecurite() {
                     </ul>
                   </CardContent>
                 </Card>
-
+                
                 <Card className="bg-amber-900/20 border-amber-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md flex items-center">
@@ -331,7 +331,7 @@ export default function MotDePasseSecurite() {
             </div>
           </div>
         </motion.div>
-
+        
         <div className="flex justify-between mt-8">
           <div></div>
           <Button onClick={() => setActiveLesson('risques')} className="bg-blue-700 hover:bg-blue-800">
@@ -341,7 +341,7 @@ export default function MotDePasseSecurite() {
         </div>
       </div>
     ),
-
+    
     risques: (
       <div className="space-y-6">
         <motion.div 
@@ -350,11 +350,11 @@ export default function MotDePasseSecurite() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Risques et menaces courantes</h2>
-
+          
           <p className="mt-4">
             Comprendre les méthodes utilisées par les attaquants pour compromettre vos mots de passe est essentiel pour s'en protéger efficacement.
           </p>
-
+          
           <div className="mt-6 space-y-5">
             <Card className="bg-blue-900/20 border-blue-800">
               <CardHeader className="pb-2">
@@ -394,7 +394,7 @@ export default function MotDePasseSecurite() {
                 </div>
               </CardContent>
             </Card>
-
+            
             <Card className="bg-blue-900/20 border-blue-800">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center">
@@ -422,7 +422,7 @@ export default function MotDePasseSecurite() {
                 </div>
               </CardContent>
             </Card>
-
+            
             <Card className="bg-blue-900/20 border-blue-800">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center">
@@ -442,7 +442,7 @@ export default function MotDePasseSecurite() {
                 </ul>
               </CardContent>
             </Card>
-
+            
             <Card className="bg-orange-900/20 border-orange-800">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center">
@@ -465,7 +465,7 @@ export default function MotDePasseSecurite() {
                 </div>
               </CardContent>
             </Card>
-
+            
             <Card className="bg-red-900/20 border-red-800">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center">
@@ -498,7 +498,7 @@ export default function MotDePasseSecurite() {
               </CardContent>
             </Card>
           </div>
-
+          
           <div className="bg-blue-950 border border-blue-800 rounded-lg p-4 mt-6">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Layout className="mr-2 h-5 w-5 text-blue-400" />
@@ -525,7 +525,7 @@ export default function MotDePasseSecurite() {
             </div>
           </div>
         </motion.div>
-
+        
         <div className="flex justify-between mt-8">
           <Button onClick={() => setActiveLesson('introduction')} variant="outline" className="border-blue-700 text-blue-300">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -538,7 +538,7 @@ export default function MotDePasseSecurite() {
         </div>
       </div>
     ),
-
+    
     'bonnes-pratiques': (
       <div className="space-y-6">
         <motion.div 
@@ -547,7 +547,7 @@ export default function MotDePasseSecurite() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Bonnes pratiques</h2>
-
+          
           <Alert className="bg-blue-900/30 border-blue-500 mt-4">
             <Lightbulb className="h-5 w-5 text-blue-500" />
             <AlertTitle className="text-blue-100">Approche équilibrée</AlertTitle>
@@ -555,11 +555,11 @@ export default function MotDePasseSecurite() {
               Les recommandations actuelles en matière de mots de passe visent à équilibrer sécurité et facilité d'utilisation.
             </AlertDescription>
           </Alert>
-
+          
           <div className="mt-6 space-y-5">
             <div className="bg-blue-900/20 border border-blue-800 rounded-lg p-5">
               <h3 className="text-xl font-semibold mb-4">Création de mots de passe robustes</h3>
-
+              
               <div className="space-y-4">
                 <div className="bg-blue-800/30 p-3 rounded-md">
                   <h4 className="font-medium flex items-center">
@@ -570,7 +570,7 @@ export default function MotDePasseSecurite() {
                     Un mot de passe long est plus difficile à craquer qu'un mot de passe court et complexe. Visez au moins 12 caractères, idéalement 16 ou plus pour les comptes sensibles.
                   </p>
                 </div>
-
+                
                 <div className="bg-blue-800/30 p-3 rounded-md">
                   <h4 className="font-medium flex items-center">
                     <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">2</span>
@@ -580,7 +580,7 @@ export default function MotDePasseSecurite() {
                     Les phrases de passe sont plus faciles à mémoriser et souvent plus sécurisées que des mots de passe complexes. Exemple : "ChienBleuMangePomme42!" est plus facile à retenir que "cB@mP42!".
                   </p>
                 </div>
-
+                
                 <div className="bg-blue-800/30 p-3 rounded-md">
                   <h4 className="font-medium flex items-center">
                     <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">3</span>
@@ -590,7 +590,7 @@ export default function MotDePasseSecurite() {
                     Combinez majuscules, minuscules, chiffres et caractères spéciaux. Une astuce : remplacez certaines lettres par des symboles ressemblants ou associés (S par $, A par @, etc.).
                   </p>
                 </div>
-
+                
                 <div className="bg-blue-800/30 p-3 rounded-md">
                   <h4 className="font-medium flex items-center">
                     <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">4</span>
@@ -600,7 +600,7 @@ export default function MotDePasseSecurite() {
                     N'utilisez pas d'informations faciles à deviner ou à trouver comme votre nom, date de naissance, noms d'enfants, adresse ou numéro de téléphone.
                   </p>
                 </div>
-
+                
                 <div className="bg-blue-800/30 p-3 rounded-md">
                   <h4 className="font-medium flex items-center">
                     <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">5</span>
@@ -612,10 +612,10 @@ export default function MotDePasseSecurite() {
                 </div>
               </div>
             </div>
-
+            
             <div className="mt-6">
               <h3 className="text-xl font-bold">Gestion efficace des mots de passe</h3>
-
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                 <Card className="bg-green-900/20 border-green-800">
                   <CardHeader className="pb-2">
@@ -634,7 +634,7 @@ export default function MotDePasseSecurite() {
                     </ul>
                   </CardContent>
                 </Card>
-
+                
                 <Card className="bg-red-900/20 border-red-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg flex items-center">
@@ -654,13 +654,13 @@ export default function MotDePasseSecurite() {
                 </Card>
               </div>
             </div>
-
+            
             <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-5 mt-4">
               <h3 className="text-xl font-bold mb-3">Méthode de hiérarchisation des mots de passe</h3>
               <p className="mb-4">
                 Une approche pragmatique consiste à hiérarchiser vos mots de passe selon la sensibilité des comptes :
               </p>
-
+              
               <div className="space-y-3">
                 <div className="flex">
                   <div className="mr-3 bg-red-700 text-white w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
@@ -676,7 +676,7 @@ export default function MotDePasseSecurite() {
                     </div>
                   </div>
                 </div>
-
+                
                 <div className="flex">
                   <div className="mr-3 bg-amber-700 text-white w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
                     2
@@ -691,7 +691,7 @@ export default function MotDePasseSecurite() {
                     </div>
                   </div>
                 </div>
-
+                
                 <div className="flex">
                   <div className="mr-3 bg-green-700 text-white w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
                     3
@@ -709,7 +709,7 @@ export default function MotDePasseSecurite() {
               </div>
             </div>
           </div>
-
+          
           <div className="bg-blue-950 border border-blue-800 rounded-lg p-4 mt-6">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Puzzle className="mr-2 h-5 w-5 text-amber-400" />
@@ -742,7 +742,7 @@ export default function MotDePasseSecurite() {
             </div>
           </div>
         </motion.div>
-
+        
         <div className="flex justify-between mt-8">
           <Button onClick={() => setActiveLesson('risques')} variant="outline" className="border-blue-700 text-blue-300">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -755,7 +755,7 @@ export default function MotDePasseSecurite() {
         </div>
       </div>
     ),
-
+    
     gestionnaires: (
       <div className="space-y-6">
         <motion.div 
@@ -764,11 +764,11 @@ export default function MotDePasseSecurite() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Gestionnaires de mots de passe</h2>
-
+          
           <p className="mt-4">
             Face à la multiplication des comptes en ligne, les gestionnaires de mots de passe sont devenus indispensables pour concilier sécurité et praticité.
           </p>
-
+          
           <div className="mt-6 space-y-6">
             <Card className="bg-blue-900/20 border-blue-800">
               <CardHeader>
@@ -784,7 +784,7 @@ export default function MotDePasseSecurite() {
                     Les gestionnaires de mots de passe stockent vos identifiants dans un coffre-fort numérique hautement sécurisé. Vous n'avez besoin de mémoriser qu'un seul mot de passe maître pour y accéder. Les données sont chiffrées localement avec des algorithmes puissants (généralement AES-256).
                   </p>
                 </div>
-
+                
                 <div className="bg-blue-800/20 p-3 rounded-md">
                   <h3 className="font-medium">Fonctionnalités principales</h3>
                   <ul className="list-disc list-inside text-sm space-y-1 text-blue-200 mt-1">
@@ -795,7 +795,7 @@ export default function MotDePasseSecurite() {
                     <li><strong>Stockage sécurisé</strong> de notes, cartes bancaires et autres informations sensibles</li>
                   </ul>
                 </div>
-
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-green-900/20 border border-green-800 p-3 rounded-md">
                     <h3 className="font-medium flex items-center">
@@ -810,7 +810,7 @@ export default function MotDePasseSecurite() {
                       <li>Conservation d'un inventaire à jour de tous vos comptes</li>
                     </ul>
                   </div>
-
+                  
                   <div className="bg-amber-900/20 border border-amber-800 p-3 rounded-md">
                     <h3 className="font-medium flex items-center">
                       <AlertTriangle className="mr-2 h-5 w-5 text-amber-400" />
@@ -827,10 +827,10 @@ export default function MotDePasseSecurite() {
                 </div>
               </CardContent>
             </Card>
-
+            
             <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-5">
               <h3 className="text-xl font-bold mb-3">Comment choisir un gestionnaire de mots de passe</h3>
-
+              
               <div className="space-y-4">
                 <div className="bg-blue-800/30 p-3 rounded-md">
                   <h4 className="font-medium">Critères de sélection essentiels</h4>
@@ -843,7 +843,7 @@ export default function MotDePasseSecurite() {
                     <li><strong>Options de récupération</strong> : Mécanismes en cas d'oubli du mot de passe maître</li>
                   </ul>
                 </div>
-
+                
                 <div className="bg-blue-800/30 p-3 rounded-md">
                   <h4 className="font-medium">Types de gestionnaires</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
@@ -867,7 +867,7 @@ export default function MotDePasseSecurite() {
                 </div>
               </div>
             </div>
-
+            
             <Alert className="bg-green-900/30 border-green-600">
               <Lightbulb className="h-5 w-5 text-green-500" />
               <AlertTitle>Bonnes pratiques avec un gestionnaire</AlertTitle>
@@ -881,7 +881,7 @@ export default function MotDePasseSecurite() {
                 </ul>
               </AlertDescription>
             </Alert>
-
+            
             <div className="bg-blue-950 border border-blue-800 rounded-lg p-4">
               <h3 className="text-lg font-medium mb-2 flex items-center">
                 <RefreshCw className="mr-2 h-5 w-5 text-blue-400" />
@@ -901,7 +901,7 @@ export default function MotDePasseSecurite() {
             </div>
           </div>
         </motion.div>
-
+        
         <div className="flex justify-between mt-8">
           <Button onClick={() => setActiveLesson('bonnes-pratiques')} variant="outline" className="border-blue-700 text-blue-300">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -914,7 +914,7 @@ export default function MotDePasseSecurite() {
         </div>
       </div>
     ),
-
+    
     generateur: (
       <div className="space-y-6">
         <motion.div 
@@ -923,11 +923,11 @@ export default function MotDePasseSecurite() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Générateur de mot de passe</h2>
-
+          
           <p className="mt-4">
             Utilisez cet outil pour créer des mots de passe forts et aléatoires pour vos différents comptes.
           </p>
-
+          
           <div className="mt-6">
             <Card className="bg-blue-900/20 border-blue-800">
               <CardHeader>
@@ -957,7 +957,7 @@ export default function MotDePasseSecurite() {
                       <span>30</span>
                     </div>
                   </div>
-
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center space-x-2">
                       <input 
@@ -1001,7 +1001,7 @@ export default function MotDePasseSecurite() {
                     </div>
                   </div>
                 </div>
-
+                
                 <Button 
                   onClick={generatePassword}
                   className="w-full bg-blue-700 hover:bg-blue-800"
@@ -1009,7 +1009,7 @@ export default function MotDePasseSecurite() {
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Générer un mot de passe
                 </Button>
-
+                
                 {generatedPassword && (
                   <div className="mt-4 space-y-4">
                     <div>
@@ -1030,7 +1030,7 @@ export default function MotDePasseSecurite() {
                         </button>
                       </div>
                     </div>
-
+                    
                     <div>
                       <div className="flex justify-between text-sm mb-1">
                         <span>Force du mot de passe :</span>
@@ -1051,7 +1051,7 @@ export default function MotDePasseSecurite() {
                         }
                       />
                     </div>
-
+                    
                     <div className="flex space-x-2">
                       <Button 
                         onClick={() => {
@@ -1072,7 +1072,7 @@ export default function MotDePasseSecurite() {
                 )}
               </CardContent>
             </Card>
-
+            
             <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
@@ -1099,7 +1099,7 @@ export default function MotDePasseSecurite() {
                   </div>
                 </CardContent>
               </Card>
-
+              
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1116,7 +1116,7 @@ export default function MotDePasseSecurite() {
                   </ul>
                 </CardContent>
               </Card>
-
+              
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1133,7 +1133,7 @@ export default function MotDePasseSecurite() {
             </div>
           </div>
         </motion.div>
-
+        
         <div className="flex justify-between mt-8">
           <Button onClick={() => setActiveLesson('gestionnaires')} variant="outline" className="border-blue-700 text-blue-300">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -1146,7 +1146,7 @@ export default function MotDePasseSecurite() {
         </div>
       </div>
     ),
-
+    
     quiz: (
       <div className="space-y-6">
         <motion.div 
@@ -1155,7 +1155,7 @@ export default function MotDePasseSecurite() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Quiz : Gestion des mots de passe</h2>
-
+          
           {!quizStarted && !quizCompleted ? (
             <div className="mt-6">
               <Card className="bg-blue-900/20 border-blue-800">
@@ -1174,7 +1174,7 @@ export default function MotDePasseSecurite() {
                       <li>Une explication sera fournie pour chaque réponse</li>
                     </ul>
                   </div>
-
+                  
                   <Button 
                     className="w-full bg-blue-700 hover:bg-blue-800"
                     onClick={() => setQuizStarted(true)}
@@ -1184,7 +1184,7 @@ export default function MotDePasseSecurite() {
                   </Button>
                 </CardContent>
               </Card>
-
+              
               <div className="mt-8">
                 <Button onClick={() => setActiveLesson('generateur')} variant="outline" className="border-blue-700 text-blue-300">
                   <ArrowLeft className="mr-2 h-4 w-4" />
@@ -1205,7 +1205,7 @@ export default function MotDePasseSecurite() {
                   <div className="bg-blue-800/20 p-4 rounded-md">
                     <h3 className="font-medium text-lg">{questions[currentQuestion].question}</h3>
                   </div>
-
+                  
                   <div className="space-y-3">
                     {questions[currentQuestion].options.map((option, index) => (
                       <Button 
@@ -1216,7 +1216,7 @@ export default function MotDePasseSecurite() {
                           if (index === questions[currentQuestion].correctAnswer) {
                             setScore(score + 1);
                           }
-
+                          
                           if (currentQuestion < questions.length - 1) {
                             setCurrentQuestion(currentQuestion + 1);
                           } else {
@@ -1258,7 +1258,7 @@ export default function MotDePasseSecurite() {
                         : 'Concentrez-vous particulièrement sur la création de mots de passe forts et l\'utilisation de gestionnaires de mots de passe.'}
                     </p>
                   </div>
-
+                  
                   <div className="flex flex-col gap-4">
                     <Button 
                       variant="outline" 
@@ -1273,7 +1273,7 @@ export default function MotDePasseSecurite() {
                     >
                       Revoir le module
                     </Button>
-
+                    
                     <Button 
                       className="bg-blue-700 hover:bg-blue-800"
                       onClick={() => {
@@ -1326,7 +1326,7 @@ export default function MotDePasseSecurite() {
                 </div>
                 <Progress value={progress} className="h-2" />
               </div>
-
+              
               <div className="py-2">
                 {lessons.map((lesson) => (
                   <button
@@ -1345,7 +1345,7 @@ export default function MotDePasseSecurite() {
               </div>
             </CardContent>
           </Card>
-
+          
           <Card className="bg-blue-900/20 border-blue-800">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Informations</CardTitle>
@@ -1375,7 +1375,7 @@ export default function MotDePasseSecurite() {
             </CardContent>
           </Card>
         </div>
-
+        
         {/* Contenu principal */}
         <div className="lg:col-span-3">
           <Card className="bg-blue-900/20 border-blue-800">

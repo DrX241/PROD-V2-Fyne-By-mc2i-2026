@@ -199,7 +199,7 @@ export default function PlanContinuiteActivite() {
                 </div>
                 <Progress value={100} className="h-2 bg-blue-800/50" />
               </div>
-
+              
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <p className="font-medium">Création des templates et modèles</p>
@@ -207,7 +207,7 @@ export default function PlanContinuiteActivite() {
                 </div>
                 <Progress value={75} className="h-2 bg-blue-800/50" />
               </div>
-
+              
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <p className="font-medium">Développement des cas pratiques</p>
@@ -215,7 +215,7 @@ export default function PlanContinuiteActivite() {
                 </div>
                 <Progress value={40} className="h-2 bg-blue-800/50" />
               </div>
-
+              
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <p className="font-medium">Intégration de l'assistant IA</p>
@@ -299,9 +299,9 @@ export default function PlanContinuiteActivite() {
             </div>
           </div>
         </motion.div>
-
+        
         <Separator className="my-12 bg-blue-800/50" />
-
+        
         {/* Footer */}
         <div className="text-center text-blue-300 text-sm">
           <p>© 2025 Centre de Formation Cybersécurité • Tous droits réservés</p>

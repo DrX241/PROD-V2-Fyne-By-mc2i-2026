@@ -52,7 +52,7 @@ export default function IntroCybersecuriteModule() {
   const [contentTab, setContentTab] = useState('contenu');
   const [progress, setProgress] = useState(0);
   const [showAiAssistant, setShowAiAssistant] = useState(false);
-
+  
   const { toast } = useToast();
 
   // Sections du module
@@ -168,7 +168,7 @@ export default function IntroCybersecuriteModule() {
           </Link>
           <PageTitle title="CYBER ACADÉMIE" />
         </div>
-
+        
         <div className="bg-blue-900/50 backdrop-blur-sm rounded-lg p-4 mb-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
@@ -195,7 +195,7 @@ export default function IntroCybersecuriteModule() {
               </Badge>
             </div>
           </div>
-
+          
           <div className="mt-4">
             <div className="flex justify-between text-xs text-blue-200 mb-1">
               <span>Progression</span>
@@ -205,7 +205,7 @@ export default function IntroCybersecuriteModule() {
           </div>
         </div>
       </div>
-
+      
       {/* IA Assistant Popup */}
       {showAiAssistant && (
         <motion.div
@@ -279,7 +279,7 @@ export default function IntroCybersecuriteModule() {
           </div>
         </motion.div>
       )}
-
+      
       {/* Contenu principal */}
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -366,7 +366,7 @@ export default function IntroCybersecuriteModule() {
               </Button>
             </CardFooter>
           </Card>
-
+          
           {/* Contenu principal et informations */}
           <div className="lg:col-span-3 space-y-6">
             <Tabs value={contentTab} onValueChange={setContentTab} className="space-y-6">
@@ -381,7 +381,7 @@ export default function IntroCybersecuriteModule() {
                   Ressources
                 </TabsTrigger>
               </TabsList>
-
+              
               {/* Onglet Contenu */}
               <TabsContent value="contenu">
                 <Card className="bg-blue-900/20 border-blue-800">
@@ -404,7 +404,7 @@ export default function IntroCybersecuriteModule() {
                             moduleSections.find(section => section.id === currentSection)?.title
                           }</h2>
                         </div>
-
+                        
                         <div className="prose prose-invert max-w-none prose-blue">
                           {currentSection === 'introduction' && (
                             <div>
@@ -414,7 +414,7 @@ export default function IntroCybersecuriteModule() {
                                 la protection des systèmes d'information et des données est essentielle pour 
                                 assurer la continuité des activités et préserver la confiance des utilisateurs.
                               </p>
-
+                              
                               <h3>Qu'est-ce que la cybersécurité ?</h3>
                               <p>
                                 La cybersécurité regroupe l'ensemble des moyens techniques, organisationnels, 
@@ -422,7 +422,7 @@ export default function IntroCybersecuriteModule() {
                                 visant à défendre les systèmes d'information contre les attaques dont ils peuvent 
                                 faire l'objet.
                               </p>
-
+                              
                               <h3>Pourquoi est-elle importante ?</h3>
                               <p>
                                 Les cyberattaques peuvent avoir des conséquences graves pour les organisations :
@@ -434,7 +434,7 @@ export default function IntroCybersecuriteModule() {
                                 <li>Atteinte à la réputation</li>
                                 <li>Sanctions réglementaires et juridiques</li>
                               </ul>
-
+                              
                               <div className="bg-blue-800/30 border-l-4 border-blue-500 p-4 my-4">
                                 <h4 className="font-bold text-blue-300">À retenir</h4>
                                 <p className="mt-1">
@@ -444,14 +444,14 @@ export default function IntroCybersecuriteModule() {
                               </div>
                             </div>
                           )}
-
+                          
                           {currentSection === 'concepts' && (
                             <div>
                               <p>
                                 Pour comprendre la cybersécurité, il est essentiel de maîtriser les concepts
                                 fondamentaux et la terminologie du domaine.
                               </p>
-
+                              
                               <h3>Les principes fondamentaux</h3>
                               <p>
                                 La sécurité de l'information repose sur trois piliers fondamentaux, 
@@ -465,7 +465,7 @@ export default function IntroCybersecuriteModule() {
                                 <li><strong>Disponibilité</strong> : veiller à ce que l'information soit accessible
                                 lorsque les utilisateurs autorisés en ont besoin</li>
                               </ul>
-
+                              
                               <h3>Terminologie essentielle</h3>
                               <ul>
                                 <li><strong>Vulnérabilité</strong> : faiblesse d'un système pouvant être exploitée</li>
@@ -475,7 +475,7 @@ export default function IntroCybersecuriteModule() {
                                 <li><strong>Authentification</strong> : vérification de l'identité d'un utilisateur</li>
                                 <li><strong>Autorisation</strong> : définition des droits d'accès</li>
                               </ul>
-
+                              
                               <div className="bg-blue-800/30 border-l-4 border-blue-500 p-4 my-4">
                                 <h4 className="font-bold text-blue-300">À retenir</h4>
                                 <p className="mt-1">
@@ -485,7 +485,7 @@ export default function IntroCybersecuriteModule() {
                               </div>
                             </div>
                           )}
-
+                          
                           {currentSection === 'menaces' && (
                             <div>
                               <p>
@@ -493,7 +493,7 @@ export default function IntroCybersecuriteModule() {
                                 où les attaquants inventent sans cesse de nouveaux mouvements pour mettre en échec 
                                 vos défenses. Embarquons dans un safari des menaces cybernétiques !
                               </p>
-
+                              
                               <h3>🦠 Le Zoo des Malwares</h3>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
                                 <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-800">
@@ -517,7 +517,7 @@ export default function IntroCybersecuriteModule() {
                                   <div className="mt-2 text-xs text-blue-300">Exemple célèbre: Stuxnet</div>
                                 </div>
                               </div>
-
+                              
                               <h3>🎭 Les Masques de l'Ingénierie Sociale</h3>
                               <div className="my-4 p-4 bg-gradient-to-r from-blue-900/50 to-indigo-900/50 rounded-lg border border-blue-700">
                                 <div className="flex flex-col md:flex-row gap-4">
@@ -531,7 +531,7 @@ export default function IntroCybersecuriteModule() {
                                   </div>
                                 </div>
                               </div>
-
+                              
                               <h3>👥 La Galerie des Cybercriminels</h3>
                               <div className="my-4 overflow-x-auto">
                                 <table className="w-full border-collapse">
@@ -566,7 +566,7 @@ export default function IntroCybersecuriteModule() {
                                   </tbody>
                                 </table>
                               </div>
-
+                              
                               <div className="bg-gradient-to-r from-indigo-900/50 to-purple-900/50 border-l-4 border-yellow-500 p-4 my-4 rounded-r-lg">
                                 <h4 className="font-bold text-yellow-300">🛡️ À retenir</h4>
                                 <p className="mt-1">
@@ -576,7 +576,7 @@ export default function IntroCybersecuriteModule() {
                               </div>
                             </div>
                           )}
-
+                          
                           {currentSection === 'protection' && (
                             <div>
                               <p>
@@ -584,7 +584,7 @@ export default function IntroCybersecuriteModule() {
                                 Pour le protéger efficacement, vous aurez besoin de bien plus qu'un simple mur ! 
                                 Découvrons ensemble comment bâtir votre forteresse numérique imprenable.
                               </p>
-
+                              
                               <h3>🏰 L'Arsenal du Cyber-Chevalier</h3>
                               <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 p-5 rounded-xl border border-blue-700 my-4">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -605,7 +605,7 @@ export default function IntroCybersecuriteModule() {
                                   </div>
                                 </div>
                               </div>
-
+                              
                               <h3>🧩 La Défense en Profondeur : Comme un Jeu de Stratégie</h3>
                               <div className="my-5 relative">
                                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 rounded-lg"></div>
@@ -624,11 +624,11 @@ export default function IntroCybersecuriteModule() {
                                   </div>
                                 </div>
                               </div>
-
+                              
                               <h3>🧠 La Guilde des Cyber-Gardiens</h3>
                               <div className="my-4 bg-blue-900/20 p-4 rounded-lg border border-blue-800">
                                 <p className="mb-3">La meilleure technologie du monde reste inefficace sans une équipe bien formée. Votre personnel représente à la fois votre plus grande force et votre maillon le plus vulnérable !</p>
-
+                                
                                 <div className="flex flex-col md:flex-row gap-3 mt-4">
                                   <div className="flex-1 bg-gradient-to-b from-blue-900/40 to-blue-900/10 p-3 rounded-lg">
                                     <h4 className="font-bold text-green-300 mb-1 flex items-center">
@@ -653,7 +653,7 @@ export default function IntroCybersecuriteModule() {
                                   </div>
                                 </div>
                               </div>
-
+                              
                               <div className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border-l-4 border-pink-500 p-4 my-4 rounded-r-lg">
                                 <h4 className="font-bold text-pink-300">✨ À retenir</h4>
                                 <p className="mt-1">
@@ -663,7 +663,7 @@ export default function IntroCybersecuriteModule() {
                               </div>
                             </div>
                           )}
-
+                          
                           {currentSection === 'conformite' && (
                             <div>
                               <p>
@@ -671,7 +671,7 @@ export default function IntroCybersecuriteModule() {
                                 numériques doivent respecter les lois ! Découvrez comment transformer cette jungle réglementaire
                                 en un atout pour votre organisation.
                               </p>
-
+                              
                               <h3>🏆 Le Tournoi des Champions de la Conformité</h3>
                               <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-900/30 to-indigo-900/30 p-1 my-4">
                                 <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-blue-600/20 blur-xl"></div>
@@ -689,7 +689,7 @@ export default function IntroCybersecuriteModule() {
                                         <span className="text-yellow-200 font-medium">Conseil de héros :</span> Documenter tout ce que vous faites avec les données personnelles, comme si vous écriviez le journal de bord d'un super-héros !
                                       </div>
                                     </div>
-
+                                    
                                     <div className="bg-gradient-to-br from-blue-900/40 to-purple-900/30 p-4 rounded-lg border border-blue-700/50 backdrop-blur-sm">
                                       <div className="flex items-center mb-3">
                                         <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-lg">
@@ -703,7 +703,7 @@ export default function IntroCybersecuriteModule() {
                                       </div>
                                     </div>
                                   </div>
-
+                                  
                                   <div className="mt-4 p-4 bg-gradient-to-br from-purple-900/40 to-indigo-900/30 rounded-lg border border-purple-700/50">
                                     <h4 className="font-bold text-purple-300 mb-2 flex items-center">
                                       <span className="text-lg mr-2">🌟</span>
@@ -726,11 +726,11 @@ export default function IntroCybersecuriteModule() {
                                   </div>
                                 </div>
                               </div>
-
+                              
                               <h3>🎮 Jouer le jeu de la conformité</h3>
                               <div className="my-4 bg-gradient-to-r from-indigo-900/20 to-blue-900/20 rounded-lg p-5 border border-indigo-800/50">
                                 <p className="mb-4">La conformité n'est pas un ennemi à combattre, mais un allié à apprivoiser ! Voici comment transformer cette "contrainte" en avantage stratégique :</p>
-
+                                
                                 <div className="space-y-3">
                                   <div className="flex items-start gap-3">
                                     <div className="bg-indigo-900/40 rounded-full p-2 flex-shrink-0">
@@ -741,7 +741,7 @@ export default function IntroCybersecuriteModule() {
                                       <p className="text-sm">Identifiez les réglementations qui s'appliquent à votre organisation, comme un explorateur établissant une carte du monde.</p>
                                     </div>
                                   </div>
-
+                                  
                                   <div className="flex items-start gap-3">
                                     <div className="bg-indigo-900/40 rounded-full p-2 flex-shrink-0">
                                       <span className="text-xs">2</span>
@@ -751,7 +751,7 @@ export default function IntroCybersecuriteModule() {
                                       <p className="text-sm">Obtenez les certifications qui rassureront vos clients et partenaires sur votre niveau de protection.</p>
                                     </div>
                                   </div>
-
+                                  
                                   <div className="flex items-start gap-3">
                                     <div className="bg-indigo-900/40 rounded-full p-2 flex-shrink-0">
                                       <span className="text-xs">3</span>
@@ -763,7 +763,7 @@ export default function IntroCybersecuriteModule() {
                                   </div>
                                 </div>
                               </div>
-
+                              
                               <div className="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border-l-4 border-green-500 p-4 my-4 rounded-r-lg">
                                 <h4 className="font-bold text-green-300">🎯 À retenir</h4>
                                 <p className="mt-1">
@@ -773,7 +773,7 @@ export default function IntroCybersecuriteModule() {
                               </div>
                             </div>
                           )}
-
+                          
                           {(currentSection !== 'introduction' && currentSection !== 'concepts' && 
                             currentSection !== 'menaces' && currentSection !== 'protection' && 
                             currentSection !== 'conformite') && (
@@ -794,7 +794,7 @@ export default function IntroCybersecuriteModule() {
                             </div>
                           )}
                         </div>
-
+                        
                         <div className="mt-8 flex justify-between">
                           <Button 
                             variant="outline" 
@@ -810,7 +810,7 @@ export default function IntroCybersecuriteModule() {
                             <ChevronLeft className="mr-2 h-4 w-4" />
                             Section précédente
                           </Button>
-
+                          
                           <Button
                             onClick={() => handleMarkCompleted(currentSection)}
                             className="bg-blue-700 hover:bg-blue-800"
@@ -818,7 +818,7 @@ export default function IntroCybersecuriteModule() {
                             <CheckCircle className="mr-2 h-4 w-4" />
                             Marquer comme terminé
                           </Button>
-
+                          
                           <Button 
                             variant="outline" 
                             className="border-blue-700"
@@ -856,7 +856,7 @@ export default function IntroCybersecuriteModule() {
                   </CardContent>
                 </Card>
               </TabsContent>
-
+              
               {/* Onglet Objectifs */}
               <TabsContent value="objectifs">
                 <Card className="bg-blue-900/20 border-blue-800">
@@ -1000,9 +1000,9 @@ export default function IntroCybersecuriteModule() {
                           )}
                         </div>
                       </div>
-
+                      
                       <Separator className="bg-blue-800/50" />
-
+                      
                       <div>
                         <h3 className="font-semibold text-lg mb-3">Prérequis</h3>
                         {currentSection === 'introduction' ? (
@@ -1041,9 +1041,9 @@ export default function IntroCybersecuriteModule() {
                           </p>
                         )}
                       </div>
-
+                      
                       <Separator className="bg-blue-800/50" />
-
+                      
                       <div>
                         <h3 className="font-semibold text-lg mb-3">Public cible</h3>
                         <ul className="space-y-2 text-blue-200">
@@ -1065,9 +1065,9 @@ export default function IntroCybersecuriteModule() {
                           </li>
                         </ul>
                       </div>
-
+                      
                       <Separator className="bg-blue-800/50" />
-
+                      
                       <div>
                         <h3 className="font-semibold text-lg mb-3">Validation des acquis</h3>
                         <p className="text-blue-200 mb-4">
@@ -1090,7 +1090,7 @@ export default function IntroCybersecuriteModule() {
                   </CardContent>
                 </Card>
               </TabsContent>
-
+              
               {/* Onglet Ressources */}
               <TabsContent value="ressources">
                 <Card className="bg-blue-900/20 border-blue-800">
@@ -1215,9 +1215,9 @@ export default function IntroCybersecuriteModule() {
                           </div>
                         )}
                       </div>
-
+                      
                       <Separator className="bg-blue-800/50" />
-
+                      
                       <div>
                         <h3 className="font-semibold text-lg mb-3 flex items-center">
                           <MessageSquare className="mr-2 h-5 w-5 text-blue-300" />
@@ -1232,9 +1232,9 @@ export default function IntroCybersecuriteModule() {
                           </Button>
                         </div>
                       </div>
-
+                      
                       <Separator className="bg-blue-800/50" />
-
+                      
                       <div>
                         <h3 className="font-semibold text-lg mb-3">Modules complémentaires recommandés</h3>
                         <div className="text-center py-6 bg-blue-900/10 rounded-lg border border-blue-900/50">
