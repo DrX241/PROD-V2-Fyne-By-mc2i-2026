@@ -72,6 +72,7 @@ const GouvernanceCyber = lazy(() => import("./pages/cyber/learning-center/module
 // Import des pages AMOA
 import SasAcademie from "./pages/amoa/sas-academie";
 import AmoaRoleplay from "./pages/amoa/roleplay/index";
+import AmoaRoleplayHub from "./pages/amoa/roleplay-hub/index";
 import AmoaAcademie from "./pages/amoa/academie/index";
 import InterviewSimulation from "./pages/amoa/interview-simulation";
 import ProspectPulse from "./pages/amoa/prospect-pulse";
@@ -335,6 +336,7 @@ function App() {
                 <Route path="/amoa/new" component={AmoaModeSelectionNew} />
                 <Route path="/amoa/sas-academie" component={SasAcademie} />
                 <Route path="/amoa/roleplay" component={AmoaRoleplay} />
+                <Route path="/amoa/roleplay-hub" component={AmoaRoleplayHub} />
                 <Route path="/amoa/academie" component={AmoaAcademie} />
                 {/* Routes pour les modules AMOA Académie */}
                 <Route path="/amoa/academie/modules/intro-amoa">
