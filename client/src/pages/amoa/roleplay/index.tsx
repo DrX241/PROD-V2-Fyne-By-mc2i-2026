@@ -10,6 +10,13 @@ import PageTitle from '@/components/utils/PageTitle';
 
 export default function AmoaRoleplay() {
   const [_, setLocation] = useLocation();
+  
+  // Effet pour rediriger vers la nouvelle page roleplay-hub
+  React.useEffect(() => {
+    // Redirection automatique vers la nouvelle interface
+    setLocation('/amoa/roleplay-hub');
+  }, [setLocation]);
+  
   return (
     <HomeLayout>
       <div style={{ height: 'auto', maxHeight: '100vh', overflowY: 'auto' }} className="bg-gradient-to-b from-blue-900 via-blue-950 to-gray-900 pt-16 pb-12 text-white">

@@ -354,7 +354,7 @@ export default function AmoaModeSelectionNew() {
                     className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-5"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate('/amoa/roleplay');
+                      navigate('/amoa/roleplay-hub');
                     }}
                   >
                     J'incarne un rôle
