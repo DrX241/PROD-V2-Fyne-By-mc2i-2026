@@ -681,23 +681,26 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
       <PageTitle title="Fiches Cyber Express | Centre de formation" />
       
       {/* En-tête avec navigation et titre */}
-      <div className="border-b border-blue-800/60 bg-blue-900/30 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
+      <div className="p-6 container mx-auto">
+        <div className="flex items-center mb-2">
           <Link href="/cyber/learning-center">
-            <Button variant="ghost" className="text-blue-300 hover:bg-blue-900/30 hover:text-blue-200">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+            <Button variant="ghost" className="text-white mr-4">
+              <ArrowLeft className="mr-2 h-5 w-5" />
               Retour
             </Button>
           </Link>
-          <h1 className="text-xl text-white font-medium">Fiches Cyber Express</h1>
-        </div>
-      </div>
-      
-      <div className="container max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-6">
-          <p className="text-blue-200">Consultez et apprenez rapidement avec nos fiches synthétiques</p>
         </div>
 
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold flex items-center">
+              <FileText className="mr-3 h-6 w-6 text-indigo-400" />
+              Fiches Cyber Express
+            </h1>
+            <p className="text-blue-200 mt-1">Consultez et apprenez rapidement avec nos fiches synthétiques</p>
+          </div>
+        </div>
+        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Panneau de gauche : Liste des fiches et recherche */}
           <div className="lg:col-span-1 space-y-4">
