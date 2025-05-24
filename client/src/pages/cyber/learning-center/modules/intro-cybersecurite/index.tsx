@@ -1169,7 +1169,7 @@ export default function IntroductionCybersecurite() {
                               </h4>
                               <Badge className="bg-green-600/70">
                                 <Cpu className="h-3 w-3 mr-1" />
-                                AZURE OPENAI
+                                IA CONNECTÉE
                               </Badge>
                             </div>
                             
@@ -1413,7 +1413,7 @@ export default function IntroductionCybersecurite() {
                               </h4>
                               <Badge className="bg-green-600/70">
                                 <Cpu className="h-3 w-3 mr-1" />
-                                AZURE OPENAI
+                                IA CONNECTÉE
                               </Badge>
                             </div>
                             
@@ -1677,7 +1677,7 @@ export default function IntroductionCybersecurite() {
                               </h4>
                               <Badge className="bg-green-600/70">
                                 <Cpu className="h-3 w-3 mr-1" />
-                                AZURE OPENAI
+                                IA CONNECTÉE
                               </Badge>
                             </div>
                             
