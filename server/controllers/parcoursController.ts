@@ -75,6 +75,7 @@ Assure-toi que le contenu est adapté au niveau et aux besoins spécifiques expr
 
     // Appeler l'API Azure OpenAI
     const response = await openai.chat.completions.create({
+      model: "gpt-4", // Cette valeur sera ignorée par Azure mais est nécessaire pour l'API
       messages: [
         { role: "system", content: "Tu es un expert en cybersécurité et en pédagogie qui crée des parcours d'apprentissage personnalisés." },
         { role: "user", content: prompt }
