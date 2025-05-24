@@ -38,7 +38,7 @@ const RoleplayHub: React.FC = () => {
     {
       id: 'recruiter',
       title: "Je suis Recruteur",
-      description: "Je souhaite évaluer les compétences techniques d'un candidat en cybersécurité",
+      description: "Je souhaite évaluer les compétences cyber d'un candidat",
       link: '/cyber/test-technique',
       icon: <Users className="h-10 w-10 text-indigo-300" />,
       color: 'indigo',
@@ -48,16 +48,16 @@ const RoleplayHub: React.FC = () => {
       buttonHover: 'hover:from-indigo-600 hover:to-indigo-500',
       textColor: 'text-indigo-300',
       details: [
-        "Évaluation des compétences techniques des candidats",
+        "Évaluation des compétences techniques",
         "Tests standardisés pour profils cybersécurité",
-        "Simulation d'entretien technique pour recrutement"
+        "Simulation d'entretien pour recrutement"
       ],
       comingSoon: false
     },
     {
       id: 'interview-test',
       title: "Je suis un professionnel de la cyber",
-      description: "Je prépare une audition auprès d'un client",
+      description: "Je prépare une audition client",
       link: '/cyber/interview-test',
       icon: <Briefcase className="h-10 w-10 text-blue-300" />,
       color: 'blue',
@@ -67,9 +67,9 @@ const RoleplayHub: React.FC = () => {
       buttonHover: 'hover:from-blue-600 hover:to-blue-500',
       textColor: 'text-blue-300',
       details: [
-        "Simulations d'entretiens techniques avec feedback",
-        "Questions adaptées au niveau et à la spécialité visée",
-        "Analyse détaillée de vos réponses pour progresser"
+        "Simulations d'entretiens techniques",
+        "Questions adaptées au niveau visé",
+        "Analyse détaillée de vos réponses"
       ],
       comingSoon: false
     },
@@ -105,7 +105,7 @@ const RoleplayHub: React.FC = () => {
       buttonHover: 'hover:from-rose-600 hover:to-rose-500',
       textColor: 'text-rose-300',
       details: [
-        "Simulation de crise avec multiples parties prenantes",
+        "Simulation de crise réaliste",
         "Décisions stratégiques en temps sous pression",
         "Gestion de la communication interne et externe"
       ],
@@ -132,7 +132,7 @@ const RoleplayHub: React.FC = () => {
     },
     {
       id: 'assistant-creator',
-      title: "Je suis Créateur d'IA",
+      title: "Je suis Créateur de ChatBot",
       description: "Je développe un assistant cyber personnalisé",
       link: '/cyber/tools/assistant-cyber',
       icon: <Bot className="h-10 w-10 text-cyan-300" />,
@@ -162,9 +162,9 @@ const RoleplayHub: React.FC = () => {
       buttonHover: 'hover:from-amber-600 hover:to-amber-500',
       textColor: 'text-amber-300',
       details: [
-        "Contenu adapté aux débutants sans connaissances",
+        "Contenu adapté aux Grands débutants",
         "Exercices pratiques pour sécuriser vos appareils",
-        "Apprentissage des bons réflexes face aux menaces"
+        "Apprentissage des bons réflexes à avoir"
       ],
       comingSoon: true
     }
