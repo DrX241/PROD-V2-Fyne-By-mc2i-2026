@@ -238,7 +238,7 @@ const CyberHomePage: React.FC = () => {
                     <div className="flex items-center text-sm font-medium">
                       {module.comingSoon ? (
                         <span className="text-gray-500 flex items-center">
-                          Bientôt disponible
+                          Sur devis
                         </span>
                       ) : (
                         <>
