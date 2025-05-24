@@ -13,7 +13,7 @@ import {
   Server, Cpu, Clock, Users, Code, FileCheck,
   ArrowRight, CheckCircle, AlertTriangle, 
   ExternalLink, Trophy, Award, Lightbulb as LightbulbIcon,
-  BrainCircuit, GraduationCap
+  BrainCircuit, GraduationCap, Target, List, Book, BookOpen, BookOpenCheck
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
@@ -23,6 +23,7 @@ export default function IntroductionCybersecurite() {
   const [progress, setProgress] = useState(0);
   const [activeTab, setActiveTab] = useState("principes");
   const [activeSubTab, setActiveSubTab] = useState("malware");
+  const [activeProgramTab, setActiveProgramTab] = useState("section1");
   const [showQuizResult, setShowQuizResult] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState({
     q1: "",
@@ -189,6 +190,12 @@ export default function IntroductionCybersecurite() {
                 Menaces Actuelles
               </button>
               <button 
+                onClick={() => setActiveTab("programme")}
+                className={`px-4 h-14 ${activeTab === "programme" ? "text-white border-b-2 border-blue-500" : "text-blue-300"}`}
+              >
+                Programme
+              </button>
+              <button 
                 onClick={() => setActiveTab("casreel")}
                 className={`px-4 h-14 ${activeTab === "casreel" ? "text-white border-b-2 border-blue-500" : "text-blue-300"}`}
               >
@@ -207,6 +214,62 @@ export default function IntroductionCybersecurite() {
       
       {/* Contenu principal du module */}
       <div className="container mx-auto px-4 py-8">
+        {/* Objectifs pédagogiques - Nouveau bloc */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="bg-gradient-to-r from-blue-950/80 to-indigo-950/80 border-blue-800/50 shadow-xl mb-8">
+            <CardContent className="p-6">
+              <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
+                <Target className="mr-3 h-6 w-6 text-blue-400" />
+                Objectifs pédagogiques
+              </h2>
+              
+              <p className="text-blue-200 mb-4">
+                À l'issue de la formation, l'apprenant sera capable de mettre en œuvre de manière opérationnelle les principes fondamentaux, 
+                les normes et les outils de la sécurité informatique.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                  <ul className="space-y-2">
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 text-blue-400 mr-2 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm text-blue-200">Détenir une vision globale de la cybersécurité et son environnement (enjeux, écosystème…)</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 text-blue-400 mr-2 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm text-blue-200">Connaître les différents référentiels, normes et outils de la cybersécurité</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 text-blue-400 mr-2 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm text-blue-200">Appréhender les métiers liés à la cybersécurité</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                  <ul className="space-y-2">
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 text-blue-400 mr-2 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm text-blue-200">Connaître les obligations juridiques liées à la cybersécurité</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 text-blue-400 mr-2 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm text-blue-200">Comprendre les principaux risques et menaces ainsi que les mesures de protection</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 text-blue-400 mr-2 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm text-blue-200">Identifier les bonnes pratiques en matière de sécurité informatique</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+        
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -588,6 +651,291 @@ export default function IntroductionCybersecurite() {
                       </li>
                     </ul>
                   </motion.div>
+                </CardContent>
+              </Card>
+            )}
+            
+            {activeTab === "programme" && (
+              <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
+                <CardContent className="p-6">
+                  <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
+                    <BookOpenCheck className="mr-3 h-6 w-6 text-green-400" />
+                    Programme détaillé de la formation
+                  </h2>
+                  
+                  <div className="prose prose-invert max-w-none">
+                    <p className="text-blue-200 mb-6">
+                      Ce programme complet vous permettra d'acquérir les compétences nécessaires pour comprendre et appliquer 
+                      les principes fondamentaux de la cybersécurité dans un contexte professionnel.
+                    </p>
+                    
+                    <div className="mt-6 mb-4">
+                      <div className="flex flex-wrap border-b border-blue-800/40">
+                        <button 
+                          onClick={() => setActiveProgramTab("section1")} 
+                          className={`py-2 px-4 ${activeProgramTab === "section1" ? "border-b-2 border-blue-500 text-white" : "text-blue-300"}`}
+                        >
+                          Menaces et risques
+                        </button>
+                        <button 
+                          onClick={() => setActiveProgramTab("section2")} 
+                          className={`py-2 px-4 ${activeProgramTab === "section2" ? "border-b-2 border-blue-500 text-white" : "text-blue-300"}`}
+                        >
+                          Sécurité poste de travail
+                        </button>
+                        <button 
+                          onClick={() => setActiveProgramTab("section3")} 
+                          className={`py-2 px-4 ${activeProgramTab === "section3" ? "border-b-2 border-blue-500 text-white" : "text-blue-300"}`}
+                        >
+                          Authentification
+                        </button>
+                        <button 
+                          onClick={() => setActiveProgramTab("section4")} 
+                          className={`py-2 px-4 ${activeProgramTab === "section4" ? "border-b-2 border-blue-500 text-white" : "text-blue-300"}`}
+                        >
+                          Audits de sécurité
+                        </button>
+                        <button 
+                          onClick={() => setActiveProgramTab("section5")} 
+                          className={`py-2 px-4 ${activeProgramTab === "section5" ? "border-b-2 border-blue-500 text-white" : "text-blue-300"}`}
+                        >
+                          PCA / PRA
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {activeProgramTab === "section1" && (
+                      <div className="space-y-4">
+                        <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                          <h3 className="text-xl font-semibold text-white mb-2">1. Les menaces et les risques</h3>
+                          <ul className="space-y-2 text-blue-200">
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Qu'est-ce la sécurité informatique ?</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Comment une négligence peut-elle créer une catastrophe ?</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Les responsabilités de chacun</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>L'architecture d'un SI et ses vulnérabilités potentielles</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Les réseaux d'entreprise (locaux, distantes, Internet)</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Les réseaux sans fil et mobilité. Les applications à risques : Web, messagerie...</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>La base de données et système de fichiers. Menaces et risques.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>La sociologie des pirates. Réseaux souterrains. Motivations.</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {activeProgramTab === "section2" && (
+                      <div className="space-y-4">
+                        <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                          <h3 className="text-xl font-semibold text-white mb-2">2. La sécurité du poste de travail</h3>
+                          <ul className="space-y-2 text-blue-200">
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>La confidentialité, la signature et l'intégrité. Les contraintes liées au chiffrement.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Les différents éléments cryptographiques. Windows, Linux ou MAC OS : quel est le plus sûr ?</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Gestion des données sensibles. La problématique des ordinateurs portables.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Les différentes menaces sur le poste client ? Comprendre ce qu'est un code malveillant.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Comment gérer les failles de sécurité ?</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Les ports USB. Le rôle du firewall client.</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {activeProgramTab === "section3" && (
+                      <div className="space-y-4">
+                        <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                          <h3 className="text-xl font-semibold text-white mb-2">3. Le processus d'authentification</h3>
+                          <ul className="space-y-2 text-blue-200">
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Les contrôles d'accès : l'authentification et l'autorisation.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>L'importance de l'authentification.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Le mot de passe traditionnel.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>L'authentification par certificats et par token.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>La connexion à distance via Internet.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Qu'est-ce qu'un VPN ?</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Pourquoi utiliser une authentification renforcée.</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {activeProgramTab === "section4" && (
+                      <div className="space-y-4">
+                        <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                          <h3 className="text-xl font-semibold text-white mb-2">4. Le processus d'un audit de sécurité</h3>
+                          <ul className="space-y-2 text-blue-200">
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Processus continu et complet.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Les catégories d'audits, de l'audit organisationnel au test d'intrusion.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Les bonnes pratiques de la norme 19011 appliquées à la sécurité.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Comment créer son programme d'audit interne ? Comment qualifier ses auditeurs ?</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Apports comparés, démarche récursive, les implications humaines.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Sensibilisation à la sécurité : qui ? Quoi ? Comment ?</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Définitions de Morale/Déontologie/Ethique.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>La charte de sécurité, son existence légale, son contenu, sa validation.</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {activeProgramTab === "section5" && (
+                      <div className="space-y-4">
+                        <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                          <h3 className="text-xl font-semibold text-white mb-2">5. Le plan de secours et le coût de la sécurité</h3>
+                          <ul className="space-y-2 text-blue-200">
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>La couverture des risques et la stratégie de continuité.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>L'importance des plans de secours, de continuité, de reprise et de gestion de crise, PCA/PRA, PSI, RTO/RPO.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Développer un plan de continuité, l'insérer dans une démarche qualité.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Comment définir les budgets sécurité.</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>La définition du Return On Security Investment (ROSI).</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>Quelles sont les techniques d'évaluation des coûts, les différentes méthodes de calcul, Total Cost of Ownership (TCO).</span>
+                            </li>
+                            <li className="flex items-start">
+                              <div className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 flex items-center justify-center">•</div>
+                              <span>La notion anglo-saxonne du "Payback Period".</span>
+                            </li>
+                          </ul>
+                        </div>
+                        
+                        <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50 mt-6">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Book className="h-5 w-5 text-green-400" />
+                            <h4 className="text-lg font-semibold text-white">Modules avancés disponibles</h4>
+                          </div>
+                          <p className="text-blue-200 text-sm mb-3">
+                            Des modules complémentaires sont disponibles pour approfondir vos connaissances sur des sujets plus avancés :
+                          </p>
+                          <ul className="space-y-1 text-blue-200 text-sm">
+                            <li>• Le pare-feu, la virtualisation et le Cloud Computing</li>
+                            <li>• La supervision de la sécurité</li>
+                            <li>• Les attaques Web</li>
+                            <li>• Détecter les intrusions</li>
+                            <li>• La collecte des informations</li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="bg-indigo-900/30 p-4 rounded-lg border border-indigo-700/50 mt-8">
+                      <h3 className="font-medium text-white mb-2 flex items-center">
+                        <GraduationCap className="h-5 w-5 text-indigo-400 mr-2" />
+                        Informations pratiques
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div className="bg-indigo-950/50 p-3 rounded border border-indigo-700/30">
+                          <p className="text-indigo-300 font-medium">Durée totale</p>
+                          <p className="text-white">5 jours (35 heures)</p>
+                        </div>
+                        <div className="bg-indigo-950/50 p-3 rounded border border-indigo-700/30">
+                          <p className="text-indigo-300 font-medium">Méthodes pédagogiques</p>
+                          <p className="text-white">Interactives, cas pratiques</p>
+                        </div>
+                        <div className="bg-indigo-950/50 p-3 rounded border border-indigo-700/30">
+                          <p className="text-indigo-300 font-medium">Évaluation</p>
+                          <p className="text-white">Quiz et travaux pratiques</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}
