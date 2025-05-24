@@ -49,7 +49,7 @@ export default function SasCyberAcademie() {
         </div>
 
         {/* Options d'apprentissage */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto mt-6">
           {/* Option 1: Apprendre en discutant */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -69,10 +69,10 @@ export default function SasCyberAcademie() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <p className="mb-6 text-blue-200">
-                  Posez des questions, explorez des concepts et approfondissez à votre guise les sujets cybersécurité qui vous intéressent dans une conversation fluide avec un assistant IA spécialisé.
+                <p className="mb-4 text-blue-200">
+                  Posez des questions et explorez les sujets cybersécurité qui vous intéressent avec un assistant IA spécialisé.
                 </p>
-                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
+                <ul className="text-left space-y-1 mb-4 mx-auto max-w-xs">
                   <li className="flex items-center text-blue-200">
                     <div className="h-2 w-2 rounded-full bg-blue-400 mr-2"></div>
                     Format libre et personnalisé
@@ -118,10 +118,10 @@ export default function SasCyberAcademie() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <p className="mb-6 text-cyan-200">
-                  Progressez méthodiquement à travers des modules de formation organisés, des exercices pratiques et des ressources éducatives sélectionnées par nos experts en cybersécurité.
+                <p className="mb-4 text-cyan-200">
+                  Progressez à travers des modules organisés et des exercices pratiques sélectionnés par nos experts en cybersécurité.
                 </p>
-                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
+                <ul className="text-left space-y-1 mb-4 mx-auto max-w-xs">
                   <li className="flex items-center text-cyan-200">
                     <div className="h-2 w-2 rounded-full bg-cyan-400 mr-2"></div>
                     Contenu structuré et progressif
