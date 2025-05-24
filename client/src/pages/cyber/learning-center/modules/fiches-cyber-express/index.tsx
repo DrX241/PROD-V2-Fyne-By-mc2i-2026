@@ -1,1038 +1,1165 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'wouter';
-import {
-  ArrowLeft,
+import { 
+  ArrowLeft, 
+  FileText, 
+  Download, 
+  Star, 
+  Filter, 
   Search,
-  FileText,
-  Download,
+  ChevronDown,
+  ChevronUp,
   BookOpen,
-  ChevronRight,
   Shield,
   Database,
-  Lock,
-  Network,
-  AlertTriangle,
   Globe,
   Server,
-  Code,
-  RefreshCw,
-  UserX,
-  Plus
+  Lock,
+  Network,
+  Zap,
+  AlertCircle,
+  BrainCircuit,
+  Clock,
+  Sparkles,
+  Trash
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
 import PageTitle from '@/components/utils/PageTitle';
-import { Separator } from '@/components/ui/separator';
+
+// Types
+interface FicheCyber {
+  id: string;
+  title: string;
+  category: string;
+  level: 'débutant' | 'intermédiaire' | 'avancé' | 'tous niveaux';
+  description: string;
+  content: string;
+  keyPoints: string[];
+  references: string[];
+  icon: React.ReactElement;
+  isFavorite: boolean;
+  hasBeenRead: boolean;
+}
 
 export default function FichesCyberExpress() {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeCategory, setActiveCategory] = useState('all');
-  
-  // Définition des catégories
-  const categories = [
-    { id: 'all', name: 'Toutes les fiches' },
-    { id: 'basics', name: 'Fondamentaux' },
-    { id: 'threats', name: 'Menaces' },
-    { id: 'protection', name: 'Protection' },
-    { id: 'compliance', name: 'Normes & conformité' }
-  ];
-  
-  // Données des fiches
-  const fiches = [
-    {
-      id: 'pentest',
-      title: 'Test d\'intrusion (Pentest)',
-      description: 'Méthode d\'évaluation de la sécurité d\'un système informatique par simulation d\'attaques.',
-      category: 'protection',
-      icon: <Shield />,
-      color: 'blue',
-      content: `
-## Qu'est-ce qu'un test d'intrusion ?
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedLevel, setSelectedLevel] = useState('all');
+  const [sortOrder, setSortOrder] = useState('recent');
+  const [showFilters, setShowFilters] = useState(false);
+  const [favoriteCount, setFavoriteCount] = useState(0);
+  const [readCount, setReadCount] = useState(0);
+  const [selectedFiche, setSelectedFiche] = useState<FicheCyber | null>(null);
+  const [fiches, setFiches] = useState<FicheCyber[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [progress, setProgress] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-Un test d'intrusion (ou pentest) est une méthode d'évaluation de la sécurité d'un système informatique ou d'un réseau par simulation d'attaques d'un attaquant malveillant. L'objectif est d'identifier les vulnérabilités avant qu'elles ne soient exploitées par des personnes malintentionnées.
-
-## Types de tests d'intrusion
-
-1. **Test en boîte noire** : Le testeur n'a aucune connaissance préalable du système.
-2. **Test en boîte grise** : Le testeur dispose d'informations partielles.
-3. **Test en boîte blanche** : Le testeur a une connaissance complète du système.
-
-## Méthodologie standard
-
-1. Planification et reconnaissance
-2. Scan et énumération
-3. Exploitation des vulnérabilités
-4. Post-exploitation et maintien de l'accès
-5. Analyse et reporting
-
-## Points clés à retenir
-
-- Un pentest doit toujours être réalisé avec l'autorisation écrite du propriétaire du système.
-- Les tests d'intrusion devraient être effectués régulièrement et après des changements majeurs dans l'infrastructure.
-- Les résultats doivent être documentés dans un rapport détaillé avec des recommandations concrètes.
-      `
-    },
-    {
-      id: 'social-engineering',
-      title: 'Ingénierie sociale',
-      description: 'Techniques de manipulation psychologique pour obtenir des informations confidentielles.',
-      category: 'threats',
-      icon: <UserX />,
-      color: 'red',
-      content: `
-## Qu'est-ce que l'ingénierie sociale ?
-
-L'ingénierie sociale est l'art de manipuler psychologiquement des personnes afin qu'elles exécutent des actions ou divulguent des informations confidentielles. Contrairement aux attaques techniques, elle cible la nature humaine et les failles dans le comportement des individus.
-
-## Techniques courantes
-
-1. **Phishing** : Envoi de faux emails semblant provenir d'organisations légitimes.
-2. **Prétexting** : Création d'un scénario fictif pour obtenir des informations.
-3. **Baiting** : Utilisation d'un leurre pour susciter la curiosité (ex: clé USB infectée).
-4. **Tailgating** : Suivre une personne autorisée pour accéder à une zone sécurisée.
-5. **Quid pro quo** : Offre d'un service en échange d'informations.
-
-## Comment se protéger
-
-- Former régulièrement le personnel aux risques d'ingénierie sociale.
-- Établir des procédures claires pour la vérification des identités.
-- Sensibiliser aux techniques courantes de manipulation.
-- Mettre en place une politique de gestion des informations confidentielles.
-- Encourager une culture de vigilance et de questionnement.
-      `
-    },
+  // Données de démo pour les fiches
+  const demoFiches: FicheCyber[] = [
     {
       id: 'ransomware',
-      title: 'Ransomware',
-      description: 'Logiciel malveillant qui chiffre les données et exige une rançon pour leur déchiffrement.',
-      category: 'threats',
-      icon: <Lock />,
-      color: 'amber',
+      title: 'Ransomware : comprendre et se protéger',
+      category: 'menaces',
+      level: 'débutant',
+      description: 'Principes de fonctionnement des ransomwares et méthodes de protection efficaces',
       content: `
 ## Qu'est-ce qu'un ransomware ?
 
-Un ransomware (ou rançongiciel) est un type de logiciel malveillant qui chiffre les fichiers de la victime, rendant ainsi le système ou les données inutilisables. L'attaquant demande ensuite une rançon en échange de la clé de déchiffrement.
+Un ransomware (ou rançongiciel) est un type de logiciel malveillant qui chiffre les données de la victime et exige le paiement d'une rançon pour fournir la clé de déchiffrement. Les ransomwares modernes pratiquent souvent la double extorsion : ils menacent également de publier les données volées si la rançon n'est pas payée.
 
-## Vecteurs d'infection courants
+## Comment fonctionnent les ransomwares ?
 
-1. **Emails de phishing** contenant des pièces jointes ou liens malveillants
-2. **Téléchargements depuis des sites non fiables**
-3. **Exploitations de vulnérabilités dans les logiciels**
-4. **Connexions RDP (Remote Desktop Protocol) non sécurisées**
-5. **Propagation latérale au sein d'un réseau après une première infection**
+1. **Infection** : Principalement par phishing, téléchargements infectés ou exploitation de vulnérabilités
+2. **Installation** : Le malware s'installe et établit la persistance dans le système
+3. **Communication** : Établissement d'une connexion avec les serveurs de commande et contrôle (C2)
+4. **Chiffrement** : Les fichiers sont chiffrés avec des algorithmes puissants
+5. **Demande de rançon** : Affichage d'un message exigeant le paiement, souvent en cryptomonnaie
 
-## Mesures préventives
+## Techniques de protection essentielles
 
-- Sauvegarder régulièrement les données critiques (stratégie 3-2-1)
-- Maintenir les systèmes et logiciels à jour
-- Utiliser des solutions antivirus/EDR avancées
-- Former les utilisateurs aux risques de phishing
-- Segmenter le réseau pour limiter la propagation
-- Restreindre les privilèges administratifs
-- Désactiver les macros dans les documents Office
-- Mettre en place une politique de gestion des correctifs
-
-## En cas d'infection
-
-- Isoler immédiatement les systèmes affectés
-- Ne pas payer la rançon (sans garantie de récupération)
-- Signaler l'incident aux autorités compétentes
-- Restaurer à partir des sauvegardes saines
-- Analyser la compromission pour comprendre le vecteur d'attaque
-      `
+- Sauvegardes régulières hors ligne (3-2-1 : 3 copies, 2 supports différents, 1 hors site)
+- Formation des utilisateurs à la reconnaissance des tentatives de phishing
+- Mise à jour systématique des logiciels et systèmes d'exploitation
+- Segmentation du réseau pour limiter la propagation
+- Principe du moindre privilège pour les comptes utilisateurs
+- Solutions EDR (Endpoint Detection and Response)
+- Filtrage des emails et protection web
+      `,
+      keyPoints: [
+        "Les ransomwares chiffrent les données et exigent une rançon pour les déchiffrer",
+        "La double extorsion combine chiffrement et menace de publication des données",
+        "Le phishing est le principal vecteur d'infection",
+        "Les sauvegardes régulières non connectées sont la meilleure protection",
+        "Ne jamais payer la rançon sans avoir consulté des experts en cybersécurité"
+      ],
+      references: [
+        'ANSSI - Note technique "Panorama des attaques par rançongiciels"',
+        'NIST - Special Publication 1800-25, "Identifying and Protecting Assets Against Ransomware"',
+        'FBI - Ransomware Prevention and Response Guide'
+      ],
+      icon: <Shield />,
+      isFavorite: false,
+      hasBeenRead: false
     },
     {
       id: 'zero-trust',
-      title: 'Modèle Zero Trust',
-      description: 'Approche de sécurité basée sur le principe "ne jamais faire confiance, toujours vérifier".',
-      category: 'protection',
-      icon: <Shield />,
-      color: 'blue',
+      title: 'Zero Trust : au-delà du périmètre',
+      category: 'architecture',
+      level: 'intermédiaire',
+      description: 'Principes et mise en œuvre du modèle de sécurité Zero Trust',
       content: `
-## Qu'est-ce que Zero Trust ?
+## Le modèle Zero Trust
 
-Le modèle Zero Trust est une approche de sécurité qui part du principe que les menaces existent à la fois à l'intérieur et à l'extérieur du réseau. Il repose sur le principe "ne jamais faire confiance, toujours vérifier" pour chaque accès à une ressource, quelle que soit sa provenance.
+Le modèle de sécurité Zero Trust part du principe qu'aucune entité, qu'elle soit à l'intérieur ou à l'extérieur du réseau de l'organisation, ne doit être considérée comme fiable par défaut. Contrairement à l'approche traditionnelle "castle-and-moat" (château et douves) qui fait confiance par défaut aux utilisateurs internes, Zero Trust adopte la philosophie "never trust, always verify" (ne jamais faire confiance, toujours vérifier).
 
 ## Principes fondamentaux
 
-1. **Vérification explicite** : Authentifier et autoriser systématiquement toutes les demandes d'accès
-2. **Moindre privilège** : Limiter l'accès au strict nécessaire pour accomplir une tâche
-3. **Micro-segmentation** : Diviser le réseau en zones sécurisées isolées
-4. **Vérification continue** : Réévaluer constamment la confiance tout au long de la session
-5. **Accès basé sur l'identité** plutôt que sur l'emplacement réseau
-
-## Principaux composants
-
-- **IAM (Identity and Access Management)** avec authentification multifacteur
-- Technologies de **micro-segmentation** et d'isolation des charges de travail
-- Solutions d'**accès réseau Zero Trust (ZTNA)**
-- Chiffrement des données en transit et au repos
-- Surveillance et analytique avancées
-
-## Avantages
-
-- Limitation du mouvement latéral des attaquants
-- Protection adaptée aux environnements cloud et mobiles
-- Sécurité cohérente pour le travail à distance
-- Visibilité accrue sur l'environnement IT
-- Réduction de la surface d'attaque
-      `
-    },
-    {
-      id: 'gdpr',
-      title: 'RGPD / GDPR',
-      description: 'Règlement général sur la protection des données personnelles dans l\'UE.',
-      category: 'compliance',
-      icon: <FileText />,
-      color: 'violet',
-      content: `
-## Qu'est-ce que le RGPD ?
-
-Le Règlement Général sur la Protection des Données (RGPD ou GDPR en anglais) est un règlement de l'Union européenne qui constitue le texte de référence en matière de protection des données personnelles. Il renforce et unifie la protection des données pour les individus au sein de l'UE.
-
-## Principes clés
-
-1. **Licéité, loyauté et transparence** du traitement des données
-2. **Limitation des finalités** - collecte pour des finalités déterminées et légitimes
-3. **Minimisation des données** - uniquement les données nécessaires
-4. **Exactitude** - données exactes et tenues à jour
-5. **Limitation de conservation** - durée nécessaire aux finalités
-6. **Intégrité et confidentialité** - sécurité appropriée des données
-
-## Droits des personnes concernées
-
-- Droit d'accès
-- Droit de rectification
-- Droit à l'effacement ("droit à l'oubli")
-- Droit à la limitation du traitement
-- Droit à la portabilité des données
-- Droit d'opposition
-- Droits relatifs à la prise de décision automatisée et au profilage
-
-## Obligations des organisations
-
-- Désigner un Délégué à la Protection des Données (DPO) dans certains cas
-- Tenir un registre des activités de traitement
-- Mettre en œuvre des mesures techniques et organisationnelles appropriées
-- Notifier les violations de données dans les 72 heures
-- Effectuer des analyses d'impact relatives à la protection des données (AIPD)
-- Appliquer la protection des données dès la conception et par défaut
-
-## Sanctions en cas de non-conformité
-
-- Jusqu'à 20 millions d'euros ou 4% du chiffre d'affaires annuel mondial, le montant le plus élevé étant retenu
-      `
-    },
-    {
-      id: 'threat-intelligence',
-      title: 'Cyber Threat Intelligence',
-      description: 'Collecte et analyse d\'informations sur les menaces pour anticiper les attaques.',
-      category: 'protection',
-      icon: <Globe />,
-      color: 'green',
-      content: `
-## Qu'est-ce que la Cyber Threat Intelligence ?
-
-La Cyber Threat Intelligence (CTI) est le processus de collecte, d'analyse et de diffusion d'informations sur les menaces cybernétiques actuelles et potentielles. L'objectif est d'aider les organisations à comprendre les risques qui pèsent sur leurs actifs critiques et à prendre des décisions éclairées en matière de cybersécurité.
-
-## Les trois niveaux de Threat Intelligence
-
-1. **Stratégique** : Informations de haut niveau destinées aux décideurs (tendances, risques émergents)
-2. **Tactique** : Détails sur les tactiques, techniques et procédures (TTP) des attaquants
-3. **Opérationnel** : Informations techniques spécifiques utilisées par les équipes de sécurité (IoCs)
-
-## Sources d'information
-
-- **Sources ouvertes (OSINT)** : Blogs, réseaux sociaux, forums, rapports publics
-- **Partage communautaire** : CERT, ISAC, groupes sectoriels
-- **Sources commerciales** : Fournisseurs spécialisés en threat intelligence
-- **Télémétrie interne** : Logs, alertes de sécurité, incidents passés
-- **Dark Web et forums clandestins** : Surveillance des activités criminelles
-
-## Indicateurs de compromission (IoCs)
-
-- Adresses IP malveillantes
-- Domaines et URLs suspects
-- Hashes de fichiers malveillants
-- Signatures d'attaques
-- Artefacts de code malveillant
-
-## Intégration dans le SOC
-
-- Enrichissement des alertes de sécurité
-- Chasse proactive aux menaces
-- Amélioration de la détection
-- Priorisation des vulnérabilités
-- Réponse aux incidents plus efficace
-
-## Cycle de vie de la Threat Intelligence
-
-1. Direction et planification
-2. Collecte des données
-3. Traitement et exploitation
-4. Analyse
-5. Diffusion
-6. Feedback
-      `
-    },
-    {
-      id: 'data-leakage',
-      title: 'Prévention des fuites de données (DLP)',
-      description: 'Solutions et pratiques pour empêcher les fuites d\'informations sensibles.',
-      category: 'protection',
-      icon: <Database />,
-      color: 'blue',
-      content: `
-## Qu'est-ce que la prévention des fuites de données ?
-
-La prévention des fuites de données (Data Loss Prevention ou DLP) désigne l'ensemble des solutions et pratiques visant à détecter et prévenir les transmissions non autorisées de données sensibles en dehors du périmètre de l'organisation.
-
-## Types de solutions DLP
-
-1. **DLP réseau** : Surveillance du trafic réseau et des communications
-2. **DLP endpoint** : Protection au niveau des postes de travail et appareils mobiles
-3. **DLP stockage** : Analyse et protection des données au repos
-4. **DLP cloud** : Protection des données dans les environnements cloud (CASB)
-
-## Fonctionnalités clés
-
-- **Classification des données** par niveau de sensibilité
-- **Détection de contenu** par motifs, expressions régulières, empreintes
-- **Application de politiques** selon le contexte (utilisateur, destination, etc.)
-- **Actions de remédiation** (blocage, chiffrement, notification, quarantaine)
-- **Surveillance et journalisation** des événements
-- **Génération de rapports** pour conformité et audit
-
-## Cas d'usage principaux
-
-- Protection des données à caractère personnel (RGPD)
-- Sécurisation de la propriété intellectuelle
-- Prévention des fuites accidentelles par les employés
-- Détection des comportements suspects d'utilisateurs malveillants ou compromis
-- Conformité aux réglementations sectorielles (PCI DSS, HIPAA, etc.)
-
-## Meilleures pratiques
-
-- Commencer par une classification claire des données
-- Adopter une approche progressive (surveiller avant de bloquer)
-- Impliquer les parties prenantes (RH, juridique, métiers)
-- Former les utilisateurs aux politiques de gestion des données
-- Équilibrer sécurité et expérience utilisateur
-- Réviser et affiner régulièrement les politiques DLP
-      `
-    },
-    {
-      id: 'soc',
-      title: 'Centre opérationnel de sécurité (SOC)',
-      description: 'Équipe dédiée à la surveillance et à la réponse aux incidents de sécurité.',
-      category: 'protection',
-      icon: <Shield />,
-      color: 'blue',
-      content: `
-## Qu'est-ce qu'un SOC ?
-
-Un Centre Opérationnel de Sécurité (Security Operations Center ou SOC) est une équipe dédiée, équipée avec des technologies spécialisées, responsable de la surveillance continue et de l'amélioration de la posture de sécurité d'une organisation. Le SOC détecte, analyse et répond aux incidents de cybersécurité en utilisant une combinaison de solutions technologiques et de processus bien définis.
-
-## Fonctions principales
-
-1. **Surveillance continue** des systèmes d'information
-2. **Détection des incidents** de sécurité
-3. **Analyse des menaces** et qualification des alertes
-4. **Réponse aux incidents** et coordination
-5. **Chasse aux menaces** proactive
-6. **Gestion des vulnérabilités**
-7. **Veille sur les menaces** (Threat Intelligence)
-8. **Reporting et métriques** de sécurité
-
-## Technologies clés
-
-- **SIEM** (Security Information and Event Management)
-- **EDR/XDR** (Endpoint/Extended Detection and Response)
-- **SOAR** (Security Orchestration, Automation and Response)
-- **Threat Intelligence Platforms**
-- **Network Traffic Analysis**
-- **User and Entity Behavior Analytics (UEBA)**
-
-## Modèles organisationnels
-
-- **SOC interne** : Entièrement géré par l'organisation
-- **SOC externalisé** : Confié à un prestataire spécialisé (MSSP)
-- **SOC hybride** : Combinaison des deux approches
-- **SOC virtuel** : Équipe distribuée sans centre physique dédié
-- **Co-SOC** : Ressources partagées entre plusieurs organisations
-
-## Niveaux d'analyse
-
-- **Niveau 1** : Triage et analyse initiale des alertes
-- **Niveau 2** : Investigation approfondie et réponse aux incidents
-- **Niveau 3** : Expertise avancée, chasse aux menaces, forensique
-- **Niveau 4** : Direction et management du SOC
-
-## Métriques d'efficacité
-
-- Temps moyen de détection (MTTD)
-- Temps moyen de réponse (MTTR)
-- Taux de faux positifs
-- Couverture des actifs surveillés
-- Efficacité de la détection et de la réponse
-      `
-    },
-    {
-      id: 'phishing',
-      title: 'Phishing',
-      description: 'Technique d\'ingénierie sociale visant à obtenir des informations sensibles.',
-      category: 'threats',
-      icon: <AlertTriangle />,
-      color: 'red',
-      content: `
-## Qu'est-ce que le phishing ?
-
-Le phishing (hameçonnage) est une technique d'ingénierie sociale où un attaquant se fait passer pour une entité de confiance afin d'inciter la victime à divulguer des informations sensibles ou à effectuer des actions compromettantes, généralement via des communications électroniques.
-
-## Types de phishing
-
-1. **Phishing par email** : Emails frauduleux imitant des organisations légitimes
-2. **Spear phishing** : Attaques ciblées et personnalisées visant des individus spécifiques
-3. **Whaling** : Ciblage spécifique des hauts dirigeants ou personnes d'influence
-4. **Smishing** : Phishing par SMS ou messagerie mobile
-5. **Vishing** : Phishing par téléphone ou messagerie vocale
-6. **Pharming** : Redirection du trafic web vers de faux sites
-
-## Signes caractéristiques
-
-- Urgence et pression temporelle ("Agissez immédiatement")
-- Fautes d'orthographe et de grammaire
-- Adresses email suspectes ou légèrement modifiées
-- Liens hypertextes pointant vers des domaines douteux
-- Demandes inhabituelles d'informations personnelles ou sensibles
-- Offres trop belles pour être vraies
-- Pièces jointes non sollicitées
-
-## Mesures de protection
-
-- **Formation régulière** des utilisateurs
-- **Filtrage des emails** et solutions anti-phishing
-- **Authentification multifacteur** (MFA)
-- **Signalement** des tentatives suspectes
-- **Mise à jour** régulière des navigateurs et systèmes
-- **Vérification** des URL avant de cliquer
-- **Politiques** de gestion des informations sensibles
-
-## En cas d'attaque réussie
-
-1. Changer immédiatement les mots de passe compromis
-2. Alerter le service informatique/sécurité
-3. Surveiller les activités suspectes sur les comptes
-4. Signaler l'incident aux autorités compétentes si nécessaire
-      `
-    },
-    {
-      id: 'iso27001',
-      title: 'Norme ISO 27001',
-      description: 'Standard international pour la gestion de la sécurité de l\'information.',
-      category: 'compliance',
-      icon: <FileText />,
-      color: 'violet',
-      content: `
-## Qu'est-ce que l'ISO 27001 ?
-
-L'ISO/IEC 27001 est une norme internationale qui fournit un cadre pour les systèmes de management de la sécurité de l'information (SMSI). Elle permet aux organisations de sécuriser leurs informations de manière systématique et rentable, à travers l'adoption d'un ensemble de spécifications, de politiques et de procédures.
-
-## Structure de la norme
-
-La norme est structurée selon le modèle "Plan-Do-Check-Act" (PDCA) :
-
-1. **Plan** : Définir le SMSI, évaluer les risques et sélectionner les contrôles
-2. **Do** : Mettre en œuvre et exploiter le SMSI
-3. **Check** : Surveiller et réviser le SMSI
-4. **Act** : Maintenir et améliorer le SMSI
-
-## Exigences clés
-
-- Contexte de l'organisation et besoins des parties intéressées
-- Leadership et engagement de la direction
-- Planification et gestion des risques liés à la sécurité de l'information
-- Ressources, compétences et sensibilisation
-- Communication et documentation
-- Mesures de protection et contrôles opérationnels
-- Évaluation des performances et audits internes
-- Revue de direction et amélioration continue
-
-## Annexe A : Objectifs de contrôle et contrôles
-
-L'Annexe A de la norme contient 114 contrôles répartis en 14 sections :
-
-1. Politiques de sécurité de l'information
-2. Organisation de la sécurité de l'information
-3. Sécurité des ressources humaines
-4. Gestion des actifs
-5. Contrôle d'accès
-6. Cryptographie
-7. Sécurité physique et environnementale
-8. Sécurité liée à l'exploitation
-9. Sécurité des communications
-10. Acquisition, développement et maintenance des systèmes
-11. Relations avec les fournisseurs
-12. Gestion des incidents liés à la sécurité de l'information
-13. Continuité d'activité
-14. Conformité
-
-## Processus de certification
-
-1. Définition du périmètre
-2. Réalisation d'un gap analysis
-3. Mise en place du SMSI
-4. Audit interne
-5. Audit de certification (en deux étapes)
-6. Obtention du certificat (valable 3 ans)
-7. Audits de surveillance annuels
-8. Renouvellement après 3 ans
-
-## Bénéfices
-
-- Démonstration de l'engagement envers la sécurité
-- Approche structurée de gestion des risques
-- Confiance accrue des clients et partenaires
-- Conformité aux exigences légales et réglementaires
-- Réduction des incidents de sécurité
-- Amélioration continue du niveau de sécurité
-      `
-    },
-    {
-      id: 'security-awareness',
-      title: 'Sensibilisation à la sécurité',
-      description: 'Programmes visant à développer une culture de cybersécurité au sein de l\'organisation.',
-      category: 'basics',
-      icon: <Shield />,
-      color: 'green',
-      content: `
-## Qu'est-ce que la sensibilisation à la sécurité ?
-
-La sensibilisation à la sécurité informatique comprend les programmes et activités visant à éduquer les employés et utilisateurs sur les menaces cybernétiques et les bonnes pratiques de sécurité. L'objectif est de créer une solide culture de sécurité au sein de l'organisation où chaque individu devient une ligne de défense active.
-
-## Objectifs principaux
-
-- Développer une culture de vigilance et de responsabilité
-- Réduire les risques d'erreurs humaines et de comportements risqués
-- Améliorer la capacité à identifier et signaler les incidents
-- Assurer la conformité aux exigences réglementaires
-- Renforcer l'efficacité globale du dispositif de sécurité
-
-## Composantes d'un programme efficace
-
-1. **Formation initiale** pour tous les nouveaux employés
-2. **Sessions de sensibilisation** régulières et ciblées
-3. **Simulations d'attaques** (phishing, ingénierie sociale)
-4. **Communications** régulières sur les menaces actuelles
-5. **Mécanismes de signalement** simples et accessibles
-6. **Mesure et évaluation** de l'efficacité du programme
-
-## Thématiques essentielles
-
-- Sécurité des mots de passe et authentification
-- Protection contre le phishing et l'ingénierie sociale
-- Utilisation sécurisée des appareils mobiles et du BYOD
-- Sécurité du poste de travail et gestion des données
-- Utilisation des réseaux sociaux et protection de la vie privée
-- Télétravail sécurisé
-- Gestion des incidents de sécurité
-
-## Méthodes de formation
-
-- Sessions présentielles interactives
-- Modules d'e-learning
-- Vidéos et infographies
-- Jeux sérieux et gamification
-- Newsletters et communications régulières
-- Affiches et aide-mémoire
-
-## Mesure de l'efficacité
-
-- Taux de réussite aux simulations de phishing
-- Nombre d'incidents causés par des erreurs humaines
-- Évaluations de connaissances pré/post-formation
-- Taux de signalement des incidents de sécurité
-- Enquêtes sur la culture de sécurité
-      `
-    },
-    {
-      id: 'container-security',
-      title: 'Sécurité des conteneurs',
-      description: 'Pratiques et outils pour sécuriser les environnements conteneurisés.',
-      category: 'protection',
-      icon: <Server />,
-      color: 'blue',
-      content: `
-## Qu'est-ce que la sécurité des conteneurs ?
-
-La sécurité des conteneurs concerne les politiques, processus et outils utilisés pour protéger l'intégrité des conteneurs, de leurs images, de l'infrastructure sous-jacente et des données qu'ils traitent. Cette discipline est devenue critique avec l'adoption massive des architectures conteneurisées et des orchestrateurs comme Kubernetes.
-
-## Risques spécifiques aux conteneurs
-
-1. **Images vulnérables ou malveillantes**
-2. **Configuration incorrecte des conteneurs**
-3. **Exposition non sécurisée des API d'orchestration**
-4. **Isolation insuffisante entre conteneurs**
-5. **Escalade de privilèges**
-6. **Accès non autorisé aux secrets**
-7. **Vulnérabilités de l'hôte**
-
-## Bonnes pratiques
-
-### Sécurité des images
-- Utiliser des images de base minimales et officielles
-- Scanner régulièrement les vulnérabilités
-- Mettre en place une chaîne d'approvisionnement sécurisée
-- Signer les images et valider les signatures
-- Ne pas exécuter les conteneurs en tant que root
-
-### Configuration des conteneurs
-- Appliquer le principe du moindre privilège
-- Limiter les ressources (CPU, mémoire, I/O)
-- Utiliser les capabilities Linux de manière restrictive
-- Configurer le networking de façon sécurisée
-- Monter les systèmes de fichiers en lecture seule quand possible
-
-### Orchestration sécurisée
-- Sécuriser l'API server et le dashboard
-- Mettre en place le RBAC (Role-Based Access Control)
-- Utiliser des Network Policies pour segmenter le trafic
-- Chiffrer les communications entre composants
-- Gérer les secrets de manière sécurisée
-
-## Outils de sécurité
-
-1. **Analyse statique d'images** : Trivy, Clair, Anchore
-2. **Runtime Security** : Falco, Aqua, Sysdig Secure
-3. **Conformité et gouvernance** : OPA (Open Policy Agent), Kyverno
-4. **Gestion des secrets** : Vault, Sealed Secrets
-5. **Meshes de service** : Istio, Linkerd (pour la sécurité réseau)
-
-## Intégration dans le DevSecOps
-
-- Intégrer les analyses de sécurité dans les pipelines CI/CD
-- Définir des politiques d'admission pour les déploiements
-- Automatiser la remédiation des vulnérabilités
-- Auditer et journaliser les activités
-- Réaliser des tests de pénétration réguliers
-      `
-    },
-    {
-      id: 'authentication',
-      title: 'Authentification et contrôle d\'accès',
-      description: 'Méthodes et technologies pour vérifier l\'identité et gérer les accès.',
-      category: 'basics',
+1. **Vérification explicite** : Authentification et autorisation basées sur toutes les informations disponibles
+2. **Accès avec privilège minimum** : Limitation des accès utilisateur au strict nécessaire (Just-in-Time et Just-Enough-Access)
+3. **Présomption de compromission** : Supposer que des brèches existent, vérifier les connexions en continu
+
+## Composants clés d'une architecture Zero Trust
+
+- **Gestion des identités forte** : MFA, authentification contextuelle, gestion du cycle de vie des identités
+- **Micro-segmentation** : Segmentation fine du réseau pour isoler les ressources
+- **Chiffrement de bout en bout** : Protection des données en transit et au repos
+- **Contrôle d'accès adaptatif** : Ajustement dynamique des autorisations selon le contexte
+- **Surveillance continue** : Analyse comportementale et détection d'anomalies
+
+## Étapes de mise en œuvre
+
+1. Identifier les données sensibles et les flux d'application
+2. Cartographier les flux de transactions protégées
+3. Concevoir l'architecture Zero Trust
+4. Créer des politiques Zero Trust
+5. Surveiller et alerter sur le réseau
+      `,
+      keyPoints: [
+        "Zero Trust repose sur le principe \"ne jamais faire confiance, toujours vérifier\"",
+        "L'authentification et l'autorisation sont requises pour tous, partout",
+        "L'accès aux ressources est limité au strict minimum nécessaire",
+        "La surveillance continue et l'analyse comportementale sont essentielles",
+        "Zero Trust est une stratégie, pas un produit ou une technologie unique"
+      ],
+      references: [
+        'NIST SP 800-207 - Zero Trust Architecture',
+        'Gartner - "Market Guide for Zero Trust Network Access"',
+        'ANSSI - Recommandations pour la mise en œuvre d\'une architecture Zero Trust'
+      ],
       icon: <Lock />,
-      color: 'blue',
-      content: `
-## Authentification vs Autorisation
-
-**Authentification** : Processus de vérification de l'identité d'un utilisateur (qui êtes-vous?)
-**Autorisation** : Détermination des droits d'accès aux ressources (que pouvez-vous faire?)
-
-## Types d'authentification
-
-### 1. Facteurs d'authentification
-
-- **Quelque chose que vous savez** : Mot de passe, PIN, réponse à une question
-- **Quelque chose que vous possédez** : Smartphone, token physique, carte à puce
-- **Quelque chose que vous êtes** : Empreinte digitale, reconnaissance faciale, iris
-- **Quelque part où vous êtes** : Localisation géographique
-- **Quelque chose que vous faites** : Biométrie comportementale, schéma de frappe
-
-### 2. Authentification multifacteur (MFA)
-
-Utilisation de deux facteurs ou plus pour renforcer la sécurité de l'authentification. Généralement combinaison d'un mot de passe avec un second facteur (code temporaire, notification push, etc.).
-
-### 3. Single Sign-On (SSO)
-
-Méthode permettant à un utilisateur d'accéder à plusieurs applications avec une seule authentification.
-
-## Technologies d'authentification
-
-- **SAML** (Security Assertion Markup Language) - Standard pour l'échange de données d'authentification
-- **OAuth 2.0** - Protocole d'autorisation pour API
-- **OpenID Connect** - Couche d'identité au-dessus d'OAuth 2.0
-- **FIDO2/WebAuthn** - Standard pour l'authentification sans mot de passe
-- **Certificats X.509** - Utilisés pour l'authentification par certificat
-
-## Modèles de contrôle d'accès
-
-1. **DAC** (Discretionary Access Control) - Le propriétaire décide qui a accès
-2. **MAC** (Mandatory Access Control) - Contrôle basé sur des classifications strictes
-3. **RBAC** (Role-Based Access Control) - Accès basé sur les rôles des utilisateurs
-4. **ABAC** (Attribute-Based Access Control) - Décisions basées sur des attributs multiples
-5. **PBAC** (Policy-Based Access Control) - Contrôle via des politiques centralisées
-
-## Meilleures pratiques
-
-- Implémenter l'authentification multifacteur
-- Utiliser des politiques de mot de passe robustes
-- Appliquer le principe du moindre privilège
-- Mettre en place des processus de revue des accès
-- Journaliser et auditer toutes les activités d'authentification
-- Gérer efficacement le cycle de vie des identités
-- Automatiser la révocation des accès lors des départs
-      `
+      isFavorite: false,
+      hasBeenRead: false
     },
     {
-      id: 'supply-chain',
-      title: 'Sécurité de la chaîne d\'approvisionnement',
-      description: 'Protection contre les menaces liées aux fournisseurs et partenaires.',
-      category: 'threats',
-      icon: <RefreshCw />,
-      color: 'amber',
+      id: 'xss',
+      title: 'Cross-Site Scripting (XSS)',
+      category: 'vulnérabilités',
+      level: 'intermédiaire',
+      description: 'Comprendre, détecter et prévenir les attaques XSS',
       content: `
-## Qu'est-ce que la sécurité de la chaîne d'approvisionnement ?
+## Qu'est-ce que le Cross-Site Scripting (XSS) ?
 
-La sécurité de la chaîne d'approvisionnement concerne la protection de l'ensemble du processus d'approvisionnement en matériel, logiciels et services contre les compromissions, les altérations malveillantes et les vulnérabilités introduites intentionnellement ou non par les fournisseurs et partenaires.
+Le Cross-Site Scripting (XSS) est une vulnérabilité de sécurité web permettant à un attaquant d'injecter du code malveillant (généralement JavaScript) qui s'exécute dans le navigateur des utilisateurs. Cette attaque cible les utilisateurs plutôt que l'application directement.
 
-## Risques principaux
+## Types d'attaques XSS
 
-1. **Compromission de fournisseurs** pour accéder indirectement à une cible
-2. **Logiciels malveillants insérés** dans des produits légitimes
-3. **Vulnérabilités dans les composants tiers** (bibliothèques, frameworks)
-4. **Contrefaçon de matériel** ou manipulation de firmware
-5. **Accès non autorisés** via les connexions des fournisseurs
-6. **Intégration de code non vérifié** dans les applications
-7. **Divulgation d'informations sensibles** à des tiers
+1. **XSS réfléchi (Reflected XSS)** : Le code malveillant est inclus dans une requête envoyée à un serveur web et "réfléchi" immédiatement vers l'utilisateur dans la réponse.
 
-## Exemples d'attaques notables
+2. **XSS stocké (Stored XSS)** : Le code malveillant est stocké sur le serveur cible (dans une base de données, un message de forum, etc.) et présenté aux utilisateurs lors de l'accès au contenu affecté.
 
-- **SolarWinds (2020)** : Insertion de code malveillant dans les mises à jour d'un logiciel de supervision
-- **NotPetya (2017)** : Propagation via un logiciel de comptabilité ukrainien compromis
-- **CCleaner (2017)** : Distribution de versions compromises d'un utilitaire populaire
-- **Log4Shell (2021)** : Vulnérabilité critique dans une bibliothèque Java omniprésente
+3. **XSS basé sur le DOM (DOM-based XSS)** : Le code malveillant est exécuté via la manipulation du DOM dans le navigateur de la victime, sans nécessairement être envoyé au serveur.
 
-## Mesures de protection
+## Impacts et risques
 
-### Pour les logiciels
-- **SBOM** (Software Bill of Materials) - Inventaire détaillé des composants
-- **Analyse de composition logicielle** (SCA) pour identifier les vulnérabilités
-- **Vérification de l'intégrité** des packages et bibliothèques
-- **Signatures de code** et vérification cryptographique
-- **Pipeline CI/CD sécurisé** avec validation des dépendances
+- Vol de cookies de session et d'identifiants
+- Hameçonnage ciblé et vol d'identifiants
+- Capture de frappes et vol de données sensibles
+- Redirection vers des sites malveillants
+- Défiguration de site web
+- Installation de malware via drive-by download
+- Exécution d'actions non autorisées au nom de l'utilisateur
 
-### Pour la gestion des fournisseurs
-- **Due diligence** et évaluation de la posture de sécurité des fournisseurs
-- **Clauses contractuelles** exigeant des pratiques de sécurité
-- **Surveillance continue** des risques des fournisseurs
-- **Segmentation du réseau** pour isoler les accès des fournisseurs
-- **Limitation des privilèges** accordés aux partenaires
+## Techniques de prévention
 
-## Cadres et standards
+1. **Échappement et encodage du contexte**
+   - HTML escape pour le contenu dans le corps HTML
+   - Encodage des attributs HTML
+   - Encodage JavaScript pour les données insérées dans des scripts
+   - Encodage CSS pour les données dans les styles
 
-- **NIST 800-161** - Gestion des risques de la chaîne d'approvisionnement
-- **SLSA** (Supply chain Levels for Software Artifacts) - Cadre de Google
-- **OWASP SCVS** (Software Component Verification Standard)
-- **ISO 27036** - Sécurité des relations avec les fournisseurs
-- **CIS Controls Supply Chain Security** - Contrôles spécifiques
-      `
+2. **Validation des entrées**
+   - Validation côté serveur (prioritaire)
+   - Validation côté client (couche additionnelle)
+   - Filtrage des caractères spéciaux
+
+3. **En-têtes de sécurité**
+   - Content-Security-Policy (CSP)
+   - X-XSS-Protection
+   - X-Content-Type-Options
+
+4. **Frameworks et bibliothèques sécurisées**
+   - Utiliser des frameworks qui échappent automatiquement les sorties
+   - Ne pas désactiver les protections intégrées
+      `,
+      keyPoints: [
+        "Le XSS permet l'injection de scripts malveillants dans les pages web vues par d'autres utilisateurs",
+        "Les trois principaux types sont: réfléchi, stocké et basé sur le DOM",
+        "Les conséquences incluent le vol de session, le détournement de compte et le vol de données",
+        "La validation des entrées et l'échappement des sorties sont essentiels",
+        "Content Security Policy (CSP) est une protection efficace contre le XSS"
+      ],
+      references: [
+        'OWASP - XSS Prevention Cheat Sheet',
+        'OWASP - Content Security Policy Cheat Sheet',
+        'Portswigger Web Security Academy - Cross-site scripting'
+      ],
+      icon: <Globe />,
+      isFavorite: false,
+      hasBeenRead: false
     },
     {
-      id: 'devsecsops',
-      title: 'DevSecOps',
-      description: 'Intégration de la sécurité dans le cycle de développement logiciel.',
-      category: 'protection',
-      icon: <Code />,
-      color: 'indigo',
+      id: 'mfa',
+      title: 'Authentification multifacteur (MFA)',
+      category: 'identité',
+      level: 'débutant',
+      description: 'Comprendre et mettre en œuvre l\'authentification multifacteur',
       content: `
-## Qu'est-ce que le DevSecOps ?
+## Qu'est-ce que l'authentification multifacteur (MFA) ?
 
-DevSecOps est une approche qui intègre la sécurité au sein des processus DevOps existants, en faisant de la sécurité une responsabilité partagée tout au long du cycle de vie du développement logiciel, plutôt qu'une étape distincte à la fin. Cette méthodologie vise à produire des applications plus sécurisées sans compromettre la vitesse de livraison.
+L'authentification multifacteur (MFA) est une méthode de sécurité qui exige que l'utilisateur fournisse au moins deux formes d'identification différentes pour accéder à un compte ou à un système. Cette approche renforce considérablement la sécurité en combinant plusieurs facteurs d'authentification.
+
+## Les trois catégories de facteurs d'authentification
+
+1. **Quelque chose que vous connaissez** (facteur de connaissance)
+   - Mot de passe ou phrase de passe
+   - Code PIN
+   - Réponses à des questions de sécurité
+
+2. **Quelque chose que vous possédez** (facteur de possession)
+   - Téléphone mobile (pour recevoir des SMS ou utiliser une application)
+   - Token physique ou clé de sécurité (YubiKey, etc.)
+   - Carte à puce
+
+3. **Quelque chose que vous êtes** (facteur inhérent ou biométrique)
+   - Empreinte digitale
+   - Reconnaissance faciale
+   - Scan de l'iris ou de la rétine
+   - Reconnaissance vocale
+
+## Méthodes courantes de MFA
+
+1. **Applications d'authentification**
+   - Google Authenticator, Microsoft Authenticator, Authy
+   - Génération de codes TOTP (Time-based One-Time Password)
+   - Avantage: fonctionne sans connexion internet
+
+2. **SMS et appels vocaux**
+   - Code envoyé par message texte ou appel vocal
+   - Moins sécurisé mais facile à mettre en œuvre
+   - Vulnérable au SIM swapping
+
+3. **Clés de sécurité physiques**
+   - Dispositifs USB comme YubiKey, Titan Security Key
+   - Basés sur les standards FIDO2/WebAuthn
+   - Très sécurisé contre le phishing
+
+4. **Biométrie**
+   - Reconnaissance faciale, empreintes digitales
+   - Généralement couplée à un dispositif (téléphone, ordinateur)
+
+## Bonnes pratiques de mise en œuvre
+
+1. Adopter une approche par couches (plusieurs méthodes MFA disponibles)
+2. Proposer des méthodes alternatives en cas d'indisponibilité
+3. Générer des codes de secours à usage unique
+4. Former les utilisateurs à l'importance du MFA
+5. Surveiller et journaliser les tentatives d'authentification
+6. Privilégier des solutions résistantes au phishing comme WebAuthn
+      `,
+      keyPoints: [
+        "Le MFA combine au moins deux facteurs d'authentification distincts",
+        "Les trois catégories de facteurs sont : connaissance, possession et inhérence",
+        "Les applications d'authentification sont préférables aux SMS",
+        "Les clés de sécurité physiques offrent le plus haut niveau de protection",
+        "Le MFA réduit drastiquement le risque de compromission de compte"
+      ],
+      references: [
+        'NIST SP 800-63B - Digital Identity Guidelines (Authentication)',
+        'ANSSI - Recommandations relatives à l\'authentification multifacteur',
+        'CISA - Capacity Enhancement Guide: Implementing Strong Authentication'
+      ],
+      icon: <Lock />,
+      isFavorite: false,
+      hasBeenRead: false
+    },
+    {
+      id: 'threat-hunting',
+      title: 'Threat Hunting : la chasse aux menaces',
+      category: 'détection',
+      level: 'avancé',
+      description: 'Méthodologies et techniques de chasse aux menaces proactive',
+      content: `
+## Qu'est-ce que le Threat Hunting ?
+
+Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche d'activités malveillantes qui ont échappé aux détections automatisées dans un environnement informatique. Contrairement aux approches réactives traditionnelles, le Threat Hunting part de l'hypothèse que des adversaires sont déjà présents dans l'environnement et cherche activement à les identifier.
 
 ## Principes fondamentaux
 
-1. **Shift Left Security** - Intégration précoce de la sécurité dès les premières phases du développement
-2. **Automatisation** - Outils automatisés pour les tests et contrôles de sécurité
-3. **Collaboration** - Communication et responsabilité partagée entre développeurs, opérations et sécurité
-4. **Itération continue** - Amélioration constante des processus et des contrôles de sécurité
-5. **Visibilité** - Transparence sur les risques de sécurité pour toutes les parties prenantes
+1. **Approche basée sur des hypothèses** : Formulation de théories sur les possibles techniques d'attaque, basées sur la connaissance des tactiques adversaires (TTP - Tactiques, Techniques et Procédures)
 
-## Pratiques clés
+2. **Intelligence sur les menaces** : Utilisation des informations sur les menaces pertinentes pour l'organisation
 
-### Phase de planification
-- Analyse de risques et modélisation des menaces
-- Définition des exigences de sécurité
-- Sélection de frameworks et bibliothèques sécurisés
+3. **Compréhension du comportement normal** : Établissement d'une base de référence pour identifier les anomalies
 
-### Phase de développement
-- Formation des développeurs aux pratiques sécurisées
-- Analyse statique de code (SAST)
-- Gestion sécurisée des secrets
-- Vérification des dépendances (SCA)
+4. **Analyse de données et corrélation** : Examen des données provenant de multiples sources
 
-### Phase de build
-- Signature de code
-- Analyse de composition logicielle
-- Construction d'images sécurisées
-- Génération de SBOM (Software Bill of Materials)
+## Méthodologie du Threat Hunting
 
-### Phase de test
-- Tests de sécurité dynamiques (DAST)
-- Tests de pénétration automatisés
-- Fuzzing
-- Vérification de la configuration
+### 1. Préparation
+- Définir l'objectif et la portée de la chasse
+- Collecter et organiser les informations sur les menaces
+- Analyser les vulnérabilités et les expositions potentielles
+- Préparer les outils et les accès nécessaires
 
-### Phase de déploiement
-- Analyse des vulnérabilités des conteneurs
-- Contrôles d'admission et validation des politiques
-- Gestion sécurisée des configurations
-- Infrastructure as Code sécurisée
+### 2. Formulation d'hypothèses
+- Définir des hypothèses basées sur les TTP des attaquants
+- S'appuyer sur les frameworks MITRE ATT&CK, TIBER-EU, etc.
+- Prioriser les hypothèses selon le niveau de risque
 
-### Production
-- Surveillance de la sécurité en temps réel
-- Détection des anomalies
-- Gestion des incidents
-- Chaos engineering sécuritaire
+### 3. Collecte et analyse des données
+- Logs de sécurité (EDR, NDR, SIEM)
+- Trafic réseau et communications
+- Comportements des utilisateurs
+- Utilisation des ressources système
+- Actions privilégiées
 
-## Outils DevSecOps populaires
+### 4. Identification et investigation
+- Recherche d'indicateurs de compromission (IOC)
+- Analyse des comportements anormaux
+- Investigation approfondie des anomalies détectées
+- Documentation des découvertes
 
-- **SAST** : SonarQube, Checkmarx, GitHub CodeQL
-- **DAST** : OWASP ZAP, Burp Suite
-- **SCA** : Snyk, OWASP Dependency-Check, WhiteSource
-- **Secrets Management** : HashiCorp Vault, AWS Secrets Manager
-- **Container Security** : Trivy, Clair, Anchore
-- **IaC Security** : Checkov, Terrascan, tfsec
-- **Policy as Code** : Open Policy Agent, Kyverno
-- **SIEM/Monitoring** : ELK Stack, Prometheus, Grafana
+### 5. Réponse et amélioration
+- Élimination des menaces identifiées
+- Documentation des leçons apprises
+- Amélioration des défenses (ajout de règles de détection)
+- Partage des connaissances acquises
 
-## Métriques DevSecOps
+## Techniques et outils de Threat Hunting
 
-- Délai de correction des vulnérabilités
-- Pourcentage de code testé pour la sécurité
-- Fréquence des tests de sécurité
-- Nombre de vulnérabilités par release
-- Score de risque des applications
-- Temps moyen pour détecter/corriger les incidents
-      `
+- **Analyse comportementale** (UEBA - User and Entity Behavior Analytics)
+- **Détection d'anomalies** (statistiques, apprentissage automatique)
+- **Visualisation de données** pour identifier les motifs et tendances
+- **Analyse de logs et de trafic réseau**
+- **Forensique mémoire et disque**
+- **Tracing et monitoring système**
+
+## Compétences requises pour le Threat Hunter
+
+- Connaissance approfondie des TTP adversaires
+- Compréhension des systèmes, réseaux et applications
+- Maîtrise des outils d'analyse de sécurité
+- Pensée analytique et résolution de problèmes
+- Capacité à formuler et tester des hypothèses
+- Connaissances en analyse de données et statistiques
+      `,
+      keyPoints: [
+        "Le Threat Hunting est une démarche proactive de recherche de menaces déjà présentes",
+        "Il se base sur la formulation et vérification d'hypothèses de compromission",
+        "Une bonne connaissance des tactiques adversaires (TTPs) est essentielle",
+        "L'établissement d'une ligne de base comportementale facilite l'identification d'anomalies",
+        "Le processus doit être itératif et contribuer à l'amélioration continue des défenses"
+      ],
+      references: [
+        'SANS - Effective Threat Hunting',
+        'MITRE ATT&CK Framework',
+        'Sqrrl - A Framework for Cyber Threat Hunting',
+        'NIST SP 800-61 - Computer Security Incident Handling Guide'
+      ],
+      icon: <AlertCircle />,
+      isFavorite: false,
+      hasBeenRead: false
     }
   ];
-  
-  // Filtrer les fiches selon la recherche et la catégorie
-  const filteredFiches = fiches.filter(fiche => {
-    const matchesSearch = searchTerm.toLowerCase() === '' || 
-      fiche.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      fiche.description.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesCategory = activeCategory === 'all' || fiche.category === activeCategory;
-    
-    return matchesSearch && matchesCategory;
-  });
-  
-  // État pour la fiche sélectionnée
-  const [selectedFiche, setSelectedFiche] = useState<string | null>(null);
-  
-  // Récupérer la fiche actuellement sélectionnée
-  const currentFiche = fiches.find(fiche => fiche.id === selectedFiche);
-  
-  // Fonction pour générer une couleur de badge basée sur la catégorie
-  const getCategoryColor = (category: string) => {
-    switch(category) {
-      case 'basics':
-        return 'bg-green-700/50 hover:bg-green-700/70 text-green-100';
-      case 'threats':
-        return 'bg-red-700/50 hover:bg-red-700/70 text-red-100';
-      case 'protection':
-        return 'bg-blue-700/50 hover:bg-blue-700/70 text-blue-100';
-      case 'compliance':
-        return 'bg-violet-700/50 hover:bg-violet-700/70 text-violet-100';
-      default:
-        return 'bg-slate-700/50 hover:bg-slate-700/70 text-slate-100';
+
+  // Initialisation des fiches
+  useEffect(() => {
+    // Simuler le chargement depuis une API
+    setFiches(demoFiches);
+
+    // Initialiser les compteurs
+    const favCount = demoFiches.filter(fiche => fiche.isFavorite).length;
+    const readCount = demoFiches.filter(fiche => fiche.hasBeenRead).length;
+    setFavoriteCount(favCount);
+    setReadCount(readCount);
+  }, []);
+
+  // Filtrage des fiches
+  const filteredFiches = fiches
+    .filter(fiche => 
+      fiche.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      fiche.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      fiche.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      fiche.keyPoints.some(point => point.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
+    .filter(fiche => selectedCategory === 'all' || fiche.category === selectedCategory)
+    .filter(fiche => selectedLevel === 'all' || fiche.level === selectedLevel)
+    .sort((a, b) => {
+      if (sortOrder === 'recent') {
+        return a.id > b.id ? -1 : 1;
+      } else if (sortOrder === 'title') {
+        return a.title.localeCompare(b.title);
+      } else if (sortOrder === 'level') {
+        const levelOrder = { 'débutant': 1, 'intermédiaire': 2, 'avancé': 3, 'tous niveaux': 4 };
+        return levelOrder[a.level] - levelOrder[b.level];
+      } else {
+        return 0;
+      }
+    });
+
+  // Gestion des favoris
+  const handleToggleFavorite = (id: string) => {
+    setFiches(fiches.map(fiche => {
+      if (fiche.id === id) {
+        const newState = !fiche.isFavorite;
+        if (newState) {
+          toast({ 
+            title: "Ajouté aux favoris", 
+            description: "Cette fiche est maintenant dans vos favoris" 
+          });
+        } else {
+          toast({ 
+            title: "Retiré des favoris", 
+            description: "Cette fiche a été retirée de vos favoris" 
+          });
+        }
+        return { ...fiche, isFavorite: newState };
+      }
+      return fiche;
+    }));
+
+    // Mettre à jour le compteur de favoris
+    const updatedFavoriteCount = fiches.filter(f => f.id === id ? !f.isFavorite : f.isFavorite).length;
+    setFavoriteCount(updatedFavoriteCount);
+  };
+
+  // Marquer comme lu
+  const handleToggleRead = (id: string) => {
+    setFiches(fiches.map(fiche => {
+      if (fiche.id === id) {
+        const newState = !fiche.hasBeenRead;
+        if (newState) {
+          toast({ 
+            title: "Fiche marquée comme lue", 
+            description: "Votre progression a été enregistrée" 
+          });
+        }
+        return { ...fiche, hasBeenRead: newState };
+      }
+      return fiche;
+    }));
+
+    // Mettre à jour le compteur de fiches lues
+    const updatedReadCount = fiches.filter(f => f.id === id ? !f.hasBeenRead : f.hasBeenRead).length;
+    setReadCount(updatedReadCount);
+  };
+
+  // Supprimer une fiche générée par IA
+  const handleDeleteFiche = (id: string) => {
+    // Vérifier si la fiche est générée par IA (commence par "gen-")
+    const ficheToDelete = fiches.find(fiche => fiche.id === id);
+
+    if (!ficheToDelete || !id.startsWith('gen-')) {
+      toast({
+        title: "Erreur",
+        description: "Seules les fiches générées par IA peuvent être supprimées",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Supprimer la fiche
+    const updatedFiches = fiches.filter(fiche => fiche.id !== id);
+    setFiches(updatedFiches);
+
+    // Si la fiche supprimée était sélectionnée, désélectionner
+    if (selectedFiche && selectedFiche.id === id) {
+      setSelectedFiche(null);
+    }
+
+    // Mettre à jour les compteurs si nécessaire
+    if (ficheToDelete.isFavorite) {
+      setFavoriteCount(favoriteCount - 1);
+    }
+
+    if (ficheToDelete.hasBeenRead) {
+      setReadCount(readCount - 1);
+    }
+
+    toast({
+      title: "Fiche supprimée",
+      description: `La fiche "${ficheToDelete.title}" a été supprimée`
+    });
+  };
+
+  // Télécharger la fiche en PDF
+  const downloadFiche = (fiche: FicheCyber) => {
+    // Dans une implémentation réelle, on utiliserait une librairie comme jsPDF
+    // Ici, on simule simplement le téléchargement
+    const element = document.createElement('a');
+    const file = new Blob([`# ${fiche.title}\n\n${fiche.description}\n\n${fiche.content}`], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+    element.download = `${fiche.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+
+    toast({
+      title: "Téléchargement réussi",
+      description: `La fiche "${fiche.title}" a été téléchargée au format Markdown`,
+    });
+  };
+
+  // Générer une nouvelle fiche avec l'IA
+  const generateFiche = async () => {
+    if (!aiPrompt.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez entrer un sujet pour générer une fiche",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    setProgress(10); // Démarrer avec un progrès initial
+
+    // Démarrer la simulation de progression pendant que l'API traite la demande
+    let progressValue = 10;
+    const interval = setInterval(() => {
+      // Augmenter progressivement jusqu'à 90% (on garde 10% pour la finalisation)
+      if (progressValue < 90) {
+        progressValue += Math.floor(Math.random() * 8) + 2; // Augmentation aléatoire pour effet naturel
+        setProgress(Math.min(progressValue, 90));
+      }
+    }, 500);
+
+    try {
+      // Appel à l'API pour générer la fiche
+      const response = await fetch('/api/cyber/fiches/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ topic: aiPrompt }),
+      });
+
+      // Arrêter la simulation de progression
+      clearInterval(interval);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors de la génération de la fiche');
+      }
+
+      const data = await response.json();
+
+      if (data.success && data.fiche) {
+        setProgress(100);
+
+        // Créer la fiche à partir des données reçues
+        const iconMap: Record<string, JSX.Element> = {
+          'Shield': <Shield />,
+          'Database': <Database />,
+          'Globe': <Globe />,
+          'Server': <Server />,
+          'Lock': <Lock />,
+          'Network': <Network />,
+          'Zap': <Zap />,
+          'AlertCircle': <AlertCircle />,
+          'BrainCircuit': <BrainCircuit />,
+          'FileText': <FileText />
+        };
+
+        const newFiche: FicheCyber = {
+          id: data.fiche.id,
+          title: data.fiche.title,
+          category: data.fiche.category,
+          level: data.fiche.level as 'débutant' | 'intermédiaire' | 'avancé' | 'tous niveaux',
+          description: data.fiche.description,
+          content: data.fiche.content,
+          keyPoints: data.fiche.keyPoints,
+          references: data.fiche.references,
+          icon: iconMap[data.fiche.icon] || <BrainCircuit />,
+          isFavorite: false,
+          hasBeenRead: false
+        };
+
+        setFiches([newFiche, ...fiches]);
+        setSelectedFiche(newFiche);
+        setAiPrompt('');
+        setIsGenerating(false);
+
+        toast({
+          title: "Génération réussie",
+          description: "Votre fiche personnalisée a été créée avec succès"
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la génération de la fiche:", error);
+      setIsGenerating(false);
+      setProgress(0);
+      toast({
+        title: "Erreur de génération",
+        description: "Un problème est survenu lors de la génération de la fiche",
+        variant: "destructive"
+      });
     }
   };
-  
+
+  // Fonction pour formater le temps en minutes:secondes
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Démarrer le compte à rebours pour une fiche
+  const startFicheTimer = (timeInMinutes: number) => {
+    const seconds = timeInMinutes * 60;
+    setTimeRemaining(seconds);
+
+    // Arrêter tout timer existant
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    // Créer un nouveau timer
+    timerRef.current = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev <= 1) {
+          // Nettoyer l'intervalle
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+          }
+
+          // Marquer automatiquement comme lu à l'expiration du timer
+          if (selectedFiche) {
+            handleToggleRead(selectedFiche.id);
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  // Nettoyer le timer quand le composant est démonté
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <div className="min-h-screen bg-[#0a1429]">
-      <PageTitle title="Fiches Cyber Express | Centre de formation" />
-      
-      {/* En-tête */}
-      <header className="border-b border-blue-800/60">
-        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-          <Link href="/cyber/learning-center">
-            <Button variant="ghost" className="text-blue-300 hover:bg-blue-900/30 hover:text-blue-200">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Retour au centre de formation
-            </Button>
-          </Link>
-          <h1 className="text-xl text-white font-medium">Fiches Cyber Express</h1>
+    <div className="container max-w-7xl mx-auto px-4 py-8">
+      <div className="flex items-center mb-6">
+        <Link href="/cyber/learning-center">
+          <Button variant="ghost" size="icon" className="mr-2">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        </Link>
+        <PageTitle title="Fiches Cyber Express" />
+        <div>
+          <h1 className="text-2xl font-bold">Fiches Cyber Express</h1>
+          <p className="text-muted-foreground">Consultez et apprenez rapidement avec nos fiches synthétiques</p>
         </div>
-      </header>
-      
-      {/* Contenu principal */}
-      <div className="container mx-auto px-4 py-8">
-        {selectedFiche ? (
-          // Affichage d'une fiche spécifique
-          <div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Panneau de gauche : Liste des fiches et recherche */}
+        <div className="lg:col-span-1 space-y-4">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col">
+                <span className="text-sm text-muted-foreground">Fiches disponibles</span>
+                <span className="font-medium">{fiches.length}</span>
+              </div>
+              <div className="w-px h-8 bg-border mx-2"></div>
+              <div className="flex flex-col">
+                <span className="text-sm text-muted-foreground">Lues</span>
+                <span className="font-medium">{readCount}/{fiches.length}</span>
+              </div>
+              <div className="w-px h-8 bg-border mx-2"></div>
+              <div className="flex flex-col">
+                <span className="text-sm text-muted-foreground">Favorites</span>
+                <span className="font-medium">{favoriteCount}</span>
+              </div>
+            </div>
+
             <Button 
               variant="outline" 
-              className="mb-6 border-blue-500 text-blue-400 hover:bg-blue-900/30"
-              onClick={() => setSelectedFiche(null)}
+              size="sm" 
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-1"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Retour aux fiches
+              <Filter className="h-4 w-4" />
+              Filtres
+              {showFilters ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />}
             </Button>
-            
-            <div className="bg-blue-950/60 border border-blue-800/60 rounded-lg overflow-hidden">
-              <div className="p-6 border-b border-blue-800/60">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center">
-                    <div className={`p-2 rounded-md bg-${currentFiche?.color}-700/50 mr-3`}>
-                      {currentFiche?.icon}
-                    </div>
-                    <div>
-                      <h1 className="text-2xl font-bold text-white">{currentFiche?.title}</h1>
-                      <p className="text-blue-300 mt-1">{currentFiche?.description}</p>
+          </div>
+
+          {/* Barre de recherche */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher une fiche..."
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          {/* Filtres */}
+          <AnimatePresence>
+            {showFilters && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="p-4 border rounded-md space-y-3">
+                  {/* Filtre par catégorie */}
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Catégorie</label>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge 
+                        variant={selectedCategory === 'all' ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => setSelectedCategory('all')}
+                      >
+                        Toutes
+                      </Badge>
+                      <Badge 
+                        variant={selectedCategory === 'menaces' ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => setSelectedCategory('menaces')}
+                      >
+                        Menaces
+                      </Badge>
+                      <Badge 
+                        variant={selectedCategory === 'vulnérabilités' ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => setSelectedCategory('vulnérabilités')}
+                      >
+                        Vulnérabilités
+                      </Badge>
+                      <Badge 
+                        variant={selectedCategory === 'architecture' ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => setSelectedCategory('architecture')}
+                      >
+                        Architecture
+                      </Badge>
+                      <Badge 
+                        variant={selectedCategory === 'identité' ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => setSelectedCategory('identité')}
+                      >
+                        Identité
+                      </Badge>
+                      <Badge 
+                        variant={selectedCategory === 'détection' ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => setSelectedCategory('détection')}
+                      >
+                        Détection
+                      </Badge>
+                      <Badge 
+                        variant={selectedCategory === 'personnalisé' ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => setSelectedCategory('personnalisé')}
+                      >
+                        Personnalisées
+                      </Badge>
                     </div>
                   </div>
-                  <Badge className={getCategoryColor(currentFiche?.category || '')}>
-                    {currentFiche?.category === 'basics' && 'Fondamentaux'}
-                    {currentFiche?.category === 'threats' && 'Menaces'}
-                    {currentFiche?.category === 'protection' && 'Protection'}
-                    {currentFiche?.category === 'compliance' && 'Normes & conformité'}
-                  </Badge>
+
+                  {/* Filtre par niveau */}
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Niveau</label>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge 
+                        variant={selectedLevel === 'all' ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => setSelectedLevel('all')}
+                      >
+                        Tous
+                      </Badge>
+                      <Badge 
+                        variant={selectedLevel === 'débutant' ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => setSelectedLevel('débutant')}
+                      >
+                        Débutant
+                      </Badge>
+                      <Badge 
+                        variant={selectedLevel === 'intermédiaire' ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => setSelectedLevel('intermédiaire')}
+                      >
+                        Intermédiaire
+                      </Badge>
+                      <Badge 
+                        variant={selectedLevel === 'avancé' ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => setSelectedLevel('avancé')}
+                      >
+                        Avancé
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Tri */}
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Tri</label>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge 
+                        variant={sortOrder === 'recent' ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => setSortOrder('recent')}
+                      >
+                        Plus récent
+                      </Badge>
+                      <Badge 
+                        variant={sortOrder === 'title' ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => setSortOrder('title')}
+                      >
+                        Alphabétique
+                      </Badge>
+                      <Badge 
+                        variant={sortOrder === 'level' ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => setSortOrder('level')}
+                      >
+                        Par niveau
+                      </Badge>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="p-6">
-                <div className="prose prose-invert max-w-none">
-                  {currentFiche?.content.split('\n').map((line, i) => {
-                    if (line.startsWith('## ')) {
-                      return <h2 key={i} className="text-xl font-bold mt-8 mb-4 text-blue-100">{line.substring(3)}</h2>;
-                    } else if (line.startsWith('### ')) {
-                      return <h3 key={i} className="text-lg font-bold mt-6 mb-3 text-blue-200">{line.substring(4)}</h3>;
-                    } else if (line.startsWith('- ')) {
-                      return <li key={i} className="ml-4 mb-2 text-blue-300">{line.substring(2)}</li>;
-                    } else if (line.startsWith('1. ') || line.startsWith('2. ') || line.startsWith('3. ') || line.startsWith('4. ') || line.startsWith('5. ') || line.startsWith('6. ') || line.startsWith('7. ')) {
-                      return <li key={i} className="ml-4 mb-2 text-blue-300">{line.substring(3)}</li>;
-                    } else if (line.trim() === '') {
-                      return <br key={i} />;
-                    } else if (line.startsWith('**') && line.endsWith('**')) {
-                      return <p key={i} className="font-bold text-blue-100 mb-1">{line.substring(2, line.length - 2)}</p>;
-                    } else {
-                      return <p key={i} className="mb-3 text-blue-200">{line}</p>;
-                    }
-                  })}
-                </div>
-              </div>
-              
-              <div className="p-6 border-t border-blue-800/60 flex justify-between">
-                <Button variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-900/30">
-                  <Download className="h-4 w-4 mr-2" />
-                  Télécharger en PDF
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="border-blue-500 text-blue-400 hover:bg-blue-900/30"
-                  onClick={() => window.open(`https://www.ssi.gouv.fr/search/result/?q=${encodeURIComponent(currentFiche?.title || '')}`, '_blank')}
-                >
-                  En savoir plus
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          // Liste des fiches
-          <div>
-            {/* Introduction */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-white mb-2">Fiches Cyber Express</h1>
-              <p className="text-blue-300 max-w-3xl">
-                Consultez notre collection de fiches synthétiques sur les concepts clés de cybersécurité. Chaque fiche offre une vue d'ensemble concise et pratique sur un sujet spécifique.
-              </p>
-            </div>
-            
-            {/* Barre de recherche et filtres */}
-            <div className="mb-8">
-              <div className="relative w-full mb-6">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-blue-400" />
-                <Input
-                  placeholder="Rechercher par titre ou description..."
-                  className="pl-10 bg-blue-950/70 border-blue-500/30 text-white focus:border-blue-500 w-full"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              
-              <Tabs value={activeCategory} onValueChange={setActiveCategory}>
-                <TabsList className="bg-blue-950/70 border border-blue-800/60 w-full overflow-x-auto">
-                  {categories.map(category => (
-                    <TabsTrigger 
-                      key={category.id} 
-                      value={category.id}
-                      className="data-[state=active]:bg-blue-700"
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Onglets */}
+          <Tabs defaultValue="browse" className="w-full">
+            <TabsList className="w-full">
+              <TabsTrigger value="browse" className="flex-1">Parcourir</TabsTrigger>
+              <TabsTrigger value="create" className="flex-1">Générer</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="browse" className="space-y-4 mt-4">
+              {/* Liste des fiches */}
+              {filteredFiches.length > 0 ? (
+                <div className="space-y-3">
+                  {filteredFiches.map((fiche) => (
+                    <Card 
+                      key={fiche.id} 
+                      className={`cursor-pointer transition-all hover:border-primary ${selectedFiche?.id === fiche.id ? 'border-primary' : ''}`}
+                      onClick={() => setSelectedFiche(fiche)}
                     >
-                      {category.name}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
-            </div>
-            
-            {/* Liste des fiches */}
-            {filteredFiches.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredFiches.map((fiche) => (
-                  <Card 
-                    key={fiche.id}
-                    className="bg-blue-950/70 border-blue-800/60 hover:bg-blue-900/60 transition-colors"
-                  >
-                    <CardHeader className="pb-2">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center">
-                          <div className={`p-2 rounded-md bg-${fiche.color}-700/50 mr-3`}>
-                            {fiche.icon}
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start space-x-3">
+                            <div className="mt-1 p-2 rounded-md bg-muted flex items-center justify-center">
+                              {fiche.icon}
+                            </div>
+                            <div>
+                              <h3 className="font-medium">{fiche.title}</h3>
+                              <p className="text-sm text-muted-foreground line-clamp-2">{fiche.description}</p>
+                              <div className="flex items-center mt-2 space-x-2">
+                                <Badge variant="outline" className="text-xs capitalize">
+                                  {fiche.category}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs capitalize">
+                                  {fiche.level}
+                                </Badge>
+                                {fiche.hasBeenRead && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    <BookOpen className="h-3 w-3 mr-1" />
+                                    Lu
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          <CardTitle className="text-lg font-medium">{fiche.title}</CardTitle>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className={`h-7 w-7 ${fiche.isFavorite ? 'text-amber-500' : ''}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleFavorite(fiche.id);
+                            }}
+                          >
+                            <Star className="h-4 w-4" fill={fiche.isFavorite ? 'currentColor' : 'none'} />
+                          </Button>
                         </div>
-                        <Badge className={getCategoryColor(fiche.category)}>
-                          {fiche.category === 'basics' && 'Fondamentaux'}
-                          {fiche.category === 'threats' && 'Menaces'}
-                          {fiche.category === 'protection' && 'Protection'}
-                          {fiche.category === 'compliance' && 'Normes & conformité'}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium">Aucune fiche trouvée</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Essayez de modifier vos filtres ou de créer une nouvelle fiche.
+                  </p>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="create" className="space-y-4 mt-4">
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Générer une fiche personnalisée</h3>
+                <p className="text-sm text-muted-foreground">
+                  Entrez un sujet de cybersécurité et notre IA générera une fiche synthétique pour vous.
+                </p>
+
+                <div className="space-y-2">
+                  <Input
+                    placeholder="Ex: Sécurité des environnements cloud, chiffrement AES, etc."
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    disabled={isGenerating}
+                  />
+
+                  <Button 
+                    className="w-full"
+                    onClick={generateFiche}
+                    disabled={isGenerating || !aiPrompt.trim()}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <BrainCircuit className="mr-2 h-4 w-4 animate-pulse" />
+                        Génération en cours...
+                      </>
+                    ) : (
+                      <>
+                        <BrainCircuit className="mr-2 h-4 w-4" />
+                        Générer une fiche
+                      </>
+                    )}
+                  </Button>
+
+                  {isGenerating && (
+                    <div className="space-y-2">
+                      <Progress value={progress} className="h-2" />
+                      <p className="text-xs text-center text-muted-foreground">
+                        {progress}% - L'IA analyse et synthétise les informations
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="border rounded-md p-4 bg-muted/30">
+                  <h4 className="font-medium mb-2 flex items-center">
+                    <Sparkles className="h-4 w-4 mr-2 text-blue-500" />
+                    Exemples de sujets
+                  </h4>
+                  <ul className="space-y-1 text-sm">
+                    <li className="cursor-pointer hover:text-primary" onClick={() => setAiPrompt("Principes du Bug Bounty")}>
+                      • Principes du Bug Bounty
+                    </li>
+                    <li className="cursor-pointer hover:text-primary" onClick={() => setAiPrompt("Sécuriser les containers Docker")}>
+                      • Sécuriser les containers Docker
+                    </li>
+                    <li className="cursor-pointer hover:text-primary" onClick={() => setAiPrompt("Détection d'intrusion réseau")}>
+                      • Détection d'intrusion réseau
+                    </li>
+                    <li className="cursor-pointer hover:text-primary" onClick={() => setAiPrompt("Sécurité des API REST")}>
+                      • Sécurité des API REST
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Panneau de droite : Contenu de la fiche */}
+        <div className="lg:col-span-2">
+          {selectedFiche ? (
+            <div className="border rounded-lg h-full bg-slate-900 text-white">
+              <div className="p-6 border-b sticky top-0 bg-slate-900 z-10">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-md bg-slate-800">
+                      {selectedFiche.icon}
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-white">{selectedFiche.title}</h2>
+                      <div className="flex items-center mt-1 space-x-2">
+                        <Badge variant="outline" className="capitalize text-blue-200 border-blue-500">
+                          {selectedFiche.category}
+                        </Badge>
+                        <Badge variant="outline" className="capitalize text-blue-200 border-blue-500">
+                          {selectedFiche.level}
                         </Badge>
                       </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-blue-300">{fiche.description}</p>
-                    </CardContent>
-                    <CardFooter>
-                      <Button 
-                        className="w-full bg-blue-700 hover:bg-blue-600"
-                        onClick={() => setSelectedFiche(fiche.id)}
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => downloadFiche(selectedFiche)}
+                    >
+                      <Download className="h-4 w-4 mr-1" />
+                      Télécharger
+                    </Button>
+                    {/* Bouton Supprimer uniquement pour les fiches générées par IA */}
+                    {selectedFiche.id.startsWith('gen-') && (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteFiche(selectedFiche.id)}
                       >
-                        Consulter la fiche
-                        <ChevronRight className="h-4 w-4 ml-2" />
+                        <Trash className="h-4 w-4 mr-1" />
+                        Supprimer
                       </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
+                    )}
+                    <Button
+                      variant={selectedFiche.isFavorite ? "default" : "outline"}
+                      size="icon"
+                      className={selectedFiche.isFavorite ? "text-amber-500" : ""}
+                      onClick={() => handleToggleFavorite(selectedFiche.id)}
+                    >
+                      <Star className="h-4 w-4" fill={selectedFiche.isFavorite ? "currentColor" : "none"} />
+                    </Button>
+                    {!selectedFiche.hasBeenRead && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => startFicheTimer(5)}
+                        className="flex items-center"
+                      >
+                        <Clock className="h-4 w-4 mr-1" />
+                        Lire (5 min)
+                      </Button>
+                    )}
+                    {timeRemaining > 0 && (
+                      <Badge variant="outline" className="ml-2 py-1">
+                        <Clock className="h-3 w-3 mr-1" />
+                        {formatTime(timeRemaining)}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+
+                {!selectedFiche.hasBeenRead && (
+                  <div className="mt-4 flex items-center justify-between">
+                    <div className="flex-1 mr-4">
+                      <Progress value={timeRemaining > 0 ? (300 - timeRemaining) / 3 : 0} className="h-2" />
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleToggleRead(selectedFiche.id)}
+                    >
+                      Marquer comme lu
+                    </Button>
+                  </div>
+                )}
+
+                {selectedFiche.hasBeenRead && (
+                  <div className="mt-4">
+                    <Badge variant="secondary" className="text-xs">
+                      <BookOpen className="h-3 w-3 mr-1" />
+                      Fiche lue
+                    </Badge>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="bg-blue-900/30 rounded-lg p-8 text-center">
-                <FileText className="h-12 w-12 text-blue-500 mx-auto mb-4" />
-                <h3 className="text-xl font-medium text-white mb-2">Aucune fiche trouvée</h3>
-                <p className="text-blue-300 mb-4">
-                  Aucune fiche ne correspond à vos critères de recherche.
-                </p>
-                <Button 
-                  variant="outline" 
-                  className="border-blue-500 text-blue-400"
-                  onClick={() => {
-                    setSearchTerm('');
-                    setActiveCategory('all');
-                  }}
-                >
-                  Réinitialiser les filtres
-                </Button>
+
+              <div className="p-6 overflow-auto prose prose-invert max-w-none h-[calc(100vh-350px)] pb-20">
+                <p className="text-lg font-medium mb-4 text-white">{selectedFiche.description}</p>
+
+                {/* Contenu en Markdown */}
+                <div className="text-white" dangerouslySetInnerHTML={{ 
+                  __html: selectedFiche.content
+                    // Sections principales
+                    .replace(/^## (.*$)/gm, '<h2 class="text-xl font-semibold mt-6 mb-3 text-blue-200">$1</h2>')
+                    // Sous-sections
+                    .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-5 mb-2 text-blue-200">$1</h3>')
+                    // Texte en gras
+                    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-blue-100">$1</strong>')
+                    // Listes à puces
+                    .replace(/^\- (.*$)/gm, '<li class="ml-4 mb-1 text-white">$1</li>')
+                    // Listes numérotées
+                    .replace(/^\d\. (.*$)/gm, '<li class="ml-4 mb-1 text-white">$1</li>')
+                    // Paragraphes (important pour l'espacement)
+                    .replace(/\n\n/g, '</p><p class="text-gray-100 mb-4">')
+                    // Remplacer les listes manuelles par des vraies listes HTML
+                    .replace(/<li class="ml-4 mb-1 text-white">/g, '<ul class="list-disc list-inside mb-4"><li class="ml-4 mb-1 text-white">')
+                    .replace(/<\/li>\n<li class/g, '</li><li class')
+                    .replace(/<\/li>\n(?!<li)/g, '</li></ul>\n')
+                    // S'assurer que tout commence par un paragraphe et se termine correctement
+                    .replace(/^(.+?)(?=<h2|<ul|$)/, '<p class="text-gray-100 mb-4">$1</p>')
+                }} />
+
+                <div className="mt-8 bg-slate-800 p-4 rounded-md border border-blue-900">
+                  <h3 className="font-semibold mb-2 text-blue-200">Points clés à retenir</h3>
+                  <ul className="space-y-2">
+                    {selectedFiche.keyPoints.map((point, index) => (
+                      <li key={index} className="flex items-start">
+                        <span className="inline-block h-2 w-2 rounded-full bg-blue-500 mt-2 mr-2"></span>
+                        <span className="text-gray-100">{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="mt-6">
+                  <h3 className="font-semibold mb-2 text-blue-200">Références</h3>
+                  <ul className="space-y-1 text-sm">
+                    {selectedFiche.references.map((ref, index) => (
+                      <li key={index} className="text-blue-300">
+                        <a href="#" className="hover:underline">{ref}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          ) : (
+            <div className="border rounded-lg h-full flex flex-col items-center justify-center p-8 text-center bg-slate-900 text-white">
+              <FileText className="h-16 w-16 text-blue-400 mb-4" />
+              <h3 className="text-xl font-medium text-white">Sélectionnez une fiche</h3>
+              <p className="text-blue-200 mt-2 max-w-md">
+                Choisissez une fiche dans la liste à gauche pour afficher son contenu ou générez une nouvelle fiche personnalisée.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

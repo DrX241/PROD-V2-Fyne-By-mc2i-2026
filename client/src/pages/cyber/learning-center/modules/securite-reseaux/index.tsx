@@ -147,24 +147,24 @@ export default function SecuriteReseauxModule() {
               </ul>
             </AlertDescription>
           </Alert>
-          
+
           <div className="mt-6 space-y-4">
             <h2 className="text-2xl font-bold">Comprendre la sécurité des réseaux</h2>
-            
+
             <p>
               La <strong>sécurité des réseaux</strong> englobe l'ensemble des politiques, pratiques et technologies visant à protéger l'intégrité, la confidentialité et la disponibilité des infrastructures de communication et des données qu'elles transportent.
             </p>
-            
+
             <div className="bg-blue-900/20 border border-blue-800 rounded-md p-4 my-4">
               <h3 className="text-lg font-medium mb-2">Définition</h3>
               <p>
                 La <strong>sécurité des réseaux</strong> comprend l'ensemble des mesures destinées à protéger l'infrastructure réseau contre les accès non autorisés, les modifications, les détournements ou les perturbations de service, en assurant la confidentialité, l'intégrité et la disponibilité des communications et des données.
               </p>
             </div>
-            
+
             <div className="mt-6">
               <h3 className="text-xl font-bold">Pourquoi la sécurité réseau est-elle critique ?</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
@@ -179,7 +179,7 @@ export default function SecuriteReseauxModule() {
                     </p>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md flex items-center">
@@ -193,7 +193,7 @@ export default function SecuriteReseauxModule() {
                     </p>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md flex items-center">
@@ -207,7 +207,7 @@ export default function SecuriteReseauxModule() {
                     </p>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md flex items-center">
@@ -223,10 +223,10 @@ export default function SecuriteReseauxModule() {
                 </Card>
               </div>
             </div>
-            
+
             <div className="mt-8">
               <h3 className="text-xl font-bold">Les principaux composants de la sécurité réseau</h3>
-              
+
               <div className="mt-4 space-y-3">
                 <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                   <div className="bg-blue-700 p-2 rounded-md shrink-0">
@@ -237,7 +237,7 @@ export default function SecuriteReseauxModule() {
                     <p className="text-sm text-blue-200 mt-1">Protection des frontières du réseau contre les menaces externes. Inclut les firewalls, proxys, passerelles VPN, etc.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                   <div className="bg-blue-700 p-2 rounded-md shrink-0">
                     <Eye className="h-5 w-5 text-white" />
@@ -247,7 +247,7 @@ export default function SecuriteReseauxModule() {
                     <p className="text-sm text-blue-200 mt-1">Systèmes visant à identifier et bloquer les comportements malveillants. Comprend les IDS/IPS, sondes réseau, etc.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                   <div className="bg-blue-700 p-2 rounded-md shrink-0">
                     <Lock className="h-5 w-5 text-white" />
@@ -257,7 +257,7 @@ export default function SecuriteReseauxModule() {
                     <p className="text-sm text-blue-200 mt-1">Protection des données en transit via chiffrement et tunneling. Inclut les protocoles SSL/TLS, IPSec, HTTPS, etc.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                   <div className="bg-blue-700 p-2 rounded-md shrink-0">
                     <Layers className="h-5 w-5 text-white" />
@@ -267,7 +267,7 @@ export default function SecuriteReseauxModule() {
                     <p className="text-sm text-blue-200 mt-1">Compartimentage du réseau pour limiter la propagation des menaces. Utilise les VLANs, zones de sécurité, microsegmentation, etc.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                   <div className="bg-blue-700 p-2 rounded-md shrink-0">
                     <Fingerprint className="h-5 w-5 text-white" />
@@ -279,10 +279,10 @@ export default function SecuriteReseauxModule() {
                 </div>
               </div>
             </div>
-            
+
             <div className="mt-8">
               <h3 className="text-xl font-bold">Panorama des menaces réseau</h3>
-              
+
               <Table className="mt-4 border-blue-800">
                 <TableHeader className="bg-blue-900/50">
                   <TableRow className="border-blue-800">
@@ -321,7 +321,7 @@ export default function SecuriteReseauxModule() {
               </Table>
             </div>
           </div>
-          
+
           <div className="mt-8 bg-blue-950 border border-blue-800 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -338,7 +338,7 @@ export default function SecuriteReseauxModule() {
         </motion.div>
       </div>
     ),
-    
+
     architecture: (
       <div className="space-y-6">
         <motion.div 
@@ -347,14 +347,14 @@ export default function SecuriteReseauxModule() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Architecture réseau sécurisée</h2>
-          
+
           <p className="mt-4">
             Une architecture réseau sécurisée est fondamentale pour protéger les actifs informatiques d'une organisation. Elle doit être conçue selon plusieurs principes directeurs et intégrer divers niveaux de protection.
           </p>
-          
+
           <div className="mt-6">
             <h3 className="text-xl font-bold">Principes de conception sécurisée</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
@@ -369,7 +369,7 @@ export default function SecuriteReseauxModule() {
                   </p>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -383,7 +383,7 @@ export default function SecuriteReseauxModule() {
                   </p>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -397,7 +397,7 @@ export default function SecuriteReseauxModule() {
                   </p>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -413,10 +413,10 @@ export default function SecuriteReseauxModule() {
               </Card>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Modèles d'architecture réseau sécurisée</h3>
-            
+
             <Card className="bg-blue-900/20 border-blue-800 mt-4">
               <CardContent className="pt-6">
                 <Tabs defaultValue="traditional">
@@ -485,10 +485,10 @@ export default function SecuriteReseauxModule() {
               </CardContent>
             </Card>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Composants essentiels d'une architecture sécurisée</h3>
-            
+
             <div className="mt-4 space-y-3">
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
@@ -499,7 +499,7 @@ export default function SecuriteReseauxModule() {
                   <p className="text-sm text-blue-200 mt-1">Dispositifs combinant filtrage traditionnel avec inspection applicative, prévention d'intrusion et analyse de contenu.</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Eye className="h-5 w-5 text-white" />
@@ -509,7 +509,7 @@ export default function SecuriteReseauxModule() {
                   <p className="text-sm text-blue-200 mt-1">Solutions qui analysent activement le trafic réseau pour détecter et bloquer les attaques en temps réel.</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Webhook className="h-5 w-5 text-white" />
@@ -519,7 +519,7 @@ export default function SecuriteReseauxModule() {
                   <p className="text-sm text-blue-200 mt-1">Technologies permettant une segmentation fine du réseau, limitant le mouvement latéral des attaquants.</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Lock className="h-5 w-5 text-white" />
@@ -529,7 +529,7 @@ export default function SecuriteReseauxModule() {
                   <p className="text-sm text-blue-200 mt-1">Solutions de chiffrement pour protéger les communications à travers des réseaux non sécurisés.</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Fingerprint className="h-5 w-5 text-white" />
@@ -539,7 +539,7 @@ export default function SecuriteReseauxModule() {
                   <p className="text-sm text-blue-200 mt-1">Systèmes vérifiant la conformité des appareils avant de leur permettre d'accéder au réseau.</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <SearchCode className="h-5 w-5 text-white" />
@@ -551,7 +551,7 @@ export default function SecuriteReseauxModule() {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8 bg-blue-950 border border-blue-800 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -568,7 +568,7 @@ export default function SecuriteReseauxModule() {
         </motion.div>
       </div>
     ),
-    
+
     detection: (
       <div className="space-y-6">
         <motion.div 
@@ -580,10 +580,10 @@ export default function SecuriteReseauxModule() {
           <p className="mt-4">
             La détection des intrusions est un élément essentiel d'une stratégie de cybersécurité efficace, permettant d'identifier les activités malveillantes sur le réseau et d'y répondre rapidement.
           </p>
-          
+
           <div className="mt-6">
             <h3 className="text-xl font-bold">Systèmes de détection et prévention</h3>
-            
+
             <Card className="bg-blue-900/20 border-blue-800 mt-4">
               <CardContent className="pt-6">
                 <Tabs defaultValue="ids">
@@ -674,10 +674,10 @@ export default function SecuriteReseauxModule() {
               </CardContent>
             </Card>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Approches et techniques de détection</h3>
-            
+
             <div className="mt-4 space-y-3">
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
@@ -696,7 +696,7 @@ export default function SecuriteReseauxModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Network className="h-5 w-5 text-white" />
@@ -714,7 +714,7 @@ export default function SecuriteReseauxModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Cpu className="h-5 w-5 text-white" />
@@ -732,7 +732,7 @@ export default function SecuriteReseauxModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Radio className="h-5 w-5 text-white" />
@@ -752,14 +752,14 @@ export default function SecuriteReseauxModule() {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Indicateurs de compromission (IOC)</h3>
-            
+
             <p className="mt-2">
               Les IOC sont des artefacts ou observations qui indiquent avec une forte probabilité qu'un système a été compromis ou est ciblé par une attaque.
             </p>
-            
+
             <Table className="mt-4 border-blue-800">
               <TableHeader className="bg-blue-900/50">
                 <TableRow className="border-blue-800">
@@ -829,7 +829,7 @@ export default function SecuriteReseauxModule() {
               </TableBody>
             </Table>
           </div>
-          
+
           <div className="mt-8 bg-blue-950 border border-blue-800 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -846,7 +846,7 @@ export default function SecuriteReseauxModule() {
         </motion.div>
       </div>
     ),
-    
+
     securisation: (
       <div className="space-y-6">
         <motion.div 
@@ -855,14 +855,14 @@ export default function SecuriteReseauxModule() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Sécurisation des infrastructures</h2>
-          
+
           <p className="mt-4">
             La sécurisation des infrastructures réseau nécessite une approche méthodique, couvrant tous les niveaux du réseau et intégrant diverses mesures de protection.
           </p>
-          
+
           <div className="mt-6">
             <h3 className="text-xl font-bold">Sécurisation par couche réseau</h3>
-            
+
             <Card className="bg-blue-900/20 border-blue-800 mt-4">
               <CardContent className="pt-6">
                 <Tabs defaultValue="physical">
@@ -872,7 +872,7 @@ export default function SecuriteReseauxModule() {
                     <TabsTrigger value="transport">Couche Transport</TabsTrigger>
                     <TabsTrigger value="application">Couche Application</TabsTrigger>
                   </TabsList>
-                  
+
                   <TabsContent value="physical" className="p-4 bg-blue-950/30 rounded-md mt-4">
                     <h4 className="font-medium flex items-center">
                       <Server className="mr-2 h-5 w-5 text-blue-400" />
@@ -893,7 +893,7 @@ export default function SecuriteReseauxModule() {
                       </ul>
                     </div>
                   </TabsContent>
-                  
+
                   <TabsContent value="network" className="p-4 bg-blue-950/30 rounded-md mt-4">
                     <h4 className="font-medium flex items-center">
                       <Network className="mr-2 h-5 w-5 text-blue-400" />
@@ -914,7 +914,7 @@ export default function SecuriteReseauxModule() {
                       </ul>
                     </div>
                   </TabsContent>
-                  
+
                   <TabsContent value="transport" className="p-4 bg-blue-950/30 rounded-md mt-4">
                     <h4 className="font-medium flex items-center">
                       <Lock className="mr-2 h-5 w-5 text-blue-400" />
@@ -935,7 +935,7 @@ export default function SecuriteReseauxModule() {
                       </ul>
                     </div>
                   </TabsContent>
-                  
+
                   <TabsContent value="application" className="p-4 bg-blue-950/30 rounded-md mt-4">
                     <h4 className="font-medium flex items-center">
                       <Globe className="mr-2 h-5 w-5 text-blue-400" />
@@ -960,10 +960,10 @@ export default function SecuriteReseauxModule() {
               </CardContent>
             </Card>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Sécurisation des équipements réseau</h3>
-            
+
             <div className="mt-4 space-y-3">
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
@@ -981,7 +981,7 @@ export default function SecuriteReseauxModule() {
                   </ul>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Wifi className="h-5 w-5 text-white" />
@@ -998,7 +998,7 @@ export default function SecuriteReseauxModule() {
                   </ul>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Shield className="h-5 w-5 text-white" />
@@ -1017,10 +1017,10 @@ export default function SecuriteReseauxModule() {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Durcissement des protocoles réseau</h3>
-            
+
             <Table className="mt-4 border-blue-800">
               <TableHeader className="bg-blue-900/50">
                 <TableRow className="border-blue-800">
@@ -1109,7 +1109,7 @@ export default function SecuriteReseauxModule() {
               </TableBody>
             </Table>
           </div>
-          
+
           <div className="mt-8 bg-blue-950 border border-blue-800 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -1126,7 +1126,7 @@ export default function SecuriteReseauxModule() {
         </motion.div>
       </div>
     ),
-    
+
     'bonnes-pratiques': (
       <div className="space-y-6">
         <motion.div 
@@ -1135,14 +1135,14 @@ export default function SecuriteReseauxModule() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Bonnes pratiques et outils</h2>
-          
+
           <p className="mt-4">
             L'implémentation efficace de la sécurité réseau repose sur l'adoption de bonnes pratiques et l'utilisation d'outils adaptés.
           </p>
-          
+
           <div className="mt-6">
             <h3 className="text-xl font-bold">Bonnes pratiques de sécurité réseau</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
@@ -1162,7 +1162,7 @@ export default function SecuriteReseauxModule() {
                   </ul>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1181,7 +1181,7 @@ export default function SecuriteReseauxModule() {
                   </ul>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1200,7 +1200,7 @@ export default function SecuriteReseauxModule() {
                   </ul>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1219,7 +1219,7 @@ export default function SecuriteReseauxModule() {
                   </ul>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1238,7 +1238,7 @@ export default function SecuriteReseauxModule() {
                   </ul>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1259,10 +1259,10 @@ export default function SecuriteReseauxModule() {
               </Card>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Outils essentiels de sécurité réseau</h3>
-            
+
             <div className="mt-4 space-y-3">
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
@@ -1294,7 +1294,7 @@ export default function SecuriteReseauxModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Eye className="h-5 w-5 text-white" />
@@ -1325,7 +1325,7 @@ export default function SecuriteReseauxModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <SearchCode className="h-5 w-5 text-white" />
@@ -1356,7 +1356,7 @@ export default function SecuriteReseauxModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Layers className="h-5 w-5 text-white" />
@@ -1389,14 +1389,14 @@ export default function SecuriteReseauxModule() {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Cadres de référence et standards</h3>
-            
+
             <p className="mt-2">
               L'adoption de standards reconnus permet de structurer votre approche de sécurité réseau.
             </p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
@@ -1415,7 +1415,7 @@ export default function SecuriteReseauxModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md">ISO/IEC 27001</CardTitle>
@@ -1433,7 +1433,7 @@ export default function SecuriteReseauxModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md">CIS Controls</CardTitle>
@@ -1451,7 +1451,7 @@ export default function SecuriteReseauxModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md">ANSSI - Recommandations</CardTitle>
@@ -1470,7 +1470,7 @@ export default function SecuriteReseauxModule() {
               </Card>
             </div>
           </div>
-          
+
           <div className="mt-8 bg-blue-950 border border-blue-800 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -1487,7 +1487,7 @@ export default function SecuriteReseauxModule() {
         </motion.div>
       </div>
     ),
-    
+
     quiz: (
       <div className="space-y-6">
         <motion.div 
@@ -1519,7 +1519,7 @@ export default function SecuriteReseauxModule() {
                 </div>
                 <Progress value={(currentQuestion / questions.length) * 100} className="h-2" />
               </div>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader>
                   <CardTitle className="text-xl">{questions[currentQuestion].question}</CardTitle>
@@ -1535,7 +1535,7 @@ export default function SecuriteReseauxModule() {
                           if (index === questions[currentQuestion].correctAnswer) {
                             setScore(score + 1);
                           }
-                          
+
                           if (currentQuestion < questions.length - 1) {
                             setCurrentQuestion(currentQuestion + 1);
                           } else {
@@ -1563,23 +1563,23 @@ export default function SecuriteReseauxModule() {
                 ) : (
                   <AlertTriangle className="h-16 w-16 mx-auto text-yellow-500 mb-4" />
                 )}
-                
+
                 <h2 className="text-2xl font-bold mb-2">
                   {score >= (questions.length * 0.8) ? "Félicitations!" : "Peut mieux faire..."}
                 </h2>
-                
+
                 <p className="text-blue-200 mb-4 max-w-lg mx-auto">
                   {score >= (questions.length * 0.8) 
                     ? `Vous avez obtenu un score de ${score}/${questions.length}. Vous avez validé le module avec succès!` 
                     : `Vous avez obtenu un score de ${score}/${questions.length}. Un score de ${Math.ceil(questions.length * 0.8)}/${questions.length} est nécessaire pour valider le module.`}
                 </p>
-                
+
                 {score < (questions.length * 0.8) && (
                   <p className="text-blue-300 mb-6 max-w-lg mx-auto">
                     Nous vous recommandons de revoir le contenu du module avant de retenter le quiz.
                   </p>
                 )}
-                
+
                 <div className="flex justify-center gap-4">
                   <Button 
                     variant="outline"
@@ -1593,7 +1593,7 @@ export default function SecuriteReseauxModule() {
                   >
                     Recommencer le quiz
                   </Button>
-                  
+
                   <Button 
                     className="bg-blue-600 hover:bg-blue-700"
                     onClick={() => setActiveLesson('introduction')}
@@ -1602,7 +1602,7 @@ export default function SecuriteReseauxModule() {
                   </Button>
                 </div>
               </div>
-              
+
               {score >= (questions.length * 0.8) && (
                 <Card className="max-w-lg mx-auto mt-8 bg-blue-900/20 border-blue-800">
                   <CardHeader>
@@ -1633,7 +1633,7 @@ export default function SecuriteReseauxModule() {
   // Calcul de la progression
   const lessonKeys = Object.keys(lessonContent);
   const progressPercentage = (lessonKeys.indexOf(activeLesson) + 1) / lessonKeys.length * 100;
-  
+
   // Mettre à jour la progression globale
   React.useEffect(() => {
     setProgress(progressPercentage);
@@ -1671,7 +1671,7 @@ export default function SecuriteReseauxModule() {
                 </div>
                 <Progress value={progress} className="h-2" />
               </div>
-              
+
               <div className="mt-6 space-y-1">
                 {lessons.map((lesson) => (
                   <button
@@ -1694,9 +1694,9 @@ export default function SecuriteReseauxModule() {
                   </button>
                 ))}
               </div>
-              
+
               <Separator className="my-6 bg-blue-800/50" />
-              
+
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-blue-400" />
@@ -1713,7 +1713,7 @@ export default function SecuriteReseauxModule() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-blue-900/20 border-blue-800">
             <CardHeader>
               <CardTitle>Ressources complémentaires</CardTitle>
@@ -1742,14 +1742,14 @@ export default function SecuriteReseauxModule() {
                   </div>
                 </a>
               </div>
-              
+
               <Button variant="outline" className="w-full mt-4 border-blue-700 text-blue-200">
                 Voir toutes les ressources
               </Button>
             </CardContent>
           </Card>
         </div>
-        
+
         {/* Contenu principal */}
         <div className="lg:col-span-3">
           <Card className="bg-blue-900/20 border-blue-800">
@@ -1771,7 +1771,7 @@ export default function SecuriteReseauxModule() {
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Précédent
               </Button>
-              
+
               <Button 
                 disabled={lessonKeys.indexOf(activeLesson) === lessonKeys.length - 1}
                 onClick={() => {

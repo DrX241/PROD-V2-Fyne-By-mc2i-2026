@@ -87,7 +87,7 @@ export default function PhishingMicroLearning() {
 
   // Calculer l'index de la section actuelle
   const currentSectionIndex = sections.findIndex(section => section.id === currentSection);
-  
+
   // Calculer la progression globale
   const progressPercentage = (completedSections.length / sections.length) * 100;
 
@@ -145,7 +145,7 @@ export default function PhishingMicroLearning() {
                 </div>
                 <Progress value={progressPercentage} className="h-2" />
               </div>
-              
+
               <div className="space-y-2">
                 {sections.map((section) => (
                   <div
@@ -162,16 +162,16 @@ export default function PhishingMicroLearning() {
                   </div>
                 ))}
               </div>
-              
+
               <Separator className="my-4 bg-blue-800/50" />
-              
+
               <div className="flex items-center text-sm text-blue-200">
                 <Clock className="h-4 w-4 mr-2" />
                 <span>Durée estimée: 15 minutes</span>
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-blue-900/20 border-blue-800">
             <CardHeader>
               <CardTitle className="text-lg">Ressources</CardTitle>
@@ -201,20 +201,20 @@ export default function PhishingMicroLearning() {
               {currentSection === 'introduction' && (
                 <motion.div variants={itemVariants}>
                   <h2 className="text-2xl font-bold mb-4">Le phishing : une menace en constante évolution</h2>
-                  
+
                   <p className="mb-4">
                     Le phishing, ou hameçonnage, reste l'une des techniques d'attaque les plus répandues et efficaces.
                     Loin d'être une simple arnaque par e-mail, il a évolué vers des formes plus sophistiquées et ciblées
                     qui trompent même les utilisateurs avertis.
                   </p>
-                  
+
                   <div className="flex items-center p-3 bg-orange-900/30 rounded-lg border border-orange-800/50 mb-4">
                     <AlertTriangle className="h-5 w-5 mr-2 text-orange-400" />
                     <span className="text-orange-200">
                       <strong>Fait alarmant :</strong> Selon les études récentes, plus de 90% des cyberattaques commencent par une tentative de phishing.
                     </span>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 p-4 rounded-lg border border-blue-700 mb-4">
                     <h3 className="font-bold text-lg mb-2 text-blue-300">Objectifs d'apprentissage</h3>
                     <ul className="list-disc list-inside space-y-1 text-blue-200">
@@ -224,7 +224,7 @@ export default function PhishingMicroLearning() {
                       <li>Apprendre à réagir face à une tentative de phishing</li>
                     </ul>
                   </div>
-                  
+
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Du phishing classique aux attaques ciblées</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -250,7 +250,7 @@ export default function PhishingMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center p-3 bg-blue-800/30 rounded-lg text-blue-200 text-sm">
                     <LightbulbIcon className="h-5 w-5 mr-2 text-yellow-400" />
                     <span>
@@ -260,17 +260,17 @@ export default function PhishingMicroLearning() {
                   </div>
                 </motion.div>
               )}
-              
+
               {/* Section Techniques avancées */}
               {currentSection === 'techniques' && (
                 <motion.div variants={itemVariants}>
                   <h2 className="text-2xl font-bold mb-4">Techniques avancées de phishing</h2>
-                  
+
                   <p className="mb-4">
                     Les cybercriminels innovent constamment dans leurs méthodes de phishing, dépassant
                     les simples e-mails génériques pour créer des attaques sophistiquées et difficiles à détecter.
                   </p>
-                  
+
                   <div className="space-y-5 mb-6">
                     <div className="bg-gradient-to-r from-red-900/30 to-orange-900/30 p-4 rounded-lg border border-red-800">
                       <h3 className="flex items-center font-bold text-lg mb-2 text-orange-300">
@@ -290,7 +290,7 @@ export default function PhishingMicroLearning() {
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 p-4 rounded-lg border border-purple-800">
                       <h3 className="flex items-center font-bold text-lg mb-2 text-pink-300">
                         <span className="bg-pink-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 text-xs">2</span>
@@ -308,7 +308,7 @@ export default function PhishingMicroLearning() {
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 p-4 rounded-lg border border-blue-800">
                       <h3 className="flex items-center font-bold text-lg mb-2 text-blue-300">
                         <span className="bg-blue-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 text-xs">3</span>
@@ -327,7 +327,7 @@ export default function PhishingMicroLearning() {
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 rounded-lg border border-green-800">
                       <h3 className="flex items-center font-bold text-lg mb-2 text-green-300">
                         <span className="bg-green-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 text-xs">4</span>
@@ -347,7 +347,7 @@ export default function PhishingMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-yellow-900/40 to-amber-900/40 border-l-4 border-yellow-500 p-4 my-4 rounded-r-lg">
                     <h4 className="font-bold text-yellow-300">🎯 À retenir</h4>
                     <p className="mt-1">
@@ -357,17 +357,17 @@ export default function PhishingMicroLearning() {
                   </div>
                 </motion.div>
               )}
-              
+
               {/* Section Détection des attaques */}
               {currentSection === 'detection' && (
                 <motion.div variants={itemVariants}>
                   <h2 className="text-2xl font-bold mb-4">Comment détecter les attaques de phishing avancées</h2>
-                  
+
                   <p className="mb-4">
                     Bien que de plus en plus sophistiquées, les attaques de phishing laissent généralement des indices
                     qui peuvent être identifiés avec une vigilance appropriée.
                   </p>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div className="bg-gradient-to-br from-blue-900/30 to-blue-800/10 p-4 rounded-lg border border-blue-800">
                       <div className="rounded-full bg-blue-800 w-10 h-10 flex items-center justify-center mb-3">
@@ -389,7 +389,7 @@ export default function PhishingMicroLearning() {
                         </li>
                       </ul>
                     </div>
-                    
+
                     <div className="bg-gradient-to-br from-purple-900/30 to-purple-800/10 p-4 rounded-lg border border-purple-800">
                       <div className="rounded-full bg-purple-800 w-10 h-10 flex items-center justify-center mb-3">
                         <AlarmClock className="h-5 w-5 text-purple-200" />
@@ -411,7 +411,7 @@ export default function PhishingMicroLearning() {
                       </ul>
                     </div>
                   </div>
-                  
+
                   <div className="p-4 bg-gradient-to-r from-red-900/20 to-orange-900/20 border border-red-800/50 rounded-lg mb-6">
                     <h3 className="font-bold text-lg mb-3 text-orange-300">Drapeaux rouges du phishing avancé</h3>
                     <div className="space-y-3">
@@ -444,7 +444,7 @@ export default function PhishingMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-green-900/40 to-teal-900/40 border-l-4 border-green-500 p-4 my-4 rounded-r-lg">
                     <h4 className="font-bold text-green-300">💡 À retenir</h4>
                     <p className="mt-1">
@@ -454,17 +454,17 @@ export default function PhishingMicroLearning() {
                   </div>
                 </motion.div>
               )}
-              
+
               {/* Section Mesures préventives */}
               {currentSection === 'prevention' && (
                 <motion.div variants={itemVariants}>
                   <h2 className="text-2xl font-bold mb-4">Meilleures pratiques contre le phishing avancé</h2>
-                  
+
                   <p className="mb-4">
                     La prévention du phishing repose sur une combinaison de mesures techniques,
                     organisationnelles et comportementales.
                   </p>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-800">
                       <div className="rounded-full bg-blue-800/60 w-10 h-10 flex items-center justify-center mb-3">
@@ -490,7 +490,7 @@ export default function PhishingMicroLearning() {
                         </li>
                       </ul>
                     </div>
-                    
+
                     <div className="bg-purple-900/30 p-4 rounded-lg border border-purple-800">
                       <div className="rounded-full bg-purple-800/60 w-10 h-10 flex items-center justify-center mb-3">
                         <Mail className="h-5 w-5 text-purple-200" />
@@ -515,7 +515,7 @@ export default function PhishingMicroLearning() {
                         </li>
                       </ul>
                     </div>
-                    
+
                     <div className="bg-green-900/30 p-4 rounded-lg border border-green-800">
                       <div className="rounded-full bg-green-800/60 w-10 h-10 flex items-center justify-center mb-3">
                         <Lock className="h-5 w-5 text-green-200" />
@@ -541,7 +541,7 @@ export default function PhishingMicroLearning() {
                       </ul>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 p-5 rounded-lg border border-blue-700 mb-6">
                     <h3 className="font-bold text-lg mb-3 text-blue-300">Réponse à un incident de phishing</h3>
                     <ol className="space-y-3">
@@ -583,7 +583,7 @@ export default function PhishingMicroLearning() {
                       </li>
                     </ol>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-cyan-900/40 to-blue-900/40 border-l-4 border-cyan-500 p-4 my-4 rounded-r-lg">
                     <h4 className="font-bold text-cyan-300">✨ À retenir</h4>
                     <p className="mt-1">
@@ -593,17 +593,17 @@ export default function PhishingMicroLearning() {
                   </div>
                 </motion.div>
               )}
-              
+
               {/* Section Exercice pratique */}
               {currentSection === 'exercice' && (
                 <motion.div variants={itemVariants}>
                   <h2 className="text-2xl font-bold mb-4">Exercice pratique : Détection de phishing</h2>
-                  
+
                   <p className="mb-4">
                     Testez vos nouvelles compétences en analysant ces exemples de messages pour 
                     déterminer s'il s'agit d'une tentative de phishing ou d'une communication légitime.
                   </p>
-                  
+
                   <div className="space-y-6 mb-6">
                     {/* Exemple 1 */}
                     <div className="p-4 bg-blue-900/30 rounded-lg border border-blue-800">
@@ -620,7 +620,7 @@ export default function PhishingMicroLearning() {
                           <p>Cordialement,<br />Le Service RH</p>
                         </div>
                       </div>
-                      
+
                       <div className="space-y-2">
                         <div className="flex items-center">
                           <input type="radio" id="ex1-phishing" name="ex1" className="mr-2" />
@@ -631,12 +631,12 @@ export default function PhishingMicroLearning() {
                           <label htmlFor="ex1-legitime">Légitime</label>
                         </div>
                       </div>
-                      
+
                       <button className="mt-3 text-sm text-blue-400 flex items-center" onClick={() => {}}>
                         Voir l'explication
                         <ChevronDown className="h-4 w-4 ml-1" />
                       </button>
-                      
+
                       {/* Solution cachée par défaut */}
                       <div className="mt-2 p-3 bg-blue-900/40 rounded-lg hidden">
                         <h4 className="font-bold text-red-400">Phishing</h4>
@@ -648,7 +648,7 @@ export default function PhishingMicroLearning() {
                         </ul>
                       </div>
                     </div>
-                    
+
                     {/* Exemple 2 */}
                     <div className="p-4 bg-blue-900/30 rounded-lg border border-blue-800">
                       <h3 className="font-bold mb-3">Exemple 2 : Message de service cloud</h3>
@@ -664,7 +664,7 @@ export default function PhishingMicroLearning() {
                           <p>L'équipe CloudService</p>
                         </div>
                       </div>
-                      
+
                       <div className="space-y-2">
                         <div className="flex items-center">
                           <input type="radio" id="ex2-phishing" name="ex2" className="mr-2" />
@@ -675,12 +675,12 @@ export default function PhishingMicroLearning() {
                           <label htmlFor="ex2-legitime">Légitime</label>
                         </div>
                       </div>
-                      
+
                       <button className="mt-3 text-sm text-blue-400 flex items-center" onClick={() => {}}>
                         Voir l'explication
                         <ChevronDown className="h-4 w-4 ml-1" />
                       </button>
-                      
+
                       {/* Solution cachée par défaut */}
                       <div className="mt-2 p-3 bg-blue-900/40 rounded-lg hidden">
                         <h4 className="font-bold text-green-400">Probablement légitime</h4>
@@ -694,13 +694,13 @@ export default function PhishingMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <Button className="w-full bg-blue-700 hover:bg-blue-800" onClick={() => markSectionCompleted('exercice')}>
                     Terminer l'exercice
                   </Button>
                 </motion.div>
               )}
-              
+
               {/* Navigation */}
               <div className="flex justify-between mt-8">
                 <Button 
@@ -712,7 +712,7 @@ export default function PhishingMicroLearning() {
                   <ChevronLeft className="mr-2 h-4 w-4" />
                   Section précédente
                 </Button>
-                
+
                 <Button
                   className="bg-blue-700 hover:bg-blue-800"
                   onClick={() => markSectionCompleted(currentSection)}
@@ -720,7 +720,7 @@ export default function PhishingMicroLearning() {
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Marquer cette section comme terminée
                 </Button>
-                
+
                 <Button 
                   variant="outline" 
                   className="border-blue-700"

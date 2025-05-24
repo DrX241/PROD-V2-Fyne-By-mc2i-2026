@@ -135,49 +135,49 @@ export default function BYODSecurite() {
               </ul>
             </AlertDescription>
           </Alert>
-          
+
           <div className="mt-6 space-y-4">
             <h2 className="text-2xl font-bold">Qu'est-ce que le BYOD ?</h2>
-            
+
             <p>
               BYOD (<strong>B</strong>ring <strong>Y</strong>our <strong>O</strong>wn <strong>D</strong>evice) ou "Apportez Votre Équipement Personnel de Communication" (AVEC) en français, désigne la pratique consistant à autoriser les employés à utiliser leurs appareils personnels (smartphones, tablettes, ordinateurs portables) pour accéder aux données et applications de l'entreprise.
             </p>
-            
+
             <div className="bg-blue-900/20 border border-blue-800 rounded-md p-4 my-4">
               <h3 className="text-lg font-medium mb-2">Définition</h3>
               <p>
                 Le <strong>BYOD</strong> est une politique d'entreprise qui permet aux employés d'utiliser leurs propres appareils pour effectuer des tâches professionnelles, que ce soit au bureau ou à distance. Cette approche estompe les frontières traditionnelles entre les équipements personnels et professionnels.
               </p>
             </div>
-            
+
             <div className="mt-6">
               <h3 className="text-xl font-bold">Évolution du phénomène BYOD</h3>
-              
+
               <div className="space-y-4 mt-3">
                 <div className="relative pl-6 border-l-2 border-blue-700 pl-10">
                   <div className="absolute left-0 top-0 w-6 h-6 -ml-3 rounded-full bg-blue-700 flex items-center justify-center text-xs">09</div>
                   <h4 className="font-medium">Avant 2009</h4>
                   <p className="text-sm text-blue-200">Séparation stricte entre appareils professionnels et personnels. Les entreprises imposaient généralement des appareils standardisés (souvent BlackBerry pour les mobiles).</p>
                 </div>
-                
+
                 <div className="relative pl-6 border-l-2 border-blue-700 pl-10">
                   <div className="absolute left-0 top-0 w-6 h-6 -ml-3 rounded-full bg-blue-700 flex items-center justify-center text-xs">11</div>
                   <h4 className="font-medium">2009-2011 : Émergence du BYOD</h4>
                   <p className="text-sm text-blue-200">Popularisation des smartphones (iPhone, Android) et augmentation de la demande des employés pour utiliser leurs appareils préférés au travail. Premiers programmes BYOD formalisés.</p>
                 </div>
-                
+
                 <div className="relative pl-6 border-l-2 border-blue-700 pl-10">
                   <div className="absolute left-0 top-0 w-6 h-6 -ml-3 rounded-full bg-blue-700 flex items-center justify-center text-xs">15</div>
                   <h4 className="font-medium">2012-2015 : Développement des solutions</h4>
                   <p className="text-sm text-blue-200">Explosion du marché des solutions MDM (Mobile Device Management) et émergence des conteneurs de données. Formalisation des politiques BYOD dans les grandes organisations.</p>
                 </div>
-                
+
                 <div className="relative pl-6 border-l-2 border-blue-700 pl-10">
                   <div className="absolute left-0 top-0 w-6 h-6 -ml-3 rounded-full bg-blue-700 flex items-center justify-center text-xs">20</div>
                   <h4 className="font-medium">2016-2020 : BYOD généralisé</h4>
                   <p className="text-sm text-blue-200">Adoption massive par les entreprises de toutes tailles. Perfectionnement des solutions de sécurité et de gestion. Le BYOD devient la norme plutôt que l'exception dans de nombreux secteurs.</p>
                 </div>
-                
+
                 <div className="relative pl-6 pl-10">
                   <div className="absolute left-0 top-0 w-6 h-6 -ml-3 rounded-full bg-blue-700 flex items-center justify-center text-xs">25</div>
                   <h4 className="font-medium">2021-2025 : BYOD post-pandémie</h4>
@@ -185,10 +185,10 @@ export default function BYODSecurite() {
                 </div>
               </div>
             </div>
-            
+
             <div className="mt-6">
               <h3 className="text-xl font-bold">Variantes et concepts associés</h3>
-              
+
               <Card className="bg-blue-900/20 border-blue-800 mt-3">
                 <CardContent className="pt-6">
                   <Tabs defaultValue="byod">
@@ -257,10 +257,10 @@ export default function BYODSecurite() {
                 </CardContent>
               </Card>
             </div>
-            
+
             <div className="mt-6">
               <h3 className="text-xl font-bold">Avantages et inconvénients du BYOD</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                 <Card className="bg-green-900/20 border-green-800">
                   <CardHeader className="pb-2">
@@ -280,7 +280,7 @@ export default function BYODSecurite() {
                     </ul>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-red-900/20 border-red-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg flex items-center">
@@ -301,7 +301,7 @@ export default function BYODSecurite() {
                 </Card>
               </div>
             </div>
-            
+
             <div className="bg-blue-950 border border-blue-800 rounded-lg p-4 mt-6">
               <h3 className="text-lg font-medium mb-2 flex items-center">
                 <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -317,7 +317,7 @@ export default function BYODSecurite() {
             </div>
           </div>
         </motion.div>
-        
+
         <div className="flex justify-between mt-8">
           <div></div>
           <Button onClick={() => setActiveLesson('risques')} className="bg-blue-700 hover:bg-blue-800">
@@ -327,7 +327,7 @@ export default function BYODSecurite() {
         </div>
       </div>
     ),
-    
+
     risques: (
       <div className="space-y-6">
         <motion.div 
@@ -336,11 +336,11 @@ export default function BYODSecurite() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Risques et menaces associés au BYOD</h2>
-          
+
           <p className="mt-4">
             L'utilisation d'appareils personnels en contexte professionnel introduit des risques de sécurité spécifiques qu'il est essentiel d'identifier et de gérer.
           </p>
-          
+
           <div className="mt-6 space-y-5">
             <Card className="bg-blue-900/20 border-blue-800">
               <CardHeader className="pb-2">
@@ -367,7 +367,7 @@ export default function BYODSecurite() {
                       <li>Partage accidentel d'informations confidentielles</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h4 className="font-medium flex items-center">
                       <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">2</span>
@@ -384,7 +384,7 @@ export default function BYODSecurite() {
                       <li>Accès aux ressources d'entreprise depuis des emplacements à risque</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h4 className="font-medium flex items-center">
                       <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">3</span>
@@ -401,7 +401,7 @@ export default function BYODSecurite() {
                       <li>Durée de vie des appareils plus anciens non supportés</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h4 className="font-medium flex items-center">
                       <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">4</span>
@@ -421,10 +421,10 @@ export default function BYODSecurite() {
                 </div>
               </CardContent>
             </Card>
-            
+
             <div className="mt-6">
               <h3 className="text-xl font-bold">Menaces spécifiques au contexte BYOD</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
@@ -449,7 +449,7 @@ export default function BYODSecurite() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md flex items-center">
@@ -473,7 +473,7 @@ export default function BYODSecurite() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md flex items-center">
@@ -499,7 +499,7 @@ export default function BYODSecurite() {
                 </Card>
               </div>
             </div>
-            
+
             <Card className="bg-amber-900/20 border-amber-800 mt-6">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center">
@@ -511,7 +511,7 @@ export default function BYODSecurite() {
                 <p className="mb-4 text-amber-200">
                   Au-delà des aspects techniques, le BYOD introduit des défis juridiques et de conformité souvent sous-estimés :
                 </p>
-                
+
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-amber-950/30">
@@ -564,7 +564,7 @@ export default function BYODSecurite() {
                 </Table>
               </CardContent>
             </Card>
-            
+
             <div className="bg-blue-950 border border-blue-800 rounded-lg p-4 mt-4">
               <h3 className="text-lg font-medium mb-2 flex items-center">
                 <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -598,7 +598,7 @@ export default function BYODSecurite() {
             </div>
           </div>
         </motion.div>
-        
+
         <div className="flex justify-between mt-8">
           <Button onClick={() => setActiveLesson('introduction')} variant="outline" className="border-blue-700 text-blue-300">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -611,7 +611,7 @@ export default function BYODSecurite() {
         </div>
       </div>
     ),
-    
+
     politiques: (
       <div className="space-y-6">
         <motion.div 
@@ -620,7 +620,7 @@ export default function BYODSecurite() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Politiques BYOD efficaces</h2>
-          
+
           <Alert className="bg-blue-900/30 border-blue-500 mt-4">
             <Lightbulb className="h-5 w-5 text-blue-500" />
             <AlertTitle className="text-blue-100">Équilibre essentiel</AlertTitle>
@@ -628,7 +628,7 @@ export default function BYODSecurite() {
               Une politique BYOD efficace doit trouver le juste équilibre entre sécurité pour l'organisation et respect de la vie privée des utilisateurs.
             </AlertDescription>
           </Alert>
-          
+
           <div className="mt-6 space-y-5">
             <Card className="bg-blue-900/20 border-blue-800">
               <CardHeader>
@@ -651,7 +651,7 @@ export default function BYODSecurite() {
                       <li>Processus d'approbation et d'onboarding</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium flex items-center">
                       <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">2</span>
@@ -665,7 +665,7 @@ export default function BYODSecurite() {
                       <li>Protocoles réseau et exigences VPN</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium flex items-center">
                       <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">3</span>
@@ -679,7 +679,7 @@ export default function BYODSecurite() {
                       <li>Restrictions concernant le partage et le transfert de données</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium flex items-center">
                       <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">4</span>
@@ -693,7 +693,7 @@ export default function BYODSecurite() {
                       <li>Exigences de formation des utilisateurs</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium flex items-center">
                       <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">5</span>
@@ -710,7 +710,7 @@ export default function BYODSecurite() {
                 </div>
               </CardContent>
             </Card>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
               <Card className="bg-green-900/20 border-green-800">
                 <CardHeader className="pb-3">
@@ -726,21 +726,21 @@ export default function BYODSecurite() {
                       Développez la politique en collaboration avec les représentants des différents départements (IT, juridique, RH, métiers) et les utilisateurs finaux pour assurer son acceptabilité et son efficacité.
                     </p>
                   </div>
-                  
+
                   <div className="bg-green-900/30 p-3 rounded-md">
                     <h4 className="font-medium">Adopter une approche progressive</h4>
                     <p className="text-sm text-green-200 mt-1">
                       Commencez avec un programme pilote avant un déploiement complet. Identifiez un groupe d'utilisateurs représentatifs et ajustez la politique en fonction des retours d'expérience.
                     </p>
                   </div>
-                  
+
                   <div className="bg-green-900/30 p-3 rounded-md">
                     <h4 className="font-medium">Former et sensibiliser</h4>
                     <p className="text-sm text-green-200 mt-1">
                       Assurez-vous que tous les utilisateurs comprennent la politique BYOD, les risques associés et leurs responsabilités. Une formation initiale et des rappels réguliers sont essentiels.
                     </p>
                   </div>
-                  
+
                   <div className="bg-green-900/30 p-3 rounded-md">
                     <h4 className="font-medium">Maintenir la politique à jour</h4>
                     <p className="text-sm text-green-200 mt-1">
@@ -749,7 +749,7 @@ export default function BYODSecurite() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-red-900/20 border-red-800">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center">
@@ -764,21 +764,21 @@ export default function BYODSecurite() {
                       Une politique excessivement contraignante pousse les utilisateurs à la contourner, créant des risques "shadow IT". Trouvez l'équilibre entre sécurité et utilisabilité.
                     </p>
                   </div>
-                  
+
                   <div className="bg-red-900/30 p-3 rounded-md">
                     <h4 className="font-medium">Négliger les aspects juridiques</h4>
                     <p className="text-sm text-red-200 mt-1">
                       Ne pas consulter le service juridique peut exposer l'entreprise à des risques légaux importants, particulièrement en matière de vie privée et de droit du travail.
                     </p>
                   </div>
-                  
+
                   <div className="bg-red-900/30 p-3 rounded-md">
                     <h4 className="font-medium">Surveillance excessive</h4>
                     <p className="text-sm text-red-200 mt-1">
                       Surveiller intégralement les appareils personnels viole la vie privée des employés et peut être illégal. Limitez la surveillance aux données et activités professionnelles.
                     </p>
                   </div>
-                  
+
                   <div className="bg-red-900/30 p-3 rounded-md">
                     <h4 className="font-medium">Ignorer les coûts cachés</h4>
                     <p className="text-sm text-red-200 mt-1">
@@ -788,7 +788,7 @@ export default function BYODSecurite() {
                 </CardContent>
               </Card>
             </div>
-            
+
             <Card className="bg-blue-900/20 border-blue-800 mt-4">
               <CardHeader>
                 <CardTitle>Modèle de politique BYOD</CardTitle>
@@ -805,7 +805,7 @@ export default function BYODSecurite() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-1 mb-4">
                   <div className="bg-blue-800/20 p-3 rounded-md">
                     <h3 className="font-medium">2. Conditions d'éligibilité et d'accès</h3>
@@ -814,7 +814,7 @@ export default function BYODSecurite() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-1 mb-4">
                   <div className="bg-blue-800/20 p-3 rounded-md">
                     <h3 className="font-medium">3. Configuration et sécurité des appareils</h3>
@@ -823,7 +823,7 @@ export default function BYODSecurite() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-1 mb-4">
                   <div className="bg-blue-800/20 p-3 rounded-md">
                     <h3 className="font-medium">4. Utilisation acceptable</h3>
@@ -832,7 +832,7 @@ export default function BYODSecurite() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-1 mb-4">
                   <div className="bg-blue-800/20 p-3 rounded-md">
                     <h3 className="font-medium">5. Gestion et protection des données</h3>
@@ -841,7 +841,7 @@ export default function BYODSecurite() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-1 mb-4">
                   <div className="bg-blue-800/20 p-3 rounded-md">
                     <h3 className="font-medium">6. Surveillance, vie privée et consentement</h3>
@@ -850,7 +850,7 @@ export default function BYODSecurite() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-1 mb-4">
                   <div className="bg-blue-800/20 p-3 rounded-md">
                     <h3 className="font-medium">7. Support et responsabilités</h3>
@@ -859,7 +859,7 @@ export default function BYODSecurite() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-1 mb-4">
                   <div className="bg-blue-800/20 p-3 rounded-md">
                     <h3 className="font-medium">8. Conformité et conséquences</h3>
@@ -868,7 +868,7 @@ export default function BYODSecurite() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-1">
                   <div className="bg-blue-800/20 p-3 rounded-md">
                     <h3 className="font-medium">9. Procédures de fin d'emploi</h3>
@@ -879,7 +879,7 @@ export default function BYODSecurite() {
                 </div>
               </CardContent>
             </Card>
-            
+
             <div className="bg-blue-950 border border-blue-800 rounded-lg p-4 mt-4">
               <h3 className="text-lg font-medium mb-2 flex items-center">
                 <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -913,7 +913,7 @@ export default function BYODSecurite() {
             </div>
           </div>
         </motion.div>
-        
+
         <div className="flex justify-between mt-8">
           <Button onClick={() => setActiveLesson('risques')} variant="outline" className="border-blue-700 text-blue-300">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -926,7 +926,7 @@ export default function BYODSecurite() {
         </div>
       </div>
     ),
-    
+
     securisation: (
       <div className="space-y-6">
         <motion.div 
@@ -935,11 +935,11 @@ export default function BYODSecurite() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Sécurisation des appareils BYOD</h2>
-          
+
           <p className="mt-4">
             La mise en œuvre de mesures de sécurité techniques sur les appareils BYOD constitue une couche essentielle de protection pour les données de l'entreprise.
           </p>
-          
+
           <div className="mt-6 space-y-5">
             <Card className="bg-blue-900/20 border-blue-800">
               <CardHeader>
@@ -962,7 +962,7 @@ export default function BYODSecurite() {
                       <li>Activer l'effacement automatique après un nombre défini de tentatives infructueuses</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium flex items-center">
                       <Shield className="mr-2 h-5 w-5 text-blue-400" />
@@ -975,7 +975,7 @@ export default function BYODSecurite() {
                       <li>Adopter des solutions de chiffrement supplémentaires pour les données sensibles</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium flex items-center">
                       <Wifi className="mr-2 h-5 w-5 text-blue-400" />
@@ -988,7 +988,7 @@ export default function BYODSecurite() {
                       <li>Désactiver les protocoles non sécurisés (FTP, Telnet, etc.)</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium flex items-center">
                       <Settings className="mr-2 h-5 w-5 text-blue-400" />
@@ -1004,10 +1004,10 @@ export default function BYODSecurite() {
                 </div>
               </CardContent>
             </Card>
-            
+
             <div className="mt-6">
               <h3 className="text-xl font-bold">Sécurisation par type d'appareil</h3>
-              
+
               <Card className="bg-blue-900/20 border-blue-800 mt-3">
                 <CardContent className="pt-6">
                   <Tabs defaultValue="ios">
@@ -1021,7 +1021,7 @@ export default function BYODSecurite() {
                         <Smartphone className="mr-2 h-5 w-5 text-blue-400" />
                         Sécurisation des appareils iOS
                       </h4>
-                      
+
                       <div className="mt-3 space-y-3">
                         <div className="bg-blue-900/30 p-2 rounded-md">
                           <h5 className="text-sm font-medium">Configuration spécifique iOS</h5>
@@ -1032,7 +1032,7 @@ export default function BYODSecurite() {
                             <li>Désactiver le stockage automatique de mots de passe pour les applications professionnelles</li>
                           </ul>
                         </div>
-                        
+
                         <div className="bg-blue-900/30 p-2 rounded-md">
                           <h5 className="text-sm font-medium">Avantages iOS pour le BYOD</h5>
                           <ul className="list-disc list-inside text-xs space-y-1 text-blue-300 mt-1">
@@ -1042,7 +1042,7 @@ export default function BYODSecurite() {
                             <li>Options avancées de gestion via les profils de configuration</li>
                           </ul>
                         </div>
-                        
+
                         <div className="bg-blue-900/30 p-2 rounded-md">
                           <h5 className="text-sm font-medium">Paramètres recommandés</h5>
                           <ul className="list-disc list-inside text-xs space-y-1 text-blue-300 mt-1">
@@ -1059,7 +1059,7 @@ export default function BYODSecurite() {
                         <Smartphone className="mr-2 h-5 w-5 text-blue-400" />
                         Sécurisation des appareils Android
                       </h4>
-                      
+
                       <div className="mt-3 space-y-3">
                         <div className="bg-blue-900/30 p-2 rounded-md">
                           <h5 className="text-sm font-medium">Configuration spécifique Android</h5>
@@ -1071,7 +1071,7 @@ export default function BYODSecurite() {
                             <li>Mettre en place le contrôle de bootloader et la vérification d'intégrité</li>
                           </ul>
                         </div>
-                        
+
                         <div className="bg-blue-900/30 p-2 rounded-md">
                           <h5 className="text-sm font-medium">Défis spécifiques à Android</h5>
                           <ul className="list-disc list-inside text-xs space-y-1 text-blue-300 mt-1">
@@ -1081,7 +1081,7 @@ export default function BYODSecurite() {
                             <li>Contrôle des sources d'installation d'applications tierces</li>
                           </ul>
                         </div>
-                        
+
                         <div className="bg-blue-900/30 p-2 rounded-md">
                           <h5 className="text-sm font-medium">Paramètres recommandés</h5>
                           <ul className="list-disc list-inside text-xs space-y-1 text-blue-300 mt-1">
@@ -1098,7 +1098,7 @@ export default function BYODSecurite() {
                         <Laptop className="mr-2 h-5 w-5 text-blue-400" />
                         Sécurisation des ordinateurs portables
                       </h4>
-                      
+
                       <div className="mt-3 space-y-3">
                         <div className="bg-blue-900/30 p-2 rounded-md">
                           <h5 className="text-sm font-medium">Windows</h5>
@@ -1110,7 +1110,7 @@ export default function BYODSecurite() {
                             <li>Activer le pare-feu Windows avec configurations avancées</li>
                           </ul>
                         </div>
-                        
+
                         <div className="bg-blue-900/30 p-2 rounded-md">
                           <h5 className="text-sm font-medium">macOS</h5>
                           <ul className="list-disc list-inside text-xs space-y-1 text-blue-300 mt-1">
@@ -1121,7 +1121,7 @@ export default function BYODSecurite() {
                             <li>Mettre en place des restrictions via les profils de configuration</li>
                           </ul>
                         </div>
-                        
+
                         <div className="bg-blue-900/30 p-2 rounded-md">
                           <h5 className="text-sm font-medium">Approches alternatives</h5>
                           <ul className="list-disc list-inside text-xs space-y-1 text-blue-300 mt-1">
@@ -1137,7 +1137,7 @@ export default function BYODSecurite() {
                 </CardContent>
               </Card>
             </div>
-            
+
             <Card className="bg-blue-900/20 border-blue-800 mt-6">
               <CardHeader>
                 <CardTitle>Séparation des données personnelles et professionnelles</CardTitle>
@@ -1165,7 +1165,7 @@ export default function BYODSecurite() {
                       <p className="text-xs text-blue-300">Exemples : Samsung Knox, Android Work Profile, solutions MDM avec conteneurisation</p>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium">Virtualisation</h3>
                     <p className="text-sm text-blue-200 mt-1">
@@ -1184,7 +1184,7 @@ export default function BYODSecurite() {
                       <p className="text-xs text-blue-300">Exemples : VMware Workspace ONE, Citrix Virtual Apps and Desktops, Microsoft Windows Virtual Desktop</p>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium">Applications sécurisées</h3>
                     <p className="text-sm text-blue-200 mt-1">
@@ -1203,7 +1203,7 @@ export default function BYODSecurite() {
                       <p className="text-xs text-blue-300">Exemples : Microsoft Intune App Protection, BlackBerry Dynamics, solutions MAM diverses</p>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium">Infrastructure en tant que service</h3>
                     <p className="text-sm text-blue-200 mt-1">
@@ -1225,7 +1225,7 @@ export default function BYODSecurite() {
                 </div>
               </CardContent>
             </Card>
-            
+
             <div className="bg-blue-950 border border-blue-800 rounded-lg p-4 mt-4">
               <h3 className="text-lg font-medium mb-2 flex items-center">
                 <Lightbulb className="mr-2 h-5 w-5 text-blue-400" />
@@ -1260,7 +1260,7 @@ export default function BYODSecurite() {
             </div>
           </div>
         </motion.div>
-        
+
         <div className="flex justify-between mt-8">
           <Button onClick={() => setActiveLesson('politiques')} variant="outline" className="border-blue-700 text-blue-300">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -1273,7 +1273,7 @@ export default function BYODSecurite() {
         </div>
       </div>
     ),
-    
+
     mdm: (
       <div className="space-y-6">
         <motion.div 
@@ -1282,11 +1282,11 @@ export default function BYODSecurite() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Solutions MDM et alternatives</h2>
-          
+
           <p className="mt-4">
             La gestion des appareils mobiles (MDM) et les technologies associées constituent l'épine dorsale technique d'une stratégie BYOD réussie.
           </p>
-          
+
           <div className="mt-6 space-y-5">
             <Card className="bg-blue-900/20 border-blue-800">
               <CardHeader>
@@ -1323,7 +1323,7 @@ export default function BYODSecurite() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium flex items-center">
                       <Tablet className="mr-2 h-5 w-5 text-blue-400" />
@@ -1343,7 +1343,7 @@ export default function BYODSecurite() {
                       </ul>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium flex items-center">
                       <Laptop className="mr-2 h-5 w-5 text-blue-400" />
@@ -1363,7 +1363,7 @@ export default function BYODSecurite() {
                       </ul>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium flex items-center">
                       <Shield className="mr-2 h-5 w-5 text-blue-400" />
@@ -1386,10 +1386,10 @@ export default function BYODSecurite() {
                 </div>
               </CardContent>
             </Card>
-            
+
             <div className="mt-6">
               <h3 className="text-xl font-bold">Principales solutions MDM/UEM du marché</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
@@ -1406,7 +1406,7 @@ export default function BYODSecurite() {
                           <li>Idéal pour environnements Windows</li>
                         </ul>
                       </div>
-                      
+
                       <div className="bg-blue-950/50 p-2 rounded-md">
                         <h4 className="text-sm font-medium">VMware Workspace ONE</h4>
                         <ul className="list-disc list-inside text-xs text-blue-300 mt-1">
@@ -1416,7 +1416,7 @@ export default function BYODSecurite() {
                           <li>Adapté aux environnements hétérogènes</li>
                         </ul>
                       </div>
-                      
+
                       <div className="bg-blue-950/50 p-2 rounded-md">
                         <h4 className="text-sm font-medium">IBM Security MaaS360</h4>
                         <ul className="list-disc list-inside text-xs text-blue-300 mt-1">
@@ -1429,7 +1429,7 @@ export default function BYODSecurite() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md">Solutions ciblées</CardTitle>
@@ -1445,7 +1445,7 @@ export default function BYODSecurite() {
                           <li>Déploiement zero-touch</li>
                         </ul>
                       </div>
-                      
+
                       <div className="bg-blue-950/50 p-2 rounded-md">
                         <h4 className="text-sm font-medium">ManageEngine Mobile Device Manager Plus</h4>
                         <ul className="list-disc list-inside text-xs text-blue-300 mt-1">
@@ -1455,7 +1455,7 @@ export default function BYODSecurite() {
                           <li>Fonctionnalités robustes pour Android</li>
                         </ul>
                       </div>
-                      
+
                       <div className="bg-blue-950/50 p-2 rounded-md">
                         <h4 className="text-sm font-medium">Sophos Mobile</h4>
                         <ul className="list-disc list-inside text-xs text-blue-300 mt-1">
@@ -1468,7 +1468,7 @@ export default function BYODSecurite() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md">Solutions émergentes</CardTitle>
@@ -1484,7 +1484,7 @@ export default function BYODSecurite() {
                           <li>Interface moderne et intuitive</li>
                         </ul>
                       </div>
-                      
+
                       <div className="bg-blue-950/50 p-2 rounded-md">
                         <h4 className="text-sm font-medium">Hexnode UEM</h4>
                         <ul className="list-disc list-inside text-xs text-blue-300 mt-1">
@@ -1494,7 +1494,7 @@ export default function BYODSecurite() {
                           <li>Support pour appareils ruggédisés</li>
                         </ul>
                       </div>
-                      
+
                       <div className="bg-blue-950/50 p-2 rounded-md">
                         <h4 className="text-sm font-medium">Miradore</h4>
                         <ul className="list-disc list-inside text-xs text-blue-300 mt-1">
@@ -1509,7 +1509,7 @@ export default function BYODSecurite() {
                 </Card>
               </div>
             </div>
-            
+
             <Card className="bg-blue-900/20 border-blue-800 mt-6">
               <CardHeader>
                 <CardTitle>Alternatives aux solutions MDM</CardTitle>
@@ -1537,7 +1537,7 @@ export default function BYODSecurite() {
                       <p className="text-xs text-blue-300">Exemples : Citrix Virtual Apps, VMware Horizon, Parallels Remote Application Server</p>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium">Bureaux virtuels (VDI)</h3>
                     <p className="text-sm text-blue-200 mt-1">
@@ -1556,7 +1556,7 @@ export default function BYODSecurite() {
                       <p className="text-xs text-blue-300">Exemples : Windows Virtual Desktop, Citrix Virtual Desktops, VMware Horizon, Amazon WorkSpaces</p>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium">Applications Web et SaaS</h3>
                     <p className="text-sm text-blue-200 mt-1">
@@ -1575,7 +1575,7 @@ export default function BYODSecurite() {
                       <p className="text-xs text-blue-300">Exemples : Microsoft 365, Google Workspace, Salesforce, WorkDay, applications web internes</p>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium">Navigateurs sécurisés</h3>
                     <p className="text-sm text-blue-200 mt-1">
@@ -1597,7 +1597,7 @@ export default function BYODSecurite() {
                 </div>
               </CardContent>
             </Card>
-            
+
             <div className="bg-blue-950 border border-blue-800 rounded-lg p-4 mt-4">
               <h3 className="text-lg font-medium mb-2 flex items-center">
                 <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -1635,7 +1635,7 @@ export default function BYODSecurite() {
             </div>
           </div>
         </motion.div>
-        
+
         <div className="flex justify-between mt-8">
           <Button onClick={() => setActiveLesson('securisation')} variant="outline" className="border-blue-700 text-blue-300">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -1648,7 +1648,7 @@ export default function BYODSecurite() {
         </div>
       </div>
     ),
-    
+
     quiz: (
       <div className="space-y-6">
         <motion.div 
@@ -1657,7 +1657,7 @@ export default function BYODSecurite() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Quiz : Sécurité BYOD</h2>
-          
+
           {!quizStarted && !quizCompleted ? (
             <div className="mt-6">
               <Card className="bg-blue-900/20 border-blue-800">
@@ -1676,7 +1676,7 @@ export default function BYODSecurite() {
                       <li>Une explication sera fournie pour chaque réponse</li>
                     </ul>
                   </div>
-                  
+
                   <Button 
                     className="w-full bg-blue-700 hover:bg-blue-800"
                     onClick={() => setQuizStarted(true)}
@@ -1686,7 +1686,7 @@ export default function BYODSecurite() {
                   </Button>
                 </CardContent>
               </Card>
-              
+
               <div className="mt-8">
                 <Button onClick={() => setActiveLesson('mdm')} variant="outline" className="border-blue-700 text-blue-300">
                   <ArrowLeft className="mr-2 h-4 w-4" />
@@ -1707,7 +1707,7 @@ export default function BYODSecurite() {
                   <div className="bg-blue-800/20 p-4 rounded-md">
                     <h3 className="font-medium text-lg">{questions[currentQuestion].question}</h3>
                   </div>
-                  
+
                   <div className="space-y-3">
                     {questions[currentQuestion].options.map((option, index) => (
                       <Button 
@@ -1718,7 +1718,7 @@ export default function BYODSecurite() {
                           if (index === questions[currentQuestion].correctAnswer) {
                             setScore(score + 1);
                           }
-                          
+
                           if (currentQuestion < questions.length - 1) {
                             setCurrentQuestion(currentQuestion + 1);
                           } else {
@@ -1760,7 +1760,7 @@ export default function BYODSecurite() {
                         : 'Concentrez-vous particulièrement sur les aspects de sécurité et la séparation des données personnelles/professionnelles.'}
                     </p>
                   </div>
-                  
+
                   <div className="flex flex-col gap-4">
                     <Button 
                       variant="outline" 
@@ -1775,7 +1775,7 @@ export default function BYODSecurite() {
                     >
                       Revoir le module
                     </Button>
-                    
+
                     <Button 
                       className="bg-blue-700 hover:bg-blue-800"
                       onClick={() => {
@@ -1832,7 +1832,7 @@ export default function BYODSecurite() {
                 </div>
                 <Progress value={progress} className="h-2" />
               </div>
-              
+
               <div className="py-2">
                 {lessons.map((lesson) => (
                   <button
@@ -1851,7 +1851,7 @@ export default function BYODSecurite() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-blue-900/20 border-blue-800">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Informations</CardTitle>
@@ -1881,7 +1881,7 @@ export default function BYODSecurite() {
             </CardContent>
           </Card>
         </div>
-        
+
         {/* Contenu principal */}
         <div className="lg:col-span-3">
           <Card className="bg-blue-900/20 border-blue-800">
