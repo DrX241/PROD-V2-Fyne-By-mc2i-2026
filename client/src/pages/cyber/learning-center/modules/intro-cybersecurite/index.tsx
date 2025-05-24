@@ -1318,7 +1318,7 @@ export default function IntroductionCybersecurite() {
                             onClick={() => setShowMiniGameChat(!showMiniGameChat)}
                           >
                             <MessageCircle className="h-4 w-4 mr-2 text-green-400" />
-                            {showMiniGameChat ? "Masquer le chat" : "Soumettre à l'expert pour validation"}
+                            {showMiniGameChat ? "Masquer le chat" : "Discuter avec l'expert pour valider"}
                           </Button>
                         </div>
                       </div>
@@ -1392,7 +1392,7 @@ export default function IntroductionCybersecurite() {
                             onClick={() => setShowMiniGameChat(!showMiniGameChat)}
                           >
                             <MessageCircle className="h-4 w-4 mr-2 text-green-400" />
-                            {showMiniGameChat ? "Masquer le chat" : "Faire évaluer mon analyse par l'expert"}
+                            {showMiniGameChat ? "Masquer le chat" : "Discuter avec l'expert pour valider"}
                           </Button>
                         </div>
                       </div>
