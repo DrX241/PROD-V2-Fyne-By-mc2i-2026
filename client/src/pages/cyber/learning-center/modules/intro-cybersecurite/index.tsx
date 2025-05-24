@@ -24,6 +24,19 @@ export default function IntroductionCybersecurite() {
   const [activeTab, setActiveTab] = useState("principes");
   const [activeSubTab, setActiveSubTab] = useState("malware");
   const [activeProgramTab, setActiveProgramTab] = useState("section1");
+  
+  // États pour la gamification
+  const [points, setPoints] = useState(0);
+  const [badges, setBadges] = useState<string[]>([]);
+  const [currentLevel, setCurrentLevel] = useState(1);
+  const [challengeCompleted, setChallengeCompleted] = useState(false);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [aiPromptInput, setAiPromptInput] = useState("");
+  const [aiResponse, setAiResponse] = useState("");
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [practiceMode, setPracticeMode] = useState(false);
+  const [activeScenario, setActiveScenario] = useState(0);
+  const [userDecisions, setUserDecisions] = useState<Record<string, string>>({});
   const [showQuizResult, setShowQuizResult] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState({
     q1: "",

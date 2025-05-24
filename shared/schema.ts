@@ -307,5 +307,53 @@ export type AssistantConversation = typeof assistantConversations.$inferSelect;
 export type AssistantTemplate = typeof assistantTemplates.$inferSelect;
 export type CustomModule = typeof customModules.$inferSelect;
 
+// Table pour les modules de cybersécurité
+export const cyberModules = pgTable('cyber_modules', {
+  id: serial('id').primaryKey(),
+  moduleId: varchar('module_id', { length: 100 }).unique().notNull(),
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description').notNull(),
+  difficulty: difficultyLevelEnum('difficulty').default('beginner'),
+  duration: integer('duration').default(30), // en minutes
+  sections: jsonb('sections').notNull(),
+  quizQuestions: jsonb('quiz_questions').notNull(),
+  scenarios: jsonb('scenarios').notNull(),
+  aiAssistancePrompts: jsonb('ai_assistance_prompts').default([]),
+  achievements: jsonb('achievements').default([]),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Table pour stocker les progrès des utilisateurs dans les modules de cybersécurité
+export const cyberModuleProgress = pgTable('cyber_module_progress', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id).notNull(),
+  moduleId: varchar('module_id', { length: 100 }).notNull(),
+  progress: integer('progress').default(0), // pourcentage
+  points: integer('points').default(0),
+  currentLevel: integer('current_level').default(1),
+  unlockedBadges: jsonb('unlocked_badges').default([]),
+  completedSections: jsonb('completed_sections').default([]),
+  quizResults: jsonb('quiz_results').default({}),
+  scenarioDecisions: jsonb('scenario_decisions').default({}),
+  aiInteractions: jsonb('ai_interactions').default([]),
+  lastCompletedAt: timestamp('last_completed_at'),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Schémas d'insertion
+export const insertCyberModuleSchema = createInsertSchema(cyberModules)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+
+export const insertCyberModuleProgressSchema = createInsertSchema(cyberModuleProgress)
+  .omit({ id: true, updatedAt: true });
+
+// Types
+export type InsertCyberModule = z.infer<typeof insertCyberModuleSchema>;
+export type CyberModule = typeof cyberModules.$inferSelect;
+
+export type InsertCyberModuleProgress = z.infer<typeof insertCyberModuleProgressSchema>;
+export type CyberModuleProgress = typeof cyberModuleProgress.$inferSelect;
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
