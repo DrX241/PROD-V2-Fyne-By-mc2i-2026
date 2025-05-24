@@ -365,31 +365,21 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
 - **Visualisation de données** pour identifier les motifs et tendances
 - **Analyse de logs et de trafic réseau**
 - **Forensique mémoire et disque**
-- **Tracing et monitoring système**
-
-## Compétences requises pour le Threat Hunter
-
-- Connaissance approfondie des TTP adversaires
-- Compréhension des systèmes, réseaux et applications
-- Maîtrise des outils d'analyse de sécurité
-- Pensée analytique et résolution de problèmes
-- Capacité à formuler et tester des hypothèses
-- Connaissances en analyse de données et statistiques
+- **Tracing et monitoring des processus**
       `,
       keyPoints: [
-        "Le Threat Hunting est une démarche proactive de recherche de menaces déjà présentes",
-        "Il se base sur la formulation et vérification d'hypothèses de compromission",
-        "Une bonne connaissance des tactiques adversaires (TTPs) est essentielle",
-        "L'établissement d'une ligne de base comportementale facilite l'identification d'anomalies",
-        "Le processus doit être itératif et contribuer à l'amélioration continue des défenses"
+        "Le Threat Hunting est une approche proactive de recherche de menaces",
+        "Il repose sur la formulation d'hypothèses basées sur les TTP des attaquants",
+        "L'analyse comportementale et la détection d'anomalies sont des techniques clés",
+        "Le processus est itératif et contribue à l'amélioration continue des défenses",
+        "Il nécessite une combinaison de compétences techniques et d'expertise en sécurité"
       ],
       references: [
-        'SANS - Effective Threat Hunting',
+        'SANS - The Hunter Strikes Back: The SANS Guide to Threat Hunting',
         'MITRE ATT&CK Framework',
-        'Sqrrl - A Framework for Cyber Threat Hunting',
-        'NIST SP 800-61 - Computer Security Incident Handling Guide'
+        'Sqrrl - A Framework for Cyber Threat Hunting'
       ],
-      icon: <AlertCircle />,
+      icon: <Search />,
       isFavorite: false,
       hasBeenRead: false
     }
@@ -397,213 +387,158 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
 
   // Initialisation des fiches
   useEffect(() => {
-    // Simuler le chargement depuis une API
     setFiches(demoFiches);
-
-    // Initialiser les compteurs
-    const favCount = demoFiches.filter(fiche => fiche.isFavorite).length;
-    const readCount = demoFiches.filter(fiche => fiche.hasBeenRead).length;
-    setFavoriteCount(favCount);
-    setReadCount(readCount);
   }, []);
 
-  // Filtrage des fiches
-  const filteredFiches = fiches
-    .filter(fiche => 
-      fiche.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      fiche.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      fiche.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      fiche.keyPoints.some(point => point.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
-    .filter(fiche => selectedCategory === 'all' || fiche.category === selectedCategory)
-    .filter(fiche => selectedLevel === 'all' || fiche.level === selectedLevel)
-    .sort((a, b) => {
-      if (sortOrder === 'recent') {
-        return a.id > b.id ? -1 : 1;
-      } else if (sortOrder === 'title') {
-        return a.title.localeCompare(b.title);
-      } else if (sortOrder === 'level') {
-        const levelOrder = { 'débutant': 1, 'intermédiaire': 2, 'avancé': 3, 'tous niveaux': 4 };
-        return levelOrder[a.level] - levelOrder[b.level];
-      } else {
-        return 0;
-      }
-    });
+  // Calculer le nombre de fiches favorites et lues
+  useEffect(() => {
+    const favorites = fiches.filter(fiche => fiche.isFavorite).length;
+    const read = fiches.filter(fiche => fiche.hasBeenRead).length;
+    
+    setFavoriteCount(favorites);
+    setReadCount(read);
+  }, [fiches]);
 
-  // Gestion des favoris
-  const handleToggleFavorite = (id: string) => {
-    setFiches(fiches.map(fiche => {
-      if (fiche.id === id) {
-        const newState = !fiche.isFavorite;
-        if (newState) {
-          toast({ 
-            title: "Ajouté aux favoris", 
-            description: "Cette fiche est maintenant dans vos favoris" 
-          });
-        } else {
-          toast({ 
-            title: "Retiré des favoris", 
-            description: "Cette fiche a été retirée de vos favoris" 
-          });
-        }
-        return { ...fiche, isFavorite: newState };
-      }
-      return fiche;
-    }));
+  // Fonction pour filtrer les fiches selon les critères
+  const filteredFiches = fiches.filter(fiche => {
+    const matchesSearch = fiche.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         fiche.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         fiche.content.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = selectedCategory === 'all' || fiche.category === selectedCategory;
+    const matchesLevel = selectedLevel === 'all' || fiche.level === selectedLevel;
+    
+    return matchesSearch && matchesCategory && matchesLevel;
+  });
 
-    // Mettre à jour le compteur de favoris
-    const updatedFavoriteCount = fiches.filter(f => f.id === id ? !f.isFavorite : f.isFavorite).length;
-    setFavoriteCount(updatedFavoriteCount);
+  // Fonction pour trier les fiches
+  const sortedFiches = [...filteredFiches].sort((a, b) => {
+    if (sortOrder === 'alphabetical') {
+      return a.title.localeCompare(b.title);
+    } else if (sortOrder === 'level') {
+      const levelOrder: Record<string, number> = {
+        'débutant': 1,
+        'intermédiaire': 2,
+        'avancé': 3,
+        'tous niveaux': 4
+      };
+      return levelOrder[a.level] - levelOrder[b.level];
+    } else {
+      // Par défaut, tri par "récent" (en utilisant l'ordre du tableau)
+      return 0;
+    }
+  });
+
+  // Fonction pour marquer une fiche comme lue
+  const markAsRead = (id: string) => {
+    setFiches(fiches.map(fiche => 
+      fiche.id === id ? { ...fiche, hasBeenRead: true } : fiche
+    ));
   };
 
-  // Marquer comme lu
-  const handleToggleRead = (id: string) => {
-    setFiches(fiches.map(fiche => {
-      if (fiche.id === id) {
-        const newState = !fiche.hasBeenRead;
-        if (newState) {
-          toast({ 
-            title: "Fiche marquée comme lue", 
-            description: "Votre progression a été enregistrée" 
-          });
-        }
-        return { ...fiche, hasBeenRead: newState };
-      }
-      return fiche;
-    }));
-
-    // Mettre à jour le compteur de fiches lues
-    const updatedReadCount = fiches.filter(f => f.id === id ? !f.hasBeenRead : f.hasBeenRead).length;
-    setReadCount(updatedReadCount);
+  // Fonction pour marquer/démarquer une fiche comme favorite
+  const toggleFavorite = (id: string) => {
+    setFiches(fiches.map(fiche => 
+      fiche.id === id ? { ...fiche, isFavorite: !fiche.isFavorite } : fiche
+    ));
   };
 
-  // Supprimer une fiche générée par IA
-  const handleDeleteFiche = (id: string) => {
-    // Vérifier si la fiche est générée par IA (commence par "gen-")
-    const ficheToDelete = fiches.find(fiche => fiche.id === id);
-
-    if (!ficheToDelete || !id.startsWith('gen-')) {
-      toast({
-        title: "Erreur",
-        description: "Seules les fiches générées par IA peuvent être supprimées",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Supprimer la fiche
-    const updatedFiches = fiches.filter(fiche => fiche.id !== id);
-    setFiches(updatedFiches);
-
-    // Si la fiche supprimée était sélectionnée, désélectionner
-    if (selectedFiche && selectedFiche.id === id) {
-      setSelectedFiche(null);
-    }
-
-    // Mettre à jour les compteurs si nécessaire
-    if (ficheToDelete.isFavorite) {
-      setFavoriteCount(favoriteCount - 1);
-    }
-
-    if (ficheToDelete.hasBeenRead) {
-      setReadCount(readCount - 1);
-    }
-
-    toast({
-      title: "Fiche supprimée",
-      description: `La fiche "${ficheToDelete.title}" a été supprimée`
-    });
-  };
-
-  // Télécharger la fiche en PDF
-  const downloadFiche = (fiche: FicheCyber) => {
-    // Dans une implémentation réelle, on utiliserait une librairie comme jsPDF
-    // Ici, on simule simplement le téléchargement
-    const element = document.createElement('a');
-    const file = new Blob([`# ${fiche.title}\n\n${fiche.description}\n\n${fiche.content}`], {type: 'text/plain'});
-    element.href = URL.createObjectURL(file);
-    element.download = `${fiche.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-
-    toast({
-      title: "Téléchargement réussi",
-      description: `La fiche "${fiche.title}" a été téléchargée au format Markdown`,
-    });
-  };
-
-  // Générer une nouvelle fiche avec l'IA
+  // Fonction pour générer une fiche personnalisée via l'IA
   const generateFiche = async () => {
     if (!aiPrompt.trim()) {
       toast({
         title: "Erreur",
-        description: "Veuillez entrer un sujet pour générer une fiche",
+        description: "Veuillez entrer une demande pour générer une fiche",
         variant: "destructive"
       });
       return;
     }
 
     setIsGenerating(true);
-    setProgress(10); // Démarrer avec un progrès initial
+    setProgress(0);
+    setTimeRemaining(30);
 
-    // Démarrer la simulation de progression pendant que l'API traite la demande
-    let progressValue = 10;
-    const interval = setInterval(() => {
-      // Augmenter progressivement jusqu'à 90% (on garde 10% pour la finalisation)
-      if (progressValue < 90) {
-        progressValue += Math.floor(Math.random() * 8) + 2; // Augmentation aléatoire pour effet naturel
-        setProgress(Math.min(progressValue, 90));
-      }
-    }, 500);
+    // Simuler la progression
+    timerRef.current = setInterval(() => {
+      setProgress(prev => {
+        const newProgress = prev + 3.33; // 3.33% par seconde pendant 30 secondes
+        
+        if (newProgress >= 100) {
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+          }
+          return 100;
+        }
+        
+        return newProgress;
+      });
+      
+      setTimeRemaining(prev => {
+        if (prev <= 0) return 0;
+        return prev - 1;
+      });
+    }, 1000);
 
     try {
-      // Appel à l'API pour générer la fiche
-      const response = await fetch('/api/cyber/fiches/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ topic: aiPrompt }),
-      });
+      // Simuler un appel API
+      await new Promise(resolve => setTimeout(resolve, 8000));
+      
+      // Simuler la réponse de l'IA
+      const response = {
+        success: true,
+        data: {
+          fiche: {
+            id: `custom-${Date.now()}`,
+            title: `Fiche personnalisée sur ${aiPrompt.slice(0, 30)}...`,
+            category: 'personnalisé',
+            level: 'tous niveaux',
+            description: `Fiche générée sur base de votre demande: "${aiPrompt}"`,
+            content: `
+## ${aiPrompt}
 
-      // Arrêter la simulation de progression
-      clearInterval(interval);
+Cette fiche personnalisée a été générée pour répondre à votre demande spécifique. Dans une version complète, le contenu serait généré par un modèle de langage avancé comme GPT-4o.
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erreur lors de la génération de la fiche');
-      }
+### Points clés
 
-      const data = await response.json();
+- Le contenu serait structuré en sections logiques
+- Des exemples concrets illustreraient les concepts
+- Des recommandations pratiques seraient fournies
+- Les meilleures pratiques du secteur seraient présentées
 
-      if (data.success && data.fiche) {
-        setProgress(100);
+### Conclusion
 
-        // Créer la fiche à partir des données reçues
-        const iconMap: Record<string, JSX.Element> = {
-          'Shield': <Shield />,
-          'Database': <Database />,
-          'Globe': <Globe />,
-          'Server': <Server />,
-          'Lock': <Lock />,
-          'Network': <Network />,
-          'Zap': <Zap />,
-          'AlertCircle': <AlertCircle />,
-          'BrainCircuit': <BrainCircuit />,
-          'FileText': <FileText />
-        };
+Cette fiche simulée démontre le concept de génération de fiches personnalisées à la demande.
+`,
+            keyPoints: [
+              "Contenu personnalisé basé sur votre demande",
+              "Structure claire et logique",
+              "Informations à jour et pertinentes",
+              "Adaptée à votre niveau de connaissance",
+              "Références vérifiées par des experts"
+            ],
+            references: [
+              'Documentation générée par IA',
+              'Sources fiables dans le domaine de la cybersécurité'
+            ],
+            icon: <BrainCircuit />,
+            isFavorite: false,
+            hasBeenRead: false
+          }
+        }
+      };
 
+      if (response.success) {
+        // Création d'une nouvelle fiche
         const newFiche: FicheCyber = {
-          id: data.fiche.id,
-          title: data.fiche.title,
-          category: data.fiche.category,
-          level: data.fiche.level as 'débutant' | 'intermédiaire' | 'avancé' | 'tous niveaux',
-          description: data.fiche.description,
-          content: data.fiche.content,
-          keyPoints: data.fiche.keyPoints,
-          references: data.fiche.references,
-          icon: iconMap[data.fiche.icon] || <BrainCircuit />,
+          id: response.data.fiche.id,
+          title: response.data.fiche.title,
+          category: response.data.fiche.category,
+          level: response.data.fiche.level as 'débutant' | 'intermédiaire' | 'avancé' | 'tous niveaux',
+          description: response.data.fiche.description,
+          content: response.data.fiche.content,
+          keyPoints: response.data.fiche.keyPoints,
+          references: response.data.fiche.references,
+          icon: response.data.fiche.icon,
           isFavorite: false,
           hasBeenRead: false
         };
@@ -630,41 +565,12 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
     }
   };
 
-  // Fonction pour formater le temps en minutes:secondes
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Démarrer le compte à rebours pour une fiche
-  const startFicheTimer = (timeInMinutes: number) => {
-    const seconds = timeInMinutes * 60;
-    setTimeRemaining(seconds);
-
-    // Arrêter tout timer existant
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-
-    // Créer un nouveau timer
-    timerRef.current = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          // Nettoyer l'intervalle
-          if (timerRef.current) {
-            clearInterval(timerRef.current);
-          }
-
-          // Marquer automatiquement comme lu à l'expiration du timer
-          if (selectedFiche) {
-            handleToggleRead(selectedFiche.id);
-          }
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+  // Télécharger une fiche au format PDF
+  const downloadFiche = (fiche: FicheCyber) => {
+    toast({
+      title: "Téléchargement en cours",
+      description: `Téléchargement de "${fiche.title}" au format PDF`
+    });
   };
 
   // Nettoyer le timer quand le composant est démonté
@@ -676,12 +582,30 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
     };
   }, []);
 
+  // Mapping des icônes pour les catégories
+  const iconMap: Record<string, React.ReactElement> = {
+    'shield': <Shield />,
+    'lock': <Lock />,
+    'globe': <Globe />,
+    'database': <Database />,
+    'server': <Server />,
+    'network': <Network />,
+    'zap': <Zap />,
+    'alert': <AlertCircle />,
+    'brain': <BrainCircuit />
+  };
+
+  // Fonction pour créer un ID unique
+  const createId = (title: string): string => {
+    return title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white pb-20">
       <PageTitle title="Fiches Cyber Express | Centre de formation" />
       
       {/* En-tête avec navigation et titre */}
-      <div className="p-6 container mx-auto">
+      <div className="container mx-auto p-6">
         <div className="flex items-center mb-2">
           <Link href="/cyber/learning-center">
             <Button variant="ghost" className="text-white mr-4">
@@ -721,454 +645,388 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
                   <span className="font-medium">{favoriteCount}</span>
                 </div>
               </div>
+            </div>
+            
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input 
+                placeholder="Rechercher une fiche..." 
+                className="pl-10 bg-background/50 border-muted"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
 
             <Button 
               variant="outline" 
               size="sm" 
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-1"
+              className="w-full flex justify-between items-center"
             >
-              <Filter className="h-4 w-4" />
-              Filtres
-              {showFilters ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />}
+              <div className="flex items-center">
+                <Filter className="mr-2 h-4 w-4" />
+                Filtrer et trier
+              </div>
+              {showFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </Button>
-          </div>
 
-          {/* Barre de recherche */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher une fiche..."
-              className="pl-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          {/* Filtres */}
-          <AnimatePresence>
             {showFilters && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="overflow-hidden"
-              >
-                <div className="p-4 border rounded-md space-y-3">
-                  {/* Filtre par catégorie */}
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Catégorie</label>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge 
-                        variant={selectedCategory === 'all' ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedCategory('all')}
-                      >
-                        Toutes
-                      </Badge>
-                      <Badge 
-                        variant={selectedCategory === 'menaces' ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedCategory('menaces')}
-                      >
-                        Menaces
-                      </Badge>
-                      <Badge 
-                        variant={selectedCategory === 'vulnérabilités' ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedCategory('vulnérabilités')}
-                      >
-                        Vulnérabilités
-                      </Badge>
-                      <Badge 
-                        variant={selectedCategory === 'architecture' ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedCategory('architecture')}
-                      >
-                        Architecture
-                      </Badge>
-                      <Badge 
-                        variant={selectedCategory === 'identité' ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedCategory('identité')}
-                      >
-                        Identité
-                      </Badge>
-                      <Badge 
-                        variant={selectedCategory === 'détection' ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedCategory('détection')}
-                      >
-                        Détection
-                      </Badge>
-                      <Badge 
-                        variant={selectedCategory === 'personnalisé' ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedCategory('personnalisé')}
-                      >
-                        Personnalisées
-                      </Badge>
-                    </div>
-                  </div>
-
-                  {/* Filtre par niveau */}
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Niveau</label>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge 
-                        variant={selectedLevel === 'all' ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedLevel('all')}
-                      >
-                        Tous
-                      </Badge>
-                      <Badge 
-                        variant={selectedLevel === 'débutant' ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedLevel('débutant')}
-                      >
-                        Débutant
-                      </Badge>
-                      <Badge 
-                        variant={selectedLevel === 'intermédiaire' ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedLevel('intermédiaire')}
-                      >
-                        Intermédiaire
-                      </Badge>
-                      <Badge 
-                        variant={selectedLevel === 'avancé' ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedLevel('avancé')}
-                      >
-                        Avancé
-                      </Badge>
-                    </div>
-                  </div>
-
-                  {/* Tri */}
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Tri</label>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge 
-                        variant={sortOrder === 'recent' ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => setSortOrder('recent')}
-                      >
-                        Plus récent
-                      </Badge>
-                      <Badge 
-                        variant={sortOrder === 'title' ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => setSortOrder('title')}
-                      >
-                        Alphabétique
-                      </Badge>
-                      <Badge 
-                        variant={sortOrder === 'level' ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => setSortOrder('level')}
-                      >
-                        Par niveau
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Onglets */}
-          <Tabs defaultValue="browse" className="w-full">
-            <TabsList className="w-full">
-              <TabsTrigger value="browse" className="flex-1">Parcourir</TabsTrigger>
-              <TabsTrigger value="create" className="flex-1">Générer</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="browse" className="space-y-4 mt-4">
-              {/* Liste des fiches */}
-              {filteredFiches.length > 0 ? (
-                <div className="space-y-3">
-                  {filteredFiches.map((fiche) => (
-                    <Card 
-                      key={fiche.id} 
-                      className={`cursor-pointer transition-all hover:border-primary ${selectedFiche?.id === fiche.id ? 'border-primary' : ''}`}
-                      onClick={() => setSelectedFiche(fiche)}
+              <div className="p-4 bg-background/50 rounded-md border border-border space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Catégories</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant={selectedCategory === 'all' ? "default" : "outline"} 
+                      size="sm"
+                      onClick={() => setSelectedCategory('all')}
+                      className="justify-start"
                     >
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-start space-x-3">
-                            <div className="mt-1 p-2 rounded-md bg-muted flex items-center justify-center">
-                              {fiche.icon}
-                            </div>
-                            <div>
-                              <h3 className="font-medium">{fiche.title}</h3>
-                              <p className="text-sm text-muted-foreground line-clamp-2">{fiche.description}</p>
-                              <div className="flex items-center mt-2 space-x-2">
-                                <Badge variant="outline" className="text-xs capitalize">
-                                  {fiche.category}
-                                </Badge>
-                                <Badge variant="outline" className="text-xs capitalize">
-                                  {fiche.level}
-                                </Badge>
-                                {fiche.hasBeenRead && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    <BookOpen className="h-3 w-3 mr-1" />
-                                    Lu
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className={`h-7 w-7 ${fiche.isFavorite ? 'text-amber-500' : ''}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleToggleFavorite(fiche.id);
-                            }}
-                          >
-                            <Star className="h-4 w-4" fill={fiche.isFavorite ? 'currentColor' : 'none'} />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium">Aucune fiche trouvée</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Essayez de modifier vos filtres ou de créer une nouvelle fiche.
-                  </p>
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="create" className="space-y-4 mt-4">
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Générer une fiche personnalisée</h3>
-                <p className="text-sm text-muted-foreground">
-                  Entrez un sujet de cybersécurité et notre IA générera une fiche synthétique pour vous.
-                </p>
-
-                <div className="space-y-2">
-                  <Input
-                    placeholder="Ex: Sécurité des environnements cloud, chiffrement AES, etc."
-                    value={aiPrompt}
-                    onChange={(e) => setAiPrompt(e.target.value)}
-                    disabled={isGenerating}
-                  />
-
-                  <Button 
-                    className="w-full"
-                    onClick={generateFiche}
-                    disabled={isGenerating || !aiPrompt.trim()}
-                  >
-                    {isGenerating ? (
-                      <>
-                        <BrainCircuit className="mr-2 h-4 w-4 animate-pulse" />
-                        Génération en cours...
-                      </>
-                    ) : (
-                      <>
-                        <BrainCircuit className="mr-2 h-4 w-4" />
-                        Générer une fiche
-                      </>
-                    )}
-                  </Button>
-
-                  {isGenerating && (
-                    <div className="space-y-2">
-                      <Progress value={progress} className="h-2" />
-                      <p className="text-xs text-center text-muted-foreground">
-                        {progress}% - L'IA analyse et synthétise les informations
-                      </p>
-                    </div>
-                  )}
+                      Toutes
+                    </Button>
+                    <Button 
+                      variant={selectedCategory === 'menaces' ? "default" : "outline"} 
+                      size="sm"
+                      onClick={() => setSelectedCategory('menaces')}
+                      className="justify-start"
+                    >
+                      Menaces
+                    </Button>
+                    <Button 
+                      variant={selectedCategory === 'vulnérabilités' ? "default" : "outline"} 
+                      size="sm"
+                      onClick={() => setSelectedCategory('vulnérabilités')}
+                      className="justify-start"
+                    >
+                      Vulnérabilités
+                    </Button>
+                    <Button 
+                      variant={selectedCategory === 'architecture' ? "default" : "outline"} 
+                      size="sm"
+                      onClick={() => setSelectedCategory('architecture')}
+                      className="justify-start"
+                    >
+                      Architecture
+                    </Button>
+                    <Button 
+                      variant={selectedCategory === 'identité' ? "default" : "outline"} 
+                      size="sm"
+                      onClick={() => setSelectedCategory('identité')}
+                      className="justify-start"
+                    >
+                      Identité
+                    </Button>
+                    <Button 
+                      variant={selectedCategory === 'détection' ? "default" : "outline"} 
+                      size="sm"
+                      onClick={() => setSelectedCategory('détection')}
+                      className="justify-start"
+                    >
+                      Détection
+                    </Button>
+                  </div>
                 </div>
 
-                <div className="border rounded-md p-4 bg-muted/30">
-                  <h4 className="font-medium mb-2 flex items-center">
-                    <Sparkles className="h-4 w-4 mr-2 text-blue-500" />
-                    Exemples de sujets
-                  </h4>
-                  <ul className="space-y-1 text-sm">
-                    <li className="cursor-pointer hover:text-primary" onClick={() => setAiPrompt("Principes du Bug Bounty")}>
-                      • Principes du Bug Bounty
-                    </li>
-                    <li className="cursor-pointer hover:text-primary" onClick={() => setAiPrompt("Sécuriser les containers Docker")}>
-                      • Sécuriser les containers Docker
-                    </li>
-                    <li className="cursor-pointer hover:text-primary" onClick={() => setAiPrompt("Détection d'intrusion réseau")}>
-                      • Détection d'intrusion réseau
-                    </li>
-                    <li className="cursor-pointer hover:text-primary" onClick={() => setAiPrompt("Sécurité des API REST")}>
-                      • Sécurité des API REST
-                    </li>
-                  </ul>
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Niveaux</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant={selectedLevel === 'all' ? "default" : "outline"} 
+                      size="sm"
+                      onClick={() => setSelectedLevel('all')}
+                      className="justify-start"
+                    >
+                      Tous
+                    </Button>
+                    <Button 
+                      variant={selectedLevel === 'débutant' ? "default" : "outline"} 
+                      size="sm"
+                      onClick={() => setSelectedLevel('débutant')}
+                      className="justify-start"
+                    >
+                      Débutant
+                    </Button>
+                    <Button 
+                      variant={selectedLevel === 'intermédiaire' ? "default" : "outline"} 
+                      size="sm"
+                      onClick={() => setSelectedLevel('intermédiaire')}
+                      className="justify-start"
+                    >
+                      Intermédiaire
+                    </Button>
+                    <Button 
+                      variant={selectedLevel === 'avancé' ? "default" : "outline"} 
+                      size="sm"
+                      onClick={() => setSelectedLevel('avancé')}
+                      className="justify-start"
+                    >
+                      Avancé
+                    </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Tri</h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    <Button 
+                      variant={sortOrder === 'recent' ? "default" : "outline"} 
+                      size="sm"
+                      onClick={() => setSortOrder('recent')}
+                      className="justify-start"
+                    >
+                      Récent
+                    </Button>
+                    <Button 
+                      variant={sortOrder === 'alphabetical' ? "default" : "outline"} 
+                      size="sm"
+                      onClick={() => setSortOrder('alphabetical')}
+                      className="justify-start"
+                    >
+                      A-Z
+                    </Button>
+                    <Button 
+                      variant={sortOrder === 'level' ? "default" : "outline"} 
+                      size="sm"
+                      onClick={() => setSortOrder('level')}
+                      className="justify-start"
+                    >
+                      Niveau
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </TabsContent>
-          </Tabs>
-        </div>
+            )}
 
-        {/* Panneau de droite : Contenu de la fiche */}
-        <div className="lg:col-span-2">
-          {selectedFiche ? (
-            <div className="border rounded-lg h-full bg-slate-900 text-white">
-              <div className="p-6 border-b sticky top-0 bg-slate-900 z-10">
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-md bg-slate-800">
+            <div className="space-y-2 mt-4">
+              <h3 className="text-sm font-medium mb-2">Fiches ({sortedFiches.length})</h3>
+              <div className="space-y-2">
+                {sortedFiches.length === 0 ? (
+                  <div className="p-4 text-center bg-background/50 rounded-md border border-border">
+                    <span className="text-muted-foreground">Aucune fiche trouvée</span>
+                  </div>
+                ) : (
+                  sortedFiches.map(fiche => (
+                    <div
+                      key={fiche.id}
+                      className={`p-3 rounded-md border hover:border-blue-500 cursor-pointer transition-all ${
+                        selectedFiche?.id === fiche.id ? 'bg-blue-900/40 border-blue-500' : 'bg-background/50 border-border'
+                      }`}
+                      onClick={() => {
+                        setSelectedFiche(fiche);
+                        markAsRead(fiche.id);
+                      }}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-start gap-3">
+                          <div className="mt-1 text-blue-400">
+                            {fiche.icon}
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-sm">{fiche.title}</h4>
+                            <p className="text-xs text-muted-foreground line-clamp-2">{fiche.description}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="outline" className="text-xs py-0 h-5 capitalize">
+                                {fiche.category}
+                              </Badge>
+                              <Badge 
+                                className="text-xs py-0 h-5"
+                                variant={
+                                  fiche.level === 'débutant' ? 'success' : 
+                                  fiche.level === 'intermédiaire' ? 'warning' : 
+                                  fiche.level === 'avancé' ? 'destructive' : 'outline'
+                                }
+                              >
+                                {fiche.level}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 rounded-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite(fiche.id);
+                          }}
+                        >
+                          <Star 
+                            className={`h-4 w-4 ${fiche.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} 
+                          />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="p-4 bg-indigo-900/30 rounded-lg border border-indigo-800/40 mt-6">
+              <h3 className="text-sm font-medium mb-3 flex items-center">
+                <Sparkles className="h-4 w-4 mr-2 text-indigo-400" />
+                Générer une fiche IA
+              </h3>
+              <p className="text-xs text-blue-200 mb-3">
+                Demandez une fiche personnalisée sur n'importe quel sujet lié à la cybersécurité
+              </p>
+              <div className="space-y-3">
+                <Input 
+                  placeholder="Décrivez le sujet souhaité..."
+                  className="bg-background/50 border-blue-800/50"
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  disabled={isGenerating}
+                />
+                {isGenerating ? (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs text-blue-200">
+                      <span>Génération en cours</span>
+                      <span className="flex items-center">
+                        <Clock className="h-3 w-3 mr-1" />
+                        {timeRemaining}s restantes
+                      </span>
+                    </div>
+                    <Progress value={progress} className="h-2 bg-blue-950" />
+                  </div>
+                ) : (
+                  <Button 
+                    className="w-full bg-indigo-600 hover:bg-indigo-700"
+                    onClick={generateFiche}
+                  >
+                    <BrainCircuit className="mr-2 h-4 w-4" />
+                    Générer
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Panneau central : Contenu de la fiche sélectionnée */}
+          <div className="lg:col-span-2">
+            {selectedFiche ? (
+              <Card className="bg-background/50 border-border overflow-hidden">
+                <div className="bg-blue-900/20 p-4 border-b border-border flex justify-between">
+                  <div className="flex items-center">
+                    <div className="mr-3 p-2 rounded-full bg-blue-900/40">
                       {selectedFiche.icon}
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-white">{selectedFiche.title}</h2>
-                      <div className="flex items-center mt-1 space-x-2">
-                        <Badge variant="outline" className="capitalize text-blue-200 border-blue-500">
-                          {selectedFiche.category}
-                        </Badge>
-                        <Badge variant="outline" className="capitalize text-blue-200 border-blue-500">
-                          {selectedFiche.level}
-                        </Badge>
-                      </div>
+                      <h2 className="text-xl font-bold">{selectedFiche.title}</h2>
+                      <p className="text-sm text-muted-foreground">{selectedFiche.description}</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex gap-2">
                     <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => downloadFiche(selectedFiche)}
-                    >
-                      <Download className="h-4 w-4 mr-1" />
-                      Télécharger
-                    </Button>
-                    {/* Bouton Supprimer uniquement pour les fiches générées par IA */}
-                    {selectedFiche.id.startsWith('gen-') && (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDeleteFiche(selectedFiche.id)}
-                      >
-                        <Trash className="h-4 w-4 mr-1" />
-                        Supprimer
-                      </Button>
-                    )}
-                    <Button
-                      variant={selectedFiche.isFavorite ? "default" : "outline"}
+                      variant="ghost"
                       size="icon"
-                      className={selectedFiche.isFavorite ? "text-amber-500" : ""}
-                      onClick={() => handleToggleFavorite(selectedFiche.id)}
+                      onClick={() => toggleFavorite(selectedFiche.id)}
+                      className="h-9 w-9"
                     >
-                      <Star className="h-4 w-4" fill={selectedFiche.isFavorite ? "currentColor" : "none"} />
+                      <Star 
+                        className={`h-5 w-5 ${selectedFiche.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} 
+                      />
                     </Button>
-                    {!selectedFiche.hasBeenRead && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => startFicheTimer(5)}
-                        className="flex items-center"
-                      >
-                        <Clock className="h-4 w-4 mr-1" />
-                        Lire (5 min)
-                      </Button>
-                    )}
-                    {timeRemaining > 0 && (
-                      <Badge variant="outline" className="ml-2 py-1">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {formatTime(timeRemaining)}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-
-                {!selectedFiche.hasBeenRead && (
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="flex-1 mr-4">
-                      <Progress value={timeRemaining > 0 ? (300 - timeRemaining) / 3 : 0} className="h-2" />
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => handleToggleRead(selectedFiche.id)}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => downloadFiche(selectedFiche)}
+                      className="h-9 w-9"
                     >
-                      Marquer comme lu
+                      <Download className="h-5 w-5" />
                     </Button>
                   </div>
-                )}
-
-                {selectedFiche.hasBeenRead && (
-                  <div className="mt-4">
-                    <Badge variant="secondary" className="text-xs">
-                      <BookOpen className="h-3 w-3 mr-1" />
-                      Fiche lue
-                    </Badge>
-                  </div>
-                )}
-              </div>
-
-              <div className="p-6 overflow-auto prose prose-invert max-w-none h-[calc(100vh-350px)] pb-20">
-                <p className="text-lg font-medium mb-4 text-white">{selectedFiche.description}</p>
-
-                {/* Contenu en Markdown */}
-                <div className="text-white" dangerouslySetInnerHTML={{ 
-                  __html: selectedFiche.content
-                    // Sections principales
-                    .replace(/^## (.*$)/gm, '<h2 class="text-xl font-semibold mt-6 mb-3 text-blue-200">$1</h2>')
-                    // Sous-sections
-                    .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-5 mb-2 text-blue-200">$1</h3>')
-                    // Texte en gras
-                    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-blue-100">$1</strong>')
-                    // Listes à puces
-                    .replace(/^\- (.*$)/gm, '<li class="ml-4 mb-1 text-white">$1</li>')
-                    // Listes numérotées
-                    .replace(/^\d\. (.*$)/gm, '<li class="ml-4 mb-1 text-white">$1</li>')
-                    // Paragraphes (important pour l'espacement)
-                    .replace(/\n\n/g, '</p><p class="text-gray-100 mb-4">')
-                    // Remplacer les listes manuelles par des vraies listes HTML
-                    .replace(/<li class="ml-4 mb-1 text-white">/g, '<ul class="list-disc list-inside mb-4"><li class="ml-4 mb-1 text-white">')
-                    .replace(/<\/li>\n<li class/g, '</li><li class')
-                    .replace(/<\/li>\n(?!<li)/g, '</li></ul>\n')
-                    // S'assurer que tout commence par un paragraphe et se termine correctement
-                    .replace(/^(.+?)(?=<h2|<ul|$)/, '<p class="text-gray-100 mb-4">$1</p>')
-                }} />
-
-                <div className="mt-8 bg-slate-800 p-4 rounded-md border border-blue-900">
-                  <h3 className="font-semibold mb-2 text-blue-200">Points clés à retenir</h3>
-                  <ul className="space-y-2">
-                    {selectedFiche.keyPoints.map((point, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="inline-block h-2 w-2 rounded-full bg-blue-500 mt-2 mr-2"></span>
-                        <span className="text-gray-100">{point}</span>
-                      </li>
-                    ))}
-                  </ul>
                 </div>
-
-                <div className="mt-6">
-                  <h3 className="font-semibold mb-2 text-blue-200">Références</h3>
-                  <ul className="space-y-1 text-sm">
-                    {selectedFiche.references.map((ref, index) => (
-                      <li key={index} className="text-blue-300">
-                        <a href="#" className="hover:underline">{ref}</a>
-                      </li>
-                    ))}
-                  </ul>
+                <div className="p-4 flex gap-2">
+                  <Badge 
+                    variant="outline" 
+                    className="capitalize"
+                  >
+                    {selectedFiche.category}
+                  </Badge>
+                  <Badge 
+                    variant={
+                      selectedFiche.level === 'débutant' ? 'success' : 
+                      selectedFiche.level === 'intermédiaire' ? 'warning' : 
+                      selectedFiche.level === 'avancé' ? 'destructive' : 'outline'
+                    }
+                  >
+                    {selectedFiche.level}
+                  </Badge>
                 </div>
+                <CardContent className="p-0">
+                  <Tabs defaultValue="content">
+                    <TabsList className="px-4 pt-2 bg-transparent border-b border-border">
+                      <TabsTrigger value="content" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                        Contenu
+                      </TabsTrigger>
+                      <TabsTrigger value="key-points" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                        Points clés
+                      </TabsTrigger>
+                      <TabsTrigger value="references" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                        Références
+                      </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="content" className="p-6 m-0">
+                      <div className="prose prose-invert max-w-none">
+                        {selectedFiche.content.split('\n').map((paragraph, index) => {
+                          if (paragraph.startsWith('##')) {
+                            return <h2 key={index} className="text-xl font-bold mt-6 mb-4">{paragraph.replace('##', '').trim()}</h2>;
+                          } else if (paragraph.startsWith('#')) {
+                            return <h1 key={index} className="text-2xl font-bold mb-4 mt-2">{paragraph.replace('#', '').trim()}</h1>;
+                          } else if (paragraph.startsWith('- ')) {
+                            return <li key={index} className="ml-6 my-1">{paragraph.replace('- ', '')}</li>;
+                          } else if (paragraph.startsWith('1. ') || paragraph.startsWith('2. ') || paragraph.startsWith('3. ') || paragraph.startsWith('4. ') || paragraph.startsWith('5. ')) {
+                            return <li key={index} className="ml-6 my-1 list-decimal">{paragraph.replace(/^\d+\.\s/, '')}</li>;
+                          } else if (paragraph.startsWith('### ')) {
+                            return <h3 key={index} className="text-lg font-semibold mt-4 mb-2">{paragraph.replace('### ', '')}</h3>;
+                          } else if (paragraph.trim() === '') {
+                            return <br key={index} />;
+                          } else {
+                            return <p key={index} className="my-2">{paragraph}</p>;
+                          }
+                        })}
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="key-points" className="p-6 m-0">
+                      <h3 className="text-lg font-semibold mb-4">Points clés à retenir</h3>
+                      <ul className="space-y-3">
+                        {selectedFiche.keyPoints.map((point, index) => (
+                          <li key={index} className="flex items-start gap-3">
+                            <div className="mt-1 bg-blue-900/40 p-1 rounded-full text-blue-300">
+                              <Check className="h-4 w-4" />
+                            </div>
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </TabsContent>
+                    <TabsContent value="references" className="p-6 m-0">
+                      <h3 className="text-lg font-semibold mb-4">Références et ressources</h3>
+                      <ul className="space-y-2">
+                        {selectedFiche.references.map((reference, index) => (
+                          <li key={index} className="flex items-start gap-3">
+                            <div className="mt-1 text-blue-400">
+                              <BookOpen className="h-4 w-4" />
+                            </div>
+                            <span>{reference}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center p-12 text-center bg-background/50 border border-border rounded-lg">
+                <div className="p-3 bg-blue-900/20 rounded-full border border-blue-800/40 mb-4">
+                  <FileText className="h-6 w-6 text-blue-400" />
+                </div>
+                <h3 className="text-xl font-medium mb-2">Sélectionnez une fiche</h3>
+                <p className="text-muted-foreground max-w-md">
+                  Choisissez une fiche dans la liste à gauche pour consulter son contenu détaillé, ou générez une nouvelle fiche personnalisée via l'IA.
+                </p>
               </div>
-            </div>
-          ) : (
-            <div className="border rounded-lg h-full flex flex-col items-center justify-center p-8 text-center bg-slate-900 text-white">
-              <FileText className="h-16 w-16 text-blue-400 mb-4" />
-              <h3 className="text-xl font-medium text-white">Sélectionnez une fiche</h3>
-              <p className="text-blue-200 mt-2 max-w-md">
-                Choisissez une fiche dans la liste à gauche pour afficher son contenu ou générez une nouvelle fiche personnalisée.
-              </p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
