@@ -60,8 +60,8 @@ export default function AmoaRoleplay() {
                     <Briefcase className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-center text-xl font-bold">Je suis Consultant</CardTitle>
-                <CardDescription className="text-center text-blue-300">
+                <CardTitle className="text-center text-2xl font-bold">Je suis Consultant</CardTitle>
+                <CardDescription className="text-center text-blue-300 text-lg">
                   Je prépare une audition client
                 </CardDescription>
               </CardHeader>
@@ -105,8 +105,8 @@ export default function AmoaRoleplay() {
                     <Zap className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-center text-xl font-bold">Je suis Sénior Manager</CardTitle>
-                <CardDescription className="text-center text-orange-300">
+                <CardTitle className="text-center text-2xl font-bold">Je suis Sénior Manager</CardTitle>
+                <CardDescription className="text-center text-orange-300 text-lg">
                   Je prépare un RDV commercial
                 </CardDescription>
               </CardHeader>
