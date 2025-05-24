@@ -85,7 +85,7 @@ export default function PrincipesBaseMicroLearning() {
 
   // Calculer l'index de la section actuelle
   const currentSectionIndex = sections.findIndex(section => section.id === currentSection);
-  
+
   // Calculer la progression globale
   const progressPercentage = (completedSections.length / sections.length) * 100;
 
@@ -143,7 +143,7 @@ export default function PrincipesBaseMicroLearning() {
                 </div>
                 <Progress value={progressPercentage} className="h-2" />
               </div>
-              
+
               <div className="space-y-2">
                 {sections.map((section) => (
                   <div
@@ -160,16 +160,16 @@ export default function PrincipesBaseMicroLearning() {
                   </div>
                 ))}
               </div>
-              
+
               <Separator className="my-4 bg-blue-800/50" />
-              
+
               <div className="flex items-center text-sm text-blue-200">
                 <Clock className="h-4 w-4 mr-2" />
                 <span>Durée estimée: 15 minutes</span>
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-blue-900/20 border-blue-800">
             <CardHeader>
               <CardTitle className="text-lg">Ressources</CardTitle>
@@ -199,13 +199,13 @@ export default function PrincipesBaseMicroLearning() {
               {currentSection === 'introduction' && (
                 <motion.div variants={itemVariants}>
                   <h2 className="text-2xl font-bold mb-4">Introduction aux fondamentaux de la cybersécurité</h2>
-                  
+
                   <p className="mb-4">
                     La cybersécurité est l'ensemble des pratiques, technologies et processus conçus pour protéger 
                     les systèmes informatiques, les réseaux, les programmes et les données contre les attaques, les 
                     dommages ou les accès non autorisés.
                   </p>
-                  
+
                   <div className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 p-4 rounded-lg border border-blue-700 mb-6">
                     <h3 className="font-bold text-lg mb-2 text-blue-300">Objectifs d'apprentissage</h3>
                     <ul className="list-disc list-inside space-y-1 text-blue-200">
@@ -216,7 +216,7 @@ export default function PrincipesBaseMicroLearning() {
                       <li>Intégrer la sécurité dès la conception des systèmes</li>
                     </ul>
                   </div>
-                  
+
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">L'importance croissante de la cybersécurité</h3>
                     <p className="mb-4">
@@ -224,7 +224,7 @@ export default function PrincipesBaseMicroLearning() {
                       cybersécurité est devenue un enjeu majeur pour les individus, les entreprises et les 
                       gouvernements.
                     </p>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div className="bg-red-900/30 p-4 rounded-lg border border-red-800">
                         <h4 className="font-semibold text-red-300 mb-2 flex items-center">
@@ -237,7 +237,7 @@ export default function PrincipesBaseMicroLearning() {
                           <li>• 95% des incidents de sécurité impliquent une erreur humaine</li>
                         </ul>
                       </div>
-                      
+
                       <div className="bg-green-900/30 p-4 rounded-lg border border-green-800">
                         <h4 className="font-semibold text-green-300 mb-2 flex items-center">
                           <FileCheck className="h-5 w-5 mr-2 text-green-300" />
@@ -252,14 +252,14 @@ export default function PrincipesBaseMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Les cinq piliers fondamentaux</h3>
                     <p className="mb-3">
                       Pour maîtriser la cybersécurité, il est essentiel de comprendre ces cinq piliers qui 
                       forment la base de toute stratégie efficace:
                     </p>
-                    
+
                     <div className="flex flex-col space-y-3 mb-4">
                       <div className="flex items-start">
                         <div className="bg-blue-700 rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
@@ -273,7 +273,7 @@ export default function PrincipesBaseMicroLearning() {
                           </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-start">
                         <div className="bg-blue-700 rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
                           <span className="font-bold">2</span>
@@ -286,7 +286,7 @@ export default function PrincipesBaseMicroLearning() {
                           </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-start">
                         <div className="bg-blue-700 rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
                           <span className="font-bold">3</span>
@@ -298,7 +298,7 @@ export default function PrincipesBaseMicroLearning() {
                           </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-start">
                         <div className="bg-blue-700 rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
                           <span className="font-bold">4</span>
@@ -310,7 +310,7 @@ export default function PrincipesBaseMicroLearning() {
                           </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-start">
                         <div className="bg-blue-700 rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
                           <span className="font-bold">5</span>
@@ -324,7 +324,7 @@ export default function PrincipesBaseMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center p-3 bg-blue-800/30 rounded-lg text-blue-200 text-sm">
                     <LightbulbIcon className="h-5 w-5 mr-2 text-yellow-400" />
                     <span>
@@ -335,18 +335,18 @@ export default function PrincipesBaseMicroLearning() {
                   </div>
                 </motion.div>
               )}
-              
+
               {/* Section Triade CIA */}
               {currentSection === 'cia' && (
                 <motion.div variants={itemVariants}>
                   <h2 className="text-2xl font-bold mb-4">La triade CIA : le cœur de la sécurité de l'information</h2>
-                  
+
                   <p className="mb-4">
                     La triade CIA (Confidentialité, Intégrité, Disponibilité) représente les trois objectifs 
                     fondamentaux de la sécurité de l'information. Ces principes permettent d'évaluer la sécurité 
                     d'un système et de définir les mesures à mettre en place.
                   </p>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700">
                       <div className="rounded-full bg-blue-800/70 w-12 h-12 flex items-center justify-center mb-3">
@@ -375,7 +375,7 @@ export default function PrincipesBaseMicroLearning() {
                         </ul>
                       </div>
                     </div>
-                    
+
                     <div className="bg-green-900/30 p-4 rounded-lg border border-green-700">
                       <div className="rounded-full bg-green-800/70 w-12 h-12 flex items-center justify-center mb-3">
                         <FileCheck className="h-6 w-6 text-green-300" />
@@ -403,7 +403,7 @@ export default function PrincipesBaseMicroLearning() {
                         </ul>
                       </div>
                     </div>
-                    
+
                     <div className="bg-amber-900/30 p-4 rounded-lg border border-amber-700">
                       <div className="rounded-full bg-amber-800/70 w-12 h-12 flex items-center justify-center mb-3">
                         <ActivitySquare className="h-6 w-6 text-amber-300" />
@@ -432,14 +432,14 @@ export default function PrincipesBaseMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">L'équilibre des trois piliers</h3>
                     <p className="mb-3">
                       Trouver le bon équilibre entre ces trois principes est essentiel, car ils peuvent parfois 
                       sembler contradictoires. Par exemple:
                     </p>
-                    
+
                     <div className="bg-blue-900/20 p-4 rounded-lg mb-4">
                       <div className="flex items-start mb-3">
                         <ChevronsUpDown className="h-5 w-5 text-blue-400 mr-2 mt-0.5" />
@@ -451,7 +451,7 @@ export default function PrincipesBaseMicroLearning() {
                           </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-start">
                         <ChevronsUpDown className="h-5 w-5 text-blue-400 mr-2 mt-0.5" />
                         <div>
@@ -464,13 +464,13 @@ export default function PrincipesBaseMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Applications pratiques</h3>
                     <p className="mb-3">
                       La triade CIA est appliquée à tous les niveaux de la sécurité informatique:
                     </p>
-                    
+
                     <div className="overflow-x-auto">
                       <table className="w-full border-collapse">
                         <thead>
@@ -504,7 +504,7 @@ export default function PrincipesBaseMicroLearning() {
                       </table>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border-l-4 border-blue-500 p-4 my-4 rounded-r-lg">
                     <h4 className="font-bold text-blue-300">À retenir</h4>
                     <p className="mt-1">
@@ -516,18 +516,18 @@ export default function PrincipesBaseMicroLearning() {
                   </div>
                 </motion.div>
               )}
-              
+
               {/* Section Défense en profondeur */}
               {currentSection === 'defense-profondeur' && (
                 <motion.div variants={itemVariants}>
                   <h2 className="text-2xl font-bold mb-4">Défense en profondeur : une approche stratégique</h2>
-                  
+
                   <p className="mb-4">
                     La défense en profondeur est une stratégie de cybersécurité qui emploie plusieurs couches 
                     de protection pour sécuriser les systèmes d'information. Inspirée des tactiques militaires, 
                     elle repose sur le principe qu'une seule ligne de défense n'est jamais suffisante.
                   </p>
-                  
+
                   <div className="bg-gradient-to-r from-indigo-900/30 to-blue-900/30 p-4 rounded-lg border border-indigo-700 mb-6">
                     <h3 className="font-bold text-lg mb-2 text-indigo-300">Principe fondamental</h3>
                     <p className="mb-3">
@@ -559,10 +559,10 @@ export default function PrincipesBaseMicroLearning() {
                       "Ne mettez pas tous vos œufs dans le même panier de sécurité."
                     </p>
                   </div>
-                  
+
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Les 7 couches de la défense en profondeur</h3>
-                    
+
                     <div className="space-y-4">
                       <div className="bg-blue-900/30 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
@@ -582,7 +582,7 @@ export default function PrincipesBaseMicroLearning() {
                           <p className="text-xs">• Procédures de réponse aux incidents</p>
                         </div>
                       </div>
-                      
+
                       <div className="bg-indigo-900/30 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <div className="bg-indigo-700 rounded-full w-8 h-8 flex items-center justify-center mr-3">
@@ -601,7 +601,7 @@ export default function PrincipesBaseMicroLearning() {
                           <p className="text-xs">• Vidéosurveillance</p>
                         </div>
                       </div>
-                      
+
                       <div className="bg-purple-900/30 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <div className="bg-purple-700 rounded-full w-8 h-8 flex items-center justify-center mr-3">
@@ -620,7 +620,7 @@ export default function PrincipesBaseMicroLearning() {
                           <p className="text-xs">• Systèmes de détection d'intrusion (IDS/IPS)</p>
                         </div>
                       </div>
-                      
+
                       <div className="bg-cyan-900/30 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <div className="bg-cyan-700 rounded-full w-8 h-8 flex items-center justify-center mr-3">
@@ -638,7 +638,7 @@ export default function PrincipesBaseMicroLearning() {
                           <p className="text-xs">• Détection d'anomalies</p>
                         </div>
                       </div>
-                      
+
                       <div className="bg-emerald-900/30 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <div className="bg-emerald-700 rounded-full w-8 h-8 flex items-center justify-center mr-3">
@@ -656,7 +656,7 @@ export default function PrincipesBaseMicroLearning() {
                           <p className="text-xs">• Durcissement des systèmes</p>
                         </div>
                       </div>
-                      
+
                       <div className="bg-amber-900/30 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <div className="bg-amber-700 rounded-full w-8 h-8 flex items-center justify-center mr-3">
@@ -674,7 +674,7 @@ export default function PrincipesBaseMicroLearning() {
                           <p className="text-xs">• Tests de sécurité réguliers</p>
                         </div>
                       </div>
-                      
+
                       <div className="bg-red-900/30 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <div className="bg-red-700 rounded-full w-8 h-8 flex items-center justify-center mr-3">
@@ -694,7 +694,7 @@ export default function PrincipesBaseMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Avantages de la défense en profondeur</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -704,21 +704,21 @@ export default function PrincipesBaseMicroLearning() {
                           Couvre un large éventail de menaces, de l'erreur utilisateur aux attaques sophistiquées.
                         </p>
                       </div>
-                      
+
                       <div className="bg-green-900/20 p-3 rounded-lg border border-green-900">
                         <h4 className="font-semibold text-green-300 mb-2">✓ Flexibilité</h4>
                         <p className="text-sm">
                           Permet d'adapter le niveau de sécurité en fonction de la sensibilité des ressources.
                         </p>
                       </div>
-                      
+
                       <div className="bg-green-900/20 p-3 rounded-lg border border-green-900">
                         <h4 className="font-semibold text-green-300 mb-2">✓ Temps de réaction</h4>
                         <p className="text-sm">
                           Les couches externes ralentissent les attaquants, donnant plus de temps pour détecter et répondre.
                         </p>
                       </div>
-                      
+
                       <div className="bg-green-900/20 p-3 rounded-lg border border-green-900">
                         <h4 className="font-semibold text-green-300 mb-2">✓ Résilience</h4>
                         <p className="text-sm">
@@ -727,7 +727,7 @@ export default function PrincipesBaseMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border-l-4 border-blue-500 p-4 my-4 rounded-r-lg">
                     <h4 className="font-bold text-blue-300">À retenir</h4>
                     <p className="mt-1">
@@ -739,21 +739,21 @@ export default function PrincipesBaseMicroLearning() {
                   </div>
                 </motion.div>
               )}
-              
+
               {/* Section Modèle de menaces */}
               {currentSection === 'modele-menaces' && (
                 <motion.div variants={itemVariants}>
                   <h2 className="text-2xl font-bold mb-4">Modélisation des menaces : anticiper pour mieux protéger</h2>
-                  
+
                   <p className="mb-4">
                     La modélisation des menaces est un processus structuré qui permet d'identifier, de quantifier 
                     et de prioriser les risques de sécurité potentiels d'un système. Cette approche proactive 
                     est essentielle pour cibler efficacement les ressources de sécurité.
                   </p>
-                  
+
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Le processus en 5 étapes</h3>
-                    
+
                     <div className="relative border-l-2 border-blue-700 pl-6 mb-4 ml-4">
                       <div className="space-y-8">
                         <div>
@@ -773,7 +773,7 @@ export default function PrincipesBaseMicroLearning() {
                             </ul>
                           </div>
                         </div>
-                        
+
                         <div>
                           <div className="absolute -left-4 w-8 h-8 rounded-full bg-blue-800 flex items-center justify-center">
                             <span className="font-bold">2</span>
@@ -794,7 +794,7 @@ export default function PrincipesBaseMicroLearning() {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div>
                           <div className="absolute -left-4 w-8 h-8 rounded-full bg-blue-800 flex items-center justify-center">
                             <span className="font-bold">3</span>
@@ -824,7 +824,7 @@ export default function PrincipesBaseMicroLearning() {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div>
                           <div className="absolute -left-4 w-8 h-8 rounded-full bg-blue-800 flex items-center justify-center">
                             <span className="font-bold">4</span>
@@ -842,7 +842,7 @@ export default function PrincipesBaseMicroLearning() {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div>
                           <div className="absolute -left-4 w-8 h-8 rounded-full bg-blue-800 flex items-center justify-center">
                             <span className="font-bold">5</span>
@@ -864,10 +864,10 @@ export default function PrincipesBaseMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Méthodologies populaires</h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="bg-indigo-900/20 p-3 rounded-lg border border-indigo-800">
                         <h4 className="font-semibold text-indigo-300 mb-2">STRIDE</h4>
@@ -883,7 +883,7 @@ export default function PrincipesBaseMicroLearning() {
                           <li><span className="font-semibold">E</span>levation of privilege (Élévation de privilèges)</li>
                         </ul>
                       </div>
-                      
+
                       <div className="bg-purple-900/20 p-3 rounded-lg border border-purple-800">
                         <h4 className="font-semibold text-purple-300 mb-2">PASTA</h4>
                         <p className="text-sm mb-2">
@@ -901,13 +901,13 @@ export default function PrincipesBaseMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Exemple concret: modèle de menaces simplifié</h3>
-                    
+
                     <div className="bg-blue-900/20 p-4 rounded-lg">
                       <h4 className="font-semibold text-blue-300 mb-2">Cas: Application de messagerie d'entreprise</h4>
-                      
+
                       <div className="space-y-4">
                         <div>
                           <p className="font-medium text-blue-300 text-sm">1. Actifs identifiés:</p>
@@ -918,7 +918,7 @@ export default function PrincipesBaseMicroLearning() {
                             <li>Infrastructure serveur</li>
                           </ul>
                         </div>
-                        
+
                         <div>
                           <p className="font-medium text-blue-300 text-sm">2. Menaces potentielles:</p>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
@@ -928,7 +928,7 @@ export default function PrincipesBaseMicroLearning() {
                             <div>• Déni de service</div>
                           </div>
                         </div>
-                        
+
                         <div>
                           <p className="font-medium text-blue-300 text-sm">3. Vulnérabilités identifiées:</p>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
@@ -938,7 +938,7 @@ export default function PrincipesBaseMicroLearning() {
                             <div>• Validation d'entrée insuffisante</div>
                           </div>
                         </div>
-                        
+
                         <div>
                           <p className="font-medium text-blue-300 text-sm">4. Contre-mesures définies:</p>
                           <div className="text-xs">
@@ -963,7 +963,7 @@ export default function PrincipesBaseMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border-l-4 border-blue-500 p-4 my-4 rounded-r-lg">
                     <h4 className="font-bold text-blue-300">À retenir</h4>
                     <p className="mt-1">
@@ -974,19 +974,19 @@ export default function PrincipesBaseMicroLearning() {
                   </div>
                 </motion.div>
               )}
-              
+
               {/* Section Sécurité par conception */}
               {currentSection === 'securite-conception' && (
                 <motion.div variants={itemVariants}>
                   <h2 className="text-2xl font-bold mb-4">Sécurité par conception : intégrer la sécurité dès le départ</h2>
-                  
+
                   <p className="mb-4">
                     La sécurité par conception (Security by Design) est une approche qui intègre les considérations 
                     de sécurité tout au long du cycle de vie du développement d'un système, plutôt que de les 
                     ajouter après coup. Cette philosophie repose sur l'idée qu'il est plus efficace et moins 
                     coûteux de prévenir les problèmes de sécurité dès le début.
                   </p>
-                  
+
                   <div className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 rounded-lg border border-green-800 mb-6">
                     <div className="flex flex-col md:flex-row gap-4">
                       <div className="md:w-1/2">
@@ -1030,7 +1030,7 @@ export default function PrincipesBaseMicroLearning() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="md:w-1/2">
                         <h3 className="font-bold text-lg mb-2 text-green-300">Security by Design</h3>
                         <div className="space-y-2">
@@ -1074,10 +1074,10 @@ export default function PrincipesBaseMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Principes fondamentaux</h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="bg-blue-900/20 p-3 rounded-lg">
                         <h4 className="font-semibold text-blue-300 mb-2 flex items-center">
@@ -1089,7 +1089,7 @@ export default function PrincipesBaseMicroLearning() {
                           spécifique, pas plus. Cela limite la surface d'attaque en cas de compromission.
                         </p>
                       </div>
-                      
+
                       <div className="bg-blue-900/20 p-3 rounded-lg">
                         <h4 className="font-semibold text-blue-300 mb-2 flex items-center">
                           <Database className="h-5 w-5 mr-2 text-blue-400" />
@@ -1100,7 +1100,7 @@ export default function PrincipesBaseMicroLearning() {
                           n'expose pas immédiatement les ressources critiques.
                         </p>
                       </div>
-                      
+
                       <div className="bg-blue-900/20 p-3 rounded-lg">
                         <h4 className="font-semibold text-blue-300 mb-2 flex items-center">
                           <Shield className="h-5 w-5 mr-2 text-blue-400" />
@@ -1111,7 +1111,7 @@ export default function PrincipesBaseMicroLearning() {
                           obligeant les utilisateurs à opter explicitement pour des options moins sécurisées.
                         </p>
                       </div>
-                      
+
                       <div className="bg-blue-900/20 p-3 rounded-lg">
                         <h4 className="font-semibold text-blue-300 mb-2 flex items-center">
                           <FileWarning className="h-5 w-5 mr-2 text-blue-400" />
@@ -1124,10 +1124,10 @@ export default function PrincipesBaseMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Mise en pratique dans les différentes phases</h3>
-                    
+
                     <div className="space-y-4">
                       <div className="bg-indigo-900/20 p-3 rounded-lg">
                         <h4 className="font-semibold text-indigo-300 mb-2">Phase de conception</h4>
@@ -1146,7 +1146,7 @@ export default function PrincipesBaseMicroLearning() {
                           </li>
                         </ul>
                       </div>
-                      
+
                       <div className="bg-purple-900/20 p-3 rounded-lg">
                         <h4 className="font-semibold text-purple-300 mb-2">Phase de développement</h4>
                         <ul className="space-y-1 text-sm">
@@ -1164,7 +1164,7 @@ export default function PrincipesBaseMicroLearning() {
                           </li>
                         </ul>
                       </div>
-                      
+
                       <div className="bg-cyan-900/20 p-3 rounded-lg">
                         <h4 className="font-semibold text-cyan-300 mb-2">Phase de test</h4>
                         <ul className="space-y-1 text-sm">
@@ -1182,7 +1182,7 @@ export default function PrincipesBaseMicroLearning() {
                           </li>
                         </ul>
                       </div>
-                      
+
                       <div className="bg-emerald-900/20 p-3 rounded-lg">
                         <h4 className="font-semibold text-emerald-300 mb-2">Phase de déploiement et maintenance</h4>
                         <ul className="space-y-1 text-sm">
@@ -1202,10 +1202,10 @@ export default function PrincipesBaseMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Bénéfices de l'approche</h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div className="bg-green-900/20 p-3 rounded-lg">
                         <h4 className="font-semibold text-green-300 mb-2">Économique</h4>
@@ -1214,14 +1214,14 @@ export default function PrincipesBaseMicroLearning() {
                           qu'en phase de production.
                         </p>
                       </div>
-                      
+
                       <div className="bg-amber-900/20 p-3 rounded-lg">
                         <h4 className="font-semibold text-amber-300 mb-2">Efficacité</h4>
                         <p className="text-sm">
                           Réduction de 60% des vulnérabilités critiques par rapport aux approches traditionnelles.
                         </p>
                       </div>
-                      
+
                       <div className="bg-blue-900/20 p-3 rounded-lg">
                         <h4 className="font-semibold text-blue-300 mb-2">Confiance</h4>
                         <p className="text-sm">
@@ -1230,7 +1230,7 @@ export default function PrincipesBaseMicroLearning() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border-l-4 border-blue-500 p-4 my-4 rounded-r-lg">
                     <h4 className="font-bold text-blue-300">À retenir</h4>
                     <p className="mt-1">
@@ -1242,7 +1242,7 @@ export default function PrincipesBaseMicroLearning() {
                   </div>
                 </motion.div>
               )}
-              
+
               {/* Navigation */}
               <div className="flex justify-between mt-8">
                 <Button 
@@ -1254,7 +1254,7 @@ export default function PrincipesBaseMicroLearning() {
                   <ChevronLeft className="mr-2 h-4 w-4" />
                   Section précédente
                 </Button>
-                
+
                 <Button
                   className="bg-blue-700 hover:bg-blue-800"
                   onClick={() => markSectionCompleted(currentSection)}
@@ -1262,7 +1262,7 @@ export default function PrincipesBaseMicroLearning() {
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Marquer cette section comme terminée
                 </Button>
-                
+
                 <Button 
                   variant="outline" 
                   className="border-blue-700"

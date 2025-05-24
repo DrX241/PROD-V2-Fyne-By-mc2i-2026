@@ -153,24 +153,24 @@ export default function DevSecOpsModule() {
               </ul>
             </AlertDescription>
           </Alert>
-          
+
           <div className="mt-6 space-y-4">
             <h2 className="text-2xl font-bold">Comprendre le DevSecOps</h2>
-            
+
             <p>
               Le <strong>DevSecOps</strong> est une extension de l'approche DevOps qui intègre la sécurité comme une préoccupation fondamentale tout au long du cycle de développement logiciel, plutôt que comme une considération finale ou un obstacle.
             </p>
-            
+
             <div className="bg-blue-900/20 border border-blue-800 rounded-md p-4 my-4">
               <h3 className="text-lg font-medium mb-2">Définition</h3>
               <p>
                 <strong>DevSecOps</strong> (Development, Security, Operations) est une philosophie et un ensemble de pratiques qui intègrent la sécurité dès le début du cycle de développement logiciel, automatisent les contrôles de sécurité et favorisent une collaboration étroite entre les équipes de développement, de sécurité et d'exploitation.
               </p>
             </div>
-            
+
             <div className="mt-6">
               <h3 className="text-xl font-bold">L'évolution : de DevOps à DevSecOps</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
@@ -191,7 +191,7 @@ export default function DevSecOpsModule() {
                     </ul>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md flex items-center">
@@ -213,10 +213,10 @@ export default function DevSecOpsModule() {
                 </Card>
               </div>
             </div>
-            
+
             <div className="mt-8">
               <h3 className="text-xl font-bold">Pourquoi DevSecOps est-il crucial aujourd'hui ?</h3>
-              
+
               <div className="mt-4 space-y-3">
                 <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                   <div className="bg-blue-700 p-2 rounded-md shrink-0">
@@ -227,7 +227,7 @@ export default function DevSecOpsModule() {
                     <p className="text-sm text-blue-200 mt-1">Les cyberattaques sont de plus en plus sophistiquées et ciblées, nécessitant une approche proactive de la sécurité.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                   <div className="bg-blue-700 p-2 rounded-md shrink-0">
                     <Clock className="h-5 w-5 text-white" />
@@ -237,7 +237,7 @@ export default function DevSecOpsModule() {
                     <p className="text-sm text-blue-200 mt-1">Corriger une vulnérabilité en production coûte jusqu'à 100 fois plus cher que si elle avait été détectée en phase de développement.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                   <div className="bg-blue-700 p-2 rounded-md shrink-0">
                     <GitPullRequest className="h-5 w-5 text-white" />
@@ -247,7 +247,7 @@ export default function DevSecOpsModule() {
                     <p className="text-sm text-blue-200 mt-1">L'automatisation des tests de sécurité permet de maintenir la vélocité tout en réduisant les risques.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                   <div className="bg-blue-700 p-2 rounded-md shrink-0">
                     <FileText className="h-5 w-5 text-white" />
@@ -259,10 +259,10 @@ export default function DevSecOpsModule() {
                 </div>
               </div>
             </div>
-            
+
             <div className="mt-8">
               <h3 className="text-xl font-bold">Le cycle DevSecOps</h3>
-              
+
               <div className="mt-4 bg-blue-900/20 border border-blue-800 rounded-lg p-4">
                 <div className="flex flex-wrap justify-center gap-2 md:gap-4">
                   <div className="text-center p-3 bg-blue-950/50 rounded-lg w-[140px]">
@@ -272,7 +272,7 @@ export default function DevSecOpsModule() {
                     <h4 className="text-sm font-medium">Plan & Code</h4>
                     <p className="text-xs text-blue-300 mt-1">Modélisation des menaces, formation sécurité</p>
                   </div>
-                  
+
                   <div className="text-center p-3 bg-blue-950/50 rounded-lg w-[140px]">
                     <div className="bg-blue-800 rounded-full p-2 mx-auto w-12 h-12 flex items-center justify-center mb-2">
                       <GitBranch className="h-6 w-6 text-blue-200" />
@@ -280,7 +280,7 @@ export default function DevSecOpsModule() {
                     <h4 className="text-sm font-medium">Build & Test</h4>
                     <p className="text-xs text-blue-300 mt-1">SAST, SCA, tests de composition</p>
                   </div>
-                  
+
                   <div className="text-center p-3 bg-blue-950/50 rounded-lg w-[140px]">
                     <div className="bg-blue-800 rounded-full p-2 mx-auto w-12 h-12 flex items-center justify-center mb-2">
                       <Shield className="h-6 w-6 text-blue-200" />
@@ -288,7 +288,7 @@ export default function DevSecOpsModule() {
                     <h4 className="text-sm font-medium">Sécurité</h4>
                     <p className="text-xs text-blue-300 mt-1">DAST, pentest, validation de sécurité</p>
                   </div>
-                  
+
                   <div className="text-center p-3 bg-blue-950/50 rounded-lg w-[140px]">
                     <div className="bg-blue-800 rounded-full p-2 mx-auto w-12 h-12 flex items-center justify-center mb-2">
                       <Server className="h-6 w-6 text-blue-200" />
@@ -296,7 +296,7 @@ export default function DevSecOpsModule() {
                     <h4 className="text-sm font-medium">Deploy</h4>
                     <p className="text-xs text-blue-300 mt-1">Sécurité IaC, protection des secrets</p>
                   </div>
-                  
+
                   <div className="text-center p-3 bg-blue-950/50 rounded-lg w-[140px]">
                     <div className="bg-blue-800 rounded-full p-2 mx-auto w-12 h-12 flex items-center justify-center mb-2">
                       <Eye className="h-6 w-6 text-blue-200" />
@@ -305,7 +305,7 @@ export default function DevSecOpsModule() {
                     <p className="text-xs text-blue-300 mt-1">RASP, surveillance continue</p>
                   </div>
                 </div>
-                
+
                 <div className="flex justify-center mt-4">
                   <div className="bg-blue-800/50 rounded-full px-4 py-2 flex items-center">
                     <RefreshCw className="h-4 w-4 text-blue-300 mr-2" />
@@ -315,7 +315,7 @@ export default function DevSecOpsModule() {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8 bg-blue-950 border border-blue-800 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -332,7 +332,7 @@ export default function DevSecOpsModule() {
         </motion.div>
       </div>
     ),
-    
+
     principes: (
       <div className="space-y-6">
         <motion.div 
@@ -341,14 +341,14 @@ export default function DevSecOpsModule() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Principes fondamentaux du DevSecOps</h2>
-          
+
           <p className="mt-4">
             La démarche DevSecOps repose sur plusieurs principes fondamentaux qui guident son implémentation et assurent son efficacité.
           </p>
-          
+
           <div className="mt-6">
             <h3 className="text-xl font-bold">Les piliers du DevSecOps</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
@@ -372,7 +372,7 @@ export default function DevSecOpsModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -395,7 +395,7 @@ export default function DevSecOpsModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -420,10 +420,10 @@ export default function DevSecOpsModule() {
               </Card>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">La sécurité tout au long du cycle de vie</h3>
-            
+
             <Card className="bg-blue-900/20 border-blue-800 mt-4">
               <CardContent className="pt-6">
                 <Tabs defaultValue="plan">
@@ -434,7 +434,7 @@ export default function DevSecOpsModule() {
                     <TabsTrigger value="deploy">Deploy</TabsTrigger>
                     <TabsTrigger value="operate">Operate</TabsTrigger>
                   </TabsList>
-                  
+
                   <TabsContent value="plan" className="p-4 bg-blue-950/30 rounded-md mt-4">
                     <h4 className="font-medium flex items-center">
                       <Lightbulb className="mr-2 h-5 w-5 text-blue-400" />
@@ -461,7 +461,7 @@ export default function DevSecOpsModule() {
                       </ul>
                     </div>
                   </TabsContent>
-                  
+
                   <TabsContent value="code" className="p-4 bg-blue-950/30 rounded-md mt-4">
                     <h4 className="font-medium flex items-center">
                       <Code className="mr-2 h-5 w-5 text-blue-400" />
@@ -489,7 +489,7 @@ export default function DevSecOpsModule() {
                       </ul>
                     </div>
                   </TabsContent>
-                  
+
                   <TabsContent value="build" className="p-4 bg-blue-950/30 rounded-md mt-4">
                     <h4 className="font-medium flex items-center">
                       <GitBranch className="mr-2 h-5 w-5 text-blue-400" />
@@ -517,7 +517,7 @@ export default function DevSecOpsModule() {
                       </ul>
                     </div>
                   </TabsContent>
-                  
+
                   <TabsContent value="deploy" className="p-4 bg-blue-950/30 rounded-md mt-4">
                     <h4 className="font-medium flex items-center">
                       <Server className="mr-2 h-5 w-5 text-blue-400" />
@@ -545,7 +545,7 @@ export default function DevSecOpsModule() {
                       </ul>
                     </div>
                   </TabsContent>
-                  
+
                   <TabsContent value="operate" className="p-4 bg-blue-950/30 rounded-md mt-4">
                     <h4 className="font-medium flex items-center">
                       <Eye className="mr-2 h-5 w-5 text-blue-400" />
@@ -577,14 +577,14 @@ export default function DevSecOpsModule() {
               </CardContent>
             </Card>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Les métriques DevSecOps</h3>
-            
+
             <p className="mt-2">
               Mesurer l'efficacité de votre démarche DevSecOps est essentiel pour une amélioration continue.
             </p>
-            
+
             <div className="mt-4 space-y-3">
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
@@ -600,7 +600,7 @@ export default function DevSecOpsModule() {
                   </ul>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Bug className="h-5 w-5 text-white" />
@@ -615,7 +615,7 @@ export default function DevSecOpsModule() {
                   </ul>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Users className="h-5 w-5 text-white" />
@@ -632,7 +632,7 @@ export default function DevSecOpsModule() {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8 bg-blue-950 border border-blue-800 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -649,7 +649,7 @@ export default function DevSecOpsModule() {
         </motion.div>
       </div>
     ),
-    
+
     implementation: (
       <div className="space-y-6">
         <motion.div 
@@ -658,17 +658,17 @@ export default function DevSecOpsModule() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Implémentation pratique du DevSecOps</h2>
-          
+
           <p className="mt-4">
             Mettre en place une approche DevSecOps efficace nécessite une transformation progressive et méthodique. Voici comment implémenter concrètement ces principes dans votre organisation.
           </p>
-          
+
           <div className="mt-6">
             <h3 className="text-xl font-bold">Feuille de route d'implémentation</h3>
-            
+
             <div className="mt-4 relative">
               <div className="absolute top-0 bottom-0 left-[39px] w-1 bg-blue-700"></div>
-              
+
               <div className="space-y-6">
                 <div className="flex gap-6">
                   <div className="relative z-10">
@@ -692,7 +692,7 @@ export default function DevSecOpsModule() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex gap-6">
                   <div className="relative z-10">
                     <div className="w-20 h-20 rounded-full bg-blue-800 flex items-center justify-center">
@@ -715,7 +715,7 @@ export default function DevSecOpsModule() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex gap-6">
                   <div className="relative z-10">
                     <div className="w-20 h-20 rounded-full bg-blue-800 flex items-center justify-center">
@@ -738,7 +738,7 @@ export default function DevSecOpsModule() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex gap-6">
                   <div className="relative z-10">
                     <div className="w-20 h-20 rounded-full bg-blue-800 flex items-center justify-center">
@@ -764,14 +764,14 @@ export default function DevSecOpsModule() {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-10">
             <h3 className="text-xl font-bold">Construction d'un pipeline DevSecOps</h3>
-            
+
             <p className="mt-2">
               Un pipeline CI/CD intégrant la sécurité est au cœur de la démarche DevSecOps. Voici comment le structurer efficacement.
             </p>
-            
+
             <div className="mt-4 overflow-x-auto">
               <div className="min-w-[800px]">
                 <div className="bg-blue-900/20 border border-blue-800 rounded-lg p-4">
@@ -784,7 +784,7 @@ export default function DevSecOpsModule() {
                         <div className="bg-blue-900/40 p-1 rounded">Pre-commit Hooks</div>
                       </div>
                     </div>
-                    
+
                     <div className="text-center bg-blue-950/50 p-3 rounded-lg w-[150px]">
                       <Code className="h-6 w-6 mx-auto mb-2 text-blue-400" />
                       <h4 className="text-sm font-medium">Build</h4>
@@ -794,7 +794,7 @@ export default function DevSecOpsModule() {
                         <div className="bg-blue-900/40 p-1 rounded">Container Scan</div>
                       </div>
                     </div>
-                    
+
                     <div className="text-center bg-blue-950/50 p-3 rounded-lg w-[150px]">
                       <Cog className="h-6 w-6 mx-auto mb-2 text-blue-400" />
                       <h4 className="text-sm font-medium">Test</h4>
@@ -804,7 +804,7 @@ export default function DevSecOpsModule() {
                         <div className="bg-blue-900/40 p-1 rounded">Fuzzing</div>
                       </div>
                     </div>
-                    
+
                     <div className="text-center bg-blue-950/50 p-3 rounded-lg w-[150px]">
                       <Server className="h-6 w-6 mx-auto mb-2 text-blue-400" />
                       <h4 className="text-sm font-medium">Deploy</h4>
@@ -814,7 +814,7 @@ export default function DevSecOpsModule() {
                         <div className="bg-blue-900/40 p-1 rounded">Secure Config</div>
                       </div>
                     </div>
-                    
+
                     <div className="text-center bg-blue-950/50 p-3 rounded-lg w-[150px]">
                       <Eye className="h-6 w-6 mx-auto mb-2 text-blue-400" />
                       <h4 className="text-sm font-medium">Monitor</h4>
@@ -825,7 +825,7 @@ export default function DevSecOpsModule() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="mt-6 flex justify-center">
                     <div className="relative px-4 bg-blue-900/30 rounded-lg py-2 flex items-center w-fit">
                       <div className="absolute top-0 bottom-0 left-0 right-0 border-2 border-dashed border-blue-600 rounded-lg"></div>
@@ -835,23 +835,23 @@ export default function DevSecOpsModule() {
                 </div>
               </div>
             </div>
-            
+
             <div className="mt-4">
               <p className="text-sm text-blue-300">
                 <span className="font-medium">Note importante :</span> Les outils et contrôles spécifiques peuvent varier selon votre contexte technique et vos exigences de sécurité. L'essentiel est de couvrir toutes les phases du cycle avec des contrôles appropriés.
               </p>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Étude de cas : Transformation DevSecOps</h3>
-            
+
             <div className="mt-4 bg-blue-900/20 border border-blue-800 rounded-lg p-4">
               <h4 className="text-lg font-medium flex items-center">
                 <Zap className="mr-2 h-5 w-5 text-blue-400" />
                 Entreprise Financière XYZ
               </h4>
-              
+
               <div className="mt-3 space-y-4">
                 <div>
                   <p className="font-medium text-blue-300">Contexte initial :</p>
@@ -862,7 +862,7 @@ export default function DevSecOpsModule() {
                     <li>Friction entre équipes de développement et de sécurité</li>
                   </ul>
                 </div>
-                
+
                 <div>
                   <p className="font-medium text-blue-300">Approche de transformation :</p>
                   <ul className="list-disc list-inside mt-1 text-sm text-blue-200">
@@ -872,7 +872,7 @@ export default function DevSecOpsModule() {
                     <li>Mise en place de métriques de sécurité dans les objectifs des équipes</li>
                   </ul>
                 </div>
-                
+
                 <div>
                   <p className="font-medium text-blue-300">Résultats obtenus :</p>
                   <ul className="list-disc list-inside mt-1 text-sm text-blue-200">
@@ -886,7 +886,7 @@ export default function DevSecOpsModule() {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8 bg-blue-950 border border-blue-800 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -903,7 +903,7 @@ export default function DevSecOpsModule() {
         </motion.div>
       </div>
     ),
-    
+
     outils: (
       <div className="space-y-6">
         <motion.div 
@@ -912,14 +912,14 @@ export default function DevSecOpsModule() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Outils et technologies DevSecOps</h2>
-          
+
           <p className="mt-4">
             Un écosystème d'outils adaptés est essentiel pour mettre en œuvre efficacement les pratiques DevSecOps. Cette section présente les principales catégories d'outils et leur intégration.
           </p>
-          
+
           <div className="mt-6">
             <h3 className="text-xl font-bold">Panorama des outils DevSecOps</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
@@ -945,7 +945,7 @@ export default function DevSecOpsModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -970,7 +970,7 @@ export default function DevSecOpsModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -995,7 +995,7 @@ export default function DevSecOpsModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1020,7 +1020,7 @@ export default function DevSecOpsModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1045,7 +1045,7 @@ export default function DevSecOpsModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1072,14 +1072,14 @@ export default function DevSecOpsModule() {
               </Card>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Critères de sélection des outils</h3>
-            
+
             <p className="mt-2">
               Sélectionner les bons outils pour votre contexte est crucial. Voici les critères principaux à considérer.
             </p>
-            
+
             <div className="mt-4 space-y-3">
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
@@ -1095,7 +1095,7 @@ export default function DevSecOpsModule() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <AlertTriangle className="h-5 w-5 text-white" />
@@ -1110,7 +1110,7 @@ export default function DevSecOpsModule() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Users className="h-5 w-5 text-white" />
@@ -1125,7 +1125,7 @@ export default function DevSecOpsModule() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <GitPullRequest className="h-5 w-5 text-white" />
@@ -1142,17 +1142,17 @@ export default function DevSecOpsModule() {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Intégration des outils dans le pipeline</h3>
-            
+
             <p className="mt-2">
               Voici un exemple concret d'intégration d'outils DevSecOps dans un pipeline CI/CD typique.
             </p>
-            
+
             <div className="mt-4 bg-blue-900/20 border border-blue-800 rounded-lg p-4">
               <h4 className="text-lg font-medium">Exemple de configuration GitLab CI avec sécurité intégrée</h4>
-              
+
               <div className="mt-3 bg-blue-950/50 p-3 rounded-lg">
                 <pre className="text-xs text-blue-200 whitespace-pre-wrap overflow-x-auto">
 {`stages:
@@ -1253,7 +1253,7 @@ security-monitoring:
 `}
                 </pre>
               </div>
-              
+
               <div className="mt-3 text-sm text-blue-300">
                 <p><strong>Points clés de cette configuration :</strong></p>
                 <ul className="list-disc list-inside mt-1">
@@ -1266,7 +1266,7 @@ security-monitoring:
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8 bg-blue-950 border border-blue-800 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -1283,7 +1283,7 @@ security-monitoring:
         </motion.div>
       </div>
     ),
-    
+
     'bonnes-pratiques': (
       <div className="space-y-6">
         <motion.div 
@@ -1292,14 +1292,14 @@ security-monitoring:
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Bonnes pratiques et culture DevSecOps</h2>
-          
+
           <p className="mt-4">
             Au-delà des outils et des processus, le succès d'une approche DevSecOps repose largement sur la culture organisationnelle et l'adoption de bonnes pratiques.
           </p>
-          
+
           <div className="mt-6">
             <h3 className="text-xl font-bold">Transformer la culture organisationnelle</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
@@ -1323,7 +1323,7 @@ security-monitoring:
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1346,7 +1346,7 @@ security-monitoring:
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1369,7 +1369,7 @@ security-monitoring:
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1394,10 +1394,10 @@ security-monitoring:
               </Card>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Bonnes pratiques techniques</h3>
-            
+
             <div className="mt-4 space-y-3">
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
@@ -1421,7 +1421,7 @@ security-monitoring:
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Lock className="h-5 w-5 text-white" />
@@ -1444,7 +1444,7 @@ security-monitoring:
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Server className="h-5 w-5 text-white" />
@@ -1467,7 +1467,7 @@ security-monitoring:
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Bug className="h-5 w-5 text-white" />
@@ -1492,14 +1492,14 @@ security-monitoring:
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Patterns de maturité DevSecOps</h3>
-            
+
             <p className="mt-2">
               La maturité DevSecOps se développe généralement selon un modèle progressif. Identifiez à quel niveau se situe votre organisation.
             </p>
-            
+
             <div className="mt-4 bg-blue-900/20 border border-blue-800 rounded-lg p-4 overflow-x-auto">
               <div className="min-w-[800px]">
                 <Table>
@@ -1621,10 +1621,10 @@ security-monitoring:
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Défis courants et solutions</h3>
-            
+
             <div className="mt-4 space-y-3">
               <div className="p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <h4 className="font-medium flex items-center">
@@ -1644,7 +1644,7 @@ security-monitoring:
                   </ul>
                 </div>
               </div>
-              
+
               <div className="p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <h4 className="font-medium flex items-center">
                   <AlertTriangle className="mr-2 h-5 w-5 text-yellow-500" />
@@ -1663,7 +1663,7 @@ security-monitoring:
                   </ul>
                 </div>
               </div>
-              
+
               <div className="p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <h4 className="font-medium flex items-center">
                   <AlertTriangle className="mr-2 h-5 w-5 text-yellow-500" />
@@ -1682,7 +1682,7 @@ security-monitoring:
                   </ul>
                 </div>
               </div>
-              
+
               <div className="p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <h4 className="font-medium flex items-center">
                   <AlertTriangle className="mr-2 h-5 w-5 text-yellow-500" />
@@ -1703,7 +1703,7 @@ security-monitoring:
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8 bg-blue-950 border border-blue-800 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -1720,7 +1720,7 @@ security-monitoring:
         </motion.div>
       </div>
     ),
-    
+
     quiz: (
       <div className="space-y-6">
         <motion.div 
@@ -1752,7 +1752,7 @@ security-monitoring:
                 </div>
                 <Progress value={(currentQuestion / questions.length) * 100} className="h-2" />
               </div>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader>
                   <CardTitle className="text-xl">{questions[currentQuestion].question}</CardTitle>
@@ -1768,7 +1768,7 @@ security-monitoring:
                           if (index === questions[currentQuestion].correctAnswer) {
                             setScore(score + 1);
                           }
-                          
+
                           if (currentQuestion < questions.length - 1) {
                             setCurrentQuestion(currentQuestion + 1);
                           } else {
@@ -1796,23 +1796,23 @@ security-monitoring:
                 ) : (
                   <AlertTriangle className="h-16 w-16 mx-auto text-yellow-500 mb-4" />
                 )}
-                
+
                 <h2 className="text-2xl font-bold mb-2">
                   {score >= (questions.length * 0.8) ? "Félicitations!" : "Peut mieux faire..."}
                 </h2>
-                
+
                 <p className="text-blue-200 mb-4 max-w-lg mx-auto">
                   {score >= (questions.length * 0.8) 
                     ? `Vous avez obtenu un score de ${score}/${questions.length}. Vous avez validé le module avec succès!` 
                     : `Vous avez obtenu un score de ${score}/${questions.length}. Un score de ${Math.ceil(questions.length * 0.8)}/${questions.length} est nécessaire pour valider le module.`}
                 </p>
-                
+
                 {score < (questions.length * 0.8) && (
                   <p className="text-blue-300 mb-6 max-w-lg mx-auto">
                     Nous vous recommandons de revoir le contenu du module avant de retenter le quiz.
                   </p>
                 )}
-                
+
                 <div className="flex justify-center gap-4">
                   <Button 
                     variant="outline"
@@ -1826,7 +1826,7 @@ security-monitoring:
                   >
                     Recommencer le quiz
                   </Button>
-                  
+
                   <Button 
                     className="bg-blue-600 hover:bg-blue-700"
                     onClick={() => setActiveLesson('introduction')}
@@ -1835,7 +1835,7 @@ security-monitoring:
                   </Button>
                 </div>
               </div>
-              
+
               {score >= (questions.length * 0.8) && (
                 <Card className="max-w-lg mx-auto mt-8 bg-blue-900/20 border-blue-800">
                   <CardHeader>
@@ -1866,7 +1866,7 @@ security-monitoring:
   // Calcul de la progression
   const lessonKeys = Object.keys(lessonContent);
   const progressPercentage = (lessonKeys.indexOf(activeLesson) + 1) / lessonKeys.length * 100;
-  
+
   // Mettre à jour la progression globale
   React.useEffect(() => {
     setProgress(progressPercentage);
@@ -1904,7 +1904,7 @@ security-monitoring:
                 </div>
                 <Progress value={progress} className="h-2" />
               </div>
-              
+
               <div className="mt-6 space-y-1">
                 {lessons.map((lesson) => (
                   <button
@@ -1927,9 +1927,9 @@ security-monitoring:
                   </button>
                 ))}
               </div>
-              
+
               <Separator className="my-6 bg-blue-800/50" />
-              
+
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-blue-400" />
@@ -1946,7 +1946,7 @@ security-monitoring:
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-blue-900/20 border-blue-800">
             <CardHeader>
               <CardTitle>Ressources complémentaires</CardTitle>
@@ -1975,14 +1975,14 @@ security-monitoring:
                   </div>
                 </a>
               </div>
-              
+
               <Button variant="outline" className="w-full mt-4 border-blue-700 text-blue-200">
                 Voir toutes les ressources
               </Button>
             </CardContent>
           </Card>
         </div>
-        
+
         {/* Contenu principal */}
         <div className="lg:col-span-3">
           <Card className="bg-blue-900/20 border-blue-800">
@@ -2004,7 +2004,7 @@ security-monitoring:
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Précédent
               </Button>
-              
+
               <Button 
                 disabled={lessonKeys.indexOf(activeLesson) === lessonKeys.length - 1}
                 onClick={() => {

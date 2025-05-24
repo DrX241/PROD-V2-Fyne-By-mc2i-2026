@@ -1,650 +1,1166 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
-import {
-  ArrowLeft,
-  CheckCircle2,
-  XCircle,
-  HelpCircle,
-  ChevronRight,
-  Trophy,
-  RotateCcw,
-  Brain,
-  Sparkles,
-  Timer,
-  Info,
+import { 
+  ArrowLeft, 
+  ChevronRight, 
+  CheckCircle, 
+  XCircle, 
+  BrainCircuit, 
+  Lightbulb,
+  RefreshCw,
+  Shield,
+  AlertTriangle,
+  Database,
+  Lock,
+  Clock,
   FileText,
-  BrainCircuit
+  Activity,
+  BarChart,
+  Layers,
+  User,
+  Sparkles
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import PageTitle from '@/components/utils/PageTitle';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
+import PageTitle from '@/components/utils/PageTitle';
+
+// Types
+interface QuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  difficulty: 'débutant' | 'intermédiaire' | 'avancé';
+  category: string;
+  explanation: string;
+  resources?: string[];
+  aiHint?: string;
+}
+
+interface QuizCategory {
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ReactNode;
+  color: string;
+}
+
+interface QuizResult {
+  date: string;
+  score: number;
+  questionsAnswered: number;
+  categoryScores: Record<string, { correct: number, total: number }>;
+  level: 'débutant' | 'intermédiaire' | 'avancé';
+}
 
 export default function QuizAdaptatifIA() {
-  // États du quiz
-  const [isStarted, setIsStarted] = useState(false);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
-  const [score, setScore] = useState(0);
-  const [difficulty, setDifficulty] = useState('moyen'); // facile, moyen, difficile
-  const [timeRemaining, setTimeRemaining] = useState(45);
-  const [isQuizCompleted, setIsQuizCompleted] = useState(false);
-  const [feedbackVisible, setFeedbackVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  
   const { toast } = useToast();
-  
-  // Questions de base selon le niveau de difficulté
-  const questions = {
-    facile: [
-      {
-        id: 'f1',
-        question: "Qu'est-ce qu'un mot de passe fort ?",
-        options: [
-          { id: 'a', text: "Un mot de passe contenant uniquement des lettres majuscules" },
-          { id: 'b', text: "Un mot de passe de 8 caractères minimum combinant lettres, chiffres et caractères spéciaux" },
-          { id: 'c', text: "Le nom de votre animal de compagnie suivi de votre date de naissance" },
-          { id: 'd', text: "Un mot de passe facile à mémoriser comme '123456' ou 'password'" }
-        ],
-        correctAnswer: 'b',
-        explanation: "Un mot de passe fort doit contenir au minimum 8 caractères avec un mélange de lettres majuscules et minuscules, chiffres et caractères spéciaux. Il doit être difficile à deviner mais facile à retenir pour vous."
-      },
-      {
-        id: 'f2',
-        question: "Qu'est-ce que le phishing ?",
-        options: [
-          { id: 'a', text: "Une technique de pêche utilisée par les hackers" },
-          { id: 'b', text: "Une méthode pour augmenter la vitesse de connexion Internet" },
-          { id: 'c', text: "Une technique frauduleuse pour obtenir des informations personnelles en se faisant passer pour une entité de confiance" },
-          { id: 'd', text: "Un type de virus informatique qui affecte uniquement les smartphones" }
-        ],
-        correctAnswer: 'c',
-        explanation: "Le phishing (ou hameçonnage) est une technique frauduleuse destinée à leurrer l'internaute pour l'inciter à communiquer des données personnelles en se faisant passer pour un tiers de confiance."
-      },
-      {
-        id: 'f3',
-        question: "Quelle mesure permet de renforcer la sécurité d'un compte en ligne ?",
-        options: [
-          { id: 'a', text: "Utiliser le même mot de passe pour tous vos comptes" },
-          { id: 'b', text: "Activer l'authentification à deux facteurs (2FA)" },
-          { id: 'c', text: "Partager vos informations d'identification avec des collègues de confiance" },
-          { id: 'd', text: "Désactiver les mises à jour de sécurité" }
-        ],
-        correctAnswer: 'b',
-        explanation: "L'authentification à deux facteurs (2FA) ajoute une couche de sécurité supplémentaire en demandant une seconde forme de vérification en plus du mot de passe, comme un code envoyé par SMS ou généré par une application."
+  const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(null);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [isAnswered, setIsAnswered] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [score, setScore] = useState(0);
+  const [questionsAnswered, setQuestionsAnswered] = useState(0);
+  const [difficulty, setDifficulty] = useState<'débutant' | 'intermédiaire' | 'avancé'>('débutant');
+  const [selectedCategory, setSelectedCategory] = useState<string | 'all'>('all');
+  const [activeTab, setActiveTab] = useState('quiz');
+  const [quizHistory, setQuizHistory] = useState<QuizResult[]>([]);
+  const [categoryScores, setCategoryScores] = useState<Record<string, { correct: number, total: number }>>({});
+  const [isGeneratingHint, setIsGeneratingHint] = useState(false);
+  const [aiHint, setAiHint] = useState<string | null>(null);
+  const [showRecommendations, setShowRecommendations] = useState(false);
+  const [isQuizActive, setIsQuizActive] = useState(false);
+
+  // Catégories de quiz
+  const quizCategories: QuizCategory[] = [
+    {
+      id: 'all',
+      name: 'Toutes les catégories',
+      description: 'Questions variées couvrant tous les domaines de la cybersécurité',
+      icon: <Shield />,
+      color: 'blue'
+    },
+    {
+      id: 'threats',
+      name: 'Menaces et attaques',
+      description: 'Malwares, attaques réseau, ingénierie sociale, etc.',
+      icon: <AlertTriangle />,
+      color: 'red'
+    },
+    {
+      id: 'defense',
+      name: 'Défense et protection',
+      description: 'Firewalls, IDS/IPS, antivirus, contrôles de sécurité, etc.',
+      icon: <Shield />,
+      color: 'green'
+    },
+    {
+      id: 'data',
+      name: 'Sécurité des données',
+      description: 'Cryptographie, protection des données, classification, etc.',
+      icon: <Database />,
+      color: 'purple'
+    },
+    {
+      id: 'identity',
+      name: 'Identité et accès',
+      description: 'Authentification, autorisation, IAM, etc.',
+      icon: <User />,
+      color: 'orange'
+    },
+    {
+      id: 'governance',
+      name: 'Gouvernance et conformité',
+      description: 'Normes, réglementations, frameworks, etc.',
+      icon: <FileText />,
+      color: 'teal'
+    }
+  ];
+
+  // Questions de démo pour le quiz
+  const quizQuestions: QuizQuestion[] = [
+    {
+      id: 'q1',
+      question: 'Quelle est la principale différence entre un virus et un ver informatique ?',
+      options: [
+        'Un virus nécessite une interaction humaine pour se propager, un ver se propage automatiquement',
+        'Les virus ciblent uniquement les fichiers système, les vers ciblent les données utilisateur',
+        'Les virus sont toujours malveillants, les vers peuvent être bénins',
+        'Les virus sont écrits en C++, les vers en Python'
+      ],
+      correctAnswer: 0,
+      difficulty: 'débutant',
+      category: 'threats',
+      explanation: 'Un virus informatique nécessite généralement une action humaine pour se propager (comme exécuter un programme infecté ou ouvrir une pièce jointe), tandis qu\'un ver se propage automatiquement en exploitant des vulnérabilités réseau, sans nécessiter d\'intervention humaine. Les deux types de malware peuvent être écrits dans différents langages de programmation et peuvent être malveillants.'
+    },
+    {
+      id: 'q2',
+      question: 'Qu\'est-ce que l\'authentification multifacteur (MFA) ?',
+      options: [
+        'Une forme d\'authentification qui alterne entre différentes méthodes chaque jour',
+        'Une méthode qui utilise au moins deux catégories différentes de preuves d\'identité',
+        'Un système qui répartit l\'authentification entre plusieurs serveurs',
+        'Une technique permettant de s\'authentifier à plusieurs services avec un seul identifiant'
+      ],
+      correctAnswer: 1,
+      difficulty: 'débutant',
+      category: 'identity',
+      explanation: 'L\'authentification multifacteur (MFA) est une méthode de sécurité qui exige que l\'utilisateur fournisse au moins deux types différents de preuves d\'identité pour vérifier son identité. Ces preuves peuvent appartenir à trois catégories : quelque chose que vous connaissez (mot de passe), quelque chose que vous possédez (téléphone, token), ou quelque chose que vous êtes (biométrie).'
+    },
+    {
+      id: 'q3',
+      question: 'Quelle technique d\'attaque implique de manipuler l\'utilisateur pour qu\'il effectue des actions sur un site web à son insu ?',
+      options: [
+        'Man-in-the-Middle (MitM)',
+        'Cross-Site Scripting (XSS)',
+        'Cross-Site Request Forgery (CSRF)',
+        'SQL Injection'
+      ],
+      correctAnswer: 2,
+      difficulty: 'intermédiaire',
+      category: 'threats',
+      explanation: 'Le Cross-Site Request Forgery (CSRF) est une attaque qui force un utilisateur authentifié à exécuter des actions non désirées sur une application web dans laquelle il est actuellement authentifié. L\'attaque fonctionne en incluant un lien ou un script dans une page que l\'utilisateur visite, qui envoie ensuite une requête au site vulnérable, exploitant la session active de l\'utilisateur.'
+    },
+    {
+      id: 'q4',
+      question: 'Quelle est la différence principale entre le chiffrement symétrique et asymétrique ?',
+      options: [
+        'Le chiffrement symétrique est toujours plus rapide que l\'asymétrique',
+        'Le chiffrement asymétrique utilise la biométrie, le symétrique utilise des mots de passe',
+        'Le chiffrement symétrique utilise la même clé pour chiffrer et déchiffrer, l\'asymétrique utilise des clés différentes',
+        'Le chiffrement symétrique est utilisé pour les fichiers, l\'asymétrique pour les communications'
+      ],
+      correctAnswer: 2,
+      difficulty: 'intermédiaire',
+      category: 'data',
+      explanation: 'La principale différence entre le chiffrement symétrique et asymétrique est que le chiffrement symétrique utilise la même clé pour chiffrer et déchiffrer les données, tandis que le chiffrement asymétrique utilise une paire de clés : une clé publique pour chiffrer et une clé privée pour déchiffrer. Le chiffrement symétrique est généralement plus rapide mais présente des défis pour l\'échange sécurisé de clés.'
+    },
+    {
+      id: 'q5',
+      question: 'Qu\'est-ce que la norme ISO/IEC 27001 ?',
+      options: [
+        'Un standard technique pour les algorithmes de chiffrement',
+        'Une méthodologie de développement sécurisé',
+        'Un standard international pour les systèmes de gestion de la sécurité de l\'information (SMSI)',
+        'Un framework d\'architecture de sécurité réseau'
+      ],
+      correctAnswer: 2,
+      difficulty: 'intermédiaire',
+      category: 'governance',
+      explanation: 'ISO/IEC 27001 est une norme internationale qui définit les exigences pour établir, mettre en œuvre, maintenir et améliorer continuellement un système de gestion de la sécurité de l\'information (SMSI). Elle fournit un cadre systématique pour gérer les risques liés à la sécurité de l\'information et protéger la confidentialité, l\'intégrité et la disponibilité des données.'
+    },
+    {
+      id: 'q6',
+      question: 'Quelle vulnérabilité permet à un attaquant d\'exécuter du code JavaScript malveillant dans le navigateur d\'un utilisateur ?',
+      options: [
+        'SQL Injection',
+        'Cross-Site Scripting (XSS)',
+        'Path Traversal',
+        'XML External Entity (XXE)'
+      ],
+      correctAnswer: 1,
+      difficulty: 'intermédiaire',
+      category: 'threats',
+      explanation: 'Le Cross-Site Scripting (XSS) est une vulnérabilité qui permet à un attaquant d\'injecter du code client (généralement JavaScript) qui s\'exécute dans le navigateur des utilisateurs. Cela peut permettre à l\'attaquant de voler des cookies de session, rediriger vers des sites malveillants, ou effectuer des actions sur le site au nom de l\'utilisateur.'
+    },
+    {
+      id: 'q7',
+      question: 'En quoi consiste l\'attaque "Pass-the-Hash" ?',
+      options: [
+        'Contourner la fonction de hachage d\'un algorithme de chiffrement',
+        'Soumettre un nombre élevé de valeurs de hachage pour trouver une collision',
+        'Réutiliser un hash de mot de passe capturé pour s\'authentifier sans connaître le mot de passe en clair',
+        'Manipuler la table de hachage d\'une base de données pour obtenir des accès non autorisés'
+      ],
+      correctAnswer: 2,
+      difficulty: 'avancé',
+      category: 'threats',
+      explanation: 'Pass-the-Hash (PtH) est une technique d\'attaque où un attaquant capture un hash de mot de passe (par exemple, un hash NTLM dans un environnement Windows) et le réutilise pour s\'authentifier sur un service ou un système sans avoir besoin de connaître ou de déchiffrer le mot de passe en texte clair. Cette attaque exploite le fait que certains protocoles d\'authentification vérifient seulement le hash du mot de passe et non le mot de passe lui-même.'
+    },
+    {
+      id: 'q8',
+      question: 'Qu\'est-ce que le "Zero Trust" en cybersécurité ?',
+      options: [
+        'Un modèle où aucun logiciel tiers n\'est utilisé dans l\'infrastructure',
+        'Un principe qui suppose qu\'aucune entité, interne ou externe, ne doit être automatiquement considérée comme fiable',
+        'Une architecture réseau sans points de défaillance unique',
+        'Une approche où toutes les communications sont chiffrées de bout en bout'
+      ],
+      correctAnswer: 1,
+      difficulty: 'avancé',
+      category: 'defense',
+      explanation: 'Zero Trust est un modèle de sécurité qui part du principe qu\'aucune entité (utilisateur, appareil, application) ne doit être automatiquement considérée comme fiable, qu\'elle soit à l\'intérieur ou à l\'extérieur du réseau de l\'organisation. Ce modèle exige une vérification, une autorisation et une authentification continues pour tous les accès aux ressources, en suivant le principe "ne jamais faire confiance, toujours vérifier".'
+    },
+    {
+      id: 'q9',
+      question: 'Qu\'est-ce qu\'un "Security Information and Event Management" (SIEM) ?',
+      options: [
+        'Un framework de gestion des risques pour la conformité réglementaire',
+        'Un système qui combine la collecte, l\'analyse et la corrélation des événements de sécurité',
+        'Une méthodologie pour l\'évaluation de la sécurité des applications',
+        'Un protocole pour l\'échange sécurisé d\'informations sur les menaces entre organisations'
+      ],
+      correctAnswer: 1,
+      difficulty: 'avancé',
+      category: 'defense',
+      explanation: 'Un SIEM (Security Information and Event Management) est une solution qui combine la gestion des informations de sécurité (SIM) et la gestion des événements de sécurité (SEM). Ces systèmes collectent, agrègent et analysent les données de journaux provenant de diverses sources dans l\'infrastructure IT, puis les corrèlent pour identifier des modèles anormaux et des incidents de sécurité potentiels. Les SIEM fournissent des capacités de surveillance en temps réel, d\'alerte et de reporting.'
+    },
+    {
+      id: 'q10',
+      question: 'Quelle est la différence entre une attaque DoS et DDoS ?',
+      options: [
+        'DoS affecte uniquement les serveurs web, DDoS affecte tous les types de serveurs',
+        'DoS exploite des vulnérabilités applicatives, DDoS exploite des vulnérabilités réseau',
+        'DoS utilise un seul système pour attaquer, DDoS utilise plusieurs systèmes distribués',
+        'DoS vise à voler des données, DDoS vise uniquement à interrompre le service'
+      ],
+      correctAnswer: 2,
+      difficulty: 'débutant',
+      category: 'threats',
+      explanation: 'La principale différence entre une attaque par déni de service (DoS) et une attaque par déni de service distribué (DDoS) est que la DoS provient généralement d\'une seule source ou système, tandis que la DDoS utilise de multiples systèmes compromis (souvent un botnet) pour lancer l\'attaque. Les attaques DDoS sont généralement plus difficiles à atténuer en raison de leur nature distribuée et du volume de trafic qu\'elles peuvent générer.'
+    },
+    {
+      id: 'q11',
+      question: 'Quelle est la fonction principale d\'un IDS (Intrusion Detection System) ?',
+      options: [
+        'Empêcher toute tentative d\'intrusion en bloquant le trafic suspect',
+        'Détecter et alerter sur les activités suspectes ou malveillantes',
+        'Chiffrer le trafic réseau pour prévenir l\'espionnage',
+        'Authentifier les utilisateurs avant l\'accès au réseau'
+      ],
+      correctAnswer: 1,
+      difficulty: 'intermédiaire',
+      category: 'defense',
+      explanation: 'Un système de détection d\'intrusion (IDS) est conçu pour surveiller le trafic réseau ou les activités système afin de détecter et d\'alerter sur les tentatives d\'accès non autorisés, les attaques en cours ou les violations de politiques de sécurité. Contrairement à un système de prévention d\'intrusion (IPS), un IDS est principalement passif et ne bloque pas automatiquement le trafic, bien que certains produits combinent les fonctionnalités IDS et IPS.'
+    },
+    {
+      id: 'q12',
+      question: 'Qu\'est-ce qu\'une attaque de type "Side-Channel" ?',
+      options: [
+        'Une attaque utilisant des canaux de communication alternatifs pour contourner les pare-feu',
+        'Une technique d\'exploitation qui cible les serveurs secondaires d\'une infrastructure',
+        'Une méthode pour extraire des informations en observant les caractéristiques physiques d\'un système',
+        'Un type d\'attaque manipulant les routes BGP pour détourner le trafic réseau'
+      ],
+      correctAnswer: 2,
+      difficulty: 'avancé',
+      category: 'threats',
+      explanation: 'Les attaques par canal auxiliaire (Side-Channel) exploitent des informations obtenues à partir des caractéristiques physiques d\'un système, plutôt que des faiblesses dans l\'implémentation d\'un algorithme. Ces informations peuvent inclure la consommation d\'énergie, le timing d\'exécution, les émissions électromagnétiques, ou les sons produits par le système. Par exemple, en analysant précisément le temps nécessaire à certaines opérations cryptographiques, un attaquant peut potentiellement extraire des clés secrètes.'
+    },
+    {
+      id: 'q13',
+      question: 'Quel concept de sécurité établit qu\'un système doit rester sécurisé même si sa conception est connue des attaquants ?',
+      options: [
+        'Security by Design',
+        'Defense in Depth',
+        'Principe du moindre privilège',
+        'Principe de Kerckhoffs'
+      ],
+      correctAnswer: 3,
+      difficulty: 'avancé',
+      category: 'defense',
+      explanation: 'Le principe de Kerckhoffs, formulé par Auguste Kerckhoffs au 19e siècle, stipule qu\'un système cryptographique doit être sécurisé même si tout ce qui concerne le système, à l\'exception de la clé, est connu publiquement. Ce principe est souvent résumé par "la sécurité par l\'obscurité n\'est pas une sécurité". Dans la cybersécurité moderne, ce principe est étendu pour suggérer que les systèmes devraient rester sécurisés même si leur conception et implémentation sont connues des attaquants.'
+    },
+    {
+      id: 'q14',
+      question: 'Qu\'est-ce que le RGPD (Règlement Général sur la Protection des Données) ?',
+      options: [
+        'Un cadre technique pour la sécurisation des bases de données personnelles',
+        'Une réglementation européenne sur la protection des données personnelles',
+        'Un standard international de chiffrement pour les données sensibles',
+        'Un protocole de gestion des incidents de violation de données'
+      ],
+      correctAnswer: 1,
+      difficulty: 'débutant',
+      category: 'governance',
+      explanation: 'Le Règlement Général sur la Protection des Données (RGPD) est une réglementation de l\'Union européenne entrée en vigueur en mai 2018. Il définit les règles pour la collecte, le traitement et le stockage des données personnelles, et établit des droits pour les individus concernant leurs données. Le RGPD s\'applique aux organisations basées dans l\'UE ainsi qu\'à celles traitant les données des résidents de l\'UE, et impose des sanctions significatives en cas de non-conformité.'
+    },
+    {
+      id: 'q15',
+      question: 'Qu\'est-ce que le "Security by Design" ?',
+      options: [
+        'Une approche où la sécurité fait partie intégrante du processus de conception et de développement',
+        'Un modèle de sécurité basé uniquement sur des solutions propriétaires',
+        'Un standard esthétique pour l\'interface des outils de sécurité',
+        'Une certification délivrée aux produits ayant passé des tests de pénétration'
+      ],
+      correctAnswer: 0,
+      difficulty: 'intermédiaire',
+      category: 'defense',
+      explanation: 'Security by Design est une approche de la cybersécurité qui intègre les considérations de sécurité dès les premières étapes de la conception et tout au long du cycle de développement d\'un système, plutôt que de les ajouter après coup. Cette méthodologie vise à identifier et atténuer les risques de sécurité potentiels avant qu\'ils ne deviennent des problèmes coûteux à résoudre. Elle comprend des pratiques comme la modélisation des menaces, les revues de code sécurisé et les tests de sécurité continus.'
+    }
+  ];
+
+  // Fonction pour obtenir une question via l'API
+  const getRandomQuestion = async () => {
+    try {
+      // Afficher un loader
+      toast({
+        title: "Génération en cours...",
+        description: "Création d'une question adaptée à votre niveau",
+      });
+
+      // Appeler l'API
+      const response = await fetch('/api/cyber/adaptive-quiz/question', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          category: selectedCategory,
+          difficulty: difficulty
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la génération de la question');
       }
-    ],
-    moyen: [
-      {
-        id: 'm1',
-        question: "Quelle est la différence entre un virus et un cheval de Troie ?",
-        options: [
-          { id: 'a', text: "Il n'y a pas de différence, ce sont deux termes pour la même chose" },
-          { id: 'b', text: "Un virus se réplique automatiquement, tandis qu'un cheval de Troie se présente comme un logiciel légitime mais cache des fonctions malveillantes" },
-          { id: 'c', text: "Un virus affecte uniquement les ordinateurs Windows, un cheval de Troie cible uniquement les Mac" },
-          { id: 'd', text: "Un virus endommage les fichiers, un cheval de Troie améliore les performances du système" }
-        ],
-        correctAnswer: 'b',
-        explanation: "Un virus est un programme malveillant qui se réplique en s'insérant dans d'autres programmes. Un cheval de Troie se présente comme un logiciel utile ou inoffensif mais contient en réalité du code malveillant qui s'exécute à l'insu de l'utilisateur."
-      },
-      {
-        id: 'm2',
-        question: "Qu'est-ce qu'une attaque par déni de service distribué (DDoS) ?",
-        options: [
-          { id: 'a', text: "Une tentative de se connecter à un service en utilisant différents mots de passe" },
-          { id: 'b', text: "Une méthode pour distribuer équitablement les ressources serveur" },
-          { id: 'c', text: "Une attaque qui implique plusieurs systèmes compromis pour submerger un système cible de requêtes" },
-          { id: 'd', text: "Une technique pour récupérer des données après une panne système" }
-        ],
-        correctAnswer: 'c',
-        explanation: "Une attaque DDoS utilise de nombreux systèmes compromis (souvent des milliers) pour envoyer simultanément des requêtes vers une cible, surchargeant ses ressources et rendant le service indisponible pour les utilisateurs légitimes."
-      },
-      {
-        id: 'm3',
-        question: "Quel protocole assure la sécurité des communications sur le Web ?",
-        options: [
-          { id: 'a', text: "HTTP" },
-          { id: 'b', text: "FTP" },
-          { id: 'c', text: "HTTPS" },
-          { id: 'd', text: "SMTP" }
-        ],
-        correctAnswer: 'c',
-        explanation: "HTTPS (HTTP Secure) est une version sécurisée du protocole HTTP qui utilise TLS/SSL pour chiffrer les communications entre le navigateur et le serveur web, protégeant ainsi les données transmises contre l'interception et la manipulation."
+
+      const data = await response.json();
+
+      if (!data.success || !data.question) {
+        throw new Error('Données de question invalides');
       }
-    ],
-    difficile: [
-      {
-        id: 'd1',
-        question: "Qu'est-ce que le principe du Zero Trust en cybersécurité ?",
-        options: [
-          { id: 'a', text: "Faire confiance mais vérifier" },
-          { id: 'b', text: "Ne faire confiance à personne, toujours vérifier" },
-          { id: 'c', text: "Faire confiance uniquement aux utilisateurs internes" },
-          { id: 'd', text: "Ne pas utiliser de systèmes d'authentification" }
-        ],
-        correctAnswer: 'b',
-        explanation: "Le principe du Zero Trust est une approche de sécurité basée sur la prémisse qu'aucune entité, qu'elle soit à l'intérieur ou à l'extérieur du périmètre organisationnel, ne doit être considérée comme fiable par défaut. Chaque requête d'accès doit être vérifiée, quel que soit son origine."
-      },
-      {
-        id: 'd2',
-        question: "Quelle méthode d'attaque exploite les entrées utilisateur non validées pour exécuter du code SQL malveillant ?",
-        options: [
-          { id: 'a', text: "Cross-Site Scripting (XSS)" },
-          { id: 'b', text: "Injection SQL" },
-          { id: 'c', text: "Cross-Site Request Forgery (CSRF)" },
-          { id: 'd', text: "Man-in-the-Middle (MITM)" }
-        ],
-        correctAnswer: 'b',
-        explanation: "L'injection SQL est une technique d'attaque qui exploite les vulnérabilités dans la validation des entrées utilisateur, permettant à l'attaquant d'insérer du code SQL malveillant dans les requêtes exécutées par l'application, potentiellement donnant accès à la base de données entière."
-      },
-      {
-        id: 'd3',
-        question: "Qu'est-ce que l'analyse sandboxing dans le contexte de la sécurité informatique ?",
-        options: [
-          { id: 'a', text: "Une technique pour protéger les plages de données dans une base de données" },
-          { id: 'b', text: "Un environnement isolé pour exécuter et analyser du code potentiellement malveillant" },
-          { id: 'c', text: "Une méthode pour sécuriser les communications sans fil" },
-          { id: 'd', text: "Un système de classification des vulnérabilités" }
-        ],
-        correctAnswer: 'b',
-        explanation: "Le sandboxing est une technique de sécurité qui consiste à exécuter des programmes ou ouvrir des fichiers dans un environnement isolé et contrôlé, sans accès au reste du système. Cela permet d'observer le comportement d'un logiciel potentiellement malveillant sans risquer de compromettre le système principal."
+
+      return data.question;
+    } catch (error) {
+      console.error('Erreur lors de la récupération de la question:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer une question. Veuillez réessayer.",
+        variant: "destructive"
+      });
+
+      // Fallback: utiliser une question statique si disponible
+      const filteredQuestions = quizQuestions.filter(q => 
+        (selectedCategory === 'all' || q.category === selectedCategory) &&
+        q.difficulty === difficulty
+      );
+
+      if (filteredQuestions.length === 0) {
+        return null;
       }
-    ]
+
+      const randomIndex = Math.floor(Math.random() * filteredQuestions.length);
+      return filteredQuestions[randomIndex];
+    }
   };
-  
-  // Sélectionner les questions en fonction du niveau de difficulté
-  const getQuestionSet = () => {
-    return questions[difficulty as keyof typeof questions];
+
+  // Charger une nouvelle question
+  const loadNextQuestion = async () => {
+    setSelectedOption(null);
+    setIsAnswered(false);
+    setShowExplanation(false);
+    setAiHint(null);
+
+    // Afficher un indicateur de chargement
+    toast({
+      title: "Chargement en cours...",
+      description: "Préparation de la prochaine question",
+    });
+
+    try {
+      const nextQuestion = await getRandomQuestion();
+      setCurrentQuestion(nextQuestion);
+    } catch (error) {
+      console.error("Erreur lors du chargement de la question:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger la prochaine question. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    }
   };
-  
-  // Générer une explication IA pour la réponse (simulée)
-  const generateAIExplanation = () => {
-    setIsLoading(true);
-    
-    // Simuler un appel API à OpenAI (à remplacer par un appel réel)
-    setTimeout(() => {
-      setFeedbackVisible(true);
-      setIsLoading(false);
-    }, 1500);
+
+  // Initialisation du quiz
+  useEffect(() => {
+    // Charger l'historique du quiz depuis le localStorage
+    const storedHistory = localStorage.getItem('quizHistory');
+    if (storedHistory) {
+      setQuizHistory(JSON.parse(storedHistory));
+    }
+
+    // Charger les scores par catégorie depuis le localStorage
+    const storedCategoryScores = localStorage.getItem('quizCategoryScores');
+    if (storedCategoryScores) {
+      setCategoryScores(JSON.parse(storedCategoryScores));
+    }
+  }, []);
+
+  // Démarrer ou redémarrer le quiz
+  const startQuiz = async () => {
+    setScore(0);
+    setQuestionsAnswered(0);
+    setIsQuizActive(true);
+    await loadNextQuestion();
   };
-  
+
   // Vérifier la réponse
   const checkAnswer = () => {
-    if (!selectedAnswer) return;
-    
-    const currentSet = getQuestionSet();
-    const isCorrect = selectedAnswer === currentSet[currentQuestion].correctAnswer;
-    
-    if (isCorrect) {
+    if (selectedOption === null) return;
+
+    const isCorrectAnswer = selectedOption === currentQuestion?.correctAnswer;
+    setIsAnswered(true);
+    setIsCorrect(isCorrectAnswer);
+
+    if (isCorrectAnswer) {
       setScore(score + 1);
       toast({
         title: "Bonne réponse !",
-        description: "Félicitations, vous avez choisi la bonne réponse.",
         variant: "default",
       });
     } else {
       toast({
-        title: "Mauvaise réponse",
-        description: "Ce n'est pas la bonne réponse.",
+        title: "Réponse incorrecte",
+        description: "N'hésitez pas à consulter l'explication",
         variant: "destructive",
       });
     }
-    
-    setIsAnswerSubmitted(true);
-  };
-  
-  // Passer à la question suivante
-  const nextQuestion = () => {
-    const currentSet = getQuestionSet();
-    
-    if (currentQuestion < currentSet.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-      setSelectedAnswer(null);
-      setIsAnswerSubmitted(false);
-      setFeedbackVisible(false);
-      setTimeRemaining(45);
-      
-      // Ajuster la difficulté selon les performances
-      if (score / (currentQuestion + 1) > 0.7 && difficulty !== 'difficile') {
-        // L'utilisateur réussit bien, augmenter la difficulté
-        setDifficulty(difficulty === 'facile' ? 'moyen' : 'difficile');
-        toast({
-          title: "Niveau augmenté !",
-          description: "Vos bonnes performances ont débloqué des questions plus difficiles.",
-          variant: "default",
-        });
-      } else if (score / (currentQuestion + 1) < 0.3 && difficulty !== 'facile') {
-        // L'utilisateur a des difficultés, réduire la difficulté
-        setDifficulty(difficulty === 'difficile' ? 'moyen' : 'facile');
-        toast({
-          title: "Niveau ajusté",
-          description: "Le niveau de difficulté a été ajusté pour mieux correspondre à vos connaissances.",
-          variant: "default",
-        });
+
+    // Mettre à jour les statistiques
+    setQuestionsAnswered(questionsAnswered + 1);
+
+    // Mettre à jour les scores par catégorie
+    if (currentQuestion) {
+      const category = currentQuestion.category;
+      const updatedCategoryScores = { ...categoryScores };
+
+      if (!updatedCategoryScores[category]) {
+        updatedCategoryScores[category] = { correct: 0, total: 0 };
       }
-    } else {
-      // Fin du quiz
-      setIsQuizCompleted(true);
+
+      updatedCategoryScores[category].total += 1;
+      if (isCorrectAnswer) {
+        updatedCategoryScores[category].correct += 1;
+      }
+
+      setCategoryScores(updatedCategoryScores);
+      localStorage.setItem('quizCategoryScores', JSON.stringify(updatedCategoryScores));
     }
   };
-  
-  // Gérer le timer
-  useEffect(() => {
-    if (!isStarted || isAnswerSubmitted || isQuizCompleted) return;
-    
-    const timer = setInterval(() => {
-      setTimeRemaining(prevTime => {
-        if (prevTime <= 1) {
-          clearInterval(timer);
-          setIsAnswerSubmitted(true);
-          toast({
-            title: "Temps écoulé !",
-            description: "Vous n'avez pas répondu à temps.",
-            variant: "destructive",
-          });
-          return 0;
-        }
-        return prevTime - 1;
+
+  // Terminer le quiz
+  const finishQuiz = () => {
+    const currentDate = new Date().toISOString();
+    const result: QuizResult = {
+      date: currentDate,
+      score,
+      questionsAnswered,
+      categoryScores,
+      level: difficulty
+    };
+
+    // Ajouter le résultat à l'historique
+    const updatedHistory = [result, ...quizHistory];
+    setQuizHistory(updatedHistory);
+    localStorage.setItem('quizHistory', JSON.stringify(updatedHistory));
+
+    // Afficher les recommandations
+    setShowRecommendations(true);
+    setIsQuizActive(false);
+
+    toast({
+      title: "Quiz terminé !",
+      description: `Votre score : ${score}/${questionsAnswered}`,
+      variant: "default",
+    });
+  };
+
+  // Générer un indice IA en appelant l'API
+  const generateAIHint = async () => {
+    if (!currentQuestion) return;
+
+    setIsGeneratingHint(true);
+
+    try {
+      // Appeler l'API pour générer un indice
+      const response = await fetch('/api/cyber/adaptive-quiz/hint', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          question: currentQuestion.question,
+          options: currentQuestion.options,
+          difficulty: currentQuestion.difficulty,
+        }),
       });
-    }, 1000);
-    
-    return () => clearInterval(timer);
-  }, [isStarted, isAnswerSubmitted, currentQuestion, isQuizCompleted, toast]);
-  
-  // Calculer le pourcentage de progression
-  const calculateProgress = () => {
-    const currentSet = getQuestionSet();
-    return ((currentQuestion + 1) / currentSet.length) * 100;
-  };
-  
-  // Obtenir le niveau de performance
-  const getPerformanceLevel = () => {
-    const percentage = (score / getQuestionSet().length) * 100;
-    
-    if (percentage >= 80) return { text: "Expert", color: "text-green-500" };
-    if (percentage >= 60) return { text: "Avancé", color: "text-blue-500" };
-    if (percentage >= 40) return { text: "Intermédiaire", color: "text-yellow-500" };
-    return { text: "Débutant", color: "text-red-500" };
-  };
-  
-  // Recommandations personnalisées basées sur les performances
-  const getRecommendations = () => {
-    const percentage = (score / getQuestionSet().length) * 100;
-    
-    if (percentage >= 80) {
-      return [
-        "Explorer des sujets avancés comme l'analyse forensique",
-        "Considérer une certification professionnelle en cybersécurité",
-        "Contribuer à des projets open-source de sécurité"
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la génération de l\'indice');
+      }
+
+      const data = await response.json();
+
+      if (!data.success || !data.hint) {
+        throw new Error('Données d\'indice invalides');
+      }
+
+      setAiHint(data.hint);
+    } catch (error) {
+      console.error('Erreur lors de la génération de l\'indice:', error);
+
+      // Fallback : utiliser un indice statique en cas d'erreur
+      const hints = [
+        "Pensez aux principes fondamentaux de la cybersécurité : confidentialité, intégrité et disponibilité.",
+        "Cette question concerne une technique d'attaque courante. Réfléchissez au vecteur d'attaque principal.",
+        "Pour cette question, pensez aux bonnes pratiques de protection des données sensibles.",
+        "Cette question porte sur un concept architectural de sécurité. Considérez comment les différentes couches interagissent.",
+        "Cette réponse fait référence à un standard ou une réglementation spécifique, pensez à son objectif principal."
       ];
+
+      const randomHint = hints[Math.floor(Math.random() * hints.length)];
+      setAiHint(`Indice IA : ${randomHint}`);
+    } finally {
+      setIsGeneratingHint(false);
     }
-    
-    if (percentage >= 60) {
-      return [
-        "Approfondir les connaissances sur les techniques d'attaque modernes",
-        "S'exercer à des CTF (Capture The Flag) de niveau intermédiaire",
-        "Étudier les principes du Zero Trust et de la sécurité cloud"
-      ];
+  };
+
+  // Calculer le niveau de compétence recommandé
+  const getRecommendedLevel = () => {
+    if (score / questionsAnswered >= 0.8) {
+      return difficulty === 'débutant' ? 'intermédiaire' : 
+             difficulty === 'intermédiaire' ? 'avancé' : 'avancé';
+    } else if (score / questionsAnswered <= 0.4) {
+      return difficulty === 'avancé' ? 'intermédiaire' : 
+             difficulty === 'intermédiaire' ? 'débutant' : 'débutant';
+    } else {
+      return difficulty;
     }
-    
-    if (percentage >= 40) {
-      return [
-        "Renforcer la compréhension des concepts fondamentaux",
-        "Pratiquer avec des laboratoires virtuels de sécurité",
-        "Suivre un cours structuré sur les bases de la cybersécurité"
-      ];
-    }
-    
-    return [
-      "Commencer par des ressources d'introduction à la cybersécurité",
-      "Se familiariser avec les termes et concepts de base",
-      "Pratiquer les bonnes pratiques de sécurité au quotidien"
-    ];
   };
-  
-  // Composants de l'interface
-  
-  // Écran d'accueil
-  const renderStartScreen = () => (
-    <div className="flex flex-col items-center justify-center py-8">
-      <div className="mb-8 flex flex-col items-center text-center">
-        <BrainCircuit className="h-16 w-16 text-blue-500 mb-4" />
-        <h1 className="text-3xl font-bold text-white mb-2">Quiz Adaptatif IA</h1>
-        <p className="text-blue-300 max-w-2xl">
-          Testez vos connaissances en cybersécurité avec notre quiz intelligent qui s'adapte à votre niveau ! Notre système basé sur l'IA ajuste la difficulté des questions en fonction de vos performances et fournit des explications détaillées pour faciliter l'apprentissage.
-        </p>
-      </div>
-      
-      <Card className="w-full max-w-3xl bg-blue-950/60 border-blue-800/60">
-        <CardHeader>
-          <CardTitle className="text-xl">Comment ça fonctionne ?</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-start gap-3">
-            <div className="bg-blue-900/60 p-2 rounded-md">
-              <BrainCircuit className="h-5 w-5 text-blue-400" />
-            </div>
-            <div>
-              <p className="font-medium text-white">Adaptation intelligente</p>
-              <p className="text-sm text-blue-300">Le quiz ajuste automatiquement la difficulté des questions en fonction de vos réponses.</p>
-            </div>
-          </div>
-          
-          <div className="flex items-start gap-3">
-            <div className="bg-blue-900/60 p-2 rounded-md">
-              <Sparkles className="h-5 w-5 text-blue-400" />
-            </div>
-            <div>
-              <p className="font-medium text-white">Explications générées par IA</p>
-              <p className="text-sm text-blue-300">Recevez des explications détaillées pour chaque question, personnalisées selon vos besoins d'apprentissage.</p>
-            </div>
-          </div>
-          
-          <div className="flex items-start gap-3">
-            <div className="bg-blue-900/60 p-2 rounded-md">
-              <FileText className="h-5 w-5 text-blue-400" />
-            </div>
-            <div>
-              <p className="font-medium text-white">Analyse de performance</p>
-              <p className="text-sm text-blue-300">À la fin du quiz, obtenez une analyse de vos points forts et des recommandations personnalisées.</p>
-            </div>
-          </div>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          <Button
-            size="lg"
-            className="bg-blue-600 hover:bg-blue-700"
-            onClick={() => setIsStarted(true)}
-          >
-            Commencer le quiz
-            <ChevronRight className="ml-2 h-4 w-4" />
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
-  );
-  
-  // Écran de quiz
-  const renderQuiz = () => {
-    const currentSet = getQuestionSet();
-    const currentQ = currentSet[currentQuestion];
-    
-    return (
-      <div className="w-full max-w-3xl mx-auto">
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center">
-              <Badge className="bg-blue-700 text-sm font-normal">
-                Question {currentQuestion + 1}/{currentSet.length}
-              </Badge>
-              <Badge className="ml-2 bg-indigo-700 text-sm font-normal">
-                Niveau: {difficulty === 'facile' ? 'Facile' : difficulty === 'moyen' ? 'Intermédiaire' : 'Avancé'}
-              </Badge>
-            </div>
-            <div className="flex items-center">
-              <Timer className="h-4 w-4 text-blue-400 mr-1" />
-              <span className={`text-sm ${timeRemaining < 10 ? 'text-red-400' : 'text-blue-300'}`}>
-                {timeRemaining}s
-              </span>
-            </div>
-          </div>
-          <Progress value={calculateProgress()} className="h-2 bg-blue-900/40" indicatorClassName="bg-blue-500" />
-        </div>
-        
-        <Card className="bg-blue-950/60 border-blue-800/60 mb-6">
-          <CardHeader>
-            <CardTitle className="text-xl">{currentQ.question}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RadioGroup
-              value={selectedAnswer || ""}
-              onValueChange={setSelectedAnswer}
-              disabled={isAnswerSubmitted}
-              className="space-y-3"
-            >
-              {currentQ.options.map(option => (
-                <div
-                  key={option.id}
-                  className={`flex items-center space-x-2 border border-blue-800/60 rounded-md p-3 hover:bg-blue-900/30 transition-colors ${
-                    isAnswerSubmitted && option.id === currentQ.correctAnswer
-                      ? 'bg-green-900/20 border-green-700/50'
-                      : isAnswerSubmitted && option.id === selectedAnswer
-                        ? 'bg-red-900/20 border-red-700/50'
-                        : ''
-                  }`}
-                >
-                  <RadioGroupItem
-                    value={option.id}
-                    id={`option-${option.id}`}
-                    className="border-blue-500"
-                  />
-                  <Label
-                    htmlFor={`option-${option.id}`}
-                    className="flex-grow cursor-pointer text-sm"
-                  >
-                    {option.text}
-                  </Label>
-                  {isAnswerSubmitted && option.id === currentQ.correctAnswer && (
-                    <CheckCircle2 className="h-5 w-5 text-green-500 ml-2" />
-                  )}
-                  {isAnswerSubmitted && option.id === selectedAnswer && option.id !== currentQ.correctAnswer && (
-                    <XCircle className="h-5 w-5 text-red-500 ml-2" />
-                  )}
-                </div>
-              ))}
-            </RadioGroup>
-          </CardContent>
-          <CardFooter className="flex flex-col items-stretch">
-            {!isAnswerSubmitted ? (
-              <Button
-                className="w-full bg-blue-600 hover:bg-blue-700"
-                onClick={checkAnswer}
-                disabled={!selectedAnswer}
-              >
-                Valider ma réponse
-              </Button>
-            ) : (
-              <div className="w-full space-y-4">
-                {!feedbackVisible ? (
-                  <Button
-                    className="w-full bg-indigo-600 hover:bg-indigo-700"
-                    onClick={generateAIExplanation}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <div className="h-4 w-4 border-2 border-current border-t-transparent animate-spin rounded-full mr-2" />
-                        Génération de l'explication...
-                      </>
-                    ) : (
-                      <>
-                        <BrainCircuit className="mr-2 h-4 w-4" />
-                        Afficher l'explication IA
-                      </>
-                    )}
-                  </Button>
-                ) : (
-                  <Alert className="bg-indigo-950/50 border-indigo-700/50">
-                    <BrainCircuit className="h-4 w-4 text-indigo-400" />
-                    <AlertTitle>Explication</AlertTitle>
-                    <AlertDescription className="text-indigo-200">
-                      {currentQ.explanation}
-                    </AlertDescription>
-                  </Alert>
-                )}
-                
-                <Button
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                  onClick={nextQuestion}
-                >
-                  {currentQuestion < currentSet.length - 1 ? (
-                    <>
-                      Question suivante
-                      <ChevronRight className="ml-2 h-4 w-4" />
-                    </>
-                  ) : (
-                    <>
-                      Terminer le quiz
-                      <Trophy className="ml-2 h-4 w-4" />
-                    </>
-                  )}
-                </Button>
-              </div>
-            )}
-          </CardFooter>
-        </Card>
-        
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-sm text-blue-300">
-              Score actuel: <span className="font-bold text-white">{score}/{currentQuestion + (isAnswerSubmitted ? 1 : 0)}</span>
-            </p>
-          </div>
-          {isAnswerSubmitted && (
-            <div className="text-sm text-blue-300 flex items-center">
-              <Info className="h-4 w-4 mr-1 text-blue-400" />
-              {selectedAnswer === currentQ.correctAnswer 
-                ? "Bonne réponse !" 
-                : `Réponse correcte : ${currentQ.options.find(o => o.id === currentQ.correctAnswer)?.text}`}
-            </div>
-          )}
-        </div>
-      </div>
-    );
+
+  // Calculer les catégories à améliorer
+  const getCategoryToImprove = () => {
+    let lowestScore = 1;
+    let categoryToImprove = '';
+
+    Object.entries(categoryScores).forEach(([category, scores]) => {
+      if (scores.total > 0) {
+        const ratio = scores.correct / scores.total;
+        if (ratio < lowestScore) {
+          lowestScore = ratio;
+          categoryToImprove = category;
+        }
+      }
+    });
+
+    return categoryToImprove ? quizCategories.find(c => c.id === categoryToImprove)?.name || categoryToImprove : null;
   };
-  
-  // Écran de résultats
-  const renderResults = () => {
-    const currentSet = getQuestionSet();
-    const percentage = (score / currentSet.length) * 100;
-    const performance = getPerformanceLevel();
-    const recommendations = getRecommendations();
-    
-    return (
-      <div className="w-full max-w-3xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="bg-blue-950/60 border-blue-800/60 mb-6 overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-700 to-indigo-700 p-6 text-center">
-              <Trophy className="h-16 w-16 text-yellow-300 mx-auto mb-3" />
-              <h2 className="text-2xl font-bold text-white mb-2">Quiz terminé !</h2>
-              <p className="text-blue-100">Félicitations pour avoir complété le quiz adaptatif IA</p>
-            </div>
-            
-            <CardContent className="pt-6">
-              <div className="space-y-6">
-                <div className="text-center">
-                  <div className="inline-flex items-center justify-center p-4 bg-blue-900/40 rounded-full mb-2">
-                    <div className="text-3xl font-bold">
-                      {Math.round(percentage)}%
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-medium text-white mb-1">Votre score final</h3>
-                  <p className="text-blue-300">
-                    Vous avez obtenu <span className="font-bold text-white">{score}</span> bonnes réponses sur <span className="font-bold text-white">{currentSet.length}</span> questions
-                  </p>
-                </div>
-                
-                <Separator className="bg-blue-800/60" />
-                
-                <div>
-                  <h3 className="text-lg font-medium text-white mb-3">Analyse de votre performance</h3>
-                  <div className="bg-blue-900/30 rounded-lg p-4 mb-4">
-                    <p className="text-blue-200 mb-2">
-                      Niveau de connaissance: <span className={`font-bold ${performance.color}`}>{performance.text}</span>
-                    </p>
-                    <p className="text-blue-200">
-                      {percentage >= 80
-                        ? "Vous maîtrisez très bien les concepts de cybersécurité testés dans ce quiz. Continuez à approfondir vos connaissances sur des sujets avancés."
-                        : percentage >= 60
-                        ? "Vous avez une bonne compréhension des principes de cybersécurité. Quelques révisions sur certains concepts vous permettront de progresser encore."
-                        : percentage >= 40
-                        ? "Vous avez des connaissances de base en cybersécurité. Continuez à apprendre et à pratiquer régulièrement."
-                        : "Vous débutez en cybersécurité. C'est un excellent point de départ pour développer vos connaissances."}
-                    </p>
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-medium text-white mb-3">
-                    <Sparkles className="h-4 w-4 text-blue-400 inline mr-2" />
-                    Recommandations personnalisées
-                  </h3>
-                  <ul className="space-y-2">
-                    {recommendations.map((rec, index) => (
-                      <li key={index} className="flex items-start">
-                        <div className="mr-2 mt-1 text-blue-500">•</div>
-                        <span className="text-blue-200">{rec}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-            
-            <CardFooter className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button
-                variant="outline"
-                className="border-blue-500 text-blue-400 hover:bg-blue-900/30"
-                onClick={() => {
-                  setIsQuizCompleted(false);
-                  setCurrentQuestion(0);
-                  setScore(0);
-                  setSelectedAnswer(null);
-                  setIsAnswerSubmitted(false);
-                  setFeedbackVisible(false);
-                  setTimeRemaining(45);
-                  setDifficulty('moyen');
-                }}
-              >
-                <RotateCcw className="mr-2 h-4 w-4" />
-                Recommencer le quiz
-              </Button>
-              
-              <Link href="/cyber/learning-center">
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Retour au centre de formation
-                </Button>
-              </Link>
-            </CardFooter>
-          </Card>
-        </motion.div>
-      </div>
-    );
-  };
-  
+
   return (
-    <div className="min-h-screen bg-[#0a1429]">
-      <PageTitle title="Quiz Adaptatif IA | Centre de formation" />
-      
+    <div className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white pb-20">
       {/* En-tête */}
-      <header className="border-b border-blue-800/60">
-        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
+      <div className="p-6 container mx-auto">
+        <div className="flex items-center mb-2">
           <Link href="/cyber/learning-center">
-            <Button variant="ghost" className="text-blue-300 hover:bg-blue-900/30 hover:text-blue-200">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Retour au centre de formation
+            <Button variant="ghost" className="text-white mr-4">
+              <ArrowLeft className="mr-2 h-5 w-5" />
+              Retour
             </Button>
           </Link>
-          <h1 className="text-xl text-white font-medium">Quiz Adaptatif IA</h1>
+          <PageTitle title="CYBER ACADÉMIE" />
         </div>
-      </header>
-      
-      {/* Contenu principal */}
-      <div className="container mx-auto px-4 py-8">
-        {!isStarted ? renderStartScreen() : isQuizCompleted ? renderResults() : renderQuiz()}
+
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold flex items-center">
+              <BrainCircuit className="mr-3 h-6 w-6 text-indigo-400" />
+              Quiz adaptatif IA
+            </h1>
+            <p className="text-blue-200 mt-1">Évaluez vos connaissances avec un quiz personnalisé par l'IA</p>
+          </div>
+        </div>
+
+        {/* Onglets */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="bg-indigo-900/20 border border-indigo-800">
+            <TabsTrigger value="quiz" className="data-[state=active]:bg-indigo-700">
+              Quiz
+            </TabsTrigger>
+            <TabsTrigger value="stats" className="data-[state=active]:bg-indigo-700">
+              Statistiques
+            </TabsTrigger>
+            <TabsTrigger value="history" className="data-[state=active]:bg-indigo-700">
+              Historique
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Onglet Quiz */}
+          <TabsContent value="quiz" className="space-y-6">
+            {!isQuizActive && !showRecommendations ? (
+              <Card className="bg-indigo-900/20 border-indigo-800">
+                <CardHeader>
+                  <CardTitle>Paramètres du quiz</CardTitle>
+                  <CardDescription className="text-indigo-200">
+                    Personnalisez votre expérience d'apprentissage
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-medium mb-3">Choisissez une catégorie</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {quizCategories.map((category) => (
+                        <div
+                          key={category.id}
+                          className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                            selectedCategory === category.id 
+                              ? `bg-${category.color}-900/30 border-${category.color}-700` 
+                              : 'bg-slate-900/30 border-slate-800 hover:border-indigo-700'
+                          }`}
+                          onClick={() => setSelectedCategory(category.id)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-md bg-indigo-800/70">
+                              {category.icon}
+                            </div>
+                            <div>
+                              <h4 className="font-medium">{category.name}</h4>
+                              <p className="text-xs text-indigo-200">{category.description}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-medium mb-3">Niveau de difficulté</h3>
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant={difficulty === 'débutant' ? 'default' : 'outline'}
+                        className={difficulty === 'débutant' ? 'bg-green-700 hover:bg-green-800' : 'border-green-700 text-green-300'}
+                        onClick={() => setDifficulty('débutant')}
+                      >
+                        Débutant
+                      </Button>
+                      <Button
+                        variant={difficulty === 'intermédiaire' ? 'default' : 'outline'}
+                        className={difficulty === 'intermédiaire' ? 'bg-blue-700 hover:bg-blue-800' : 'border-blue-700 text-blue-300'}
+                        onClick={() => setDifficulty('intermédiaire')}
+                      >
+                        Intermédiaire
+                      </Button>
+                      <Button
+                        variant={difficulty === 'avancé' ? 'default' : 'outline'}
+                        className={difficulty === 'avancé' ? 'bg-purple-700 hover:bg-purple-800' : 'border-purple-700 text-purple-300'}
+                        onClick={() => setDifficulty('avancé')}
+                      >
+                        Avancé
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-end">
+                  <Button 
+                    size="lg" 
+                    className="bg-indigo-700 hover:bg-indigo-800"
+                    onClick={startQuiz}
+                  >
+                    Commencer le quiz
+                    <ChevronRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardFooter>
+              </Card>
+            ) : showRecommendations ? (
+              <Card className="bg-indigo-900/20 border-indigo-800">
+                <CardHeader>
+                  <CardTitle>Résultats et recommandations</CardTitle>
+                  <CardDescription className="text-indigo-200">
+                    Basé sur votre performance lors du quiz
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="bg-indigo-950/50 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold flex items-center">
+                      <BarChart className="mr-2 h-5 w-5 text-indigo-400" />
+                      Votre score
+                    </h3>
+                    <div className="flex items-center mt-2">
+                      <div className="text-3xl font-bold">{score}/{questionsAnswered}</div>
+                      <div className="ml-4 text-xl">
+                        {Math.round((score / questionsAnswered) * 100)}%
+                      </div>
+                    </div>
+                    <Progress 
+                      value={(score / questionsAnswered) * 100} 
+                      className="h-2 mt-2" 
+                      indicatorClassName={`${
+                        (score / questionsAnswered) >= 0.7 ? 'bg-green-600' : 
+                        (score / questionsAnswered) >= 0.4 ? 'bg-amber-600' : 'bg-red-600'
+                      }`}
+                    />
+
+                    <div className="mt-4 text-sm">
+                      {(score / questionsAnswered) >= 0.8 ? (
+                        <Badge className="bg-green-700">Excellent</Badge>
+                      ) : (score / questionsAnswered) >= 0.6 ? (
+                        <Badge className="bg-blue-700">Bon</Badge>
+                      ) : (score / questionsAnswered) >= 0.4 ? (
+                        <Badge className="bg-amber-700">Moyen</Badge>
+                      ) : (
+                        <Badge className="bg-red-700">À améliorer</Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-950/50 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold flex items-center">
+                      <BrainCircuit className="mr-2 h-5 w-5 text-blue-400" />
+                      Recommandations IA
+                    </h3>
+
+                    <div className="space-y-3 mt-3">
+                      <div className="flex items-start gap-3">
+                        <div className="p-1.5 bg-blue-800 rounded-full">
+                          <Layers className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="font-medium">Niveau recommandé</p>
+                          <p className="text-sm text-blue-200">
+                            {getRecommendedLevel() === 'débutant' ? 'Continuez avec le niveau débutant pour renforcer vos bases' : 
+                             getRecommendedLevel() === 'intermédiaire' ? 'Passez au niveau intermédiaire pour approfondir vos connaissances' :
+                             'Continuez avec le niveau avancé pour maîtriser des concepts complexes'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {getCategoryToImprove() && (
+                        <div className="flex items-start gap-3">
+                          <div className="p-1.5 bg-blue-800 rounded-full">
+                            <Activity className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <p className="font-medium">Domaine à améliorer</p>
+                            <p className="text-sm text-blue-200">
+                              Nous vous recommandons de vous concentrer sur la catégorie <strong>{getCategoryToImprove()}</strong>
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex items-start gap-3">
+                        <div className="p-1.5 bg-blue-800 rounded-full">
+                          <Clock className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="font-medium">Fréquence d'apprentissage</p>
+                          <p className="text-sm text-blue-200">
+                            Pour optimiser votre progression, pratiquez au moins 3 fois par semaine avec des sessions de 15-20 minutes
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setShowRecommendations(false);
+                      setActiveTab('stats');
+                    }}
+                    className="border-indigo-600"
+                  >
+                    Voir mes statistiques
+                  </Button>
+                  <Button 
+                    className="bg-indigo-700 hover:bg-indigo-800"
+                    onClick={async () => {
+                      setShowRecommendations(false);
+                      await startQuiz();
+                    }}
+                  >
+                    Nouveau quiz
+                    <RefreshCw className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardFooter>
+              </Card>
+            ) : (
+              <Card className="bg-indigo-900/20 border-indigo-800">
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <CardTitle>Question {questionsAnswered + 1}</CardTitle>
+                    <div className="flex items-center space-x-2">
+                      <Badge className="bg-indigo-700">
+                        Score: {score}/{questionsAnswered}
+                      </Badge>
+                      <Badge variant="outline" className="border-indigo-600">
+                        {difficulty}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {currentQuestion && (
+                    <>
+                      <div className="text-xl font-medium">{currentQuestion.question}</div>
+
+                      <RadioGroup 
+                        value={selectedOption?.toString()} 
+                        onValueChange={(value) => setSelectedOption(parseInt(value))}
+                        className="space-y-3"
+                        disabled={isAnswered}
+                      >
+                        {currentQuestion.options.map((option, index) => (
+                          <div
+                            key={index}
+                            className={`flex items-center space-x-2 p-3 rounded-md border ${
+                              isAnswered 
+                                ? index === currentQuestion.correctAnswer
+                                  ? 'bg-green-900/30 border-green-700'
+                                  : index === selectedOption
+                                    ? 'bg-red-900/30 border-red-700'
+                                    : 'bg-slate-900/40 border-slate-800'
+                                : 'border-indigo-800/50 hover:border-indigo-600 cursor-pointer'
+                            }`}
+                          >
+                            <RadioGroupItem 
+                              value={index.toString()} 
+                              id={`option-${index}`}
+                              className="border-indigo-600"
+                            />
+                            <Label 
+                              htmlFor={`option-${index}`}
+                              className={`flex-grow cursor-pointer ${
+                                isAnswered && index === currentQuestion.correctAnswer
+                                  ? 'text-green-200'
+                                  : ''
+                              }`}
+                            >
+                              {option}
+                            </Label>
+                            {isAnswered && index === currentQuestion.correctAnswer && (
+                              <CheckCircle className="h-5 w-5 text-green-500" />
+                            )}
+                            {isAnswered && index === selectedOption && index !== currentQuestion.correctAnswer && (
+                              <XCircle className="h-5 w-5 text-red-500" />
+                            )}
+                          </div>
+                        ))}
+                      </RadioGroup>
+
+                      {isAnswered && showExplanation && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          className="bg-blue-950/30 border border-blue-900 rounded-lg p-4 mt-4"
+                        >
+                          <h3 className="font-semibold text-blue-300 mb-2 flex items-center">
+                            <Lightbulb className="mr-2 h-5 w-5" />
+                            Explication
+                          </h3>
+                          <p className="text-blue-100">{currentQuestion.explanation}</p>
+                        </motion.div>
+                      )}
+
+                      {!isAnswered && (
+                        <div className="flex justify-between">
+                          <Button
+                            variant="outline"
+                            className="border-blue-600 text-blue-300"
+                            onClick={generateAIHint}
+                            disabled={isGeneratingHint || aiHint !== null}
+                          >
+                            {isGeneratingHint ? (
+                              <>
+                                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                                Génération...
+                              </>
+                            ) : aiHint ? (
+                              <>
+                                <BrainCircuit className="mr-2 h-4 w-4" />
+                                Indice affiché
+                              </>
+                            ) : (
+                              <>
+                                <Lightbulb className="mr-2 h-4 w-4" />
+                                Obtenir un indice IA
+                              </>
+                            )}
+                          </Button>
+                          <Button
+                            className="bg-indigo-700 hover:bg-indigo-800"
+                            onClick={checkAnswer}
+                            disabled={selectedOption === null}
+                          >
+                            Vérifier
+                          </Button>
+                        </div>
+                      )}
+
+                      {aiHint && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          className="bg-indigo-950/30 border border-indigo-900 rounded-lg p-4 mt-4"
+                        >
+                          <div className="flex items-center gap-2 text-indigo-300">
+                            <BrainCircuit className="h-5 w-5" />
+                            <span className="font-medium">Indice IA</span>
+                          </div>
+                          <p className="mt-2 text-indigo-100">{aiHint.replace("Indice IA : ", "")}</p>
+                        </motion.div>
+                      )}
+                    </>
+                  )}
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  {isAnswered ? (
+                    <div className="flex gap-3 w-full">
+                      <Button
+                        variant="outline"
+                        className="border-blue-600 text-blue-300"
+                        onClick={() => setShowExplanation(!showExplanation)}
+                      >
+                        {showExplanation ? 'Masquer l\'explication' : 'Voir l\'explication'}
+                      </Button>
+                      <div className="flex-grow"></div>
+                      <Button 
+                        className="bg-indigo-700 hover:bg-indigo-800"
+                        onClick={async () => {
+                          if (questionsAnswered >= 10) {
+                            finishQuiz();
+                          } else {
+                            await loadNextQuestion();
+                          }
+                        }}
+                      >
+                        {questionsAnswered >= 10 ? 'Terminer le quiz' : 'Question suivante'}
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="w-full text-center text-sm text-indigo-300">
+                      Sélectionnez une réponse et cliquez sur "Vérifier"
+                    </div>
+                  )}
+                </CardFooter>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Onglet Statistiques */}
+          <TabsContent value="stats" className="space-y-6">
+            <Card className="bg-indigo-900/20 border-indigo-800">
+              <CardHeader>
+                <CardTitle>Vos statistiques</CardTitle>
+                <CardDescription className="text-indigo-200">
+                  Suivez votre progression et identifiez vos points forts et axes d'amélioration
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-indigo-950/50 rounded-lg p-4">
+                    <h3 className="text-sm text-indigo-300 uppercase font-medium">Quiz complétés</h3>
+                    <div className="text-3xl font-bold mt-2">{quizHistory.length}</div>
+                  </div>
+
+                  <div className="bg-indigo-950/50 rounded-lg p-4">
+                    <h3 className="text-sm text-indigo-300 uppercase font-medium">Score moyen</h3>
+                    <div className="text-3xl font-bold mt-2">
+                      {quizHistory.length > 0 
+                        ? Math.round(quizHistory.reduce((sum, result) => 
+                            sum + (result.score / result.questionsAnswered) * 100, 0
+                          ) / quizHistory.length)
+                        : 0}%
+                    </div>
+                  </div>
+
+                  <div className="bg-indigo-950/50 rounded-lg p-4">
+                    <h3 className="text-sm text-indigo-300 uppercase font-medium">Questions répondues</h3>
+                    <div className="text-3xl font-bold mt-2">
+                      {quizHistory.reduce((sum, result) => sum + result.questionsAnswered, 0)}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-medium mb-3">Performance par catégorie</h3>
+                  <div className="space-y-3">
+                    {Object.entries(categoryScores).map(([categoryId, scores]) => {
+                      const category = quizCategories.find(c => c.id === categoryId);
+                      if (!category || scores.total === 0) return null;
+
+                      const percentage = Math.round((scores.correct / scores.total) * 100);
+
+                      return (
+                        <div key={categoryId} className="bg-slate-900/30 rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <div className="p-1.5 bg-indigo-800 rounded-md">
+                                {category.icon}
+                              </div>
+                              <span>{category.name}</span>
+                            </div>
+                            <div className="text-sm">
+                              <span className={percentage >= 70 ? 'text-green-400' : percentage >= 40 ? 'text-amber-400' : 'text-red-400'}>
+                                {percentage}%
+                              </span>
+                              <span className="text-indigo-300 ml-1">
+                                ({scores.correct}/{scores.total})
+                              </span>
+                            </div>
+                          </div>
+                          <Progress 
+                            value={percentage} 
+                            className="h-1.5" 
+                            indicatorClassName={
+                              percentage >= 70 ? 'bg-green-600' : 
+                              percentage >= 40 ? 'bg-amber-600' : 'bg-red-600'
+                            } 
+                          />
+                        </div>
+                      );
+                    })}
+
+                    {Object.keys(categoryScores).length === 0 && (
+                      <div className="text-center py-8 text-indigo-300">
+                        Aucune statistique disponible. Commencez un quiz pour voir vos performances.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  className="bg-indigo-700 hover:bg-indigo-800 w-full sm:w-auto"
+                  onClick={() => {
+                    setActiveTab('quiz');
+                    setShowRecommendations(false);
+                  }}
+                >
+                  Démarrer un nouveau quiz
+                </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+
+          {/* Onglet Historique */}
+          <TabsContent value="history" className="space-y-6">
+            <Card className="bg-indigo-900/20 border-indigo-800">
+              <CardHeader>
+                <CardTitle>Historique des quiz</CardTitle>
+                <CardDescription className="text-indigo-200">
+                  Suivez vos résultats précédents et votre progression
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {quizHistory.length > 0 ? (
+                  <div className="space-y-4">
+                    {quizHistory.map((result, index) => {
+                      const date = new Date(result.date);
+                      const formattedDate = `${date.toLocaleDateString()} à ${date.toLocaleTimeString()}`;
+                      const percentage = Math.round((result.score / result.questionsAnswered) * 100);
+
+                      return (
+                        <Card key={index} className="bg-slate-900/30 border-slate-800">
+                          <CardContent className="p-4">
+                            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                              <div>
+                                <h3 className="font-medium">Quiz {quizHistory.length - index}</h3>
+                                <p className="text-xs text-indigo-300">{formattedDate}</p>
+                              </div>
+
+                              <div className="flex items-center gap-3">
+                                <Badge variant="outline" className="border-indigo-600">
+                                  {result.level}
+                                </Badge>
+                                <div className="text-lg font-bold">
+                                  {result.score}/{result.questionsAnswered}
+                                </div>
+                                <div className={
+                                  percentage >= 70 ? 'text-green-400' : 
+                                  percentage >= 40 ? 'text-amber-400' : 'text-red-400'
+                                }>
+                                  {percentage}%
+                                </div>
+                              </div>
+                            </div>
+
+                            <Progress 
+                              value={percentage} 
+                              className="h-1.5 mt-3" 
+                              indicatorClassName={
+                                percentage >= 70 ? 'bg-green-600' : 
+                                percentage >= 40 ? 'bg-amber-600' : 'bg-red-600'
+                              } 
+                            />
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-10">
+                    <Clock className="h-10 w-10 mx-auto text-indigo-400 mb-3" />
+                    <h3 className="text-xl font-semibold">Aucun quiz complété</h3>
+                    <p className="text-indigo-300 mt-1">Complétez des quiz pour voir votre historique ici</p>
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  className="bg-indigo-700 hover:bg-indigo-800 w-full sm:w-auto"
+                  onClick={() => {
+                    setActiveTab('quiz');
+                    setShowRecommendations(false);
+                  }}
+                >
+                  Démarrer un nouveau quiz
+                </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

@@ -151,24 +151,24 @@ export default function SecuriteCloudModule() {
               </ul>
             </AlertDescription>
           </Alert>
-          
+
           <div className="mt-6 space-y-4">
             <h2 className="text-2xl font-bold">Comprendre la sécurité cloud</h2>
-            
+
             <p>
               La <strong>sécurité cloud</strong> désigne l'ensemble des politiques, contrôles, procédures et technologies qui protègent les données, les applications et l'infrastructure dans les environnements cloud.
             </p>
-            
+
             <div className="bg-blue-900/20 border border-blue-800 rounded-md p-4 my-4">
               <h3 className="text-lg font-medium mb-2">Définition</h3>
               <p>
                 La <strong>sécurité cloud</strong> comprend les mesures de protection appliquées aux données, applications, services et infrastructure hébergés dans le cloud pour les prémunir contre les accès non autorisés, les fuites de données, les attaques malveillantes et assurer leur disponibilité.
               </p>
             </div>
-            
+
             <div className="mt-6">
               <h3 className="text-xl font-bold">Pourquoi la sécurité cloud est-elle cruciale ?</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
@@ -183,7 +183,7 @@ export default function SecuriteCloudModule() {
                     </p>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md flex items-center">
@@ -197,7 +197,7 @@ export default function SecuriteCloudModule() {
                     </p>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md flex items-center">
@@ -211,7 +211,7 @@ export default function SecuriteCloudModule() {
                     </p>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md flex items-center">
@@ -227,10 +227,10 @@ export default function SecuriteCloudModule() {
                 </Card>
               </div>
             </div>
-            
+
             <div className="mt-8">
               <h3 className="text-xl font-bold">L'évolution du cloud computing</h3>
-              
+
               <div className="mt-4 space-y-3">
                 <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                   <div className="bg-blue-700 p-2 rounded-md shrink-0">
@@ -241,7 +241,7 @@ export default function SecuriteCloudModule() {
                     <p className="text-sm text-blue-200 mt-1">L'évolution des architectures cloud a conduit à l'adoption de stratégies multi-cloud et hybrides, multipliant les défis de sécurité.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                   <div className="bg-blue-700 p-2 rounded-md shrink-0">
                     <Layers className="h-5 w-5 text-white" />
@@ -251,7 +251,7 @@ export default function SecuriteCloudModule() {
                     <p className="text-sm text-blue-200 mt-1">Chaque modèle de service implique un niveau différent de responsabilité en matière de sécurité.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                   <div className="bg-blue-700 p-2 rounded-md shrink-0">
                     <CloudOff className="h-5 w-5 text-white" />
@@ -263,10 +263,10 @@ export default function SecuriteCloudModule() {
                 </div>
               </div>
             </div>
-            
+
             <div className="mt-8">
               <h3 className="text-xl font-bold">Panorama des menaces cloud</h3>
-              
+
               <Table className="mt-4 border-blue-800">
                 <TableHeader className="bg-blue-900/50">
                   <TableRow className="border-blue-800">
@@ -305,7 +305,7 @@ export default function SecuriteCloudModule() {
               </Table>
             </div>
           </div>
-          
+
           <div className="mt-8 bg-blue-950 border border-blue-800 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -322,7 +322,7 @@ export default function SecuriteCloudModule() {
         </motion.div>
       </div>
     ),
-    
+
     modeles: (
       <div className="space-y-6">
         <motion.div 
@@ -331,18 +331,18 @@ export default function SecuriteCloudModule() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Modèles cloud et responsabilités</h2>
-          
+
           <p className="mt-4">
             Comprendre les différents modèles de service cloud et la répartition des responsabilités de sécurité est essentiel pour déployer une stratégie efficace.
           </p>
-          
+
           <div className="mt-6">
             <h3 className="text-xl font-bold">Le modèle de responsabilité partagée</h3>
-            
+
             <p className="mt-2">
               Le <strong>modèle de responsabilité partagée</strong> définit clairement les obligations de sécurité qui incombent au fournisseur cloud et celles qui restent à la charge du client. Cette répartition varie selon le modèle de service.
             </p>
-            
+
             <Card className="bg-blue-900/20 border-blue-800 mt-4">
               <CardContent className="pt-6">
                 <Tabs defaultValue="iaas">
@@ -460,10 +460,10 @@ export default function SecuriteCloudModule() {
               </CardContent>
             </Card>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Modèles de déploiement cloud et implications</h3>
-            
+
             <div className="mt-4 space-y-3">
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
@@ -478,7 +478,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Lock className="h-5 w-5 text-white" />
@@ -492,7 +492,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <NetworkChart className="h-5 w-5 text-white" />
@@ -506,7 +506,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Layers className="h-5 w-5 text-white" />
@@ -522,10 +522,10 @@ export default function SecuriteCloudModule() {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Défis spécifiques aux différents modèles</h3>
-            
+
             <Table className="mt-4 border-blue-800">
               <TableHeader className="bg-blue-900/50">
                 <TableRow className="border-blue-800">
@@ -614,7 +614,7 @@ export default function SecuriteCloudModule() {
               </TableBody>
             </Table>
           </div>
-          
+
           <div className="mt-8 bg-blue-950 border border-blue-800 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -631,7 +631,7 @@ export default function SecuriteCloudModule() {
         </motion.div>
       </div>
     ),
-    
+
     risques: (
       <div className="space-y-6">
         <motion.div 
@@ -640,14 +640,14 @@ export default function SecuriteCloudModule() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Risques et menaces spécifiques</h2>
-          
+
           <p className="mt-4">
             Les environnements cloud sont exposés à des risques et menaces spécifiques qu'il est essentiel d'identifier et de comprendre pour mettre en place des protections adaptées.
           </p>
-          
+
           <div className="mt-6">
             <h3 className="text-xl font-bold">Top des menaces cloud</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
@@ -671,7 +671,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -694,7 +694,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -717,7 +717,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -740,7 +740,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -764,7 +764,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -790,10 +790,10 @@ export default function SecuriteCloudModule() {
               </Card>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Vulnérabilités courantes dans le cloud</h3>
-            
+
             <div className="mt-4 space-y-3">
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
@@ -810,7 +810,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Network className="h-5 w-5 text-white" />
@@ -826,7 +826,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Key className="h-5 w-5 text-white" />
@@ -842,7 +842,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <ShieldAlert className="h-5 w-5 text-white" />
@@ -860,10 +860,10 @@ export default function SecuriteCloudModule() {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Défis spécifiques aux architectures cloud modernes</h3>
-            
+
             <Table className="mt-4 border-blue-800">
               <TableHeader className="bg-blue-900/50">
                 <TableRow className="border-blue-800">
@@ -952,7 +952,7 @@ export default function SecuriteCloudModule() {
               </TableBody>
             </Table>
           </div>
-          
+
           <div className="mt-8 bg-blue-950 border border-blue-800 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -969,7 +969,7 @@ export default function SecuriteCloudModule() {
         </motion.div>
       </div>
     ),
-    
+
     protection: (
       <div className="space-y-6">
         <motion.div 
@@ -978,18 +978,18 @@ export default function SecuriteCloudModule() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Protection des données et applications</h2>
-          
+
           <p className="mt-4">
             Sécuriser les données et les applications dans le cloud nécessite une approche spécifique tenant compte des caractéristiques uniques de ces environnements.
           </p>
-          
+
           <div className="mt-6">
             <h3 className="text-xl font-bold">Sécurisation des données cloud</h3>
-            
+
             <p className="mt-2">
               Les données constituent l'un des actifs les plus précieux dans le cloud et nécessitent une stratégie de protection complète à travers leur cycle de vie.
             </p>
-            
+
             <Card className="bg-blue-900/20 border-blue-800 mt-4">
               <CardContent className="pt-6">
                 <Tabs defaultValue="transit">
@@ -1086,10 +1086,10 @@ export default function SecuriteCloudModule() {
               </CardContent>
             </Card>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Protection des applications cloud</h3>
-            
+
             <div className="mt-4 space-y-3">
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
@@ -1123,7 +1123,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Network className="h-5 w-5 text-white" />
@@ -1156,7 +1156,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Key className="h-5 w-5 text-white" />
@@ -1189,7 +1189,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Eye className="h-5 w-5 text-white" />
@@ -1224,10 +1224,10 @@ export default function SecuriteCloudModule() {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Stratégies de protection adaptées aux services cloud</h3>
-            
+
             <Table className="mt-4 border-blue-800">
               <TableHeader className="bg-blue-900/50">
                 <TableRow className="border-blue-800">
@@ -1312,7 +1312,7 @@ export default function SecuriteCloudModule() {
               </TableBody>
             </Table>
           </div>
-          
+
           <div className="mt-8 bg-blue-950 border border-blue-800 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -1329,7 +1329,7 @@ export default function SecuriteCloudModule() {
         </motion.div>
       </div>
     ),
-    
+
     'bonnes-pratiques': (
       <div className="space-y-6">
         <motion.div 
@@ -1338,14 +1338,14 @@ export default function SecuriteCloudModule() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Bonnes pratiques et conformité</h2>
-          
+
           <p className="mt-4">
             Mettre en œuvre des bonnes pratiques de sécurité dans le cloud et assurer la conformité aux réglementations est essentiel pour une stratégie de sécurité efficace.
           </p>
-          
+
           <div className="mt-6">
             <h3 className="text-xl font-bold">Cadres et standards de sécurité cloud</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
@@ -1369,7 +1369,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1392,7 +1392,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1415,7 +1415,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1440,10 +1440,10 @@ export default function SecuriteCloudModule() {
               </Card>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Stratégies de conformité pour le cloud</h3>
-            
+
             <div className="mt-4 space-y-3">
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
@@ -1466,7 +1466,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <RefreshCw className="h-5 w-5 text-white" />
@@ -1488,7 +1488,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Eye className="h-5 w-5 text-white" />
@@ -1510,7 +1510,7 @@ export default function SecuriteCloudModule() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-3 rounded-md bg-blue-900/20 border border-blue-800">
                 <div className="bg-blue-700 p-2 rounded-md shrink-0">
                   <Shield className="h-5 w-5 text-white" />
@@ -1534,10 +1534,10 @@ export default function SecuriteCloudModule() {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Meilleures pratiques opérationnelles</h3>
-            
+
             <Table className="mt-4 border-blue-800">
               <TableHeader className="bg-blue-900/50">
                 <TableRow className="border-blue-800">
@@ -1626,10 +1626,10 @@ export default function SecuriteCloudModule() {
               </TableBody>
             </Table>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-xl font-bold">Plan d'action pour une sécurité cloud efficace</h3>
-            
+
             <div className="mt-4 space-y-3">
               <ol className="space-y-4">
                 <li className="p-3 rounded-md bg-blue-900/20 border border-blue-800">
@@ -1654,7 +1654,7 @@ export default function SecuriteCloudModule() {
                     </div>
                   </div>
                 </li>
-                
+
                 <li className="p-3 rounded-md bg-blue-900/20 border border-blue-800">
                   <div className="flex items-center gap-3">
                     <div className="bg-blue-700 p-2 rounded-full shrink-0 w-8 h-8 flex items-center justify-center">
@@ -1677,7 +1677,7 @@ export default function SecuriteCloudModule() {
                     </div>
                   </div>
                 </li>
-                
+
                 <li className="p-3 rounded-md bg-blue-900/20 border border-blue-800">
                   <div className="flex items-center gap-3">
                     <div className="bg-blue-700 p-2 rounded-full shrink-0 w-8 h-8 flex items-center justify-center">
@@ -1700,7 +1700,7 @@ export default function SecuriteCloudModule() {
                     </div>
                   </div>
                 </li>
-                
+
                 <li className="p-3 rounded-md bg-blue-900/20 border border-blue-800">
                   <div className="flex items-center gap-3">
                     <div className="bg-blue-700 p-2 rounded-full shrink-0 w-8 h-8 flex items-center justify-center">
@@ -1726,7 +1726,7 @@ export default function SecuriteCloudModule() {
               </ol>
             </div>
           </div>
-          
+
           <div className="mt-8 bg-blue-950 border border-blue-800 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -1743,7 +1743,7 @@ export default function SecuriteCloudModule() {
         </motion.div>
       </div>
     ),
-    
+
     quiz: (
       <div className="space-y-6">
         <motion.div 
@@ -1775,7 +1775,7 @@ export default function SecuriteCloudModule() {
                 </div>
                 <Progress value={(currentQuestion / questions.length) * 100} className="h-2" />
               </div>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader>
                   <CardTitle className="text-xl">{questions[currentQuestion].question}</CardTitle>
@@ -1791,7 +1791,7 @@ export default function SecuriteCloudModule() {
                           if (index === questions[currentQuestion].correctAnswer) {
                             setScore(score + 1);
                           }
-                          
+
                           if (currentQuestion < questions.length - 1) {
                             setCurrentQuestion(currentQuestion + 1);
                           } else {
@@ -1819,23 +1819,23 @@ export default function SecuriteCloudModule() {
                 ) : (
                   <AlertTriangle className="h-16 w-16 mx-auto text-yellow-500 mb-4" />
                 )}
-                
+
                 <h2 className="text-2xl font-bold mb-2">
                   {score >= (questions.length * 0.8) ? "Félicitations!" : "Peut mieux faire..."}
                 </h2>
-                
+
                 <p className="text-blue-200 mb-4 max-w-lg mx-auto">
                   {score >= (questions.length * 0.8) 
                     ? `Vous avez obtenu un score de ${score}/${questions.length}. Vous avez validé le module avec succès!` 
                     : `Vous avez obtenu un score de ${score}/${questions.length}. Un score de ${Math.ceil(questions.length * 0.8)}/${questions.length} est nécessaire pour valider le module.`}
                 </p>
-                
+
                 {score < (questions.length * 0.8) && (
                   <p className="text-blue-300 mb-6 max-w-lg mx-auto">
                     Nous vous recommandons de revoir le contenu du module avant de retenter le quiz.
                   </p>
                 )}
-                
+
                 <div className="flex justify-center gap-4">
                   <Button 
                     variant="outline"
@@ -1849,7 +1849,7 @@ export default function SecuriteCloudModule() {
                   >
                     Recommencer le quiz
                   </Button>
-                  
+
                   <Button 
                     className="bg-blue-600 hover:bg-blue-700"
                     onClick={() => setActiveLesson('introduction')}
@@ -1858,7 +1858,7 @@ export default function SecuriteCloudModule() {
                   </Button>
                 </div>
               </div>
-              
+
               {score >= (questions.length * 0.8) && (
                 <Card className="max-w-lg mx-auto mt-8 bg-blue-900/20 border-blue-800">
                   <CardHeader>
@@ -1889,7 +1889,7 @@ export default function SecuriteCloudModule() {
   // Calcul de la progression
   const lessonKeys = Object.keys(lessonContent);
   const progressPercentage = (lessonKeys.indexOf(activeLesson) + 1) / lessonKeys.length * 100;
-  
+
   // Mettre à jour la progression globale
   React.useEffect(() => {
     setProgress(progressPercentage);
@@ -1927,7 +1927,7 @@ export default function SecuriteCloudModule() {
                 </div>
                 <Progress value={progress} className="h-2" />
               </div>
-              
+
               <div className="mt-6 space-y-1">
                 {lessons.map((lesson) => (
                   <button
@@ -1950,9 +1950,9 @@ export default function SecuriteCloudModule() {
                   </button>
                 ))}
               </div>
-              
+
               <Separator className="my-6 bg-blue-800/50" />
-              
+
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-blue-400" />
@@ -1969,7 +1969,7 @@ export default function SecuriteCloudModule() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-blue-900/20 border-blue-800">
             <CardHeader>
               <CardTitle>Ressources complémentaires</CardTitle>
@@ -1998,14 +1998,14 @@ export default function SecuriteCloudModule() {
                   </div>
                 </a>
               </div>
-              
+
               <Button variant="outline" className="w-full mt-4 border-blue-700 text-blue-200">
                 Voir toutes les ressources
               </Button>
             </CardContent>
           </Card>
         </div>
-        
+
         {/* Contenu principal */}
         <div className="lg:col-span-3">
           <Card className="bg-blue-900/20 border-blue-800">
@@ -2027,7 +2027,7 @@ export default function SecuriteCloudModule() {
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Précédent
               </Button>
-              
+
               <Button 
                 disabled={lessonKeys.indexOf(activeLesson) === lessonKeys.length - 1}
                 onClick={() => {

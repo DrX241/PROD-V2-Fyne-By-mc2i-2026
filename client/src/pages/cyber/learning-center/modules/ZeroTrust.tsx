@@ -141,49 +141,49 @@ export default function ZeroTrustModule() {
               </ul>
             </AlertDescription>
           </Alert>
-          
+
           <div className="mt-6 space-y-4">
             <h2 className="text-2xl font-bold">Qu'est-ce que le Zero Trust ?</h2>
-            
+
             <p>
               Le <strong>Zero Trust</strong> est un modèle de sécurité qui part du principe que les menaces sont présentes à la fois à l'intérieur et à l'extérieur du réseau traditionnel. Il repose sur la philosophie "ne jamais faire confiance, toujours vérifier", quelle que soit la provenance de la demande d'accès.
             </p>
-            
+
             <div className="bg-blue-900/20 border border-blue-800 rounded-md p-4 my-4">
               <h3 className="text-lg font-medium mb-2">Définition</h3>
               <p>
                 Le <strong>Zero Trust</strong> est une approche stratégique de cybersécurité qui élimine le concept de confiance implicite au sein ou à l'extérieur du réseau, remplaçant cette confiance par des vérifications continues de l'identité, de l'appareil et du contexte pour chaque accès à une ressource.
               </p>
             </div>
-            
+
             <div className="mt-6">
               <h3 className="text-xl font-bold">Évolution des modèles de sécurité</h3>
-              
+
               <div className="space-y-4 mt-3">
                 <div className="relative pl-6 border-l-2 border-blue-700 pl-10">
                   <div className="absolute left-0 top-0 w-6 h-6 -ml-3 rounded-full bg-blue-700 flex items-center justify-center text-xs">90</div>
                   <h4 className="font-medium">1990s - Modèle du Château et du Fossé</h4>
                   <p className="text-sm text-blue-200">Protection périmétrique avec firewalls. Distinction claire entre "intérieur sécurisé" (réseau d'entreprise) et "extérieur dangereux" (Internet). Confiance implicite accordée aux utilisateurs internes.</p>
                 </div>
-                
+
                 <div className="relative pl-6 border-l-2 border-blue-700 pl-10">
                   <div className="absolute left-0 top-0 w-6 h-6 -ml-3 rounded-full bg-blue-700 flex items-center justify-center text-xs">00</div>
                   <h4 className="font-medium">2000s - Défense en profondeur</h4>
                   <p className="text-sm text-blue-200">Ajout de couches de sécurité (IDS/IPS, proxy, antivirus) tout en maintenant le concept de périmètre. Introduction de VPNs pour étendre le "réseau de confiance" aux utilisateurs distants.</p>
                 </div>
-                
+
                 <div className="relative pl-6 border-l-2 border-blue-700 pl-10">
                   <div className="absolute left-0 top-0 w-6 h-6 -ml-3 rounded-full bg-blue-700 flex items-center justify-center text-xs">10</div>
                   <h4 className="font-medium">2010 - Naissance du Zero Trust</h4>
                   <p className="text-sm text-blue-200">Concept formalisé par l'analyste John Kindervag de Forrester Research. Introduction du principe "Ne jamais faire confiance, toujours vérifier" face à l'évolution des menaces et des modèles de travail.</p>
                 </div>
-                
+
                 <div className="relative pl-6 border-l-2 border-blue-700 pl-10">
                   <div className="absolute left-0 top-0 w-6 h-6 -ml-3 rounded-full bg-blue-700 flex items-center justify-center text-xs">20</div>
                   <h4 className="font-medium">2020 - Adoption accélérée</h4>
                   <p className="text-sm text-blue-200">La pandémie de COVID-19 et l'expansion du télétravail ont catalysé l'adoption du Zero Trust. Les modèles hybrides de travail ont rendu obsolète le concept de périmètre réseau. Standardisation des cadres Zero Trust par le NIST et autres organismes.</p>
                 </div>
-                
+
                 <div className="relative pl-6 pl-10">
                   <div className="absolute left-0 top-0 w-6 h-6 -ml-3 rounded-full bg-blue-700 flex items-center justify-center text-xs">25</div>
                   <h4 className="font-medium">2025 - Zero Trust omniprésent</h4>
@@ -191,10 +191,10 @@ export default function ZeroTrustModule() {
                 </div>
               </div>
             </div>
-            
+
             <div className="mt-6">
               <h3 className="text-xl font-bold">Comparaison des approches de sécurité</h3>
-              
+
               <Card className="bg-blue-900/20 border-blue-800 mt-3">
                 <CardContent className="pt-6">
                   <Tabs defaultValue="traditional">
@@ -262,7 +262,7 @@ export default function ZeroTrustModule() {
                 </CardContent>
               </Card>
             </div>
-            
+
             <div className="bg-blue-950 border border-blue-800 rounded-lg p-4 mt-6">
               <h3 className="text-lg font-medium mb-2 flex items-center">
                 <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -317,7 +317,7 @@ export default function ZeroTrustModule() {
             </div>
           </div>
         </motion.div>
-        
+
         <div className="flex justify-between mt-8">
           <div></div>
           <Button onClick={() => setActiveLesson('principes')} className="bg-blue-700 hover:bg-blue-800">
@@ -327,7 +327,7 @@ export default function ZeroTrustModule() {
         </div>
       </div>
     ),
-    
+
     principes: (
       <div className="space-y-6">
         <motion.div 
@@ -336,11 +336,11 @@ export default function ZeroTrustModule() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Principes fondamentaux du Zero Trust</h2>
-          
+
           <p className="mt-4">
             Le modèle Zero Trust s'articule autour de principes directeurs clairs qui définissent son approche de la sécurité. Ces principes constituent la base conceptuelle sur laquelle repose toute architecture Zero Trust.
           </p>
-          
+
           <div className="mt-6 space-y-5">
             <Card className="bg-blue-900/20 border-blue-800">
               <CardHeader className="pb-2">
@@ -366,7 +366,7 @@ export default function ZeroTrustModule() {
                       <li>Vérification indépendante du réseau d'origine</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h4 className="font-medium flex items-center">
                       <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">2</span>
@@ -382,7 +382,7 @@ export default function ZeroTrustModule() {
                       <li>Révision régulière des autorisations</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h4 className="font-medium flex items-center">
                       <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">3</span>
@@ -398,7 +398,7 @@ export default function ZeroTrustModule() {
                       <li>Détection et réponse continues aux anomalies</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h4 className="font-medium flex items-center">
                       <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">4</span>
@@ -417,10 +417,10 @@ export default function ZeroTrustModule() {
                 </div>
               </CardContent>
             </Card>
-            
+
             <div className="mt-6">
               <h3 className="text-xl font-bold">Les piliers d'une architecture Zero Trust</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
@@ -444,7 +444,7 @@ export default function ZeroTrustModule() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md flex items-center">
@@ -467,7 +467,7 @@ export default function ZeroTrustModule() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md flex items-center">
@@ -490,7 +490,7 @@ export default function ZeroTrustModule() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md flex items-center">
@@ -513,7 +513,7 @@ export default function ZeroTrustModule() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md flex items-center">
@@ -536,7 +536,7 @@ export default function ZeroTrustModule() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-blue-900/20 border-blue-800">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-md flex items-center">
@@ -561,7 +561,7 @@ export default function ZeroTrustModule() {
                 </Card>
               </div>
             </div>
-            
+
             <Card className="bg-blue-900/20 border-blue-800 mt-6">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center">
@@ -573,7 +573,7 @@ export default function ZeroTrustModule() {
                 <p className="mb-4">
                   Plusieurs organisations ont développé des cadres formels pour guider l'implémentation du Zero Trust :
                 </p>
-                
+
                 <div className="space-y-4">
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h4 className="font-medium">NIST SP 800-207</h4>
@@ -589,7 +589,7 @@ export default function ZeroTrustModule() {
                       </ul>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h4 className="font-medium">Forrester Zero Trust eXtended (ZTX)</h4>
                     <p className="text-sm text-blue-200 mt-1">
@@ -603,7 +603,7 @@ export default function ZeroTrustModule() {
                       </ul>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h4 className="font-medium">Modèle Zero Trust de Gartner (CARTA)</h4>
                     <p className="text-sm text-blue-200 mt-1">
@@ -621,7 +621,7 @@ export default function ZeroTrustModule() {
                 </div>
               </CardContent>
             </Card>
-            
+
             <div className="bg-blue-950 border border-blue-800 rounded-lg p-4 mt-4">
               <h3 className="text-lg font-medium mb-2 flex items-center">
                 <Key className="mr-2 h-5 w-5 text-blue-400" />
@@ -665,7 +665,7 @@ export default function ZeroTrustModule() {
             </div>
           </div>
         </motion.div>
-        
+
         <div className="flex justify-between mt-8">
           <Button onClick={() => setActiveLesson('introduction')} variant="outline" className="border-blue-700 text-blue-300">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -678,7 +678,7 @@ export default function ZeroTrustModule() {
         </div>
       </div>
     ),
-    
+
     implementation: (
       <div className="space-y-6">
         <motion.div 
@@ -687,7 +687,7 @@ export default function ZeroTrustModule() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Mise en œuvre du Zero Trust</h2>
-          
+
           <Alert className="bg-blue-900/30 border-blue-500 mt-4">
             <Lightbulb className="h-5 w-5 text-blue-500" />
             <AlertTitle className="text-blue-100">Approche progressive</AlertTitle>
@@ -695,7 +695,7 @@ export default function ZeroTrustModule() {
               L'implémentation du Zero Trust est un parcours, pas une destination. Une approche par étapes, ciblant d'abord les ressources les plus critiques, permet une transition maîtrisée.
             </AlertDescription>
           </Alert>
-          
+
           <div className="mt-6 space-y-5">
             <Card className="bg-blue-900/20 border-blue-800">
               <CardHeader>
@@ -718,7 +718,7 @@ export default function ZeroTrustModule() {
                       <li>Choisir un cadre de référence adapté (NIST, Forrester, etc.)</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium flex items-center">
                       <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">2</span>
@@ -731,7 +731,7 @@ export default function ZeroTrustModule() {
                       <li>Comprendre les dépendances entre les systèmes</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium flex items-center">
                       <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">3</span>
@@ -744,7 +744,7 @@ export default function ZeroTrustModule() {
                       <li>Planifier la segmentation et l'isolation des ressources</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium flex items-center">
                       <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">4</span>
@@ -757,7 +757,7 @@ export default function ZeroTrustModule() {
                       <li>Étendre progressivement à d'autres ressources et utilisateurs</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium flex items-center">
                       <span className="bg-blue-700 text-white rounded-full w-6 h-6 inline-flex items-center justify-center mr-2">5</span>
@@ -773,10 +773,10 @@ export default function ZeroTrustModule() {
                 </div>
               </CardContent>
             </Card>
-            
+
             <div className="mt-6">
               <h3 className="text-xl font-bold">Approches d'implémentation</h3>
-              
+
               <Card className="bg-blue-900/20 border-blue-800 mt-3">
                 <CardContent className="pt-6">
                   <Tabs defaultValue="greenfield">
@@ -842,7 +842,7 @@ export default function ZeroTrustModule() {
                 </CardContent>
               </Card>
             </div>
-            
+
             <Card className="bg-blue-900/20 border-blue-800 mt-6">
               <CardHeader>
                 <CardTitle>Étapes pratiques de mise en œuvre</CardTitle>
@@ -890,7 +890,7 @@ export default function ZeroTrustModule() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium">Phase 2 : Contrôles et politiques</h3>
                     <div className="mt-2 space-y-2">
@@ -929,7 +929,7 @@ export default function ZeroTrustModule() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium">Phase 3 : Extension et optimisation</h3>
                     <div className="mt-2 space-y-2">
@@ -971,7 +971,7 @@ export default function ZeroTrustModule() {
                 </div>
               </CardContent>
             </Card>
-            
+
             <div className="bg-blue-950 border border-blue-800 rounded-lg p-4 mt-4">
               <h3 className="text-lg font-medium mb-2 flex items-center">
                 <Clock className="mr-2 h-5 w-5 text-blue-400" />
@@ -1010,7 +1010,7 @@ export default function ZeroTrustModule() {
             </div>
           </div>
         </motion.div>
-        
+
         <div className="flex justify-between mt-8">
           <Button onClick={() => setActiveLesson('principes')} variant="outline" className="border-blue-700 text-blue-300">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -1023,7 +1023,7 @@ export default function ZeroTrustModule() {
         </div>
       </div>
     ),
-    
+
     technologies: (
       <div className="space-y-6">
         <motion.div 
@@ -1032,11 +1032,11 @@ export default function ZeroTrustModule() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Technologies clés du Zero Trust</h2>
-          
+
           <p className="mt-4">
             La mise en œuvre d'une architecture Zero Trust repose sur un ensemble de technologies complémentaires qui, ensemble, permettent d'appliquer ses principes fondamentaux.
           </p>
-          
+
           <div className="mt-6 space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="bg-blue-900/20 border-blue-800">
@@ -1056,7 +1056,7 @@ export default function ZeroTrustModule() {
                       <li>Fédération d'identités entre systèmes</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-950/40 p-3 rounded-md">
                     <h4 className="font-medium">Technologies spécifiques</h4>
                     <ul className="list-disc list-inside text-sm text-blue-200 mt-2 space-y-1">
@@ -1066,7 +1066,7 @@ export default function ZeroTrustModule() {
                       <li><strong>Identity Governance</strong> : Gestion des droits d'accès sur le cycle de vie complet</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-950/40 p-3 rounded-md">
                     <h4 className="font-medium">Innovations récentes</h4>
                     <ul className="list-disc list-inside text-sm text-blue-200 mt-2 space-y-1">
@@ -1078,7 +1078,7 @@ export default function ZeroTrustModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -1101,7 +1101,7 @@ export default function ZeroTrustModule() {
                       </ul>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-950/40 p-3 rounded-md">
                     <h4 className="font-medium">Micro-segmentation</h4>
                     <p className="text-sm text-blue-200 mt-1">
@@ -1116,7 +1116,7 @@ export default function ZeroTrustModule() {
                       </ul>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-950/40 p-3 rounded-md">
                     <h4 className="font-medium">Technologies complémentaires</h4>
                     <ul className="list-disc list-inside text-sm text-blue-200 mt-2 space-y-1">
@@ -1129,7 +1129,7 @@ export default function ZeroTrustModule() {
                 </CardContent>
               </Card>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader>
@@ -1154,7 +1154,7 @@ export default function ZeroTrustModule() {
                       </ul>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-950/40 p-3 rounded-md">
                     <h4 className="font-medium">Évaluation de l'état de santé des appareils</h4>
                     <p className="text-sm text-blue-200 mt-1">
@@ -1170,7 +1170,7 @@ export default function ZeroTrustModule() {
                       </ul>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-950/40 p-3 rounded-md">
                     <h4 className="font-medium">Solutions EDR/XDR</h4>
                     <p className="text-sm text-blue-200 mt-1">
@@ -1183,7 +1183,7 @@ export default function ZeroTrustModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -1203,7 +1203,7 @@ export default function ZeroTrustModule() {
                       <li>Contrôles de confidentialité intégrés aux données</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-950/40 p-3 rounded-md">
                     <h4 className="font-medium">CASB (Cloud Access Security Broker)</h4>
                     <p className="text-sm text-blue-200 mt-1">
@@ -1216,7 +1216,7 @@ export default function ZeroTrustModule() {
                       <li>Détection des menaces cloud-natives</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-950/40 p-3 rounded-md">
                     <h4 className="font-medium">Sécurité des API et des applications</h4>
                     <p className="text-sm text-blue-200 mt-1">
@@ -1232,7 +1232,7 @@ export default function ZeroTrustModule() {
                 </CardContent>
               </Card>
             </div>
-            
+
             <Card className="bg-blue-900/20 border-blue-800 mt-4">
               <CardHeader>
                 <CardTitle className="flex items-center">
@@ -1254,7 +1254,7 @@ export default function ZeroTrustModule() {
                       <li>Détection des comportements anormaux</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-950/40 p-3 rounded-md">
                     <h4 className="font-medium">Analytics et intelligence artificielle</h4>
                     <p className="text-sm text-blue-200 mt-1">
@@ -1267,7 +1267,7 @@ export default function ZeroTrustModule() {
                       <li>Évaluation dynamique de la confiance</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-950/40 p-3 rounded-md">
                     <h4 className="font-medium">Orchestration et automatisation</h4>
                     <p className="text-sm text-blue-200 mt-1">
@@ -1283,7 +1283,7 @@ export default function ZeroTrustModule() {
                 </div>
               </CardContent>
             </Card>
-            
+
             <div className="bg-blue-950 border border-blue-800 rounded-lg p-4 mt-4">
               <h3 className="text-lg font-medium mb-2 flex items-center">
                 <Zap className="mr-2 h-5 w-5 text-blue-400" />
@@ -1321,7 +1321,7 @@ export default function ZeroTrustModule() {
             </div>
           </div>
         </motion.div>
-        
+
         <div className="flex justify-between mt-8">
           <Button onClick={() => setActiveLesson('implementation')} variant="outline" className="border-blue-700 text-blue-300">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -1334,7 +1334,7 @@ export default function ZeroTrustModule() {
         </div>
       </div>
     ),
-    
+
     avantages: (
       <div className="space-y-6">
         <motion.div 
@@ -1343,11 +1343,11 @@ export default function ZeroTrustModule() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Avantages et défis du Zero Trust</h2>
-          
+
           <p className="mt-4">
             L'adoption du Zero Trust présente de nombreux bénéfices, mais également des défis significatifs. Comprendre cet équilibre est essentiel pour une mise en œuvre réussie.
           </p>
-          
+
           <div className="mt-6 space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="bg-green-900/20 border-green-800">
@@ -1367,7 +1367,7 @@ export default function ZeroTrustModule() {
                       <li><strong>Protection contre les menaces internes</strong> : Vérification de tous les accès, y compris ceux des utilisateurs internes</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-green-900/30 p-3 rounded-md">
                     <h4 className="font-medium">Amélioration de la visibilité</h4>
                     <ul className="list-disc list-inside text-sm text-green-200 mt-2 space-y-1">
@@ -1377,7 +1377,7 @@ export default function ZeroTrustModule() {
                       <li><strong>Meilleure compréhension</strong> des risques et des vulnérabilités</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-green-900/30 p-3 rounded-md">
                     <h4 className="font-medium">Flexibilité et agilité accrues</h4>
                     <ul className="list-disc list-inside text-sm text-green-200 mt-2 space-y-1">
@@ -1387,7 +1387,7 @@ export default function ZeroTrustModule() {
                       <li><strong>Évolutivité</strong> : Capacité à s'adapter à la croissance de l'organisation</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-green-900/30 p-3 rounded-md">
                     <h4 className="font-medium">Bénéfices opérationnels et financiers</h4>
                     <ul className="list-disc list-inside text-sm text-green-200 mt-2 space-y-1">
@@ -1399,7 +1399,7 @@ export default function ZeroTrustModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-red-900/20 border-red-800">
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -1417,7 +1417,7 @@ export default function ZeroTrustModule() {
                       <li><strong>Interopérabilité</strong> entre les solutions de différents fournisseurs</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-red-900/30 p-3 rounded-md">
                     <h4 className="font-medium">Résistance au changement</h4>
                     <ul className="list-disc list-inside text-sm text-red-200 mt-2 space-y-1">
@@ -1427,7 +1427,7 @@ export default function ZeroTrustModule() {
                       <li><strong>Besoin de formation</strong> et d'accompagnement des équipes</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-red-900/30 p-3 rounded-md">
                     <h4 className="font-medium">Défis de mise en œuvre</h4>
                     <ul className="list-disc list-inside text-sm text-red-200 mt-2 space-y-1">
@@ -1437,7 +1437,7 @@ export default function ZeroTrustModule() {
                       <li><strong>Gestion des exceptions</strong> pour les cas particuliers</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-red-900/30 p-3 rounded-md">
                     <h4 className="font-medium">Considérations économiques</h4>
                     <ul className="list-disc list-inside text-sm text-red-200 mt-2 space-y-1">
@@ -1450,7 +1450,7 @@ export default function ZeroTrustModule() {
                 </CardContent>
               </Card>
             </div>
-            
+
             <Card className="bg-blue-900/20 border-blue-800 mt-6">
               <CardHeader>
                 <CardTitle>Stratégies pour surmonter les défis</CardTitle>
@@ -1469,7 +1469,7 @@ export default function ZeroTrustModule() {
                       <li><strong>Prévoir des évaluations régulières</strong> de la progression et des ajustements</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium">Adoption progressive</h3>
                     <ul className="list-disc list-inside text-sm text-blue-200 mt-2 space-y-1">
@@ -1479,7 +1479,7 @@ export default function ZeroTrustModule() {
                       <li><strong>Documenter et partager les succès</strong> pour favoriser l'adhésion</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium">Gestion du changement</h3>
                     <ul className="list-disc list-inside text-sm text-blue-200 mt-2 space-y-1">
@@ -1489,7 +1489,7 @@ export default function ZeroTrustModule() {
                       <li><strong>Équilibrer sécurité et expérience utilisateur</strong> pour minimiser les frictions</li>
                     </ul>
                   </div>
-                  
+
                   <div className="bg-blue-800/30 p-3 rounded-md">
                     <h3 className="font-medium">Optimisation technique</h3>
                     <ul className="list-disc list-inside text-sm text-blue-200 mt-2 space-y-1">
@@ -1502,7 +1502,7 @@ export default function ZeroTrustModule() {
                 </div>
               </CardContent>
             </Card>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
@@ -1526,7 +1526,7 @@ export default function ZeroTrustModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1549,7 +1549,7 @@ export default function ZeroTrustModule() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md flex items-center">
@@ -1573,7 +1573,7 @@ export default function ZeroTrustModule() {
                 </CardContent>
               </Card>
             </div>
-            
+
             <div className="bg-blue-950 border border-blue-800 rounded-lg p-4 mt-4">
               <h3 className="text-lg font-medium mb-2 flex items-center">
                 <Globe className="mr-2 h-5 w-5 text-blue-400" />
@@ -1611,7 +1611,7 @@ export default function ZeroTrustModule() {
             </div>
           </div>
         </motion.div>
-        
+
         <div className="flex justify-between mt-8">
           <Button onClick={() => setActiveLesson('technologies')} variant="outline" className="border-blue-700 text-blue-300">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -1624,7 +1624,7 @@ export default function ZeroTrustModule() {
         </div>
       </div>
     ),
-    
+
     quiz: (
       <div className="space-y-6">
         <motion.div 
@@ -1633,7 +1633,7 @@ export default function ZeroTrustModule() {
           variants={contentVariants}
         >
           <h2 className="text-2xl font-bold">Quiz : Principes du Zero Trust</h2>
-          
+
           {!quizStarted && !quizCompleted ? (
             <div className="mt-6">
               <Card className="bg-blue-900/20 border-blue-800">
@@ -1652,7 +1652,7 @@ export default function ZeroTrustModule() {
                       <li>Une explication sera fournie pour chaque réponse</li>
                     </ul>
                   </div>
-                  
+
                   <Button 
                     className="w-full bg-blue-700 hover:bg-blue-800"
                     onClick={() => setQuizStarted(true)}
@@ -1662,7 +1662,7 @@ export default function ZeroTrustModule() {
                   </Button>
                 </CardContent>
               </Card>
-              
+
               <div className="mt-8">
                 <Button onClick={() => setActiveLesson('avantages')} variant="outline" className="border-blue-700 text-blue-300">
                   <ArrowLeft className="mr-2 h-4 w-4" />
@@ -1683,7 +1683,7 @@ export default function ZeroTrustModule() {
                   <div className="bg-blue-800/20 p-4 rounded-md">
                     <h3 className="font-medium text-lg">{questions[currentQuestion].question}</h3>
                   </div>
-                  
+
                   <div className="space-y-3">
                     {questions[currentQuestion].options.map((option, index) => (
                       <Button 
@@ -1694,7 +1694,7 @@ export default function ZeroTrustModule() {
                           if (index === questions[currentQuestion].correctAnswer) {
                             setScore(score + 1);
                           }
-                          
+
                           if (currentQuestion < questions.length - 1) {
                             setCurrentQuestion(currentQuestion + 1);
                           } else {
@@ -1736,7 +1736,7 @@ export default function ZeroTrustModule() {
                         : 'Concentrez-vous particulièrement sur les principes fondamentaux et les différences avec l\'approche traditionnelle.'}
                     </p>
                   </div>
-                  
+
                   <div className="flex flex-col gap-4">
                     <Button 
                       variant="outline" 
@@ -1751,7 +1751,7 @@ export default function ZeroTrustModule() {
                     >
                       Revoir le module
                     </Button>
-                    
+
                     <Button 
                       className="bg-blue-700 hover:bg-blue-800"
                       onClick={() => {
@@ -1808,7 +1808,7 @@ export default function ZeroTrustModule() {
                 </div>
                 <Progress value={progress} className="h-2" />
               </div>
-              
+
               <div className="py-2">
                 {lessons.map((lesson) => (
                   <button
@@ -1827,7 +1827,7 @@ export default function ZeroTrustModule() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-blue-900/20 border-blue-800">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Informations</CardTitle>
@@ -1857,7 +1857,7 @@ export default function ZeroTrustModule() {
             </CardContent>
           </Card>
         </div>
-        
+
         {/* Contenu principal */}
         <div className="lg:col-span-3">
           <Card className="bg-blue-900/20 border-blue-800">

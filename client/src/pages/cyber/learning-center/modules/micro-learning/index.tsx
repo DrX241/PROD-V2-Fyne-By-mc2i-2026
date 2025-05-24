@@ -281,9 +281,9 @@ export default function MicroLearningHub() {
                 <BarChart3 className="mr-2 h-4 w-4" />
                 Toutes les sessions
               </Button>
-              
+
               <Separator className="my-2 bg-blue-800/50" />
-              
+
               {microlearningSections.map((section) => (
                 <Button 
                   key={section.id}
@@ -296,9 +296,9 @@ export default function MicroLearningHub() {
                 </Button>
               ))}
             </div>
-            
+
             <Separator className="my-4 bg-blue-800/50" />
-            
+
             <div className="p-3 bg-blue-800/30 rounded-lg">
               <h3 className="font-semibold mb-2 flex items-center">
                 <PenTool className="h-4 w-4 mr-2" />
@@ -319,7 +319,7 @@ export default function MicroLearningHub() {
               <TabsTrigger value="cards">Cartes</TabsTrigger>
               <TabsTrigger value="list">Liste</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="cards">
               <motion.div
                 className="grid grid-cols-1 md:grid-cols-2 gap-4"
@@ -348,7 +348,7 @@ export default function MicroLearningHub() {
                         </CardHeader>
                         <CardContent>
                           <p className="text-sm text-gray-300 mb-4">{topic.description}</p>
-                          
+
                           {topic.progress !== undefined && (
                             <div className="mt-2">
                               <div className="flex justify-between text-xs mb-1">
@@ -365,7 +365,7 @@ export default function MicroLearningHub() {
                 ))}
               </motion.div>
             </TabsContent>
-            
+
             <TabsContent value="list">
               <Card className="bg-blue-900/20 border-blue-800">
                 <CardContent className="p-0">
