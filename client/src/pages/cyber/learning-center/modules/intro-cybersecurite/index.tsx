@@ -13,7 +13,10 @@ import {
   Server, Cpu, Clock, Users, Code, FileCheck,
   ArrowRight, CheckCircle, AlertTriangle, 
   ExternalLink, Trophy, Award, Lightbulb as LightbulbIcon,
-  BrainCircuit, GraduationCap
+  BrainCircuit, GraduationCap, Brain, Sparkles, 
+  MessageCircle, Monitor, Zap, Target, Info,
+  Flame, Star, Eye, BookOpen, Mail, LinkIcon,
+  FileText
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
@@ -160,7 +163,7 @@ export default function IntroductionCybersecurite() {
       // Ajouter des points pour l'utilisation de l'assistant IA
       if (!completedInteractions.includes('ai-assistant')) {
         setUserPoints(prev => prev + 10);
-        setCompletedInteractions([...completedInteractions, 'ai-assistant']);
+        setCompletedInteractions(prev => [...prev, 'ai-assistant']);
       }
     }, 1500);
   };
@@ -189,7 +192,7 @@ export default function IntroductionCybersecurite() {
       // Ajouter des points pour la réussite du quiz
       if (!completedInteractions.includes('quiz-completed')) {
         setUserPoints(prev => prev + 25);
-        setCompletedInteractions([...completedInteractions, 'quiz-completed']);
+        setCompletedInteractions(prev => [...prev, 'quiz-completed']);
       }
       
       toast({
@@ -783,6 +786,58 @@ export default function IntroductionCybersecurite() {
                           </div>
                         )}
                       </div>
+                      
+                      <div className={`p-4 rounded-lg border ${showQuizResult && quizAnswers.q4 === correctAnswers.q4 ? "bg-green-900/20 border-green-800/50" : showQuizResult && quizAnswers.q4 !== correctAnswers.q4 ? "bg-red-900/20 border-red-800/50" : "bg-blue-900/20 border-blue-800/50"}`}>
+                        <h4 className="font-medium text-white mb-2">Question 4</h4>
+                        <p className="text-sm text-blue-200 mb-3">Quelle technique d'attaque implique de se faire passer pour une entité légitime afin d'obtenir des informations sensibles ?</p>
+                        
+                        <RadioGroup value={quizAnswers.q4} onValueChange={(value) => updateQuizAnswer("q4", value)} className="space-y-3">
+                          <div className={`flex items-center space-x-2 p-2 rounded ${getAnswerClass("q4", "a")}`}>
+                            <RadioGroupItem value="a" id="q4-a" disabled={showQuizResult} />
+                            <Label htmlFor="q4-a" className="text-sm cursor-pointer">Attaque par force brute</Label>
+                          </div>
+                          <div className={`flex items-center space-x-2 p-2 rounded ${getAnswerClass("q4", "b")}`}>
+                            <RadioGroupItem value="b" id="q4-b" disabled={showQuizResult} />
+                            <Label htmlFor="q4-b" className="text-sm cursor-pointer">Phishing</Label>
+                          </div>
+                          <div className={`flex items-center space-x-2 p-2 rounded ${getAnswerClass("q4", "c")}`}>
+                            <RadioGroupItem value="c" id="q4-c" disabled={showQuizResult} />
+                            <Label htmlFor="q4-c" className="text-sm cursor-pointer">Attaque par déni de service</Label>
+                          </div>
+                        </RadioGroup>
+                        
+                        {showQuizResult && quizAnswers.q4 !== correctAnswers.q4 && (
+                          <div className="mt-3 p-2 bg-blue-900/30 rounded text-xs text-blue-200">
+                            <strong>Explication :</strong> Le phishing est une technique d'ingénierie sociale où les attaquants se font passer pour des entités légitimes (banques, services en ligne, etc.) afin d'inciter les victimes à divulguer des informations sensibles.
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className={`p-4 rounded-lg border ${showQuizResult && quizAnswers.q5 === correctAnswers.q5 ? "bg-green-900/20 border-green-800/50" : showQuizResult && quizAnswers.q5 !== correctAnswers.q5 ? "bg-red-900/20 border-red-800/50" : "bg-blue-900/20 border-blue-800/50"}`}>
+                        <h4 className="font-medium text-white mb-2">Question 5</h4>
+                        <p className="text-sm text-blue-200 mb-3">Quelles mesures devraient être prises après une violation de données ?</p>
+                        
+                        <RadioGroup value={quizAnswers.q5} onValueChange={(value) => updateQuizAnswer("q5", value)} className="space-y-3">
+                          <div className={`flex items-center space-x-2 p-2 rounded ${getAnswerClass("q5", "a")}`}>
+                            <RadioGroupItem value="a" id="q5-a" disabled={showQuizResult} />
+                            <Label htmlFor="q5-a" className="text-sm cursor-pointer">Notifier uniquement les utilisateurs directement affectés</Label>
+                          </div>
+                          <div className={`flex items-center space-x-2 p-2 rounded ${getAnswerClass("q5", "b")}`}>
+                            <RadioGroupItem value="b" id="q5-b" disabled={showQuizResult} />
+                            <Label htmlFor="q5-b" className="text-sm cursor-pointer">Identifier la cause et corriger la vulnérabilité</Label>
+                          </div>
+                          <div className={`flex items-center space-x-2 p-2 rounded ${getAnswerClass("q5", "c")}`}>
+                            <RadioGroupItem value="c" id="q5-c" disabled={showQuizResult} />
+                            <Label htmlFor="q5-c" className="text-sm cursor-pointer">Toutes les mesures ci-dessus ainsi que signaler l'incident aux autorités compétentes</Label>
+                          </div>
+                        </RadioGroup>
+                        
+                        {showQuizResult && quizAnswers.q5 !== correctAnswers.q5 && (
+                          <div className="mt-3 p-2 bg-blue-900/30 rounded text-xs text-blue-200">
+                            <strong>Explication :</strong> Après une violation de données, il est essentiel de notifier les utilisateurs affectés, d'identifier et corriger la vulnérabilité, et dans de nombreux cas, de signaler l'incident aux autorités conformément aux lois sur la protection des données.
+                          </div>
+                        )}
+                      </div>
                     </div>
                     
                     <div className="mt-8 flex justify-center">
@@ -872,24 +927,215 @@ export default function IntroductionCybersecurite() {
                 </CardContent>
               </Card>
               
+              {/* Assistant IA */}
+              <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl mb-4">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-semibold text-white flex items-center">
+                      <Brain className="h-5 w-5 mr-2 text-blue-400" />
+                      Assistant IA
+                    </h3>
+                    
+                    <Badge className="bg-blue-600/70">
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      INTERACTIF
+                    </Badge>
+                  </div>
+                  
+                  <p className="text-sm text-blue-300 mb-3">
+                    Posez une question sur la cybersécurité et obtenez une réponse instantanée.
+                  </p>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Input 
+                        placeholder="Ex: Qu'est-ce qu'un ransomware?" 
+                        className="bg-blue-900/30 border-blue-700 text-white"
+                        value={aiPrompt}
+                        onChange={(e) => setAiPrompt(e.target.value)}
+                      />
+                      <Button 
+                        onClick={generateAIResponse}
+                        disabled={isGeneratingAI || !aiPrompt.trim()}
+                        className="whitespace-nowrap bg-blue-600 hover:bg-blue-700"
+                      >
+                        {isGeneratingAI ? (
+                          <>
+                            <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+                            Génération...
+                          </>
+                        ) : (
+                          <>
+                            <MessageCircle className="h-4 w-4 mr-2" />
+                            Demander
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    
+                    {aiResponse && (
+                      <div className="p-3 bg-blue-900/20 border border-blue-700/50 rounded-md">
+                        <div className="flex items-start">
+                          <BrainCircuit className="h-5 w-5 text-blue-400 mr-2 mt-0.5" />
+                          <div className="text-sm text-blue-200 whitespace-pre-line">{aiResponse}</div>
+                        </div>
+                        {!completedInteractions.includes('ai-assistant') && (
+                          <div className="mt-2 pt-2 border-t border-blue-700/30 flex items-center">
+                            <Award className="h-4 w-4 text-amber-400 mr-1" />
+                            <span className="text-xs text-amber-300">+10 points pour avoir utilisé l'assistant IA!</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Exercice Interactif */}
+              <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl mb-4">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-semibold text-white flex items-center">
+                      <Monitor className="h-5 w-5 mr-2 text-green-400" />
+                      Exercice Pratique
+                    </h3>
+                    
+                    <Badge className="bg-green-600/70">
+                      <Target className="h-3 w-3 mr-1" />
+                      PRATIQUE
+                    </Badge>
+                  </div>
+                  
+                  <p className="text-sm text-blue-300 mb-3">
+                    Testez vos connaissances avec cet exercice de sécurité des mots de passe.
+                  </p>
+                  
+                  <div className="p-3 bg-blue-900/20 border border-blue-700/50 rounded-md mb-3">
+                    <h4 className="text-sm font-medium text-white mb-2">Évaluateur de Force de Mot de Passe</h4>
+                    <p className="text-xs text-blue-200 mb-3">
+                      Entrez un mot de passe pour tester sa robustesse contre les attaques.
+                    </p>
+                    
+                    <div className="space-y-3">
+                      <Input 
+                        type="password"
+                        placeholder="Entrez un mot de passe" 
+                        className="bg-blue-900/40 border-blue-700 text-white"
+                        onChange={(e) => {
+                          const result = evaluatePasswordStrength(e.target.value);
+                          setExerciseData({
+                            ...exerciseData,
+                            passwordStrength: result.strength,
+                            passwordFeedback: result.feedback
+                          });
+                          
+                          // Ajouter des points si l'utilisateur crée un mot de passe fort
+                          if (result.strength === "fort" && !completedInteractions.includes('password-exercise')) {
+                            setUserPoints(prev => prev + 15);
+                            setCompletedInteractions(prev => [...prev, 'password-exercise']);
+                          }
+                        }}
+                      />
+                      
+                      {exerciseData.passwordStrength && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-full h-2 bg-blue-900/50 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full ${
+                                exerciseData.passwordStrength === "fort" ? "bg-green-500" : 
+                                exerciseData.passwordStrength === "moyen" ? "bg-yellow-500" : 
+                                "bg-red-500"
+                              }`}
+                              style={{ 
+                                width: exerciseData.passwordStrength === "fort" ? "100%" : 
+                                      exerciseData.passwordStrength === "moyen" ? "50%" : "25%" 
+                              }}
+                            ></div>
+                          </div>
+                          <span className="text-xs font-medium capitalize" 
+                            style={{ 
+                              color: exerciseData.passwordStrength === "fort" ? "#10b981" : 
+                                    exerciseData.passwordStrength === "moyen" ? "#f59e0b" : "#ef4444"
+                            }}>
+                            {exerciseData.passwordStrength}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {exerciseData.passwordFeedback && (
+                        <p className="text-xs p-2 rounded" style={{ 
+                          backgroundColor: exerciseData.passwordStrength === "fort" ? "rgba(16, 185, 129, 0.1)" : 
+                                        exerciseData.passwordStrength === "moyen" ? "rgba(245, 158, 11, 0.1)" : 
+                                        "rgba(239, 68, 68, 0.1)",
+                          color: exerciseData.passwordStrength === "fort" ? "#10b981" : 
+                                exerciseData.passwordStrength === "moyen" ? "#f59e0b" : "#ef4444"
+                        }}>
+                          {exerciseData.passwordFeedback}
+                        </p>
+                      )}
+                      
+                      {exerciseData.passwordStrength === "fort" && !completedInteractions.includes('password-exercise') && (
+                        <div className="mt-2 pt-2 border-t border-blue-700/30 flex items-center">
+                          <Award className="h-4 w-4 text-amber-400 mr-1" />
+                          <span className="text-xs text-amber-300">+15 points pour avoir créé un mot de passe fort!</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Ressources complémentaires */}
               <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
                 <CardContent className="p-4">
-                  <h3 className="text-lg font-semibold text-white mb-3">Ressources complémentaires</h3>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-semibold text-white flex items-center">
+                      <BookOpen className="h-5 w-5 mr-2 text-blue-400" />
+                      Ressources
+                    </h3>
+                    
+                    <div className="flex items-center text-xs text-amber-300">
+                      <Trophy className="h-4 w-4 mr-1 text-amber-400" />
+                      <span>{userPoints} points</span>
+                    </div>
+                  </div>
                   
                   <div className="space-y-3">
-                    <Button variant="ghost" className="w-full justify-start text-blue-300 hover:text-white hover:bg-blue-800/30">
-                      <ArrowRight className="mr-2 h-4 w-4" />
-                      <span className="text-sm">Guide des bonnes pratiques</span>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-blue-300 hover:text-white hover:bg-blue-800/30"
+                      onClick={() => window.open("https://www.anssi.fr/publications/guide-dhygiene-informatique", "_blank")}
+                    >
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      <span className="text-sm">Guide des bonnes pratiques ANSSI</span>
                     </Button>
                     
-                    <Button variant="ghost" className="w-full justify-start text-blue-300 hover:text-white hover:bg-blue-800/30">
-                      <ArrowRight className="mr-2 h-4 w-4" />
-                      <span className="text-sm">Glossaire cybersécurité</span>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-blue-300 hover:text-white hover:bg-blue-800/30"
+                      onClick={() => window.open("https://www.cybermalveillance.gouv.fr/tous-nos-contenus/fiches-reflexes", "_blank")}
+                    >
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      <span className="text-sm">Fiches réflexes cybermalveillance</span>
                     </Button>
                     
-                    <Button variant="ghost" className="w-full justify-start text-blue-300 hover:text-white hover:bg-blue-800/30">
-                      <ArrowRight className="mr-2 h-4 w-4" />
-                      <span className="text-sm">Formation approfondie</span>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-blue-300 hover:text-white hover:bg-blue-800/30"
+                      onClick={() => {
+                        if (!completedInteractions.includes('resource-click')) {
+                          setUserPoints(prev => prev + 5);
+                          setCompletedInteractions(prev => [...prev, 'resource-click']);
+                        }
+                        // Simulation de téléchargement d'un PDF
+                        toast({
+                          title: "Téléchargement démarré",
+                          description: "Le document est en cours de téléchargement...",
+                        });
+                      }}
+                    >
+                      <FileText className="mr-2 h-4 w-4" />
+                      <span className="text-sm">Cours avancé PDF (télécharger)</span>
                     </Button>
                   </div>
                 </CardContent>
