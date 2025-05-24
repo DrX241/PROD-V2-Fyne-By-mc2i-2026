@@ -157,66 +157,7 @@ const AmoaRoleplayHub: React.FC = () => {
       ],
       comingSoon: true
     },
-    {
-      id: 'change-manager',
-      title: "Je suis Change Manager",
-      description: "Je gère la transformation digitale d'une organisation",
-      link: '/amoa/change-management',
-      icon: <LineChart className="h-10 w-10 text-rose-300" />,
-      color: 'rose',
-      gradient: 'from-rose-900/70 to-rose-700/30',
-      border: 'border-rose-500/30',
-      buttonGradient: 'from-rose-700 to-rose-600',
-      buttonHover: 'hover:from-rose-600 hover:to-rose-500',
-      textColor: 'text-rose-300',
-      details: [
-        "Stratégies de gestion de la résistance",
-        "Plans de communication efficaces",
-        "Mesure de l'adoption du changement",
-        "Formation des ambassadeurs du changement"
-      ],
-      comingSoon: true
-    },
-    {
-      id: 'multi-actors',
-      title: "Simulations multi-acteurs",
-      description: "Je participe à une réunion avec plusieurs interlocuteurs",
-      link: '/amoa/multi-actors',
-      icon: <Users className="h-10 w-10 text-amber-300" />,
-      color: 'amber',
-      gradient: 'from-amber-900/70 to-amber-700/30',
-      border: 'border-amber-500/30',
-      buttonGradient: 'from-amber-700 to-amber-600',
-      buttonHover: 'hover:from-amber-600 hover:to-amber-500',
-      textColor: 'text-amber-300',
-      details: [
-        "Réunions complexes avec plusieurs participants",
-        "Gestion des dynamiques de groupe",
-        "Adaptation à différents profils d'interlocuteurs",
-        "Situations de conflit et négociation"
-      ],
-      comingSoon: true
-    },
-    {
-      id: 'audio-mode',
-      title: "Mode Audio en temps réel",
-      description: "J'interagis vocalement avec une IA réactive",
-      link: '/amoa/audio-mode',
-      icon: <MessageSquare className="h-10 w-10 text-purple-300" />,
-      color: 'purple',
-      gradient: 'from-purple-900/70 to-purple-700/30',
-      border: 'border-purple-500/30',
-      buttonGradient: 'from-purple-700 to-purple-600',
-      buttonHover: 'hover:from-purple-600 hover:to-purple-500',
-      textColor: 'text-purple-300',
-      details: [
-        "Échanges vocaux naturels et immédiats",
-        "Simulation d'appels téléphoniques professionnels",
-        "Feedback instantané sur votre communication",
-        "Pratique de l'écoute active et du pitch"
-      ],
-      comingSoon: true
-    }
+    /* Change Manager, Simulations multi-acteurs et Mode Audio supprimés comme demandé */
   ];
 
   // Animation de code en arrière-plan
@@ -270,13 +211,12 @@ const AmoaRoleplayHub: React.FC = () => {
         </p>
       </div>
 
-      {/* Animation de code en arrière-plan */}
+      {/* Arrière-plan statique */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden z-0 opacity-20 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black z-10 opacity-60"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-10 opacity-60"></div>
-        <pre className="text-blue-400 text-xl font-mono font-bold animate-scrolling-code relative z-5">
-          {Array(30).fill(codeLines).flat().join('\n')}
-        </pre>
+        <div className="absolute inset-0 bg-blue-900/30 z-5"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-800/20 to-indigo-900/30 z-5"></div>
       </div>
 
       {/* Grid des scénarios */}
