@@ -13,7 +13,8 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { 
   ArrowLeft, CheckCircle, BookOpen, Shield, AlertTriangle, 
   Brain, BrainCircuit, Sparkles, MessageCircle, Cpu, Award, Trash2, 
-  Zap, Radar, Lock, Code, Search, Robot, Database, LineChart, AlertCircle
+  Zap, Radar, Lock, Code, Search, Bot, Database, LineChart, AlertCircle, 
+  Radio, Timer, PercentSquare, RotateCw
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
@@ -32,6 +33,102 @@ export default function IAEtCybersecurite() {
   // État pour les sections d'études de cas
   const [selectedUseCase, setSelectedUseCase] = useState("detection");
   
+  // États pour le quiz
+  const [activeTab, setActiveTab] = useState("contenu");
+  const [quizAnswers, setQuizAnswers] = useState({
+    q1: "",
+    q2: "",
+    q3: "",
+    q4: "",
+    q5: ""
+  });
+  const [showQuizResult, setShowQuizResult] = useState(false);
+  const [quizScored, setQuizScored] = useState(false);
+  const [quizScore, setQuizScore] = useState(0);
+  
+  // Réponses correctes au quiz
+  const correctAnswers = {
+    q1: "b",
+    q2: "d",
+    q3: "c",
+    q4: "a",
+    q5: "b"
+  };
+  
+  // Fonction pour calculer le score du quiz
+  const calculateQuizScore = () => {
+    let score = 0;
+    if (quizAnswers.q1 === correctAnswers.q1) score++;
+    if (quizAnswers.q2 === correctAnswers.q2) score++;
+    if (quizAnswers.q3 === correctAnswers.q3) score++;
+    if (quizAnswers.q4 === correctAnswers.q4) score++;
+    if (quizAnswers.q5 === correctAnswers.q5) score++;
+    return score;
+  };
+  
+  // Soumettre le quiz et afficher les résultats
+  const submitQuiz = () => {
+    if (!quizAnswers.q1 || !quizAnswers.q2 || !quizAnswers.q3 || !quizAnswers.q4 || !quizAnswers.q5) {
+      toast({
+        title: "Réponses manquantes",
+        description: "Veuillez répondre à toutes les questions avant de soumettre.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const score = calculateQuizScore();
+    setQuizScore(score);
+    setShowQuizResult(true);
+    setQuizScored(true);
+    
+    // Ajouter des points pour la réussite du quiz
+    if (!completedInteractions.includes('ai-quiz-completed')) {
+      setUserPoints(prev => prev + 25);
+      setCompletedInteractions(prev => [...prev, 'ai-quiz-completed']);
+      
+      toast({
+        title: "Quiz complété !",
+        description: `Vous avez obtenu ${score}/5 bonnes réponses.`,
+      });
+    }
+  };
+  
+  // Réinitialiser le quiz
+  const resetQuiz = () => {
+    setQuizAnswers({
+      q1: "",
+      q2: "",
+      q3: "",
+      q4: "",
+      q5: ""
+    });
+    setShowQuizResult(false);
+    setQuizScored(false);
+  };
+  
+  // Mettre à jour les réponses du quiz
+  const updateQuizAnswer = (question: string, value: string) => {
+    setQuizAnswers(prev => ({
+      ...prev,
+      [question]: value
+    }));
+  };
+  
+  // Formater la classe de la réponse du quiz
+  const getAnswerClass = (question: string, option: string) => {
+    if (!showQuizResult) return "";
+    
+    const isSelected = quizAnswers[question as keyof typeof quizAnswers] === option;
+    const isCorrect = correctAnswers[question as keyof typeof correctAnswers] === option;
+    
+    if (isSelected && isCorrect) return "bg-green-100 border-green-500 dark:bg-green-900/30";
+    if (isSelected && !isCorrect) return "bg-red-100 border-red-500 dark:bg-red-900/30";
+    if (!isSelected && isCorrect) return "bg-green-100 border-green-500 dark:bg-green-900/30";
+    
+    return "";
+  };
+  
   // Simuler la progression lorsque la page est chargée
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -39,6 +136,13 @@ export default function IAEtCybersecurite() {
     }, 500);
     return () => clearTimeout(timer);
   }, []);
+  
+  // Mettre à jour la progression en fonction de l'onglet actif
+  useEffect(() => {
+    if (activeTab === "contenu") setProgress(15);
+    if (activeTab === "cas-usage") setProgress(50);
+    if (activeTab === "quiz") setProgress(quizScored ? 100 : 80);
+  }, [activeTab, quizScored]);
 
   return (
     <div className="min-h-screen bg-[#0a1429]">
@@ -193,7 +297,7 @@ export default function IAEtCybersecurite() {
                         
                         <div className="bg-blue-900/50 p-3 rounded-md border border-blue-700/50 mb-4">
                           <h4 className="font-medium text-white text-sm flex items-center">
-                            <Robot className="h-4 w-4 mr-2 text-blue-300" />
+                            <Bot className="h-4 w-4 mr-2 text-blue-300" />
                             Exemple pratique : Darktrace
                           </h4>
                           <p className="text-xs text-blue-200 mt-1">
@@ -235,7 +339,7 @@ export default function IAEtCybersecurite() {
                         
                         <div className="bg-blue-900/50 p-3 rounded-md border border-blue-700/50 mb-4">
                           <h4 className="font-medium text-white text-sm flex items-center">
-                            <Robot className="h-4 w-4 mr-2 text-blue-300" />
+                            <Bot className="h-4 w-4 mr-2 text-blue-300" />
                             Exemple pratique : Cylance
                           </h4>
                           <p className="text-xs text-blue-200 mt-1">
@@ -277,7 +381,7 @@ export default function IAEtCybersecurite() {
                         
                         <div className="bg-blue-900/50 p-3 rounded-md border border-blue-700/50 mb-4">
                           <h4 className="font-medium text-white text-sm flex items-center">
-                            <Robot className="h-4 w-4 mr-2 text-blue-300" />
+                            <Bot className="h-4 w-4 mr-2 text-blue-300" />
                             Exemple pratique : IBM Watson for Security
                           </h4>
                           <p className="text-xs text-blue-200 mt-1">
