@@ -207,6 +207,8 @@ export default function IntroductionCybersecurite() {
         >
           {/* Section principale de contenu */}
           <div className="lg:col-span-3 space-y-8">
+            <Tabs value={activeTab} className="w-full">
+              {/* TabsContent components */}
             <TabsContent value="principes" className="m-0">
               <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
                 <CardContent className="p-6">
