@@ -11,8 +11,8 @@ import PageTitle from '@/components/utils/PageTitle';
 export default function AmoaRoleplay() {
   const [_, setLocation] = useLocation();
   return (
-    <HomeLayout className="overflow-auto">
-      <div className="bg-gradient-to-b from-blue-900 via-blue-950 to-gray-900 pt-16 pb-12 text-white">
+    <HomeLayout>
+      <div style={{ height: 'auto', maxHeight: '100vh', overflowY: 'auto' }} className="bg-gradient-to-b from-blue-900 via-blue-950 to-gray-900 pt-16 pb-12 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* En-tête */}
           <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
