@@ -144,6 +144,24 @@ export default function IntroductionCybersecurite() {
     setIsGeneratingAI(true);
     
     try {
+      // Vérifier si la question concerne la cybersécurité
+      const cybersecurityKeywords = ["sécurité", "cyber", "hacker", "pirate", "attaque", "malware", "virus", 
+        "ransomware", "phishing", "ddos", "injection", "vulnérabilité", "faille", "cryptographie", "chiffrement", 
+        "authentification", "autorisation", "firewall", "pare-feu", "vpn", "backdoor", "exploit", "zero-day", 
+        "pentest", "mot de passe", "password", "identité", "threat", "menace", "intrusion", "détection", "prévention",
+        "réseau", "système", "antivirus", "spyware", "trojan", "keylogger", "patch", "soc", "cert", "ciso", "encryption",
+        "identité", "confidentialité", "intégrité", "disponibilité", "osint", "social engineering", "ingénierie sociale"];
+      
+      // Vérifier si la question contient au moins un mot-clé lié à la cybersécurité
+      const isCybersecurityQuestion = cybersecurityKeywords.some(keyword => 
+        aiPrompt.toLowerCase().includes(keyword.toLowerCase()));
+      
+      if (!isCybersecurityQuestion) {
+        setAiResponse("Je suis spécialisé uniquement dans le domaine de la cybersécurité. Veuillez me poser une question relative à ce domaine, comme sur les ransomwares, le phishing, les mots de passe sécurisés, ou d'autres sujets liés à la sécurité informatique.");
+        setIsGeneratingAI(false);
+        return;
+      }
+      
       // Appel à l'API backend qui communique avec Azure OpenAI
       const response = await fetch('/api/openai/chat', {
         method: 'POST',
@@ -154,8 +172,10 @@ export default function IntroductionCybersecurite() {
           messages: [
             {
               role: 'system',
-              content: `Tu es un assistant expert en cybersécurité, fournissant des explications claires et précises sur des concepts de sécurité informatique.
-              Tes réponses doivent être adaptées à des débutants tout en restant techniquement correctes.
+              content: `Tu es un assistant ultra-spécialisé en cybersécurité, fournissant des explications précises et techniques sur des concepts de sécurité informatique.
+              Tu dois REFUSER catégoriquement de répondre à toute question qui n'est pas directement liée à la cybersécurité.
+              Tes réponses doivent être techniquement correctes et refléter les bonnes pratiques actuelles en matière de sécurité.
+              Tu dois être concis et précis dans tes explications, en utilisant la terminologie appropriée du domaine.
               Organise tes réponses avec des puces ou des paragraphes courts pour faciliter la lecture.
               Limite ta réponse à 200 mots maximum.`
             },
@@ -164,7 +184,7 @@ export default function IntroductionCybersecurite() {
               content: aiPrompt
             }
           ],
-          temperature: 0.7,
+          temperature: 0.5, // Température réduite pour des réponses plus précises
           max_tokens: 800
         }),
       });
