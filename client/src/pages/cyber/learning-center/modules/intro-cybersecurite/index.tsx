@@ -55,29 +55,87 @@ export default function IntroductionCybersecurite() {
     phishingDetected: false
   });
   
-  // Cas d'étude concret
-  const caseStudy = {
-    title: "Cas réel : La fuite de données Equifax (2017)",
-    company: "Equifax (agence de crédit américaine)",
-    impact: "Exposition de données personnelles de 147 millions de personnes",
-    date: "Mai à Juillet 2017",
-    cause: "Vulnérabilité non corrigée dans Apache Struts (CVE-2017-5638)",
-    details: "Les attaquants ont exploité une faille de sécurité connue dans le framework Apache Struts, pour laquelle un correctif était disponible depuis plus de 2 mois. Cela leur a permis d'accéder aux systèmes internes et d'extraire des données pendant plus de 76 jours sans être détectés.",
-    data: "Noms, numéros de sécurité sociale, dates de naissance, adresses, et pour certains victimes, numéros de cartes de crédit et documents d'identité",
-    consequences: [
-      "Amende de 575 millions de dollars aux États-Unis",
-      "Dédommagement des victimes pouvant atteindre 425 millions de dollars",
-      "Coûts de remédiation techniques estimés à plus de 1,4 milliard de dollars",
-      "Perte de confiance majeure des consommateurs",
-      "Démission du PDG, du directeur de l'information et du responsable de la sécurité"
-    ],
-    lessons: [
-      "Importance critique de la gestion des correctifs de sécurité",
-      "Nécessité de la détection d'intrusion et de la surveillance continue",
-      "Importance de la segmentation réseau pour limiter les mouvements latéraux",
-      "Rôle crucial de l'inventaire des actifs et de la visibilité sur les systèmes"
-    ]
-  };
+  // États pour les cas d'études concrets récents
+  const [selectedCaseStudy, setSelectedCaseStudy] = useState(0);
+  
+  // Collection de cas concrets récents
+  const caseStudies = [
+    {
+      id: 1,
+      title: "Cas réel : Ransomware Colonial Pipeline (2021)",
+      company: "Colonial Pipeline (opérateur d'oléoducs aux États-Unis)",
+      impact: "Arrêt complet du plus grand réseau d'oléoducs américain pendant 6 jours",
+      date: "Mai 2021",
+      cause: "Compte VPN compromis sans authentification multifacteur (MFA)",
+      details: "Les attaquants du groupe DarkSide ont accédé au réseau via un compte VPN inactif mais toujours valide, qui ne nécessitait qu'un simple mot de passe. Ils ont déployé un ransomware qui a paralysé les systèmes informatiques et forcé l'arrêt préventif de l'ensemble du réseau d'oléoducs, perturbant l'approvisionnement en carburant sur toute la côte Est des États-Unis.",
+      data: "Systèmes de facturation et de surveillance compromis, forçant l'arrêt des opérations physiques par précaution",
+      consequences: [
+        "Paiement d'une rançon de 4,4 millions de dollars en Bitcoin (dont 2,3 millions récupérés par le FBI)",
+        "Pénurie de carburant dans plusieurs États américains",
+        "Augmentation des prix du carburant de 8,6% en moyenne",
+        "Déclaration d'état d'urgence par le gouvernement américain",
+        "Nouvelles réglementations fédérales sur la cybersécurité des infrastructures critiques"
+      ],
+      lessons: [
+        "Nécessité d'implémenter l'authentification multifacteur (MFA) sur tous les accès sensibles",
+        "Importance de la séparation entre les réseaux IT et OT (technologies opérationnelles)",
+        "Audits réguliers des comptes d'accès, même inactifs",
+        "Préparation d'un plan de continuité d'activité face aux cyberattaques",
+        "Impact potentiel des cyberattaques sur les infrastructures physiques critiques"
+      ]
+    },
+    {
+      id: 2,
+      title: "Cas réel : Cyberattaque SolarWinds (2020-2021)",
+      company: "SolarWinds et plus de 18,000 clients, dont des agences gouvernementales américaines",
+      impact: "Une des plus grandes attaques de la chaîne d'approvisionnement de l'histoire",
+      date: "Décembre 2020 - Janvier 2021",
+      cause: "Attaque sophistiquée de la chaîne d'approvisionnement par un acteur étatique (APT29/Cozy Bear)",
+      details: "Les attaquants ont compromis l'infrastructure de développement de SolarWinds pour insérer une porte dérobée (SUNBURST) dans les mises à jour légitimes du logiciel Orion. Cette backdoor a été distribuée à environ 18,000 clients via le mécanisme officiel de mise à jour. Une fois activée, elle permettait aux attaquants d'accéder aux réseaux des victimes.",
+      data: "Données sensibles de nombreuses organisations gouvernementales et entreprises du Fortune 500",
+      consequences: [
+        "Compromission de plusieurs départements fédéraux américains (Trésor, Commerce, Énergie, etc.)",
+        "Accès non autorisé aux emails de responsables gouvernementaux de haut niveau",
+        "Coûts de remédiation estimés à plus de 100 milliards de dollars",
+        "Refonte complète des infrastructures informatiques des organisations touchées",
+        "Tensions diplomatiques accrues entre les États-Unis et la Russie"
+      ],
+      lessons: [
+        "Importance critique de la sécurité de la chaîne d'approvisionnement logicielle",
+        "Nécessité de vérifier l'intégrité des mises à jour logicielles",
+        "Principe de défense en profondeur et de moindre privilège",
+        "Détection des comportements anormaux sur le réseau",
+        "Importance de la coopération public-privé dans la réponse aux incidents majeurs"
+      ]
+    },
+    {
+      id: 3,
+      title: "Cas réel : Attaque de Log4Shell (2021-2022)",
+      company: "Des millions d'organisations utilisant Log4j (bibliothèque Java omniprésente)",
+      impact: "Vulnérabilité critique exploitée mondialement dans des centaines de milliers de systèmes",
+      date: "Décembre 2021 - 2022",
+      cause: "Faille de sécurité critique (CVE-2021-44228) dans la bibliothèque Log4j",
+      details: "Log4j, une bibliothèque de journalisation Java utilisée dans d'innombrables applications, contenait une vulnérabilité d'exécution de code à distance (RCE) qui permettait à un attaquant d'exécuter du code arbitraire simplement en envoyant une chaîne de caractères spécialement formatée. La facilité d'exploitation et l'omniprésence de Log4j ont créé une tempête parfaite pour les cybercriminels.",
+      data: "Accès complet aux systèmes vulnérables, permettant vol de données, installation de malwares, ou prise de contrôle totale",
+      consequences: [
+        "Exploitation massive par de nombreux groupes de menaces, dont des acteurs étatiques",
+        "Mobilisation internationale des équipes de sécurité pour des correctifs d'urgence",
+        "Millions d'heures de travail consacrées à l'identification et au correctif des systèmes",
+        "Installation de cryptomineurs, ransomwares et autres malwares sur les systèmes non corrigés",
+        "Renforcement des exigences de sécurité pour les composants open-source"
+      ],
+      lessons: [
+        "Importance de l'inventaire logiciel et de la visibilité sur les dépendances",
+        "Nécessité de procédures de réponse rapide aux vulnérabilités critiques",
+        "Analyse des risques liés aux composants tiers et open-source",
+        "Mise en place de mécanismes de défense en profondeur",
+        "Importance de la surveillance proactive des systèmes"
+      ]
+    }
+  ];
+  
+  // Référence au cas d'étude sélectionné
+  const caseStudy = caseStudies[selectedCaseStudy];
   
   // Réponses correctes au quiz
   const correctAnswers = {
@@ -648,12 +706,50 @@ export default function IntroductionCybersecurite() {
             {activeTab === "casreel" && (
               <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
                 <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
-                    <Database className="mr-3 h-6 w-6 text-red-400" />
-                    {caseStudy.title}
-                  </h2>
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-white flex items-center">
+                      <Database className="mr-3 h-6 w-6 text-red-400" />
+                      Cas réels récents
+                    </h2>
+                    
+                    <div className="flex gap-2">
+                      {caseStudies.map((cs, index) => (
+                        <Button 
+                          key={cs.id}
+                          variant={selectedCaseStudy === index ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setSelectedCaseStudy(index);
+                            setCaseStudyExpanded(false);
+                            
+                            // Ajouter des points pour l'exploration de cas concrets
+                            if (!completedInteractions.includes(`case-study-${index}`)) {
+                              setUserPoints(prev => prev + 5);
+                              setCompletedInteractions(prev => [...prev, `case-study-${index}`]);
+                            }
+                          }}
+                          className={selectedCaseStudy === index 
+                            ? "bg-blue-600 hover:bg-blue-700" 
+                            : "text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
+                          }
+                        >
+                          Cas {index + 1}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
                   
-                  <div className="prose prose-invert max-w-none">
+                  <motion.div 
+                    key={selectedCaseStudy}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="prose prose-invert max-w-none"
+                  >
+                    <div className="mb-4 p-3 bg-blue-900/30 rounded-lg border border-blue-700/50">
+                      <h3 className="text-xl font-bold text-white">{caseStudy.title}</h3>
+                    </div>
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                       <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
                         <h4 className="font-medium text-white mb-2">Organisation touchée</h4>
@@ -679,7 +775,7 @@ export default function IntroductionCybersecurite() {
                     <div className="bg-red-900/20 p-4 rounded-lg border border-red-800/40 mb-6">
                       <h4 className="font-medium text-white mb-2">Description détaillée</h4>
                       <p className="text-sm text-blue-200">{caseStudy.details}</p>
-                      <p className="text-sm mt-2 text-blue-200"><strong>Données compromises :</strong> {caseStudy.data}</p>
+                      <p className="text-sm mt-2 text-blue-200"><strong>Données/systèmes compromis :</strong> {caseStudy.data}</p>
                     </div>
                     
                     <div className={`overflow-hidden transition-all duration-500 ${caseStudyExpanded ? "max-h-[1000px]" : "max-h-0"}`}>
@@ -702,7 +798,7 @@ export default function IntroductionCybersecurite() {
                       </div>
                     </div>
                     
-                    <div className="text-center mt-4">
+                    <div className="flex justify-center mt-4">
                       <Button
                         variant="outline"
                         onClick={() => setCaseStudyExpanded(!caseStudyExpanded)}
@@ -712,36 +808,57 @@ export default function IntroductionCybersecurite() {
                         <ArrowRight className={`ml-2 h-4 w-4 transition-transform ${caseStudyExpanded ? "rotate-90" : ""}`} />
                       </Button>
                     </div>
-                  </div>
-                  
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="mt-8 bg-blue-900/20 p-4 rounded-lg border border-blue-700/50"
-                  >
-                    <h3 className="text-lg font-semibold text-white">Points clés à retenir</h3>
-                    <ul className="mt-2 space-y-2">
-                      <li className="flex items-start">
-                        <span className="bg-blue-500/20 p-1 rounded-full mr-2 mt-0.5">
-                          <CheckCircle className="h-4 w-4 text-blue-400" />
-                        </span>
-                        <span className="text-sm text-blue-200">Les vulnérabilités non corrigées représentent un risque majeur, même pour les grandes entreprises.</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="bg-blue-500/20 p-1 rounded-full mr-2 mt-0.5">
-                          <CheckCircle className="h-4 w-4 text-blue-400" />
-                        </span>
-                        <span className="text-sm text-blue-200">La détection des intrusions est aussi importante que la prévention, car les attaquants peuvent opérer pendant des mois sans être repérés.</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="bg-blue-500/20 p-1 rounded-full mr-2 mt-0.5">
-                          <CheckCircle className="h-4 w-4 text-blue-400" />
-                        </span>
-                        <span className="text-sm text-blue-200">Les conséquences d'une brèche majeure vont bien au-delà des coûts techniques, affectant la réputation, la confiance des clients et même le leadership de l'entreprise.</span>
-                      </li>
-                    </ul>
                   </motion.div>
+                  
+                  <div className="mt-8 p-5 bg-blue-900/20 rounded-lg border border-blue-700/50">
+                    <h3 className="text-lg font-semibold text-white mb-3">Mini-jeu : "Vous êtes le RSSI"</h3>
+                    <p className="text-sm text-blue-200 mb-4">
+                      Si vous étiez responsable de la sécurité dans cette organisation, quelles mesures préventives auriez-vous mises en place pour éviter cette attaque ? 
+                      Réfléchissez aux leçons apprises et aux bonnes pratiques.
+                    </p>
+                    
+                    <div className="p-4 bg-blue-950/70 rounded-lg border border-blue-800/50 mb-4">
+                      <h4 className="font-medium text-white mb-2">Question de réflexion</h4>
+                      {selectedCaseStudy === 0 && (
+                        <p className="text-sm text-blue-200">
+                          Comment auriez-vous sécurisé les accès VPN pour éviter la compromission initiale dans le cas Colonial Pipeline ?
+                        </p>
+                      )}
+                      {selectedCaseStudy === 1 && (
+                        <p className="text-sm text-blue-200">
+                          Quelles mesures de vérification et de sécurité auriez-vous mises en place dans la chaîne d'approvisionnement logicielle pour éviter une attaque comme SolarWinds ?
+                        </p>
+                      )}
+                      {selectedCaseStudy === 2 && (
+                        <p className="text-sm text-blue-200">
+                          Comment auriez-vous géré le risque lié aux bibliothèques open-source comme Log4j dans votre organisation ?
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
+                        onClick={() => {
+                          const currentCase = selectedCaseStudy;
+                          if (!completedInteractions.includes(`case-game-${currentCase}`)) {
+                            setUserPoints(prev => prev + 10);
+                            setCompletedInteractions(prev => [...prev, `case-game-${currentCase}`]);
+                            
+                            toast({
+                              title: "Points obtenus !",
+                              description: "+10 points pour votre analyse du cas concret.",
+                            });
+                          }
+                        }}
+                      >
+                        <Trophy className="h-4 w-4 mr-2 text-amber-400" />
+                        Valider ma réflexion
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}
