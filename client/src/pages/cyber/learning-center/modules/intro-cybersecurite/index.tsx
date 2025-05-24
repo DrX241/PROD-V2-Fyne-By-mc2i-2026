@@ -17,7 +17,7 @@ import {
   BrainCircuit, GraduationCap, Brain, Sparkles, 
   MessageCircle, Monitor, Zap, Target, Info,
   Flame, Star, Eye, BookOpen, Mail, LinkIcon,
-  FileText, Send
+  FileText, Send, Trash2
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
@@ -1208,25 +1208,81 @@ export default function IntroductionCybersecurite() {
                                   size="sm"
                                   disabled={isGeneratingMiniGameChat || !miniGameChatPrompt.trim()}
                                   className="whitespace-nowrap text-green-300 border-green-800/50 hover:bg-green-800/30"
-                                  onClick={() => {
-                                    // Simuler une réponse Azure OpenAI (dans une vraie implémentation, appeler l'API)
+                                  onClick={async () => {
+                                    // Utiliser l'API Azure OpenAI
                                     setIsGeneratingMiniGameChat(true);
                                     
                                     // Ajouter le message de l'utilisateur à l'historique
                                     const newHistory = [...miniGameChatHistory, { role: 'user', content: miniGameChatPrompt }];
                                     setMiniGameChatHistory(newHistory);
                                     
-                                    // Simuler un délai de traitement
-                                    setTimeout(() => {
-                                      // Générer une réponse basée sur le cas d'étude et le mini-jeu
-                                      let response = "";
-                                      if (selectedCaseStudy === 0) {
-                                        response = "Votre analyse des mesures de sécurisation VPN est pertinente. Je validerais particulièrement votre point sur l'authentification multifacteur, c'est effectivement la mesure qui aurait pu prévenir cette compromission. Je vous suggère aussi de considérer l'audit régulier des comptes inactifs et la mise en place d'une politique de révocation automatique. Évaluation: 4/5";
-                                      } else if (selectedCaseStudy === 1) {
-                                        response = "Bonne analyse des risques liés à la chaîne d'approvisionnement. Vos mesures de vérification d'intégrité sont essentielles, mais je vous conseille d'ajouter la surveillance comportementale des applications après mise à jour. La segmentation réseau aurait aussi limité l'impact de cette attaque. Évaluation: 3.5/5";
-                                      } else {
-                                        response = "Excellente compréhension des risques liés aux composants open-source. J'apprécie particulièrement votre approche d'inventaire des dépendances. Pour renforcer votre stratégie, pensez à mettre en place un processus d'analyse statique du code et un système de surveillance des CVE en temps réel. Évaluation: 4.5/5";
+                                    try {
+                                      // Préparer le contexte spécifique au mini-jeu et au cas d'étude
+                                      let contextInfo = "";
+                                      
+                                      // Contexte pour le type de mini-jeu sélectionné
+                                      if (selectedMiniGame === "rssi") {
+                                        contextInfo += "Contexte: L'utilisateur joue le rôle d'un RSSI (Responsable Sécurité des Systèmes d'Information) et doit proposer des mesures préventives. ";
+                                      } else if (selectedMiniGame === "scenario") {
+                                        contextInfo += "Contexte: L'utilisateur gère une crise de cybersécurité en cours et doit proposer des mesures de confinement et de communication. ";
+                                      } else if (selectedMiniGame === "analyse") {
+                                        contextInfo += "Contexte: L'utilisateur effectue une analyse technique des indicateurs de compromission (IOC) et doit proposer des solutions de détection et de prévention. ";
                                       }
+                                      
+                                      // Contexte pour le cas d'étude sélectionné
+                                      if (selectedCaseStudy === 0) {
+                                        contextInfo += "Cas étudié: Ransomware Colonial Pipeline (2021) - Compromission via compte VPN sans MFA. ";
+                                      } else if (selectedCaseStudy === 1) {
+                                        contextInfo += "Cas étudié: Cyberattaque SolarWinds (2020-2021) - Attaque sophistiquée de la chaîne d'approvisionnement. ";
+                                      } else {
+                                        contextInfo += "Cas étudié: Vulnérabilité Log4Shell (2021) - Exploitation d'une faille critique dans une bibliothèque open-source. ";
+                                      }
+                                      
+                                      // Appel à l'API
+                                      const response = await fetch('/api/openai/chat', {
+                                        method: 'POST',
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                          messages: [
+                                            {
+                                              role: 'system',
+                                              content: `Tu es un expert en cybersécurité de haut niveau qui évalue rigoureusement les connaissances en cybersécurité avec un niveau d'exigence élevé.
+                                              
+                                              ${contextInfo}
+                                              
+                                              Tu dois SYSTÉMATIQUEMENT:
+                                              1. Analyser avec précision la pertinence technique des réponses de l'utilisateur selon les standards de l'industrie.
+                                              2. Attribuer une note sur 5 en conclusion de chaque analyse avec une justification détaillée.
+                                              3. Identifier clairement les erreurs ou les concepts mal compris par l'utilisateur.
+                                              4. Suggérer des améliorations spécifiques et mesurables avec des références aux normes et bonnes pratiques actuelles.
+                                              
+                                              Utilise systématiquement cette structure d'évaluation:
+                                              1. Points forts (concepts bien maîtrisés)
+                                              2. Points à améliorer (lacunes ou erreurs)
+                                              3. Recommandations concrètes basées sur les standards du secteur
+                                              4. Note globale (/5) avec justification
+                                              
+                                              Tes réponses doivent être rigoureuses, techniques et précises. Utilise toujours la terminologie exacte du domaine de la cybersécurité.`
+                                            },
+                                            ...newHistory.map(msg => ({
+                                              role: msg.role,
+                                              content: msg.content
+                                            }))
+                                          ],
+                                          temperature: 0.3, // Température réduite pour des réponses plus précises et cohérentes
+                                          max_tokens: 1000
+                                        }),
+                                      });
+                                      
+                                      if (!response.ok) {
+                                        throw new Error(`Erreur API: ${response.status}`);
+                                      }
+                                      
+                                      const data = await response.json();
+                                      const aiContent = data.choices?.[0]?.message?.content || 
+                                        "Je ne peux pas évaluer votre réponse actuellement. Veuillez réessayer.";
                                       
                                       // Ajouter des points pour utilisation de l'IA
                                       if (!completedInteractions.includes(`minigame-chat-${selectedMiniGame}-${selectedCaseStudy}`)) {
@@ -1240,10 +1296,26 @@ export default function IntroductionCybersecurite() {
                                       }
                                       
                                       // Ajouter la réponse à l'historique
-                                      setMiniGameChatHistory([...newHistory, { role: 'assistant', content: response }]);
+                                      setMiniGameChatHistory([...newHistory, { role: 'assistant', content: aiContent }]);
+                                      
+                                    } catch (error) {
+                                      console.error("Erreur lors de l'appel à l'API OpenAI:", error);
+                                      
+                                      // Ajouter un message d'erreur à l'historique
+                                      setMiniGameChatHistory([...newHistory, { 
+                                        role: 'assistant', 
+                                        content: "Désolé, je n'ai pas pu analyser votre réponse en raison d'un problème technique. Veuillez réessayer." 
+                                      }]);
+                                      
+                                      toast({
+                                        title: "Erreur de connexion",
+                                        description: "Impossible de contacter l'assistant IA. Veuillez réessayer.",
+                                        variant: "destructive"
+                                      });
+                                    } finally {
                                       setMiniGameChatPrompt("");
                                       setIsGeneratingMiniGameChat(false);
-                                    }, 2000);
+                                    }
                                   }}
                                 >
                                   {isGeneratingMiniGameChat ? (
@@ -1271,6 +1343,22 @@ export default function IntroductionCybersecurite() {
                           >
                             <MessageCircle className="h-4 w-4 mr-2 text-green-400" />
                             {showMiniGameChat ? "Masquer le chat" : "Discuter avec l'expert pour valider"}
+                          </Button>
+                          
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-red-300 border-red-800/50 hover:bg-red-800/30"
+                            onClick={() => {
+                              setMiniGameChatHistory([]);
+                              toast({
+                                title: "Historique effacé",
+                                description: "L'historique des messages a été réinitialisé"
+                              });
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2 text-red-400" />
+                            Réinitialiser
                           </Button>
                         </div>
                       </div>
@@ -1310,6 +1398,180 @@ export default function IntroductionCybersecurite() {
                           </div>
                         </div>
                         
+                        {/* Zone de chat avec l'expert en cybersécurité */}
+                        {showMiniGameChat && (
+                          <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            transition={{ duration: 0.3 }}
+                            className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50 mb-4"
+                          >
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className="font-medium text-white flex items-center">
+                                <BrainCircuit className="h-5 w-5 text-green-400 mr-2" />
+                                Validation par l'expert
+                              </h4>
+                              <Badge className="bg-green-600/70">
+                                <Cpu className="h-3 w-3 mr-1" />
+                                AZURE OPENAI
+                              </Badge>
+                            </div>
+                            
+                            <p className="text-xs text-blue-200 mb-3">
+                              Soumettez votre plan de gestion de crise à notre expert en cybersécurité pour obtenir une évaluation détaillée.
+                            </p>
+                            
+                            {/* Historique des messages du chat */}
+                            {miniGameChatHistory.length > 0 && (
+                              <div className="max-h-60 overflow-y-auto p-3 bg-blue-950/70 rounded border border-blue-800/50 mb-3 space-y-3">
+                                {miniGameChatHistory.map((msg, index) => (
+                                  <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`max-w-[80%] p-2 rounded ${
+                                      msg.role === 'user' 
+                                        ? 'bg-blue-600/50 text-white' 
+                                        : 'bg-blue-900/70 text-blue-200'
+                                    }`}>
+                                      <p className="text-xs whitespace-pre-line">{msg.content}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            
+                            {/* Interface de saisie pour le chat */}
+                            <div className="flex flex-col space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  placeholder="Décrivez votre plan de gestion de crise..."
+                                  className="bg-blue-900/50 border-blue-700 text-white text-sm"
+                                  value={miniGameChatPrompt}
+                                  onChange={(e) => setMiniGameChatPrompt(e.target.value)}
+                                />
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={isGeneratingMiniGameChat || !miniGameChatPrompt.trim()}
+                                  className="whitespace-nowrap text-green-300 border-green-800/50 hover:bg-green-800/30"
+                                  onClick={async () => {
+                                    // Utiliser l'API Azure OpenAI
+                                    setIsGeneratingMiniGameChat(true);
+                                    
+                                    // Ajouter le message de l'utilisateur à l'historique
+                                    const newHistory = [...miniGameChatHistory, { role: 'user', content: miniGameChatPrompt }];
+                                    setMiniGameChatHistory(newHistory);
+                                    
+                                    try {
+                                      // Préparer le contexte spécifique au mini-jeu et au cas d'étude
+                                      let contextInfo = "";
+                                      
+                                      // Contexte pour le type de mini-jeu sélectionné
+                                      contextInfo += "Contexte: L'utilisateur gère une crise de cybersécurité en cours et doit proposer des mesures de confinement et de communication. ";
+                                      
+                                      // Contexte pour le cas d'étude sélectionné
+                                      if (selectedCaseStudy === 0) {
+                                        contextInfo += "Cas étudié: Ransomware Colonial Pipeline (2021) - Compromission via compte VPN sans MFA. ";
+                                      } else if (selectedCaseStudy === 1) {
+                                        contextInfo += "Cas étudié: Cyberattaque SolarWinds (2020-2021) - Attaque sophistiquée de la chaîne d'approvisionnement. ";
+                                      } else {
+                                        contextInfo += "Cas étudié: Vulnérabilité Log4Shell (2021) - Exploitation d'une faille critique dans une bibliothèque open-source. ";
+                                      }
+                                      
+                                      // Appel à l'API
+                                      const response = await fetch('/api/openai/chat', {
+                                        method: 'POST',
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                          messages: [
+                                            {
+                                              role: 'system',
+                                              content: `Tu es un expert en cybersécurité de haut niveau qui évalue rigoureusement les connaissances en cybersécurité avec un niveau d'exigence élevé.
+                                              
+                                              ${contextInfo}
+                                              
+                                              Tu dois SYSTÉMATIQUEMENT:
+                                              1. Analyser avec précision la pertinence technique des réponses de l'utilisateur selon les standards de l'industrie.
+                                              2. Attribuer une note sur 5 en conclusion de chaque analyse avec une justification détaillée.
+                                              3. Identifier clairement les erreurs ou les concepts mal compris par l'utilisateur.
+                                              4. Suggérer des améliorations spécifiques et mesurables avec des références aux normes et bonnes pratiques actuelles.
+                                              
+                                              Utilise systématiquement cette structure d'évaluation:
+                                              1. Points forts (concepts bien maîtrisés)
+                                              2. Points à améliorer (lacunes ou erreurs)
+                                              3. Recommandations concrètes basées sur les standards du secteur
+                                              4. Note globale (/5) avec justification
+                                              
+                                              Tes réponses doivent être rigoureuses, techniques et précises. Utilise toujours la terminologie exacte du domaine de la cybersécurité.`
+                                            },
+                                            ...newHistory.map(msg => ({
+                                              role: msg.role,
+                                              content: msg.content
+                                            }))
+                                          ],
+                                          temperature: 0.3, // Température réduite pour des réponses plus précises et cohérentes
+                                          max_tokens: 1000
+                                        }),
+                                      });
+                                      
+                                      if (!response.ok) {
+                                        throw new Error(`Erreur API: ${response.status}`);
+                                      }
+                                      
+                                      const data = await response.json();
+                                      const aiContent = data.choices?.[0]?.message?.content || 
+                                        "Je ne peux pas évaluer votre réponse actuellement. Veuillez réessayer.";
+                                      
+                                      // Ajouter des points pour utilisation de l'IA
+                                      if (!completedInteractions.includes(`minigame-chat-${selectedMiniGame}-${selectedCaseStudy}`)) {
+                                        setUserPoints(prev => prev + 15);
+                                        setCompletedInteractions(prev => [...prev, `minigame-chat-${selectedMiniGame}-${selectedCaseStudy}`]);
+                                        
+                                        toast({
+                                          title: "Validation experte obtenue !",
+                                          description: "+15 points pour l'analyse validée par l'expert"
+                                        });
+                                      }
+                                      
+                                      // Ajouter la réponse à l'historique
+                                      setMiniGameChatHistory([...newHistory, { role: 'assistant', content: aiContent }]);
+                                      
+                                    } catch (error) {
+                                      console.error("Erreur lors de l'appel à l'API OpenAI:", error);
+                                      
+                                      // Ajouter un message d'erreur à l'historique
+                                      setMiniGameChatHistory([...newHistory, { 
+                                        role: 'assistant', 
+                                        content: "Désolé, je n'ai pas pu analyser votre réponse en raison d'un problème technique. Veuillez réessayer." 
+                                      }]);
+                                      
+                                      toast({
+                                        title: "Erreur de connexion",
+                                        description: "Impossible de contacter l'assistant IA. Veuillez réessayer.",
+                                        variant: "destructive"
+                                      });
+                                    } finally {
+                                      setMiniGameChatPrompt("");
+                                      setIsGeneratingMiniGameChat(false);
+                                    }
+                                  }}
+                                >
+                                  {isGeneratingMiniGameChat ? (
+                                    <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+                                  ) : (
+                                    <MessageCircle className="h-4 w-4 mr-2" />
+                                  )}
+                                  {isGeneratingMiniGameChat ? "Analyse..." : "Envoyer"}
+                                </Button>
+                              </div>
+                              
+                              <p className="text-xs text-gray-400 text-center">
+                                Nos experts en cybersécurité sont propulsés par Azure OpenAI
+                              </p>
+                            </div>
+                          </motion.div>
+                        )}
+                        
                         <div className="flex flex-wrap gap-2">
                           <Button
                             variant="outline"
@@ -1319,6 +1581,22 @@ export default function IntroductionCybersecurite() {
                           >
                             <MessageCircle className="h-4 w-4 mr-2 text-green-400" />
                             {showMiniGameChat ? "Masquer le chat" : "Discuter avec l'expert pour valider"}
+                          </Button>
+                          
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-red-300 border-red-800/50 hover:bg-red-800/30"
+                            onClick={() => {
+                              setMiniGameChatHistory([]);
+                              toast({
+                                title: "Historique effacé",
+                                description: "L'historique des messages a été réinitialisé"
+                              });
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2 text-red-400" />
+                            Réinitialiser
                           </Button>
                         </div>
                       </div>
@@ -1384,6 +1662,180 @@ export default function IntroductionCybersecurite() {
                           )}
                         </div>
                         
+                        {/* Zone de chat avec l'expert en cybersécurité */}
+                        {showMiniGameChat && (
+                          <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            transition={{ duration: 0.3 }}
+                            className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50 mb-4"
+                          >
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className="font-medium text-white flex items-center">
+                                <BrainCircuit className="h-5 w-5 text-green-400 mr-2" />
+                                Validation par l'expert
+                              </h4>
+                              <Badge className="bg-green-600/70">
+                                <Cpu className="h-3 w-3 mr-1" />
+                                AZURE OPENAI
+                              </Badge>
+                            </div>
+                            
+                            <p className="text-xs text-blue-200 mb-3">
+                              Soumettez votre analyse technique des IOCs à notre expert en cybersécurité pour obtenir une évaluation détaillée.
+                            </p>
+                            
+                            {/* Historique des messages du chat */}
+                            {miniGameChatHistory.length > 0 && (
+                              <div className="max-h-60 overflow-y-auto p-3 bg-blue-950/70 rounded border border-blue-800/50 mb-3 space-y-3">
+                                {miniGameChatHistory.map((msg, index) => (
+                                  <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`max-w-[80%] p-2 rounded ${
+                                      msg.role === 'user' 
+                                        ? 'bg-blue-600/50 text-white' 
+                                        : 'bg-blue-900/70 text-blue-200'
+                                    }`}>
+                                      <p className="text-xs whitespace-pre-line">{msg.content}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            
+                            {/* Interface de saisie pour le chat */}
+                            <div className="flex flex-col space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  placeholder="Décrivez votre analyse technique et vos recommandations..."
+                                  className="bg-blue-900/50 border-blue-700 text-white text-sm"
+                                  value={miniGameChatPrompt}
+                                  onChange={(e) => setMiniGameChatPrompt(e.target.value)}
+                                />
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={isGeneratingMiniGameChat || !miniGameChatPrompt.trim()}
+                                  className="whitespace-nowrap text-green-300 border-green-800/50 hover:bg-green-800/30"
+                                  onClick={async () => {
+                                    // Utiliser l'API Azure OpenAI
+                                    setIsGeneratingMiniGameChat(true);
+                                    
+                                    // Ajouter le message de l'utilisateur à l'historique
+                                    const newHistory = [...miniGameChatHistory, { role: 'user', content: miniGameChatPrompt }];
+                                    setMiniGameChatHistory(newHistory);
+                                    
+                                    try {
+                                      // Préparer le contexte spécifique au mini-jeu et au cas d'étude
+                                      let contextInfo = "";
+                                      
+                                      // Contexte pour le type de mini-jeu sélectionné
+                                      contextInfo += "Contexte: L'utilisateur effectue une analyse technique des indicateurs de compromission (IOC) et doit proposer des solutions de détection et de prévention. ";
+                                      
+                                      // Contexte pour le cas d'étude sélectionné
+                                      if (selectedCaseStudy === 0) {
+                                        contextInfo += "Cas étudié: Ransomware Colonial Pipeline (2021) - Compromission via compte VPN sans MFA. IOCs: IP 185.243.115.140, Hash 5d6accea4879d66d9a40c3a4e7188f690aace80e, Domaine darkside-cdn.noc4.net";
+                                      } else if (selectedCaseStudy === 1) {
+                                        contextInfo += "Cas étudié: Cyberattaque SolarWinds (2020-2021) - Attaque sophistiquée de la chaîne d'approvisionnement. IOCs: Hash 019085a76ba7126fff22770d71bd901c325fc68ac55aa743327984e89f4b0134, Domaine avsvmcloud.com, Fichier SolarWinds.Orion.Core.BusinessLayer.dll";
+                                      } else {
+                                        contextInfo += "Cas étudié: Vulnérabilité Log4Shell (2021) - Exploitation d'une faille critique dans une bibliothèque open-source. IOCs: Pattern JNDI:LDAP://malicious-domain.com/exploit, CVE-2021-44228, Version log4j-core 2.0-2.14.1";
+                                      }
+                                      
+                                      // Appel à l'API
+                                      const response = await fetch('/api/openai/chat', {
+                                        method: 'POST',
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                          messages: [
+                                            {
+                                              role: 'system',
+                                              content: `Tu es un expert en cybersécurité de haut niveau qui évalue rigoureusement les connaissances en cybersécurité avec un niveau d'exigence élevé.
+                                              
+                                              ${contextInfo}
+                                              
+                                              Tu dois SYSTÉMATIQUEMENT:
+                                              1. Analyser avec précision la pertinence technique des réponses de l'utilisateur selon les standards de l'industrie.
+                                              2. Attribuer une note sur 5 en conclusion de chaque analyse avec une justification détaillée.
+                                              3. Identifier clairement les erreurs ou les concepts mal compris par l'utilisateur.
+                                              4. Suggérer des améliorations spécifiques et mesurables avec des références aux normes et bonnes pratiques actuelles.
+                                              
+                                              Utilise systématiquement cette structure d'évaluation:
+                                              1. Points forts (concepts bien maîtrisés)
+                                              2. Points à améliorer (lacunes ou erreurs)
+                                              3. Recommandations concrètes basées sur les standards du secteur
+                                              4. Note globale (/5) avec justification
+                                              
+                                              Tes réponses doivent être rigoureuses, techniques et précises. Utilise toujours la terminologie exacte du domaine de la cybersécurité.`
+                                            },
+                                            ...newHistory.map(msg => ({
+                                              role: msg.role,
+                                              content: msg.content
+                                            }))
+                                          ],
+                                          temperature: 0.3, // Température réduite pour des réponses plus précises et cohérentes
+                                          max_tokens: 1000
+                                        }),
+                                      });
+                                      
+                                      if (!response.ok) {
+                                        throw new Error(`Erreur API: ${response.status}`);
+                                      }
+                                      
+                                      const data = await response.json();
+                                      const aiContent = data.choices?.[0]?.message?.content || 
+                                        "Je ne peux pas évaluer votre réponse actuellement. Veuillez réessayer.";
+                                      
+                                      // Ajouter des points pour utilisation de l'IA
+                                      if (!completedInteractions.includes(`minigame-chat-${selectedMiniGame}-${selectedCaseStudy}`)) {
+                                        setUserPoints(prev => prev + 15);
+                                        setCompletedInteractions(prev => [...prev, `minigame-chat-${selectedMiniGame}-${selectedCaseStudy}`]);
+                                        
+                                        toast({
+                                          title: "Validation experte obtenue !",
+                                          description: "+15 points pour l'analyse validée par l'expert"
+                                        });
+                                      }
+                                      
+                                      // Ajouter la réponse à l'historique
+                                      setMiniGameChatHistory([...newHistory, { role: 'assistant', content: aiContent }]);
+                                      
+                                    } catch (error) {
+                                      console.error("Erreur lors de l'appel à l'API OpenAI:", error);
+                                      
+                                      // Ajouter un message d'erreur à l'historique
+                                      setMiniGameChatHistory([...newHistory, { 
+                                        role: 'assistant', 
+                                        content: "Désolé, je n'ai pas pu analyser votre réponse en raison d'un problème technique. Veuillez réessayer." 
+                                      }]);
+                                      
+                                      toast({
+                                        title: "Erreur de connexion",
+                                        description: "Impossible de contacter l'assistant IA. Veuillez réessayer.",
+                                        variant: "destructive"
+                                      });
+                                    } finally {
+                                      setMiniGameChatPrompt("");
+                                      setIsGeneratingMiniGameChat(false);
+                                    }
+                                  }}
+                                >
+                                  {isGeneratingMiniGameChat ? (
+                                    <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+                                  ) : (
+                                    <MessageCircle className="h-4 w-4 mr-2" />
+                                  )}
+                                  {isGeneratingMiniGameChat ? "Analyse..." : "Envoyer"}
+                                </Button>
+                              </div>
+                              
+                              <p className="text-xs text-gray-400 text-center">
+                                Nos experts en cybersécurité sont propulsés par Azure OpenAI
+                              </p>
+                            </div>
+                          </motion.div>
+                        )}
+                        
                         <div className="flex flex-wrap gap-2">
                           <Button
                             variant="outline"
@@ -1393,6 +1845,22 @@ export default function IntroductionCybersecurite() {
                           >
                             <MessageCircle className="h-4 w-4 mr-2 text-green-400" />
                             {showMiniGameChat ? "Masquer le chat" : "Discuter avec l'expert pour valider"}
+                          </Button>
+                          
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-red-300 border-red-800/50 hover:bg-red-800/30"
+                            onClick={() => {
+                              setMiniGameChatHistory([]);
+                              toast({
+                                title: "Historique effacé",
+                                description: "L'historique des messages a été réinitialisé"
+                              });
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2 text-red-400" />
+                            Réinitialiser
                           </Button>
                         </div>
                       </div>
