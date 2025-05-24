@@ -25,18 +25,7 @@ export default function DataIaRoleplay() {
   const [highContrastMode, setHighContrastMode] = useState(false);
 
   return (
-    <div className="min-h-screen text-white pb-20 relative">
-      {/* Arrière-plan statique */}
-      <div className="fixed top-0 left-0 w-full h-full z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#041b36] to-[#0c142e]"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black opacity-60"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-60"></div>
-        <div className="absolute inset-0 bg-indigo-900/20"></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-indigo-800/20"></div>
-      </div>
-      
-      {/* Contenu au dessus du fond */}
-      <div className="relative z-10">
+    <div className="min-h-screen bg-gradient-to-b from-[#041b36] to-[#0c142e] text-white pb-20">
       <Helmet>
         <title>DATA & IA ROLE PLAY | Simulations immersives</title>
       </Helmet>
