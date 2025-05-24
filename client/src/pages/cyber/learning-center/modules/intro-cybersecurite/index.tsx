@@ -296,12 +296,28 @@ export default function IntroductionCybersecurite() {
           messages: [
             {
               role: 'system',
-              content: `Tu es un assistant ultra-spécialisé en cybersécurité, fournissant des explications précises et techniques sur des concepts de sécurité informatique.
-              Tu dois REFUSER catégoriquement de répondre à toute question qui n'est pas directement liée à la cybersécurité.
-              Tes réponses doivent être techniquement correctes et refléter les bonnes pratiques actuelles en matière de sécurité.
-              Tu dois être concis et précis dans tes explications, en utilisant la terminologie appropriée du domaine.
-              Organise tes réponses avec des puces ou des paragraphes courts pour faciliter la lecture.
-              Limite ta réponse à 200 mots maximum.`
+              content: `Tu es un expert en cybersécurité de haut niveau qui évalue rigoureusement les connaissances en cybersécurité avec un niveau d'exigence élevé.
+              Tu dois SYSTÉMATIQUEMENT:
+              1. REFUSER catégoriquement de répondre à toute question qui n'est pas directement liée à la cybersécurité.
+              2. Analyser avec précision la pertinence technique des réponses de l'utilisateur selon les standards de l'industrie.
+              3. Attribuer une note sur 5 en conclusion de chaque analyse avec une justification détaillée.
+              4. Identifier clairement les erreurs ou les concepts mal compris par l'utilisateur.
+              5. Suggérer des améliorations spécifiques et mesurables avec des références aux normes et bonnes pratiques actuelles.
+              
+              Quand tu analyses une réponse à un problème de cybersécurité:
+              - Examine la compréhension des concepts fondamentaux (ex: CIA triad, defense in depth)
+              - Évalue la pertinence des mesures techniques proposées (ex: chiffrement, segmentation réseau)
+              - Vérifie la cohérence avec les frameworks de sécurité reconnus (ex: NIST, ISO 27001)
+              - Analyse la prise en compte du facteur humain et organisationnel
+              - Considère l'applicabilité et la faisabilité des solutions proposées
+              
+              Utilise systématiquement une structure d'évaluation claire:
+              1. Points forts (concepts bien maîtrisés)
+              2. Points à améliorer (lacunes ou erreurs)
+              3. Recommandations concrètes
+              4. Note globale (/5) avec justification
+              
+              Tes réponses doivent être rigoureuses mais constructives, en utilisant la terminologie précise du domaine.`
             },
             {
               role: 'user',
@@ -415,10 +431,12 @@ export default function IntroductionCybersecurite() {
   
   // Mise à jour automatique de la progression en fonction de l'onglet actif
   useEffect(() => {
-    if (activeTab === "principes") setProgress(25);
-    if (activeTab === "menaces") setProgress(50);
-    if (activeTab === "casreel") setProgress(75);
-    if (activeTab === "quiz") setProgress(quizScored ? 100 : 90);
+    if (activeTab === "principes") setProgress(20);
+    if (activeTab === "menaces") setProgress(35);
+    if (activeTab === "casreel") setProgress(50);
+    if (activeTab === "glossaire") setProgress(65);
+    if (activeTab === "best-practices") setProgress(80);
+    if (activeTab === "quiz") setProgress(quizScored ? 100 : 95);
   }, [activeTab, quizScored]);
 
   return (
@@ -471,6 +489,18 @@ export default function IntroductionCybersecurite() {
                 className={`px-4 h-14 ${activeTab === "casreel" ? "text-white border-b-2 border-blue-500" : "text-blue-300"}`}
               >
                 Cas Concret
+              </button>
+              <button 
+                onClick={() => setActiveTab("glossaire")}
+                className={`px-4 h-14 ${activeTab === "glossaire" ? "text-white border-b-2 border-blue-500" : "text-blue-300"}`}
+              >
+                Glossaire Cyber
+              </button>
+              <button 
+                onClick={() => setActiveTab("best-practices")}
+                className={`px-4 h-14 ${activeTab === "best-practices" ? "text-white border-b-2 border-blue-500" : "text-blue-300"}`}
+              >
+                Bonnes Pratiques
               </button>
               <button 
                 onClick={() => setActiveTab("quiz")}
@@ -1233,38 +1263,15 @@ export default function IntroductionCybersecurite() {
                         )}
                         
                         <div className="flex flex-wrap gap-2">
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
-                              onClick={() => {
-                                const currentCase = selectedCaseStudy;
-                                if (!completedInteractions.includes(`case-game-rssi-${currentCase}`)) {
-                                  setUserPoints(prev => prev + 10);
-                                  setCompletedInteractions(prev => [...prev, `case-game-rssi-${currentCase}`]);
-                                  
-                                  toast({
-                                    title: "Points obtenus !",
-                                    description: "+10 points pour votre analyse RSSI du cas concret.",
-                                  });
-                                }
-                              }}
-                            >
-                              <Trophy className="h-4 w-4 mr-2 text-amber-400" />
-                              Valider ma réflexion
-                            </Button>
-                            
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="text-green-300 border-green-800/50 hover:bg-green-800/30"
-                              onClick={() => setShowMiniGameChat(!showMiniGameChat)}
-                            >
-                              <MessageCircle className="h-4 w-4 mr-2 text-green-400" />
-                              {showMiniGameChat ? "Masquer le chat" : "Discuter avec l'expert"}
-                            </Button>
-                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-green-300 border-green-800/50 hover:bg-green-800/30"
+                            onClick={() => setShowMiniGameChat(!showMiniGameChat)}
+                          >
+                            <MessageCircle className="h-4 w-4 mr-2 text-green-400" />
+                            {showMiniGameChat ? "Masquer le chat" : "Discuter avec l'expert pour valider"}
+                          </Button>
                         </div>
                       </div>
                     )}
