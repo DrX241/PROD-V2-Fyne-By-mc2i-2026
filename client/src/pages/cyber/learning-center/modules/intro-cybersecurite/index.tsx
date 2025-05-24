@@ -137,36 +137,67 @@ export default function IntroductionCybersecurite() {
     return { strength, feedback };
   };
   
-  // Fonction pour simuler une réponse IA
-  const generateAIResponse = () => {
+  // Fonction pour générer une réponse IA via Azure OpenAI
+  const generateAIResponse = async () => {
     if (!aiPrompt.trim()) return;
     
     setIsGeneratingAI(true);
     
-    // Simuler le délai de génération
-    setTimeout(() => {
-      let response = "";
+    try {
+      // Appel à l'API backend qui communique avec Azure OpenAI
+      const response = await fetch('/api/openai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: 'system',
+              content: `Tu es un assistant expert en cybersécurité, fournissant des explications claires et précises sur des concepts de sécurité informatique.
+              Tes réponses doivent être adaptées à des débutants tout en restant techniquement correctes.
+              Organise tes réponses avec des puces ou des paragraphes courts pour faciliter la lecture.
+              Limite ta réponse à 200 mots maximum.`
+            },
+            {
+              role: 'user',
+              content: aiPrompt
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 800
+        }),
+      });
       
-      // Réponses prédéfinies basées sur les mots-clés
-      if (aiPrompt.toLowerCase().includes("ransomware")) {
-        response = "Un ransomware est un type de logiciel malveillant qui chiffre les données de la victime et exige une rançon pour fournir la clé de déchiffrement. Les attaques de ransomware suivent généralement ces étapes:\n\n1. Infection initiale (souvent par phishing ou vulnérabilité)\n2. Communication avec des serveurs de commande et contrôle\n3. Chiffrement des fichiers\n4. Affichage de la demande de rançon\n\nPour vous protéger:\n• Effectuez des sauvegardes régulières offline\n• Maintenez vos systèmes à jour\n• Utilisez une solution de sécurité moderne\n• Formez les utilisateurs à la reconnaissance des menaces";
-      } else if (aiPrompt.toLowerCase().includes("phishing")) {
-        response = "Le phishing est une technique d'ingénierie sociale où les attaquants se font passer pour des entités légitimes afin de voler des informations sensibles. Les signes d'un email de phishing comprennent:\n\n• Fautes d'orthographe et de grammaire\n• Domaines d'expéditeur suspects\n• Demandes urgentes d'action\n• Liens anormaux (passez la souris dessus pour voir l'URL réelle)\n• Demandes d'informations personnelles\n\nPour vous protéger, vérifiez toujours l'authenticité de l'expéditeur et méfiez-vous des demandes urgentes. En cas de doute, contactez directement l'organisation par un canal officiel.";
-      } else if (aiPrompt.toLowerCase().includes("password") || aiPrompt.toLowerCase().includes("mot de passe")) {
-        response = "Les bonnes pratiques pour les mots de passe incluent:\n\n• Longueur minimale de 12 caractères\n• Combinaison de majuscules, minuscules, chiffres et caractères spéciaux\n• Éviter les informations personnelles faciles à deviner\n• Utiliser un mot de passe unique pour chaque compte\n• Utiliser un gestionnaire de mots de passe\n• Activer l'authentification à deux facteurs quand c'est possible\n\nUn exemple de mot de passe fort: P@s$w0rd-C0mpl3x!2023";
-      } else {
-        response = "En cybersécurité, voici quelques principes et concepts fondamentaux:\n\n• La triade CIA: Confidentialité, Intégrité, Disponibilité\n• Défense en profondeur: multiples couches de protection\n• Principe du moindre privilège: accès minimal nécessaire\n• Analyse des risques: identification, évaluation et gestion\n• Mises à jour régulières des systèmes et applications\n• Formation et sensibilisation des utilisateurs\n\nPour des informations sur un sujet spécifique, posez-moi une question sur les ransomwares, le phishing ou les mots de passe.";
+      if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`);
       }
       
-      setAiResponse(response);
-      setIsGeneratingAI(false);
+      const data = await response.json();
+      
+      // Récupérer la réponse de l'API
+      const aiContent = data.choices?.[0]?.message?.content || 
+                        "Je ne peux pas répondre à cette question actuellement. Veuillez réessayer avec une autre question.";
+      
+      setAiResponse(aiContent);
       
       // Ajouter des points pour l'utilisation de l'assistant IA
       if (!completedInteractions.includes('ai-assistant')) {
         setUserPoints(prev => prev + 10);
         setCompletedInteractions(prev => [...prev, 'ai-assistant']);
       }
-    }, 1500);
+    } catch (error) {
+      console.error("Erreur lors de l'appel à l'API OpenAI:", error);
+      setAiResponse("Désolé, je n'ai pas pu générer une réponse. Cela peut être dû à un problème de connexion avec le service IA. Veuillez réessayer plus tard.");
+      
+      toast({
+        title: "Erreur de connexion",
+        description: "Impossible de contacter l'assistant IA. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingAI(false);
+    }
   };
   
   // Soumettre le quiz et afficher les résultats
