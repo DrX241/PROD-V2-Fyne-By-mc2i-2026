@@ -15,10 +15,10 @@ import {
   ArrowLeft, CheckCircle, BookOpen, Shield, AlertTriangle, Lock, 
   Share2, Database, Server, Cpu, Trophy, BrainCircuit, 
   ArrowRight, ExternalLink, GraduationCap, Award, LightbulbIcon, 
-  FileCheck
+  FileCheck, Check
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export default function IntroductionCybersecurite() {
   // États pour suivre la progression et les interactions
@@ -95,6 +95,8 @@ export default function IntroductionCybersecurite() {
   ];
   
   // Fonction pour soumettre le quiz
+  const { toast } = useToast();
+  
   const submitQuiz = () => {
     // Vérifier que toutes les questions ont été répondues
     if (!quizAnswers.q1 || !quizAnswers.q2 || !quizAnswers.q3) {
@@ -208,8 +210,13 @@ export default function IntroductionCybersecurite() {
           {/* Section principale de contenu */}
           <div className="lg:col-span-3 space-y-8">
             <Tabs value={activeTab} className="w-full">
-              {/* TabsContent components */}
-            <TabsContent value="principes" className="m-0">
+              <TabsList className="hidden">
+                <TabsTrigger value="principes">Principes</TabsTrigger>
+                <TabsTrigger value="menaces">Menaces</TabsTrigger>
+                <TabsTrigger value="casreel">Cas Concret</TabsTrigger>
+                <TabsTrigger value="quiz">Quiz</TabsTrigger>
+              </TabsList>
+              <TabsContent value="principes" className="m-0">
               <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
                 <CardContent className="p-6">
                   <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
