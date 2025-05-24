@@ -1172,15 +1172,16 @@ Mise en relation intelligente :
 // Exporter la fonction pour l'utiliser dans d'autres fichiers
 export { initCyberSecurityModule };
 
-// Si ce fichier est exécuté directement
-if (require.main === module) {
-  initCyberSecurityModule()
-    .then(() => {
-      console.log("Initialisation terminée.");
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error("Erreur lors de l'initialisation :", error);
-      process.exit(1);
-    });
+// Fonction d'exécution autonome
+async function run() {
+  try {
+    await initCyberSecurityModule();
+    console.log("Initialisation terminée.");
+  } catch (error) {
+    console.error("Erreur lors de l'initialisation :", error);
+    process.exit(1);
+  }
 }
+
+// Exécuter si c'est le fichier principal
+run();
