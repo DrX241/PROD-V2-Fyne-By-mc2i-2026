@@ -2426,135 +2426,153 @@ export default function IntroductionCybersecurite() {
                   </p>
                   
                   <div className="space-y-4">
-                    <div className="flex gap-2 mb-3">
-                      <Button
-                        variant={!showAIAssistant ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setShowAIAssistant(false)}
-                        className={!showAIAssistant 
-                          ? "bg-blue-600 hover:bg-blue-700" 
-                          : "text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
-                        }
-                      >
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        Question unique
-                      </Button>
-                      <Button
-                        variant={showAIAssistant ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => {
-                          setShowAIAssistant(true);
-                          if (!completedInteractions.includes('ai-chat-mode')) {
-                            setUserPoints(prev => prev + 5);
-                            setCompletedInteractions(prev => [...prev, 'ai-chat-mode']);
-                            
-                            toast({
-                              title: "Mode conversation activé !",
-                              description: "+5 points pour explorer le chat avec l'IA",
-                            });
-                          }
-                        }}
-                        className={showAIAssistant 
-                          ? "bg-blue-600 hover:bg-blue-700" 
-                          : "text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
-                        }
-                      >
-                        <Brain className="h-4 w-4 mr-2" />
-                        Conversation
-                      </Button>
-                    </div>
-                    
-                    {!showAIAssistant ? (
-                      // Mode question unique
-                      <>
-                        <div className="flex items-center gap-2">
-                          <Input 
-                            placeholder="Ex: Qu'est-ce qu'un ransomware?" 
-                            className="bg-blue-900/30 border-blue-700 text-white"
-                            value={aiPrompt}
-                            onChange={(e) => setAiPrompt(e.target.value)}
-                          />
-                          <Button 
-                            onClick={generateAIResponse}
-                            disabled={isGeneratingAI || !aiPrompt.trim()}
-                            className="whitespace-nowrap bg-blue-600 hover:bg-blue-700"
-                          >
-                            {isGeneratingAI ? (
-                              <>
-                                <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
-                                Génération...
-                              </>
-                            ) : (
-                              <>
-                                <MessageCircle className="h-4 w-4 mr-2" />
-                                Demander
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                        
-                        {aiResponse && (
-                          <div className="p-3 bg-blue-900/20 border border-blue-700/50 rounded-md">
-                            <div className="flex items-start">
-                              <BrainCircuit className="h-5 w-5 text-blue-400 mr-2 mt-0.5" />
-                              <div className="text-sm text-blue-200 whitespace-pre-line">{aiResponse}</div>
-                            </div>
-                            {!completedInteractions.includes('ai-assistant') && (
-                              <div className="mt-2 pt-2 border-t border-blue-700/30 flex items-center">
-                                <Award className="h-4 w-4 text-amber-400 mr-1" />
-                                <span className="text-xs text-amber-300">+10 points pour avoir utilisé l'assistant IA!</span>
+                    {/* Interface unifiée de l'assistant IA */}
+                    <div className="p-3 bg-blue-900/20 border border-blue-700/50 rounded-md">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-medium text-white flex items-center">
+                          <Sparkles className="h-3 w-3 mr-1 text-blue-400" />
+                          Discussion avec l'Expert IA
+                        </h4>
+                        <Badge className="bg-green-600/70">
+                          <Cpu className="h-3 w-3 mr-1" />
+                          IA CONNECTÉE
+                        </Badge>
+                      </div>
+                      
+                      <p className="text-xs text-blue-200 mb-3">
+                        Posez n'importe quelle question sur la cybersécurité à notre assistant IA expert.
+                      </p>
+                      
+                      {/* Historique de conversation */}
+                      {miniGameChatHistory.length > 0 && (
+                        <div className="max-h-60 overflow-y-auto mb-3 space-y-3 bg-blue-950/70 p-3 rounded border border-blue-800/50">
+                          {miniGameChatHistory.map((msg, index) => (
+                            <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                              <div className={`max-w-[85%] p-2 rounded ${
+                                msg.role === 'user' 
+                                  ? 'bg-blue-600/50 text-white' 
+                                  : 'bg-blue-900/70 text-blue-200'
+                              }`}>
+                                <p className="text-xs whitespace-pre-line">{msg.content}</p>
                               </div>
-                            )}
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      // Mode conversation avec IA
-                      <div className="p-3 bg-blue-900/20 border border-blue-700/50 rounded-md">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="text-sm font-medium text-white flex items-center">
-                            <Sparkles className="h-3 w-3 mr-1 text-blue-400" />
-                            Discussion avec l'Expert IA
-                          </h4>
-                          <Badge className="bg-green-600/70">
-                            <Cpu className="h-3 w-3 mr-1" />
-                            CONNECTÉ
-                          </Badge>
+                            </div>
+                          ))}
                         </div>
-                        
-                        <p className="text-xs text-blue-200 mb-3">
-                          Posez n'importe quelle question sur la cybersécurité à notre assistant IA expert.
-                        </p>
-                        
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full text-blue-300 border-blue-800/50 hover:bg-blue-800/30 mb-2"
-                          onClick={() => {
-                            // Lancer la conversation avec l'IA via Azure OpenAI
-                            setAiPrompt("Comment puis-je me protéger contre les ransomwares ?");
-                            generateAIResponse();
+                      )}
+                      
+                      {/* Interface de saisie */}
+                      <div className="flex items-center gap-2">
+                        <Input 
+                          placeholder="Ex: Qu'est-ce qu'un ransomware?" 
+                          className="bg-blue-900/30 border-blue-700 text-white"
+                          value={aiPrompt}
+                          onChange={(e) => setAiPrompt(e.target.value)}
+                        />
+                        <Button 
+                          onClick={async () => {
+                            if (!aiPrompt.trim()) return;
                             
-                            if (!completedInteractions.includes('ai-full-convo')) {
-                              setUserPoints(prev => prev + 15);
-                              setCompletedInteractions(prev => [...prev, 'ai-full-convo']);
-                              
-                              toast({
-                                title: "Conversation IA démarrée !",
-                                description: "+15 points pour explorer la conversation complète avec l'IA",
+                            // Ajouter le message de l'utilisateur à l'historique
+                            const userMessage = { role: 'user', content: aiPrompt };
+                            const newHistory = [...miniGameChatHistory, userMessage];
+                            setMiniGameChatHistory(newHistory);
+                            
+                            // Générer la réponse
+                            setIsGeneratingAI(true);
+                            
+                            try {
+                              const response = await fetch('/api/openai/chat', {
+                                method: 'POST',
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                  messages: [
+                                    {
+                                      role: 'system',
+                                      content: 'Tu es un expert en cybersécurité spécialisé dans la formation et l\'éducation. Tu fournis des réponses précises, techniques mais accessibles sur tous les sujets liés à la cybersécurité. Tes réponses doivent être informatives, instructives et basées sur les meilleures pratiques actuelles du secteur. Reste strictement dans le domaine de la cybersécurité.'
+                                    },
+                                    ...newHistory.map(msg => ({
+                                      role: msg.role,
+                                      content: msg.content
+                                    }))
+                                  ],
+                                  temperature: 0.3,
+                                  max_tokens: 800
+                                }),
                               });
+                              
+                              if (!response.ok) {
+                                throw new Error('Erreur API');
+                              }
+                              
+                              const data = await response.json();
+                              const aiContent = data.choices?.[0]?.message?.content || 
+                                "Je ne peux pas répondre à cette question actuellement. Veuillez réessayer.";
+                              
+                              // Ajouter la réponse à l'historique
+                              setMiniGameChatHistory([...newHistory, { role: 'assistant', content: aiContent }]);
+                              
+                              // Ajouter des points si première utilisation
+                              if (!completedInteractions.includes('ai-assistant')) {
+                                setUserPoints(prev => prev + 15);
+                                setCompletedInteractions(prev => [...prev, 'ai-assistant']);
+                                
+                                toast({
+                                  title: "Expert IA consulté !",
+                                  description: "+15 points pour avoir dialogué avec l'expert en cybersécurité",
+                                });
+                              }
+                            } catch (error) {
+                              console.error('Erreur lors de l\'appel à l\'API:', error);
+                              toast({
+                                title: "Erreur de connexion",
+                                description: "Impossible de contacter l'assistant IA. Veuillez réessayer.",
+                                variant: "destructive"
+                              });
+                            } finally {
+                              setAiPrompt("");
+                              setIsGeneratingAI(false);
                             }
                           }}
+                          disabled={isGeneratingAI || !aiPrompt.trim()}
+                          className="whitespace-nowrap bg-blue-600 hover:bg-blue-700"
                         >
-                          <MessageCircle className="h-4 w-4 mr-2" />
-                          Démarrer la conversation
+                          {isGeneratingAI ? (
+                            <>
+                              <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+                              Génération...
+                            </>
+                          ) : (
+                            <>
+                              <MessageCircle className="h-4 w-4 mr-2" />
+                              Envoyer
+                            </>
+                          )}
                         </Button>
-                        
-                        <div className="text-xs text-gray-400 mt-1 text-center">
+                      </div>
+                      
+                      <div className="flex justify-between mt-3">
+                        <div className="text-xs text-gray-400 text-center">
                           Propulsé par notre IA avancée
                         </div>
+                        
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-300 hover:text-red-200 hover:bg-red-900/20 p-1 h-auto"
+                          onClick={() => {
+                            setMiniGameChatHistory([]);
+                            toast({
+                              title: "Conversation réinitialisée",
+                              description: "L'historique a été effacé"
+                            });
+                          }}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
