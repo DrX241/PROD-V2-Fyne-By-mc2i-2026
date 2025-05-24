@@ -1328,7 +1328,7 @@ export default function IntroductionCybersecurite() {
                               </div>
                               
                               <p className="text-xs text-gray-400 text-center">
-                                Nos experts en cybersécurité sont propulsés par Azure OpenAI
+                                Nos experts en cybersécurité sont propulsés par une IA avancée
                               </p>
                             </div>
                           </motion.div>
@@ -1566,7 +1566,7 @@ export default function IntroductionCybersecurite() {
                               </div>
                               
                               <p className="text-xs text-gray-400 text-center">
-                                Nos experts en cybersécurité sont propulsés par Azure OpenAI
+                                Nos experts en cybersécurité sont propulsés par une IA avancée
                               </p>
                             </div>
                           </motion.div>
@@ -1830,7 +1830,7 @@ export default function IntroductionCybersecurite() {
                               </div>
                               
                               <p className="text-xs text-gray-400 text-center">
-                                Nos experts en cybersécurité sont propulsés par Azure OpenAI
+                                Nos experts en cybersécurité sont propulsés par une IA avancée
                               </p>
                             </div>
                           </motion.div>
@@ -2514,7 +2514,7 @@ export default function IntroductionCybersecurite() {
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="text-sm font-medium text-white flex items-center">
                             <Sparkles className="h-3 w-3 mr-1 text-blue-400" />
-                            Discussion avec Azure OpenAI
+                            Discussion avec l'Expert IA
                           </h4>
                           <Badge className="bg-green-600/70">
                             <Cpu className="h-3 w-3 mr-1" />
@@ -2523,7 +2523,7 @@ export default function IntroductionCybersecurite() {
                         </div>
                         
                         <p className="text-xs text-blue-200 mb-3">
-                          Posez n'importe quelle question sur la cybersécurité à notre assistant IA propulsé par Azure OpenAI.
+                          Posez n'importe quelle question sur la cybersécurité à notre assistant IA expert.
                         </p>
                         
                         <Button
@@ -2551,7 +2551,7 @@ export default function IntroductionCybersecurite() {
                         </Button>
                         
                         <div className="text-xs text-gray-400 mt-1 text-center">
-                          Propulsé par Azure OpenAI
+                          Propulsé par notre IA avancée
                         </div>
                       </div>
                     )}
