@@ -46,7 +46,7 @@ export default function DataIaRoleplay() {
           className="bg-black/50 border-indigo-800 text-indigo-400 hover:bg-black/70 hover:text-indigo-300 hover:border-indigo-500 transition-colors"
           onClick={() => setLocation('/data-ia')}
         >
-          <ArrowLeft className="h-4 w-4 mr-1" />
+          <ChevronLeft className="h-4 w-4 mr-1" />
           Retour
         </Button>
       </div>
@@ -99,107 +99,113 @@ export default function DataIaRoleplay() {
       </div>
       
       {/* Options de rôles */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-8 relative z-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto px-4 relative z-10">
         {/* Option 1: Je suis Consultant Data & IA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            whileHover={{ scale: 1.02 }}
-          >
-            <Card className="h-full bg-gradient-to-br from-indigo-900/40 to-indigo-950 border-indigo-700 hover:border-indigo-500 hover:shadow-lg transition-all duration-300">
-              <CardHeader>
-                <div className="flex justify-center mb-4">
-                  <div className="p-4 rounded-full bg-indigo-800/70">
-                    <Code className="h-10 w-10 text-indigo-200" />
-                  </div>
+        <motion.div
+          initial="initial"
+          animate="animate"
+          whileHover="hover"
+          variants={cardVariants}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="w-full bg-gradient-to-br from-indigo-900/40 to-indigo-950 border-indigo-700/30 hover:border-indigo-500/50 hover:shadow-lg transition-all duration-300">
+            <CardHeader>
+              <div className="flex justify-center mb-4">
+                <div className="p-4 rounded-full bg-indigo-800/70">
+                  <Code className="h-10 w-10 text-indigo-200" />
                 </div>
-                <CardTitle className="text-2xl text-center mb-2">Je suis Consultant Data & IA</CardTitle>
-                <CardDescription className="text-indigo-300 text-center text-lg">
-                  Je teste mes compétences à travers des QCM
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <p className="mb-6 text-indigo-200">
-                  Analysez du code Python et SQL pour résoudre des problèmes d'analyse de données complexes et testez vos connaissances techniques.
-                </p>
-                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
-                  <li className="flex items-center text-indigo-200">
-                    <div className="h-2 w-2 rounded-full bg-indigo-400 mr-2"></div>
-                    Analyse de code Python et SQL
-                  </li>
-                  <li className="flex items-center text-indigo-200">
-                    <div className="h-2 w-2 rounded-full bg-indigo-400 mr-2"></div>
-                    QCM techniques et explicatifs
-                  </li>
-                  <li className="flex items-center text-indigo-200">
-                    <div className="h-2 w-2 rounded-full bg-indigo-400 mr-2"></div>
-                    Progression par niveaux de difficulté
-                  </li>
-                </ul>
-              </CardContent>
-              <CardFooter className="flex justify-center">
-                <Button 
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-5"
-                  onClick={() => setLocation('/data-ia/roleplay/read-me-if-you-can')}
-                >
+              </div>
+              <CardTitle className="text-2xl text-center mb-2">Je suis Consultant Data & IA</CardTitle>
+              <CardDescription className="text-indigo-300 text-center text-lg">
+                Je teste mes compétences à travers des QCM
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="mb-6 text-indigo-200">
+                Analysez du code Python et SQL pour résoudre des problèmes d'analyse de données complexes et testez vos connaissances techniques.
+              </p>
+              <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
+                <li className="flex items-center text-indigo-200">
+                  <div className="h-2 w-2 rounded-full bg-indigo-400 mr-2"></div>
+                  Analyse de code Python et SQL
+                </li>
+                <li className="flex items-center text-indigo-200">
+                  <div className="h-2 w-2 rounded-full bg-indigo-400 mr-2"></div>
+                  QCM techniques et explicatifs
+                </li>
+                <li className="flex items-center text-indigo-200">
+                  <div className="h-2 w-2 rounded-full bg-indigo-400 mr-2"></div>
+                  Progression par niveaux de difficulté
+                </li>
+              </ul>
+            </CardContent>
+            <CardFooter className="flex justify-center">
+              <Button 
+                className="w-full py-6 bg-gradient-to-r from-indigo-700 to-indigo-600 hover:from-indigo-600 hover:to-indigo-500 text-white group"
+                onClick={() => setLocation('/data-ia/roleplay/read-me-if-you-can')}
+              >
+                <span className="flex items-center">
                   Commencer le défi
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
-          </motion.div>
+                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </span>
+              </Button>
+            </CardFooter>
+          </Card>
+        </motion.div>
 
-          {/* Option 2: Je suis Data Scientist */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            whileHover={{ scale: 1.02 }}
-          >
-            <Card className="h-full bg-gradient-to-br from-blue-900/40 to-blue-950 border-blue-700 hover:border-blue-500 hover:shadow-lg transition-all duration-300">
-              <CardHeader>
-                <div className="flex justify-center mb-4">
-                  <div className="p-4 rounded-full bg-blue-800/70">
-                    <BsFileEarmarkCode className="h-10 w-10 text-blue-200" />
-                  </div>
+        {/* Option 2: Je suis Data Scientist */}
+        <motion.div
+          initial="initial"
+          animate="animate"
+          whileHover="hover"
+          variants={cardVariants}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <Card className="w-full bg-gradient-to-br from-blue-900/40 to-blue-950 border-blue-700/30 hover:border-blue-500/50 hover:shadow-lg transition-all duration-300">
+            <CardHeader>
+              <div className="flex justify-center mb-4">
+                <div className="p-4 rounded-full bg-blue-800/70">
+                  <BsFileEarmarkCode className="h-10 w-10 text-blue-200" />
                 </div>
-                <CardTitle className="text-2xl text-center mb-2">Je suis Data Scientist</CardTitle>
-                <CardDescription className="text-blue-300 text-center text-lg">
-                  Je crée et teste des algorithmes d'analyse
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <p className="mb-6 text-blue-200">
-                  Développez et testez des algorithmes dans un environnement interactif avec assistance IA pour améliorer vos compétences pratiques.
-                </p>
-                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
-                  <li className="flex items-center text-blue-200">
-                    <div className="h-2 w-2 rounded-full bg-blue-400 mr-2"></div>
-                    Laboratoire de code interactif
-                  </li>
-                  <li className="flex items-center text-blue-200">
-                    <div className="h-2 w-2 rounded-full bg-blue-400 mr-2"></div>
-                    Assistance IA pour l'analyse
-                  </li>
-                  <li className="flex items-center text-blue-200">
-                    <div className="h-2 w-2 rounded-full bg-blue-400 mr-2"></div>
-                    Environnement Python et SQL
-                  </li>
-                </ul>
-              </CardContent>
-              <CardFooter className="flex justify-center">
-                <Button 
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-5"
-                  onClick={() => setLocation('/data-ia/roleplay/ia-lab-trainer')}
-                >
+              </div>
+              <CardTitle className="text-2xl text-center mb-2">Je suis Data Scientist</CardTitle>
+              <CardDescription className="text-blue-300 text-center text-lg">
+                Je crée et teste des algorithmes d'analyse
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="mb-6 text-blue-200">
+                Développez et testez des algorithmes dans un environnement interactif avec assistance IA pour améliorer vos compétences pratiques.
+              </p>
+              <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
+                <li className="flex items-center text-blue-200">
+                  <div className="h-2 w-2 rounded-full bg-blue-400 mr-2"></div>
+                  Laboratoire de code interactif
+                </li>
+                <li className="flex items-center text-blue-200">
+                  <div className="h-2 w-2 rounded-full bg-blue-400 mr-2"></div>
+                  Assistance IA pour l'analyse
+                </li>
+                <li className="flex items-center text-blue-200">
+                  <div className="h-2 w-2 rounded-full bg-blue-400 mr-2"></div>
+                  Environnement Python et SQL
+                </li>
+              </ul>
+            </CardContent>
+            <CardFooter className="flex justify-center">
+              <Button 
+                className="w-full py-6 bg-gradient-to-r from-blue-700 to-blue-600 hover:from-blue-600 hover:to-blue-500 text-white group"
+                onClick={() => setLocation('/data-ia/roleplay/ia-lab-trainer')}
+              >
+                <span className="flex items-center">
                   Accéder au laboratoire
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
-          </motion.div>
-        </div>
+                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </span>
+              </Button>
+            </CardFooter>
+          </Card>
+        </motion.div>
+      </div>
       
       {/* Note en bas de page */}
       <div className="text-center text-gray-500 mt-12 text-sm relative z-10">
