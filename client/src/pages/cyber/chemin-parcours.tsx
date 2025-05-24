@@ -84,19 +84,19 @@ const ParcoursPersonnalise = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900">
       <PageTitle title="Parcours Personnalisé | Cyber Académie" />
       
       {/* En-tête avec navigation */}
-      <div className="border-b border-gray-200 bg-white shadow-sm">
+      <div className="border-b border-blue-900/30 bg-slate-900/60 shadow-md">
         <div className="container mx-auto px-4 py-4 flex items-center">
           <Link href="/cyber/sas-academie">
-            <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
+            <Button variant="ghost" className="text-blue-300 hover:text-blue-100">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Retour
             </Button>
           </Link>
-          <h1 className="ml-4 text-xl font-semibold text-gray-900">Votre Parcours Éclairé</h1>
+          <h1 className="ml-4 text-xl font-semibold text-white">Votre Parcours Éclairé</h1>
         </div>
       </div>
       
@@ -104,30 +104,30 @@ const ParcoursPersonnalise = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-3">Créez votre parcours de formation personnalisé</h1>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <h1 className="text-3xl font-bold text-white mb-3">Créez votre parcours de formation personnalisé</h1>
+            <p className="text-blue-300 max-w-2xl mx-auto">
               Décrivez simplement ce que vous cherchez à apprendre en cybersécurité, et notre IA générera un parcours d'apprentissage sur mesure.
             </p>
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="saisie">Votre objectif</TabsTrigger>
-              <TabsTrigger value="resultat" disabled={parcours.length === 0}>Votre parcours</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-blue-900/50">
+              <TabsTrigger value="saisie" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-blue-200">Votre objectif</TabsTrigger>
+              <TabsTrigger value="resultat" disabled={parcours.length === 0} className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-blue-200">Votre parcours</TabsTrigger>
             </TabsList>
             
             <TabsContent value="saisie" className="mt-6">
-              <Card className="border-blue-100 shadow-lg">
+              <Card className="border-blue-800/50 shadow-lg bg-slate-900/70">
                 <CardContent className="p-6">
                   <div className="mb-6">
-                    <label className="block text-gray-700 font-medium mb-2">
+                    <label className="block text-blue-100 font-medium mb-2">
                       Décrivez votre objectif d'apprentissage en cybersécurité
                     </label>
                     <Textarea
                       placeholder="Ex: Je veux apprendre à sécuriser mon organisation contre les ransomwares, Je souhaite comprendre les bases de la cybersécurité sans jargon technique..."
                       value={intention}
                       onChange={(e) => setIntention(e.target.value)}
-                      className="min-h-[120px] text-gray-700"
+                      className="min-h-[120px] text-white bg-slate-800 border-slate-700 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
                   
@@ -151,19 +151,19 @@ const ParcoursPersonnalise = () => {
                     </Button>
                   </div>
                   
-                  <div className="mt-8 border-t border-gray-100 pt-6">
-                    <h3 className="font-medium text-gray-700 mb-3 flex items-center">
-                      <BookOpen className="h-4 w-4 mr-2 text-blue-500" />
+                  <div className="mt-8 border-t border-blue-900/30 pt-6">
+                    <h3 className="font-medium text-blue-100 mb-3 flex items-center">
+                      <BookOpen className="h-4 w-4 mr-2 text-blue-400" />
                       Exemples d'objectifs
                     </h3>
-                    <ul className="space-y-2 text-sm text-gray-600">
-                      <li className="cursor-pointer hover:text-blue-600" onClick={() => setIntention("Je veux comprendre les risques cyber pour bien communiquer avec nos équipes IT")}>
+                    <ul className="space-y-2 text-sm text-blue-200">
+                      <li className="cursor-pointer hover:text-blue-400 transition-colors p-2 rounded hover:bg-blue-900/30" onClick={() => setIntention("Je veux comprendre les risques cyber pour bien communiquer avec nos équipes IT")}>
                         "Je veux comprendre les risques cyber pour bien communiquer avec nos équipes IT"
                       </li>
-                      <li className="cursor-pointer hover:text-blue-600" onClick={() => setIntention("Je dois mettre en place un plan de réponse aux incidents de sécurité")}>
+                      <li className="cursor-pointer hover:text-blue-400 transition-colors p-2 rounded hover:bg-blue-900/30" onClick={() => setIntention("Je dois mettre en place un plan de réponse aux incidents de sécurité")}>
                         "Je dois mettre en place un plan de réponse aux incidents de sécurité"
                       </li>
-                      <li className="cursor-pointer hover:text-blue-600" onClick={() => setIntention("Je souhaite apprendre à sensibiliser mes équipes aux risques de phishing")}>
+                      <li className="cursor-pointer hover:text-blue-400 transition-colors p-2 rounded hover:bg-blue-900/30" onClick={() => setIntention("Je souhaite apprendre à sensibiliser mes équipes aux risques de phishing")}>
                         "Je souhaite apprendre à sensibiliser mes équipes aux risques de phishing"
                       </li>
                     </ul>
@@ -179,17 +179,17 @@ const ParcoursPersonnalise = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <Card className="border-blue-100 shadow-lg mb-8">
+                  <Card className="border-blue-800/50 shadow-lg bg-slate-900/70 mb-8">
                     <CardContent className="p-6">
                       <div className="mb-6">
-                        <h2 className="text-xl font-semibold text-gray-800 mb-2">Votre parcours personnalisé</h2>
-                        <p className="text-gray-600">
-                          Voici le parcours créé spécialement pour vous en fonction de votre objectif. 
-                          Vous pouvez suivre ces modules dans l'ordre proposé pour une progression optimale.
+                        <h2 className="text-xl font-semibold text-white mb-2">Votre parcours personnalisé</h2>
+                        <p className="text-blue-200">
+                          Voici le parcours créé en temps réel pour vous, en fonction de votre objectif. 
+                          Ces ressources sont générées spécifiquement pour répondre à vos besoins.
                         </p>
                       </div>
                       
-                      <div className="relative pl-8 border-l-2 border-blue-200">
+                      <div className="relative pl-8 border-l-2 border-blue-600/70">
                         {parcours.map((module, index) => (
                           <motion.div 
                             key={module.id}
@@ -198,29 +198,45 @@ const ParcoursPersonnalise = () => {
                             transition={{ delay: index * 0.2, duration: 0.4 }}
                             className="mb-8 relative"
                           >
-                            <div className="absolute -left-[42px] bg-white p-1 rounded-full border-2 border-blue-200">
+                            <div className="absolute -left-[42px] bg-slate-800 p-1 rounded-full border-2 border-blue-600/70">
                               {module.icon}
                             </div>
-                            <Link href={module.link}>
-                              <Card className="cursor-pointer hover:shadow-md transition-shadow border-gray-200">
-                                <CardContent className="p-4">
-                                  <div className="flex justify-between items-start">
-                                    <div>
-                                      <h3 className="font-semibold text-gray-800">{module.title}</h3>
-                                      <p className="text-gray-600 text-sm mt-1">{module.description}</p>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                      <Badge className={module.color}>
-                                        {module.type}
-                                      </Badge>
-                                      <Badge variant="outline" className="text-gray-500 border-gray-200">
-                                        {module.duree}
-                                      </Badge>
+                            <Card className="cursor-pointer hover:shadow-md transition-all border-blue-900/30 bg-slate-800/50 hover:bg-slate-800/80">
+                              <CardContent className="p-5">
+                                <div className="flex justify-between items-start mb-4">
+                                  <div>
+                                    <h3 className="font-semibold text-white text-lg">{module.title}</h3>
+                                    <p className="text-blue-200 text-sm mt-1">{module.description}</p>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <Badge className={`${module.color} ml-2`}>
+                                      {module.type}
+                                    </Badge>
+                                    <Badge variant="outline" className="text-blue-300 border-blue-800">
+                                      {module.duree}
+                                    </Badge>
+                                  </div>
+                                </div>
+                                
+                                <div className="p-3 bg-slate-900/70 rounded-md border border-blue-900/20 mt-2">
+                                  <div className="text-blue-100 text-sm">
+                                    <div className="space-y-2">
+                                      <p>Ce module de micro-learning personnalisé couvre les points clés suivants :</p>
+                                      <ul className="list-disc pl-5 space-y-1 text-blue-200">
+                                        <li>Concepts fondamentaux et terminologie</li>
+                                        <li>Approches pratiques et méthodologies</li>
+                                        <li>Études de cas pertinentes</li>
+                                      </ul>
+                                      <div className="pt-2">
+                                        <Button className="w-full bg-blue-700 hover:bg-blue-600 text-white">
+                                          Accéder au contenu personnalisé
+                                        </Button>
+                                      </div>
                                     </div>
                                   </div>
-                                </CardContent>
-                              </Card>
-                            </Link>
+                                </div>
+                              </CardContent>
+                            </Card>
                           </motion.div>
                         ))}
                       </div>
@@ -233,11 +249,11 @@ const ParcoursPersonnalise = () => {
                             setParcours([]);
                           }}
                           variant="outline"
-                          className="mr-3"
+                          className="mr-3 border-blue-700 text-blue-300 hover:bg-blue-900/30"
                         >
                           Recommencer
                         </Button>
-                        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                        <Button className="bg-blue-700 hover:bg-blue-600 text-white">
                           Sauvegarder ce parcours
                         </Button>
                       </div>
