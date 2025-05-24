@@ -12,10 +12,10 @@ export default function AmoaRoleplay() {
   const [_, setLocation] = useLocation();
   return (
     <HomeLayout>
-      <div className="bg-gradient-to-b from-blue-900 via-blue-950 to-gray-900 pt-10 pb-8 text-white">
+      <div style={{ height: 'auto', maxHeight: '100vh', overflowY: 'auto' }} className="bg-gradient-to-b from-blue-900 via-blue-950 to-gray-900 pt-16 pb-12 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* En-tête */}
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Link href="/amoa/new">
                 <Button variant="outline" className="bg-blue-900/30 text-white border-blue-800/50 hover:bg-blue-800/40">
@@ -32,14 +32,15 @@ export default function AmoaRoleplay() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mb-6 max-w-4xl mx-auto"
+            className="mb-10 max-w-4xl mx-auto"
           >
-            <h2 className="text-2xl font-bold mb-2">Simulations métier et situations professionnelles interactives</h2>
-            <p className="text-blue-200 mb-2">
+            <h2 className="text-2xl font-bold mb-3">Simulations métier et situations professionnelles interactives</h2>
+            <p className="text-blue-200 mb-4">
               Développez vos compétences en entretien client, recrutement et prospection commerciale grâce à notre plateforme
-              de jeux de rôle alimentée par l'IA.
+              de jeux de rôle alimentée par l'IA. Entraînez-vous à des situations professionnelles réelles dans un environnement
+              sécurisé et recevez des feedbacks personnalisés.
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-3">
               <Badge className="bg-blue-700 hover:bg-blue-600">Entretien client</Badge>
               <Badge className="bg-blue-700 hover:bg-blue-600">Recrutement</Badge>
               <Badge className="bg-blue-700 hover:bg-blue-600">Prospection commerciale</Badge>
@@ -48,38 +49,38 @@ export default function AmoaRoleplay() {
           </motion.div>
 
           {/* Types de jeux de rôle */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 mx-auto max-w-4xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 mx-auto max-w-4xl">
             {/* Préparation d'audition */}
             <Card 
               className="bg-gradient-to-br from-blue-900/80 to-blue-950/90 border border-blue-800/30 backdrop-blur-sm hover:shadow-lg hover:border-blue-700/50 transition-all"
             >
-              <CardHeader className="pb-1">
-                <div className="flex items-center justify-center mb-2">
-                  <div className="p-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 shadow-md">
-                    <Briefcase className="h-6 w-6 text-white" />
+              <CardHeader>
+                <div className="flex items-center justify-center mb-4">
+                  <div className="p-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 shadow-md">
+                    <Briefcase className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-center text-xl font-bold">Je suis Consultant</CardTitle>
-                <CardDescription className="text-center text-blue-300">
+                <CardTitle className="text-center text-2xl font-bold">Je suis Consultant</CardTitle>
+                <CardDescription className="text-center text-blue-300 text-lg">
                   Je prépare une audition client
                 </CardDescription>
               </CardHeader>
-              <CardContent className="text-center py-2">
-                <ul className="mb-3 text-xs text-blue-200 flex flex-col gap-1">
-                  <li className="flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3 text-blue-400 flex-shrink-0" />
+              <CardContent className="text-center">
+                <ul className="mb-6 text-sm text-blue-200 flex flex-col gap-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0" />
                     <span>Dialogues avec clients réalistes</span>
                   </li>
-                  <li className="flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3 text-blue-400 flex-shrink-0" />
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0" />
                     <span>Entraînement à la présentation</span>
                   </li>
-                  <li className="flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3 text-blue-400 flex-shrink-0" />
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0" />
                     <span>Feedback détaillé</span>
                   </li>
-                  <li className="flex items-center gap-1">
-                    <Clock className="h-3 w-3 text-blue-400 flex-shrink-0" />
+                  <li className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-blue-400 flex-shrink-0" />
                     <span>15-20 minutes par session</span>
                   </li>
                 </ul>
@@ -92,37 +93,39 @@ export default function AmoaRoleplay() {
               </CardContent>
             </Card>
 
+
+
             {/* Prospection Challenge (Ancien ProspectPulse) */}
             <Card 
               className="bg-gradient-to-br from-orange-900/80 to-red-950/90 border border-orange-800/30 backdrop-blur-sm hover:shadow-lg hover:border-orange-700/50 transition-all"
             >
-              <CardHeader className="pb-1">
-                <div className="flex items-center justify-center mb-2">
-                  <div className="p-2 rounded-lg bg-gradient-to-r from-amber-600 to-red-600 shadow-md">
-                    <Zap className="h-6 w-6 text-white" />
+              <CardHeader>
+                <div className="flex items-center justify-center mb-4">
+                  <div className="p-3 rounded-lg bg-gradient-to-r from-amber-600 to-red-600 shadow-md">
+                    <Zap className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-center text-xl font-bold">Je suis Sénior Manager</CardTitle>
-                <CardDescription className="text-center text-orange-300">
+                <CardTitle className="text-center text-2xl font-bold">Je suis Sénior Manager</CardTitle>
+                <CardDescription className="text-center text-orange-300 text-lg">
                   Je prépare un RDV commercial
                 </CardDescription>
               </CardHeader>
-              <CardContent className="text-center py-2">
-                <ul className="mb-3 text-xs text-orange-200 flex flex-col gap-1">
-                  <li className="flex items-center gap-1">
-                    <AlertCircle className="h-3 w-3 text-orange-400 flex-shrink-0" />
+              <CardContent className="text-center">
+                <ul className="mb-6 text-sm text-orange-200 flex flex-col gap-2">
+                  <li className="flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 text-orange-400 flex-shrink-0" />
                     <span>Chat client imprévu en temps réel</span>
                   </li>
-                  <li className="flex items-center gap-1">
-                    <Timer className="h-3 w-3 text-orange-400 flex-shrink-0" />
+                  <li className="flex items-center gap-2">
+                    <Timer className="h-4 w-4 text-orange-400 flex-shrink-0" />
                     <span>Réponses limitées à 20 secondes</span>
                   </li>
-                  <li className="flex items-center gap-1">
-                    <Shuffle className="h-3 w-3 text-orange-400 flex-shrink-0" />
+                  <li className="flex items-center gap-2">
+                    <Shuffle className="h-4 w-4 text-orange-400 flex-shrink-0" />
                     <span>Scénarios et profils clients variés</span>
                   </li>
-                  <li className="flex items-center gap-1">
-                    <Target className="h-3 w-3 text-orange-400 flex-shrink-0" />
+                  <li className="flex items-center gap-2">
+                    <Target className="h-4 w-4 text-orange-400 flex-shrink-0" />
                     <span>Évaluation des compétences commerciales</span>
                   </li>
                 </ul>
@@ -134,6 +137,8 @@ export default function AmoaRoleplay() {
                 </Button>
               </CardContent>
             </Card>
+
+
           </div>
 
           {/* Section évolutions à venir */}
@@ -141,32 +146,36 @@ export default function AmoaRoleplay() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-blue-950/50 border border-blue-900/30 rounded-xl p-3 max-w-4xl mx-auto"
+            className="bg-blue-950/50 border border-blue-900/30 rounded-xl p-6 max-w-4xl mx-auto"
           >
-            <h3 className="text-lg font-bold mb-2 flex items-center">
-              <FileText className="mr-2 h-4 w-4" />
+            <h3 className="text-xl font-bold mb-4 flex items-center">
+              <FileText className="mr-2 h-5 w-5" />
               Évolutions à venir
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="bg-blue-900/30 rounded-lg p-3 flex items-start gap-2 border border-blue-800/30 hover:border-blue-700/50 transition-all">
-                <div className="bg-blue-800/60 p-1 rounded-lg">
-                  <MessageSquare className="h-4 w-4 text-blue-300" />
+            <p className="text-blue-200 mb-6">
+              Notre module mc2i ROLE PLAY s'enrichira bientôt de nouvelles fonctionnalités pour vous aider à progresser 
+              dans toutes les situations professionnelles que vous pourriez rencontrer.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-blue-900/30 rounded-lg p-5 flex items-start gap-4 border border-blue-800/30 hover:border-blue-700/50 transition-all">
+                <div className="bg-blue-800/60 p-2 rounded-lg">
+                  <MessageSquare className="h-6 w-6 text-blue-300" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-blue-100 text-sm">Situations multi-interlocuteurs</h4>
-                  <p className="text-xs text-blue-300 mt-1">Simulations d'entretiens avec plusieurs participants pour des scénarios plus réalistes.</p>
+                  <h4 className="font-medium text-blue-100 text-lg">Situations multi-interlocuteurs</h4>
+                  <p className="text-sm text-blue-300 mt-2">Simulations d'entretiens impliquant plusieurs participants avec différents rôles pour des scénarios plus complexes et réalistes.</p>
                 </div>
               </div>
-              <div className="bg-purple-900/40 rounded-lg p-3 flex items-start gap-2 border border-purple-800/30 hover:border-purple-700/50 transition-all">
-                <div className="bg-purple-700/60 p-1 rounded-lg">
-                  <Timer className="h-4 w-4 text-purple-300" />
+              <div className="bg-purple-900/40 rounded-lg p-5 flex items-start gap-4 border border-purple-800/30 hover:border-purple-700/50 transition-all">
+                <div className="bg-purple-700/60 p-2 rounded-lg">
+                  <Timer className="h-6 w-6 text-purple-300" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-purple-100 flex items-center gap-1 text-sm">
+                  <h4 className="font-medium text-purple-100 flex items-center gap-2 text-lg">
                     Mode Audio en temps réel
-                    <Badge className="bg-purple-800/80 text-purple-100 text-[0.6rem] px-1 py-0">SOON</Badge>
+                    <Badge className="bg-purple-800/80 text-purple-100 text-xs">COMING SOON</Badge>
                   </h4>
-                  <p className="text-xs text-purple-300 mt-1">Interagissez vocalement avec une IA pour des échanges naturels et immédiats.</p>
+                  <p className="text-sm text-purple-300 mt-2">Interagissez vocalement avec une IA réactive pour des échanges naturels et immédiats, sans délai de traitement, pour une expérience encore plus réaliste.</p>
                 </div>
               </div>
             </div>
