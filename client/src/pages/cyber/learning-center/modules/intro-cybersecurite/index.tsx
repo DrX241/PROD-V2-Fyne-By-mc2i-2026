@@ -806,7 +806,30 @@ export default function IntroductionCybersecurite() {
                     className="prose prose-invert max-w-none"
                   >
                     <div className="mb-4 p-3 bg-blue-900/30 rounded-lg border border-blue-700/50">
-                      <h3 className="text-xl font-bold text-white">{caseStudy.title}</h3>
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-xl font-bold text-white">{caseStudy.title}</h3>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setShowCaseTechnicalDetails(!showCaseTechnicalDetails);
+                            
+                            if (!completedInteractions.includes(`technical-details-${selectedCaseStudy}`)) {
+                              setUserPoints(prev => prev + 10);
+                              setCompletedInteractions(prev => [...prev, `technical-details-${selectedCaseStudy}`]);
+                              
+                              toast({
+                                title: "Détails techniques débloqués !",
+                                description: "+10 points pour votre intérêt aux aspects techniques",
+                              });
+                            }
+                          }}
+                          className="text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
+                        >
+                          <FileText className="h-4 w-4 mr-1" />
+                          {showCaseTechnicalDetails ? "Masquer les détails" : "Détails techniques"}
+                        </Button>
+                      </div>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -856,6 +879,167 @@ export default function IntroductionCybersecurite() {
                         </ul>
                       </div>
                     </div>
+                    
+                    {/* Section détails techniques des malwares/attaques */}
+                    {showCaseTechnicalDetails && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-4 mb-6 bg-red-900/10 p-4 rounded-lg border border-red-800/30"
+                      >
+                        <div className="flex items-center mb-3">
+                          <Shield className="h-5 w-5 text-red-400 mr-2" />
+                          <h4 className="text-lg font-semibold text-white">Détails techniques de l'attaque</h4>
+                        </div>
+                        
+                        {selectedCaseStudy === 0 && caseStudy.ransomware && (
+                          <div className="space-y-4">
+                            <div className="flex items-center">
+                              <Badge className="bg-red-600/70">
+                                <Flame className="h-3 w-3 mr-1" />
+                                RANSOMWARE
+                              </Badge>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                              <div>
+                                <p className="text-white font-medium">Nom du malware:</p>
+                                <p className="text-blue-200">{caseStudy.ransomware.name}</p>
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">Origine:</p>
+                                <p className="text-blue-200">{caseStudy.ransomware.origin}</p>
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">Tactiques:</p>
+                                <p className="text-blue-200">{caseStudy.ransomware.tactics}</p>
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">Cryptographie:</p>
+                                <p className="text-blue-200">{caseStudy.ransomware.encryption}</p>
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <p className="text-white font-medium mb-1">Chronologie de l'attaque:</p>
+                              <ul className="bg-blue-900/30 p-3 rounded border border-blue-800/40 text-xs text-blue-200 space-y-1 list-disc pl-5">
+                                {caseStudy.ransomware.timeline.map((event, index) => (
+                                  <li key={index}>{event}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            
+                            <div>
+                              <p className="text-white font-medium mb-1">Spécificités techniques:</p>
+                              <p className="bg-blue-900/30 p-3 rounded border border-blue-800/40 text-xs text-blue-200">
+                                {caseStudy.ransomware.technical_details}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {selectedCaseStudy === 1 && caseStudy.malware && (
+                          <div className="space-y-4">
+                            <div className="flex items-center">
+                              <Badge className="bg-amber-600/70">
+                                <Shield className="h-3 w-3 mr-1" />
+                                MALWARE APT
+                              </Badge>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                              <div>
+                                <p className="text-white font-medium">Nom du malware:</p>
+                                <p className="text-blue-200">{caseStudy.malware.name}</p>
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">Origine:</p>
+                                <p className="text-blue-200">{caseStudy.malware.origin}</p>
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">Tactiques:</p>
+                                <p className="text-blue-200">{caseStudy.malware.tactics}</p>
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">Furtivité:</p>
+                                <p className="text-blue-200">{caseStudy.malware.stealth}</p>
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <p className="text-white font-medium mb-1">Chronologie de l'attaque:</p>
+                              <ul className="bg-blue-900/30 p-3 rounded border border-blue-800/40 text-xs text-blue-200 space-y-1 list-disc pl-5">
+                                {caseStudy.malware.timeline.map((event, index) => (
+                                  <li key={index}>{event}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            
+                            <div>
+                              <p className="text-white font-medium mb-1">Spécificités techniques:</p>
+                              <p className="bg-blue-900/30 p-3 rounded border border-blue-800/40 text-xs text-blue-200">
+                                {caseStudy.malware.technical_details}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {selectedCaseStudy === 2 && caseStudy.vulnerability && (
+                          <div className="space-y-4">
+                            <div className="flex items-center">
+                              <Badge className="bg-purple-600/70">
+                                <Code className="h-3 w-3 mr-1" />
+                                VULNÉRABILITÉ
+                              </Badge>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                              <div>
+                                <p className="text-white font-medium">Nom:</p>
+                                <p className="text-blue-200">{caseStudy.vulnerability.name}</p>
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">Sévérité:</p>
+                                <p className="text-blue-200">{caseStudy.vulnerability.severity}</p>
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">Type:</p>
+                                <p className="text-blue-200">{caseStudy.vulnerability.type}</p>
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">Versions affectées:</p>
+                                <p className="text-blue-200">{caseStudy.vulnerability.affected}</p>
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">Difficulté d'exploitation:</p>
+                                <p className="text-blue-200">{caseStudy.vulnerability.exploitation}</p>
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">Impact:</p>
+                                <p className="text-blue-200">{caseStudy.vulnerability.impact_scale}</p>
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <p className="text-white font-medium mb-1">Chronologie de découverte:</p>
+                              <ul className="bg-blue-900/30 p-3 rounded border border-blue-800/40 text-xs text-blue-200 space-y-1 list-disc pl-5">
+                                {caseStudy.vulnerability.timeline.map((event, index) => (
+                                  <li key={index}>{event}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            
+                            <div>
+                              <p className="text-white font-medium mb-1">Détails techniques:</p>
+                              <p className="bg-blue-900/30 p-3 rounded border border-blue-800/40 text-xs text-blue-200">
+                                {caseStudy.vulnerability.technical_details}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
                     
                     <div className="flex justify-center mt-4">
                       <Button
