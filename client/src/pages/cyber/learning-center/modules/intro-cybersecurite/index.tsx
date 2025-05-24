@@ -1,21 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import PageTitle from "@/components/utils/PageTitle";
+import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
-  ArrowLeft, CheckCircle, BookOpen, Shield, AlertTriangle, Lock, 
-  Share2, Database, Server, Cpu, Trophy, BrainCircuit, 
-  ArrowRight, ExternalLink, GraduationCap, Award, LightbulbIcon, 
-  FileCheck
+  ArrowLeft, Shield, Lock, Share2, Database, 
+  Server, Cpu, Clock, Users, Code, FileCheck,
+  ArrowRight, CheckCircle, AlertTriangle, 
+  ExternalLink, Trophy, Award, Lightbulb as LightbulbIcon,
+  BrainCircuit, GraduationCap
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
@@ -24,6 +22,7 @@ export default function IntroductionCybersecurite() {
   // États pour suivre la progression et les interactions
   const [progress, setProgress] = useState(0);
   const [activeTab, setActiveTab] = useState("principes");
+  const [activeSubTab, setActiveSubTab] = useState("malware");
   const [showQuizResult, setShowQuizResult] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState({
     q1: "",
@@ -39,126 +38,135 @@ export default function IntroductionCybersecurite() {
   // Cas d'étude concret
   const caseStudy = {
     title: "Cas réel : La fuite de données Equifax (2017)",
-    intro: "En 2017, Equifax, l'une des plus grandes agences de crédit au monde, a été victime d'une violation de données qui a exposé les informations personnelles de 147 millions de personnes.",
-    details: [
-      "Les pirates ont exploité une vulnérabilité connue dans Apache Struts pour laquelle un correctif était disponible mais n'avait pas été appliqué.",
-      "Les données volées comprenaient des noms, dates de naissance, numéros de sécurité sociale, adresses et plus encore.",
-      "L'attaque est restée non détectée pendant plus de 2 mois.",
-      "Equifax a finalement accepté de payer 575 millions de dollars en amendes et compensations."
+    company: "Equifax (agence de crédit américaine)",
+    impact: "Exposition de données personnelles de 147 millions de personnes",
+    date: "Mai à Juillet 2017",
+    cause: "Vulnérabilité non corrigée dans Apache Struts (CVE-2017-5638)",
+    details: "Les attaquants ont exploité une faille de sécurité connue dans le framework Apache Struts, pour laquelle un correctif était disponible depuis plus de 2 mois. Cela leur a permis d'accéder aux systèmes internes et d'extraire des données pendant plus de 76 jours sans être détectés.",
+    data: "Noms, numéros de sécurité sociale, dates de naissance, adresses, et pour certains victimes, numéros de cartes de crédit et documents d'identité",
+    consequences: [
+      "Amende de 575 millions de dollars aux États-Unis",
+      "Dédommagement des victimes pouvant atteindre 425 millions de dollars",
+      "Coûts de remédiation techniques estimés à plus de 1,4 milliard de dollars",
+      "Perte de confiance majeure des consommateurs",
+      "Démission du PDG, du directeur de l'information et du responsable de la sécurité"
     ],
     lessons: [
-      "L'importance critique des mises à jour de sécurité",
-      "La nécessité d'une surveillance continue des systèmes",
-      "L'impact catastrophique des violations de données sur les entreprises et les consommateurs",
-      "L'obligation légale et éthique de protéger les données personnelles (RGPD en Europe)"
+      "Importance critique de la gestion des correctifs de sécurité",
+      "Nécessité de la détection d'intrusion et de la surveillance continue",
+      "Importance de la segmentation réseau pour limiter les mouvements latéraux",
+      "Rôle crucial de l'inventaire des actifs et de la visibilité sur les systèmes"
     ]
   };
   
-  // Questions du quiz
-  const quizQuestions = [
-    {
-      id: "q1",
-      question: "Lequel de ces éléments ne fait PAS partie des trois piliers fondamentaux de la cybersécurité ?",
-      options: [
-        { value: "a", label: "Confidentialité" },
-        { value: "b", label: "Intégrité" },
-        { value: "c", label: "Disponibilité" },
-        { value: "d", label: "Complexité" }
-      ],
-      correctAnswer: "d",
-      explanation: "Les trois piliers fondamentaux sont la Confidentialité, l'Intégrité et la Disponibilité (souvent appelés la triade CIA en anglais)."
-    },
-    {
-      id: "q2",
-      question: "Quelle technique implique l'envoi de messages frauduleux qui semblent provenir d'une source fiable ?",
-      options: [
-        { value: "a", label: "Ransomware" },
-        { value: "b", label: "Phishing" },
-        { value: "c", label: "DDoS" },
-        { value: "d", label: "Zero-day" }
-      ],
-      correctAnswer: "b",
-      explanation: "Le phishing est une technique d'ingénierie sociale où les attaquants se font passer pour des entités de confiance dans le but d'obtenir des informations sensibles."
-    },
-    {
-      id: "q3",
-      question: "En quoi la RGPD est-elle liée à la cybersécurité ?",
-      options: [
-        { value: "a", label: "C'est un type d'attaque informatique" },
-        { value: "b", label: "C'est un protocole de chiffrement" },
-        { value: "c", label: "C'est un règlement sur la protection des données personnelles" },
-        { value: "d", label: "C'est un logiciel antivirus" }
-      ],
-      correctAnswer: "c",
-      explanation: "Le Règlement Général sur la Protection des Données (RGPD) est une réglementation européenne qui impose des obligations aux organisations pour protéger les données personnelles, renforçant ainsi la nécessité d'une bonne cybersécurité."
-    }
-  ];
+  // Réponses correctes au quiz
+  const correctAnswers = {
+    q1: "b",
+    q2: "c",
+    q3: "a"
+  };
   
-  // Fonction pour soumettre le quiz
+  // Fonction pour calculer le score du quiz
+  const calculateQuizScore = () => {
+    let score = 0;
+    if (quizAnswers.q1 === correctAnswers.q1) score++;
+    if (quizAnswers.q2 === correctAnswers.q2) score++;
+    if (quizAnswers.q3 === correctAnswers.q3) score++;
+    return score;
+  };
+  
+  // Soumettre le quiz et afficher les résultats
   const submitQuiz = () => {
-    // Vérifier que toutes les questions ont été répondues
     if (!quizAnswers.q1 || !quizAnswers.q2 || !quizAnswers.q3) {
       toast({
-        title: "Quiz incomplet",
-        description: "Veuillez répondre à toutes les questions avant de soumettre le quiz.",
+        title: "Réponses manquantes",
+        description: "Veuillez répondre à toutes les questions avant de soumettre.",
         variant: "destructive"
       });
       return;
     }
     
-    // Calculer le score
-    let score = 0;
-    if (quizAnswers.q1 === "d") score++;
-    if (quizAnswers.q2 === "b") score++;
-    if (quizAnswers.q3 === "c") score++;
-    
+    const score = calculateQuizScore();
     setQuizScore(score);
     setQuizScored(true);
     setShowQuizResult(true);
     
     // Mettre à jour la progression
-    const newProgress = Math.min(progress + 25, 100);
-    setProgress(newProgress);
-    
-    // Attribuer un badge si le score est bon
-    if (score >= 2) {
+    if (score >= 2 && !badgeEarned) {
       setBadgeEarned(true);
+      setProgress(100);
       toast({
-        title: "Badge débloqué !",
-        description: "Vous avez obtenu le badge 'Fondamentaux de la Cybersécurité'",
-        variant: "default",
+        title: "Badge obtenu !",
+        description: "Félicitations ! Vous avez obtenu le badge 'Fondamentaux de la Cybersécurité'.",
       });
     }
   };
   
-  // Effet pour simuler une progression initiale
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setProgress(15);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
+  // Réinitialiser le quiz
+  const resetQuiz = () => {
+    setQuizAnswers({
+      q1: "",
+      q2: "",
+      q3: ""
+    });
+    setQuizScored(false);
+    setShowQuizResult(false);
+  };
+  
+  // Mettre à jour les réponses du quiz
+  const updateQuizAnswer = (question: string, value: string) => {
+    setQuizAnswers(prev => ({
+      ...prev,
+      [question]: value
+    }));
+  };
+  
+  // Formater la classe de la réponse du quiz
+  const getAnswerClass = (question: string, option: string) => {
+    if (!showQuizResult) return "";
+    
+    const isSelected = quizAnswers[question as keyof typeof quizAnswers] === option;
+    const isCorrect = correctAnswers[question as keyof typeof correctAnswers] === option;
+    
+    if (isSelected && isCorrect) return "bg-green-100 border-green-500 dark:bg-green-900/30";
+    if (isSelected && !isCorrect) return "bg-red-100 border-red-500 dark:bg-red-900/30";
+    if (!isSelected && isCorrect) return "bg-green-100 border-green-500 dark:bg-green-900/30";
+    
+    return "";
+  };
+  
+  // Mise à jour automatique de la progression en fonction de l'onglet actif
+  useEffect(() => {
+    if (activeTab === "principes") setProgress(25);
+    if (activeTab === "menaces") setProgress(50);
+    if (activeTab === "casreel") setProgress(75);
+    if (activeTab === "quiz") setProgress(quizScored ? 100 : 90);
+  }, [activeTab, quizScored]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0a1429] to-[#0a1f3d]">
-      <PageTitle title="Introduction à la Cybersécurité | Centre de formation" />
-      
-      {/* En-tête avec navigation et titre */}
-      <div className="border-b border-blue-800/60 bg-blue-900/30 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-          <Link href="/cyber/learning-center">
-            <Button variant="ghost" className="text-blue-300 hover:bg-blue-900/30 hover:text-blue-200">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Retour
+    <div className="min-h-screen bg-gradient-to-br from-blue-950 to-blue-900 text-white">
+      {/* En-tête du module */}
+      <div className="bg-blue-900/50 shadow-md border-b border-blue-800/50">
+        <div className="container mx-auto py-4 px-4">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => setLocation("/cyber/learning-center")}
+              className="rounded-full bg-blue-800/30 hover:bg-blue-800/50 text-blue-200"
+            >
+              <ArrowLeft className="h-5 w-5" />
             </Button>
-          </Link>
-          <h1 className="text-xl text-white font-medium">Introduction à la Cybersécurité</h1>
-          
-          <div className="ml-auto flex items-center">
-            <div className="w-48 mr-4">
-              <Progress value={progress} className="h-2" />
+            
+            <div>
+              <h1 className="text-xl font-bold">Introduction à la Cybersécurité</h1>
+              <p className="text-blue-200 text-sm">Module fondamental - Durée estimée : 30 minutes</p>
             </div>
-            <span className="text-sm text-blue-300">{progress}% complété</span>
+            
+            <div className="ml-auto flex items-center gap-2">
+              <span className="text-sm text-blue-200">{progress}% complété</span>
+              <Progress value={progress} className="w-24 bg-blue-950" />
+            </div>
           </div>
         </div>
       </div>
@@ -166,34 +174,34 @@ export default function IntroductionCybersecurite() {
       {/* Navigation entre les différentes parties du module */}
       <div className="bg-blue-900/20 border-b border-blue-800/40">
         <div className="container mx-auto px-4">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="bg-transparent h-14 justify-start border-b border-blue-800/40">
-              <TabsTrigger 
-                value="principes" 
-                className="data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-blue-500 rounded-none h-14"
+          <div className="w-full">
+            <div className="bg-transparent h-14 justify-start border-b border-blue-800/40 flex">
+              <button 
+                onClick={() => setActiveTab("principes")}
+                className={`px-4 h-14 ${activeTab === "principes" ? "text-white border-b-2 border-blue-500" : "text-blue-300"}`}
               >
                 Principes Fondamentaux
-              </TabsTrigger>
-              <TabsTrigger 
-                value="menaces" 
-                className="data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-blue-500 rounded-none h-14"
+              </button>
+              <button 
+                onClick={() => setActiveTab("menaces")}
+                className={`px-4 h-14 ${activeTab === "menaces" ? "text-white border-b-2 border-blue-500" : "text-blue-300"}`}
               >
                 Menaces Actuelles
-              </TabsTrigger>
-              <TabsTrigger 
-                value="casreel" 
-                className="data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-blue-500 rounded-none h-14"
+              </button>
+              <button 
+                onClick={() => setActiveTab("casreel")}
+                className={`px-4 h-14 ${activeTab === "casreel" ? "text-white border-b-2 border-blue-500" : "text-blue-300"}`}
               >
                 Cas Concret
-              </TabsTrigger>
-              <TabsTrigger 
-                value="quiz" 
-                className="data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-blue-500 rounded-none h-14"
+              </button>
+              <button 
+                onClick={() => setActiveTab("quiz")}
+                className={`px-4 h-14 ${activeTab === "quiz" ? "text-white border-b-2 border-blue-500" : "text-blue-300"}`}
               >
                 Quiz & Évaluation
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -207,7 +215,7 @@ export default function IntroductionCybersecurite() {
         >
           {/* Section principale de contenu */}
           <div className="lg:col-span-3 space-y-8">
-            <TabsContent value="principes" className="m-0">
+            {activeTab === "principes" && (
               <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
                 <CardContent className="p-6">
                   <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
@@ -238,646 +246,556 @@ export default function IntroductionCybersecurite() {
                       
                       <div className="bg-blue-900/40 p-4 rounded-lg border border-blue-700/50 hover:bg-blue-800/40 transition-colors">
                         <div className="flex items-center mb-2">
-                          <Shield className="h-5 w-5 text-blue-300 mr-2" />
+                          <CheckCircle className="h-5 w-5 text-blue-300 mr-2" />
                           <h4 className="font-medium text-white">Intégrité</h4>
                         </div>
-                        <p className="text-sm text-blue-200">Assurer que les données ne sont pas altérées de manière non autorisée ou accidentelle.</p>
+                        <p className="text-sm text-blue-200">Assurer que les données restent exactes et complètes, sans modification non autorisée.</p>
                         <div className="mt-3 pt-3 border-t border-blue-700/50">
-                          <p className="text-xs text-blue-300"><strong>Exemple concret :</strong> La vérification par hash d'un logiciel téléchargé pour s'assurer qu'il n'a pas été modifié depuis sa mise en ligne par le développeur.</p>
+                          <p className="text-xs text-blue-300"><strong>Exemple concret :</strong> Les signatures numériques qui permettent de vérifier que des documents électroniques n'ont pas été altérés après leur signature.</p>
                         </div>
                       </div>
                       
                       <div className="bg-blue-900/40 p-4 rounded-lg border border-blue-700/50 hover:bg-blue-800/40 transition-colors">
                         <div className="flex items-center mb-2">
-                          <Share2 className="h-5 w-5 text-blue-300 mr-2" />
+                          <Clock className="h-5 w-5 text-blue-300 mr-2" />
                           <h4 className="font-medium text-white">Disponibilité</h4>
                         </div>
-                        <p className="text-sm text-blue-200">Garantir que les systèmes et données sont disponibles quand les utilisateurs en ont besoin.</p>
+                        <p className="text-sm text-blue-200">Garantir l'accès aux informations et ressources pour les utilisateurs autorisés quand ils en ont besoin.</p>
                         <div className="mt-3 pt-3 border-t border-blue-700/50">
-                          <p className="text-xs text-blue-300"><strong>Exemple concret :</strong> Les systèmes redondants d'un hôpital qui assurent que les dossiers médicaux des patients restent accessibles même en cas de panne d'un serveur.</p>
+                          <p className="text-xs text-blue-300"><strong>Exemple concret :</strong> Les architectures à haute disponibilité qui assurent que les services critiques restent accessibles même en cas de panne matérielle.</p>
                         </div>
                       </div>
                     </div>
                     
-                    <h3 className="text-xl font-semibold text-white mt-6 mb-3">Principaux domaines de la cybersécurité</h3>
+                    <h3 className="text-xl font-semibold text-white mt-8 mb-3">Les principes fondamentaux de défense</h3>
                     
-                    <div className="space-y-4 mb-6">
-                      <div className="flex items-start bg-blue-900/30 p-4 rounded-lg hover:bg-blue-800/30 transition-colors">
-                        <div className="mt-1 mr-3 p-1 rounded-full bg-blue-900/60">
-                          <Server className="h-4 w-4 text-blue-300" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-white">Sécurité des réseaux</h4>
-                          <p className="text-sm text-blue-200">Protection de l'infrastructure réseau et des communications contre les intrusions et le vol de données.</p>
-                          <div className="mt-2">
-                            <Badge className="bg-blue-700/50 text-blue-100">Pare-feu</Badge>
-                            <Badge className="ml-1 bg-blue-700/50 text-blue-100">VPN</Badge>
-                            <Badge className="ml-1 bg-blue-700/50 text-blue-100">Segmentation</Badge>
-                          </div>
-                        </div>
+                    <div className="space-y-4">
+                      <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                        <h4 className="font-medium text-white mb-2 flex items-center">
+                          <Users className="h-5 w-5 text-blue-300 mr-2" />
+                          Défense en profondeur
+                        </h4>
+                        <p className="text-sm text-blue-200">
+                          Consiste à mettre en place plusieurs couches de sécurité complémentaires, pour que si l'une est compromise, 
+                          les autres continuent à protéger le système. C'est l'équivalent numérique d'un château avec douves, murailles, 
+                          et gardes - chaque élément ajoute une couche de protection.
+                        </p>
                       </div>
                       
-                      <div className="flex items-start bg-blue-900/30 p-4 rounded-lg hover:bg-blue-800/30 transition-colors">
-                        <div className="mt-1 mr-3 p-1 rounded-full bg-blue-900/60">
-                          <Database className="h-4 w-4 text-blue-300" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-white">Sécurité des données</h4>
-                          <p className="text-sm text-blue-200">Méthodes et outils pour protéger les données sensibles, incluant le chiffrement et la classification.</p>
-                          <div className="mt-2">
-                            <Badge className="bg-blue-700/50 text-blue-100">Chiffrement</Badge>
-                            <Badge className="ml-1 bg-blue-700/50 text-blue-100">DLP</Badge>
-                            <Badge className="ml-1 bg-blue-700/50 text-blue-100">RGPD</Badge>
-                          </div>
-                        </div>
+                      <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                        <h4 className="font-medium text-white mb-2 flex items-center">
+                          <Server className="h-5 w-5 text-blue-300 mr-2" />
+                          Moindre privilège
+                        </h4>
+                        <p className="text-sm text-blue-200">
+                          Principe selon lequel un utilisateur, un système ou une application ne doit disposer que des droits minimaux 
+                          nécessaires pour accomplir ses tâches. Cela limite la surface d'attaque et réduit l'impact potentiel en cas de compromission.
+                        </p>
                       </div>
                       
-                      <div className="flex items-start bg-blue-900/30 p-4 rounded-lg hover:bg-blue-800/30 transition-colors">
-                        <div className="mt-1 mr-3 p-1 rounded-full bg-blue-900/60">
-                          <Cpu className="h-4 w-4 text-blue-300" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-white">Sécurité des applications</h4>
-                          <p className="text-sm text-blue-200">Pratiques pour développer et maintenir des logiciels sécurisés, réduisant les vulnérabilités exploitables.</p>
-                          <div className="mt-2">
-                            <Badge className="bg-blue-700/50 text-blue-100">DevSecOps</Badge>
-                            <Badge className="ml-1 bg-blue-700/50 text-blue-100">SAST/DAST</Badge>
-                            <Badge className="ml-1 bg-blue-700/50 text-blue-100">OWASP</Badge>
-                          </div>
-                        </div>
+                      <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                        <h4 className="font-medium text-white mb-2 flex items-center">
+                          <Cpu className="h-5 w-5 text-blue-300 mr-2" />
+                          Sécurité par conception
+                        </h4>
+                        <p className="text-sm text-blue-200">
+                          Approche qui intègre la sécurité dès la conception des systèmes et tout au long de leur cycle de vie, 
+                          plutôt que de l'ajouter comme une couche supplémentaire après coup. Elle permet d'anticiper les menaces 
+                          et de construire des systèmes intrinsèquement plus robustes.
+                        </p>
+                      </div>
+                      
+                      <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                        <h4 className="font-medium text-white mb-2 flex items-center">
+                          <Share2 className="h-5 w-5 text-blue-300 mr-2" />
+                          Séparation des privilèges
+                        </h4>
+                        <p className="text-sm text-blue-200">
+                          Principe qui divise les opérations critiques en plusieurs parties, nécessitant l'intervention de 
+                          différentes personnes ou systèmes pour être complétées. Cela réduit les risques d'abus de pouvoir 
+                          et complique la tâche des attaquants.
+                        </p>
                       </div>
                     </div>
-                    
-                    <div className="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 p-5 rounded-lg border border-blue-700/40 mt-8">
-                      <h3 className="text-lg font-semibold text-white mb-2 flex items-center">
-                        <FileCheck className="h-5 w-5 mr-2 text-green-400" />
-                        Réglementation et conformité
-                      </h3>
-                      <p className="text-blue-200 mb-4">
-                        La cybersécurité est aujourd'hui indissociable des aspects réglementaires comme le RGPD en Europe. Cette réglementation impose :
-                      </p>
-                      <ul className="list-disc pl-5 space-y-1 text-blue-200">
-                        <li>La protection des données personnelles par conception et par défaut</li>
-                        <li>La notification des violations de données dans les 72 heures</li>
-                        <li>Des analyses d'impact relatives à la protection des données (AIPD)</li>
-                        <li>Des sanctions pouvant atteindre 4% du chiffre d'affaires mondial</li>
-                      </ul>
-                    </div>
-                    
-                    <Alert className="bg-amber-950/50 border-amber-700/60 mt-8">
-                      <AlertTriangle className="h-4 w-4 text-amber-400" />
-                      <AlertTitle className="text-amber-400">À savoir</AlertTitle>
-                      <AlertDescription className="text-amber-200">
-                        La cybersécurité est un domaine en constante évolution. Les menaces et les méthodes de protection évoluent continuellement, nécessitant une veille technologique permanente et une approche proactive.
-                      </AlertDescription>
-                    </Alert>
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
+            )}
             
-            <TabsContent value="menaces" className="m-0">
+            {activeTab === "menaces" && (
               <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
                 <CardContent className="p-6">
                   <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
-                    <AlertTriangle className="mr-3 h-6 w-6 text-red-400" />
-                    Les menaces cybernétiques actuelles (2025)
+                    <AlertTriangle className="mr-3 h-6 w-6 text-amber-400" />
+                    Panorama des menaces actuelles
                   </h2>
                   
-                  <p className="text-blue-200 mb-6">
-                    Le paysage des menaces évolue rapidement. Voici un aperçu des principales menaces auxquelles les organisations et les individus font face aujourd'hui, avec des exemples concrets de leur impact.
-                  </p>
-                  
-                  <Tabs defaultValue="malware" className="w-full">
-                    <TabsList className="grid grid-cols-3 mb-6">
-                      <TabsTrigger value="malware" className="data-[state=active]:bg-blue-700">Malwares</TabsTrigger>
-                      <TabsTrigger value="socialeng" className="data-[state=active]:bg-blue-700">Ingénierie sociale</TabsTrigger>
-                      <TabsTrigger value="advanced" className="data-[state=active]:bg-blue-700">Attaques avancées</TabsTrigger>
-                    </TabsList>
+                  <div className="prose prose-invert max-w-none">
+                    <p className="text-blue-200">
+                      Le paysage des menaces cybernétiques évolue constamment, avec des acteurs malveillants développant de nouvelles 
+                      techniques d'attaque. Comprendre ces menaces est essentiel pour mettre en place des défenses efficaces.
+                    </p>
                     
-                    <TabsContent value="malware">
+                    <div className="mt-6 mb-4">
+                      <div className="flex justify-between space-x-2 border-b border-blue-800/40">
+                        <button 
+                          onClick={() => setActiveSubTab("malware")} 
+                          className={`py-2 px-4 ${activeSubTab === "malware" ? "border-b-2 border-blue-500 text-white" : "text-blue-300"}`}
+                        >
+                          Malwares
+                        </button>
+                        <button 
+                          onClick={() => setActiveSubTab("socialeng")} 
+                          className={`py-2 px-4 ${activeSubTab === "socialeng" ? "border-b-2 border-blue-500 text-white" : "text-blue-300"}`}
+                        >
+                          Ingénierie sociale
+                        </button>
+                        <button 
+                          onClick={() => setActiveSubTab("advanced")} 
+                          className={`py-2 px-4 ${activeSubTab === "advanced" ? "border-b-2 border-blue-500 text-white" : "text-blue-300"}`}
+                        >
+                          Menaces avancées
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {activeSubTab === "malware" && (
                       <div className="space-y-4">
-                        <div className="bg-blue-900/30 p-4 rounded-lg">
-                          <h3 className="text-lg font-medium text-white mb-2">Ransomware</h3>
-                          <p className="text-blue-200 mb-3">Logiciel qui chiffre les données de la victime et exige une rançon pour les déchiffrer.</p>
-                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800">
-                            <h4 className="text-sm font-medium text-blue-300">Exemple concret : Colonial Pipeline (2021)</h4>
-                            <p className="text-xs text-blue-200 mt-1">
-                              Le pipeline d'oléoduc Colonial Pipeline, qui transporte 45% du carburant de la côte Est des États-Unis, a été forcé de suspendre ses opérations après une attaque de ransomware du groupe DarkSide. L'entreprise a payé une rançon de 4,4 millions de dollars.
-                            </p>
-                          </div>
+                        <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-800/40">
+                          <h4 className="font-medium text-white mb-2">Ransomware</h4>
+                          <p className="text-sm text-blue-200">
+                            Logiciel malveillant qui chiffre les données de la victime et exige une rançon pour les déchiffrer. 
+                            Les ransomwares modernes pratiquent souvent la double extorsion : vol des données avant chiffrement, 
+                            avec menace de publication si la rançon n'est pas payée.
+                          </p>
+                          <p className="text-xs text-amber-200 mt-2">
+                            <strong>Exemples récents :</strong> REvil, DarkSide, Conti, LockBit
+                          </p>
                         </div>
                         
-                        <div className="bg-blue-900/30 p-4 rounded-lg">
-                          <h3 className="text-lg font-medium text-white mb-2">Logiciels malveillants basés sur l'IA (2025)</h3>
-                          <p className="text-blue-200 mb-3">Nouvelle génération de malwares utilisant l'intelligence artificielle pour évoluer, contourner les défenses et cibler précisément leurs victimes.</p>
-                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800">
-                            <h4 className="text-sm font-medium text-blue-300">Tendance émergente</h4>
-                            <p className="text-xs text-blue-200 mt-1">
-                              Les chercheurs ont observé des malwares capables d'analyser leur environnement, d'adapter leurs techniques d'attaque et même de générer des variantes de code pour éviter la détection par les systèmes de sécurité traditionnels.
-                            </p>
-                          </div>
+                        <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-800/40">
+                          <h4 className="font-medium text-white mb-2">Malware as a Service (MaaS)</h4>
+                          <p className="text-sm text-blue-200">
+                            Modèle commercial où des développeurs de logiciels malveillants proposent leurs outils 
+                            en location à d'autres criminels. Cela a démocratisé les cyberattaques en permettant à des 
+                            acteurs peu techniques de lancer des attaques sophistiquées.
+                          </p>
                         </div>
                         
-                        <div className="bg-blue-900/30 p-4 rounded-lg">
-                          <h3 className="text-lg font-medium text-white mb-2">Malwares mobiles</h3>
-                          <p className="text-blue-200 mb-3">Logiciels malveillants ciblant spécifiquement les appareils mobiles pour voler des données, espionner ou extorquer de l'argent.</p>
-                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800">
-                            <h4 className="text-sm font-medium text-blue-300">Exemple concret : FluBot</h4>
-                            <p className="text-xs text-blue-200 mt-1">
-                              Ce logiciel malveillant se propage par SMS prétendant provenir de services de livraison comme DHL. Une fois installé, il peut voler des informations bancaires, des contacts et envoyer des SMS à partir de l'appareil infecté pour se propager.
-                            </p>
-                          </div>
+                        <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-800/40">
+                          <h4 className="font-medium text-white mb-2">Logiciels espions (Spyware)</h4>
+                          <p className="text-sm text-blue-200">
+                            Programmes conçus pour collecter des informations sur un utilisateur sans son consentement. 
+                            Ils peuvent enregistrer les frappes au clavier, capturer des captures d'écran, et voler des 
+                            informations sensibles comme les identifiants bancaires.
+                          </p>
+                        </div>
+                        
+                        <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-800/40">
+                          <h4 className="font-medium text-white mb-2">Chevaux de Troie bancaires</h4>
+                          <p className="text-sm text-blue-200">
+                            Malwares spécifiquement conçus pour voler des informations bancaires et financières. 
+                            Ils peuvent modifier l'affichage des sites web bancaires légitimes pour intercepter 
+                            les identifiants ou rediriger des transactions.
+                          </p>
                         </div>
                       </div>
-                    </TabsContent>
+                    )}
                     
-                    <TabsContent value="socialeng">
+                    {activeSubTab === "socialeng" && (
                       <div className="space-y-4">
-                        <div className="bg-blue-900/30 p-4 rounded-lg">
-                          <h3 className="text-lg font-medium text-white mb-2">Phishing hyper-personnalisé</h3>
-                          <p className="text-blue-200 mb-3">Attaques ciblées utilisant des informations spécifiques sur la victime, souvent collectées via les réseaux sociaux et les fuites de données précédentes.</p>
-                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800">
-                            <h4 className="text-sm font-medium text-blue-300">Impact sur les entreprises</h4>
-                            <p className="text-xs text-blue-200 mt-1">
-                              Une étude de 2024 a révélé que 74% des entreprises avaient subi une attaque de phishing réussie, avec un coût moyen de 4,2 millions d'euros pour les grandes organisations.
-                            </p>
-                          </div>
+                        <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-800/40">
+                          <h4 className="font-medium text-white mb-2">Phishing sophistiqué</h4>
+                          <p className="text-sm text-blue-200">
+                            Les attaques de phishing sont devenues beaucoup plus ciblées et convaincantes. Le spear phishing 
+                            cible des individus spécifiques avec des messages personnalisés, tandis que le whaling vise les 
+                            cadres supérieurs et les PDG.
+                          </p>
+                          <p className="text-xs text-amber-200 mt-2">
+                            <strong>Tendance actuelle :</strong> Utilisation de l'IA pour créer des messages plus convaincants et personnalisés
+                          </p>
                         </div>
                         
-                        <div className="bg-blue-900/30 p-4 rounded-lg">
-                          <h3 className="text-lg font-medium text-white mb-2">Deepfakes et usurpation d'identité vocale</h3>
-                          <p className="text-blue-200 mb-3">Utilisation de l'IA pour créer de faux contenus audio et vidéo convaincants, souvent utilisés pour des escroqueries sophistiquées.</p>
-                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800">
-                            <h4 className="text-sm font-medium text-blue-300">Exemple concret : Fraude au PDG par deepfake</h4>
-                            <p className="text-xs text-blue-200 mt-1">
-                              En 2023, un directeur financier d'une multinationale a transféré 25 millions d'euros après avoir reçu ce qu'il croyait être un appel vidéo de son PDG, mais qui était en réalité une vidéo générée par IA.
-                            </p>
-                          </div>
+                        <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-800/40">
+                          <h4 className="font-medium text-white mb-2">Compromission des emails professionnels (BEC)</h4>
+                          <p className="text-sm text-blue-200">
+                            Attaques où les criminels se font passer pour des cadres ou des partenaires commerciaux 
+                            pour demander des transferts d'argent ou des informations sensibles. Ces attaques exploitent 
+                            la confiance et les processus d'entreprise plutôt que des vulnérabilités techniques.
+                          </p>
                         </div>
                         
-                        <div className="bg-blue-900/30 p-4 rounded-lg">
-                          <h3 className="text-lg font-medium text-white mb-2">Manipulation sociale ciblée</h3>
-                          <p className="text-blue-200 mb-3">Exploitation psychologique sophistiquée pour manipuler les individus à divulguer des informations ou réaliser des actions préjudiciables.</p>
-                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800">
-                            <h4 className="text-sm font-medium text-blue-300">Protection numérique responsable</h4>
-                            <p className="text-xs text-blue-200 mt-1">
-                              La formation continue des employés est devenue essentielle. Les organisations adoptant une approche de sensibilisation régulière ont réduit de 60% les incidents liés à l'ingénierie sociale.
-                            </p>
-                          </div>
+                        <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-800/40">
+                          <h4 className="font-medium text-white mb-2">Deepfakes et manipulation médiatique</h4>
+                          <p className="text-sm text-blue-200">
+                            L'intelligence artificielle permet désormais de créer des vidéos et des enregistrements audio 
+                            falsifiés très convaincants. Ces technologies sont de plus en plus utilisées dans des attaques 
+                            d'ingénierie sociale, comme simuler des appels de dirigeants pour autoriser des transactions.
+                          </p>
+                        </div>
+                        
+                        <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-800/40">
+                          <h4 className="font-medium text-white mb-2">Attaques via les réseaux sociaux</h4>
+                          <p className="text-sm text-blue-200">
+                            Les attaquants exploitent les informations partagées sur les réseaux sociaux pour mener des 
+                            attaques personnalisées. Ils peuvent également créer de faux profils pour établir des relations 
+                            avec des employés ciblés et les manipuler.
+                          </p>
                         </div>
                       </div>
-                    </TabsContent>
+                    )}
                     
-                    <TabsContent value="advanced">
+                    {activeSubTab === "advanced" && (
                       <div className="space-y-4">
-                        <div className="bg-blue-900/30 p-4 rounded-lg">
-                          <h3 className="text-lg font-medium text-white mb-2">Attaques sur la chaîne d'approvisionnement</h3>
-                          <p className="text-blue-200 mb-3">Compromission d'un fournisseur ou d'un logiciel tiers pour atteindre la cible principale.</p>
-                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800">
-                            <h4 className="text-sm font-medium text-blue-300">Exemple concret : SolarWinds</h4>
-                            <p className="text-xs text-blue-200 mt-1">
-                              L'attaque SolarWinds a touché plus de 18 000 organisations, dont des agences gouvernementales américaines, après qu'un code malveillant a été inséré dans les mises à jour d'un logiciel de gestion de réseau légitime.
-                            </p>
-                          </div>
+                        <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-800/40">
+                          <h4 className="font-medium text-white mb-2">Attaques sur la chaîne d'approvisionnement</h4>
+                          <p className="text-sm text-blue-200">
+                            Les attaquants compromettent des fournisseurs ou des produits logiciels de confiance pour 
+                            atteindre leurs cibles finales. L'attaque SolarWinds de 2020 est un exemple emblématique, 
+                            où des acteurs malveillants ont inséré du code malveillant dans les mises à jour d'un logiciel 
+                            utilisé par des milliers d'organisations.
+                          </p>
                         </div>
                         
-                        <div className="bg-blue-900/30 p-4 rounded-lg">
-                          <h3 className="text-lg font-medium text-white mb-2">Attaques contre les infrastructures critiques</h3>
-                          <p className="text-blue-200 mb-3">Ciblage des systèmes essentiels comme l'énergie, la santé, les transports ou les télécommunications.</p>
-                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800">
-                            <h4 className="text-sm font-medium text-blue-300">Enjeu sociétal majeur</h4>
-                            <p className="text-xs text-blue-200 mt-1">
-                              Les attaques contre les infrastructures critiques ont augmenté de 125% entre 2022 et 2024, représentant un risque majeur pour la société et nécessitant une coopération public-privé renforcée.
-                            </p>
-                          </div>
+                        <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-800/40">
+                          <h4 className="font-medium text-white mb-2">Menaces persistantes avancées (APT)</h4>
+                          <p className="text-sm text-blue-200">
+                            Campagnes d'attaques sur le long terme, généralement menées par des groupes soutenus par des États. 
+                            Ces attaques sont caractérisées par leur sophistication technique, leur discrétion et leur persistance. 
+                            Elles visent généralement l'espionnage, le vol de propriété intellectuelle ou le sabotage.
+                          </p>
                         </div>
                         
-                        <div className="bg-blue-900/30 p-4 rounded-lg">
-                          <h3 className="text-lg font-medium text-white mb-2">Menaces persistantes avancées (APT)</h3>
-                          <p className="text-blue-200 mb-3">Attaques sophistiquées sur le long terme, souvent menées par des groupes étatiques ou parrainés par des États.</p>
-                          <div className="bg-blue-950/50 p-3 rounded border border-blue-800">
-                            <h4 className="text-sm font-medium text-blue-300">Impact sur la géopolitique</h4>
-                            <p className="text-xs text-blue-200 mt-1">
-                              Les APT sont devenues un outil de la guerre hybride moderne, avec plus de 30 groupes actifs identifiés, ciblant les infrastructures stratégiques, la recherche et le développement, et les institutions démocratiques.
-                            </p>
-                          </div>
+                        <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-800/40">
+                          <h4 className="font-medium text-white mb-2">Attaques contre les infrastructures critiques</h4>
+                          <p className="text-sm text-blue-200">
+                            Ciblage des systèmes industriels et des infrastructures essentielles comme l'énergie, l'eau, 
+                            les transports ou la santé. Ces attaques peuvent avoir des conséquences graves dans le monde réel, 
+                            comme l'a montré l'attaque contre Colonial Pipeline en 2021, qui a perturbé l'approvisionnement 
+                            en carburant aux États-Unis.
+                          </p>
+                        </div>
+                        
+                        <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-800/40">
+                          <h4 className="font-medium text-white mb-2">Attaques par l'IA et automatisées</h4>
+                          <p className="text-sm text-blue-200">
+                            L'intelligence artificielle et l'automatisation sont de plus en plus utilisées pour identifier 
+                            les vulnérabilités, personnaliser les attaques et contourner les défenses. Ces technologies 
+                            permettent des attaques plus rapides, plus précises et à plus grande échelle.
+                          </p>
                         </div>
                       </div>
-                    </TabsContent>
-                  </Tabs>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
-            </TabsContent>
+            )}
             
-            <TabsContent value="casreel" className="m-0">
+            {activeTab === "casreel" && (
               <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
                 <CardContent className="p-6">
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <div className="flex items-start mb-4">
-                      <div className="bg-red-900/30 p-2 rounded-full mr-4">
-                        <AlertTriangle className="h-6 w-6 text-red-400" />
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-bold text-white">{caseStudy.title}</h2>
-                        <p className="text-blue-200 mt-1">{caseStudy.intro}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="border-l-4 border-blue-700 pl-6 py-2 mb-6">
-                      <blockquote className="italic text-blue-300">
-                        "La plus grande violation de données de l'histoire des États-Unis a exposé les données sensibles de près de la moitié de la population américaine."
-                        <footer className="text-sm text-blue-400 mt-2">— Federal Trade Commission</footer>
-                      </blockquote>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                      <div>
-                        <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
-                          <Shield className="mr-2 h-5 w-5 text-red-400" />
-                          Chronologie et faits
-                        </h3>
-                        
-                        <div className="space-y-4">
-                          <div className="bg-blue-900/20 p-4 rounded-lg border-l-4 border-blue-600">
-                            <div className="text-sm text-blue-400 font-semibold">Mars 2017</div>
-                            <p className="text-blue-200">La vulnérabilité Apache Struts est découverte et un correctif est publié</p>
-                          </div>
-                          
-                          <div className="bg-blue-900/20 p-4 rounded-lg border-l-4 border-blue-600">
-                            <div className="text-sm text-blue-400 font-semibold">Mai 2017</div>
-                            <p className="text-blue-200">Les pirates exploitent la vulnérabilité non corrigée chez Equifax</p>
-                          </div>
-                          
-                          <div className="bg-blue-900/20 p-4 rounded-lg border-l-4 border-blue-600">
-                            <div className="text-sm text-blue-400 font-semibold">Juillet 2017</div>
-                            <p className="text-blue-200">L'équipe de sécurité d'Equifax découvre la violation</p>
-                          </div>
-                          
-                          <div className="bg-blue-900/20 p-4 rounded-lg border-l-4 border-blue-600">
-                            <div className="text-sm text-blue-400 font-semibold">Septembre 2017</div>
-                            <p className="text-blue-200">Annonce publique de la violation</p>
-                          </div>
-                          
-                          {caseStudyExpanded && (
-                            <>
-                              <div className="bg-blue-900/20 p-4 rounded-lg border-l-4 border-blue-600">
-                                <div className="text-sm text-blue-400 font-semibold">Juillet 2019</div>
-                                <p className="text-blue-200">Accord de règlement de 575 millions de dollars</p>
-                              </div>
-                              
-                              <div className="bg-blue-900/20 p-4 rounded-lg border-l-4 border-blue-600">
-                                <div className="text-sm text-blue-400 font-semibold">Janvier 2020</div>
-                                <p className="text-blue-200">Lancement des réclamations pour les consommateurs affectés</p>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                        
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="mt-4 text-blue-400"
-                          onClick={() => setCaseStudyExpanded(!caseStudyExpanded)}
-                        >
-                          {caseStudyExpanded ? "Voir moins" : "Voir plus"}
-                        </Button>
+                  <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
+                    <Database className="mr-3 h-6 w-6 text-red-400" />
+                    {caseStudy.title}
+                  </h2>
+                  
+                  <div className="prose prose-invert max-w-none">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                        <h4 className="font-medium text-white mb-2">Organisation touchée</h4>
+                        <p className="text-sm text-blue-200">{caseStudy.company}</p>
                       </div>
                       
-                      <div>
-                        <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
-                          <LightbulbIcon className="mr-2 h-5 w-5 text-amber-400" />
-                          Leçons et applications RGPD
-                        </h3>
-                        
-                        <ul className="space-y-3">
-                          {caseStudy.lessons.map((lesson, index) => (
-                            <li key={index} className="flex items-start">
-                              <div className="bg-amber-900/30 p-1 rounded-full mr-2 mt-0.5">
-                                <CheckCircle className="h-4 w-4 text-amber-400" />
-                              </div>
-                              <p className="text-blue-200">{lesson}</p>
-                            </li>
-                          ))}
-                        </ul>
-                        
-                        <div className="bg-blue-900/30 p-4 rounded-lg mt-6 border border-blue-700">
-                          <h4 className="font-medium text-white mb-2">Implications RGPD</h4>
-                          <p className="text-sm text-blue-200">
-                            Si cette violation s'était produite après l'entrée en vigueur du RGPD en 2018, Equifax aurait pu faire face à :
-                          </p>
-                          <ul className="list-disc pl-5 text-sm text-blue-200 mt-2">
-                            <li>Une obligation de notification des personnes concernées sous 72 heures</li>
-                            <li>Des amendes potentielles allant jusqu'à 4% du chiffre d'affaires mondial</li>
-                            <li>Des actions collectives en justice plus importantes en Europe</li>
-                          </ul>
-                        </div>
-                        
-                        <div className="bg-gradient-to-r from-green-900/30 to-green-900/10 p-4 rounded-lg mt-6 border border-green-700/50">
-                          <h4 className="font-medium text-white mb-2 flex items-center">
-                            <FileCheck className="h-4 w-4 mr-2 text-green-400" />
-                            Numérique responsable
-                          </h4>
-                          <p className="text-sm text-blue-200">
-                            Cette violation souligne l'importance du numérique responsable : la protection des données n'est pas seulement une obligation légale, mais aussi une responsabilité éthique envers les individus dont les informations sont confiées à l'organisation.
-                          </p>
-                        </div>
+                      <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                        <h4 className="font-medium text-white mb-2">Impact global</h4>
+                        <p className="text-sm text-blue-200">{caseStudy.impact}</p>
+                      </div>
+                      
+                      <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                        <h4 className="font-medium text-white mb-2">Période de l'incident</h4>
+                        <p className="text-sm text-blue-200">{caseStudy.date}</p>
+                      </div>
+                      
+                      <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50">
+                        <h4 className="font-medium text-white mb-2">Cause principale</h4>
+                        <p className="text-sm text-blue-200">{caseStudy.cause}</p>
                       </div>
                     </div>
+                    
+                    <div className="bg-red-900/20 p-4 rounded-lg border border-red-800/40 mb-6">
+                      <h4 className="font-medium text-white mb-2">Description détaillée</h4>
+                      <p className="text-sm text-blue-200">{caseStudy.details}</p>
+                      <p className="text-sm mt-2 text-blue-200"><strong>Données compromises :</strong> {caseStudy.data}</p>
+                    </div>
+                    
+                    <div className={`overflow-hidden transition-all duration-500 ${caseStudyExpanded ? "max-h-[1000px]" : "max-h-0"}`}>
+                      <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50 mb-6">
+                        <h4 className="font-medium text-white mb-2">Conséquences</h4>
+                        <ul className="text-sm text-blue-200 space-y-1 list-disc pl-5">
+                          {caseStudy.consequences.map((item, index) => (
+                            <li key={index}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      <div className="bg-green-900/20 p-4 rounded-lg border border-green-800/40">
+                        <h4 className="font-medium text-white mb-2">Leçons à retenir</h4>
+                        <ul className="text-sm text-blue-200 space-y-1 list-disc pl-5">
+                          {caseStudy.lessons.map((item, index) => (
+                            <li key={index}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    <div className="text-center mt-4">
+                      <Button
+                        variant="outline"
+                        onClick={() => setCaseStudyExpanded(!caseStudyExpanded)}
+                        className="text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
+                      >
+                        {caseStudyExpanded ? "Réduire les détails" : "Voir tous les détails"}
+                        <ArrowRight className={`ml-2 h-4 w-4 transition-transform ${caseStudyExpanded ? "rotate-90" : ""}`} />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                    className="mt-8 bg-blue-900/20 p-4 rounded-lg border border-blue-700/50"
+                  >
+                    <h3 className="text-lg font-semibold text-white">Points clés à retenir</h3>
+                    <ul className="mt-2 space-y-2">
+                      <li className="flex items-start">
+                        <span className="bg-blue-500/20 p-1 rounded-full mr-2 mt-0.5">
+                          <CheckCircle className="h-4 w-4 text-blue-400" />
+                        </span>
+                        <span className="text-sm text-blue-200">Les vulnérabilités non corrigées représentent un risque majeur, même pour les grandes entreprises.</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="bg-blue-500/20 p-1 rounded-full mr-2 mt-0.5">
+                          <CheckCircle className="h-4 w-4 text-blue-400" />
+                        </span>
+                        <span className="text-sm text-blue-200">La détection des intrusions est aussi importante que la prévention, car les attaquants peuvent opérer pendant des mois sans être repérés.</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="bg-blue-500/20 p-1 rounded-full mr-2 mt-0.5">
+                          <CheckCircle className="h-4 w-4 text-blue-400" />
+                        </span>
+                        <span className="text-sm text-blue-200">Les conséquences d'une brèche majeure vont bien au-delà des coûts techniques, affectant la réputation, la confiance des clients et même le leadership de l'entreprise.</span>
+                      </li>
+                    </ul>
                   </motion.div>
                 </CardContent>
               </Card>
-            </TabsContent>
+            )}
             
-            <TabsContent value="quiz" className="m-0">
+            {activeTab === "quiz" && (
               <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
                 <CardContent className="p-6">
-                  <div className="flex items-center mb-6">
-                    <GraduationCap className="h-6 w-6 text-blue-400 mr-3" />
-                    <h2 className="text-2xl font-bold text-white">Évaluez vos connaissances</h2>
-                  </div>
+                  <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
+                    <Code className="mr-3 h-6 w-6 text-purple-400" />
+                    Quiz : Testez vos connaissances
+                  </h2>
                   
-                  {showQuizResult ? (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.5 }}
-                      className="space-y-8"
-                    >
-                      <div className={`p-6 rounded-lg border ${
-                        quizScore === 3 ? "bg-green-900/20 border-green-600" :
-                        quizScore === 2 ? "bg-blue-900/20 border-blue-600" :
-                        "bg-amber-900/20 border-amber-600"
-                      }`}>
-                        <div className="flex items-center mb-4">
-                          {quizScore === 3 ? (
-                            <Trophy className="h-12 w-12 text-yellow-400 mr-4" />
-                          ) : quizScore === 2 ? (
-                            <Award className="h-12 w-12 text-blue-400 mr-4" />
-                          ) : (
-                            <BookOpen className="h-12 w-12 text-amber-400 mr-4" />
-                          )}
-                          
-                          <div>
-                            <h3 className="text-xl font-semibold text-white">
-                              {quizScore === 3 ? "Excellent travail !" :
-                               quizScore === 2 ? "Bon travail !" :
-                               "Continuez d'apprendre !"}
-                            </h3>
-                            <p className={`${
-                              quizScore === 3 ? "text-green-300" :
-                              quizScore === 2 ? "text-blue-300" :
-                              "text-amber-300"
-                            }`}>
-                              Vous avez obtenu {quizScore}/3 points
-                            </p>
-                          </div>
-                        </div>
+                  <div className="prose prose-invert max-w-none">
+                    <p className="text-blue-200 mb-6">
+                      Vérifiez votre compréhension des concepts fondamentaux de la cybersécurité. 
+                      Répondez aux questions suivantes pour valider vos acquis.
+                    </p>
+                    
+                    <div className="space-y-6">
+                      <div className={`p-4 rounded-lg border ${showQuizResult && quizAnswers.q1 === correctAnswers.q1 ? "bg-green-900/20 border-green-800/50" : showQuizResult && quizAnswers.q1 !== correctAnswers.q1 ? "bg-red-900/20 border-red-800/50" : "bg-blue-900/20 border-blue-800/50"}`}>
+                        <h4 className="font-medium text-white mb-2">Question 1</h4>
+                        <p className="text-sm text-blue-200 mb-3">Quel principe de cybersécurité vise à assurer que les données sont exactes et n'ont pas été modifiées de façon non autorisée ?</p>
                         
-                        {badgeEarned && (
-                          <div className="bg-blue-950/40 p-4 rounded-lg border border-blue-700/50 mt-4">
-                            <div className="flex items-center">
-                              <div className="bg-blue-900/60 p-2 rounded-full mr-3">
-                                <Shield className="h-5 w-5 text-blue-300" />
-                              </div>
-                              <div>
-                                <h4 className="font-medium text-white">Badge débloqué !</h4>
-                                <p className="text-sm text-blue-300">Fondamentaux de la Cybersécurité</p>
-                              </div>
-                            </div>
+                        <RadioGroup value={quizAnswers.q1} onValueChange={(value) => updateQuizAnswer("q1", value)} className="space-y-3">
+                          <div className={`flex items-center space-x-2 p-2 rounded ${getAnswerClass("q1", "a")}`}>
+                            <RadioGroupItem value="a" id="q1-a" disabled={showQuizResult} />
+                            <Label htmlFor="q1-a" className="text-sm cursor-pointer">Confidentialité</Label>
+                          </div>
+                          <div className={`flex items-center space-x-2 p-2 rounded ${getAnswerClass("q1", "b")}`}>
+                            <RadioGroupItem value="b" id="q1-b" disabled={showQuizResult} />
+                            <Label htmlFor="q1-b" className="text-sm cursor-pointer">Intégrité</Label>
+                          </div>
+                          <div className={`flex items-center space-x-2 p-2 rounded ${getAnswerClass("q1", "c")}`}>
+                            <RadioGroupItem value="c" id="q1-c" disabled={showQuizResult} />
+                            <Label htmlFor="q1-c" className="text-sm cursor-pointer">Disponibilité</Label>
+                          </div>
+                        </RadioGroup>
+                        
+                        {showQuizResult && quizAnswers.q1 !== correctAnswers.q1 && (
+                          <div className="mt-3 p-2 bg-blue-900/30 rounded text-xs text-blue-200">
+                            <strong>Explication :</strong> L'intégrité est le principe qui assure que les données restent exactes et complètes, sans modification non autorisée.
                           </div>
                         )}
                       </div>
                       
-                      <div className="space-y-6">
-                        <h3 className="text-xl font-semibold text-white">Vos réponses</h3>
+                      <div className={`p-4 rounded-lg border ${showQuizResult && quizAnswers.q2 === correctAnswers.q2 ? "bg-green-900/20 border-green-800/50" : showQuizResult && quizAnswers.q2 !== correctAnswers.q2 ? "bg-red-900/20 border-red-800/50" : "bg-blue-900/20 border-blue-800/50"}`}>
+                        <h4 className="font-medium text-white mb-2">Question 2</h4>
+                        <p className="text-sm text-blue-200 mb-3">Quelle approche de sécurité consiste à mettre en place plusieurs couches de protection complémentaires ?</p>
                         
-                        {quizQuestions.map(question => (
-                          <div 
-                            key={question.id} 
-                            className={`p-4 rounded-lg border ${
-                              quizAnswers[question.id] === question.correctAnswer
-                                ? "border-green-600 bg-green-900/10"
-                                : "border-red-600 bg-red-900/10"
-                            }`}
-                          >
-                            <h4 className="font-medium text-white">{question.question}</h4>
-                            
-                            <div className="mt-3 mb-2">
-                              <span className="text-sm font-medium text-white">Votre réponse : </span>
-                              <span className={quizAnswers[question.id] === question.correctAnswer ? "text-green-400" : "text-red-400"}>
-                                {question.options.find(o => o.value === quizAnswers[question.id])?.label || "Non répondu"}
-                              </span>
-                            </div>
-                            
-                            {quizAnswers[question.id] !== question.correctAnswer && (
-                              <div className="mt-2">
-                                <span className="text-sm font-medium text-white">Réponse correcte : </span>
-                                <span className="text-green-400">
-                                  {question.options.find(o => o.value === question.correctAnswer)?.label}
-                                </span>
-                              </div>
-                            )}
-                            
-                            <div className="bg-blue-950/50 p-3 rounded mt-3 text-blue-200 text-sm">
-                              <p><strong>Explication :</strong> {question.explanation}</p>
-                            </div>
+                        <RadioGroup value={quizAnswers.q2} onValueChange={(value) => updateQuizAnswer("q2", value)} className="space-y-3">
+                          <div className={`flex items-center space-x-2 p-2 rounded ${getAnswerClass("q2", "a")}`}>
+                            <RadioGroupItem value="a" id="q2-a" disabled={showQuizResult} />
+                            <Label htmlFor="q2-a" className="text-sm cursor-pointer">Principe du moindre privilège</Label>
                           </div>
-                        ))}
-                      </div>
-                      
-                      <div className="flex gap-3">
-                        <Button 
-                          onClick={() => {
-                            setShowQuizResult(false);
-                            setQuizAnswers({ q1: "", q2: "", q3: "" });
-                            setQuizScored(false);
-                          }}
-                          variant="outline"
-                          className="border-blue-700 text-blue-300"
-                        >
-                          Réessayer le quiz
-                        </Button>
+                          <div className={`flex items-center space-x-2 p-2 rounded ${getAnswerClass("q2", "b")}`}>
+                            <RadioGroupItem value="b" id="q2-b" disabled={showQuizResult} />
+                            <Label htmlFor="q2-b" className="text-sm cursor-pointer">Sécurité par l'obscurité</Label>
+                          </div>
+                          <div className={`flex items-center space-x-2 p-2 rounded ${getAnswerClass("q2", "c")}`}>
+                            <RadioGroupItem value="c" id="q2-c" disabled={showQuizResult} />
+                            <Label htmlFor="q2-c" className="text-sm cursor-pointer">Défense en profondeur</Label>
+                          </div>
+                        </RadioGroup>
                         
-                        <Button
-                          onClick={() => setActiveTab("principes")}
-                          className="bg-blue-700 hover:bg-blue-600"
-                        >
-                          Revoir le cours
-                        </Button>
+                        {showQuizResult && quizAnswers.q2 !== correctAnswers.q2 && (
+                          <div className="mt-3 p-2 bg-blue-900/30 rounded text-xs text-blue-200">
+                            <strong>Explication :</strong> La défense en profondeur consiste à mettre en place plusieurs couches de sécurité complémentaires, pour que si l'une est compromise, les autres continuent à protéger le système.
+                          </div>
+                        )}
                       </div>
-                    </motion.div>
-                  ) : (
-                    <div className="space-y-8">
-                      <p className="text-blue-200">
-                        Testez vos connaissances sur les principes fondamentaux de la cybersécurité avec ce quiz de 3 questions.
-                      </p>
                       
-                      {quizQuestions.map((question) => (
-                        <div key={question.id} className="space-y-3">
-                          <h3 className="text-lg font-medium text-white">{question.question}</h3>
-                          
-                          <RadioGroup 
-                            value={quizAnswers[question.id]}
-                            onValueChange={(value) => setQuizAnswers({...quizAnswers, [question.id]: value})}
-                          >
-                            <div className="space-y-2">
-                              {question.options.map((option) => (
-                                <div key={option.value} className="flex items-center">
-                                  <RadioGroupItem 
-                                    value={option.value} 
-                                    id={`${question.id}-${option.value}`}
-                                    className="text-blue-500"
-                                  />
-                                  <Label 
-                                    htmlFor={`${question.id}-${option.value}`}
-                                    className="ml-2 text-blue-200"
-                                  >
-                                    {option.label}
-                                  </Label>
-                                </div>
-                              ))}
-                            </div>
-                          </RadioGroup>
-                          
-                          <Separator className="my-4 bg-blue-800/40" />
-                        </div>
-                      ))}
-                      
-                      <Button 
-                        className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
-                        onClick={submitQuiz}
-                      >
-                        Soumettre mes réponses
-                      </Button>
+                      <div className={`p-4 rounded-lg border ${showQuizResult && quizAnswers.q3 === correctAnswers.q3 ? "bg-green-900/20 border-green-800/50" : showQuizResult && quizAnswers.q3 !== correctAnswers.q3 ? "bg-red-900/20 border-red-800/50" : "bg-blue-900/20 border-blue-800/50"}`}>
+                        <h4 className="font-medium text-white mb-2">Question 3</h4>
+                        <p className="text-sm text-blue-200 mb-3">Quel type de logiciel malveillant chiffre les données de la victime et exige une rançon pour les déchiffrer ?</p>
+                        
+                        <RadioGroup value={quizAnswers.q3} onValueChange={(value) => updateQuizAnswer("q3", value)} className="space-y-3">
+                          <div className={`flex items-center space-x-2 p-2 rounded ${getAnswerClass("q3", "a")}`}>
+                            <RadioGroupItem value="a" id="q3-a" disabled={showQuizResult} />
+                            <Label htmlFor="q3-a" className="text-sm cursor-pointer">Ransomware</Label>
+                          </div>
+                          <div className={`flex items-center space-x-2 p-2 rounded ${getAnswerClass("q3", "b")}`}>
+                            <RadioGroupItem value="b" id="q3-b" disabled={showQuizResult} />
+                            <Label htmlFor="q3-b" className="text-sm cursor-pointer">Spyware</Label>
+                          </div>
+                          <div className={`flex items-center space-x-2 p-2 rounded ${getAnswerClass("q3", "c")}`}>
+                            <RadioGroupItem value="c" id="q3-c" disabled={showQuizResult} />
+                            <Label htmlFor="q3-c" className="text-sm cursor-pointer">Cheval de Troie</Label>
+                          </div>
+                        </RadioGroup>
+                        
+                        {showQuizResult && quizAnswers.q3 !== correctAnswers.q3 && (
+                          <div className="mt-3 p-2 bg-blue-900/30 rounded text-xs text-blue-200">
+                            <strong>Explication :</strong> Un ransomware est un logiciel malveillant qui chiffre les données de la victime et exige une rançon pour fournir la clé de déchiffrement.
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
+                    
+                    <div className="mt-8 flex justify-center">
+                      {!showQuizResult ? (
+                        <Button 
+                          onClick={submitQuiz}
+                          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                        >
+                          Valider mes réponses
+                        </Button>
+                      ) : (
+                        <div className="text-center">
+                          <div className="mb-4">
+                            <h3 className="text-xl font-bold text-white">
+                              {quizScore === 3 ? "Excellent !" : quizScore === 2 ? "Bon travail !" : "Continuez vos efforts !"}
+                            </h3>
+                            <p className="text-blue-200 mt-1">
+                              Vous avez obtenu {quizScore}/3 bonnes réponses.
+                            </p>
+                          </div>
+                          
+                          {badgeEarned && (
+                            <div className="mb-4 bg-blue-800/30 p-4 rounded-lg border border-blue-700/50 flex items-center justify-center flex-col">
+                              <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white mb-2 px-3 py-1">
+                                <CheckCircle className="mr-1 h-3 w-3" /> Badge obtenu !
+                              </Badge>
+                              <p className="text-sm text-blue-200">
+                                Félicitations ! Vous avez débloqué le badge "Fondamentaux de la Cybersécurité".
+                              </p>
+                            </div>
+                          )}
+                          
+                          <Button 
+                            onClick={resetQuiz} 
+                            variant="outline"
+                            className="text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
+                          >
+                            Réessayer le quiz
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-            </TabsContent>
+            )}
           </div>
           
           {/* Sidebar avec ressources et progression */}
-          <div className="space-y-6">
-            <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                  <Trophy className="h-5 w-5 text-amber-400 mr-2" />
-                  Votre progression
-                </h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-blue-300">Module en cours</span>
-                      <span className="text-blue-300">{progress}%</span>
-                    </div>
-                    <Progress value={progress} className="h-2" />
-                  </div>
+          <div className="lg:col-span-1">
+            <div className="space-y-4 sticky top-4">
+              <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
+                <CardContent className="p-4">
+                  <h3 className="text-lg font-semibold text-white mb-3">Votre progression</h3>
+                  <Progress value={progress} className="h-2 mb-2" />
+                  <p className="text-sm text-blue-300">{progress}% complété</p>
                   
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-blue-300">Programme total</span>
-                      <span className="text-blue-300">8%</span>
-                    </div>
-                    <Progress value={8} className="h-2" />
-                  </div>
-                </div>
-                
-                {badgeEarned && (
-                  <div className="mt-6">
-                    <h3 className="text-sm font-medium text-blue-300 mb-2">Badges obtenus</h3>
-                    <div className="bg-blue-900/30 p-3 rounded-lg border border-blue-700/50">
-                      <div className="flex items-center">
-                        <div className="bg-blue-900/60 p-2 rounded-full mr-3">
-                          <Shield className="h-5 w-5 text-blue-300" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-white text-sm">Fondamentaux de la Cybersécurité</p>
-                          <p className="text-xs text-blue-300">Obtenu aujourd'hui</p>
-                        </div>
+                  <div className="mt-4 space-y-2">
+                    <div className="flex items-center">
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center ${activeTab === "principes" || progress >= 25 ? "bg-blue-500" : "bg-blue-900/50 border border-blue-800"}`}>
+                        {progress >= 25 && <CheckCircle className="w-3 h-3 text-white" />}
                       </div>
+                      <div className="ml-2 text-sm text-blue-200">Principes fondamentaux</div>
+                    </div>
+                    
+                    <div className="flex items-center">
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center ${activeTab === "menaces" || progress >= 50 ? "bg-blue-500" : "bg-blue-900/50 border border-blue-800"}`}>
+                        {progress >= 50 && <CheckCircle className="w-3 h-3 text-white" />}
+                      </div>
+                      <div className="ml-2 text-sm text-blue-200">Menaces actuelles</div>
+                    </div>
+                    
+                    <div className="flex items-center">
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center ${activeTab === "casreel" || progress >= 75 ? "bg-blue-500" : "bg-blue-900/50 border border-blue-800"}`}>
+                        {progress >= 75 && <CheckCircle className="w-3 h-3 text-white" />}
+                      </div>
+                      <div className="ml-2 text-sm text-blue-200">Étude de cas</div>
+                    </div>
+                    
+                    <div className="flex items-center">
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center ${activeTab === "quiz" || progress >= 90 ? "bg-blue-500" : "bg-blue-900/50 border border-blue-800"}`}>
+                        {progress >= 100 && <CheckCircle className="w-3 h-3 text-white" />}
+                      </div>
+                      <div className="ml-2 text-sm text-blue-200">Quiz d'évaluation</div>
                     </div>
                   </div>
-                )}
-                
-                <Button 
-                  className="w-full mt-6 bg-gradient-to-r from-blue-700 to-blue-600 hover:from-blue-600 hover:to-blue-500"
-                  onClick={() => {
-                    if (progress >= 75) {
-                      setLocation('/cyber/learning-center/modules/zero-trust');
-                    } else if (activeTab !== "quiz") {
-                      setActiveTab("quiz");
-                    } else {
-                      submitQuiz();
-                    }
-                  }}
-                >
-                  {progress >= 75 ? "Module suivant" : "Continuer l'apprentissage"}
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                  <BrainCircuit className="h-5 w-5 text-indigo-400 mr-2" />
-                  Ressources pratiques
-                </h3>
-                
-                <div className="space-y-3">
-                  <a href="https://www.cnil.fr/fr/rgpd-par-ou-commencer" target="_blank" rel="noopener noreferrer" className="block p-3 bg-blue-900/30 rounded-lg hover:bg-blue-900/50 transition-colors">
-                    <div className="flex items-center">
-                      <FileCheck className="h-4 w-4 text-blue-300 mr-2" />
-                      <span className="text-blue-200">Guide RGPD pour les entreprises</span>
-                      <ExternalLink className="h-3 w-3 text-blue-400 ml-auto" />
-                    </div>
-                  </a>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-blue-950/50 border-blue-800/30 shadow-xl">
+                <CardContent className="p-4">
+                  <h3 className="text-lg font-semibold text-white mb-3">Ressources complémentaires</h3>
                   
-                  <a href="https://www.ssi.gouv.fr/guide/guide-dhygiene-informatique/" target="_blank" rel="noopener noreferrer" className="block p-3 bg-blue-900/30 rounded-lg hover:bg-blue-900/50 transition-colors">
-                    <div className="flex items-center">
-                      <CheckCircle className="h-4 w-4 text-blue-300 mr-2" />
-                      <span className="text-blue-200">Guide d'hygiène informatique (ANSSI)</span>
-                      <ExternalLink className="h-3 w-3 text-blue-400 ml-auto" />
-                    </div>
-                  </a>
-                  
-                  <a href="https://nvd.nist.gov/vuln-metrics/cvss" target="_blank" rel="noopener noreferrer" className="block p-3 bg-blue-900/30 rounded-lg hover:bg-blue-900/50 transition-colors">
-                    <div className="flex items-center">
-                      <AlertTriangle className="h-4 w-4 text-blue-300 mr-2" />
-                      <span className="text-blue-200">Système d'évaluation des vulnérabilités</span>
-                      <ExternalLink className="h-3 w-3 text-blue-400 ml-auto" />
-                    </div>
-                  </a>
-                </div>
-                
-                <Separator className="my-4 bg-blue-800/40" />
-                
-                <h3 className="text-lg font-semibold text-white mb-4">Modules connexes</h3>
-                
-                <div className="space-y-3">
-                  <Link href="/cyber/learning-center/modules/zero-trust" className="block p-3 bg-blue-900/30 rounded-lg hover:bg-blue-900/50 transition-colors">
-                    <div className="flex items-center">
-                      <Shield className="h-4 w-4 text-blue-300 mr-2" />
-                      <span className="text-blue-200">Zero Trust</span>
-                      <ArrowRight className="h-3 w-3 text-blue-400 ml-auto" />
-                    </div>
-                  </Link>
-                  
-                  <Link href="/cyber/learning-center/modules/rgpd" className="block p-3 bg-blue-900/30 rounded-lg hover:bg-blue-900/50 transition-colors">
-                    <div className="flex items-center">
-                      <Lock className="h-4 w-4 text-blue-300 mr-2" />
-                      <span className="text-blue-200">RGPD et protection des données</span>
-                      <ArrowRight className="h-3 w-3 text-blue-400 ml-auto" />
-                    </div>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="space-y-3">
+                    <Button variant="ghost" className="w-full justify-start text-blue-300 hover:text-white hover:bg-blue-800/30">
+                      <ArrowRight className="mr-2 h-4 w-4" />
+                      <span className="text-sm">Guide des bonnes pratiques</span>
+                    </Button>
+                    
+                    <Button variant="ghost" className="w-full justify-start text-blue-300 hover:text-white hover:bg-blue-800/30">
+                      <ArrowRight className="mr-2 h-4 w-4" />
+                      <span className="text-sm">Glossaire cybersécurité</span>
+                    </Button>
+                    
+                    <Button variant="ghost" className="w-full justify-start text-blue-300 hover:text-white hover:bg-blue-800/30">
+                      <ArrowRight className="mr-2 h-4 w-4" />
+                      <span className="text-sm">Formation approfondie</span>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </motion.div>
       </div>
