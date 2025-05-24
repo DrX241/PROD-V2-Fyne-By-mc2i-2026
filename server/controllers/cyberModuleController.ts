@@ -186,16 +186,9 @@ export const updateUserCyberModuleProgress = async (req: Request, res: Response)
   }
 };
 
-// Obtenir des conseils personnalisés via Azure OpenAI en fonction de la progression de l'utilisateur
+// Obtenir des conseils personnalisés via OpenAI en fonction de la progression de l'utilisateur
 export const getAIPersonalizedFeedback = async (req: Request, res: Response) => {
   try {
-    if (!openAIClient) {
-      return res.status(503).json({ 
-        error: "AI service is not available", 
-        message: "L'assistant IA n'est pas disponible pour le moment. Veuillez réessayer plus tard."
-      });
-    }
-
     const { userId, moduleId } = req.params;
     const { userInput, context } = req.body;
 
@@ -235,21 +228,19 @@ export const getAIPersonalizedFeedback = async (req: Request, res: Response) => 
       Si tu ne connais pas la réponse, dis-le clairement plutôt que d'inventer des informations incorrectes.
     `;
 
-    // Appeler Azure OpenAI
-    const result = await openAIClient.getChatCompletions(
-      azureOpenAIDeploymentName!,
-      [
+    // Appeler OpenAI
+    const chatCompletion = await openai.chat.completions.create({
+      model: MODEL_NAME,
+      messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userInput || "Peux-tu me donner des conseils sur ce module?" }
       ],
-      {
-        maxTokens: 500,
-        temperature: 0.7
-      }
-    );
+      max_tokens: 500,
+      temperature: 0.7
+    });
 
     // Extraire la réponse
-    const aiResponse = result.choices[0]?.message?.content || 
+    const aiResponse = chatCompletion.choices[0]?.message?.content || 
       "Je ne peux pas vous aider pour le moment. Veuillez réessayer plus tard.";
 
     // Si l'utilisateur a une progression, enregistrer cette interaction
@@ -258,7 +249,7 @@ export const getAIPersonalizedFeedback = async (req: Request, res: Response) => 
         .update(cyberModuleProgress)
         .set({
           aiInteractions: [
-            ...(progress.aiInteractions || []),
+            ...(Array.isArray(progress.aiInteractions) ? progress.aiInteractions : []),
             {
               timestamp: new Date().toISOString(),
               userInput: userInput || "Question générale",
@@ -286,16 +277,9 @@ export const getAIPersonalizedFeedback = async (req: Request, res: Response) => 
   }
 };
 
-// Générer un scénario d'entraînement personnalisé avec Azure OpenAI
+// Générer un scénario d'entraînement personnalisé avec OpenAI
 export const generateTrainingScenario = async (req: Request, res: Response) => {
   try {
-    if (!openAIClient) {
-      return res.status(503).json({ 
-        error: "AI service is not available", 
-        message: "Le générateur de scénarios n'est pas disponible pour le moment. Veuillez réessayer plus tard." 
-      });
-    }
-
     const { moduleId } = req.params;
     const { difficultyLevel, focus } = req.body;
 
@@ -333,7 +317,7 @@ export const generateTrainingScenario = async (req: Request, res: Response) => {
             "id": "A",
             "text": "Description de l'option A",
             "consequences": "Conséquences de ce choix",
-            "points": 5 (entre 0 et 10)
+            "points": 5
           },
           ...
         ],
@@ -342,22 +326,20 @@ export const generateTrainingScenario = async (req: Request, res: Response) => {
       }
     `;
 
-    // Appeler Azure OpenAI
-    const result = await openAIClient.getChatCompletions(
-      azureOpenAIDeploymentName!,
-      [
+    // Appeler OpenAI
+    const chatCompletion = await openai.chat.completions.create({
+      model: MODEL_NAME,
+      messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: `Génère un scénario pour le module ${module.title} avec niveau ${difficultyLevel || "intermédiaire"} sur ${focus || "les principes généraux"}.` }
       ],
-      {
-        maxTokens: 1000,
-        temperature: 0.7,
-        responseFormat: { type: "json_object" }
-      }
-    );
+      max_tokens: 1000,
+      temperature: 0.7,
+      response_format: { type: "json_object" }
+    });
 
     // Extraire et parser la réponse JSON
-    const responseContent = result.choices[0]?.message?.content || "{}";
+    const responseContent = chatCompletion.choices[0]?.message?.content || "{}";
     let scenario;
     
     try {
@@ -377,13 +359,6 @@ export const generateTrainingScenario = async (req: Request, res: Response) => {
 // Répondre à une question spécifique sur le contenu du module
 export const answerModuleQuestion = async (req: Request, res: Response) => {
   try {
-    if (!openAIClient) {
-      return res.status(503).json({ 
-        error: "AI service is not available", 
-        message: "L'assistant IA n'est pas disponible pour le moment. Veuillez réessayer plus tard."
-      });
-    }
-
     const { moduleId } = req.params;
     const { question, section } = req.body;
 
@@ -400,7 +375,8 @@ export const answerModuleQuestion = async (req: Request, res: Response) => {
     // Identifier le contenu de la section spécifique si fourni
     let sectionContent = "";
     if (section && module.sections) {
-      const sectionData = module.sections.find((s: any) => s.id === section);
+      const sections = Array.isArray(module.sections) ? module.sections : [];
+      const sectionData = sections.find((s: any) => s.id === section);
       if (sectionData) {
         sectionContent = `Section spécifique: ${sectionData.title}
         Contenu: ${sectionData.content}`;
@@ -421,21 +397,19 @@ export const answerModuleQuestion = async (req: Request, res: Response) => {
       Si tu ne connais pas la réponse, dis-le clairement plutôt que d'inventer des informations.
     `;
 
-    // Appeler Azure OpenAI
-    const result = await openAIClient.getChatCompletions(
-      azureOpenAIDeploymentName!,
-      [
+    // Appeler OpenAI
+    const chatCompletion = await openai.chat.completions.create({
+      model: MODEL_NAME,
+      messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: question || "Peux-tu m'expliquer ce module?" }
       ],
-      {
-        maxTokens: 500,
-        temperature: 0.7
-      }
-    );
+      max_tokens: 500,
+      temperature: 0.7
+    });
 
     // Extraire la réponse
-    const answer = result.choices[0]?.message?.content || 
+    const answer = chatCompletion.choices[0]?.message?.content || 
       "Je ne peux pas répondre à cette question pour le moment. Veuillez réessayer plus tard.";
 
     return res.status(200).json({ 
