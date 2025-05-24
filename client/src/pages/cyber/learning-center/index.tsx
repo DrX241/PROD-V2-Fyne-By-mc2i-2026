@@ -768,23 +768,6 @@ export default function LearningCenter() {
                   <Button
                     variant="ghost"
                     className="w-9 h-9 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 rounded-full"
-                    onClick={handleStartTutorial}
-                  >
-                    <Eye className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Visite guidée</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="w-9 h-9 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 rounded-full"
                     onClick={() => setAiPanelOpen(!aiPanelOpen)}
                   >
                     <BrainCircuit className="h-5 w-5" />
