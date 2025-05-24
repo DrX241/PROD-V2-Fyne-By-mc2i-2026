@@ -677,38 +677,39 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
   }, []);
 
   return (
-    <div className="container max-w-7xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-950 to-blue-900 text-white">
+      <div className="container max-w-7xl mx-auto px-4 py-8">
       <div className="flex items-center mb-6">
         <Link href="/cyber/learning-center">
-          <Button variant="ghost" size="icon" className="mr-2">
+          <Button variant="outline" size="icon" className="mr-2 border-blue-600 bg-blue-950/50 text-blue-200 hover:bg-blue-900/50 hover:text-blue-100">
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
         <PageTitle title="Fiches Cyber Express" />
         <div>
-          <h1 className="text-2xl font-bold">Fiches Cyber Express</h1>
-          <p className="text-muted-foreground">Consultez et apprenez rapidement avec nos fiches synthétiques</p>
+          <h1 className="text-2xl font-bold text-white">Fiches Cyber Express</h1>
+          <p className="text-blue-200">Consultez et apprenez rapidement avec nos fiches synthétiques</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Panneau de gauche : Liste des fiches et recherche */}
-        <div className="lg:col-span-1 space-y-4">
+        <div className="lg:col-span-1 space-y-4 bg-blue-900/30 p-4 rounded-lg border border-blue-800">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2">
               <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground">Fiches disponibles</span>
-                <span className="font-medium">{fiches.length}</span>
+                <span className="text-sm text-blue-300">Fiches disponibles</span>
+                <span className="font-medium text-white">{fiches.length}</span>
               </div>
-              <div className="w-px h-8 bg-border mx-2"></div>
+              <div className="w-px h-8 bg-blue-700 mx-2"></div>
               <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground">Lues</span>
-                <span className="font-medium">{readCount}/{fiches.length}</span>
+                <span className="text-sm text-blue-300">Lues</span>
+                <span className="font-medium text-white">{readCount}/{fiches.length}</span>
               </div>
-              <div className="w-px h-8 bg-border mx-2"></div>
+              <div className="w-px h-8 bg-blue-700 mx-2"></div>
               <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground">Favorites</span>
-                <span className="font-medium">{favoriteCount}</span>
+                <span className="text-sm text-blue-300">Favorites</span>
+                <span className="font-medium text-white">{favoriteCount}</span>
               </div>
             </div>
 
@@ -716,7 +717,7 @@ Le Threat Hunting (chasse aux menaces) est une démarche proactive de recherche 
               variant="outline" 
               size="sm" 
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 border-blue-600 bg-blue-950/50 text-blue-200 hover:bg-blue-900/50 hover:text-blue-100"
             >
               <Filter className="h-4 w-4" />
               Filtres
