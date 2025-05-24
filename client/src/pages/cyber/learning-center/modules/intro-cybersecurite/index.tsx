@@ -59,6 +59,13 @@ export default function IntroductionCybersecurite() {
     { id: "scenario", name: "Scénario de crise", description: "Comment réagiriez-vous face à cette attaque?" },
     { id: "analyse", name: "Analyse technique", description: "Analysez les vecteurs d'attaque et les IOCs" }
   ];
+  
+  // États pour le chat avec l'IA dans les mini-jeux
+  const [showMiniGameChat, setShowMiniGameChat] = useState(false);
+  const [miniGameChatPrompt, setMiniGameChatPrompt] = useState("");
+  const [miniGameChatResponse, setMiniGameChatResponse] = useState("");
+  const [miniGameChatHistory, setMiniGameChatHistory] = useState<{role: string, content: string}[]>([]);
+  const [isGeneratingMiniGameChat, setIsGeneratingMiniGameChat] = useState(false);
   const [showInteractiveExercise, setShowInteractiveExercise] = useState(false);
   const [exerciseData, setExerciseData] = useState({
     passwordStrength: "",
@@ -1117,27 +1124,147 @@ export default function IntroductionCybersecurite() {
                           )}
                         </div>
                         
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
-                            onClick={() => {
-                              const currentCase = selectedCaseStudy;
-                              if (!completedInteractions.includes(`case-game-rssi-${currentCase}`)) {
-                                setUserPoints(prev => prev + 10);
-                                setCompletedInteractions(prev => [...prev, `case-game-rssi-${currentCase}`]);
-                                
-                                toast({
-                                  title: "Points obtenus !",
-                                  description: "+10 points pour votre analyse RSSI du cas concret.",
-                                });
-                              }
-                            }}
+                        {/* Zone de chat avec l'expert en cybersécurité */}
+                        {showMiniGameChat && (
+                          <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            transition={{ duration: 0.3 }}
+                            className="bg-blue-900/30 p-4 rounded-lg border border-blue-700/50 mb-4"
                           >
-                            <Trophy className="h-4 w-4 mr-2 text-amber-400" />
-                            Valider ma réflexion
-                          </Button>
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className="font-medium text-white flex items-center">
+                                <BrainCircuit className="h-5 w-5 text-green-400 mr-2" />
+                                Validation par l'expert
+                              </h4>
+                              <Badge className="bg-green-600/70">
+                                <Cpu className="h-3 w-3 mr-1" />
+                                AZURE OPENAI
+                              </Badge>
+                            </div>
+                            
+                            <p className="text-xs text-blue-200 mb-3">
+                              Soumettez votre analyse à notre expert en cybersécurité pour obtenir une évaluation détaillée.
+                            </p>
+                            
+                            {/* Historique des messages du chat */}
+                            {miniGameChatHistory.length > 0 && (
+                              <div className="max-h-60 overflow-y-auto p-3 bg-blue-950/70 rounded border border-blue-800/50 mb-3 space-y-3">
+                                {miniGameChatHistory.map((msg, index) => (
+                                  <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`max-w-[80%] p-2 rounded ${
+                                      msg.role === 'user' 
+                                        ? 'bg-blue-600/50 text-white' 
+                                        : 'bg-blue-900/70 text-blue-200'
+                                    }`}>
+                                      <p className="text-xs whitespace-pre-line">{msg.content}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            
+                            {/* Interface de saisie pour le chat */}
+                            <div className="flex flex-col space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  placeholder="Décrivez votre approche en tant que RSSI..."
+                                  className="bg-blue-900/50 border-blue-700 text-white text-sm"
+                                  value={miniGameChatPrompt}
+                                  onChange={(e) => setMiniGameChatPrompt(e.target.value)}
+                                />
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={isGeneratingMiniGameChat || !miniGameChatPrompt.trim()}
+                                  className="whitespace-nowrap text-green-300 border-green-800/50 hover:bg-green-800/30"
+                                  onClick={() => {
+                                    // Simuler une réponse Azure OpenAI (dans une vraie implémentation, appeler l'API)
+                                    setIsGeneratingMiniGameChat(true);
+                                    
+                                    // Ajouter le message de l'utilisateur à l'historique
+                                    const newHistory = [...miniGameChatHistory, { role: 'user', content: miniGameChatPrompt }];
+                                    setMiniGameChatHistory(newHistory);
+                                    
+                                    // Simuler un délai de traitement
+                                    setTimeout(() => {
+                                      // Générer une réponse basée sur le cas d'étude et le mini-jeu
+                                      let response = "";
+                                      if (selectedCaseStudy === 0) {
+                                        response = "Votre analyse des mesures de sécurisation VPN est pertinente. Je validerais particulièrement votre point sur l'authentification multifacteur, c'est effectivement la mesure qui aurait pu prévenir cette compromission. Je vous suggère aussi de considérer l'audit régulier des comptes inactifs et la mise en place d'une politique de révocation automatique. Évaluation: 4/5";
+                                      } else if (selectedCaseStudy === 1) {
+                                        response = "Bonne analyse des risques liés à la chaîne d'approvisionnement. Vos mesures de vérification d'intégrité sont essentielles, mais je vous conseille d'ajouter la surveillance comportementale des applications après mise à jour. La segmentation réseau aurait aussi limité l'impact de cette attaque. Évaluation: 3.5/5";
+                                      } else {
+                                        response = "Excellente compréhension des risques liés aux composants open-source. J'apprécie particulièrement votre approche d'inventaire des dépendances. Pour renforcer votre stratégie, pensez à mettre en place un processus d'analyse statique du code et un système de surveillance des CVE en temps réel. Évaluation: 4.5/5";
+                                      }
+                                      
+                                      // Ajouter des points pour utilisation de l'IA
+                                      if (!completedInteractions.includes(`minigame-chat-${selectedMiniGame}-${selectedCaseStudy}`)) {
+                                        setUserPoints(prev => prev + 15);
+                                        setCompletedInteractions(prev => [...prev, `minigame-chat-${selectedMiniGame}-${selectedCaseStudy}`]);
+                                        
+                                        toast({
+                                          title: "Validation experte obtenue !",
+                                          description: "+15 points pour l'analyse validée par l'expert"
+                                        });
+                                      }
+                                      
+                                      // Ajouter la réponse à l'historique
+                                      setMiniGameChatHistory([...newHistory, { role: 'assistant', content: response }]);
+                                      setMiniGameChatPrompt("");
+                                      setIsGeneratingMiniGameChat(false);
+                                    }, 2000);
+                                  }}
+                                >
+                                  {isGeneratingMiniGameChat ? (
+                                    <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+                                  ) : (
+                                    <Send className="h-4 w-4 mr-2" />
+                                  )}
+                                  {isGeneratingMiniGameChat ? "Analyse..." : "Envoyer"}
+                                </Button>
+                              </div>
+                              
+                              <p className="text-xs text-gray-400 text-center">
+                                Nos experts en cybersécurité sont propulsés par Azure OpenAI
+                              </p>
+                            </div>
+                          </motion.div>
+                        )}
+                        
+                        <div className="flex flex-wrap gap-2">
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
+                              onClick={() => {
+                                const currentCase = selectedCaseStudy;
+                                if (!completedInteractions.includes(`case-game-rssi-${currentCase}`)) {
+                                  setUserPoints(prev => prev + 10);
+                                  setCompletedInteractions(prev => [...prev, `case-game-rssi-${currentCase}`]);
+                                  
+                                  toast({
+                                    title: "Points obtenus !",
+                                    description: "+10 points pour votre analyse RSSI du cas concret.",
+                                  });
+                                }
+                              }}
+                            >
+                              <Trophy className="h-4 w-4 mr-2 text-amber-400" />
+                              Valider ma réflexion
+                            </Button>
+                            
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-green-300 border-green-800/50 hover:bg-green-800/30"
+                              onClick={() => setShowMiniGameChat(!showMiniGameChat)}
+                            >
+                              <MessageCircle className="h-4 w-4 mr-2 text-green-400" />
+                              {showMiniGameChat ? "Masquer le chat" : "Discuter avec l'expert"}
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     )}
