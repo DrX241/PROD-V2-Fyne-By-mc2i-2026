@@ -27,15 +27,15 @@ export default function DataIaRoleplay() {
   return (
     <div className="min-h-screen text-white pb-20 relative">
       {/* Arrière-plan statique */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#041b36] to-[#0c142e] z-0"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black z-10 opacity-60"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-10 opacity-60"></div>
-        <div className="absolute inset-0 bg-indigo-900/20 z-5"></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-indigo-800/20 z-5"></div>
+      <div className="fixed top-0 left-0 w-full h-full z-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#041b36] to-[#0c142e]"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black opacity-60"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-60"></div>
+        <div className="absolute inset-0 bg-indigo-900/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-indigo-800/20"></div>
       </div>
       
-      {/* Contenu avec z-index pour être au-dessus de l'arrière-plan */}
+      {/* Contenu au dessus du fond */}
       <div className="relative z-10">
       <Helmet>
         <title>DATA & IA ROLE PLAY | Simulations immersives</title>
