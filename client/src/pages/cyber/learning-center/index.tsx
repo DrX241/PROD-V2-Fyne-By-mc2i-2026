@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'wouter';
 import {
   ArrowLeft,
+  ArrowRight,
   BookOpen,
   Cpu,
+  Eye,
   GraduationCap,
   Clock,
   Users,
@@ -12,6 +14,7 @@ import {
   Database,
   Code,
   LineChart,
+  Briefcase,
   Network,
   Wifi,
   FileText,
@@ -27,7 +30,10 @@ import {
   Layers,
   Zap,
   Star,
-  Sparkles
+  Sparkles,
+  User as UserIcon,
+  Lightbulb,
+  CheckCircle2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -96,7 +102,7 @@ export default function LearningCenter() {
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
-
+  
   const { toast } = useToast();
   const { startTutorial, setCurrentTour } = useTutorial();
 
@@ -110,7 +116,7 @@ export default function LearningCenter() {
       duration: '2-3h',
       level: 'débutant',
       category: 'fondamentaux',
-      tags: ['concepts', 'principes', 'introduction'],
+      tags: ['concepts', 'principes', 'introduction', 'sensibilisation', 'culture sécurité'],
       progress: 0,
       destination: '/cyber/learning-center/modules/intro-cybersecurite'
     },
@@ -134,7 +140,7 @@ export default function LearningCenter() {
       duration: '4-5h',
       level: 'intermédiaire',
       category: 'fondamentaux',
-      tags: ['risques', 'analyse', 'méthodologie'],
+      tags: ['risques', 'analyse', 'méthodologie', 'gouvernance', 'conformité', 'EBIOS'],
       progress: 0,
       destination: '/cyber/learning-center/modules/analyse-risques'
     },
@@ -162,7 +168,7 @@ export default function LearningCenter() {
       duration: '6-8h',
       level: 'intermédiaire',
       category: 'technique',
-      tags: ['réseau', 'firewall', 'IDS/IPS'],
+      tags: ['réseau', 'firewall', 'IDS/IPS', 'VPN', 'segmentation', 'endpoints'],
       progress: 0,
       destination: '/cyber/learning-center/modules/securite-reseaux'
     },
@@ -290,7 +296,7 @@ export default function LearningCenter() {
       duration: '45-60min',
       level: 'débutant',
       category: 'micro-learning',
-      tags: ['ransomware', 'malware', 'prévention'],
+      tags: ['ransomware', 'malware', 'prévention', 'incidents', 'gestion de crise', 'forensique'],
       progress: 0,
       destination: '/cyber/learning-center/modules/ransomware'
     },
@@ -375,874 +381,651 @@ export default function LearningCenter() {
       destination: '/cyber/learning-center/modules/memo-ia-personnalise',
       isNew: true
     },
-
   ];
-
+  
+  // Tous les modules combinés pour la recherche
+  const allModules = [...basicModules, ...specializedModules, ...microModules, ...quickLearningModules];
+  
   // Parcours thématiques
   const learningPaths: LearningPath[] = [
     {
       id: 'rssi',
       title: 'Parcours RSSI',
-      description: 'Formation complète pour les responsables de la sécurité des systèmes d\'information',
-      icon: <Users />,
-      modules: ['gouvernance-cyber', 'analyse-risques', 'normes-standards', 'securite-donnees'],
+      description: 'Formation complète pour les Responsables de la Sécurité des Systèmes d\'Information',
+      icon: <Shield />,
+      modules: ['intro-cybersecurite', 'modele-menaces', 'analyse-risques', 'normes-standards', 'gouvernance-cyber', 'securite-cloud'],
+      duration: '40-50h',
+      level: 'avancé',
+      category: 'mixte',
+      objectives: [
+        'Maîtriser les fondamentaux de la gouvernance de la cybersécurité',
+        'Comprendre les aspects juridiques et réglementaires',
+        'Élaborer et mettre en œuvre une stratégie de sécurité',
+        'Gérer les risques et les incidents de sécurité'
+      ],
+      tags: ['RSSI', 'gouvernance', 'stratégie', 'conformité', 'management'],
+      progress: 0,
+      certification: 'Certification interne RSSI',
+      isNew: true,
+      gradient: 'from-blue-800 to-indigo-600'
+    },
+    {
+      id: 'architecte-securite',
+      title: 'Parcours Architecte Sécurité',
+      description: 'Conception d\'architectures de sécurité robustes et conformes',
+      icon: <Layers />,
+      modules: ['securite-reseaux', 'securite-cloud', 'zero-trust', 'devsecops', 'securite-donnees', 'gestion-identites'],
+      duration: '35-45h',
+      level: 'avancé',
+      category: 'technique',
+      objectives: [
+        'Concevoir des architectures de sécurité résilientes',
+        'Maîtriser les technologies de sécurité avancées',
+        'Sécuriser les environnements cloud et hybrides',
+        'Implémenter des modèles Zero Trust'
+      ],
+      tags: ['architecture', 'conception', 'infrastructure', 'cloud', 'réseaux'],
+      progress: 0,
+      gradient: 'from-indigo-700 to-purple-700'
+    },
+    {
+      id: 'analyste-soc',
+      title: 'Parcours Analyste SOC',
+      description: 'Surveillance, détection et réponse aux menaces cybernétiques',
+      icon: <Eye />,
+      modules: ['securite-reseaux', 'phishing-detection', 'ransomware', 'intelligence-artificielle-securite'],
       duration: '30-40h',
-      level: 'avancé',
-      category: 'gouvernance',
+      level: 'intermédiaire',
+      category: 'technique',
       objectives: [
-        'Développer une stratégie de sécurité globale',
-        'Maîtriser les aspects juridiques et réglementaires',
-        'Gérer une équipe de sécurité',
-        'Communiquer avec la direction et les parties prenantes'
+        'Surveiller et analyser les événements de sécurité',
+        'Détecter et qualifier les incidents',
+        'Mener les premières actions de réponse',
+        'Utiliser les outils de détection et d\'analyse'
       ],
-      tags: ['RSSI', 'gouvernance', 'management', 'stratégie'],
+      tags: ['SOC', 'détection', 'surveillance', 'incidents', 'SIEM', 'XDR'],
       progress: 0,
-      certification: 'Attestation de compétences',
-      gradient: 'from-blue-800 to-indigo-900'
+      gradient: 'from-green-700 to-emerald-700'
     },
     {
-      id: 'securite-applicative',
-      title: 'Sécurité applicative',
-      description: 'Maîtriser la sécurité dans le développement d\'applications',
+      id: 'devsecops-engineer',
+      title: 'Parcours DevSecOps',
+      description: 'Intégration de la sécurité dans le DevOps et le cycle de développement',
       icon: <Code />,
-      modules: ['devsecops', 'securite-donnees', 'gestion-identites', 'modele-menaces'],
-      duration: '25-30h',
+      modules: ['devsecops', 'securite-cloud', 'intelligence-artificielle-securite', 'zero-trust'],
+      duration: '25-35h',
       level: 'avancé',
       category: 'technique',
       objectives: [
-        'Intégrer la sécurité dans le cycle de développement',
-        'Identifier et corriger les vulnérabilités courantes',
-        'Mettre en œuvre des tests de sécurité automatisés',
-        'Sécuriser les API et les interfaces'
+        'Intégrer la sécurité dans le pipeline CI/CD',
+        'Automatiser les tests de sécurité',
+        'Sécuriser les environnements conteneurisés',
+        'Mettre en œuvre des pratiques IaC sécurisées'
       ],
-      tags: ['développement', 'AppSec', 'SAST/DAST', 'vulnérabilités'],
+      tags: ['DevSecOps', 'CI/CD', 'automatisation', 'containers', 'développement sécurisé'],
       progress: 0,
-      certification: 'Certification interne',
-      gradient: 'from-amber-700 to-red-900',
-      isNew: true
-    },
-    {
-      id: 'securite-cloud-native',
-      title: 'Sécurité cloud native',
-      description: 'Sécuriser les environnements cloud modernes et les architectures conteneurisées',
-      icon: <CloudRain />,
-      modules: ['securite-cloud', 'devsecops', 'zero-trust', 'securite-donnees'],
-      duration: '20-25h',
-      level: 'avancé',
-      category: 'technique',
-      objectives: [
-        'Concevoir des architectures cloud sécurisées',
-        'Sécuriser les environnements Kubernetes',
-        'Implémenter la sécurité as code',
-        'Gérer les identités et les accès dans le cloud'
-      ],
-      tags: ['cloud', 'conteneurs', 'Kubernetes', 'infrastructure as code'],
-      progress: 0,
-      certification: 'Badge de compétences cloud',
-      gradient: 'from-cyan-800 to-blue-900',
-      isNew: true
-    },
-    {
-      id: 'reponse-incidents',
-      title: 'Gestion et réponse aux incidents',
-      description: 'Préparer et gérer efficacement les incidents de sécurité',
-      icon: <Zap />,
-      modules: ['securite-reseaux', 'analyse-risques', 'ransomware', 'gouvernance-cyber'],
-      duration: '15-20h',
-      level: 'intermédiaire',
-      category: 'mixte',
-      objectives: [
-        'Élaborer un plan de réponse aux incidents',
-        'Identifier et contenir les incidents',
-        'Mettre en place un processus d\'investigation',
-        'Gérer la communication de crise'
-      ],
-      tags: ['incidents', 'CERT/CSIRT', 'forensique', 'gestion de crise'],
-      progress: 0,
-      gradient: 'from-red-800 to-orange-900'
-    },
-    {
-      id: 'conformite-rgpd',
-      title: 'Conformité RGPD',
-      description: 'Mettre en œuvre les exigences du Règlement Général sur la Protection des Données',
-      icon: <FileText />,
-      modules: ['securite-donnees', 'gouvernance-cyber', 'normes-standards', 'analyse-risques'],
-      duration: '10-15h',
-      level: 'intermédiaire',
-      category: 'gouvernance',
-      objectives: [
-        'Comprendre les obligations légales du RGPD',
-        'Implémenter les mesures techniques et organisationnelles',
-        'Gérer les droits des personnes concernées',
-        'Documenter la conformité'
-      ],
-      tags: ['RGPD', 'vie privée', 'données personnelles', 'conformité'],
-      progress: 0,
-      gradient: 'from-green-800 to-teal-900'
-    },
-    {
-      id: 'sensibilisation-collaborateurs',
-      title: 'Programme de sensibilisation',
-      description: 'Développer et déployer un programme de sensibilisation efficace',
-      icon: <Users />,
-      modules: ['phishing-detection', 'mot-de-passe', 'ransomware', 'byod-securite'],
-      duration: '8-12h',
-      level: 'tous niveaux',
-      category: 'mixte',
-      objectives: [
-        'Construire un programme adapté aux différents publics',
-        'Mesurer l\'efficacité des actions de sensibilisation',
-        'Créer des contenus engageants',
-        'Favoriser l\'adoption des bonnes pratiques'
-      ],
-      tags: ['sensibilisation', 'formation', 'facteur humain', 'culture sécurité'],
-      progress: 0,
-      gradient: 'from-purple-800 to-indigo-900'
+      isNew: true,
+      gradient: 'from-rose-700 to-red-700'
     }
   ];
-
-  // Catégories de ressources
+  
+  // Catégories de ressources pour l'interface
   const resourceCategories: ResourceCategory[] = [
     {
       id: 'parcours-rapide',
       title: 'Parcours rapide',
       description: 'Apprentissage accéléré et outils d\'auto-formation',
-      icon: <Zap className="h-6 w-6 text-yellow-100" />,
+      icon: <Zap />,
       modules: quickLearningModules,
-      gradient: 'from-amber-600 to-orange-800'
+      gradient: 'from-orange-800 to-transparent'
     },
     {
       id: 'fondamentaux',
-      title: 'Modules fondamentaux',
-      description: 'Principes et concepts essentiels de la cybersécurité',
-      icon: <BookOpen className="h-6 w-6 text-blue-100" />,
+      title: 'Fondamentaux de la cybersécurité',
+      description: 'Concepts essentiels pour tous les niveaux',
+      icon: <Shield />,
       modules: basicModules,
-      gradient: 'from-blue-700 to-blue-900'
+      gradient: 'from-blue-800 to-transparent'
     },
     {
-      id: 'specialises',
-      title: 'Modules spécialisés',
-      description: 'Approfondissement sur des domaines techniques et organisationnels',
-      icon: <Cpu className="h-6 w-6 text-purple-100" />,
+      id: 'modules-technique',
+      title: 'Modules techniques avancés',
+      description: 'Pour approfondir vos connaissances techniques',
+      icon: <Code />,
       modules: specializedModules,
-      gradient: 'from-purple-700 to-purple-900'
+      gradient: 'from-violet-800 to-transparent'
     },
     {
       id: 'micro-learning',
-      title: 'Micro-learning',
-      description: 'Formations courtes et ciblées sur des sujets précis',
-      icon: <Clock className="h-6 w-6 text-green-100" />,
+      title: 'Modules micro-learning',
+      description: 'Formations courtes et ciblées sur des sujets spécifiques',
+      icon: <Clock />,
       modules: microModules,
-      gradient: 'from-green-700 to-green-900'
+      gradient: 'from-emerald-800 to-transparent'
     }
   ];
-
-  // Tous les modules combinés pour la recherche
-  const allModules = [...basicModules, ...specializedModules, ...microModules, ...quickLearningModules];
-
-  // Fonction de filtrage des modules
-  const getFilteredModules = () => {
-    return allModules.filter(module => {
+  
+  // Filtrer les modules en fonction des critères de recherche
+  const filterModules = (modules: Module[]) => {
+    return modules.filter(module => {
       const matchesSearch = searchTerm === '' || 
-        module.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        module.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
         module.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         module.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-
-      const matchesLevel = selectedLevel === '' || selectedLevel === 'all' || module.level === selectedLevel;
-      const matchesCategory = selectedCategory === '' || selectedCategory === 'all' || module.category === selectedCategory;
-      const matchesDuration = selectedDuration === '' || selectedDuration === 'all' ||
-        (selectedDuration === 'court' && getDurationMinutes(module.duration) < 60) ||
-        (selectedDuration === 'moyen' && getDurationMinutes(module.duration) >= 60 && getDurationMinutes(module.duration) < 240) ||
-        (selectedDuration === 'long' && getDurationMinutes(module.duration) >= 240);
-
+      
+      const matchesLevel = selectedLevel === 'all' || selectedLevel === '' || module.level === selectedLevel;
+      
+      const matchesCategory = selectedCategory === 'all' || selectedCategory === '' || module.category === selectedCategory;
+      
+      let matchesDuration = true;
+      if (selectedDuration === 'court') {
+        matchesDuration = module.duration.includes('min') || module.duration.includes('1h');
+      } else if (selectedDuration === 'moyen') {
+        matchesDuration = module.duration.includes('2-3h') || module.duration.includes('3-4h') || module.duration.includes('4-5h');
+      } else if (selectedDuration === 'long') {
+        matchesDuration = !module.duration.includes('min') && 
+          (module.duration.includes('5') || module.duration.includes('6') || 
+           module.duration.includes('7') || module.duration.includes('8') || 
+           module.duration.includes('9') || module.duration.includes('10'));
+      }
+      
+      return matchesSearch && matchesLevel && matchesCategory && matchesDuration;
+    });
+  };
+  
+  // Filtrer les parcours en fonction des critères de recherche
+  const filterPaths = (paths: LearningPath[]) => {
+    return paths.filter(path => {
+      const matchesSearch = searchTerm === '' || 
+        path.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        path.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        path.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      const matchesLevel = selectedLevel === 'all' || selectedLevel === '' || path.level === selectedLevel;
+      
+      const matchesCategory = selectedCategory === 'all' || selectedCategory === '' || path.category === selectedCategory;
+      
+      let matchesDuration = true;
+      if (selectedDuration === 'court') {
+        matchesDuration = path.duration.includes('10') || path.duration.includes('15') || path.duration.includes('20');
+      } else if (selectedDuration === 'moyen') {
+        matchesDuration = path.duration.includes('25') || path.duration.includes('30') || path.duration.includes('35');
+      } else if (selectedDuration === 'long') {
+        matchesDuration = path.duration.includes('40') || path.duration.includes('45') || 
+                         path.duration.includes('50') || path.duration.includes('55') || 
+                         path.duration.includes('60');
+      }
+      
       return matchesSearch && matchesLevel && matchesCategory && matchesDuration;
     });
   };
 
-  // Fonction pour obtenir la durée en minutes (approximative)
-  const getDurationMinutes = (duration: string): number => {
-    if (duration.includes('min')) {
-      const range = duration.split('-');
-      const minutes = parseInt(range[1]);
-      return minutes;
-    } else if (duration.includes('h')) {
-      const range = duration.split('-');
-      const hours = parseInt(range[1]);
-      return hours * 60;
-    }
-    return 0;
-  };
-
-  // Fonction pour simuler la génération de plan d'apprentissage IA
-  const generateLearningPlan = async () => {
+  // Génération de contenu avec IA
+  const generateContent = () => {
     if (aiPrompt.trim() === '') {
       toast({
-        title: 'Veuillez spécifier vos objectifs',
-        description: 'Pour générer un plan personnalisé, nous avons besoin de connaître vos objectifs d\'apprentissage.',
-        variant: 'destructive'
+        title: "Prompt requis",
+        description: "Veuillez entrer une demande pour l'assistant IA.",
+        variant: "destructive"
       });
       return;
     }
-
+    
     setIsGenerating(true);
-
-    // Simuler un délai de traitement
+    
+    // Simuler une génération
     setTimeout(() => {
       setIsGenerating(false);
-
       toast({
-        title: 'Plan d\'apprentissage généré',
-        description: 'Votre plan d\'apprentissage personnalisé a été créé avec succès.',
-        variant: 'default'
+        title: "Contenu généré",
+        description: "Votre contenu personnalisé a été créé avec succès.",
       });
-
-      // Ici, on pourrait afficher un plan personnalisé basé sur l'input de l'utilisateur
-      // Pour cette démo, on reste sur l'interface existante
-    }, 2500);
+      setAiPrompt('');
+    }, 3000);
   };
-
-  // Animation des cartes
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.1,
-        duration: 0.5
+  
+  // Fonction pour lancer le tutoriel
+  const handleStartTutorial = () => {
+    setCurrentTour('learning-center');
+    startTutorial();
+  };
+  
+  // Rendu du module avec lien direct vers la page du module
+  const renderModuleCard = (module: Module, index: number) => (
+    <motion.div
+      key={module.id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+    >
+      <Link href={module.destination || '#'} className="block h-full">
+        <Card className="h-full bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 cursor-pointer overflow-hidden group">
+          <div className="p-5">
+            <div className="flex items-start mb-4">
+              <div className="h-8 w-8 mr-2 flex items-center justify-center bg-blue-800 text-white rounded">
+                {module.icon}
+              </div>
+              <div>
+                {module.isNew && (
+                  <Badge className="bg-blue-600 hover:bg-blue-700 text-[10px] font-normal py-0 h-4">Nouveau</Badge>
+                )}
+                {module.isFeatured && (
+                  <Badge className="bg-amber-600 hover:bg-amber-700 text-[10px] font-normal py-0 h-4 ml-1">Populaire</Badge>
+                )}
+                <h3 className="font-medium text-white mt-1">{module.title}</h3>
+              </div>
+            </div>
+            <div className="text-xs text-blue-300 flex items-center mb-2">
+              <span className="bg-blue-800/50 px-2 py-0.5 rounded text-[10px]">{module.level}</span>
+              <span className="ml-2 text-blue-400">{module.duration}</span>
+            </div>
+            <p className="text-sm text-blue-100 mb-4">{module.description}</p>
+            <div className="flex flex-wrap gap-1">
+              {module.tags.slice(0, 3).map(tag => (
+                <Badge key={tag} className="bg-blue-900/60 hover:bg-blue-800 text-[10px] border border-blue-600 text-blue-300">{tag}</Badge>
+              ))}
+            </div>
+          </div>
+          {(module.progress !== undefined && module.progress > 0) && (
+            <div className="px-5 pb-3">
+              <div className="flex items-center text-xs text-blue-400 mb-1">
+                <span>Progression: {module.progress}%</span>
+              </div>
+              <Progress value={module.progress} className="h-1.5 bg-blue-900/40" indicatorClassName="bg-blue-500" />
+            </div>
+          )}
+          <div className="absolute inset-0 flex items-end justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <Button className="mb-4 bg-blue-600 hover:bg-blue-700">
+              {module.progress && module.progress > 0 ? 'Continuer' : 'Commencer'}
+            </Button>
+          </div>
+        </Card>
+      </Link>
+    </motion.div>
+  );
+  
+  // Rendu d'un parcours d'apprentissage
+  const renderLearningPathCard = (path: LearningPath, index: number) => (
+    <motion.div
+      key={path.id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+      className="col-span-1 md:col-span-2"
+    >
+      <Card className="bg-blue-950/70 border-blue-700/30 hover:bg-blue-900/60 transition-all duration-200 overflow-hidden h-full">
+        <div className="bg-gradient-to-r border-b border-blue-700/30 p-4 flex items-center gap-3">
+          <div className={`p-2 rounded-lg bg-gradient-to-r ${path.gradient}`}>
+            {path.icon}
+          </div>
+          <div>
+            <h3 className="font-semibold text-white">{path.title}</h3>
+            <p className="text-sm text-blue-300">{path.duration} • {path.level}</p>
+          </div>
+          {path.isNew && (
+            <Badge className="bg-blue-600 hover:bg-blue-700 ml-auto">Nouveau</Badge>
+          )}
+        </div>
+        <div className="p-4">
+          <p className="text-blue-100 mb-4">{path.description}</p>
+          
+          <div className="mb-4">
+            <h4 className="text-sm font-medium text-white mb-2">Objectifs d'apprentissage</h4>
+            <ul className="text-sm text-blue-200 list-disc pl-5 space-y-1">
+              {path.objectives.slice(0, 3).map((objective, i) => (
+                <li key={i}>{objective}</li>
+              ))}
+            </ul>
+          </div>
+          
+          <div className="mb-4">
+            <h4 className="text-sm font-medium text-white mb-2">Modules inclus ({path.modules.length})</h4>
+            <div className="flex flex-wrap gap-1.5">
+              {path.modules.slice(0, 5).map(moduleId => {
+                const module = allModules.find(m => m.id === moduleId);
+                return module ? (
+                  <Badge key={moduleId} className="bg-blue-900/80 text-[10px]">
+                    {module.title}
+                  </Badge>
+                ) : null;
+              })}
+              {path.modules.length > 5 && (
+                <Badge className="bg-blue-900/80 text-[10px]">
+                  +{path.modules.length - 5} modules
+                </Badge>
+              )}
+            </div>
+          </div>
+          
+          {path.certification && (
+            <div className="mb-4 flex items-center">
+              <GraduationCap className="h-4 w-4 text-amber-400 mr-1.5" />
+              <span className="text-xs text-blue-200">{path.certification}</span>
+            </div>
+          )}
+          
+          <div className="flex justify-end mt-2">
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              Voir le parcours
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </motion.div>
+  );
+  
+  // Fonction pour mettre à jour la liste des modules
+  const updateModules = () => {
+    // Chercher le module IA et cybersécurité avec l'un ou l'autre des IDs possibles
+    const iaModule = allModules.find(m => 
+      m.id === 'intelligence-artificielle-securite' || m.id === 'ia-securite'
+    );
+    
+    // Si on le trouve, on change sa catégorie pour l'intégrer aux fondamentaux
+    if (iaModule) {
+      iaModule.category = 'fondamentaux';
+    }
+    
+    // Vérifier et corriger les liens de destination pour tous les modules
+    allModules.forEach(module => {
+      // S'assurer que chaque module a une destination valide
+      if (!module.destination && module.id) {
+        module.destination = `/cyber/learning-center/modules/${module.id}`;
       }
-    })
+      
+      // Retirer l'affichage de durée si besoin
+      module.duration = '';
+    });
+    
+    // Filtrer pour exclure le module 'modele-menaces' et garder seulement les modules non "à venir"
+    return allModules.filter(module => 
+      !module.comingSoon && module.id !== 'modele-menaces'
+    );
   };
-
+  
+  // Appliquer les modifications à la liste des modules
+  const filteredModules = updateModules();
+  
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white pb-20">
-      {/* En-tête */}
-      <div className="p-6 container mx-auto">
-        <div className="flex items-center mb-2">
-          <Link href="/cyber">
-            <Button variant="ghost" className="text-white mr-4">
-              <ArrowLeft className="mr-2 h-5 w-5" />
+    <div className="bg-[#0a1429]">
+      <PageTitle title="Cyber Académie | Centre de formation" />
+      
+      {/* En-tête avec navigation et titre */}
+      <div className="border-b border-blue-800/60">
+        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
+          <Link href="/cyber/sas-academie">
+            <Button variant="ghost" className="text-blue-300 hover:bg-blue-900/30 hover:text-blue-200">
+              <ArrowLeft className="h-4 w-4 mr-2" />
               Retour
             </Button>
           </Link>
-          <PageTitle title="CYBER ACADÉMIE" />
-        </div>
-
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold">Cyber Académie</h1>
-            <p className="text-blue-200 mt-1">Centre de formation complet en cybersécurité</p>
-          </div>
-
-          <div className="flex gap-2 mt-4 md:mt-0">
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="border-blue-500 text-blue-200 hover:bg-blue-800/30"
-              onClick={() => {
-                setCurrentTour('cyber-academie');
-                startTutorial();
-              }}
-            >
-              <Sparkles className="mr-2 h-4 w-4" />
-              Visite guidée
-            </Button>
-
-            <Button 
-              variant="default" 
-              size="sm"
-              className="bg-blue-600 hover:bg-blue-700"
-              onClick={() => setAiPanelOpen(!aiPanelOpen)}
-              data-id="ai-assistant-button"
-            >
-              <BrainCircuit className="mr-2 h-4 w-4" />
-              Assistant pédagogique IA
-            </Button>
-          </div>
-        </div>
-
-        {/* Panneau IA */}
-        {aiPanelOpen && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="bg-blue-900/50 backdrop-blur-sm border border-blue-800 rounded-lg p-4 mb-6"
-          >
-            <h3 className="text-lg font-semibold flex items-center text-blue-200">
-              <BrainCircuit className="mr-2 h-5 w-5" />
-              Assistant pédagogique IA
-            </h3>
-            <p className="text-sm text-blue-200 mb-4">
-              Décrivez vos objectifs, votre expérience et vos contraintes pour obtenir un plan d'apprentissage personnalisé.
-            </p>
-
-            <div className="flex gap-2 mb-4">
-              <Input
-                placeholder="Ex: Je souhaite me former à la sécurité cloud pour préparer une certification dans 3 mois..."
-                className="bg-blue-950/50 border-blue-700 text-white placeholder:text-blue-400"
-                value={aiPrompt}
-                onChange={(e) => setAiPrompt(e.target.value)}
-              />
-              <Button 
-                onClick={generateLearningPlan} 
-                disabled={isGenerating}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-              >
-                {isGenerating ? 'Génération...' : 'Générer'}
-              </Button>
-            </div>
-
-            <div className="flex gap-2 text-xs">
-              <Badge variant="outline" className="border-blue-500 text-blue-200 hover:bg-blue-900 cursor-pointer">
-                Débutant complet
-              </Badge>
-              <Badge variant="outline" className="border-blue-500 text-blue-200 hover:bg-blue-900 cursor-pointer">
-                Préparer une certification
-              </Badge>
-              <Badge variant="outline" className="border-blue-500 text-blue-200 hover:bg-blue-900 cursor-pointer">
-                Reconversion professionnelle
-              </Badge>
-              <Badge variant="outline" className="border-blue-500 text-blue-200 hover:bg-blue-900 cursor-pointer">
-                Formation courte
-              </Badge>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Filtres et recherche */}
-        <div className="bg-blue-900/20 backdrop-blur-sm rounded-lg p-4 mb-6">
-          <div className="flex flex-col md:flex-row gap-3">
-            <div className="relative flex-grow">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-blue-300" />
-              <Input 
-                placeholder="Rechercher par titre, description ou mot-clé..." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-blue-950/40 border-blue-800 text-white placeholder:text-blue-400"
-              />
-            </div>
-
-            <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-              <SelectTrigger className="w-auto min-w-[150px] bg-blue-950/40 border-blue-800 text-white">
-                <SelectValue placeholder="Niveau" />
-              </SelectTrigger>
-              <SelectContent className="bg-blue-900 border-blue-800 text-white">
-                <SelectItem value="all">Tous les niveaux</SelectItem>
-                <SelectItem value="débutant">Débutant</SelectItem>
-                <SelectItem value="intermédiaire">Intermédiaire</SelectItem>
-                <SelectItem value="avancé">Avancé</SelectItem>
-                <SelectItem value="tous niveaux">Tous niveaux</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-auto min-w-[150px] bg-blue-950/40 border-blue-800 text-white">
-                <SelectValue placeholder="Catégorie" />
-              </SelectTrigger>
-              <SelectContent className="bg-blue-900 border-blue-800 text-white">
-                <SelectItem value="all">Toutes les catégories</SelectItem>
-                <SelectItem value="fondamentaux">Fondamentaux</SelectItem>
-                <SelectItem value="technique">Technique</SelectItem>
-                <SelectItem value="gouvernance">Gouvernance</SelectItem>
-                <SelectItem value="micro-learning">Micro-learning</SelectItem>
-                <SelectItem value="parcours-rapide">Parcours rapide</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedDuration} onValueChange={setSelectedDuration}>
-              <SelectTrigger className="w-auto min-w-[150px] bg-blue-950/40 border-blue-800 text-white">
-                <SelectValue placeholder="Durée" />
-              </SelectTrigger>
-              <SelectContent className="bg-blue-900 border-blue-800 text-white">
-                <SelectItem value="all">Toutes les durées</SelectItem>
-                <SelectItem value="court">Court (moins de 1h)</SelectItem>
-                <SelectItem value="moyen">Moyen (1-4h)</SelectItem>
-                <SelectItem value="long">Long (plus de 4h)</SelectItem>
-              </SelectContent>
-            </Select>
+          <h1 className="text-xl text-white font-medium">Cyber Académie</h1>
+          
+          <div className="ml-auto flex items-center">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-9 h-9 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 rounded-full"
+                    onClick={handleStartTutorial}
+                  >
+                    <Eye className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Visite guidée</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-9 h-9 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 rounded-full"
+                    onClick={() => setAiPanelOpen(!aiPanelOpen)}
+                  >
+                    <BrainCircuit className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Assistant pédagogique IA</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       </div>
-
+      
       {/* Contenu principal */}
-      <div className="container mx-auto px-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-blue-900/20 border border-blue-800">
-            <TabsTrigger value="modules" className="data-[state=active]:bg-blue-700">
-              Modules
-            </TabsTrigger>
-            <TabsTrigger value="paths" className="data-[state=active]:bg-blue-700">
-              Parcours thématiques
-            </TabsTrigger>
-            <TabsTrigger value="dashboard" className="data-[state=active]:bg-blue-700">
-              Mon apprentissage
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Onglet Modules */}
-          <TabsContent value="modules" className="space-y-8">
-            {/* Si 'all' est sélectionné pour toutes les sélections, ou pas de recherche active, on affiche par catégorie */}
-            {((!searchTerm && (selectedLevel === '' || selectedLevel === 'all') && (selectedCategory === '' || selectedCategory === 'all') && (selectedDuration === '' || selectedDuration === 'all'))) ? (
-              // Affichage par catégories
-              <>
-                {resourceCategories.map((category) => (
-                  <div key={category.id} data-category={category.id}>
-                    <div className="flex items-center mb-4">
-                      <div className={`p-2 rounded-md bg-gradient-to-r ${category.gradient} mr-3`}>
-                        {category.icon}
+      <div className="container mx-auto px-4 py-8">
+        {/* Titre et description */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Centre de formation en cybersécurité</h1>
+          <p className="text-blue-300 max-w-3xl">Développez vos compétences en cybersécurité avec nos modules de formation interactifs adaptés à tous les niveaux, des débutants aux experts.</p>
+        </div>
+        
+        {/* Espace entre le titre et le contenu */}
+        <div className="mb-10"></div>
+        
+        {/* Affichage des différentes sections */}
+        <div className="space-y-8">
+          {/* Fondamentaux de la cybersécurité */}
+          <div className="bg-gradient-to-r from-blue-900/40 to-blue-950/60 border border-blue-700 rounded-lg p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold flex items-center text-white">
+                <Shield className="mr-3 h-6 w-6 text-blue-400" />
+                Fondamentaux de la cybersécurité
+              </h2>
+              <Badge variant="outline" className="bg-blue-800/30 border-blue-600 text-blue-200 px-3 py-1 text-sm">
+                {filteredModules.filter(m => m.category === 'fondamentaux').length} modules
+              </Badge>
+            </div>
+            <p className="text-blue-200 mb-6">
+              Une formation complète et structurée pour maîtriser les fondamentaux de la cybersécurité,
+              depuis la sensibilisation jusqu'aux techniques de protection avancées.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredModules
+                .filter(module => module.category === 'fondamentaux')
+                .map((module, index) => (
+                  <Link key={module.id} href={module.destination || '#'} className="block h-full">
+                    <Card className="h-full bg-blue-900/20 border border-blue-700 flex flex-col hover:shadow-md hover:border-blue-500 transition-all">
+                      <div className="flex p-4">
+                        <div className="p-2 rounded-full bg-blue-800/50 mr-3 h-10 w-10 flex items-center justify-center">
+                          {module.icon}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start">
+                            <h3 className="font-medium text-white">{module.title}</h3>
+                          </div>
+                          <p className="text-sm text-blue-300 mt-1 line-clamp-2">{module.description}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h2 className="text-2xl font-bold">{category.title}</h2>
-                        <p className="text-blue-200">{category.description}</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-                      {category.modules.map((module, index) => (
-                        <motion.div
-                          key={module.id}
-                          custom={index}
-                          initial="hidden"
-                          animate="visible"
-                          variants={cardVariants}
-                        >
-                          <Link href={module.destination || '#'}>
-                            <Card className="bg-blue-900/20 border-blue-800 hover:bg-blue-800/30 transition-all cursor-pointer overflow-hidden">
-                              <CardHeader className="pb-2">
-                                <div className="flex justify-between items-start">
-                                  <div className="p-2 bg-blue-800 rounded-md">
-                                    {module.icon}
-                                  </div>
-                                  <div className="flex gap-1">
-                                    {module.isNew && (
-                                      <Badge className="bg-blue-600">Nouveau</Badge>
-                                    )}
-                                    {module.isFeatured && (
-                                      <Badge className="bg-amber-600">Recommandé</Badge>
-                                    )}
-                                  </div>
-                                </div>
-                                <CardTitle className="text-lg mt-2">{module.title}</CardTitle>
-                                <div className="flex gap-2 mt-1">
-                                  <Badge variant="outline" className="bg-blue-950/50 border-blue-700 text-blue-200">
-                                    {module.level}
-                                  </Badge>
-                                  <Badge variant="outline" className="bg-blue-950/50 border-blue-700 text-blue-200">
-                                    {module.duration}
-                                  </Badge>
-                                </div>
-                              </CardHeader>
-                              <CardContent>
-                                <p className="text-sm text-gray-300">{module.description}</p>
-
-                                <div className="flex flex-wrap gap-1 mt-3">
-                                  {module.tags.slice(0, 3).map((tag) => (
-                                    <Badge key={tag} variant="secondary" className="bg-blue-950/70 text-blue-200 border-blue-800">
-                                      {tag}
-                                    </Badge>
-                                  ))}
-                                  {module.tags.length > 3 && (
-                                    <Badge variant="secondary" className="bg-blue-950/70 text-blue-200 border-blue-800">
-                                      +{module.tags.length - 3}
-                                    </Badge>
-                                  )}
-                                </div>
-
-                                {module.progress !== undefined && module.progress > 0 && (
-                                  <div className="mt-3">
-                                    <div className="flex justify-between text-xs mb-1">
-                                      <span>Progression</span>
-                                      <span>{module.progress}%</span>
-                                    </div>
-                                    <Progress value={module.progress} className="h-1.5" />
-                                  </div>
-                                )}
-                              </CardContent>
-                            </Card>
-                          </Link>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </>
-            ) : (
-              // Résultats de recherche
-              <div>
-                <h2 className="text-2xl font-bold mb-6">Résultats de recherche</h2>
-                {getFilteredModules().length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {getFilteredModules().map((module, index) => (
-                      <motion.div
-                        key={module.id}
-                        custom={index}
-                        initial="hidden"
-                        animate="visible"
-                        variants={cardVariants}
-                      >
-                        <Link href={module.destination || '#'}>
-                          <Card className="bg-blue-900/20 border-blue-800 hover:bg-blue-800/30 transition-all cursor-pointer overflow-hidden">
-                            <CardHeader className="pb-2">
-                              <div className="flex justify-between items-start">
-                                <div className="p-2 bg-blue-800 rounded-md">
-                                  {module.icon}
-                                </div>
-                                <div className="flex gap-1">
-                                  {module.isNew && (
-                                    <Badge className="bg-blue-600">Nouveau</Badge>
-                                  )}
-                                  {module.isFeatured && (
-                                    <Badge className="bg-amber-600">Recommandé</Badge>
-                                  )}
-                                </div>
-                              </div>
-                              <CardTitle className="text-lg mt-2">{module.title}</CardTitle>
-                              <div className="flex gap-2 mt-1">
-                                <Badge variant="outline" className="bg-blue-950/50 border-blue-700 text-blue-200">
-                                  {module.level}
-                                </Badge>
-                                <Badge variant="outline" className="bg-blue-950/50 border-blue-700 text-blue-200">
-                                  {module.duration}
-                                </Badge>
-                              </div>
-                            </CardHeader>
-                            <CardContent>
-                              <p className="text-sm text-gray-300">{module.description}</p>
-
-                              <div className="flex flex-wrap gap-1 mt-3">
-                                {module.tags.slice(0, 3).map((tag) => (
-                                  <Badge key={tag} variant="secondary" className="bg-blue-950/70 text-blue-200 border-blue-800">
-                                    {tag}
-                                  </Badge>
-                                ))}
-                                {module.tags.length > 3 && (
-                                  <Badge variant="secondary" className="bg-blue-950/70 text-blue-200 border-blue-800">
-                                    +{module.tags.length - 3}
-                                  </Badge>
-                                )}
-                              </div>
-
-                              {module.progress !== undefined && module.progress > 0 && (
-                                <div className="mt-3">
-                                  <div className="flex justify-between text-xs mb-1">
-                                    <span>Progression</span>
-                                    <span>{module.progress}%</span>
-                                  </div>
-                                  <Progress value={module.progress} className="h-1.5" />
-                                </div>
-                              )}
-                            </CardContent>
-                          </Card>
-                        </Link>
-                      </motion.div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-10 bg-blue-900/10 rounded-lg border border-blue-900/50">
-                    <Search className="h-10 w-10 mx-auto text-blue-400 mb-3" />
-                    <h3 className="text-xl font-semibold">Aucun résultat trouvé</h3>
-                    <p className="text-blue-300 mt-1">Essayez de modifier vos critères de recherche</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Onglet Parcours thématiques */}
-          <TabsContent value="paths" className="space-y-6">
-            <div className="relative">
-              {/* Notification "Bientôt disponible" */}
-              <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-amber-600/50 to-orange-700/50 border border-amber-500/60">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-amber-600/70 rounded-full">
-                    <Clock className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white">Fonctionnalité bientôt disponible</h3>
-                    <p className="text-amber-100">
-                      Les parcours thématiques sont en cours de développement. Vous pouvez consulter les parcours à venir ci-dessous, mais l'inscription n'est pas encore active.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {learningPaths.map((path, index) => (
-                  <motion.div
-                    key={path.id}
-                    custom={index}
-                    initial="hidden"
-                    animate="visible"
-                    variants={cardVariants}
-                    className="h-full"
-                  >
-                    <Card className={`border-0 overflow-hidden bg-gradient-to-br ${path.gradient} h-full flex flex-col`}>
-                      <CardHeader className="pb-2">
-                        <div className="flex justify-between items-start">
-                          <div className="p-2 bg-white/20 backdrop-blur-sm rounded-md">
-                            {path.icon}
-                          </div>
-                          <div className="flex gap-1">
-                            {path.isNew && (
-                              <Badge className="bg-white/30 text-white">Nouveau</Badge>
-                            )}
-                            {path.certification && (
-                              <Badge className="bg-amber-500/70">Certification</Badge>
-                            )}
-                          </div>
-                        </div>
-                        <CardTitle className="text-xl mt-3">{path.title}</CardTitle>
-                        <div className="flex gap-2 mt-1">
-                          <Badge variant="outline" className="border-white/40 text-white bg-white/10">
-                            {path.level}
-                          </Badge>
-                          <Badge variant="outline" className="border-white/40 text-white bg-white/10">
-                            {path.duration}
-                          </Badge>
-                          <Badge variant="outline" className="border-white/40 text-white bg-white/10">
-                            {path.category}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="flex-grow overflow-y-auto" style={{ maxHeight: '400px' }}>
-                        <p className="text-white/90 mb-4">{path.description}</p>
-
-                        <h4 className="font-semibold text-white mb-2">Objectifs :</h4>
-                        <ul className="list-disc list-inside text-sm text-white/90 space-y-1 mb-4">
-                          {path.objectives.map((objective, i) => (
-                            <li key={i}>{objective}</li>
-                          ))}
-                        </ul>
-
-                        <h4 className="font-semibold text-white mb-2">Modules inclus :</h4>
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {path.modules.map((moduleId) => {
-                            const module = allModules.find(m => m.id === moduleId);
-                            return module ? (
-                              <Badge key={moduleId} className="bg-white/20 hover:bg-white/30 text-white">
-                                {module.title}
-                              </Badge>
-                            ) : null;
-                          })}
-                        </div>
-
-                        {path.progress !== undefined && (
-                          <div className="mt-4">
-                            <div className="flex justify-between text-xs mb-1 text-white/90">
-                              <span>Progression</span>
-                              <span>{path.progress}%</span>
-                            </div>
-                            <Progress value={path.progress} className="h-2 bg-white/20" 
-                              indicatorClassName="bg-white" />
-                          </div>
-                        )}
-                      </CardContent>
-                      <CardFooter className="pt-0 mt-auto">
-                        <Button className="w-full bg-white/20 hover:bg-white/30 text-white" disabled>
-                          <Clock className="mr-2 h-4 w-4" />
-                          Bientôt disponible
+                      <div className="mt-auto p-2 pl-4">
+                        <Button variant="link" className="text-blue-300 hover:text-blue-100 p-0 h-auto">
+                          {module.progress && module.progress > 0 ? 'Continuer' : 'Commencer'} →
                         </Button>
-                      </CardFooter>
+                      </div>
                     </Card>
-                  </motion.div>
-                ))}
-              </div>
+                  </Link>
+              ))}
             </div>
-          </TabsContent>
+          </div>
+          
 
-          {/* Onglet Mon apprentissage */}
-          <TabsContent value="dashboard" className="space-y-6">
-            {/* Notification "Bientôt disponible" */}
-            <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-amber-600/50 to-orange-700/50 border border-amber-500/60">
-              <div className="flex items-start gap-3">
-                <div className="p-2 bg-amber-600/70 rounded-full">
-                  <Clock className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">Fonctionnalité bientôt disponible</h3>
-                  <p className="text-amber-100">
-                    Le suivi personnalisé de votre apprentissage est en cours de développement. Cette fonctionnalité vous permettra de suivre votre progression et d'organiser votre parcours d'apprentissage.
-                  </p>
-                </div>
-              </div>
+          
+          {/* Découvrez les différents métiers en cyber */}
+          <div className="bg-gradient-to-r from-cyan-900/40 to-cyan-950/60 border border-cyan-700 rounded-lg p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold flex items-center text-white">
+                <Users className="mr-3 h-6 w-6 text-cyan-400" />
+                Découvrez les différents métiers en cyber
+              </h2>
+              <Badge variant="outline" className="bg-cyan-800/30 border-cyan-600 text-cyan-200 px-3 py-1 text-sm">
+                Nouveauté
+              </Badge>
             </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Colonne 1: Statistiques et Progression */}
-              <Card className="bg-blue-900/20 border-blue-800">
-                <CardHeader>
-                  <CardTitle>Mon tableau de bord</CardTitle>
-                  <CardDescription className="text-blue-200">Suivi personnalisé de votre progression</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-blue-900/30 rounded-lg p-3 text-center">
-                      <h4 className="text-sm font-medium text-blue-200">Modules</h4>
-                      <p className="text-3xl font-bold">0/17</p>
-                    </div>
-                    <div className="bg-blue-900/30 rounded-lg p-3 text-center">
-                      <h4 className="text-sm font-medium text-blue-200">Temps</h4>
-                      <p className="text-3xl font-bold">0h</p>
-                    </div>
-                    <div className="bg-blue-900/30 rounded-lg p-3 text-center">
-                      <h4 className="text-sm font-medium text-blue-200">Parcours</h4>
-                      <p className="text-3xl font-bold">0/6</p>
-                    </div>
-                    <div className="bg-blue-900/30 rounded-lg p-3 text-center">
-                      <h4 className="text-sm font-medium text-blue-200">Badges</h4>
-                      <p className="text-3xl font-bold">0</p>
-                    </div>
+            <p className="text-cyan-200 mb-6">
+              Explorez les différentes carrières et spécialisations dans le domaine de la cybersécurité. Découvrez les compétences requises, 
+              les missions et les parcours pour devenir un professionnel de la cybersécurité.
+            </p>
+            
+            {/* Grille des profils professionnels */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+              {/* RSSI */}
+              <Card className="bg-cyan-900/20 border border-cyan-700 hover:border-cyan-500 transition-all overflow-hidden">
+                <div className="bg-blue-600 p-3 flex items-center">
+                  <div className="bg-white/10 rounded-full p-2">
+                    <Shield className="h-6 w-6 text-white" />
                   </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">Progression globale</h3>
-                    <Progress value={0} className="h-2" />
-                    <p className="text-xs text-blue-300 mt-1 text-right">0%</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-3">Compétences acquises</h3>
-                    <div className="space-y-2">
-                      <div>
-                        <div className="flex justify-between text-xs">
-                          <span>Fondamentaux</span>
-                          <span>0%</span>
-                        </div>
-                        <Progress value={0} className="h-1.5" />
-                      </div>
-                      <div>
-                        <div className="flex justify-between text-xs">
-                          <span>Technique</span>
-                          <span>0%</span>
-                        </div>
-                        <Progress value={0} className="h-1.5" />
-                      </div>
-                      <div>
-                        <div className="flex justify-between text-xs">
-                          <span>Gouvernance</span>
-                          <span>0%</span>
-                        </div>
-                        <Progress value={0} className="h-1.5" />
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline" className="w-full border-blue-700" disabled>
-                    <Clock className="mr-2 h-4 w-4" />
-                    Bientôt disponible
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              {/* Colonne 2: Modules en cours */}
-              <Card className="bg-blue-900/20 border-blue-800">
-                <CardHeader>
-                  <CardTitle>Modules en cours</CardTitle>
-                  <CardDescription className="text-blue-200">Reprenez votre apprentissage où vous l'avez laissé</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-center h-32 border border-dashed border-blue-800 rounded-md">
-                    <div className="text-center px-4">
-                      <Folder className="h-8 w-8 mx-auto text-blue-400 mb-2" />
-                      <p className="text-sm text-blue-300">Aucun module en cours</p>
-                      <p className="text-xs text-blue-400 mt-1">Cette fonctionnalité sera bientôt disponible</p>
-                    </div>
-                  </div>
-
-                  <Separator className="my-4 bg-blue-800/50" />
-
-                  <h3 className="font-semibold mb-3">Modules recommandés</h3>
-                  <div className="space-y-3">
-                    {allModules.filter(m => m.isNew || m.isFeatured).slice(0, 3).map((module) => (
-                      <Link href={module.destination || '#'} key={module.id}>
-                        <div className="flex items-center gap-3 p-2 rounded-md hover:bg-blue-800/20 transition-colors cursor-pointer">
-                          <div className="p-1.5 bg-blue-800 rounded">
-                            {module.icon}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-sm truncate">{module.title}</h4>
-                            <p className="text-xs text-blue-300 truncate">{module.description}</p>
-                          </div>
-                          <Badge variant="outline" className="border-blue-700 text-blue-200 shrink-0">
-                            {module.duration}
-                          </Badge>
-                        </div>
-                      </Link>
+                  <h3 className="ml-3 text-white font-bold text-sm md:text-base">Responsable Sécurité SI (RSSI)</h3>
+                </div>
+                <CardContent className="p-4">
+                  <p className="text-cyan-200 text-sm mb-3 line-clamp-2">Pilotez la stratégie de sécurité et supervisez les opérations de cybersécurité</p>
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {['Stratégie', 'Gouvernance', 'Risques'].map((skill, idx) => (
+                      <Badge key={idx} className="bg-blue-900/40 text-blue-200 text-xs">
+                        {skill}
+                      </Badge>
                     ))}
                   </div>
-                </CardContent>
-                <CardFooter>
-                  <Button className="w-full bg-white/20 hover:bg-white/30 text-white" disabled>
-                    <Clock className="mr-2 h-4 w-4" />
-                    Bientôt disponible
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              {/* Colonne 3: Parcours et certification */}
-              <Card className="bg-blue-900/20 border-blue-800">
-                <CardHeader>
-                  <CardTitle>Parcours et certifications</CardTitle>
-                  <CardDescription className="text-blue-200">Suivez votre progression vers vos objectifs</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-center h-32 border border-dashed border-blue-800 rounded-md">
-                    <div className="text-center px-4">
-                      <GraduationCap className="h-8 w-8 mx-auto text-blue-400 mb-2" />
-                      <p className="text-sm text-blue-300">Aucun parcours sélectionné</p>
-                      <p className="text-xs text-blue-400 mt-1">Cette fonctionnalité sera bientôt disponible</p>
+                  <Button 
+                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white mt-2"
+                    disabled
+                  >
+                    <div className="flex items-center justify-center w-full">
+                      <Clock className="h-3 w-3 mr-2" />
+                      <span>Bientôt disponible</span>
                     </div>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              {/* Analyste SOC */}
+              <Card className="bg-cyan-900/20 border border-cyan-700 hover:border-cyan-500 transition-all overflow-hidden">
+                <div className="bg-emerald-600 p-3 flex items-center">
+                  <div className="bg-white/10 rounded-full p-2">
+                    <Database className="h-6 w-6 text-white" />
                   </div>
-
-                  <Separator className="my-4 bg-blue-800/50" />
-
-                  <h3 className="font-semibold mb-3">Parcours populaires</h3>
-                  <div className="space-y-3">
-                    {learningPaths.slice(0, 3).map((path) => (
-                      <div key={path.id} className="p-3 rounded-md bg-gradient-to-r cursor-pointer hover:opacity-95 transition-opacity" style={{ backgroundImage: `linear-gradient(to right, ${path.gradient.replace('from-', '').replace('to-', ', ')})` }}>
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="p-1 bg-white/20 rounded">
-                            {path.icon}
-                          </div>
-                          <h4 className="font-medium">{path.title}</h4>
-                        </div>
-
-                        <div className="flex justify-between items-center text-xs text-white/90">
-                          <span>{path.duration}</span>
-                          <Badge className="bg-white/30 text-white">{path.modules.length} modules</Badge>
-                        </div>
-                      </div>
+                  <h3 className="ml-3 text-white font-bold text-sm md:text-base">Analyste SOC / SecOps</h3>
+                </div>
+                <CardContent className="p-4">
+                  <p className="text-cyan-200 text-sm mb-3 line-clamp-2">Surveillez, détectez et répondez aux menaces de cybersécurité en temps réel</p>
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {['Détection', 'Réponse', 'Analyse'].map((skill, idx) => (
+                      <Badge key={idx} className="bg-emerald-900/40 text-emerald-200 text-xs">
+                        {skill}
+                      </Badge>
                     ))}
                   </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline" className="w-full border-blue-700" disabled>
-                    <Clock className="mr-2 h-4 w-4" />
-                    Bientôt disponible
+                  <Button 
+                    className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white mt-2"
+                    disabled
+                  >
+                    <div className="flex items-center justify-center w-full">
+                      <Clock className="h-3 w-3 mr-2" />
+                      <span>Bientôt disponible</span>
+                    </div>
                   </Button>
-                </CardFooter>
+                </CardContent>
+              </Card>
+              
+              {/* Pentesteur */}
+              <Card className="bg-cyan-900/20 border border-cyan-700 hover:border-cyan-500 transition-all overflow-hidden">
+                <div className="bg-red-600 p-3 flex items-center">
+                  <div className="bg-white/10 rounded-full p-2">
+                    <Code className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="ml-3 text-white font-bold text-sm md:text-base">Pentesteur / Ethical Hacker</h3>
+                </div>
+                <CardContent className="p-4">
+                  <p className="text-cyan-200 text-sm mb-3 line-clamp-2">Testez les systèmes pour trouver les vulnérabilités avant les attaquants</p>
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {['Offensive', 'Vulnérabilités', 'Exploitation'].map((skill, idx) => (
+                      <Badge key={idx} className="bg-red-900/40 text-red-200 text-xs">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                  <Button 
+                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white mt-2"
+                    disabled
+                  >
+                    <div className="flex items-center justify-center w-full">
+                      <Clock className="h-3 w-3 mr-2" />
+                      <span>Bientôt disponible</span>
+                    </div>
+                  </Button>
+                </CardContent>
               </Card>
             </div>
-
-            <Card className="bg-blue-900/20 border-blue-800">
-              <CardHeader>
-                <CardTitle>Activité récente</CardTitle>
-                <CardDescription className="text-blue-200">Historique de vos dernières sessions d'apprentissage</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-center h-40 border border-dashed border-blue-800 rounded-md">
-                  <div className="text-center px-4">
-                    <Monitor className="h-10 w-10 mx-auto text-blue-400 mb-3" />
-                    <p className="text-blue-300">Aucune activité récente</p>
-                    <p className="text-xs text-blue-400 mt-2">Cette fonctionnalité sera bientôt disponible</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+            
+            {/* Lien vers la page complète */}
+            <div className="mt-6 text-center">
+              <Link href="/cyber/profil-pro">
+                <Button variant="outline" className="border-cyan-600 text-cyan-300 hover:bg-cyan-800/30">
+                  Voir tous les métiers
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+        
+        {/* Panel Assistant IA */}
+        {aiPanelOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="fixed bottom-0 left-0 right-0 bg-blue-950 border-t border-blue-700 p-4 z-50"
+          >
+            <div className="container mx-auto">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-white font-semibold flex items-center">
+                  <BrainCircuit className="h-5 w-5 mr-2 text-blue-400" />
+                  Assistant pédagogique IA
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-blue-300 hover:bg-blue-900/30"
+                  onClick={() => setAiPanelOpen(false)}
+                >
+                  Fermer
+                </Button>
+              </div>
+              <div className="flex gap-3">
+                <Input
+                  className="bg-blue-900/50 border-blue-700 text-white"
+                  placeholder="Demandez à l'IA de vous créer un contenu personnalisé..."
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  disabled={isGenerating}
+                />
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700 whitespace-nowrap"
+                  onClick={generateContent}
+                  disabled={isGenerating}
+                >
+                  {isGenerating ? (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+                      Génération...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Générer
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
     </div>
   );

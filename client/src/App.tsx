@@ -312,7 +312,6 @@ function App() {
                     </Suspense>
                   )}
                 </Route>
-
                 <Route path="/data-ia/data-ia-academy">
                   {(params) => (
                     <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>

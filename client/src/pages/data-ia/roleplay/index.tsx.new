@@ -99,7 +99,7 @@ export default function DataIaRoleplay() {
       </div>
       
       {/* Options de rôles */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto px-4 relative z-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto mt-8 px-4 relative z-10">
         {/* Option 1: Je suis Consultant Data & IA */}
         <motion.div
           initial="initial"

@@ -88,7 +88,7 @@ export default function CryptographieMicroLearning() {
 
   // Calculer l'index de la section actuelle
   const currentSectionIndex = sections.findIndex(section => section.id === currentSection);
-
+  
   // Calculer la progression globale
   const progressPercentage = (completedSections.length / sections.length) * 100;
 
@@ -146,7 +146,7 @@ export default function CryptographieMicroLearning() {
                 </div>
                 <Progress value={progressPercentage} className="h-2" />
               </div>
-
+              
               <div className="space-y-2">
                 {sections.map((section) => (
                   <div
@@ -163,16 +163,16 @@ export default function CryptographieMicroLearning() {
                   </div>
                 ))}
               </div>
-
+              
               <Separator className="my-4 bg-blue-800/50" />
-
+              
               <div className="flex items-center text-sm text-blue-200">
                 <Clock className="h-4 w-4 mr-2" />
                 <span>Durée estimée: 25 minutes</span>
               </div>
             </CardContent>
           </Card>
-
+          
           <Card className="bg-blue-900/20 border-blue-800">
             <CardHeader>
               <CardTitle className="text-lg">Ressources</CardTitle>
@@ -206,13 +206,13 @@ export default function CryptographieMicroLearning() {
               {currentSection === 'introduction' && (
                 <motion.div variants={itemVariants}>
                   <h2 className="text-2xl font-bold mb-4">Introduction à la cryptographie moderne</h2>
-
+                  
                   <p className="mb-4">
                     La cryptographie est l'art et la science de protéger l'information à travers des techniques
                     mathématiques qui transforment les données en formats apparemment inintelligibles. Elle constitue
                     l'un des piliers fondamentaux de la cybersécurité moderne.
                   </p>
-
+                  
                   <div className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 p-4 rounded-lg border border-blue-700 mb-6">
                     <h3 className="font-bold text-lg mb-2 text-blue-300">Objectifs d'apprentissage</h3>
                     <ul className="list-disc list-inside space-y-1 text-blue-200">
@@ -222,7 +222,7 @@ export default function CryptographieMicroLearning() {
                       <li>Appliquer les concepts cryptographiques dans des contextes réels</li>
                     </ul>
                   </div>
-
+                  
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Les trois piliers de la cryptographie</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -236,7 +236,7 @@ export default function CryptographieMicroLearning() {
                           prévus peuvent comprendre l'information.
                         </p>
                       </div>
-
+                      
                       <div className="bg-green-900/30 p-4 rounded-lg border border-green-800">
                         <div className="rounded-full bg-green-800/50 w-12 h-12 flex items-center justify-center mb-3">
                           <FileCode className="h-6 w-6 text-green-300" />
@@ -247,7 +247,7 @@ export default function CryptographieMicroLearning() {
                           Toute modification non autorisée peut être détectée.
                         </p>
                       </div>
-
+                      
                       <div className="bg-purple-900/30 p-4 rounded-lg border border-purple-800">
                         <div className="rounded-full bg-purple-800/50 w-12 h-12 flex items-center justify-center mb-3">
                           <Fingerprint className="h-6 w-6 text-purple-300" />
@@ -260,7 +260,7 @@ export default function CryptographieMicroLearning() {
                       </div>
                     </div>
                   </div>
-
+                  
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Évolution historique</h3>
                     <div className="p-4 bg-blue-900/20 rounded-lg">
@@ -277,7 +277,7 @@ export default function CryptographieMicroLearning() {
                             </p>
                           </div>
                         </div>
-
+                        
                         <div className="flex items-start">
                           <div className="bg-blue-800 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
                             <span className="text-xs">2</span>
@@ -290,7 +290,7 @@ export default function CryptographieMicroLearning() {
                             </p>
                           </div>
                         </div>
-
+                        
                         <div className="flex items-start">
                           <div className="bg-blue-800 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
                             <span className="text-xs">3</span>
@@ -306,7 +306,7 @@ export default function CryptographieMicroLearning() {
                       </div>
                     </div>
                   </div>
-
+                  
                   <div className="flex items-center p-3 bg-blue-800/30 rounded-lg text-blue-200 text-sm">
                     <LightbulbIcon className="h-5 w-5 mr-2 text-yellow-400" />
                     <span>
@@ -317,18 +317,18 @@ export default function CryptographieMicroLearning() {
                   </div>
                 </motion.div>
               )}
-
+              
               {/* Section Chiffrement symétrique */}
               {currentSection === 'symmetric' && (
                 <motion.div variants={itemVariants}>
                   <h2 className="text-2xl font-bold mb-4">Chiffrement symétrique : une clé pour tout</h2>
-
+                  
                   <p className="mb-4">
                     Le chiffrement symétrique, également appelé chiffrement à clé secrète, utilise la même clé pour
                     chiffrer et déchiffrer les données. C'est comme une serrure avec une unique clé partagée entre
                     tous les participants autorisés.
                   </p>
-
+                  
                   <div className="bg-gradient-to-r from-indigo-900/30 to-blue-900/30 p-4 rounded-lg border border-indigo-700 mb-6">
                     <div className="flex flex-col md:flex-row items-center">
                       <div className="w-full md:w-1/3 flex justify-center mb-4 md:mb-0">
@@ -353,7 +353,7 @@ export default function CryptographieMicroLearning() {
                       </div>
                     </div>
                   </div>
-
+                  
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Algorithmes symétriques majeurs</h3>
                     <Table className="border-collapse">
@@ -408,7 +408,7 @@ export default function CryptographieMicroLearning() {
                       </TableBody>
                     </Table>
                   </div>
-
+                  
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Modes de fonctionnement</h3>
                     <p className="mb-3 text-sm">
@@ -438,7 +438,7 @@ export default function CryptographieMicroLearning() {
                           </li>
                         </ul>
                       </div>
-
+                      
                       <div className="bg-red-900/20 p-3 rounded-lg border border-red-800">
                         <div className="flex items-center mb-2">
                           <XCircle className="h-4 w-4 text-red-500 mr-2" />
@@ -463,7 +463,7 @@ export default function CryptographieMicroLearning() {
                       </div>
                     </div>
                   </div>
-
+                  
                   <div className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border-l-4 border-blue-500 p-4 my-4 rounded-r-lg">
                     <h4 className="font-bold text-blue-300">🔑 À retenir</h4>
                     <p className="mt-1">
@@ -474,18 +474,18 @@ export default function CryptographieMicroLearning() {
                   </div>
                 </motion.div>
               )}
-
+              
               {/* Section Chiffrement asymétrique */}
               {currentSection === 'asymmetric' && (
                 <motion.div variants={itemVariants}>
                   <h2 className="text-2xl font-bold mb-4">Chiffrement asymétrique : la magie des clés publiques/privées</h2>
-
+                  
                   <p className="mb-4">
                     Le chiffrement asymétrique, également appelé cryptographie à clé publique, utilise une paire de clés
                     mathématiquement liées mais distinctes. Cette innovation a révolutionné la cryptographie moderne en
                     résolvant le problème de l'échange sécurisé des clés.
                   </p>
-
+                  
                   <div className="bg-gradient-to-r from-purple-900/30 to-indigo-900/30 p-5 rounded-lg border border-purple-700 mb-6">
                     <div className="flex flex-col md:flex-row gap-4">
                       <div className="md:w-1/2 flex flex-col items-center p-4 bg-purple-900/40 rounded-lg">
@@ -508,7 +508,7 @@ export default function CryptographieMicroLearning() {
                           </li>
                         </ul>
                       </div>
-
+                      
                       <div className="md:w-1/2 flex flex-col items-center p-4 bg-indigo-900/40 rounded-lg">
                         <div className="p-3 bg-indigo-800 rounded-full mb-2">
                           <Key className="h-8 w-8 text-indigo-200" />
@@ -531,7 +531,7 @@ export default function CryptographieMicroLearning() {
                       </div>
                     </div>
                   </div>
-
+                  
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Principaux algorithmes asymétriques</h3>
                     <div className="space-y-4">
@@ -558,7 +558,7 @@ export default function CryptographieMicroLearning() {
                           </div>
                         </div>
                       </div>
-
+                      
                       <div className="p-3 bg-green-900/30 rounded-lg border-l-4 border-green-600">
                         <h4 className="font-semibold text-green-300 mb-1">ECC (Cryptographie sur les Courbes Elliptiques)</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -584,7 +584,7 @@ export default function CryptographieMicroLearning() {
                       </div>
                     </div>
                   </div>
-
+                  
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Applications pratiques</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -595,7 +595,7 @@ export default function CryptographieMicroLearning() {
                           symétrique partagée, même sur un canal non sécurisé, sans jamais exposer la clé.
                         </p>
                       </div>
-
+                      
                       <div className="bg-gradient-to-br from-green-900/20 to-green-900/10 p-4 rounded-lg border border-green-800">
                         <h4 className="font-semibold text-green-300 mb-2">Signatures numériques</h4>
                         <p className="text-sm">
@@ -605,7 +605,7 @@ export default function CryptographieMicroLearning() {
                       </div>
                     </div>
                   </div>
-
+                  
                   <div className="bg-gradient-to-r from-purple-900/40 to-indigo-900/40 border-l-4 border-purple-500 p-4 my-4 rounded-r-lg">
                     <h4 className="font-bold text-purple-300">🔐 À retenir</h4>
                     <p className="mt-1">
@@ -617,18 +617,18 @@ export default function CryptographieMicroLearning() {
                   </div>
                 </motion.div>
               )}
-
+              
               {/* Section Fonctions de hachage */}
               {currentSection === 'hash' && (
                 <motion.div variants={itemVariants}>
                   <h2 className="text-2xl font-bold mb-4">Fonctions de hachage : l'empreinte digitale des données</h2>
-
+                  
                   <p className="mb-4">
                     Les fonctions de hachage cryptographiques transforment des données de taille arbitraire en une 
                     empreinte numérique de taille fixe. Ces fonctions jouent un rôle crucial dans la vérification de 
                     l'intégrité des données et dans de nombreux protocoles de sécurité.
                   </p>
-
+                  
                   <div className="bg-gradient-to-r from-cyan-900/30 to-blue-900/30 p-4 rounded-lg border border-cyan-800 mb-6">
                     <h3 className="font-bold text-lg mb-3 text-cyan-300">Propriétés essentielles</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -641,7 +641,7 @@ export default function CryptographieMicroLearning() {
                         </div>
                         <p className="text-sm">Les mêmes données produisent toujours le même hash</p>
                       </div>
-
+                      
                       <div className="bg-cyan-900/40 p-3 rounded-lg">
                         <div className="flex items-center mb-2">
                           <div className="rounded-full bg-cyan-800 w-6 h-6 flex items-center justify-center mr-2">
@@ -651,7 +651,7 @@ export default function CryptographieMicroLearning() {
                         </div>
                         <p className="text-sm">Un changement minime dans les données produit un hash complètement différent</p>
                       </div>
-
+                      
                       <div className="bg-cyan-900/40 p-3 rounded-lg">
                         <div className="flex items-center mb-2">
                           <div className="rounded-full bg-cyan-800 w-6 h-6 flex items-center justify-center mr-2">
@@ -661,7 +661,7 @@ export default function CryptographieMicroLearning() {
                         </div>
                         <p className="text-sm">Difficulté à trouver deux entrées différentes produisant le même hash</p>
                       </div>
-
+                      
                       <div className="bg-cyan-900/40 p-3 rounded-lg">
                         <div className="flex items-center mb-2">
                           <div className="rounded-full bg-cyan-800 w-6 h-6 flex items-center justify-center mr-2">
@@ -673,7 +673,7 @@ export default function CryptographieMicroLearning() {
                       </div>
                     </div>
                   </div>
-
+                  
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Algorithmes de hachage courants</h3>
                     <Table className="border-collapse">
@@ -728,7 +728,7 @@ export default function CryptographieMicroLearning() {
                       </TableBody>
                     </Table>
                   </div>
-
+                  
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Applications des fonctions de hachage</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -739,7 +739,7 @@ export default function CryptographieMicroLearning() {
                           ou le stockage (téléchargements, mises à jour, etc.).
                         </p>
                       </div>
-
+                      
                       <div className="bg-purple-900/30 p-3 rounded-lg border border-purple-800">
                         <h4 className="font-semibold text-purple-300 mb-2">Stockage des mots de passe</h4>
                         <p className="text-sm">
@@ -747,7 +747,7 @@ export default function CryptographieMicroLearning() {
                           leurs hashs (généralement salés pour plus de sécurité).
                         </p>
                       </div>
-
+                      
                       <div className="bg-green-900/30 p-3 rounded-lg border border-green-800">
                         <h4 className="font-semibold text-green-300 mb-2">Blockchain</h4>
                         <p className="text-sm">
@@ -757,7 +757,7 @@ export default function CryptographieMicroLearning() {
                       </div>
                     </div>
                   </div>
-
+                  
                   <div className="bg-gradient-to-r from-cyan-900/40 to-blue-900/40 border-l-4 border-cyan-500 p-4 my-4 rounded-r-lg">
                     <h4 className="font-bold text-cyan-300">🔍 À retenir</h4>
                     <p className="mt-1">
@@ -768,18 +768,18 @@ export default function CryptographieMicroLearning() {
                   </div>
                 </motion.div>
               )}
-
+              
               {/* Section Applications pratiques */}
               {currentSection === 'applications' && (
                 <motion.div variants={itemVariants}>
                   <h2 className="text-2xl font-bold mb-4">Applications pratiques de la cryptographie</h2>
-
+                  
                   <p className="mb-4">
                     La cryptographie moderne est omniprésente dans notre vie numérique quotidienne.
                     Des communications sécurisées aux transactions financières, elle sous-tend la confiance
                     dans l'écosystème numérique.
                   </p>
-
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div className="bg-gradient-to-br from-blue-900/40 to-indigo-900/20 p-4 rounded-lg border border-blue-700">
                       <div className="rounded-full bg-blue-800/70 w-12 h-12 flex items-center justify-center mb-3">
@@ -799,7 +799,7 @@ export default function CryptographieMicroLearning() {
                         </ol>
                       </div>
                     </div>
-
+                    
                     <div className="bg-gradient-to-br from-purple-900/40 to-pink-900/20 p-4 rounded-lg border border-purple-700">
                       <div className="rounded-full bg-purple-800/70 w-12 h-12 flex items-center justify-center mb-3">
                         <Database className="h-6 w-6 text-purple-200" />
@@ -819,7 +819,7 @@ export default function CryptographieMicroLearning() {
                       </div>
                     </div>
                   </div>
-
+                  
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Systèmes cryptographiques hybrides</h3>
                     <div className="p-4 bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-lg border border-blue-700">
@@ -827,7 +827,7 @@ export default function CryptographieMicroLearning() {
                         La plupart des applications cryptographiques modernes combinent intelligemment plusieurs
                         types de cryptographie pour obtenir le meilleur équilibre entre sécurité et performance.
                       </p>
-
+                      
                       <div className="bg-blue-900/20 p-3 rounded-lg mb-3">
                         <h4 className="font-semibold text-blue-300 mb-2">Exemple : Messagerie chiffrée de bout en bout</h4>
                         <div className="space-y-3">
@@ -843,7 +843,7 @@ export default function CryptographieMicroLearning() {
                               </p>
                             </div>
                           </div>
-
+                          
                           <div className="flex items-start">
                             <div className="bg-blue-800 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
                               <span className="text-xs">2</span>
@@ -856,7 +856,7 @@ export default function CryptographieMicroLearning() {
                               </p>
                             </div>
                           </div>
-
+                          
                           <div className="flex items-start">
                             <div className="bg-blue-800 rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
                               <span className="text-xs">3</span>
@@ -873,7 +873,7 @@ export default function CryptographieMicroLearning() {
                       </div>
                     </div>
                   </div>
-
+                  
                   <div className="mb-6">
                     <h3 className="font-bold text-lg mb-3">Futur de la cryptographie</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -885,7 +885,7 @@ export default function CryptographieMicroLearning() {
                           Le NIST est en train de standardiser de nouveaux algorithmes.
                         </p>
                       </div>
-
+                      
                       <div className="bg-gradient-to-br from-teal-900/30 to-green-900/20 p-4 rounded-lg border border-teal-800">
                         <h4 className="font-semibold text-teal-300 mb-2">Calcul homomorphe</h4>
                         <p className="text-sm">
@@ -896,7 +896,7 @@ export default function CryptographieMicroLearning() {
                       </div>
                     </div>
                   </div>
-
+                  
                   <div className="bg-gradient-to-r from-green-900/40 to-teal-900/40 border-l-4 border-green-500 p-4 my-4 rounded-r-lg">
                     <h4 className="font-bold text-green-300">🌟 À retenir</h4>
                     <p className="mt-1">
@@ -907,7 +907,7 @@ export default function CryptographieMicroLearning() {
                   </div>
                 </motion.div>
               )}
-
+              
               {/* Navigation */}
               <div className="flex justify-between mt-8">
                 <Button 
@@ -919,7 +919,7 @@ export default function CryptographieMicroLearning() {
                   <ChevronLeft className="mr-2 h-4 w-4" />
                   Section précédente
                 </Button>
-
+                
                 <Button
                   className="bg-blue-700 hover:bg-blue-800"
                   onClick={() => markSectionCompleted(currentSection)}
@@ -927,7 +927,7 @@ export default function CryptographieMicroLearning() {
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Marquer cette section comme terminée
                 </Button>
-
+                
                 <Button 
                   variant="outline" 
                   className="border-blue-700"
