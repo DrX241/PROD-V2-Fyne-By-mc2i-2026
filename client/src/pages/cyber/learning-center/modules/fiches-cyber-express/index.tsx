@@ -21,7 +21,8 @@ import {
   BrainCircuit,
   Clock,
   Sparkles,
-  Trash
+  Trash,
+  Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -796,71 +797,7 @@ Cette fiche simulée démontre le concept de génération de fiches personnalis�
               </div>
             )}
 
-            <div className="space-y-2 mt-4">
-              <h3 className="text-sm font-medium mb-2">Fiches ({sortedFiches.length})</h3>
-              <div className="space-y-2">
-                {sortedFiches.length === 0 ? (
-                  <div className="p-4 text-center bg-background/50 rounded-md border border-border">
-                    <span className="text-muted-foreground">Aucune fiche trouvée</span>
-                  </div>
-                ) : (
-                  sortedFiches.map(fiche => (
-                    <div
-                      key={fiche.id}
-                      className={`p-3 rounded-md border hover:border-blue-500 cursor-pointer transition-all ${
-                        selectedFiche?.id === fiche.id ? 'bg-blue-900/40 border-blue-500' : 'bg-background/50 border-border'
-                      }`}
-                      onClick={() => {
-                        setSelectedFiche(fiche);
-                        markAsRead(fiche.id);
-                      }}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="flex items-start gap-3">
-                          <div className="mt-1 text-blue-400">
-                            {fiche.icon}
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-sm">{fiche.title}</h4>
-                            <p className="text-xs text-muted-foreground line-clamp-2">{fiche.description}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="outline" className="text-xs py-0 h-5 capitalize">
-                                {fiche.category}
-                              </Badge>
-                              <Badge 
-                                className="text-xs py-0 h-5"
-                                variant={
-                                  fiche.level === 'débutant' ? 'success' : 
-                                  fiche.level === 'intermédiaire' ? 'warning' : 
-                                  fiche.level === 'avancé' ? 'destructive' : 'outline'
-                                }
-                              >
-                                {fiche.level}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 rounded-full"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleFavorite(fiche.id);
-                          }}
-                        >
-                          <Star 
-                            className={`h-4 w-4 ${fiche.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} 
-                          />
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            <div className="p-4 bg-indigo-900/30 rounded-lg border border-indigo-800/40 mt-6">
+            <div className="p-4 bg-indigo-900/30 rounded-lg border border-indigo-800/40 mb-6">
               <h3 className="text-sm font-medium mb-3 flex items-center">
                 <Sparkles className="h-4 w-4 mr-2 text-indigo-400" />
                 Générer une fiche IA
@@ -895,6 +832,70 @@ Cette fiche simulée démontre le concept de génération de fiches personnalis�
                     <BrainCircuit className="mr-2 h-4 w-4" />
                     Générer
                   </Button>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2 mt-4">
+              <h3 className="text-sm font-medium mb-2">Fiches ({sortedFiches.length})</h3>
+              <div className="space-y-2">
+                {sortedFiches.length === 0 ? (
+                  <div className="p-4 text-center bg-background/50 rounded-md border border-border">
+                    <span className="text-muted-foreground">Aucune fiche trouvée</span>
+                  </div>
+                ) : (
+                  sortedFiches.map(fiche => (
+                    <div
+                      key={fiche.id}
+                      className={`p-3 rounded-md border hover:border-blue-500 cursor-pointer transition-all ${
+                        selectedFiche?.id === fiche.id ? 'bg-blue-900/40 border-blue-500' : 'bg-background/50 border-border'
+                      }`}
+                      onClick={() => {
+                        setSelectedFiche(fiche);
+                        markAsRead(fiche.id);
+                      }}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-start gap-3">
+                          <div className="mt-1 text-blue-400">
+                            {fiche.icon}
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-sm">{fiche.title}</h4>
+                            <p className="text-xs text-muted-foreground line-clamp-2">{fiche.description}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="outline" className="text-xs py-0 h-5 capitalize">
+                                {fiche.category}
+                              </Badge>
+                              <Badge 
+                                className="text-xs py-0 h-5"
+                                variant={
+                                  fiche.level === 'débutant' ? 'secondary' : 
+                                  fiche.level === 'intermédiaire' ? 'default' : 
+                                  fiche.level === 'avancé' ? 'destructive' : 'outline'
+                                }
+                              >
+                                {fiche.level}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 rounded-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite(fiche.id);
+                          }}
+                        >
+                          <Star 
+                            className={`h-4 w-4 ${fiche.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} 
+                          />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
                 )}
               </div>
             </div>
