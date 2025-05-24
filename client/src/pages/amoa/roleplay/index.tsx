@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Users, MessageSquare, Award, Clock, CheckCircle2, AlertCircle, Timer, Shuffle, Target, Zap, Briefcase, FileText, BrainCircuit, GraduationCap, UserPlus, BarChart4, LineChart } from 'lucide-react';
+import { ArrowLeft, Users, MessageSquare, Award, Clock, CheckCircle2, AlertCircle, Timer, Shuffle, Target, Zap, Briefcase, FileText, Brain, BrainCircuit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -138,99 +138,7 @@ export default function AmoaRoleplay() {
               </CardContent>
             </Card>
 
-            {/* Responsable RH */}
-            <Card 
-              className="bg-gradient-to-br from-green-900/80 to-teal-950/90 border border-green-800/30 backdrop-blur-sm hover:shadow-lg hover:border-green-700/50 transition-all"
-            >
-              <CardHeader>
-                <div className="flex items-center justify-center mb-4">
-                  <div className="p-3 rounded-lg bg-gradient-to-r from-green-600 to-teal-600 shadow-md">
-                    <UserPlus className="h-8 w-8 text-white" />
-                  </div>
-                </div>
-                <CardTitle className="text-center text-2xl font-bold">Je suis Responsable RH</CardTitle>
-                <CardDescription className="text-center text-green-300 text-lg">
-                  Je mène un entretien de recrutement
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <ul className="mb-6 text-sm text-green-200 flex flex-col gap-2">
-                  <li className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-green-400 flex-shrink-0" />
-                    <span>Évaluation des compétences comportementales</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" />
-                    <span>Questions pertinentes et structurées</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4 text-green-400 flex-shrink-0" />
-                    <span>Gestion des profils atypiques</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-green-400 flex-shrink-0" />
-                    <span>30 minutes par simulation</span>
-                  </li>
-                </ul>
-                <Button 
-                  className="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white"
-                  onClick={() => setLocation('/amoa/recruitment-simulation')}
-                  disabled={true}
-                >
-                  <span className="flex items-center">
-                    <Clock className="mr-2 h-4 w-4" />
-                    Bientôt disponible
-                  </span>
-                </Button>
-              </CardContent>
-            </Card>
 
-            {/* Directeur financier */}
-            <Card 
-              className="bg-gradient-to-br from-purple-900/80 to-indigo-950/90 border border-purple-800/30 backdrop-blur-sm hover:shadow-lg hover:border-purple-700/50 transition-all"
-            >
-              <CardHeader>
-                <div className="flex items-center justify-center mb-4">
-                  <div className="p-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 shadow-md">
-                    <BarChart4 className="h-8 w-8 text-white" />
-                  </div>
-                </div>
-                <CardTitle className="text-center text-2xl font-bold">Je suis Directeur Financier</CardTitle>
-                <CardDescription className="text-center text-purple-300 text-lg">
-                  Je présente des résultats financiers
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <ul className="mb-6 text-sm text-purple-200 flex flex-col gap-2">
-                  <li className="flex items-center gap-2">
-                    <LineChart className="h-4 w-4 text-purple-400 flex-shrink-0" />
-                    <span>Analyse de tendances complexes</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-purple-400 flex-shrink-0" />
-                    <span>Communication stratégique</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-purple-400 flex-shrink-0" />
-                    <span>Adaptation aux différents interlocuteurs</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-purple-400 flex-shrink-0" />
-                    <span>20-25 minutes par simulation</span>
-                  </li>
-                </ul>
-                <Button 
-                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-                  onClick={() => setLocation('/amoa/financial-presentation')}
-                  disabled={true}
-                >
-                  <span className="flex items-center">
-                    <Clock className="mr-2 h-4 w-4" />
-                    Bientôt disponible
-                  </span>
-                </Button>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Section évolutions à venir */}
