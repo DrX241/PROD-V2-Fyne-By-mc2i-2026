@@ -46,8 +46,6 @@ import CrisisManagementPage from "./pages/cyber/crisis-management";
 import CrisisBriefing from "./pages/cyber/crisis-management/briefing";
 import PentestLab from "./pages/cyber/pentest-lab";
 import ProfilPro from "./pages/cyber/profil-pro";
-import ParcoursPersonnalise from "./pages/cyber/chemin-parcours";
-import MicroLearningContent from "./pages/cyber/micro-learning";
 
 // Import des modules de la Cyber Académie - importés dynamiquement avec lazy pour améliorer les performances
 const IntroductionCybersecurite = lazy(() => import("./pages/cyber/learning-center/modules/intro-cybersecurite/index"));
@@ -100,8 +98,6 @@ function App() {
                 <Route path="/cyber/roleplay" component={CyberRoleplay} />
                 <Route path="/cyber/cyber-lab" component={CyberLab} />
                 <Route path="/cyber/sas-academie" component={SasCyberAcademie} />
-                <Route path="/cyber/parcours-eclaire" component={ParcoursPersonnalise} />
-                <Route path="/cyber/micro-learning" component={MicroLearningContent} />
                 <Route path="/cyber/learning-center" component={CyberLearningCenter} />
                 <Route path="/cyber/profil-pro" component={ProfilPro} />
                 <Route path="/cyber/expert-learning" component={ExpertLearningPage} />

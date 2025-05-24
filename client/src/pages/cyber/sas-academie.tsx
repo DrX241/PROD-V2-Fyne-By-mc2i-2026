@@ -6,9 +6,7 @@ import {
   MessageSquare,
   BookOpen,
   GraduationCap,
-  Shield,
-  Compass,
-  Sparkles
+  Shield
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -51,7 +49,7 @@ export default function SasCyberAcademie() {
         </div>
 
         {/* Options d'apprentissage */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-8">
           {/* Option 1: Apprendre en discutant */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -145,55 +143,6 @@ export default function SasCyberAcademie() {
                 >
                   Accéder aux modules
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
-          </motion.div>
-
-          {/* Option 3: Parcours Éclairé - Nouveau module */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card className="h-full bg-gradient-to-br from-purple-900/40 to-purple-950 border-purple-700 hover:border-purple-500 hover:shadow-lg transition-all duration-300">
-              <CardHeader>
-                <div className="flex justify-center mb-4">
-                  <div className="p-4 rounded-full bg-purple-800/70">
-                    <Compass className="h-10 w-10 text-purple-200" />
-                  </div>
-                </div>
-                <CardTitle className="text-2xl text-center mb-2">Parcours Éclairé</CardTitle>
-                <CardDescription className="text-purple-300 text-center text-lg">
-                  Créez votre parcours sur mesure avec l'aide de l'IA
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <p className="mb-6 text-purple-200">
-                  Décrivez simplement vos objectifs et laissez notre IA concevoir un parcours d'apprentissage personnalisé qui correspond exactement à vos besoins spécifiques.
-                </p>
-                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
-                  <li className="flex items-center text-purple-200">
-                    <div className="h-2 w-2 rounded-full bg-purple-400 mr-2"></div>
-                    Entièrement personnalisé
-                  </li>
-                  <li className="flex items-center text-purple-200">
-                    <div className="h-2 w-2 rounded-full bg-purple-400 mr-2"></div>
-                    Adapté à vos objectifs
-                  </li>
-                  <li className="flex items-center text-purple-200">
-                    <div className="h-2 w-2 rounded-full bg-purple-400 mr-2"></div>
-                    Combinaison optimale de ressources
-                  </li>
-                </ul>
-              </CardContent>
-              <CardFooter className="flex justify-center">
-                <Button 
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-5"
-                  onClick={() => navigate('/cyber/parcours-eclaire')}
-                >
-                  Créer mon parcours
-                  <Sparkles className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
             </Card>
