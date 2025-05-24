@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import CyberButton from '@/components/CyberButton';
@@ -41,13 +41,34 @@ const CyberHomePage: React.FC = () => {
   const { userName } = useChatContext();
   const { themeMode, setThemeMode } = useTheme();
   const [hoveredModule, setHoveredModule] = useState<string | null>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
   
   // Force le thème futuriste pour cette page
   useEffect(() => {
     const previousTheme = themeMode;
     setThemeMode('futuristic');
     
+    // Empêcher le défilement automatique en maintenant la position en haut
+    window.scrollTo(0, 0);
+    
+    // Empêcher le défilement automatique
+    const preventScroll = () => {
+      window.scrollTo(0, 0);
+    };
+    
+    // Ajouter un gestionnaire d'événement pour empêcher le défilement initial
+    window.addEventListener('scroll', preventScroll, { passive: false });
+    
+    // Supprimer le gestionnaire après un court délai pour permettre le défilement normal ensuite
+    const timer = setTimeout(() => {
+      window.removeEventListener('scroll', preventScroll);
+    }, 1000); // Délai de 1 seconde
+    
     return () => {
+      // Nettoyer les événements et timers
+      window.removeEventListener('scroll', preventScroll);
+      clearTimeout(timer);
+      
       // Restore le thème précédent quand on quitte la page
       setThemeMode(previousTheme);
     };
@@ -106,7 +127,7 @@ const CyberHomePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-[#061019]">
+    <div ref={pageRef} className="min-h-screen bg-white text-[#061019]">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
         <div className="container mx-auto px-4 py-3">
