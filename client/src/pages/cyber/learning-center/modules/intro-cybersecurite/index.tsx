@@ -17,7 +17,7 @@ import {
   BrainCircuit, GraduationCap, Brain, Sparkles, 
   MessageCircle, Monitor, Zap, Target, Info,
   Flame, Star, Eye, BookOpen, Mail, LinkIcon,
-  FileText
+  FileText, Send
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
@@ -1219,7 +1219,7 @@ export default function IntroductionCybersecurite() {
                                   {isGeneratingMiniGameChat ? (
                                     <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
                                   ) : (
-                                    <Send className="h-4 w-4 mr-2" />
+                                    <MessageCircle className="h-4 w-4 mr-2" />
                                   )}
                                   {isGeneratingMiniGameChat ? "Analyse..." : "Envoyer"}
                                 </Button>
