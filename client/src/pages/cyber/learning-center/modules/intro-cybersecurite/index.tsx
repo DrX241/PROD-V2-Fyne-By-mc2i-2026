@@ -27,13 +27,29 @@ export default function IntroductionCybersecurite() {
   const [quizAnswers, setQuizAnswers] = useState({
     q1: "",
     q2: "",
-    q3: ""
+    q3: "",
+    q4: "",
+    q5: ""
   });
   const [quizScored, setQuizScored] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
   const [caseStudyExpanded, setCaseStudyExpanded] = useState(false);
   const [badgeEarned, setBadgeEarned] = useState(false);
   const [, setLocation] = useLocation();
+  
+  // États pour les fonctionnalités interactives
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiResponse, setAiResponse] = useState("");
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [userPoints, setUserPoints] = useState(0);
+  const [completedInteractions, setCompletedInteractions] = useState<string[]>([]);
+  const [showInteractiveExercise, setShowInteractiveExercise] = useState(false);
+  const [exerciseData, setExerciseData] = useState({
+    passwordStrength: "",
+    passwordFeedback: "",
+    phishingDetected: false
+  });
   
   // Cas d'étude concret
   const caseStudy = {
@@ -63,7 +79,9 @@ export default function IntroductionCybersecurite() {
   const correctAnswers = {
     q1: "b",
     q2: "c",
-    q3: "a"
+    q3: "a",
+    q4: "b",
+    q5: "c"
   };
   
   // Fonction pour calculer le score du quiz
@@ -72,12 +90,84 @@ export default function IntroductionCybersecurite() {
     if (quizAnswers.q1 === correctAnswers.q1) score++;
     if (quizAnswers.q2 === correctAnswers.q2) score++;
     if (quizAnswers.q3 === correctAnswers.q3) score++;
+    if (quizAnswers.q4 === correctAnswers.q4) score++;
+    if (quizAnswers.q5 === correctAnswers.q5) score++;
     return score;
+  };
+  
+  // Fonction pour évaluer la force d'un mot de passe
+  const evaluatePasswordStrength = (password: string) => {
+    if (!password) return { strength: "", feedback: "" };
+    
+    let strength = "";
+    let feedback = "";
+    
+    // Vérifier les critères de sécurité
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChars = /[^a-zA-Z0-9]/.test(password);
+    const isLongEnough = password.length >= 12;
+    
+    // Déterminer la force
+    if (isLongEnough && hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChars) {
+      strength = "fort";
+      feedback = "Excellent ! Ce mot de passe est difficile à deviner et à cracker.";
+      
+      // Ajouter des points si c'est la première fois
+      if (!completedInteractions.includes('password-exercise')) {
+        setUserPoints(prev => prev + 15);
+        setCompletedInteractions(prev => [...prev, 'password-exercise']);
+      }
+    } else if (password.length >= 8 && 
+              ((hasUpperCase && hasLowerCase && hasNumbers) || 
+               (hasLowerCase && hasNumbers && hasSpecialChars) || 
+               (hasUpperCase && hasLowerCase && hasSpecialChars))) {
+      strength = "moyen";
+      feedback = "Pas mal, mais pourrait être amélioré. Essayez d'ajouter plus de caractères et de la complexité.";
+    } else {
+      strength = "faible";
+      feedback = "Ce mot de passe est trop faible. Utilisez au moins 12 caractères avec des majuscules, minuscules, chiffres et caractères spéciaux.";
+    }
+    
+    return { strength, feedback };
+  };
+  
+  // Fonction pour simuler une réponse IA
+  const generateAIResponse = () => {
+    if (!aiPrompt.trim()) return;
+    
+    setIsGeneratingAI(true);
+    
+    // Simuler le délai de génération
+    setTimeout(() => {
+      let response = "";
+      
+      // Réponses prédéfinies basées sur les mots-clés
+      if (aiPrompt.toLowerCase().includes("ransomware")) {
+        response = "Un ransomware est un type de logiciel malveillant qui chiffre les données de la victime et exige une rançon pour fournir la clé de déchiffrement. Les attaques de ransomware suivent généralement ces étapes:\n\n1. Infection initiale (souvent par phishing ou vulnérabilité)\n2. Communication avec des serveurs de commande et contrôle\n3. Chiffrement des fichiers\n4. Affichage de la demande de rançon\n\nPour vous protéger:\n• Effectuez des sauvegardes régulières offline\n• Maintenez vos systèmes à jour\n• Utilisez une solution de sécurité moderne\n• Formez les utilisateurs à la reconnaissance des menaces";
+      } else if (aiPrompt.toLowerCase().includes("phishing")) {
+        response = "Le phishing est une technique d'ingénierie sociale où les attaquants se font passer pour des entités légitimes afin de voler des informations sensibles. Les signes d'un email de phishing comprennent:\n\n• Fautes d'orthographe et de grammaire\n• Domaines d'expéditeur suspects\n• Demandes urgentes d'action\n• Liens anormaux (passez la souris dessus pour voir l'URL réelle)\n• Demandes d'informations personnelles\n\nPour vous protéger, vérifiez toujours l'authenticité de l'expéditeur et méfiez-vous des demandes urgentes. En cas de doute, contactez directement l'organisation par un canal officiel.";
+      } else if (aiPrompt.toLowerCase().includes("password") || aiPrompt.toLowerCase().includes("mot de passe")) {
+        response = "Les bonnes pratiques pour les mots de passe incluent:\n\n• Longueur minimale de 12 caractères\n• Combinaison de majuscules, minuscules, chiffres et caractères spéciaux\n• Éviter les informations personnelles faciles à deviner\n• Utiliser un mot de passe unique pour chaque compte\n• Utiliser un gestionnaire de mots de passe\n• Activer l'authentification à deux facteurs quand c'est possible\n\nUn exemple de mot de passe fort: P@s$w0rd-C0mpl3x!2023";
+      } else {
+        response = "En cybersécurité, voici quelques principes et concepts fondamentaux:\n\n• La triade CIA: Confidentialité, Intégrité, Disponibilité\n• Défense en profondeur: multiples couches de protection\n• Principe du moindre privilège: accès minimal nécessaire\n• Analyse des risques: identification, évaluation et gestion\n• Mises à jour régulières des systèmes et applications\n• Formation et sensibilisation des utilisateurs\n\nPour des informations sur un sujet spécifique, posez-moi une question sur les ransomwares, le phishing ou les mots de passe.";
+      }
+      
+      setAiResponse(response);
+      setIsGeneratingAI(false);
+      
+      // Ajouter des points pour l'utilisation de l'assistant IA
+      if (!completedInteractions.includes('ai-assistant')) {
+        setUserPoints(prev => prev + 10);
+        setCompletedInteractions([...completedInteractions, 'ai-assistant']);
+      }
+    }, 1500);
   };
   
   // Soumettre le quiz et afficher les résultats
   const submitQuiz = () => {
-    if (!quizAnswers.q1 || !quizAnswers.q2 || !quizAnswers.q3) {
+    if (!quizAnswers.q1 || !quizAnswers.q2 || !quizAnswers.q3 || !quizAnswers.q4 || !quizAnswers.q5) {
       toast({
         title: "Réponses manquantes",
         description: "Veuillez répondre à toutes les questions avant de soumettre.",
@@ -92,9 +182,16 @@ export default function IntroductionCybersecurite() {
     setShowQuizResult(true);
     
     // Mettre à jour la progression
-    if (score >= 2 && !badgeEarned) {
+    if (score >= 4 && !badgeEarned) {
       setBadgeEarned(true);
       setProgress(100);
+      
+      // Ajouter des points pour la réussite du quiz
+      if (!completedInteractions.includes('quiz-completed')) {
+        setUserPoints(prev => prev + 25);
+        setCompletedInteractions([...completedInteractions, 'quiz-completed']);
+      }
+      
       toast({
         title: "Badge obtenu !",
         description: "Félicitations ! Vous avez obtenu le badge 'Fondamentaux de la Cybersécurité'.",
@@ -107,7 +204,9 @@ export default function IntroductionCybersecurite() {
     setQuizAnswers({
       q1: "",
       q2: "",
-      q3: ""
+      q3: "",
+      q4: "",
+      q5: ""
     });
     setQuizScored(false);
     setShowQuizResult(false);
