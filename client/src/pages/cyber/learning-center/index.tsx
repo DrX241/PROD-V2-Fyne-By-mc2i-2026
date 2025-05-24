@@ -762,22 +762,7 @@ export default function LearningCenter() {
           <h1 className="text-xl text-white font-medium">Cyber Académie</h1>
           
           <div className="ml-auto flex items-center">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="w-9 h-9 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 rounded-full"
-                    onClick={() => setAiPanelOpen(!aiPanelOpen)}
-                  >
-                    <BrainCircuit className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Assistant pédagogique IA</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            {/* Les boutons ont été supprimés à la demande de l'utilisateur */}
           </div>
         </div>
       </div>
