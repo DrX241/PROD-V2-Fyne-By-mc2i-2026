@@ -16,7 +16,6 @@ import immersiveCrisisRoutes from './routes/immersiveCrisisRoutes';
 import prospectPulseRoutes from './routes/prospectPulseRoutes';
 import crisisCenterRoutes from './routes/crisisCenterRoutes';
 import audioRoutes from './routes/audioRoutes';
-import cyberModuleRoutes from './routes/cyberModuleRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { evaluateInterviewTest, generateAdaptiveQuestion, generateInitialQuestion } from './cyberInterviewTestController';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
