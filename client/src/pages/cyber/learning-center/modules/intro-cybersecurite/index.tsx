@@ -41,6 +41,9 @@ export default function IntroductionCybersecurite() {
   const [badgeEarned, setBadgeEarned] = useState(false);
   const [, setLocation] = useLocation();
   
+  // État pour les détails techniques des cas
+  const [showCaseTechnicalDetails, setShowCaseTechnicalDetails] = useState(false);
+  
   // États pour les fonctionnalités interactives
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
@@ -48,6 +51,14 @@ export default function IntroductionCybersecurite() {
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [userPoints, setUserPoints] = useState(0);
   const [completedInteractions, setCompletedInteractions] = useState<string[]>([]);
+  
+  // État pour les mini-jeux disponibles
+  const [selectedMiniGame, setSelectedMiniGame] = useState<string>("rssi");
+  const miniGames = [
+    { id: "rssi", name: "Vous êtes le RSSI", description: "Que feriez-vous à la place du responsable sécurité?" },
+    { id: "scenario", name: "Scénario de crise", description: "Comment réagiriez-vous face à cette attaque?" },
+    { id: "analyse", name: "Analyse technique", description: "Analysez les vecteurs d'attaque et les IOCs" }
+  ];
   const [showInteractiveExercise, setShowInteractiveExercise] = useState(false);
   const [exerciseData, setExerciseData] = useState({
     passwordStrength: "",
@@ -82,7 +93,23 @@ export default function IntroductionCybersecurite() {
         "Audits réguliers des comptes d'accès, même inactifs",
         "Préparation d'un plan de continuité d'activité face aux cyberattaques",
         "Impact potentiel des cyberattaques sur les infrastructures physiques critiques"
-      ]
+      ],
+      // Information supplémentaire pour le détail des ransomwares
+      ransomware: {
+        name: "DarkSide Ransomware",
+        origin: "Russie (groupe cybercriminel DarkSide)",
+        tactics: "Double extorsion (chiffrement + vol de données)",
+        encryption: "AES-256 et RSA-4096 pour les fichiers et systèmes Windows",
+        payment: "Bitcoin uniquement, portail de paiement sur le darknet",
+        timeline: [
+          "5 mai 2021: Infection initiale via VPN compromis",
+          "7 mai 2021: Annonce publique par Colonial Pipeline de l'attaque",
+          "8 mai 2021: Arrêt préventif de tous les oléoducs",
+          "10 mai 2021: Engagement du FBI et publication d'une alerte par la CISA",
+          "13 mai 2021: Reprise partielle des opérations"
+        ],
+        technical_details: "Le ransomware utilisait une combinaison d'exploitation de réseaux VPN mal sécurisés, des tactiques d'élévation de privilèges et de mouvement latéral, avec une propagation semi-automatisée à travers les systèmes Windows."
+      }
     },
     {
       id: 2,
@@ -106,7 +133,22 @@ export default function IntroductionCybersecurite() {
         "Principe de défense en profondeur et de moindre privilège",
         "Détection des comportements anormaux sur le réseau",
         "Importance de la coopération public-privé dans la réponse aux incidents majeurs"
-      ]
+      ],
+      // Information supplémentaire pour le détail de l'attaque
+      malware: {
+        name: "SUNBURST (Solorigate)",
+        origin: "APT29 / Cozy Bear (acteur étatique russe)",
+        tactics: "Attaque avancée de la chaîne d'approvisionnement",
+        stealth: "Période de dormance de 14 jours avant activation, communication mimant le protocole Orion Improvement",
+        timeline: [
+          "Mars 2020: Compromission initiale de l'environnement de développement SolarWinds",
+          "Juin-Juillet 2020: Insertion du code malveillant dans les builds d'Orion",
+          "Décembre 2020: Découverte par FireEye suite à leur propre compromission",
+          "13 décembre 2020: Publication des premières alertes de sécurité",
+          "Janvier-Mars 2021: Découverte de plusieurs autres vecteurs d'attaque liés"
+        ],
+        technical_details: "Le malware utilisait un système de communication sophistiqué avec des serveurs C2 via des sous-domaines légitimes, avec chiffrement et obfuscation du trafic pour éviter la détection. Une fois activé, il permettait l'exécution de code arbitraire et le déploiement de charges utiles secondaires."
+      }
     },
     {
       id: 3,
@@ -130,7 +172,24 @@ export default function IntroductionCybersecurite() {
         "Analyse des risques liés aux composants tiers et open-source",
         "Mise en place de mécanismes de défense en profondeur",
         "Importance de la surveillance proactive des systèmes"
-      ]
+      ],
+      // Information supplémentaire pour le détail de la vulnérabilité
+      vulnerability: {
+        name: "Log4Shell (CVE-2021-44228)",
+        severity: "10.0/10.0 (Critique) - CVSS v3",
+        type: "Remote Code Execution (RCE)",
+        affected: "Log4j versions 2.0 à 2.14.1",
+        exploitation: "Facile (requiert seulement l'envoi d'une chaîne formatée spécifique)",
+        timeline: [
+          "24 novembre 2021: Découverte par Chen Zhaojun d'Alibaba Cloud Security Team",
+          "9 décembre 2021: Publication du CVE et du correctif (Log4j 2.15.0)",
+          "10-11 décembre 2021: Exploitation massive observée dans le monde entier",
+          "13 décembre 2021: Publication d'un correctif supplémentaire (2.16.0) suite à un contournement",
+          "18 décembre 2021: Troisième correctif (2.17.0) pour une vulnérabilité supplémentaire"
+        ],
+        impact_scale: "Des millions de systèmes dans le monde, y compris des services cloud, applications d'entreprise, systèmes embarqués, etc.",
+        technical_details: "La vulnérabilité permettait l'exécution de code via la fonctionnalité JNDI (Java Naming and Directory Interface) de Log4j lorsque certains motifs étaient journalisés. L'attaquant pouvait forcer la bibliothèque à charger une classe Java malveillante depuis un serveur contrôlé par l'attaquant."
+      }
     }
   ];
   
@@ -811,53 +870,237 @@ export default function IntroductionCybersecurite() {
                   </motion.div>
                   
                   <div className="mt-8 p-5 bg-blue-900/20 rounded-lg border border-blue-700/50">
-                    <h3 className="text-lg font-semibold text-white mb-3">Mini-jeu : "Vous êtes le RSSI"</h3>
-                    <p className="text-sm text-blue-200 mb-4">
-                      Si vous étiez responsable de la sécurité dans cette organisation, quelles mesures préventives auriez-vous mises en place pour éviter cette attaque ? 
-                      Réfléchissez aux leçons apprises et aux bonnes pratiques.
-                    </p>
-                    
-                    <div className="p-4 bg-blue-950/70 rounded-lg border border-blue-800/50 mb-4">
-                      <h4 className="font-medium text-white mb-2">Question de réflexion</h4>
-                      {selectedCaseStudy === 0 && (
-                        <p className="text-sm text-blue-200">
-                          Comment auriez-vous sécurisé les accès VPN pour éviter la compromission initiale dans le cas Colonial Pipeline ?
-                        </p>
-                      )}
-                      {selectedCaseStudy === 1 && (
-                        <p className="text-sm text-blue-200">
-                          Quelles mesures de vérification et de sécurité auriez-vous mises en place dans la chaîne d'approvisionnement logicielle pour éviter une attaque comme SolarWinds ?
-                        </p>
-                      )}
-                      {selectedCaseStudy === 2 && (
-                        <p className="text-sm text-blue-200">
-                          Comment auriez-vous géré le risque lié aux bibliothèques open-source comme Log4j dans votre organisation ?
-                        </p>
-                      )}
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="text-lg font-semibold text-white">Mini-jeux Interactifs</h3>
+                      <Badge className="bg-indigo-600/70">
+                        <Zap className="h-3 w-3 mr-1" />
+                        INTERACTIF
+                      </Badge>
                     </div>
                     
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
-                        onClick={() => {
-                          const currentCase = selectedCaseStudy;
-                          if (!completedInteractions.includes(`case-game-${currentCase}`)) {
-                            setUserPoints(prev => prev + 10);
-                            setCompletedInteractions(prev => [...prev, `case-game-${currentCase}`]);
-                            
-                            toast({
-                              title: "Points obtenus !",
-                              description: "+10 points pour votre analyse du cas concret.",
-                            });
+                    <div className="flex space-x-2 mb-4 overflow-x-auto pb-2">
+                      {miniGames.map((game) => (
+                        <Button
+                          key={game.id}
+                          variant={selectedMiniGame === game.id ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setSelectedMiniGame(game.id);
+                            if (!completedInteractions.includes(`minigame-select-${game.id}`)) {
+                              setUserPoints(prev => prev + 5);
+                              setCompletedInteractions(prev => [...prev, `minigame-select-${game.id}`]);
+                              
+                              toast({
+                                title: "Nouveau mini-jeu sélectionné !",
+                                description: `+5 points pour explorer "${game.name}"`,
+                              });
+                            }
+                          }}
+                          className={selectedMiniGame === game.id 
+                            ? "bg-blue-600 hover:bg-blue-700 whitespace-nowrap" 
+                            : "text-blue-300 border-blue-800/50 hover:bg-blue-800/30 whitespace-nowrap"
                           }
-                        }}
-                      >
-                        <Trophy className="h-4 w-4 mr-2 text-amber-400" />
-                        Valider ma réflexion
-                      </Button>
+                        >
+                          {game.name}
+                        </Button>
+                      ))}
                     </div>
+                    
+                    {/* Mini-jeu 1: Vous êtes le RSSI */}
+                    {selectedMiniGame === "rssi" && (
+                      <div className="space-y-4">
+                        <p className="text-sm text-blue-200 mb-4">
+                          Si vous étiez responsable de la sécurité dans cette organisation, quelles mesures préventives auriez-vous mises en place pour éviter cette attaque ? 
+                          Réfléchissez aux leçons apprises et aux bonnes pratiques.
+                        </p>
+                        
+                        <div className="p-4 bg-blue-950/70 rounded-lg border border-blue-800/50 mb-4">
+                          <h4 className="font-medium text-white mb-2">Question de réflexion</h4>
+                          {selectedCaseStudy === 0 && (
+                            <p className="text-sm text-blue-200">
+                              Comment auriez-vous sécurisé les accès VPN pour éviter la compromission initiale dans le cas Colonial Pipeline ?
+                            </p>
+                          )}
+                          {selectedCaseStudy === 1 && (
+                            <p className="text-sm text-blue-200">
+                              Quelles mesures de vérification et de sécurité auriez-vous mises en place dans la chaîne d'approvisionnement logicielle pour éviter une attaque comme SolarWinds ?
+                            </p>
+                          )}
+                          {selectedCaseStudy === 2 && (
+                            <p className="text-sm text-blue-200">
+                              Comment auriez-vous géré le risque lié aux bibliothèques open-source comme Log4j dans votre organisation ?
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
+                            onClick={() => {
+                              const currentCase = selectedCaseStudy;
+                              if (!completedInteractions.includes(`case-game-rssi-${currentCase}`)) {
+                                setUserPoints(prev => prev + 10);
+                                setCompletedInteractions(prev => [...prev, `case-game-rssi-${currentCase}`]);
+                                
+                                toast({
+                                  title: "Points obtenus !",
+                                  description: "+10 points pour votre analyse RSSI du cas concret.",
+                                });
+                              }
+                            }}
+                          >
+                            <Trophy className="h-4 w-4 mr-2 text-amber-400" />
+                            Valider ma réflexion
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Mini-jeu 2: Scénario de crise */}
+                    {selectedMiniGame === "scenario" && (
+                      <div className="space-y-4">
+                        <p className="text-sm text-blue-200">
+                          Vous êtes en pleine crise suite à une attaque similaire à celle de {selectedCaseStudy === 0 ? "Colonial Pipeline" : selectedCaseStudy === 1 ? "SolarWinds" : "Log4Shell"}. 
+                          Comment organiseriez-vous la réponse à l'incident et la communication de crise ?
+                        </p>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div className="p-3 bg-red-900/20 rounded-lg border border-red-800/50">
+                            <h4 className="font-medium text-white mb-2 flex items-center">
+                              <AlertTriangle className="h-4 w-4 mr-2 text-red-400" />
+                              Phase 1: Confinement
+                            </h4>
+                            <p className="text-xs text-blue-200">
+                              {selectedCaseStudy === 0 ? 
+                                "Le ransomware se propage dans votre réseau. Quelles mesures immédiates prenez-vous pour limiter sa propagation ?" :
+                                selectedCaseStudy === 1 ? 
+                                "Des logiciels compromis ont été détectés sur vos systèmes critiques. Comment isolez-vous les systèmes affectés ?" :
+                                "Vos serveurs exposent la vulnérabilité Log4Shell. Comment réduisez-vous l'exposition immédiate ?"}
+                            </p>
+                          </div>
+                          
+                          <div className="p-3 bg-amber-900/20 rounded-lg border border-amber-800/50">
+                            <h4 className="font-medium text-white mb-2 flex items-center">
+                              <Users className="h-4 w-4 mr-2 text-amber-400" />
+                              Phase 2: Communication
+                            </h4>
+                            <p className="text-xs text-blue-200">
+                              Qui allez-vous informer en priorité et quel message allez-vous communiquer aux différentes parties prenantes ?
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
+                            onClick={() => {
+                              const currentCase = selectedCaseStudy;
+                              if (!completedInteractions.includes(`case-game-scenario-${currentCase}`)) {
+                                setUserPoints(prev => prev + 15);
+                                setCompletedInteractions(prev => [...prev, `case-game-scenario-${currentCase}`]);
+                                
+                                toast({
+                                  title: "Excellent plan de crise !",
+                                  description: "+15 points pour votre gestion de crise.",
+                                });
+                              }
+                            }}
+                          >
+                            <Shield className="h-4 w-4 mr-2 text-green-400" />
+                            Valider mon plan de crise
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Mini-jeu 3: Analyse technique */}
+                    {selectedMiniGame === "analyse" && (
+                      <div className="space-y-4">
+                        <p className="text-sm text-blue-200">
+                          Analysez les indicateurs de compromission (IOCs) et les techniques d'attaque utilisées dans ce cas. 
+                          Quelles solutions techniques recommanderiez-vous pour détecter et prévenir de telles attaques ?
+                        </p>
+                        
+                        <div className="p-4 bg-blue-950/70 rounded-lg border border-blue-800/50 mb-4">
+                          <h4 className="font-medium text-white mb-2">Indicateurs de compromission</h4>
+                          {selectedCaseStudy === 0 && (
+                            <div className="space-y-2">
+                              <div className="flex items-center text-xs text-blue-200">
+                                <span className="inline-block w-16 font-mono">IP:</span>
+                                <code className="bg-blue-900/50 px-2 py-0.5 rounded">185.243.115.140</code>
+                              </div>
+                              <div className="flex items-center text-xs text-blue-200">
+                                <span className="inline-block w-16 font-mono">Hash:</span>
+                                <code className="bg-blue-900/50 px-2 py-0.5 rounded">5d6accea4879d66d9a40c3a4e7188f690aace80e</code>
+                              </div>
+                              <div className="flex items-center text-xs text-blue-200">
+                                <span className="inline-block w-16 font-mono">Domaine:</span>
+                                <code className="bg-blue-900/50 px-2 py-0.5 rounded">darkside-cdn.noc4.net</code>
+                              </div>
+                            </div>
+                          )}
+                          {selectedCaseStudy === 1 && (
+                            <div className="space-y-2">
+                              <div className="flex items-center text-xs text-blue-200">
+                                <span className="inline-block w-16 font-mono">Hash:</span>
+                                <code className="bg-blue-900/50 px-2 py-0.5 rounded">019085a76ba7126fff22770d71bd901c325fc68ac55aa743327984e89f4b0134</code>
+                              </div>
+                              <div className="flex items-center text-xs text-blue-200">
+                                <span className="inline-block w-16 font-mono">Domaine:</span>
+                                <code className="bg-blue-900/50 px-2 py-0.5 rounded">avsvmcloud.com</code>
+                              </div>
+                              <div className="flex items-center text-xs text-blue-200">
+                                <span className="inline-block w-16 font-mono">Fichier:</span>
+                                <code className="bg-blue-900/50 px-2 py-0.5 rounded">SolarWinds.Orion.Core.BusinessLayer.dll</code>
+                              </div>
+                            </div>
+                          )}
+                          {selectedCaseStudy === 2 && (
+                            <div className="space-y-2">
+                              <div className="flex items-center text-xs text-blue-200">
+                                <span className="inline-block w-16 font-mono">Pattern:</span>
+                                <code className="bg-blue-900/50 px-2 py-0.5 rounded">{"JNDI:LDAP://malicious-domain.com/exploit"}</code>
+                              </div>
+                              <div className="flex items-center text-xs text-blue-200">
+                                <span className="inline-block w-16 font-mono">CVE:</span>
+                                <code className="bg-blue-900/50 px-2 py-0.5 rounded">CVE-2021-44228</code>
+                              </div>
+                              <div className="flex items-center text-xs text-blue-200">
+                                <span className="inline-block w-16 font-mono">Version:</span>
+                                <code className="bg-blue-900/50 px-2 py-0.5 rounded">log4j-core 2.0-2.14.1</code>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
+                            onClick={() => {
+                              const currentCase = selectedCaseStudy;
+                              if (!completedInteractions.includes(`case-game-analyse-${currentCase}`)) {
+                                setUserPoints(prev => prev + 20);
+                                setCompletedInteractions(prev => [...prev, `case-game-analyse-${currentCase}`]);
+                                
+                                toast({
+                                  title: "Analyse technique complète !",
+                                  description: "+20 points pour votre analyse technique approfondie.",
+                                });
+                              }
+                            }}
+                          >
+                            <Cpu className="h-4 w-4 mr-2 text-purple-400" />
+                            Valider mon analyse technique
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -1116,44 +1359,133 @@ export default function IntroductionCybersecurite() {
                   </p>
                   
                   <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Input 
-                        placeholder="Ex: Qu'est-ce qu'un ransomware?" 
-                        className="bg-blue-900/30 border-blue-700 text-white"
-                        value={aiPrompt}
-                        onChange={(e) => setAiPrompt(e.target.value)}
-                      />
-                      <Button 
-                        onClick={generateAIResponse}
-                        disabled={isGeneratingAI || !aiPrompt.trim()}
-                        className="whitespace-nowrap bg-blue-600 hover:bg-blue-700"
+                    <div className="flex gap-2 mb-3">
+                      <Button
+                        variant={!showAIAssistant ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setShowAIAssistant(false)}
+                        className={!showAIAssistant 
+                          ? "bg-blue-600 hover:bg-blue-700" 
+                          : "text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
+                        }
                       >
-                        {isGeneratingAI ? (
-                          <>
-                            <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
-                            Génération...
-                          </>
-                        ) : (
-                          <>
-                            <MessageCircle className="h-4 w-4 mr-2" />
-                            Demander
-                          </>
-                        )}
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Question unique
+                      </Button>
+                      <Button
+                        variant={showAIAssistant ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => {
+                          setShowAIAssistant(true);
+                          if (!completedInteractions.includes('ai-chat-mode')) {
+                            setUserPoints(prev => prev + 5);
+                            setCompletedInteractions(prev => [...prev, 'ai-chat-mode']);
+                            
+                            toast({
+                              title: "Mode conversation activé !",
+                              description: "+5 points pour explorer le chat avec l'IA",
+                            });
+                          }
+                        }}
+                        className={showAIAssistant 
+                          ? "bg-blue-600 hover:bg-blue-700" 
+                          : "text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
+                        }
+                      >
+                        <Brain className="h-4 w-4 mr-2" />
+                        Conversation
                       </Button>
                     </div>
                     
-                    {aiResponse && (
-                      <div className="p-3 bg-blue-900/20 border border-blue-700/50 rounded-md">
-                        <div className="flex items-start">
-                          <BrainCircuit className="h-5 w-5 text-blue-400 mr-2 mt-0.5" />
-                          <div className="text-sm text-blue-200 whitespace-pre-line">{aiResponse}</div>
+                    {!showAIAssistant ? (
+                      // Mode question unique
+                      <>
+                        <div className="flex items-center gap-2">
+                          <Input 
+                            placeholder="Ex: Qu'est-ce qu'un ransomware?" 
+                            className="bg-blue-900/30 border-blue-700 text-white"
+                            value={aiPrompt}
+                            onChange={(e) => setAiPrompt(e.target.value)}
+                          />
+                          <Button 
+                            onClick={generateAIResponse}
+                            disabled={isGeneratingAI || !aiPrompt.trim()}
+                            className="whitespace-nowrap bg-blue-600 hover:bg-blue-700"
+                          >
+                            {isGeneratingAI ? (
+                              <>
+                                <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+                                Génération...
+                              </>
+                            ) : (
+                              <>
+                                <MessageCircle className="h-4 w-4 mr-2" />
+                                Demander
+                              </>
+                            )}
+                          </Button>
                         </div>
-                        {!completedInteractions.includes('ai-assistant') && (
-                          <div className="mt-2 pt-2 border-t border-blue-700/30 flex items-center">
-                            <Award className="h-4 w-4 text-amber-400 mr-1" />
-                            <span className="text-xs text-amber-300">+10 points pour avoir utilisé l'assistant IA!</span>
+                        
+                        {aiResponse && (
+                          <div className="p-3 bg-blue-900/20 border border-blue-700/50 rounded-md">
+                            <div className="flex items-start">
+                              <BrainCircuit className="h-5 w-5 text-blue-400 mr-2 mt-0.5" />
+                              <div className="text-sm text-blue-200 whitespace-pre-line">{aiResponse}</div>
+                            </div>
+                            {!completedInteractions.includes('ai-assistant') && (
+                              <div className="mt-2 pt-2 border-t border-blue-700/30 flex items-center">
+                                <Award className="h-4 w-4 text-amber-400 mr-1" />
+                                <span className="text-xs text-amber-300">+10 points pour avoir utilisé l'assistant IA!</span>
+                              </div>
+                            )}
                           </div>
                         )}
+                      </>
+                    ) : (
+                      // Mode conversation avec IA
+                      <div className="p-3 bg-blue-900/20 border border-blue-700/50 rounded-md">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-sm font-medium text-white flex items-center">
+                            <Sparkles className="h-3 w-3 mr-1 text-blue-400" />
+                            Discussion avec Azure OpenAI
+                          </h4>
+                          <Badge className="bg-green-600/70">
+                            <Cpu className="h-3 w-3 mr-1" />
+                            CONNECTÉ
+                          </Badge>
+                        </div>
+                        
+                        <p className="text-xs text-blue-200 mb-3">
+                          Posez n'importe quelle question sur la cybersécurité à notre assistant IA propulsé par Azure OpenAI.
+                        </p>
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full text-blue-300 border-blue-800/50 hover:bg-blue-800/30 mb-2"
+                          onClick={() => {
+                            // Lancer la conversation avec l'IA via Azure OpenAI
+                            setAiPrompt("Comment puis-je me protéger contre les ransomwares ?");
+                            generateAIResponse();
+                            
+                            if (!completedInteractions.includes('ai-full-convo')) {
+                              setUserPoints(prev => prev + 15);
+                              setCompletedInteractions(prev => [...prev, 'ai-full-convo']);
+                              
+                              toast({
+                                title: "Conversation IA démarrée !",
+                                description: "+15 points pour explorer la conversation complète avec l'IA",
+                              });
+                            }
+                          }}
+                        >
+                          <MessageCircle className="h-4 w-4 mr-2" />
+                          Démarrer la conversation
+                        </Button>
+                        
+                        <div className="text-xs text-gray-400 mt-1 text-center">
+                          Propulsé par Azure OpenAI
+                        </div>
                       </div>
                     )}
                   </div>
