@@ -256,9 +256,11 @@ const ParcoursPersonnalise = () => {
                                         ))}
                                       </ul>
                                       <div className="pt-2">
-                                        <Button className="w-full bg-blue-700 hover:bg-blue-600 text-white">
-                                          Accéder au contenu personnalisé
-                                        </Button>
+                                        <Link href={`/cyber/micro-learning?title=${encodeURIComponent(module.title)}&type=${encodeURIComponent(module.type)}&duree=${encodeURIComponent(module.duree)}&description=${encodeURIComponent(module.description)}&points=${encodeURIComponent(JSON.stringify(module.points_cles || []))}`}>
+                                          <Button className="w-full bg-blue-700 hover:bg-blue-600 text-white">
+                                            Accéder au contenu personnalisé
+                                          </Button>
+                                        </Link>
                                       </div>
                                     </div>
                                   </div>
