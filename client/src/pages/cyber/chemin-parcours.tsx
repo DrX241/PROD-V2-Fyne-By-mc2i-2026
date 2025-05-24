@@ -21,67 +21,94 @@ const ParcoursPersonnalise = () => {
     type: string;
     icon: React.ReactNode;
     color: string;
-    link: string;
+    points_cles?: string[];
   }>>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState('saisie');
   
-  // Simuler la génération d'un parcours
+  const { toast } = useToast();
+
+  // Générer un parcours personnalisé en temps réel
   const genererParcours = async () => {
     if (!intention.trim()) return;
     
     setIsGenerating(true);
     
-    // Simuler un délai d'analyse
-    setTimeout(() => {
-      // Exemple de parcours généré
-      const nouveauParcours = [
-        {
-          id: 1,
-          title: "Fondamentaux de la cybersécurité",
-          description: "Maîtrisez les concepts de base en cybersécurité",
-          duree: "45 min",
-          type: "module",
-          icon: <Shield className="h-5 w-5 text-blue-500" />,
-          color: "bg-blue-100 text-blue-800",
-          link: "/cyber/learning-center"
+    try {
+      const response = await fetch('/api/parcours/generer-parcours', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
         },
-        {
-          id: 2,
-          title: "Protection contre le phishing",
-          description: "Techniques avancées pour détecter et contrer les attaques par phishing",
-          duree: "30 min",
-          type: "simulation",
-          icon: <AlertTriangle className="h-5 w-5 text-amber-500" />,
-          color: "bg-amber-100 text-amber-800",
-          link: "/cyber/learning-center"
-        },
-        {
-          id: 3,
-          title: "Principes du Zero Trust",
-          description: "Comprendre et appliquer l'architecture Zero Trust",
-          duree: "60 min",
-          type: "cours",
-          icon: <Network className="h-5 w-5 text-indigo-500" />,
-          color: "bg-indigo-100 text-indigo-800",
-          link: "/cyber/learning-center"
-        },
-        {
-          id: 4,
-          title: "Test d'évaluation cybersécurité",
-          description: "Évaluez vos connaissances en cybersécurité",
-          duree: "20 min",
-          type: "quiz",
-          icon: <Brain className="h-5 w-5 text-purple-500" />,
-          color: "bg-purple-100 text-purple-800",
-          link: "/cyber/test-technique"
-        },
-      ];
+        body: JSON.stringify({ intention })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la génération du parcours');
+      }
+      
+      const data = await response.json();
+      
+      if (!data.parcours || !Array.isArray(data.parcours)) {
+        throw new Error('Format de réponse invalide');
+      }
+      
+      // Transformer les données reçues en parcours exploitable
+      const nouveauParcours = data.parcours.map((module: any, index: number) => {
+        // Déterminer l'icône et la couleur en fonction du type
+        let icon;
+        let color;
+        
+        switch(module.type.toLowerCase()) {
+          case 'module':
+            icon = <Shield className="h-5 w-5 text-blue-500" />;
+            color = "bg-blue-800/40 text-blue-200";
+            break;
+          case 'simulation':
+            icon = <AlertTriangle className="h-5 w-5 text-amber-500" />;
+            color = "bg-amber-800/40 text-amber-200";
+            break;
+          case 'cours':
+            icon = <BookOpen className="h-5 w-5 text-indigo-500" />;
+            color = "bg-indigo-800/40 text-indigo-200";
+            break;
+          case 'quiz':
+            icon = <Brain className="h-5 w-5 text-purple-500" />;
+            color = "bg-purple-800/40 text-purple-200";
+            break;
+          case 'atelier':
+            icon = <Code className="h-5 w-5 text-emerald-500" />;
+            color = "bg-emerald-800/40 text-emerald-200";
+            break;
+          default:
+            icon = <Shield className="h-5 w-5 text-blue-500" />;
+            color = "bg-blue-800/40 text-blue-200";
+        }
+        
+        return {
+          id: index + 1,
+          title: module.title,
+          description: module.description,
+          duree: module.duree,
+          type: module.type,
+          icon: icon,
+          color: color,
+          points_cles: module.points_cles || []
+        };
+      });
       
       setParcours(nouveauParcours);
-      setIsGenerating(false);
       setActiveTab('resultat');
-    }, 2500);
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast({
+        title: "Erreur de génération",
+        description: "Nous n'avons pas pu générer votre parcours personnalisé. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
   
   return (
@@ -224,9 +251,9 @@ const ParcoursPersonnalise = () => {
                                     <div className="space-y-2">
                                       <p>Ce module de micro-learning personnalisé couvre les points clés suivants :</p>
                                       <ul className="list-disc pl-5 space-y-1 text-blue-200">
-                                        <li>Concepts fondamentaux et terminologie</li>
-                                        <li>Approches pratiques et méthodologies</li>
-                                        <li>Études de cas pertinentes</li>
+                                        {module.points_cles && module.points_cles.map((point, i) => (
+                                          <li key={i}>{point}</li>
+                                        ))}
                                       </ul>
                                       <div className="pt-2">
                                         <Button className="w-full bg-blue-700 hover:bg-blue-600 text-white">
