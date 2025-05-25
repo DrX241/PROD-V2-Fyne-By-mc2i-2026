@@ -5380,12 +5380,6 @@ Analyse cette justification selon les critères spécifiés et retourne ton éva
           error: "Format de réponse invalide. Veuillez réessayer." 
         });
       }
-    } catch (error) {
-      console.error("Erreur lors de la génération du défi:", error);
-      return res.status(500).json({ 
-        error: "Une erreur est survenue lors de la génération du défi." 
-      });
-    }
   });
 
   return createServer(app);
