@@ -32,9 +32,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2 } from 'lucide-react';
 
 // Import du reducer et des types
-import { appReducer, initialState } from '@/reducers/gameReducer';
-import { AppState, Action, CodeChallenge } from '@/types/dataIaTypes';
-import { getRandomPrebuiltChallenges, generateUniqueId } from '@/data/prebuiltChallenges';
+// Importer les défis préconstruits
+import { getRandomChallenges, generateUniqueId } from '@/data/challenges';
 
 // Les types sont maintenant importés depuis '@/types/dataIaTypes'
 
@@ -775,7 +774,21 @@ const ReadMeIfYouCan = () => {
   const [highContrastMode, setHighContrastMode] = useState(false);
   const [consecutiveFailures, setConsecutiveFailures] = useState(0);
   
-  // Fonction pour récupérer un nouveau challenge via l'API
+  // Cache pour les défis déjà présentés à l'utilisateur (évite les répétitions)
+  const [challengeCache, setChallengeCache] = useState({
+    python: {
+      débutant: [],
+      intermédiaire: [],
+      avancé: []
+    },
+    sql: {
+      débutant: [],
+      intermédiaire: [],
+      avancé: []
+    }
+  });
+  
+  // Fonction pour récupérer un nouveau challenge, prioritairement depuis les défis préconstruits
   const fetchNewChallenge = async () => {
     setIsLoading(true);
     setShowResult(false);
@@ -784,7 +797,82 @@ const ReadMeIfYouCan = () => {
     setHintRequested(false);
     
     try {
-      // Appeler l'API pour générer un challenge unique avec l'IA
+      // 1. Récupérer des défis préconstruits
+      console.log("Récupération de défis préconstruits");
+      const prebuiltChallenges = getRandomChallenges(
+        selectedLanguage as 'python' | 'sql', 
+        selectedDifficulty as 'débutant' | 'intermédiaire' | 'avancé', 
+        1
+      );
+      
+      // Filtrer les défis déjà vus
+      const completedChallengeIds = challengeCache[selectedLanguage][selectedDifficulty].map(c => c.id);
+      const newChallenges = prebuiltChallenges.filter(c => !completedChallengeIds.includes(c.id));
+      
+      if (newChallenges.length > 0) {
+        // Utiliser le premier défi
+        const challenge = newChallenges[0];
+        
+        // Mettre à jour le challenge courant
+        setCurrentChallenge(challenge);
+        
+        // Ajouter le défi au cache pour éviter de le répéter
+        setChallengeCache(prevCache => ({
+          ...prevCache,
+          [selectedLanguage]: {
+            ...prevCache[selectedLanguage],
+            [selectedDifficulty]: [
+              ...prevCache[selectedLanguage][selectedDifficulty],
+              challenge
+            ]
+          }
+        }));
+        
+        // Incrémenter le compteur de questions
+        setQuestionCount(prev => prev + 1);
+        
+        // Si mode vitesse, initialiser le timer
+        if (selectedMode === 'vitesse') {
+          setTimeLeft(30);
+          setTimerActive(true);
+        }
+        
+        return;
+      }
+      
+      // 2. Si tous les défis préconstruits ont été utilisés, réinitialiser le cache
+      if (completedChallengeIds.length > 0) {
+        console.log("Tous les défis préconstruits ont été utilisés, réinitialisation du cache");
+        setChallengeCache(prevCache => ({
+          ...prevCache,
+          [selectedLanguage]: {
+            ...prevCache[selectedLanguage],
+            [selectedDifficulty]: []
+          }
+        }));
+        
+        // Récupérer un nouveau défi après réinitialisation
+        const resetChallenges = getRandomChallenges(
+          selectedLanguage as 'python' | 'sql', 
+          selectedDifficulty as 'débutant' | 'intermédiaire' | 'avancé', 
+          1
+        );
+        
+        if (resetChallenges.length > 0) {
+          setCurrentChallenge(resetChallenges[0]);
+          setQuestionCount(prev => prev + 1);
+          
+          if (selectedMode === 'vitesse') {
+            setTimeLeft(30);
+            setTimerActive(true);
+          }
+          
+          return;
+        }
+      }
+      
+      // 3. Si aucun défi préconstruit n'est disponible, utiliser l'API comme fallback
+      console.log("Aucun défi préconstruit disponible, appel à l'API");
       const response = await fetch('/api/data-ia/generate-code-challenge', {
         method: 'POST',
         headers: {
@@ -794,7 +882,6 @@ const ReadMeIfYouCan = () => {
           language: selectedLanguage,
           difficulty: selectedDifficulty,
           mode: selectedMode,
-          // Ajouter un timestamp pour s'assurer que chaque requête est différente
           timestamp: Date.now()
         }),
       });
@@ -810,8 +897,14 @@ const ReadMeIfYouCan = () => {
         throw new Error("Format de réponse invalide");
       }
       
-      // Mettre à jour le challenge avec celui généré par l'IA
-      setCurrentChallenge(data.challenge);
+      // Ajouter un ID unique au défi généré par l'API
+      const challenge = {
+        ...data.challenge,
+        id: generateUniqueId(`${selectedLanguage}-${selectedDifficulty}`)
+      };
+      
+      // Mettre à jour le challenge avec celui généré par l'API
+      setCurrentChallenge(challenge);
       setQuestionCount(prev => prev + 1);
       
       // Si mode vitesse, initialiser le timer
@@ -822,14 +915,34 @@ const ReadMeIfYouCan = () => {
     } catch (error) {
       console.error("Erreur lors de la génération du challenge:", error);
       
-      // Afficher l'erreur sur fond rouge
       toast({
         title: "Erreur",
         description: "Impossible de générer un nouveau challenge. Veuillez réessayer.",
         variant: "destructive",
       });
       
-      // Ne pas utiliser de fallback local pour éviter les questions répétées
+      // Tenter d'utiliser un défi préconstruit de secours si l'API échoue
+      const fallbackChallenges = getRandomChallenges(
+        selectedLanguage as 'python' | 'sql', 
+        selectedDifficulty as 'débutant' | 'intermédiaire' | 'avancé', 
+        1
+      );
+      
+      if (fallbackChallenges.length > 0) {
+        toast({
+          title: "Information",
+          description: "Utilisation d'un défi de secours suite à l'erreur.",
+          variant: "default",
+        });
+        
+        setCurrentChallenge(fallbackChallenges[0]);
+        setQuestionCount(prev => prev + 1);
+        
+        if (selectedMode === 'vitesse') {
+          setTimeLeft(30);
+          setTimerActive(true);
+        }
+      }
     } finally {
       setIsLoading(false);
     }
@@ -867,8 +980,77 @@ const ReadMeIfYouCan = () => {
     }
   };
 
+  // Analyser la justification fournie par l'utilisateur
+  const analyzeJustification = async (justification: string, isCorrectAnswer: boolean): Promise<{
+    isValid: boolean;
+    feedback: string;
+  }> => {
+    // Pour les réponses incorrectes, la justification n'est pas analysée
+    if (!isCorrectAnswer) {
+      return { isValid: false, feedback: "La réponse sélectionnée est incorrecte." };
+    }
+    
+    // Pour les niveaux débutant ou le mode vitesse, pas d'analyse de justification
+    if (selectedDifficulty === 'débutant' || selectedMode === 'vitesse') {
+      return { isValid: true, feedback: "Bravo, votre réponse est correcte !" };
+    }
+    
+    // Justification trop courte est considérée comme insuffisante
+    if (justification.length < 20) {
+      return { 
+        isValid: false, 
+        feedback: "Votre justification est trop courte pour être pertinente. Veuillez expliquer votre raisonnement de façon plus détaillée."
+      };
+    }
+
+    try {
+      // Tentative d'analyse via l'API
+      const response = await fetch('/api/data-ia/analyze-justification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          justification,
+          challenge: currentChallenge,
+          selectedAnswer
+        }),
+      });
+      
+      if (!response.ok) {
+        // Si l'API échoue, utiliser une validation locale simple basée sur la longueur
+        console.warn("Impossible d'analyser la justification via l'API, utilisation d'une validation simplifiée");
+        const isLongEnough = justification.length >= 50;
+        return { 
+          isValid: isLongEnough, 
+          feedback: isLongEnough
+            ? "Votre justification semble pertinente."
+            : "Votre justification manque de détails pour démontrer votre compréhension."
+        };
+      }
+      
+      const result = await response.json();
+      return {
+        isValid: result.isValid,
+        feedback: result.feedback || (result.isValid 
+          ? "Votre justification est pertinente et démontre une bonne compréhension."
+          : "Votre justification ne semble pas correspondre à la bonne réponse.")
+      };
+    } catch (error) {
+      console.error("Erreur lors de l'analyse de la justification:", error);
+      // En cas d'erreur, validation basique basée sur la longueur
+      const isLongEnough = justification.length >= 50;
+      return { 
+        isValid: isLongEnough, 
+        feedback: isLongEnough
+          ? "Votre justification semble pertinente."
+          : "Votre justification manque de détails pour démontrer votre compréhension."
+      };
+    }
+  };
+  
   // Soumettre la réponse
-  const submitAnswer = () => {
+  const submitAnswer = async () => {
     if (!selectedAnswer) {
       toast({
         title: "Attention",
@@ -887,16 +1069,33 @@ const ReadMeIfYouCan = () => {
       return;
     }
     
+    // Désactiver le bouton pendant la vérification
+    setIsLoading(true);
+    
     // Arrêter le timer si actif
     if (timerActive) {
       setTimerActive(false);
     }
     
     // Vérifier si la réponse est correcte
-    const isCorrect = currentChallenge?.responses.find(r => r.id === selectedAnswer)?.isCorrect || false;
+    const selectedResponse = currentChallenge?.responses.find(r => r.id === selectedAnswer);
+    const isCorrect = selectedResponse?.isCorrect || false;
+    
+    // Analyser la justification si nécessaire
+    let justificationValid = true;
+    let justificationFeedback = "";
+    
+    if (selectedDifficulty !== 'débutant' && selectedMode !== 'vitesse' && isCorrect) {
+      const analysis = await analyzeJustification(userJustification, isCorrect);
+      justificationValid = analysis.isValid;
+      justificationFeedback = analysis.feedback;
+    }
+    
+    // Considérer la réponse comme correcte uniquement si la réponse ET la justification sont correctes
+    const isOverallCorrect = isCorrect && justificationValid;
     
     // Mettre à jour le score et les échecs consécutifs
-    if (isCorrect) {
+    if (isOverallCorrect) {
       setScore(prev => prev + 1);
       setConsecutiveFailures(0); // Réinitialiser les échecs consécutifs en cas de succès
     } else {
@@ -905,22 +1104,35 @@ const ReadMeIfYouCan = () => {
     
     // Afficher le résultat
     setShowResult(true);
+    setIsLoading(false);
     
     // Vérifier si l'utilisateur a atteint deux échecs consécutifs
-    if (!isCorrect && consecutiveFailures >= 1) {
+    if (!isOverallCorrect && consecutiveFailures >= 1) {
       toast({
         title: "Attention !",
-        description: "Vous avez eu 2 réponses incorrectes consécutives. Prenez votre temps pour bien comprendre les explications.",
+        description: "Vous avez eu 2 réponses incorrectes consécutives. Le jeu va s'arrêter après cette question.",
+        variant: "destructive",
+      });
+    } else if (!isCorrect) {
+      // Notification pour réponse incorrecte
+      toast({
+        title: "Incorrect !",
+        description: "Votre réponse n'est pas correcte. Consultez l'explication.",
+        variant: "destructive",
+      });
+    } else if (!justificationValid) {
+      // Notification pour justification incorrecte
+      toast({
+        title: "Justification insuffisante",
+        description: justificationFeedback,
         variant: "destructive",
       });
     } else {
-      // Notification standard
+      // Notification pour réponse et justification correctes
       toast({
-        title: isCorrect ? "Correct !" : "Incorrect !",
-        description: isCorrect 
-          ? "Bravo, votre réponse est correcte !" 
-          : "Votre réponse n'est pas correcte. Consultez l'explication.",
-        variant: isCorrect ? "default" : "destructive",
+        title: "Correct !",
+        description: "Bravo, votre réponse et votre justification sont correctes !",
+        variant: "default",
       });
     }
   };

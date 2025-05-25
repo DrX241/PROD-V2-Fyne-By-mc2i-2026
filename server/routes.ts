@@ -4924,6 +4924,33 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
           error: "Le service Azure OpenAI n'est pas disponible actuellement." 
         });
       }
+  });
+  
+  // Endpoint pour analyser la justification d'une réponse dans Read Me If You Can
+  app.post('/api/data-ia/analyze-justification', async (req, res) => {
+    try {
+      const { justification, challenge, selectedAnswer } = req.body;
+      
+      if (!justification || !challenge || !selectedAnswer) {
+        return res.status(400).json({ 
+          error: "Les paramètres justification, challenge et selectedAnswer sont requis",
+          isValid: false,
+          feedback: "Paramètres incomplets"
+        });
+      }
+      
+      // Vérifier si OpenAI est configuré
+      if (!openAIService) {
+        // En cas d'indisponibilité, utiliser une validation simplifiée
+        console.warn("Service OpenAI non disponible pour l'analyse de justification");
+        const isLongEnough = justification.length >= 50;
+        return res.status(200).json({
+          isValid: isLongEnough,
+          feedback: isLongEnough 
+            ? "Votre justification semble pertinente." 
+            : "Votre justification manque de détails pour démontrer votre compréhension."
+        });
+      }
 
       // Créer un prompt adapté au langage, à la difficulté et au mode de jeu
       let systemPrompt = `Tu es un expert en programmation chargé de créer des défis de code pour un jeu éducatif appelé "Read Me If You Can".
