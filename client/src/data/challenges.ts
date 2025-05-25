@@ -1057,9 +1057,12 @@ print(remplacer_voyelles("Python est super", "-"))`,
     hint: "Les paramètres avec des valeurs par défaut permettent de spécifier un comportement par défaut si l'argument n'est pas fourni."
   }
 
-export const pythonAvance: CodeChallenge[] = [
+];
+
+// Défis Python - Niveau Intermédiaire
+export const pythonIntermediaire: CodeChallenge[] = [
   {
-    id: "python-avance-1",
+    id: "python-intermediaire-1",
     code: `from functools import lru_cache
 
 @lru_cache(maxsize=None)
