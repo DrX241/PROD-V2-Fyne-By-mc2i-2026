@@ -431,6 +431,71 @@ const IALabTrainer: React.FC = () => {
     setAnalysis(null);
   };
   
+  // Fonction pour traduire du langage naturel en code avec l'IA
+  const translateToCode = async (naturalText: string) => {
+    if (!naturalText.trim()) {
+      return;
+    }
+    
+    setIsProcessing(true);
+    setResult('');
+    setAnalysis(null);
+    
+    try {
+      // Appel à l'API pour traduire le texte en code
+      const response = await fetch('/api/code/translate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          text: naturalText,
+          language: selectedLanguage,
+          sessionId
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erreur lors de la traduction');
+      }
+      
+      const data = await response.json();
+      
+      // Mettre à jour l'éditeur avec le code généré
+      if (data.code) {
+        setCode(data.code);
+        setAnalysis(data.explanation || "Code généré à partir de votre description en langage naturel.");
+        
+        // Copier automatiquement le code dans le presse-papier
+        navigator.clipboard.writeText(data.code).then(() => {
+          toast({
+            title: "Code généré et copié",
+            description: "Le code a été généré et copié dans le presse-papier.",
+            variant: "default",
+          });
+        }).catch(() => {
+          toast({
+            title: "Code généré",
+            description: "Le code a été généré mais n'a pas pu être copié automatiquement.",
+            variant: "default",
+          });
+        });
+      } else {
+        throw new Error("Aucun code n'a été généré");
+      }
+    } catch (error) {
+      console.error('Erreur lors de la traduction:', error);
+      toast({
+        title: "Erreur de traduction",
+        description: error.message || "Une erreur est survenue lors de la traduction.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+  
   // Fonction pour exécuter le code avec l'IA
   const executeCode = async () => {
     if (!code.trim()) {
@@ -689,6 +754,58 @@ const IALabTrainer: React.FC = () => {
                   {codeDescription}
                 </div>
               )}
+              
+              {/* Boutons d'exécution déplacés ici */}
+              <div className="flex justify-between mt-3 pt-3 border-t border-blue-500/20">
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={clearEditor}
+                    className="border-blue-500/30 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
+                    disabled={isProcessing}
+                  >
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Effacer
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      // Ouvre une boîte de dialogue pour entrer du texte en langage naturel
+                      const naturelText = prompt("Décrivez en langage naturel ce que vous voulez accomplir, et l'IA le traduira en code:");
+                      if (naturelText?.trim()) {
+                        translateToCode(naturelText);
+                      }
+                    }}
+                    className="border-purple-500/30 text-purple-400 hover:text-purple-300 hover:bg-purple-900/20"
+                    disabled={isProcessing}
+                  >
+                    <Brain className="mr-2 h-4 w-4" />
+                    IA Translator
+                  </Button>
+                </div>
+                
+                <Button
+                  onClick={executeCode}
+                  disabled={isProcessing}
+                  size="sm"
+                  className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Exécution...
+                    </>
+                  ) : (
+                    <>
+                      <PlayCircle className="mr-2 h-4 w-4" />
+                      Exécuter
+                    </>
+                  )}
+                </Button>
+              </div>
             </CardHeader>
             
             <CardContent className="p-0">
@@ -812,34 +929,10 @@ const IALabTrainer: React.FC = () => {
               )}
             </CardContent>
             
-            <CardFooter className="border-t border-blue-500/20 py-3 flex justify-between">
-              <Button
-                variant="outline"
-                onClick={clearEditor}
-                className="border-blue-500/30 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
-                disabled={isProcessing}
-              >
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Effacer
-              </Button>
-              
-              <Button
-                onClick={executeCode}
-                disabled={isProcessing}
-                className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
-              >
-                {isProcessing ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Exécution...
-                  </>
-                ) : (
-                  <>
-                    <PlayCircle className="mr-2 h-4 w-4" />
-                    Exécuter
-                  </>
-                )}
-              </Button>
+            <CardFooter className="border-t border-blue-500/20 py-3 flex justify-end">
+              <div className="text-gray-400 text-sm italic">
+                Utilisez les boutons en haut de l'éditeur pour exécuter votre code ou demander de l'aide à l'IA
+              </div>
             </CardFooter>
           </Card>
           

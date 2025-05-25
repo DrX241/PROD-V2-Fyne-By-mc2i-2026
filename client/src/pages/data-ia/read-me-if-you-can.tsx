@@ -980,7 +980,7 @@ const ReadMeIfYouCan = () => {
     }
   };
 
-  // Analyser la justification fournie par l'utilisateur (version simplifiée sans appel API)
+  // Analyser la justification fournie par l'utilisateur
   const analyzeJustification = async (justification: string, isCorrectAnswer: boolean): Promise<{
     isValid: boolean;
     feedback: string;
@@ -1003,56 +1003,50 @@ const ReadMeIfYouCan = () => {
       };
     }
 
-    // Analyse locale basée sur la longueur et certains mots-clés
-    const analyseSyntaxique = () => {
-      // Vérification de la longueur (minimum 50 caractères pour une justification intermédiaire)
-      const longueurSuffisante = justification.length >= 50;
-      if (!longueurSuffisante) {
-        return {
-          isValid: false,
-          feedback: "Votre justification manque de détails. Veuillez développer davantage votre raisonnement."
+    try {
+      // Tentative d'analyse via l'API
+      const response = await fetch('/api/data-ia/analyze-justification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          justification,
+          challenge: currentChallenge,
+          selectedAnswer
+        }),
+      });
+      
+      if (!response.ok) {
+        // Si l'API échoue, utiliser une validation locale simple basée sur la longueur
+        console.warn("Impossible d'analyser la justification via l'API, utilisation d'une validation simplifiée");
+        const isLongEnough = justification.length >= 50;
+        return { 
+          isValid: isLongEnough, 
+          feedback: isLongEnough
+            ? "Votre justification semble pertinente."
+            : "Votre justification manque de détails pour démontrer votre compréhension."
         };
       }
       
-      // Vérifier la présence de termes techniques pertinents selon le langage
-      const termesTechniquesPython = [
-        "fonction", "boucle", "condition", "variable", "liste", "dictionnaire", 
-        "méthode", "classe", "objet", "retourne", "itération"
-      ];
-      
-      const termesTechniquesSQL = [
-        "requête", "jointure", "table", "sélection", "filtre", "agrégation", 
-        "group by", "having", "where", "order by", "distinct"
-      ];
-      
-      const termesTechniques = currentChallenge?.language === 'python' 
-        ? termesTechniquesPython 
-        : termesTechniquesSQL;
-      
-      const justificationEnMinuscules = justification.toLowerCase();
-      const nombreTermesTrouves = termesTechniques.filter(terme => 
-        justificationEnMinuscules.includes(terme)
-      ).length;
-      
-      // La justification doit contenir au moins quelques termes techniques pertinents
-      const contientTermesTechniques = nombreTermesTrouves >= 2;
-      
-      if (!contientTermesTechniques) {
-        return {
-          isValid: false,
-          feedback: "Votre justification ne contient pas suffisamment de termes techniques pertinents. Utilisez un vocabulaire plus précis lié au code présenté."
-        };
-      }
-      
-      // Si toutes les vérifications passent, la justification est considérée comme valide
+      const result = await response.json();
       return {
-        isValid: true,
-        feedback: "Votre justification est pertinente et démontre une compréhension du code."
+        isValid: result.isValid,
+        feedback: result.feedback || (result.isValid 
+          ? "Votre justification est pertinente et démontre une bonne compréhension."
+          : "Votre justification ne semble pas correspondre à la bonne réponse.")
       };
-    };
-    
-    // Analyse complète
-    return analyseSyntaxique();
+    } catch (error) {
+      console.error("Erreur lors de l'analyse de la justification:", error);
+      // En cas d'erreur, validation basique basée sur la longueur
+      const isLongEnough = justification.length >= 50;
+      return { 
+        isValid: isLongEnough, 
+        feedback: isLongEnough
+          ? "Votre justification semble pertinente."
+          : "Votre justification manque de détails pour démontrer votre compréhension."
+      };
+    }
   };
   
   // Soumettre la réponse

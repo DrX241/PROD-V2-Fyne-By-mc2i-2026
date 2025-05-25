@@ -29,30 +29,6 @@ class OpenAIService {
   private reconnectAttempts: number = 0;
   private readonly MAX_RECONNECT_ATTEMPTS = 5;
 
-  // Méthodes pour exposer l'état de la connexion
-  getConnectionStatus(): string {
-    return this.connectionStatus;
-  }
-
-  getCurrentKeyType(): string {
-    return this.currentConfig;
-  }
-
-  getLastConnectionCheckTime(): number {
-    return this.lastConnectionCheck;
-  }
-
-  // Méthode pour initier une reconnexion
-  reconnect(): boolean {
-    try {
-      this.checkConnection();
-      return true;
-    } catch (error) {
-      console.error("Erreur lors de la reconnexion:", error);
-      return false;
-    }
-  }
-
   constructor() {
     console.log("Initializing Azure OpenAI Service with configuration from secrets");
 
@@ -110,7 +86,7 @@ class OpenAIService {
     this.secondaryConfig = {
       endpoint: gpt4oMiniEndpoint,
       apiKey: gpt4oMiniApiKey,
-      deploymentName: gpt4oMiniDeploymentName, // Utiliser la valeur de la variable d'environnement
+      deploymentName: "Eddy-02-2025-gpt-4o-mini", // Nom exact du déploiement
       apiVersion: gpt4oMiniApiVersion,
       modelName: "gpt-4o-mini"
     };
