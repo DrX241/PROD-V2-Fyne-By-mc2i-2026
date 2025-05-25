@@ -175,6 +175,206 @@ export default function DataIaRoleplay() {
               </CardFooter>
             </Card>
           </motion.div>
+
+          {/* Option 3: Je suis Data Analyst */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <Card className="h-full bg-gradient-to-br from-green-900/40 to-green-950 border-green-700 hover:border-green-500 hover:shadow-lg transition-all duration-300">
+              <CardHeader>
+                <div className="flex justify-center mb-4">
+                  <div className="p-4 rounded-full bg-green-800/70">
+                    <LineChart className="h-10 w-10 text-green-200" />
+                  </div>
+                </div>
+                <CardTitle className="text-2xl text-center mb-2">Je suis Data Analyst</CardTitle>
+                <CardDescription className="text-green-300 text-center text-lg">
+                  J'analyse et visualise des données
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="mb-6 text-green-200">
+                  Transformez des données brutes en insights pertinents grâce à des outils d'analyse et de visualisation.
+                </p>
+                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
+                  <li className="flex items-center text-green-200">
+                    <div className="h-2 w-2 rounded-full bg-green-400 mr-2"></div>
+                    Analyse exploratoire de données
+                  </li>
+                  <li className="flex items-center text-green-200">
+                    <div className="h-2 w-2 rounded-full bg-green-400 mr-2"></div>
+                    Création de tableaux de bord
+                  </li>
+                  <li className="flex items-center text-green-200">
+                    <div className="h-2 w-2 rounded-full bg-green-400 mr-2"></div>
+                    Statistiques descriptives et reporting
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <Button 
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-5"
+                  onClick={() => setLocation('/data-ia/roleplay/ia-lab-trainer')}
+                >
+                  Explorer les données
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
+            </Card>
+          </motion.div>
+
+          {/* Option 4: Je suis Data Engineer */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <Card className="h-full bg-gradient-to-br from-amber-900/40 to-amber-950 border-amber-700 hover:border-amber-500 hover:shadow-lg transition-all duration-300">
+              <CardHeader>
+                <div className="flex justify-center mb-4">
+                  <div className="p-4 rounded-full bg-amber-800/70">
+                    <Database className="h-10 w-10 text-amber-200" />
+                  </div>
+                </div>
+                <CardTitle className="text-2xl text-center mb-2">Je suis Data Engineer</CardTitle>
+                <CardDescription className="text-amber-300 text-center text-lg">
+                  Je construis des pipelines de données
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="mb-6 text-amber-200">
+                  Concevez des architectures robustes pour collecter, transformer et stocker des données à grande échelle.
+                </p>
+                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
+                  <li className="flex items-center text-amber-200">
+                    <div className="h-2 w-2 rounded-full bg-amber-400 mr-2"></div>
+                    Conception de bases de données
+                  </li>
+                  <li className="flex items-center text-amber-200">
+                    <div className="h-2 w-2 rounded-full bg-amber-400 mr-2"></div>
+                    ETL et intégration de données
+                  </li>
+                  <li className="flex items-center text-amber-200">
+                    <div className="h-2 w-2 rounded-full bg-amber-400 mr-2"></div>
+                    Optimisation de requêtes SQL
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <Button 
+                  className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-5"
+                  onClick={() => setLocation('/data-ia/roleplay/ia-lab-trainer')}
+                >
+                  Construire des pipelines
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
+            </Card>
+          </motion.div>
+
+          {/* Option 5: Je suis AI Engineer */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <Card className="h-full bg-gradient-to-br from-purple-900/40 to-purple-950 border-purple-700 hover:border-purple-500 hover:shadow-lg transition-all duration-300">
+              <CardHeader>
+                <div className="flex justify-center mb-4">
+                  <div className="p-4 rounded-full bg-purple-800/70">
+                    <Brain className="h-10 w-10 text-purple-200" />
+                  </div>
+                </div>
+                <CardTitle className="text-2xl text-center mb-2">Je suis AI Engineer</CardTitle>
+                <CardDescription className="text-purple-300 text-center text-lg">
+                  Je développe des systèmes d'IA
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="mb-6 text-purple-200">
+                  Créez des modèles d'intelligence artificielle avancés et déployez-les dans des applications réelles.
+                </p>
+                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
+                  <li className="flex items-center text-purple-200">
+                    <div className="h-2 w-2 rounded-full bg-purple-400 mr-2"></div>
+                    Développement de modèles ML/DL
+                  </li>
+                  <li className="flex items-center text-purple-200">
+                    <div className="h-2 w-2 rounded-full bg-purple-400 mr-2"></div>
+                    Ingénierie de prompts et fine-tuning
+                  </li>
+                  <li className="flex items-center text-purple-200">
+                    <div className="h-2 w-2 rounded-full bg-purple-400 mr-2"></div>
+                    MLOps et déploiement de modèles
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <Button 
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-5"
+                  onClick={() => setLocation('/data-ia/roleplay/ia-lab-trainer')}
+                >
+                  Créer des modèles
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
+            </Card>
+          </motion.div>
+
+          {/* Option 6: Je suis Développeur IA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <Card className="h-full bg-gradient-to-br from-cyan-900/40 to-cyan-950 border-cyan-700 hover:border-cyan-500 hover:shadow-lg transition-all duration-300">
+              <CardHeader>
+                <div className="flex justify-center mb-4">
+                  <div className="p-4 rounded-full bg-cyan-800/70">
+                    <Laptop className="h-10 w-10 text-cyan-200" />
+                  </div>
+                </div>
+                <CardTitle className="text-2xl text-center mb-2">Je suis Développeur IA</CardTitle>
+                <CardDescription className="text-cyan-300 text-center text-lg">
+                  J'intègre l'IA dans des applications
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="mb-6 text-cyan-200">
+                  Développez des applications intelligentes en intégrant des APIs et services d'IA dans des solutions concrètes.
+                </p>
+                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
+                  <li className="flex items-center text-cyan-200">
+                    <div className="h-2 w-2 rounded-full bg-cyan-400 mr-2"></div>
+                    Intégration d'APIs d'IA
+                  </li>
+                  <li className="flex items-center text-cyan-200">
+                    <div className="h-2 w-2 rounded-full bg-cyan-400 mr-2"></div>
+                    Développement d'interfaces intelligentes
+                  </li>
+                  <li className="flex items-center text-cyan-200">
+                    <div className="h-2 w-2 rounded-full bg-cyan-400 mr-2"></div>
+                    Tests et optimisation des solutions
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <Button 
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-5"
+                  onClick={() => setLocation('/data-ia/roleplay/ia-lab-trainer')}
+                >
+                  Développer des apps
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
+            </Card>
+          </motion.div>
         </div>
       </div>
     </div>
