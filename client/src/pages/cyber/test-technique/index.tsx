@@ -91,7 +91,7 @@ export default function CyberTestTechnique() {
   const [responses, setResponses] = useState<QuizResponse[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [evaluationResults, setEvaluationResults] = useState<EvaluationResult | null>(null);
-  const [userName, setUserName] = useState<string>('Arnaud Gauthier');
+  const [userName, setUserName] = useState<string>('Julien Grimault');
   const [generateProgress, setGenerateProgress] = useState(0);
   const [customTestPrompt, setCustomTestPrompt] = useState('');
   const [customTestTechnical, setCustomTestTechnical] = useState(true);
@@ -267,13 +267,13 @@ export default function CyberTestTechnique() {
     return (
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-200 mb-2">
-          Votre nom
+          Votre nom (à afficher sur le certificat)
         </label>
         <div className="relative">
           <input 
             type="text" 
             className="flex h-10 w-full rounded-md border border-blue-700 bg-blue-900/50 px-3 py-2 text-sm text-white ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-blue-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed opacity-50"
-            value="Arnaud Gauthier"
+            value="Julien Grimault"
             readOnly
             disabled
           />
@@ -511,7 +511,7 @@ export default function CyberTestTechnique() {
           <Button 
             variant="outline" 
             className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30 hover:text-white mb-4"
-            onClick={() => window.history.back()}
+            onClick={() => window.location.href = '/cyber/roleplay'}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour
