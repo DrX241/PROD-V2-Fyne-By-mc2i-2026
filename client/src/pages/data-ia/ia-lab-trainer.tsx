@@ -24,15 +24,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Terminal,
   Brain,
   Code,
@@ -52,7 +43,6 @@ import {
   Copy,
   Trophy,
   Award,
-  X
 } from 'lucide-react';
 import ChallengeMode from '@/components/ia-lab/ChallengeMode';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -387,10 +377,6 @@ const IALabTrainer: React.FC = () => {
   const [codeTitle, setCodeTitle] = useState('');
   const [codeDescription, setCodeDescription] = useState('');
   
-  // État pour le dialogue de traduction IA
-  const [showTranslateDialog, setShowTranslateDialog] = useState(false);
-  const [naturalLanguageText, setNaturalLanguageText] = useState('');
-  
   // ID de session unique pour l'utilisateur
   const [sessionId] = useState<string>(() => {
     // Générer un ID de session unique
@@ -445,8 +431,8 @@ const IALabTrainer: React.FC = () => {
     setAnalysis(null);
   };
   
-  // Fonction pour simuler la traduction de langage naturel en code
-  const translateToCode = (naturalText: string) => {
+  // Fonction pour traduire du langage naturel en code avec l'IA
+  const translateToCode = async (naturalText: string) => {
     if (!naturalText.trim()) {
       return;
     }
@@ -455,190 +441,34 @@ const IALabTrainer: React.FC = () => {
     setResult('');
     setAnalysis(null);
     
-    // Simuler un délai de traitement pour une expérience utilisateur réaliste
-    setTimeout(() => {
-      try {
-        // Générer du code d'exemple basé sur le langage sélectionné et la description
-        let generatedCode = '';
-        let explanation = '';
-        
-        if (selectedLanguage === 'python') {
-          if (naturalText.toLowerCase().includes('calculer') || naturalText.toLowerCase().includes('somme')) {
-            generatedCode = `# Fonction pour calculer la somme d'une liste de nombres
-def calculate_sum(numbers):
-    """
-    Calcule la somme des nombres dans une liste.
-    
-    Args:
-        numbers (list): Liste de nombres à additionner
-        
-    Returns:
-        float: La somme des nombres
-    """
-    total = 0
-    for num in numbers:
-        total += num
-    return total
-
-# Exemple d'utilisation
-if __name__ == "__main__":
-    # Liste de test
-    test_numbers = [1, 2, 3, 4, 5]
-    result = calculate_sum(test_numbers)
-    print(f"La somme de {test_numbers} est {result}")`;
-            
-            explanation = "Ce code définit une fonction `calculate_sum` qui prend une liste de nombres en entrée et retourne leur somme. La fonction parcourt chaque élément de la liste et les additionne un par un. Un exemple d'utilisation est fourni pour montrer comment appeler la fonction.";
-          } else if (naturalText.toLowerCase().includes('dataframe') || naturalText.toLowerCase().includes('csv') || naturalText.toLowerCase().includes('pandas')) {
-            generatedCode = `# Importation des bibliothèques nécessaires
-import pandas as pd
-import matplotlib.pyplot as plt
-
-# Chargement des données
-def load_and_analyze_data(filepath):
-    """
-    Charge un fichier CSV et effectue une analyse basique.
-    
-    Args:
-        filepath (str): Chemin vers le fichier CSV
-        
-    Returns:
-        pd.DataFrame: DataFrame contenant les statistiques de base
-    """
-    # Charger les données
-    df = pd.read_csv(filepath)
-    
-    # Afficher les premières lignes
-    print("Aperçu des données:")
-    print(df.head())
-    
-    # Calculer des statistiques de base
-    stats = df.describe()
-    
-    # Identifier les valeurs manquantes
-    missing_values = df.isnull().sum()
-    
-    return {
-        'dataframe': df,
-        'statistics': stats,
-        'missing_values': missing_values
-    }
-
-# Exemple d'utilisation
-if __name__ == "__main__":
-    # Remplacer par le chemin de votre fichier
-    results = load_and_analyze_data('data.csv')
-    
-    # Afficher les statistiques
-    print("\nStatistiques descriptives:")
-    print(results['statistics'])
-    
-    # Afficher les valeurs manquantes
-    print("\nValeurs manquantes par colonne:")
-    print(results['missing_values'])`;
-            
-            explanation = "Ce code définit une fonction qui charge un fichier CSV à l'aide de pandas, affiche un aperçu des données, calcule des statistiques descriptives et identifie les valeurs manquantes. La fonction retourne un dictionnaire contenant le DataFrame original, les statistiques et le compte des valeurs manquantes.";
-          } else {
-            generatedCode = `# Script Python généré à partir de votre description
-def main():
-    """
-    Fonction principale basée sur la description:
-    "${naturalText}"
-    """
-    # Initialisation des variables
-    result = []
-    
-    # Traitement des données
-    for i in range(10):
-        # Ajouter votre logique ici
-        result.append(i * 2)
-    
-    # Afficher les résultats
-    print(f"Résultats: {result}")
-    
-    return result
-
-# Exécuter la fonction principale
-if __name__ == "__main__":
-    main()`;
-            
-            explanation = "Ce code est un modèle de base qui peut être adapté à votre besoin spécifique. Il définit une fonction principale qui crée une liste de résultats en multipliant chaque nombre de 0 à 9 par 2. Vous devriez modifier la logique de traitement pour correspondre exactement à votre description.";
-          }
-        } else if (selectedLanguage === 'sql') {
-          if (naturalText.toLowerCase().includes('sélectionner') || naturalText.toLowerCase().includes('select')) {
-            generatedCode = `-- Requête SQL pour sélectionner des données
-SELECT 
-    customers.customer_id,
-    customers.first_name,
-    customers.last_name,
-    orders.order_date,
-    orders.total_amount
-FROM 
-    customers
-JOIN 
-    orders ON customers.customer_id = orders.customer_id
-WHERE 
-    orders.order_date >= '2023-01-01'
-    AND orders.total_amount > 100
-ORDER BY 
-    orders.order_date DESC
-LIMIT 
-    100;`;
-            
-            explanation = "Cette requête SQL sélectionne les identifiants clients, noms, prénoms, dates de commande et montants totaux pour toutes les commandes dépassant 100€ depuis le 1er janvier 2023. Les résultats sont triés par date de commande décroissante et limités à 100 enregistrements.";
-          } else if (naturalText.toLowerCase().includes('grouper') || naturalText.toLowerCase().includes('group by')) {
-            generatedCode = `-- Requête SQL avec agrégation et regroupement
-SELECT 
-    product_category,
-    EXTRACT(YEAR FROM order_date) AS year,
-    EXTRACT(MONTH FROM order_date) AS month,
-    COUNT(order_id) AS total_orders,
-    SUM(quantity) AS total_quantity,
-    SUM(price * quantity) AS total_revenue,
-    AVG(price * quantity) AS average_order_value
-FROM 
-    orders
-JOIN 
-    order_items ON orders.order_id = order_items.order_id
-JOIN 
-    products ON order_items.product_id = products.product_id
-WHERE 
-    order_date BETWEEN '2022-01-01' AND '2023-12-31'
-GROUP BY 
-    product_category,
-    EXTRACT(YEAR FROM order_date),
-    EXTRACT(MONTH FROM order_date)
-HAVING 
-    COUNT(order_id) > 10
-ORDER BY 
-    year, month, total_revenue DESC;`;
-            
-            explanation = "Cette requête SQL effectue une analyse des ventes par catégorie de produit et par mois. Elle calcule le nombre total de commandes, la quantité totale vendue, le chiffre d'affaires total et la valeur moyenne des commandes. Les résultats sont regroupés par catégorie de produit, année et mois, filtrés pour n'inclure que les groupes avec plus de 10 commandes, et triés par année, mois et chiffre d'affaires.";
-          } else {
-            generatedCode = `-- Requête SQL générée à partir de votre description
-SELECT 
-    t1.column1,
-    t1.column2,
-    t2.related_column
-FROM 
-    table1 t1
-LEFT JOIN 
-    table2 t2 ON t1.id = t2.table1_id
-WHERE 
-    t1.created_date > '2023-01-01'
-    AND t1.status = 'active'
-ORDER BY 
-    t1.column1 ASC;`;
-            
-            explanation = "Cette requête SQL de base sélectionne des données de deux tables reliées par une jointure. Elle filtre les résultats pour ne retenir que les enregistrements créés après le 1er janvier 2023 avec un statut 'actif', et trie les résultats par ordre croissant de la première colonne. Adaptez les noms de tables et de colonnes à votre schéma de base de données.";
-          }
-        }
-        
-        // Mettre à jour l'éditeur avec le code généré
-        setCode(generatedCode);
-        setAnalysis(explanation);
+    try {
+      // Appel à l'API pour traduire le texte en code
+      const response = await fetch('/api/code/translate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          text: naturalText,
+          language: selectedLanguage,
+          sessionId
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erreur lors de la traduction');
+      }
+      
+      const data = await response.json();
+      
+      // Mettre à jour l'éditeur avec le code généré
+      if (data.code) {
+        setCode(data.code);
+        setAnalysis(data.explanation || "Code généré à partir de votre description en langage naturel.");
         
         // Copier automatiquement le code dans le presse-papier
-        navigator.clipboard.writeText(generatedCode).then(() => {
+        navigator.clipboard.writeText(data.code).then(() => {
           toast({
             title: "Code généré et copié",
             description: "Le code a été généré et copié dans le presse-papier.",
@@ -651,17 +481,19 @@ ORDER BY
             variant: "default",
           });
         });
-      } catch (error) {
-        console.error('Erreur lors de la génération du code:', error);
-        toast({
-          title: "Erreur de traduction",
-          description: "Une erreur est survenue lors de la génération du code. Veuillez réessayer.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsProcessing(false);
+      } else {
+        throw new Error("Aucun code n'a été généré");
       }
-    }, 1500); // Délai simulé de 1.5 secondes
+    } catch (error) {
+      console.error('Erreur lors de la traduction:', error);
+      toast({
+        title: "Erreur de traduction",
+        description: error.message || "Une erreur est survenue lors de la traduction.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
   
   // Fonction pour exécuter le code avec l'IA
@@ -937,71 +769,22 @@ ORDER BY
                     Effacer
                   </Button>
                   
-                  <Dialog open={showTranslateDialog} onOpenChange={setShowTranslateDialog}>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowTranslateDialog(true)}
-                        className="border-purple-500/30 bg-purple-900/20 text-purple-300 hover:text-purple-100 hover:bg-purple-800/40"
-                        disabled={isProcessing}
-                      >
-                        <Sparkles className="mr-2 h-4 w-4" />
-                        IA Translator
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[525px] bg-gradient-to-br from-slate-900 to-slate-800 border-blue-500/20">
-                      <DialogHeader>
-                        <DialogTitle className="text-white flex items-center">
-                          <Brain className="mr-2 h-5 w-5 text-purple-400" />
-                          IA Translator - {selectedLanguage === 'python' ? 'Python' : 'SQL'}
-                        </DialogTitle>
-                        <DialogDescription className="text-gray-400">
-                          Décrivez ce que vous voulez accomplir en langage naturel, et l'IA le traduira en code {selectedLanguage === 'python' ? 'Python' : 'SQL'}.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <Textarea
-                          placeholder="Exemple: Créer une fonction qui calcule la moyenne d'une liste de nombres et qui gère les cas d'erreurs"
-                          className="h-32 bg-slate-900/80 border-blue-500/20 text-white"
-                          value={naturalLanguageText}
-                          onChange={(e) => setNaturalLanguageText(e.target.value)}
-                        />
-                      </div>
-                      <DialogFooter className="flex justify-between">
-                        <Button 
-                          variant="outline" 
-                          onClick={() => setShowTranslateDialog(false)}
-                          className="border-blue-500/30 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
-                        >
-                          Annuler
-                        </Button>
-                        <Button 
-                          onClick={() => {
-                            if (naturalLanguageText.trim()) {
-                              translateToCode(naturalLanguageText);
-                              setShowTranslateDialog(false);
-                              setNaturalLanguageText('');
-                            }
-                          }}
-                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-                          disabled={!naturalLanguageText.trim() || isProcessing}
-                        >
-                          {isProcessing ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Génération...
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className="mr-2 h-4 w-4" />
-                              Générer du code
-                            </>
-                          )}
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      // Ouvre une boîte de dialogue pour entrer du texte en langage naturel
+                      const naturelText = prompt("Décrivez en langage naturel ce que vous voulez accomplir, et l'IA le traduira en code:");
+                      if (naturelText?.trim()) {
+                        translateToCode(naturelText);
+                      }
+                    }}
+                    className="border-purple-500/30 text-purple-400 hover:text-purple-300 hover:bg-purple-900/20"
+                    disabled={isProcessing}
+                  >
+                    <Brain className="mr-2 h-4 w-4" />
+                    IA Translator
+                  </Button>
                 </div>
                 
                 <Button
