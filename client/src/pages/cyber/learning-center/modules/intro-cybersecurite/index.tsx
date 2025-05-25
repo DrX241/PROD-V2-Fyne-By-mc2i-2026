@@ -469,7 +469,6 @@ export default function IntroductionCybersecurite() {
           </div>
         </div>
       </div>
-      
       {/* Navigation entre les différentes parties du module */}
       <div className="bg-blue-900/20 border-b border-blue-800/40">
         <div className="container mx-auto px-4">
@@ -515,7 +514,6 @@ export default function IntroductionCybersecurite() {
           </div>
         </div>
       </div>
-      
       {/* Contenu principal du module */}
       <div className="container mx-auto px-4 py-8">
         <motion.div 
@@ -2960,7 +2958,7 @@ export default function IntroductionCybersecurite() {
                       }}
                     >
                       <FileText className="mr-2 h-4 w-4" />
-                      <span className="text-sm">Se former à la cybersécurité PDF (télécharger)</span>
+                      <span className="text-sm text-center">Se former à la cybersécurité PDF</span>
                     </Button>
                   </div>
                 </CardContent>
