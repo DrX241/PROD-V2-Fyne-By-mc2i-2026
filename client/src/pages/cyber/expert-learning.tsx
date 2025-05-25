@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -101,6 +101,33 @@ function ExpertLearningPageContent() {
   const [sessionStatus, setSessionStatus] = useState<SessionStatus | null>(null);
   const [sessionSummary, setSessionSummary] = useState<string | null>(null);
   
+  // État pour les suggestions contextuelles
+  const [contextualSuggestions, setContextualSuggestions] = useState<{
+    text: string;
+    prompt: string;
+  }[]>([
+    { 
+      text: "Comment me protéger contre le phishing ?",
+      prompt: "Comment me protéger contre le phishing ?"
+    },
+    { 
+      text: "Explique-moi les ransomwares",
+      prompt: "Explique-moi les ransomwares"
+    },
+    { 
+      text: "Comment sécuriser mon Wi-Fi ?",
+      prompt: "Comment sécuriser mon Wi-Fi ?"
+    },
+    { 
+      text: "Crée un exercice pratique",
+      prompt: "Crée un exercice pratique sur le phishing"
+    },
+    { 
+      text: "Propose-moi un scénario de décision",
+      prompt: "Propose-moi un scénario de décision"
+    }
+  ]);
+  
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
@@ -115,6 +142,133 @@ function ExpertLearningPageContent() {
       decision.checkDecisionStatus(userId);
     }
   }, [userId]);
+  
+  // Fonction pour générer des suggestions contextuelles basées sur le contenu de la conversation
+  const getContextualSuggestions = () => {
+    // Si la conversation est vide, retourner les suggestions par défaut
+    if (messages.length === 0) {
+      return [
+        { text: "Comment me protéger contre le phishing ?", prompt: "Comment me protéger contre le phishing ?" },
+        { text: "Explique-moi les ransomwares", prompt: "Explique-moi les ransomwares" },
+        { text: "Comment sécuriser mon Wi-Fi ?", prompt: "Comment sécuriser mon Wi-Fi ?" },
+        { text: "Crée un exercice pratique", prompt: "Crée un exercice pratique sur le phishing" },
+        { text: "Propose-moi un scénario de décision", prompt: "Propose-moi un scénario de décision" }
+      ];
+    }
+    
+    // Récupérer les 3 derniers messages pour analyser le contexte
+    const recentMessages = messages.slice(-3);
+    const combinedContent = recentMessages.map(msg => msg.content).join(' ');
+    
+    // Liste de mots-clés pour différents sujets de cybersécurité
+    const topics = {
+      phishing: ["phishing", "email", "hameçonnage", "courriel", "malveillant", "social engineering"],
+      ransomware: ["ransomware", "rançongiciel", "chiffrement", "rançon", "malware"],
+      passwords: ["mot de passe", "password", "authentification", "mfa", "2fa", "double facteur"],
+      network: ["réseau", "wifi", "vpn", "firewall", "pare-feu", "routeur", "dns"],
+      malware: ["malware", "virus", "logiciel malveillant", "trojan", "cheval de troie", "spyware"],
+      dataProtection: ["données", "sauvegarde", "backup", "chiffrement", "rgpd", "confidentialité"],
+      zeroTrust: ["zero trust", "confiance zéro", "identité", "iam", "privilèges", "moindre privilège"],
+      iot: ["iot", "objets connectés", "domotique", "smart home", "internet des objets"],
+      mobile: ["mobile", "smartphone", "android", "ios", "byod", "tablette", "application"],
+      cloud: ["cloud", "saas", "iaas", "paas", "aws", "azure", "gcp", "nuage"]
+    };
+    
+    // Compter les occurrences de chaque sujet
+    const topicCounts = Object.entries(topics).map(([topic, keywords]) => {
+      const count = keywords.reduce((acc, keyword) => {
+        const regex = new RegExp(keyword, 'gi');
+        const matches = combinedContent.match(regex);
+        return acc + (matches ? matches.length : 0);
+      }, 0);
+      
+      return { topic, count };
+    }).sort((a, b) => b.count - a.count);
+    
+    // Si aucun sujet n'est détecté, retourner les suggestions par défaut
+    if (topicCounts[0].count === 0) {
+      return [
+        { text: "Comment me protéger contre le phishing ?", prompt: "Comment me protéger contre le phishing ?" },
+        { text: "Explique-moi les ransomwares", prompt: "Explique-moi les ransomwares" },
+        { text: "Comment sécuriser mon Wi-Fi ?", prompt: "Comment sécuriser mon Wi-Fi ?" },
+        { text: "Crée un exercice pratique", prompt: "Crée un exercice pratique sur le phishing" },
+        { text: "Propose-moi un scénario de décision", prompt: "Propose-moi un scénario de décision" }
+      ];
+    }
+    
+    // Le sujet principal détecté
+    const mainTopic = topicCounts[0].topic;
+    
+    // Suggestions spécifiques au sujet principal
+    const suggestionsMap = {
+      phishing: [
+        { text: "Détecter un email de phishing", prompt: "Comment détecter un email de phishing ?" },
+        { text: "Nouvelles techniques de phishing", prompt: "Quelles sont les dernières techniques de phishing ?" },
+        { text: "Exercice détection de phishing", prompt: "Crée un exercice pratique sur la détection de phishing" }
+      ],
+      ransomware: [
+        { text: "Protection contre ransomwares", prompt: "Comment se protéger contre les ransomwares ?" },
+        { text: "Réponse à incident ransomware", prompt: "Quelles sont les étapes de réponse à un incident ransomware ?" },
+        { text: "Exercice prévention ransomware", prompt: "Crée un exercice pratique sur la prévention des ransomwares" }
+      ],
+      passwords: [
+        { text: "Créer des mots de passe robustes", prompt: "Comment créer des mots de passe robustes ?" },
+        { text: "Importance de la MFA", prompt: "Quelle est l'importance de l'authentification à double facteur ?" },
+        { text: "Quiz authentification", prompt: "Crée un quiz sur les bonnes pratiques d'authentification" }
+      ],
+      network: [
+        { text: "Sécuriser mon Wi-Fi", prompt: "Comment sécuriser mon réseau Wi-Fi ?" },
+        { text: "Avantages d'un VPN", prompt: "Quels sont les avantages d'utiliser un VPN ?" },
+        { text: "Configuration routeur sécurisée", prompt: "Donne-moi une checklist pour configurer un routeur de façon sécurisée" }
+      ],
+      malware: [
+        { text: "Fonctionnement d'un antivirus", prompt: "Comment fonctionne un antivirus ?" },
+        { text: "Signes d'infection malware", prompt: "Quels sont les signes qu'un appareil est infecté par un malware ?" },
+        { text: "Exercice détection de malware", prompt: "Crée un exercice pratique sur la détection et l'élimination de malwares" }
+      ],
+      dataProtection: [
+        { text: "Chiffrer mes données sensibles", prompt: "Comment chiffrer mes données sensibles ?" },
+        { text: "Stratégie de sauvegarde 3-2-1", prompt: "Explique la stratégie de sauvegarde 3-2-1" },
+        { text: "Checklist RGPD", prompt: "Donne-moi une checklist RGPD pour une petite entreprise" }
+      ],
+      zeroTrust: [
+        { text: "Principes Zero Trust", prompt: "Quels sont les principes fondamentaux du modèle Zero Trust ?" },
+        { text: "Implémenter Zero Trust", prompt: "Comment implémenter une approche Zero Trust dans mon organisation ?" },
+        { text: "Principe du moindre privilège", prompt: "Quels sont les avantages du principe du moindre privilège ?" }
+      ],
+      iot: [
+        { text: "Risques des objets connectés", prompt: "Quels sont les risques de sécurité liés aux objets connectés ?" },
+        { text: "Sécuriser ma maison connectée", prompt: "Comment sécuriser ma maison connectée ?" },
+        { text: "Checklist sécurité IoT", prompt: "Donne-moi une checklist de sécurité pour mes appareils IoT" }
+      ],
+      mobile: [
+        { text: "Sécuriser mon smartphone", prompt: "Comment sécuriser mon smartphone ?" },
+        { text: "Politique BYOD sécurisée", prompt: "Comment mettre en place une politique BYOD sécurisée ?" },
+        { text: "Dangers des applications tierces", prompt: "Quels sont les dangers des applications tierces sur mobile ?" }
+      ],
+      cloud: [
+        { text: "Modèle de responsabilité partagée", prompt: "Explique le modèle de responsabilité partagée dans le cloud" },
+        { text: "Sécuriser mes services cloud", prompt: "Comment sécuriser mes services cloud ?" },
+        { text: "Risques spécifiques au cloud", prompt: "Quels sont les risques spécifiques aux environnements cloud ?" }
+      ]
+    };
+    
+    // Sélectionner les suggestions spécifiques au sujet ou utiliser les suggestions par défaut
+    const specificSuggestions = suggestionsMap[mainTopic] || [
+      { text: "Renforcer ma cybersécurité", prompt: "Comment renforcer ma cybersécurité ?" },
+      { text: "Meilleures pratiques 2025", prompt: "Quelles sont les meilleures pratiques de cybersécurité en 2025 ?" },
+      { text: "Exercice pratique", prompt: "Crée un exercice pratique sur la cybersécurité" }
+    ];
+    
+    // Ajouter des suggestions génériques
+    const generalSuggestions = [
+      { text: "Scénario de décision", prompt: "Propose-moi un scénario de décision" },
+      { text: "Quiz d'auto-évaluation", prompt: "Crée un quiz d'auto-évaluation sur ce sujet" }
+    ];
+    
+    // Combiner les suggestions
+    return [...specificSuggestions, ...generalSuggestions];
+  };
   
   // Fonction pour gérer une décision
   const handleDecisionMade = async (optionId: string) => {
@@ -339,6 +493,9 @@ function ExpertLearningPageContent() {
       textareaRef.current.focus();
     }
   }, [isSessionActive]);
+  
+  // Pas besoin de mettre à jour les suggestions contextuelles via un effet
+  // car elles sont générées directement dans le rendu
 
   // Faire défiler vers le bas lors de l'ajout de nouveaux messages
   useEffect(() => {
@@ -767,49 +924,225 @@ function ExpertLearningPageContent() {
                         <div className="mb-4 px-1">
                           <p className="text-[#00b4d8] text-sm font-mono mb-2 flex items-center">
                             <span className="inline-block w-4 h-4 bg-[#00b4d8] rounded-full animate-pulse mr-2"></span>
-                            SUGGESTIONS DE QUESTIONS:
+                            SUGGESTIONS CONTEXTUELLES:
                           </p>
                           <div className="flex flex-wrap gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setInputMessage("Comment me protéger contre le phishing ?")}
-                              className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
-                            >
-                              Comment me protéger contre le phishing ?
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setInputMessage("Explique-moi les ransomwares")}
-                              className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
-                            >
-                              Explique-moi les ransomwares
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setInputMessage("Comment sécuriser mon Wi-Fi ?")}
-                              className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
-                            >
-                              Comment sécuriser mon Wi-Fi ?
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setInputMessage("Crée un exercice pratique sur le phishing")}
-                              className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
-                            >
-                              Crée un exercice pratique
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setInputMessage("Propose-moi un scénario de décision")}
-                              className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
-                            >
-                              Propose-moi un scénario de décision
-                            </Button>
+                            {/* Analyse du contexte pour générer des suggestions pertinentes */}
+                            {(() => {
+                              // Si la conversation est vide, afficher les suggestions par défaut
+                              if (messages.length === 0) {
+                                return (
+                                  <>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setInputMessage("Comment me protéger contre le phishing ?")}
+                                      className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                                    >
+                                      Comment me protéger contre le phishing ?
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setInputMessage("Explique-moi les ransomwares")}
+                                      className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                                    >
+                                      Explique-moi les ransomwares
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setInputMessage("Comment sécuriser mon Wi-Fi ?")}
+                                      className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                                    >
+                                      Comment sécuriser mon Wi-Fi ?
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setInputMessage("Crée un exercice pratique sur le phishing")}
+                                      className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                                    >
+                                      Crée un exercice pratique
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setInputMessage("Propose-moi un scénario de décision")}
+                                      className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                                    >
+                                      Propose-moi un scénario de décision
+                                    </Button>
+                                  </>
+                                );
+                              }
+                              
+                              // Récupérer les 3 derniers messages pour analyser le contexte
+                              const recentMessages = messages.slice(-3);
+                              const combinedContent = recentMessages.map(msg => msg.content).join(' ');
+                              
+                              // Mots-clés pour différents sujets
+                              const topicKeywords = {
+                                phishing: ["phishing", "email", "hameçonnage", "courriel", "malveillant", "social engineering"],
+                                ransomware: ["ransomware", "rançongiciel", "chiffrement", "rançon", "malware"],
+                                passwords: ["mot de passe", "password", "authentification", "mfa", "2fa", "double facteur"],
+                                network: ["réseau", "wifi", "vpn", "firewall", "pare-feu", "routeur", "dns"],
+                                malware: ["malware", "virus", "logiciel malveillant", "trojan", "cheval de troie", "spyware"],
+                                dataProtection: ["données", "sauvegarde", "backup", "chiffrement", "rgpd", "confidentialité"],
+                                zeroTrust: ["zero trust", "confiance zéro", "identité", "iam", "privilèges", "moindre privilège"],
+                                iot: ["iot", "objets connectés", "domotique", "smart home", "internet des objets"],
+                                mobile: ["mobile", "smartphone", "android", "ios", "byod", "tablette", "application"],
+                                cloud: ["cloud", "saas", "iaas", "paas", "aws", "azure", "gcp", "nuage"]
+                              };
+                              
+                              // Détecter les sujets dans la conversation
+                              const topicScores = Object.entries(topicKeywords).map(([topic, keywords]) => {
+                                const count = keywords.reduce((acc, keyword) => {
+                                  const regex = new RegExp(keyword, 'gi');
+                                  const matches = combinedContent.match(regex);
+                                  return acc + (matches ? matches.length : 0);
+                                }, 0);
+                                return { topic, count };
+                              }).sort((a, b) => b.count - a.count);
+                              
+                              // Si aucun sujet n'est détecté clairement, utiliser les suggestions par défaut
+                              if (topicScores[0].count === 0) {
+                                return (
+                                  <>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setInputMessage("Comment renforcer ma cybersécurité ?")}
+                                      className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                                    >
+                                      Comment renforcer ma cybersécurité ?
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setInputMessage("Quelles sont les meilleures pratiques de cybersécurité en 2025 ?")}
+                                      className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                                    >
+                                      Meilleures pratiques 2025
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setInputMessage("Crée un exercice pratique sur la cybersécurité")}
+                                      className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                                    >
+                                      Exercice pratique
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setInputMessage("Propose-moi un scénario de décision")}
+                                      className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                                    >
+                                      Scénario de décision
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setInputMessage("Crée un quiz d'auto-évaluation sur la cybersécurité")}
+                                      className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                                    >
+                                      Quiz d'auto-évaluation
+                                    </Button>
+                                  </>
+                                );
+                              }
+                              
+                              // Obtenir le sujet principal
+                              const mainTopic = topicScores[0].topic;
+                              
+                              // Suggestions spécifiques pour chaque sujet
+                              const topicSuggestions = {
+                                phishing: [
+                                  { text: "Détecter un email de phishing", prompt: "Comment détecter un email de phishing ?" },
+                                  { text: "Techniques de phishing récentes", prompt: "Quelles sont les dernières techniques de phishing ?" },
+                                  { text: "Exercice détection de phishing", prompt: "Crée un exercice pratique sur la détection de phishing" }
+                                ],
+                                ransomware: [
+                                  { text: "Protection contre ransomwares", prompt: "Comment se protéger contre les ransomwares ?" },
+                                  { text: "Réponse à incident ransomware", prompt: "Quelles sont les étapes de réponse à un incident ransomware ?" },
+                                  { text: "Cas récents de ransomware", prompt: "Quels sont les cas récents de ransomware en 2025 ?" }
+                                ],
+                                passwords: [
+                                  { text: "Mots de passe robustes", prompt: "Comment créer des mots de passe robustes ?" },
+                                  { text: "Importance de la MFA", prompt: "Quelle est l'importance de l'authentification à double facteur ?" },
+                                  { text: "Gestionnaires de mots de passe", prompt: "Quels sont les meilleurs gestionnaires de mots de passe ?" }
+                                ],
+                                network: [
+                                  { text: "Sécuriser mon Wi-Fi", prompt: "Comment sécuriser mon réseau Wi-Fi ?" },
+                                  { text: "Avantages d'un VPN", prompt: "Quels sont les avantages d'utiliser un VPN ?" },
+                                  { text: "Configuration routeur sécurisée", prompt: "Comment configurer un routeur de façon sécurisée ?" }
+                                ],
+                                malware: [
+                                  { text: "Fonctionnement antivirus", prompt: "Comment fonctionne un antivirus ?" },
+                                  { text: "Signes d'infection malware", prompt: "Quels sont les signes d'infection par un malware ?" },
+                                  { text: "Se protéger des malwares", prompt: "Comment se protéger efficacement contre les malwares ?" }
+                                ],
+                                dataProtection: [
+                                  { text: "Chiffrer mes données", prompt: "Comment chiffrer mes données sensibles ?" },
+                                  { text: "Stratégie de sauvegarde 3-2-1", prompt: "Explique la stratégie de sauvegarde 3-2-1" },
+                                  { text: "Conformité RGPD", prompt: "Comment assurer la conformité RGPD dans mon organisation ?" }
+                                ],
+                                zeroTrust: [
+                                  { text: "Principes Zero Trust", prompt: "Quels sont les principes du modèle Zero Trust ?" },
+                                  { text: "Implémenter Zero Trust", prompt: "Comment implémenter une approche Zero Trust ?" },
+                                  { text: "Moindre privilège", prompt: "Explique le principe du moindre privilège" }
+                                ],
+                                iot: [
+                                  { text: "Risques des objets connectés", prompt: "Quels sont les risques liés aux objets connectés ?" },
+                                  { text: "Sécuriser maison connectée", prompt: "Comment sécuriser ma maison connectée ?" },
+                                  { text: "Standards sécurité IoT", prompt: "Quels sont les standards de sécurité pour l'IoT ?" }
+                                ],
+                                mobile: [
+                                  { text: "Sécuriser mon smartphone", prompt: "Comment sécuriser mon smartphone ?" },
+                                  { text: "Politique BYOD", prompt: "Comment mettre en place une politique BYOD sécurisée ?" },
+                                  { text: "Risques applications mobiles", prompt: "Quels sont les risques liés aux applications mobiles ?" }
+                                ],
+                                cloud: [
+                                  { text: "Responsabilité partagée cloud", prompt: "Explique le modèle de responsabilité partagée dans le cloud" },
+                                  { text: "Sécuriser services cloud", prompt: "Comment sécuriser mes services cloud ?" },
+                                  { text: "Cloud vs On-premise", prompt: "Quelles sont les différences de sécurité entre cloud et on-premise ?" }
+                                ]
+                              };
+                              
+                              // Suggestions communes à tous les sujets
+                              const commonSuggestions = [
+                                { text: "Scénario de décision", prompt: "Propose-moi un scénario de décision sur " + mainTopic },
+                                { text: "Quiz sur ce sujet", prompt: "Crée un quiz d'auto-évaluation sur " + mainTopic }
+                              ];
+                              
+                              // Sélectionner les suggestions spécifiques au sujet
+                              const specificSuggestions = topicSuggestions[mainTopic] || [
+                                { text: "Approfondir ce sujet", prompt: "Je voudrais approfondir ce sujet" },
+                                { text: "Cas concrets", prompt: "Donne-moi des exemples concrets sur ce sujet" },
+                                { text: "Exercice pratique", prompt: "Crée un exercice pratique sur ce sujet" }
+                              ];
+                              
+                              // Combiner les suggestions spécifiques et communes
+                              const allSuggestions = [...specificSuggestions, ...commonSuggestions];
+                              
+                              // Afficher les suggestions
+                              return (
+                                <>
+                                  {allSuggestions.map((suggestion, index) => (
+                                    <Button
+                                      key={index}
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setInputMessage(suggestion.prompt)}
+                                      className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
+                                    >
+                                      {suggestion.text}
+                                    </Button>
+                                  ))}
+                                </>
+                              );
+                            })()}
                           </div>
                         </div>
 
