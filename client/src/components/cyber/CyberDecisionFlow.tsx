@@ -68,12 +68,35 @@ export default function CyberDecisionFlow({
     setIsConfirming(false);
   };
 
+  // État pour montrer le feedback après une décision
+  const [showDecisionFeedback, setShowDecisionFeedback] = useState(false);
+  const [feedbackOption, setFeedbackOption] = useState<DecisionOption | null>(null);
+  
   const confirmSelection = () => {
     if (selectedOption) {
-      onDecisionMade(selectedOption);
-      setSelectedOption(null);
-      setIsConfirming(false);
-      setExpandedOption(null);
+      // Trouver l'option sélectionnée pour montrer le feedback
+      const selectedOptionData = scenario.options.find(opt => opt.id === selectedOption);
+      if (selectedOptionData) {
+        setFeedbackOption(selectedOptionData);
+        setShowDecisionFeedback(true);
+        
+        // Attendre que l'utilisateur ait lu le feedback
+        setTimeout(() => {
+          // Ensuite, soumettre la décision et passer à la suite
+          onDecisionMade(selectedOption);
+          setSelectedOption(null);
+          setIsConfirming(false);
+          setExpandedOption(null);
+          setShowDecisionFeedback(false);
+          setFeedbackOption(null);
+        }, 8000); // Laisser 8 secondes pour lire le feedback
+      } else {
+        // Si on ne trouve pas l'option (cas improbable), on continue normalement
+        onDecisionMade(selectedOption);
+        setSelectedOption(null);
+        setIsConfirming(false);
+        setExpandedOption(null);
+      }
     }
   };
 
@@ -315,6 +338,153 @@ export default function CyberDecisionFlow({
               >
                 Confirmer mon choix
               </Button>
+            </div>
+          </div>
+        )}
+        
+        {/* Feedback immédiat après une décision */}
+        {showDecisionFeedback && feedbackOption && (
+          <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+            <div className="bg-gradient-to-br from-[#0c1e2e] to-[#091525] border border-[#00b4d8]/50 rounded-lg p-6 max-w-3xl w-full shadow-[0_0_30px_rgba(0,180,216,0.25)]">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-white flex items-center">
+                  <span className="w-8 h-8 flex items-center justify-center rounded-full bg-[#00b4d8]/20 mr-3">
+                    <CheckCircle className="h-5 w-5 text-[#00b4d8]" />
+                  </span>
+                  Analyse de votre décision
+                </h3>
+                <Badge className="bg-[#00b4d8]/20 text-[#00b4d8] font-mono animate-pulse">
+                  FEEDBACK EN TEMPS RÉEL
+                </Badge>
+              </div>
+              
+              <div className="bg-[#091525] border border-[#00b4d8]/20 p-4 rounded-md mb-4">
+                <h4 className="text-white font-medium mb-2">Votre choix :</h4>
+                <p className="text-[#c3d9ee]">{feedbackOption.text.replace(/^Option \d+: /, '')}</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="bg-[#091525] border border-[#00b4d8]/20 p-4 rounded-md">
+                  <h4 className="text-white font-medium mb-3">Impacts immédiats :</h4>
+                  <div className="space-y-2">
+                    {feedbackOption.impacts.security && (
+                      <div className="flex items-start">
+                        <div className={`w-3 h-3 rounded-full mt-1 mr-2 ${
+                          feedbackOption.impacts.security === 'positive' ? 'bg-green-500' :
+                          feedbackOption.impacts.security === 'negative' ? 'bg-red-500' : 'bg-gray-500'
+                        }`} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Sécurité</p>
+                          <p className="text-xs text-[#8abee0]">
+                            {feedbackOption.impacts.security === 'positive' 
+                              ? "Amélioration de la posture de sécurité" 
+                              : feedbackOption.impacts.security === 'negative'
+                              ? "Augmentation de la surface d'attaque"
+                              : "Maintien du niveau de sécurité actuel"}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {feedbackOption.impacts.business && (
+                      <div className="flex items-start">
+                        <div className={`w-3 h-3 rounded-full mt-1 mr-2 ${
+                          feedbackOption.impacts.business === 'positive' ? 'bg-green-500' :
+                          feedbackOption.impacts.business === 'negative' ? 'bg-red-500' : 'bg-gray-500'
+                        }`} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Business</p>
+                          <p className="text-xs text-[#8abee0]">
+                            {feedbackOption.impacts.business === 'positive' 
+                              ? "Impact positif sur les objectifs commerciaux" 
+                              : feedbackOption.impacts.business === 'negative'
+                              ? "Frein potentiel aux opérations business"
+                              : "Équilibre entre sécurité et exigences métier"}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="bg-[#091525] border border-[#00b4d8]/20 p-4 rounded-md">
+                  <h4 className="text-white font-medium mb-3">Implications à long terme :</h4>
+                  <div className="space-y-2">
+                    {feedbackOption.impacts.team && (
+                      <div className="flex items-start">
+                        <div className={`w-3 h-3 rounded-full mt-1 mr-2 ${
+                          feedbackOption.impacts.team === 'positive' ? 'bg-green-500' :
+                          feedbackOption.impacts.team === 'negative' ? 'bg-red-500' : 'bg-gray-500'
+                        }`} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Équipe</p>
+                          <p className="text-xs text-[#8abee0]">
+                            {feedbackOption.impacts.team === 'positive' 
+                              ? "Renforcement de la cohésion et de la motivation" 
+                              : feedbackOption.impacts.team === 'negative'
+                              ? "Risque de tensions et d'insatisfaction"
+                              : "Peu d'impact sur la dynamique d'équipe"}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {feedbackOption.impacts.legal && (
+                      <div className="flex items-start">
+                        <div className={`w-3 h-3 rounded-full mt-1 mr-2 ${
+                          feedbackOption.impacts.legal === 'positive' ? 'bg-green-500' :
+                          feedbackOption.impacts.legal === 'negative' ? 'bg-red-500' : 'bg-gray-500'
+                        }`} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Conformité</p>
+                          <p className="text-xs text-[#8abee0]">
+                            {feedbackOption.impacts.legal === 'positive' 
+                              ? "Renforcement de la conformité réglementaire" 
+                              : feedbackOption.impacts.legal === 'negative'
+                              ? "Risques juridiques potentiels à surveiller"
+                              : "Maintien du statu quo réglementaire"}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {feedbackOption.impacts.career && (
+                      <div className="flex items-start">
+                        <div className={`w-3 h-3 rounded-full mt-1 mr-2 ${
+                          feedbackOption.impacts.career === 'positive' ? 'bg-green-500' :
+                          feedbackOption.impacts.career === 'negative' ? 'bg-red-500' : 'bg-gray-500'
+                        }`} />
+                        <div>
+                          <p className="text-sm text-white font-medium">Carrière</p>
+                          <p className="text-xs text-[#8abee0]">
+                            {feedbackOption.impacts.career === 'positive' 
+                              ? "Valorisation de votre expertise et leadership" 
+                              : feedbackOption.impacts.career === 'negative'
+                              ? "Potentiel impact sur votre crédibilité professionnelle"
+                              : "Impact neutre sur votre parcours professionnel"}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-[#091525] border border-[#00b4d8]/20 p-4 rounded-md mb-4">
+                <h4 className="text-white font-medium mb-2">Analyse détaillée :</h4>
+                <p className="text-sm text-[#c3d9ee]">{feedbackOption.description}</p>
+              </div>
+              
+              <div className="text-center">
+                <p className="text-xs text-[#00b4d8]/70 animate-pulse mb-2">
+                  Analyse des conséquences en cours...
+                </p>
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="h-2 w-2 bg-[#00b4d8] rounded-full animate-pulse"></div>
+                  <div className="h-2 w-2 bg-[#00b4d8] rounded-full animate-pulse delay-150"></div>
+                  <div className="h-2 w-2 bg-[#00b4d8] rounded-full animate-pulse delay-300"></div>
+                </div>
+              </div>
             </div>
           </div>
         )}

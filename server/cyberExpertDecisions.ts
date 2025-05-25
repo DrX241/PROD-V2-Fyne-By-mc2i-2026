@@ -466,33 +466,120 @@ async function generateDecisionSummary(userId: string, state: ExpertDecisionStat
       throw new Error("Session expert non trouvée");
     }
     
-    // Créer un résumé des décisions prises
-    const decisionsData = state.decisions.map(decision => {
+    // Créer un résumé des décisions prises avec plus de détails
+    const decisionsData = state.decisions.map((decision, index) => {
       const scenario = state.scenarios.find(s => s.id === decision.scenarioId);
       const option = scenario?.options.find(o => o.id === decision.optionId);
+      const otherOptions = scenario?.options.filter(o => o.id !== decision.optionId);
       
       return {
+        numero: index + 1,
         situation: scenario?.situation,
+        contexte: scenario?.context,
+        urgence: scenario?.urgencyLevel,
         choix: option?.text,
-        impacts: option?.impacts
+        description: option?.description,
+        impacts: option?.impacts,
+        alternativesNonChoisies: otherOptions?.map(o => ({
+          texte: o.text,
+          impacts: o.impacts
+        })),
+        consequences: {
+          security: option?.impacts.security === 'positive' 
+            ? "Renforcement de la posture de sécurité de l'organisation" 
+            : option?.impacts.security === 'negative'
+            ? "Augmentation du risque d'incidents de sécurité" 
+            : "Maintien du niveau de sécurité actuel",
+          
+          business: option?.impacts.business === 'positive' 
+            ? "Amélioration des performances business et de la satisfaction des parties prenantes" 
+            : option?.impacts.business === 'negative'
+            ? "Impact négatif sur les opérations et les objectifs commerciaux" 
+            : "Continuité des opérations business avec ajustements mineurs",
+          
+          team: option?.impacts.team === 'positive' 
+            ? "Renforcement de la cohésion d'équipe et du moral" 
+            : option?.impacts.team === 'negative'
+            ? "Tensions au sein de l'équipe et baisse potentielle de productivité" 
+            : "Stabilité relative dans la dynamique d'équipe",
+          
+          legal: option?.impacts.legal === 'positive' 
+            ? "Amélioration de la conformité et réduction des risques juridiques" 
+            : option?.impacts.legal === 'negative'
+            ? "Exposition accrue aux risques légaux et réglementaires" 
+            : "Maintien du statu quo en matière de conformité",
+          
+          career: option?.impacts.career === 'positive' 
+            ? "Impact positif sur votre réputation professionnelle et perspectives de carrière" 
+            : option?.impacts.career === 'negative'
+            ? "Potentiel impact négatif sur votre position ou évolution professionnelle" 
+            : "Effet neutre sur votre parcours professionnel"
+        }
       };
     });
+    
+    // Analyser le profil de décision global
+    const securityScore = decisionsData.reduce((score, decision) => 
+      score + (decision.impacts?.security === 'positive' ? 1 : decision.impacts?.security === 'negative' ? -1 : 0), 0);
+    
+    const businessScore = decisionsData.reduce((score, decision) => 
+      score + (decision.impacts?.business === 'positive' ? 1 : decision.impacts?.business === 'negative' ? -1 : 0), 0);
+    
+    const teamScore = decisionsData.reduce((score, decision) => 
+      score + (decision.impacts?.team === 'positive' ? 1 : decision.impacts?.team === 'negative' ? -1 : 0), 0);
+    
+    const legalScore = decisionsData.reduce((score, decision) => 
+      score + (decision.impacts?.legal === 'positive' ? 1 : decision.impacts?.legal === 'negative' ? -1 : 0), 0);
+    
+    const careerScore = decisionsData.reduce((score, decision) => 
+      score + (decision.impacts?.career === 'positive' ? 1 : decision.impacts?.career === 'negative' ? -1 : 0), 0);
+    
+    // Déterminer le profil dominant
+    const profiles = {
+      'Gardien de la Sécurité': securityScore > 0 && securityScore >= businessScore,
+      'Stratège Business': businessScore > 0 && businessScore > securityScore,
+      'Leader d\'Équipe': teamScore > 0 && teamScore >= securityScore && teamScore >= businessScore,
+      'Expert en Conformité': legalScore > 0 && legalScore >= securityScore && legalScore >= businessScore,
+      'Diplomate Stratégique': Math.abs(securityScore) <= 1 && Math.abs(businessScore) <= 1 && Math.abs(teamScore) <= 1
+    };
+    
+    const dominantProfile = Object.entries(profiles)
+      .filter(([_, value]) => value)
+      .map(([key, _]) => key)[0] || 'Profil Équilibré';
     
     const prompt = `
       Sujet: "${session.topic || 'cybersécurité'}"
       
-      L'utilisateur a terminé une série de 3 scénarios de décision en cybersécurité et a fait les choix suivants:
+      L'utilisateur a terminé une série de scénarios de décision en cybersécurité et a fait les choix suivants:
       
       ${JSON.stringify(decisionsData, null, 2)}
       
-      Génère un résumé personnalisé et analytique des décisions prises par l'utilisateur, en incluant:
+      Profil dominant identifié: ${dominantProfile}
       
-      1. Un profil de prise de décision basé sur les choix (ex: conservateur, équilibré, preneur de risques)
-      2. Une analyse des forces et faiblesses démontrées
-      3. Des recommandations concrètes pour améliorer la prise de décision en cybersécurité
-      4. Une invitation à poursuivre la conversation avec l'expert cyber
+      Scores par domaine:
+      - Sécurité: ${securityScore}
+      - Business: ${businessScore}
+      - Équipe: ${teamScore}
+      - Conformité: ${legalScore}
+      - Carrière: ${careerScore}
       
-      Format: Texte conversationnel, structuré en paragraphes courts pour une meilleure lisibilité.
+      Génère un résumé détaillé, personnalisé et analytique des décisions prises par l'utilisateur, en incluant:
+      
+      1. Un profil de prise de décision basé sur les choix (en utilisant le profil dominant identifié)
+      2. Une analyse spécifique des conséquences des décisions, scénario par scénario
+      3. Une évaluation des forces et faiblesses démontrées, avec des exemples concrets tirés des choix
+      4. Des recommandations concrètes et actionnables pour améliorer la prise de décision en cybersécurité
+      5. Un aperçu de ce qui aurait pu se passer si d'autres choix avaient été faits (chemins alternatifs)
+      6. Une invitation à poursuivre la conversation avec l'expert cyber
+      
+      Règles importantes:
+      - ÉVITE absolument les marqueurs markdown comme ## ou *** dans ta réponse
+      - Utilise un langage simple et précis, sans jargon inutile
+      - Structure ta réponse en sections clairement délimitées mais sans utiliser de symboles de formatage markdown
+      - Pour chaque scénario, présente les conséquences RÉELLES et DÉTAILLÉES des choix, pas seulement les impacts génériques
+      - Mentionne des exemples concrets de scénarios réels similaires qui se sont produits dans l'industrie
+      
+      Format: Texte conversationnel, structuré en paragraphes courts et sections distinctes sans formatage markdown.
       Ton: Analytique mais encourageant, comme un mentor qui guide avec bienveillance.
     `;
     
