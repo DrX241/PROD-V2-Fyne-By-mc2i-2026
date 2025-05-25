@@ -500,7 +500,7 @@ const IALabTrainer: React.FC = () => {
       console.error('Erreur lors de la traduction:', error);
       toast({
         title: "Erreur de traduction",
-        description: error.message || "Une erreur est survenue lors de la traduction.",
+        description: error instanceof Error ? error.message : "Une erreur est survenue lors de la traduction.",
         variant: "destructive",
       });
     } finally {
