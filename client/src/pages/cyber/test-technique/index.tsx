@@ -1,85 +1,82 @@
-import React, { useState, useEffect } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { apiRequest } from '@/lib/queryClient';
-import { Loader2, Home, RefreshCcw, CheckCircle, AlertCircle, Award, ArrowRight, ChevronRight, FileText, Clock } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { toast } from '@/hooks/use-toast';
-import HomeLayout from '@/components/layout/HomeLayout';
-import PageTitle from '@/components/utils/PageTitle';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { 
+  ArrowRight, 
+  Loader2, 
+  GraduationCap, 
+  Brain, 
+  Code, 
+  ShieldCheck 
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useMutation } from '@tanstack/react-query';
 
 // Types
 interface Category {
   id: string;
   name: string;
-  icon: string;
+  description: string;
 }
 
 interface Difficulty {
   id: string;
   name: string;
+  description: string;
+}
+
+interface ExerciseType {
+  id: string;
+  name: string;
+  description: string;
 }
 
 interface Question {
   id: string;
-  type: 'mcq' | 'code' | 'scenario' | 'open';
+  type: 'qcm' | 'text' | 'code';
   question: string;
   options?: string[];
-  correctAnswer?: number;
   code?: string;
-  codeLanguage?: string;
-  solution?: string;
-  expectedOutput?: string;
-  context?: string;
-  explanation: string;
-  category: string;
-  difficulty: string;
-  points?: number;
-  tags?: string[];
+  correctAnswer?: string | string[];
+  explanation?: string;
 }
 
 interface QuizResponse {
   questionId: string;
-  answer: number | string;
-}
-
-interface AnalysisResult {
-  summary: string;
-  strengths: string[];
-  weaknesses: string[];
-  recommendations: string[];
-  resources: Array<{
-    title: string;
-    url?: string;
-    description: string;
-  }>;
-  skillLevel: string;
-  nextSteps: string;
-  gaps: string;
+  response: string | string[];
 }
 
 interface EvaluationResult {
   score: number;
-  correctCount: number;
-  totalQuestions: number;
-  detailedResults: Array<{
+  maxScore: number;
+  percentage: number;
+  feedback: string;
+  detailedResults: {
     questionId: string;
-    type: 'mcq' | 'code' | 'scenario' | 'open';
-    isCorrect: boolean;
-    userAnswer: number | string;
-    correctAnswer?: number;
-    question: string;
-    options?: string[];
-    code?: string;
-    solution?: string;
-    context?: string;
-    explanation: string;
-  }>;
-  analysis?: AnalysisResult;
+    correct: boolean;
+    feedback: string;
+  }[];
 }
 
 // Main component
@@ -92,2013 +89,452 @@ export default function CyberTestTechnique() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [responses, setResponses] = useState<QuizResponse[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(0);
   const [evaluationResults, setEvaluationResults] = useState<EvaluationResult | null>(null);
   const [userName, setUserName] = useState<string>('Arnaud Gauthier');
-  const [certificateHtml, setCertificateHtml] = useState<string>('');
-  const [showCertificate, setShowCertificate] = useState(false);
   const [generateProgress, setGenerateProgress] = useState(0);
   const [customTestPrompt, setCustomTestPrompt] = useState('');
   const [customTestTechnical, setCustomTestTechnical] = useState(true);
   const [customTestLevel, setCustomTestLevel] = useState('medium');
   const [useStoredQuestions, setUseStoredQuestions] = useState(true);
-
-  // Define options interface
-  interface ExerciseType {
-    id: string;
-    name: string;
-    description: string;
-  }
-
-  interface Options {
-    categories: Category[];
-    difficulties: Difficulty[];
-    exerciseTypes: ExerciseType[];
-    success?: boolean;
-  }
-
-  // Fetch options
-  const { data: options, isLoading: isLoadingOptions } = useQuery<Options>({
-    queryKey: ['/api/cyber/test-technique/options'],
-    retry: 1,
-  });
-
-  // Generate questions mutation
-  const generateQuestionsMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest('/api/cyber/test-technique/generate', {
-        method: 'POST',
-        body: JSON.stringify({
-          category: selectedCategory,
-          difficulty: selectedDifficulty,
-          exerciseType: selectedExerciseType,
-          count: 10
-        })
-      });
-      return response;
-    },
-    onSuccess: (data) => {
-      if (data.success && data.questions && data.questions.length > 0) {
-        setQuestions(data.questions);
-
-        // Initialiser les réponses selon le type de question
-        const initialResponses = data.questions.map((q: Question) => {
-          // Pour les QCM, initialiser à -1 (aucune réponse)
-          if (q.type === 'mcq') {
-            return { questionId: q.id, answer: -1 };
-          } 
-          // Pour les autres types (code, scenario, open), initialiser avec une chaîne vide
-          else {
-            return { questionId: q.id, answer: '' };
-          }
-        });
-
-        setResponses(initialResponses);
-        setStep('quiz');
-
-        // Ajuster le temps selon le niveau de difficulté et le nombre de questions
-        const baseTimePerQuestion = 60; // 60 secondes par question
-        const difficultyMultiplier = 
-          data.questions[0].difficulty === 'beginner' ? 1 :
-          data.questions[0].difficulty === 'intermediate' ? 1.5 :
-          data.questions[0].difficulty === 'advanced' ? 2 : 
-          data.questions[0].difficulty === 'expert' ? 2.5 : 1;
-
-        const totalTime = Math.min(3600, Math.max(600, Math.round(data.questions.length * baseTimePerQuestion * difficultyMultiplier)));
-        setTimeLeft(totalTime);
-
-        toast({
-          title: "Test généré",
-          description: `Test de niveau ${getDifficultyName(selectedDifficulty)} généré avec succès. Vous disposez de ${Math.floor(totalTime/60)} minutes. Bonne chance!`,
-        });
-      } else {
-        toast({
-          title: "Erreur",
-          description: "Impossible de générer les questions. Veuillez réessayer.",
-          variant: "destructive",
-        });
-      }
-    },
-    onError: () => {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la génération des questions.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  // Evaluate responses mutation
-  const evaluateResponsesMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest('/api/cyber/test-technique/evaluate', {
-        method: 'POST',
-        body: JSON.stringify({
-          responses,
-          category: selectedCategory,
-          difficulty: selectedDifficulty,
-          exerciseType: selectedExerciseType
-        })
-      });
-      return response;
-    },
-    onSuccess: (data) => {
-      if (data.success) {
-        setEvaluationResults(data);
-        setStep('results');
-
-        // Après avoir reçu les résultats d'évaluation, lancer l'analyse critique approfondie
-        setTimeout(() => {
-          toast({
-            title: "Analyse en cours",
-            description: "Notre évaluateur technique senior analyse vos résultats de manière critique...",
-          });
-          analyzeResultsMutation.mutate();
-        }, 1000);
-      } else {
-        toast({
-          title: "Erreur",
-          description: "Impossible d'évaluer les réponses. Veuillez réessayer.",
-          variant: "destructive",
-        });
-      }
-    },
-    onError: () => {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de l'évaluation des réponses.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  // Analyze results mutation
-  const analyzeResultsMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest('/api/cyber/test-technique/analyze-results', {
-        method: 'POST',
-        body: JSON.stringify({
-          results: evaluationResults,
-          category: selectedCategory,
-          difficulty: selectedDifficulty
-        })
-      });
-      return response;
-    },
-    onSuccess: (data) => {
-      if (data.success) {
-        // Mise à jour des résultats d'évaluation avec l'analyse critique
-        setEvaluationResults((prevResults) => {
-          if (!prevResults) return null;
-          return {
-            ...prevResults,
-            analysis: data.analysis
-          };
-        });
-
-        toast({
-          title: "Analyse complétée",
-          description: "Analyse critique de vos résultats générée avec succès.",
-        });
-      } else {
-        toast({
-          title: "Erreur d'analyse",
-          description: "Impossible d'analyser les résultats en détail. Veuillez réessayer.",
-          variant: "destructive",
-        });
-      }
-    },
-    onError: () => {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de l'analyse des résultats.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  // Generate certificate mutation
-  const generateCertificateMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest('/api/cyber/test-technique/certificate', {
-        method: 'POST',
-        body: JSON.stringify({
-          name: userName,
-          category: selectedCategory,
-          difficulty: selectedDifficulty,
-          score: evaluationResults?.score
-        })
-      });
-      return response;
-    },
-    onSuccess: (data) => {
-      if (data.success) {
-        setCertificateHtml(data.certificateHTML);
-        setShowCertificate(true);
-      } else {
-        toast({
-          title: "Erreur",
-          description: "Impossible de générer le certificat. Veuillez réessayer.",
-          variant: "destructive",
-        });
-      }
-    },
-    onError: () => {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la génération du certificat.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  // Timer effect
-  useEffect(() => {
-    if (step !== 'quiz' || timeLeft <= 0) return;
-
-    const timerId = setTimeout(() => {
-      setTimeLeft(timeLeft - 1);
-
-      if (timeLeft <= 1) {
-        // Auto-submit when time runs out
-        submitQuiz();
-      }
-    }, 1000);
-
-    return () => clearTimeout(timerId);
-  }, [timeLeft, step]);
-
-  // Helper functions
-  const getCategoryName = (id: string): string => {
-    return options?.categories?.find((c: Category) => c.id === id)?.name || id;
-  };
-
-  const getDifficultyName = (id: string): string => {
-    return options?.difficulties?.find((d: Difficulty) => d.id === id)?.name || id;
-  };
-
-  const getExerciseTypeName = (id: string): string => {
-    return options?.exerciseTypes?.find((t: ExerciseType) => t.id === id)?.name || id;
-  };
-
-  // La fonction goToPreviousQuestion est désactivée pour rendre le test plus rigoureux
-  const goToPreviousQuestion = () => {
-    // Désactivé pour empêcher le retour en arrière pendant le test, rendant l'évaluation plus stricte
-    toast({
-      title: "Action non autorisée",
-      description: "Dans un contexte d'évaluation professionnelle, le retour en arrière n'est pas permis.",
-      variant: "destructive",
-    });
-    return;
-  };
-
-  // Fonction pour gérer les changements de réponses
-  const handleResponseChange = (questionIndex: number, selectedOption: number | string) => {
-    if (!responses || !Array.isArray(responses)) return;
-    
-    const updatedResponses = [...responses];
-    updatedResponses[questionIndex] = { 
-      ...updatedResponses[questionIndex],
-      answer: selectedOption 
-    };
-    
-    setResponses(updatedResponses);
-  };
-
-  const goToNextQuestion = () => {
-    if (questions && Array.isArray(questions) && currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-    }
-  };
-
-  const startQuiz = () => {
-    if (!selectedCategory || !selectedDifficulty) {
-      toast({
-        title: "Sélection requise",
-        description: "Veuillez sélectionner une catégorie et un niveau de difficulté.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!selectedExerciseType) {
-      toast({
-        title: "Type d'exercice requis",
-        description: "Veuillez sélectionner un type d'exercice pour le test.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    generateQuestionsMutation.mutate();
-  };
-
-  const submitQuiz = () => {
-    // Check if responses is valid
-    if (!responses || !Array.isArray(responses)) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue avec vos réponses. Veuillez réessayer.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Vérifier combien de questions ont été répondues
-    const answeredQuestions = responses.filter((r, index) => {
-      if (!questions || index >= questions.length) return false;
-      const questionType = questions[index].type;
-      
-      // Pour les QCM, vérifier si la réponse est autre chose que -1 (non répondue)
-      if (questionType === 'mcq' && r.answer !== -1) {
-        return true;
-      }
-      
-      // Pour les autres types, vérifier si la réponse n'est pas une chaîne vide
-      if (questionType !== 'mcq' && r.answer !== '' && r.answer !== undefined) {
-        return true;
-      }
-      
-      return false;
-    }).length;
-    
-    // Vérifier s'il y a au moins 7 réponses
-    if (answeredQuestions < 7) {
-      toast({
-        title: "Réponses insuffisantes",
-        description: `Vous avez répondu à ${answeredQuestions} question(s) sur ${questions.length}. Veuillez répondre à au moins 7 questions pour soumettre le test.`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Vérifier si toutes les questions ont été répondues
-    const unansweredCount = questions.length - answeredQuestions;
-
-    if (unansweredCount > 0 && timeLeft > 10) {
-      toast({
-        title: "Réponses manquantes",
-        description: `Vous n'avez pas répondu à ${unansweredCount} question(s). Êtes-vous sûr de vouloir soumettre?`,
-        variant: "warning",
-      });
-      // Continuer sans demander confirmation supplémentaire car l'utilisateur a déjà indiqué qu'il veut terminer
-    }
-
-    evaluateResponsesMutation.mutate();
-  };
-
-  const resetQuiz = () => {
-    setStep('select');
-    setQuestions([]);
-    setResponses([]);
-    setCurrentQuestion(0);
-    setTimeLeft(0);
-    setEvaluationResults(null);
-    setCertificateHtml('');
-    setShowCertificate(false);
-  };
-
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Render functions - Style CYBER ACADÉMIE
-  const renderSelectionStep = () => (
-    <div className="w-full max-w-5xl bg-gradient-to-b from-blue-950 to-slate-950 rounded-lg overflow-hidden shadow-xl border border-blue-800">
-      <div className="p-6 border-b border-blue-800">
-        <h2 className="text-2xl md:text-3xl font-semibold text-white font-exo">Test Technique de Cybersécurité</h2>
-        <p className="text-blue-200 mt-2 font-rajdhani">
-          Sélectionnez une catégorie et un niveau de difficulté pour commencer le test.
-        </p>
-      </div>
-
-      <div className="p-6 space-y-6">
-        {isLoadingOptions ? (
-          <div className="flex justify-center items-center py-10">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-            <span className="ml-2 text-blue-200">Chargement des options...</span>
-          </div>
-        ) : (
-          <>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-blue-100">Catégorie</label>
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full bg-blue-900/50 border-blue-700 text-white">
-                  <SelectValue placeholder="Sélectionnez une catégorie" />
-                </SelectTrigger>
-                <SelectContent>
-                  {options?.categories?.map((category: Category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-blue-100">Niveau de difficulté</label>
-              <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
-                <SelectTrigger className="w-full bg-blue-900/50 border-blue-700 text-white">
-                  <SelectValue placeholder="Sélectionnez un niveau de difficulté" />
-                </SelectTrigger>
-                <SelectContent>
-                  {options?.difficulties?.map((difficulty: Difficulty) => (
-                    <SelectItem key={difficulty.id} value={difficulty.id}>
-                      {difficulty.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-blue-100">Type d'exercice</label>
-              <Select value={selectedExerciseType} onValueChange={setSelectedExerciseType}>
-                <SelectTrigger className="w-full bg-blue-900/50 border-blue-700 text-white">
-                  <SelectValue placeholder="Sélectionnez un type d'exercice" />
-                </SelectTrigger>
-                <SelectContent>
-                  {options?.exerciseTypes?.map((type: ExerciseType) => (
-                    <SelectItem key={type.id} value={type.id}>
-                      {type.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {selectedExerciseType && options?.exerciseTypes && (
-                <p className="text-sm text-blue-300 mt-1">
-                  {options.exerciseTypes.find(t => t.id === selectedExerciseType)?.description || ''}
-                </p>
-              )}
-            </div>
-
-            {renderNameField()}
-
-            <div className="bg-blue-900/50 border border-blue-700 p-4 rounded-lg">
-              <h3 className="font-medium text-blue-100 font-rajdhani">À propos de ce test</h3>
-              <p className="text-sm text-blue-300 mt-2">
-                {selectedExerciseType && options?.exerciseTypes ? (
-                  <>
-                    Ce test comporte 10 questions de type "{getExerciseTypeName(selectedExerciseType)}" 
-                    dans la catégorie "{getCategoryName(selectedCategory)}" avec un niveau de difficulté "{getDifficultyName(selectedDifficulty)}".
-                    Le temps est limité et le retour en arrière n'est pas autorisé pour simuler des conditions d'évaluation réelles.
-                  </>
-                ) : 'Sélectionnez un type de test pour voir les détails'}
-              </p>
-            </div>
-          </>
-        )}
-      </div>
-
-      <div className="p-6 border-t border-blue-800 flex justify-between">
-        <div className="flex space-x-3">
-          <Button 
-            variant="outline" 
-            onClick={() => window.location.href = '/cyber/roleplay'}
-            className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30"
-          >
-            <Home className="mr-2 h-4 w-4" />
-            Retour
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="bg-amber-900/20 border-amber-700 text-amber-300 hover:bg-amber-800/30"
-            onClick={() => setStep('custom')}
-          >
-            <FileText className="mr-2 h-4 w-4" />
-            Créer un test personnalisé
-          </Button>
-        </div>
-        
-        <div className="flex flex-col">
-          <Button 
-            onClick={startQuiz} 
-            disabled={isLoadingOptions || !selectedCategory || !selectedDifficulty || !selectedExerciseType || generateQuestionsMutation.isPending}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-          >
-            {generateQuestionsMutation.isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Génération en cours...
-              </>
-            ) : (
-              <>
-                <ArrowRight className="mr-2 h-4 w-4" />
-                Commencer le test
-              </>
-            )}
-          </Button>
-          
-          {generateQuestionsMutation.isPending && (
-            <div className="mt-2 w-full">
-              <Progress 
-                value={generateProgress} 
-                className="h-1.5 bg-blue-950 w-full"
-              />
-              <p className="text-xs text-blue-300 mt-1 text-center">
-                Génération des questions en cours ({generateProgress}%)
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderQuizStep = () => (
-    <div className="w-full max-w-5xl bg-gradient-to-b from-blue-950 to-slate-950 rounded-lg overflow-hidden shadow-xl border border-blue-800">
-      <div className="p-6 border-b border-blue-800">
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-xl md:text-2xl font-semibold text-white font-exo">
-              Test Technique: {getCategoryName(selectedCategory)}
-            </h2>
-            <p className="text-sm text-blue-200 font-rajdhani">
-              Difficulté: {getDifficultyName(selectedDifficulty)} | Type: {getExerciseTypeName(selectedExerciseType)}
-            </p>
-          </div>
-
-          <div className="flex items-center">
-            <Badge variant="outline" className="bg-blue-900/50 text-blue-200 border-blue-700">
-              <Clock className="mr-1 h-3 w-3" /> {formatTime(timeLeft)}
-            </Badge>
-            <Badge variant="outline" className="ml-2 bg-blue-900/50 text-blue-200 border-blue-700">
-              Question {currentQuestion + 1}/{questions.length}
-            </Badge>
-            <Badge variant="outline" className="ml-2 bg-blue-900/50 text-blue-200 border-blue-700">
-              {responses ? responses.filter((r, index) => {
-                if (!questions || index >= questions.length) return false;
-                const type = questions[index].type;
-                return (type === 'mcq' && r.answer !== -1) || 
-                       (type !== 'mcq' && r.answer !== '' && r.answer !== undefined);
-              }).length : 0} répondue(s)
-            </Badge>
-          </div>
-        </div>
-      </div>
-
-      <div className="p-6 space-y-6">
-        {questions && questions.length > 0 && currentQuestion < questions.length && questions[currentQuestion] && (
-          <div className="space-y-6">
-            <div className="p-4 bg-blue-900/50 rounded-lg border border-blue-700">
-              <div className="flex items-center mb-3">
-                <Badge className="bg-blue-700 hover:bg-blue-700 text-white">
-                  {questions[currentQuestion].type === 'mcq' ? 'QCM' :
-                   questions[currentQuestion].type === 'code' ? 'Code' :
-                   questions[currentQuestion].type === 'scenario' ? 'Scénario' : 'Question ouverte'}
-                </Badge>
-
-                {questions[currentQuestion].points && (
-                  <Badge className="ml-2 bg-indigo-700 hover:bg-indigo-700 text-white">
-                    {questions[currentQuestion].points} point{questions[currentQuestion].points > 1 ? 's' : ''}
-                  </Badge>
-                )}
-              </div>
-
-              <h3 className="text-lg font-medium text-white mb-2 font-rajdhani">{questions[currentQuestion].question}</h3>
-
-              {/* Afficher le contexte si disponible */}
-              {questions[currentQuestion].context && (
-                <div className="p-3 bg-blue-950/70 rounded border border-blue-800 mb-4">
-                  <p className="text-sm text-blue-200 whitespace-pre-wrap">{questions[currentQuestion].context}</p>
-                </div>
-              )}
-
-              {/* Afficher le code si disponible */}
-              {questions[currentQuestion].code && (
-                <div className="p-3 bg-slate-900 rounded border border-slate-700 mb-4 font-mono text-sm text-gray-200 whitespace-pre-wrap overflow-x-auto">
-                  {questions[currentQuestion].code}
-                </div>
-              )}
-
-              {/* Options pour QCM */}
-              {questions[currentQuestion].type === 'mcq' && questions[currentQuestion].options && (
-                <div className="space-y-2 mt-4">
-                  {questions[currentQuestion].options.map((option, optionIndex) => (
-                    <div 
-                      key={optionIndex}
-                      onClick={() => handleResponseChange(currentQuestion, optionIndex)}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                        responses[currentQuestion].answer === optionIndex 
-                          ? 'bg-blue-800/70 border-blue-500 text-white' 
-                          : 'bg-blue-950/40 border-blue-800 text-blue-200 hover:bg-blue-900/50'
-                      }`}
-                    >
-                      <div className="flex items-start">
-                        <div className={`flex-shrink-0 w-5 h-5 mr-2 rounded-full border flex items-center justify-center mt-0.5 ${
-                          responses[currentQuestion].answer === optionIndex 
-                            ? 'border-blue-400 bg-blue-600' 
-                            : 'border-blue-600'
-                        }`}>
-                          {responses[currentQuestion].answer === optionIndex && (
-                            <div className="w-2 h-2 rounded-full bg-white" />
-                          )}
-                        </div>
-                        <span className="whitespace-pre-wrap">{option}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Champ de texte pour autres types de questions */}
-              {questions[currentQuestion].type !== 'mcq' && (
-                <div className="mt-4">
-                  <textarea
-                    className="w-full min-h-32 p-3 rounded-lg border border-blue-800 bg-blue-950/40 text-white placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value={responses[currentQuestion].answer as string}
-                    onChange={(e) => {
-                      const updatedResponses = [...responses];
-                      updatedResponses[currentQuestion] = {
-                        ...updatedResponses[currentQuestion],
-                        answer: e.target.value
-                      };
-                      setResponses(updatedResponses);
-                    }}
-                    placeholder={`Saisissez votre réponse ${
-                      questions[currentQuestion].type === 'code' ? 'de code' :
-                      questions[currentQuestion].type === 'scenario' ? 'au scénario' : ''
-                    }...`}
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="flex justify-between pt-4">
-              <div className="flex space-x-3">
-                <Button 
-                  variant="outline" 
-                  onClick={goToPreviousQuestion} 
-                  disabled={currentQuestion === 0}
-                  className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30"
-                >
-                  <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                  Précédent
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    // Vérifier si au moins 7 questions ont été répondues
-                    const answeredQuestions = responses.filter((r, index) => {
-                      if (!questions || index >= questions.length) return false;
-                      const questionType = questions[index].type;
-                      
-                      // Pour les QCM, vérifier si la réponse est autre chose que -1 (non répondue)
-                      if (questionType === 'mcq' && r.answer !== -1) {
-                        return true;
-                      }
-                      
-                      // Pour les autres types, vérifier si la réponse n'est pas une chaîne vide
-                      if (questionType !== 'mcq' && r.answer !== '' && r.answer !== undefined) {
-                        return true;
-                      }
-                      
-                      return false;
-                    }).length;
-                    
-                    if (answeredQuestions < 7) {
-                      toast({
-                        title: "Trop peu de réponses",
-                        description: `Vous avez répondu à ${answeredQuestions} question(s) sur ${questions.length}. Veuillez répondre à au moins 7 questions pour soumettre le test.`,
-                        variant: "destructive",
-                      });
-                    } else {
-                      if (window.confirm(`Êtes-vous sûr de vouloir terminer le test maintenant ? Il vous reste encore ${questions.length - currentQuestion - 1} questions.`)) {
-                        submitQuiz();
-                      }
-                    }
-                  }}
-                  className="bg-slate-800/60 border-slate-600 text-slate-200 hover:bg-slate-700/70"
-                >
-                  Fin anticipée
-                </Button>
-              </div>
-
-              {currentQuestion < questions.length - 1 ? (
-                <Button 
-                  onClick={goToNextQuestion}
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-                >
-                  Suivant
-                  <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </Button>
-              ) : (
-                <Button 
-                  onClick={submitQuiz}
-                  className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white"
-                  disabled={evaluateResponsesMutation.isPending}
-                >
-                  {evaluateResponsesMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Évaluation en cours...
-                    </>
-                  ) : (
-                    <>
-                      Terminer le test
-                      <CheckCircle className="ml-2 h-4 w-4" />
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="px-6 py-4 border-t border-blue-800">
-        <Progress 
-          value={(currentQuestion + 1) / questions.length * 100} 
-          className="h-2 bg-blue-950"
-        />
-        <div className="flex justify-between text-xs text-blue-300 mt-1">
-          <span>Question {currentQuestion + 1}/{questions.length}</span>
-          <span>{formatTime(timeLeft)} restant</span>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderResultsStep = () => (
-    <div className="w-full max-w-5xl bg-gradient-to-b from-blue-950 to-slate-950 rounded-lg overflow-hidden shadow-xl border border-blue-800">
-      <div className="p-6 border-b border-blue-800">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold text-white font-exo">Résultats du Test</h2>
-
-          <div className="flex items-center">
-            <Badge variant="outline" className="bg-blue-900/50 text-blue-200 border-blue-700">
-              {getCategoryName(selectedCategory)}
-            </Badge>
-            <Badge variant="outline" className="ml-2 bg-blue-900/50 text-blue-200 border-blue-700">
-              {getDifficultyName(selectedDifficulty)}
-            </Badge>
-          </div>
-        </div>
-      </div>
-
-      <div className="p-6 space-y-6">
-        {evaluationResults && (
-          <>
-            {/* Résultat global */}
-            <div className="p-5 bg-blue-900/50 rounded-lg border border-blue-700">
-              <div className="flex items-center mb-4">
-                <div className="w-16 h-16 rounded-full flex items-center justify-center bg-blue-800 border-4 border-blue-700">
-                  <span className="text-xl font-bold text-white">{Math.round((evaluationResults.correctCount / evaluationResults.totalQuestions) * 100)}%</span>
-                </div>
-                <div className="ml-4">
-                  <h3 className="text-lg font-medium text-white font-rajdhani">Score: {evaluationResults.correctCount}/{evaluationResults.totalQuestions}</h3>
-                  <p className="text-blue-200">Réponses correctes: {evaluationResults.correctCount} sur {evaluationResults.totalQuestions}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Analyse critique des résultats */}
-            {evaluationResults.analysis && (
-              <div className="p-5 bg-blue-900/50 rounded-lg border border-blue-700">
-                <h3 className="text-lg font-medium text-white font-rajdhani mb-3">Analyse critique de votre performance</h3>
-
-                <div className="mb-4">
-                  <h4 className="text-blue-100 font-medium mb-1">Synthèse</h4>
-                  <p className="text-blue-200">{evaluationResults.analysis.summary}</p>
-                </div>
-
-                <div className="mb-4">
-                  <h4 className="text-blue-100 font-medium mb-1">Niveau de compétence évalué</h4>
-                  <p className="text-blue-200">{evaluationResults.analysis.skillLevel}</p>
-                </div>
-
-                <div className="mb-4">
-                  <h4 className="text-blue-100 font-medium mb-1">Écarts identifiés</h4>
-                  <p className="text-blue-200">{evaluationResults.analysis.gaps}</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <h4 className="text-green-300 font-medium mb-1">Points forts</h4>
-                    {evaluationResults.correctCount < 3 ? (
-                      <div className="text-blue-200 pl-1">
-                        <p>Actuellement nous n'avons pas pu détecter de forces dans votre évaluation.</p>
-                        <p className="mt-2">Pour une meilleure analyse, continuez à vous exercer et prenez votre temps pour répondre aux questions avec précision.</p>
-                      </div>
-                    ) : (
-                      <ul className="list-disc pl-5 space-y-1">
-                        {evaluationResults.analysis.strengths.map((strength, index) => (
-                          <li key={index} className="text-blue-200">{strength}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-
-                  <div>
-                    <h4 className="text-red-300 font-medium mb-1">Points à améliorer</h4>
-                    <ul className="list-disc pl-5 space-y-1">
-                      {evaluationResults.analysis.weaknesses.map((weakness, index) => (
-                        <li key={index} className="text-blue-200">{weakness}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <h4 className="text-blue-100 font-medium mb-1">Recommandations</h4>
-                  <ul className="list-disc pl-5 space-y-1">
-                    {evaluationResults.analysis.recommendations.map((recommendation, index) => (
-                      <li key={index} className="text-blue-200">{recommendation}</li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="mb-4">
-                  <h4 className="text-blue-100 font-medium mb-1">Ressources recommandées</h4>
-                  <div className="space-y-2">
-                    {evaluationResults.analysis.resources.map((resource, index) => (
-                      <div key={index} className="p-2 bg-blue-950/70 rounded border border-blue-800">
-                        <h5 className="text-blue-100 font-medium">{resource.title}</h5>
-                        <p className="text-sm text-blue-300">{resource.description}</p>
-                        {resource.url && (
-                          <a 
-                            href={resource.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="text-sm text-blue-400 hover:text-blue-300 inline-flex items-center mt-1"
-                          >
-                            <span>Accéder à la ressource</span>
-                            <ChevronRight className="ml-1 h-3 w-3" />
-                          </a>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-blue-100 font-medium mb-1">Prochaines étapes</h4>
-                  <p className="text-blue-200">{evaluationResults.analysis.nextSteps}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Détails des réponses */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-white font-rajdhani">Détails des réponses</h3>
-
-              <Tabs defaultValue="all" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 bg-blue-900/30">
-                  <TabsTrigger value="all">Toutes</TabsTrigger>
-                  <TabsTrigger value="correct">Correctes</TabsTrigger>
-                  <TabsTrigger value="incorrect">Incorrectes</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="all" className="pt-4 space-y-4">
-                  {evaluationResults.detailedResults.map((result, index) => (
-                    <div key={index} className={`p-4 rounded-lg border ${
-                      result.isCorrect 
-                        ? 'bg-green-900/20 border-green-800' 
-                        : 'bg-red-900/20 border-red-800'
-                    }`}>
-                      <div className="flex items-start mb-2">
-                        {result.isCorrect ? (
-                          <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        ) : (
-                          <AlertCircle className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-                        )}
-                        <h4 className="text-white font-medium">Question {index + 1}: {result.question}</h4>
-                      </div>
-
-                      {result.type === 'mcq' && result.options && (
-                        <div className="ml-7 space-y-2 mt-3">
-                          {result.options.map((option, optionIndex) => (
-                            <div 
-                              key={optionIndex}
-                              className={`p-2 rounded-md ${
-                                optionIndex === result.correctAnswer
-                                  ? 'bg-green-900/30 border border-green-800 text-green-200'
-                                  : optionIndex === result.userAnswer
-                                    ? 'bg-red-900/30 border border-red-800 text-red-200'
-                                    : 'bg-blue-900/20 text-blue-200'
-                              }`}
-                            >
-                              <div className="flex items-start">
-                                <div className={`flex-shrink-0 w-4 h-4 mr-2 rounded-full border flex items-center justify-center mt-0.5 ${
-                                  optionIndex === result.correctAnswer
-                                    ? 'border-green-500 bg-green-700' 
-                                    : optionIndex === result.userAnswer
-                                      ? 'border-red-500 bg-red-700'
-                                      : 'border-blue-700'
-                                }`}>
-                                  {(optionIndex === result.correctAnswer || optionIndex === result.userAnswer) && (
-                                    <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                                  )}
-                                </div>
-                                <span className="text-sm">{option}</span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {result.type !== 'mcq' && (
-                        <div className="ml-7 mt-3 space-y-3">
-                          <div className="space-y-2">
-                            <p className="text-white text-sm font-medium">Votre réponse:</p>
-                            <div className="p-2 bg-blue-950/70 rounded border border-blue-800 text-blue-200 text-sm whitespace-pre-wrap">
-                              {result.userAnswer as string || "(Pas de réponse)"}
-                            </div>
-                          </div>
-
-                          {result.solution && (
-                            <div className="space-y-2">
-                              <p className="text-white text-sm font-medium">Solution:</p>
-                              <div className="p-2 bg-green-900/20 rounded border border-green-800 text-green-200 text-sm whitespace-pre-wrap">
-                                {result.solution}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="mt-3 p-3 bg-blue-950/70 rounded border border-blue-800 ml-7">
-                        <p className="text-sm text-blue-200">{result.explanation}</p>
-                      </div>
-                    </div>
-                  ))}
-                </TabsContent>
-
-                <TabsContent value="correct" className="pt-4 space-y-4">
-                  {evaluationResults.detailedResults
-                    .filter(result => result.isCorrect)
-                    .map((result, index) => (
-                      <div key={index} className="p-4 rounded-lg border bg-green-900/20 border-green-800">
-                        <div className="flex items-start mb-2">
-                          <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                          <h4 className="text-white font-medium">Question {evaluationResults.detailedResults.findIndex(r => r.questionId === result.questionId) + 1}: {result.question}</h4>
-                        </div>
-
-                        <div className="mt-3 p-3 bg-blue-950/70 rounded border border-blue-800 ml-7">
-                          <p className="text-sm text-blue-200">{result.explanation}</p>
-                        </div>
-                      </div>
-                    ))}
-                </TabsContent>
-
-                <TabsContent value="incorrect" className="pt-4 space-y-4">
-                  {evaluationResults.detailedResults
-                    .filter(result => !result.isCorrect)
-                    .map((result, index) => (
-                      <div key={index} className="p-4 rounded-lg border bg-red-900/20 border-red-800">
-                        <div className="flex items-start mb-2">
-                          <AlertCircle className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-                          <h4 className="text-white font-medium">Question {evaluationResults.detailedResults.findIndex(r => r.questionId === result.questionId) + 1}: {result.question}</h4>
-                        </div>
-
-                        {result.type === 'mcq' && result.options && (
-                          <div className="ml-7 space-y-2 mt-3">
-                            {result.options.map((option, optionIndex) => (
-                              <div 
-                                key={optionIndex}
-                                className={`p-2 rounded-md ${
-                                  optionIndex === result.correctAnswer
-                                    ? 'bg-green-900/30 border border-green-800 text-green-200'
-                                    : optionIndex === result.userAnswer
-                                      ? 'bg-red-900/30 border border-red-800 text-red-200'
-                                      : 'bg-blue-900/20 text-blue-200'
-                                }`}
-                              >
-                                <div className="flex items-start">
-                                  <div className={`flex-shrink-0 w-4 h-4 mr-2 rounded-full border flex items-center justify-center mt-0.5 ${
-                                    optionIndex === result.correctAnswer
-                                      ? 'border-green-500 bg-green-700' 
-                                      : optionIndex === result.userAnswer
-                                        ? 'border-red-500 bg-red-700'
-                                        : 'border-blue-700'
-                                  }`}>
-                                    {(optionIndex === result.correctAnswer || optionIndex === result.userAnswer) && (
-                                      <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                                    )}
-                                  </div>
-                                  <span className="text-sm">{option}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {result.type !== 'mcq' && (
-                          <div className="ml-7 mt-3 space-y-3">
-                            <div className="space-y-2">
-                              <p className="text-white text-sm font-medium">Votre réponse:</p>
-                              <div className="p-2 bg-blue-950/70 rounded border border-blue-800 text-blue-200 text-sm whitespace-pre-wrap">
-                                {result.userAnswer as string || "(Pas de réponse)"}
-                              </div>
-                            </div>
-
-                            {result.solution && (
-                              <div className="space-y-2">
-                                <p className="text-white text-sm font-medium">Solution:</p>
-                                <div className="p-2 bg-green-900/20 rounded border border-green-800 text-green-200 text-sm whitespace-pre-wrap">
-                                  {result.solution}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        <div className="mt-3 p-3 bg-blue-950/70 rounded border border-blue-800 ml-7">
-                          <p className="text-sm text-blue-200">{result.explanation}</p>
-                        </div>
-                      </div>
-                    ))}
-                </TabsContent>
-              </Tabs>
-            </div>
-
-            {/* Certificat (si demandé) */}
-            {showCertificate && certificateHtml && (
-              <div className="border border-blue-700 rounded-lg overflow-hidden">
-                <div className="p-4 bg-blue-900/40 border-b border-blue-700">
-                  <h3 className="text-lg font-medium text-white font-rajdhani">Certificat de réalisation</h3>
-                </div>
-                <div 
-                  className="p-4 bg-white"
-                  dangerouslySetInnerHTML={{ __html: certificateHtml }}
-                />
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
-      <div className="p-6 border-t border-blue-800 flex justify-between">
-        <Button 
-          variant="outline" 
-          onClick={resetQuiz}
-          className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30"
-        >
-          <RefreshCcw className="mr-2 h-4 w-4" />
-          Recommencer
-        </Button>
-
-        {evaluationResults && !showCertificate && (
-          <Button 
-            onClick={() => generateCertificateMutation.mutate()}
-            disabled={generateCertificateMutation.isPending || !userName}
-            className="bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 text-white"
-          >
-            {generateCertificateMutation.isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Génération en cours...
-              </>
-            ) : (
-              <>
-                <Award className="mr-2 h-4 w-4" />
-                Générer un certificat
-              </>
-            )}
-          </Button>
-        )}
-
-        {showCertificate && (
-          <Button 
-            onClick={() => window.print()}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-          >
-            <FileText className="mr-2 h-4 w-4" />
-            Imprimer le certificat
-          </Button>
-        )}
-      </div>
-    </div>
-  );
-
-  // Base de données de questions préétablies par type d'exercice
-  const storedQuestions = {
-    'mcq': [
-      {
-        id: 'mcq-1',
-        type: 'mcq',
-        question: 'Quelle méthode d\'authentification est la plus sécurisée?',
-        options: [
-          'Mot de passe simple',
-          'Authentification multifacteur (MFA)',
-          'Question secrète',
-          'Authentification par email'
-        ],
-        correctAnswer: 1,
-        explanation: 'L\'authentification multifacteur (MFA) est la plus sécurisée car elle combine plusieurs méthodes d\'authentification indépendantes.',
-        category: 'authentication',
-        difficulty: 'medium',
-        points: 2
-      },
-      {
-        id: 'mcq-2',
-        type: 'mcq',
-        question: 'Qu\'est-ce qu\'une attaque par déni de service (DoS)?',
-        options: [
-          'Une tentative de vol de données sensibles',
-          'Une tentative de rendre un service inaccessible en le surchargeant',
-          'Une tentative d\'usurpation d\'identité',
-          'Une tentative d\'installation de logiciels malveillants'
-        ],
-        correctAnswer: 1,
-        explanation: 'Une attaque par déni de service vise à rendre un service, un site ou une application inaccessible en surchargeant ses ressources.',
-        category: 'network',
-        difficulty: 'easy',
-        points: 1
-      },
-      {
-        id: 'mcq-3',
-        type: 'mcq',
-        question: 'Qu\'est-ce que le phishing?',
-        options: [
-          'Une technique d\'ingénierie sociale visant à obtenir des informations sensibles',
-          'Un type de virus informatique',
-          'Une méthode de cryptage de données',
-          'Un logiciel antivirus'
-        ],
-        correctAnswer: 0,
-        explanation: 'Le phishing est une technique d\'ingénierie sociale où un attaquant se fait passer pour une entité de confiance pour inciter la victime à partager des informations sensibles.',
-        category: 'social-engineering',
-        difficulty: 'easy',
-        points: 1
-      },
-      {
-        id: 'mcq-4',
-        type: 'mcq',
-        question: 'Qu\'est-ce qu\'une vulnérabilité zero-day?',
-        options: [
-          'Une vulnérabilité qui existe depuis exactement un jour',
-          'Une vulnérabilité qui n\'a pas encore été corrigée par un correctif',
-          'Une vulnérabilité qui ne peut pas être exploitée',
-          'Une vulnérabilité qui ne cause aucun dommage'
-        ],
-        correctAnswer: 1,
-        explanation: 'Une vulnérabilité zero-day est une faille de sécurité qui n\'a pas encore été corrigée par le fournisseur et pour laquelle aucun correctif n\'est disponible.',
-        category: 'vulnerabilities',
-        difficulty: 'medium',
-        points: 2
-      },
-      {
-        id: 'mcq-5',
-        type: 'mcq',
-        question: 'Quel protocole est utilisé pour sécuriser les connexions web?',
-        options: [
-          'HTTP',
-          'FTP',
-          'HTTPS',
-          'SMTP'
-        ],
-        correctAnswer: 2,
-        explanation: 'HTTPS (HTTP Secure) est le protocole qui sécurise les connexions web en utilisant le chiffrement SSL/TLS.',
-        category: 'network',
-        difficulty: 'easy',
-        points: 1
-      },
-      {
-        id: 'mcq-6',
-        type: 'mcq',
-        question: 'Qu\'est-ce que le principe du moindre privilège?',
-        options: [
-          'Donner à tous les utilisateurs les mêmes privilèges',
-          'Limiter les accès aux seules ressources nécessaires pour effectuer une tâche',
-          'Donner le maximum de privilèges à l\'administrateur',
-          'Restreindre l\'accès à Internet'
-        ],
-        correctAnswer: 1,
-        explanation: 'Le principe du moindre privilège consiste à donner à un utilisateur uniquement les droits d\'accès nécessaires pour accomplir ses tâches, limitant ainsi les risques en cas de compromission.',
-        category: 'access-control',
-        difficulty: 'medium',
-        points: 2
-      },
-      {
-        id: 'mcq-7',
-        type: 'mcq',
-        question: 'Quelle est la meilleure pratique pour stocker les mots de passe des utilisateurs?',
-        options: [
-          'En texte clair dans une base de données sécurisée',
-          'Chiffrés avec une clé symétrique',
-          'Hachés avec un sel unique pour chaque utilisateur',
-          'Dans un fichier Excel protégé par mot de passe'
-        ],
-        correctAnswer: 2,
-        explanation: 'Les mots de passe doivent être hachés (et non chiffrés) avec un sel unique pour chaque utilisateur, ce qui empêche les attaques par dictionnaire et par table arc-en-ciel.',
-        category: 'authentication',
-        difficulty: 'medium',
-        points: 2
-      },
-      {
-        id: 'mcq-8',
-        type: 'mcq',
-        question: 'Qu\'est-ce qu\'une attaque d\'injection SQL?',
-        options: [
-          'Une attaque qui injecte du code malveillant dans les fichiers du serveur',
-          'Une attaque qui injecte des commandes SQL malveillantes dans une entrée destinée à une application',
-          'Une attaque qui vole les identifiants de la base de données',
-          'Une attaque qui crypte les données de la base de données'
-        ],
-        correctAnswer: 1,
-        explanation: 'Une injection SQL est une technique d\'attaque où du code SQL malveillant est inséré dans les champs d\'entrée d\'une application, permettant potentiellement à l\'attaquant d\'accéder, de modifier ou de supprimer des données.',
-        category: 'web-security',
-        difficulty: 'medium',
-        points: 2
-      },
-      {
-        id: 'mcq-9',
-        type: 'mcq',
-        question: 'Qu\'est-ce qu\'un ransomware?',
-        options: [
-          'Un logiciel qui améliore les performances du système',
-          'Un malware qui chiffre les fichiers et demande une rançon pour les déchiffrer',
-          'Un antivirus avancé',
-          'Un logiciel de récupération de données'
-        ],
-        correctAnswer: 1,
-        explanation: 'Un ransomware est un type de logiciel malveillant qui chiffre les fichiers de la victime, rendant le système inutilisable, puis demande une rançon en échange de la clé de déchiffrement.',
-        category: 'malware',
-        difficulty: 'easy',
-        points: 1
-      },
-      {
-        id: 'mcq-10',
-        type: 'mcq',
-        question: 'Qu\'est-ce que le RGPD?',
-        options: [
-          'Un protocole de sécurité réseau',
-          'Un type de certificat SSL',
-          'Une réglementation européenne sur la protection des données',
-          'Un standard de cryptage'
-        ],
-        correctAnswer: 2,
-        explanation: 'Le Règlement Général sur la Protection des Données (RGPD) est une réglementation de l\'Union européenne qui renforce et unifie la protection des données personnelles.',
-        category: 'compliance',
-        difficulty: 'easy',
-        points: 1
-      }
+  const [activeTab, setActiveTab] = useState<string>('standardTest');
+
+  const { toast } = useToast();
+
+  // Mock options
+  const mockOptions = {
+    categories: [
+      { id: 'web', name: 'Sécurité Web', description: 'Sécurité des applications web' },
+      { id: 'network', name: 'Sécurité Réseau', description: 'Protection des infrastructures réseau' },
+      { id: 'system', name: 'Sécurité Système', description: 'Sécurisation des systèmes d\'exploitation' }
     ],
-    'code': [
-      {
-        id: 'code-1',
-        type: 'code',
-        question: 'Identifiez et corrigez la vulnérabilité dans ce code PHP:',
-        code: `<?php
-$username = $_GET['username'];
-$query = "SELECT * FROM users WHERE username = '$username'";
-$result = mysqli_query($conn, $query);
-?>\`,
-        solution: \`<?php
-$username = mysqli_real_escape_string($conn, $_GET['username']);
-$query = "SELECT * FROM users WHERE username = ?";
-$stmt = mysqli_prepare($conn, $query);
-mysqli_stmt_bind_param($stmt, "s", $username);
-$result = mysqli_stmt_execute($stmt);
-?>\`,
-        explanation: "Le code original est vulnérable à l'injection SQL car il intègre directement l'entrée utilisateur dans la requête. La solution utilise des requêtes préparées et le paramétrage, ce qui empêche les injections SQL.",
-        category: 'web-security',
-        difficulty: 'medium',
-        points: 3
-      },
-      {
-        id: 'code-2',
-        type: 'code',
-        question: 'Identifiez et corrigez la vulnérabilité XSS dans ce code JavaScript:',
-        code: \`function displayUserComment(comment) {
-  document.getElementById('comments').innerHTML += '<div>' + comment + '</div>';
-}\`,
-        solution: \`function displayUserComment(comment) {
-  const div = document.createElement('div');
-  div.textContent = comment;
-  document.getElementById('comments').appendChild(div);
-}\`,
-        explanation: "Le code original est vulnérable aux attaques XSS (Cross-Site Scripting) car il insère directement le contenu fourni par l'utilisateur dans le DOM en utilisant innerHTML. La solution utilise textContent qui échappe automatiquement le HTML, empêchant l'exécution de scripts malveillants.",
-        category: 'web-security',
-        difficulty: 'medium',
-        points: 3
-      },
-      {
-        id: 'code-3',
-        type: 'code',
-        question: 'Identifiez et corrigez les problèmes de sécurité dans cette configuration CORS:',
-        code: \`// Configuration CORS dans une API Node.js
-app.use(cors({
-  origin: '*',
-  credentials: true
-}));\`,
-        solution: \`// Configuration CORS sécurisée
-app.use(cors({
-  origin: ['https://example.com', 'https://www.example.com'],
-  credentials: true,
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));\`,
-        explanation: "La configuration originale permet à n'importe quel domaine d'accéder à l'API (origin: '*'), ce qui est une mauvaise pratique de sécurité. La solution restreint l'accès à des domaines spécifiques et limite les méthodes et en-têtes autorisés.",
-        category: 'web-security',
-        difficulty: 'hard',
-        points: 3
-      },
-      {
-        id: 'code-4',
-        type: 'code',
-        question: 'Corrigez le code Python suivant pour éviter une attaque par injection de commande:',
-        code: \`import subprocess
-
-def backup_file(filename):
-    command = "tar -czf /backup/" + filename + ".tar.gz /data/" + filename
-    subprocess.call(command, shell=True)
-\`,
-        solution: \`import subprocess
-import shlex
-
-def backup_file(filename):
-    subprocess.run(["tar", "-czf", f"/backup/{filename}.tar.gz", f"/data/{filename}"], 
-                   shell=False, 
-                   check=True)
-\`,
-        explanation: "Le code original est vulnérable à l'injection de commandes car il utilise shell=True et concatène directement l'entrée utilisateur. Un attaquant pourrait fournir un nom de fichier comme '.; rm -rf /' pour exécuter des commandes malveillantes. La solution utilise une liste d'arguments et shell=False pour éviter ce problème.",
-        category: 'system-security',
-        difficulty: 'hard',
-        points: 4
-      },
-      {
-        id: 'code-5',
-        type: 'code',
-        question: 'Améliorez ce code pour implémenter un verrouillage de compte après plusieurs tentatives de connexion échouées:',
-        code: \`function login(username, password) {
-  const user = findUserByUsername(username);
-  if (!user) return false;
-  
-  if (user.password === hashPassword(password)) {
-    return true;
-  } else {
-    return false;
-  }
-}\`,
-        solution: \`function login(username, password) {
-  const user = findUserByUsername(username);
-  if (!user) return false;
-  
-  // Vérifier si le compte est verrouillé
-  if (user.lockedUntil && user.lockedUntil > new Date()) {
-    throw new Error('Account is locked. Try again later.');
-  }
-  
-  if (user.password === hashPassword(password)) {
-    // Réinitialiser le compteur d'échecs
-    updateUser(username, { failedAttempts: 0, lockedUntil: null });
-    return true;
-  } else {
-    // Incrémenter le compteur d'échecs
-    const failedAttempts = (user.failedAttempts || 0) + 1;
-    
-    // Verrouiller le compte après 5 tentatives échouées
-    if (failedAttempts >= 5) {
-      const lockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
-      updateUser(username, { failedAttempts, lockedUntil });
-      throw new Error('Too many failed attempts. Account locked for 30 minutes.');
-    } else {
-      updateUser(username, { failedAttempts });
-    }
-    
-    return false;
-  }
-}\`,
-        explanation: "Le code original n'a pas de mécanisme pour empêcher les attaques par force brute. La solution ajoute un système qui verrouille le compte après 5 tentatives de connexion échouées pendant 30 minutes, ce qui est une bonne pratique de sécurité pour se protéger contre les attaques par force brute.",
-        category: 'authentication',
-        difficulty: 'hard',
-        points: 4
-      },
-      {
-        id: 'code-6',
-        type: 'code',
-        question: 'Identifiez et corrigez la vulnérabilité dans cette fonction de téléchargement de fichier:',
-        code: \`function uploadFile(req, res) {
-  const fileName = req.body.fileName;
-  const fileData = req.body.fileData;
-  
-  fs.writeFileSync('./uploads/' + fileName, fileData);
-  
-  res.status(200).send('File uploaded successfully');
-}\`,
-        solution: \`const path = require('path');
-const crypto = require('crypto');
-
-function uploadFile(req, res) {
-  // Validation du nom de fichier
-  if (!req.body.fileName || !req.body.fileData) {
-    return res.status(400).send('Missing fileName or fileData');
-  }
-  
-  // Générer un nom de fichier aléatoire pour éviter les attaques de traversée de répertoire
-  const safeFileName = crypto.randomBytes(16).toString('hex') + 
-                      path.extname(req.body.fileName).toLowerCase();
-  
-  // Valider le type de fichier en fonction de l'extension
-  const allowedExtensions = ['.jpg', '.png', '.pdf', '.txt'];
-  if (!allowedExtensions.includes(path.extname(safeFileName).toLowerCase())) {
-    return res.status(400).send('File type not allowed');
-  }
-  
-  // Utiliser path.join pour construire un chemin sécurisé
-  const filePath = path.join(__dirname, 'uploads', safeFileName);
-  
-  try {
-    fs.writeFileSync(filePath, req.body.fileData);
-    res.status(200).send('File uploaded successfully');
-  } catch (error) {
-    res.status(500).send('Error uploading file: ' + error.message);
-  }
-}\`,
-        explanation: "Le code original présente plusieurs vulnérabilités: aucune validation du nom de fichier, ce qui peut conduire à des attaques de traversée de répertoire (path traversal), aucune validation du type de fichier et aucune gestion des erreurs. La solution ajoute une validation du nom et du type de fichier, génère un nom de fichier aléatoire, utilise path.join pour éviter les attaques de traversée de répertoire et ajoute une gestion des erreurs.",
-        category: 'web-security',
-        difficulty: 'hard',
-        points: 4
-      },
-      {
-        id: 'code-7',
-        type: 'code',
-        question: 'Corrigez le code suivant pour éviter une vulnérabilité CSRF (Cross-Site Request Forgery):',
-        code: \`// Endpoint pour changer le mot de passe
-app.post('/change-password', (req, res) => {
-  const userId = req.session.userId;
-  const newPassword = req.body.newPassword;
-  
-  updateUserPassword(userId, newPassword);
-  
-  res.status(200).send('Password updated');
-});\`,
-        solution: \`// Ajout de protection CSRF
-const csrf = require('csurf');
-const csrfProtection = csrf({ cookie: true });
-
-// Endpoint pour générer un token CSRF
-app.get('/csrf-token', (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
-});
-
-// Endpoint pour changer le mot de passe avec protection CSRF
-app.post('/change-password', csrfProtection, (req, res) => {
-  const userId = req.session.userId;
-  const newPassword = req.body.newPassword;
-  
-  // Vérifier que l'utilisateur est connecté
-  if (!userId) {
-    return res.status(401).send('Unauthorized');
-  }
-  
-  // Valider le nouveau mot de passe
-  if (!newPassword || newPassword.length < 8) {
-    return res.status(400).send('Password must be at least 8 characters');
-  }
-  
-  try {
-    updateUserPassword(userId, newPassword);
-    res.status(200).send('Password updated');
-  } catch (error) {
-    res.status(500).send('Error updating password');
-  }
-});\`,
-        explanation: "Le code original est vulnérable aux attaques CSRF car il ne vérifie pas que la requête provient d'un site légitime. La solution ajoute une protection CSRF en utilisant le middleware csurf, qui génère et vérifie un token CSRF. Le client doit inclure ce token dans toutes les requêtes POST, ce qui empêche les sites malveillants de soumettre des formulaires à l'insu de l'utilisateur.",
-        category: 'web-security',
-        difficulty: 'medium',
-        points: 3
-      },
-      {
-        id: 'code-8',
-        type: 'code',
-        question: 'Identifiez et corrigez les problèmes de sécurité dans ce code de gestion de session:',
-        code: \`const express = require('express');
-const session = require('express-session');
-
-const app = express();
-
-app.use(session({
-  secret: 'keyboard cat',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { }
-}));\`,
-        solution: \`const express = require('express');
-const session = require('express-session');
-const crypto = require('crypto');
-
-const app = express();
-
-// Générer un secret aléatoire fort
-const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
-
-app.use(session({
-  secret: sessionSecret,
-  resave: false,
-  saveUninitialized: false, // Ne pas créer de session tant qu'il n'y a rien à stocker
-  cookie: { 
-    secure: process.env.NODE_ENV === 'production', // Utiliser HTTPS en production
-    httpOnly: true, // Empêcher l'accès par JavaScript côté client
-    maxAge: 1000 * 60 * 60 * 4, // 4 heures
-    sameSite: 'strict' // Protection contre les attaques CSRF
-  }
-}));\`,
-        explanation: "Le code original présente plusieurs problèmes de sécurité: un secret de session faible et codé en dur, saveUninitialized défini sur true (ce qui crée des sessions pour tous les visiteurs), et des options de cookie par défaut non sécurisées. La solution utilise un secret de session fort, configure les cookies pour être sécurisés, httpOnly, avec une durée de vie limitée et une protection sameSite contre les attaques CSRF.",
-        category: 'web-security',
-        difficulty: 'medium',
-        points: 3
-      },
-      {
-        id: 'code-9',
-        type: 'code',
-        question: 'Corrigez cette implémentation d\'une fonction de hachage de mot de passe:',
-        code: \`function hashPassword(password) {
-  const md5 = require('crypto').createHash('md5');
-  return md5.update(password).digest('hex');
-}\`,
-        solution: \`const crypto = require('crypto');
-
-function hashPassword(password) {
-  // Générer un sel aléatoire
-  const salt = crypto.randomBytes(16).toString('hex');
-  
-  // Utiliser un algorithme robuste (PBKDF2) avec 10000 itérations
-  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
-  
-  // Retourner le sel et le hash combinés pour le stockage
-  return \`\${salt}:\${hash}\`;
-}
-
-function verifyPassword(storedPassword, suppliedPassword) {
-  // Extraire le sel et le hash
-  const [salt, storedHash] = storedPassword.split(':');
-  
-  // Hacher le mot de passe fourni avec le même sel
-  const suppliedHash = crypto.pbkdf2Sync(suppliedPassword, salt, 10000, 64, 'sha512').toString('hex');
-  
-  // Comparer les hashs
-  return storedHash === suppliedHash;
-}\`,
-        explanation: "Le code original utilise MD5, qui est un algorithme de hachage obsolète et vulnérable aux attaques par collision et par force brute. La solution utilise PBKDF2, un algorithme de dérivation de clé plus sécurisé, avec un sel aléatoire et un grand nombre d'itérations, ce qui rend les attaques par force brute et par table arc-en-ciel beaucoup plus difficiles.",
-        category: 'cryptography',
-        difficulty: 'medium',
-        points: 3
-      },
-      {
-        id: 'code-10',
-        type: 'code',
-        question: 'Améliorez ce code pour implémenter une politique de mots de passe forts:',
-        code: \`function createUser(username, password) {
-  const user = {
-    username,
-    password: hashPassword(password),
-    createdAt: new Date()
-  };
-  
-  saveUser(user);
-  return user;
-}\`,
-        solution: \`function validatePasswordStrength(password) {
-  // Au moins 8 caractères
-  if (password.length < 8) {
-    return { valid: false, message: 'Password must be at least 8 characters long' };
-  }
-  
-  // Au moins une lettre majuscule
-  if (!/[A-Z]/.test(password)) {
-    return { valid: false, message: 'Password must contain at least one uppercase letter' };
-  }
-  
-  // Au moins une lettre minuscule
-  if (!/[a-z]/.test(password)) {
-    return { valid: false, message: 'Password must contain at least one lowercase letter' };
-  }
-  
-  // Au moins un chiffre
-  if (!/[0-9]/.test(password)) {
-    return { valid: false, message: 'Password must contain at least one number' };
-  }
-  
-  // Au moins un caractère spécial
-  if (!/[^A-Za-z0-9]/.test(password)) {
-    return { valid: false, message: 'Password must contain at least one special character' };
-  }
-  
-  return { valid: true };
-}
-
-function createUser(username, password) {
-  // Valider la force du mot de passe
-  const validation = validatePasswordStrength(password);
-  if (!validation.valid) {
-    throw new Error(validation.message);
-  }
-  
-  // Vérifier si le mot de passe figure dans une liste de mots de passe courants
-  if (isCommonPassword(password)) {
-    throw new Error('This password is too common. Please choose a more unique password.');
-  }
-  
-  const user = {
-    username,
-    password: hashPassword(password),
-    createdAt: new Date(),
-    passwordChangedAt: new Date(),
-    passwordExpiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 jours
-  };
-  
-  saveUser(user);
-  return user;
-}
-
-// Fonction fictive pour vérifier si un mot de passe est courant
-function isCommonPassword(password) {
-  const commonPasswords = ['password', 'admin', '123456', 'qwerty', 'welcome'];
-  return commonPasswords.includes(password.toLowerCase());
-}\`,
-        explanation: "Le code original n'implémente aucune validation de la force du mot de passe. La solution ajoute une fonction de validation qui vérifie la longueur, la présence de lettres majuscules et minuscules, de chiffres et de caractères spéciaux. Elle vérifie également si le mot de passe figure dans une liste de mots de passe courants et ajoute une date d'expiration du mot de passe pour forcer les utilisateurs à le changer régulièrement.",
-        category: 'authentication',
-        difficulty: 'medium',
-        points: 3
-      }
+    difficulties: [
+      { id: 'easy', name: 'Débutant', description: 'Concepts fondamentaux' },
+      { id: 'medium', name: 'Intermédiaire', description: 'Connaissances approfondies' },
+      { id: 'hard', name: 'Avancé', description: 'Expertise technique' }
     ],
-    'scenario': [
-      {
-        id: 'scenario-1',
-        type: 'scenario',
-        question: "Votre entreprise a subi une attaque de ransomware. Les fichiers sur plusieurs serveurs sont chiffrés et une note de rançon demande 50 bitcoins pour la clé de déchiffrement. En tant que responsable de la sécurité, quelle serait votre réponse immédiate?",
-        context: "L'attaque a touché 30% des serveurs de l'entreprise, y compris certains serveurs de sauvegarde. Les opérations critiques sont partiellement affectées. Vous avez une sauvegarde hors ligne datant de 48 heures.",
-        solution: "1. Isoler immédiatement les systèmes infectés du réseau pour éviter la propagation\n2. Activer le plan de réponse aux incidents\n3. Identifier le vecteur d'infection\n4. Restaurer les systèmes critiques à partir des sauvegardes hors ligne\n5. Impliquer les forces de l'ordre et signaler l'incident aux autorités compétentes\n6. Ne pas payer la rançon car cela ne garantit pas la récupération des données et encourage les criminels",
-        explanation: "Dans un scénario de ransomware, la priorité est d'isoler les systèmes infectés pour empêcher la propagation à d'autres parties du réseau. La restauration à partir de sauvegardes est préférable au paiement de la rançon, qui ne garantit pas la récupération des données et finance des groupes criminels. Il est important de signaler l'incident aux autorités et d'identifier le vecteur d'infection pour améliorer les défenses futures.",
-        category: 'incident-response',
-        difficulty: 'hard',
-        points: 4
-      },
-      {
-        id: 'scenario-2',
-        type: 'scenario',
-        question: "Vous êtes consultant en sécurité pour une PME qui souhaite améliorer sa posture de sécurité avec un budget limité. Quelles seraient vos recommandations prioritaires?",
-        context: "L'entreprise compte 50 employés, utilise des applications SaaS pour la plupart de ses opérations, dispose d'un réseau local et de quelques serveurs. Elle n'a pas de personnel dédié à l'informatique à temps plein.",
-        solution: "1. Mettre en place l'authentification multifacteur (MFA) pour tous les services critiques\n2. Former régulièrement les employés aux risques de sécurité et aux bonnes pratiques\n3. Implémenter une solution de sauvegarde automatisée avec des copies hors ligne\n4. Établir et documenter une politique de gestion des mots de passe\n5. Configurer un pare-feu de nouvelle génération et un système de détection d'intrusion\n6. Développer un plan de réponse aux incidents basique\n7. Utiliser des solutions de sécurité basées sur le cloud pour la protection des terminaux",
-        explanation: "Pour une PME avec un budget limité, il est crucial de prioriser les mesures offrant le meilleur rapport coût-efficacité. L'authentification multifacteur et la formation des employés sont des mesures relativement peu coûteuses qui offrent une protection significative contre les attaques courantes. Les sauvegardes régulières sont essentielles pour la résilience en cas d'incident. Les solutions basées sur le cloud peuvent offrir une protection avancée sans nécessiter d'expertise interne importante.",
-        category: 'strategy',
-        difficulty: 'medium',
-        points: 3
-      },
-      {
-        id: 'scenario-3',
-        type: 'scenario',
-        question: "Vous découvrez une vulnérabilité critique dans une application largement utilisée dans votre organisation. Comment gérez-vous cette situation?",
-        context: "La vulnérabilité permet potentiellement un accès non autorisé aux données sensibles. Un correctif est disponible, mais son déploiement nécessite une interruption de service. L'application est utilisée par 70% des employés quotidiennement pour des opérations critiques.",
-        solution: "1. Évaluer immédiatement l'impact potentiel et le risque d'exploitation de la vulnérabilité\n2. Mettre en place des mesures d'atténuation temporaires si possible (règles de pare-feu, WAF, etc.)\n3. Planifier le déploiement du correctif pendant une période de faible activité\n4. Communiquer clairement avec les parties prenantes sur les risques et le plan de correction\n5. Tester le correctif dans un environnement de préproduction\n6. Prévoir un plan de restauration en cas de problème avec le correctif\n7. Surveiller activement les tentatives d'exploitation de la vulnérabilité\n8. Documenter l'incident et améliorer le processus de gestion des vulnérabilités",
-        explanation: "La gestion des vulnérabilités critiques nécessite un équilibre entre la sécurité et la continuité des activités. Une évaluation approfondie du risque réel permet de prendre des décisions éclairées sur l'urgence du correctif. Des mesures d'atténuation temporaires peuvent réduire le risque pendant que le déploiement du correctif est planifié de manière à minimiser l'impact sur les opérations. La communication avec les parties prenantes est essentielle pour gérer les attentes et obtenir leur soutien.",
-        category: 'vulnerability-management',
-        difficulty: 'medium',
-        points: 3
-      },
-      {
-        id: 'scenario-4',
-        type: 'scenario',
-        question: "Votre équipe de sécurité détecte un trafic réseau inhabituel provenant de plusieurs postes de travail vers un serveur externe inconnu. Comment procédez-vous pour enquêter et répondre à cette alerte?",
-        context: "Le trafic a commencé il y a environ 6 heures. Les postes concernés appartiennent à différents départements. Le volume de données transférées est relativement faible mais constant.",
-        solution: "1. Isoler immédiatement les postes concernés du réseau tout en les maintenant sous tension pour l'analyse\n2. Capturer les données forensiques volatiles (mémoire RAM, processus en cours, connexions réseau)\n3. Analyser le trafic réseau pour déterminer la nature exacte des communications\n4. Effectuer une analyse de malware sur les postes concernés\n5. Vérifier les journaux de sécurité pour identifier le vecteur initial d'infection\n6. Bloquer les communications vers le serveur externe au niveau du pare-feu\n7. Rechercher des indicateurs de compromission similaires sur d'autres systèmes\n8. Établir une chronologie des événements pour comprendre la séquence de l'attaque",
-        explanation: "Cette situation suggère une possible infection par un malware ou une attaque de commande et contrôle (C2). L'approche recommandée équilibre la nécessité d'une réponse rapide pour contenir l'incident avec le besoin de collecter des preuves pour l'analyse. L'isolation des postes infectés est prioritaire pour empêcher la propagation, suivie d'une analyse forensique pour comprendre la nature et l'étendue de la compromission.",
-        category: 'incident-response',
-        difficulty: 'hard',
-        points: 4
-      },
-      {
-        id: 'scenario-5',
-        type: 'scenario',
-        question: "Votre entreprise prévoit de lancer une nouvelle application mobile qui collectera des données personnelles des utilisateurs. Quelles mesures de sécurité et de confidentialité recommandez-vous?",
-        context: "L'application sera disponible mondialement et collectera des informations comme le nom, l'email, la localisation et les habitudes d'utilisation. Elle sera connectée aux systèmes internes de l'entreprise pour le traitement des données.",
-        solution: "1. Réaliser une analyse d'impact relative à la protection des données (AIPD)\n2. Implémenter le principe de minimisation des données (ne collecter que les données nécessaires)\n3. Chiffrer toutes les données sensibles en transit et au repos\n4. Mettre en place un mécanisme de consentement explicite et granulaire\n5. Développer une politique de confidentialité claire et accessible\n6. Intégrer la sécurité dès la conception (Security by Design)\n7. Effectuer des tests de pénétration et un audit de code avant le lancement\n8. Implémenter un mécanisme sécurisé d'authentification et d'autorisation\n9. Prévoir une procédure de notification en cas de violation de données\n10. Assurer la conformité aux réglementations régionales (RGPD, CCPA, etc.)",
-        explanation: "Le développement d'une application mobile qui collecte des données personnelles nécessite une approche globale de la sécurité et de la confidentialité. La conformité aux réglementations comme le RGPD est essentielle, notamment pour les applications disponibles mondialement. Les principes de minimisation des données et de sécurité dès la conception sont fondamentaux pour protéger les informations des utilisateurs et maintenir leur confiance.",
-        category: 'privacy',
-        difficulty: 'medium',
-        points: 3
-      },
-      {
-        id: 'scenario-6',
-        type: 'scenario',
-        question: "Vous êtes responsable de la sécurité pour une entreprise qui migre ses systèmes vers le cloud. Quelles mesures de sécurité spécifiques au cloud recommandez-vous?",
-        context: "L'entreprise utilise actuellement principalement des systèmes sur site et prévoit de migrer vers un modèle hybride utilisant AWS et Microsoft Azure. Les données incluent des informations financières et des données clients sensibles.",
-        solution: "1. Mettre en place une stratégie de gestion des identités et des accès (IAM) stricte basée sur le principe du moindre privilège\n2. Implémenter une solution de chiffrement pour toutes les données sensibles au repos et en transit\n3. Configurer un système de surveillance et de journalisation centralisé pour tous les environnements cloud\n4. Établir des contrôles de sécurité réseau (groupes de sécurité, ACL, etc.) pour segmenter les environnements\n5. Utiliser des outils de détection des mauvaises configurations de sécurité cloud\n6. Automatiser les évaluations de conformité et les audits de sécurité\n7. Développer une stratégie de gestion des clés et des secrets adaptée au cloud\n8. Implémenter une solution de gestion des vulnérabilités spécifique aux ressources cloud\n9. Former l'équipe IT aux meilleures pratiques de sécurité cloud\n10. Établir un plan de réponse aux incidents adapté aux environnements cloud",
-        explanation: "La sécurité dans le cloud diffère de la sécurité sur site traditionnelle et nécessite une approche adaptée. Le modèle de responsabilité partagée signifie que certaines responsabilités de sécurité incombent au fournisseur cloud, tandis que d'autres restent à la charge du client. Les mauvaises configurations sont l'une des principales causes d'incidents de sécurité dans le cloud, d'où l'importance d'outils de détection et d'une formation adéquate. Une stratégie IAM robuste est fondamentale pour contrôler l'accès aux ressources cloud.",
-        category: 'cloud-security',
-        difficulty: 'hard',
-        points: 4
-      },
-      {
-        id: 'scenario-7',
-        type: 'scenario',
-        question: "Vous êtes RSSI dans une entreprise qui a récemment été victime d'une usurpation d'identité par email (email spoofing). Quelles mesures mettriez-vous en place pour prévenir de futures attaques?",
-        context: "Un attaquant a envoyé des emails se faisant passer pour le PDG de l'entreprise, demandant des transferts de fonds urgents. Aucune protection avancée d'email n'est actuellement en place.",
-        solution: "1. Implémenter les protocoles d'authentification d'email: SPF, DKIM et DMARC\n2. Configurer DMARC en mode de rejet (p=reject) pour bloquer les emails non authentifiés\n3. Mettre en place une solution de filtrage anti-phishing avancée\n4. Établir un processus de vérification pour les demandes de transfert de fonds\n5. Former tous les employés à la reconnaissance des tentatives d'hameçonnage et d'ingénierie sociale\n6. Mettre en place un mécanisme d'alerte pour les emails externes qui tentent d'imiter des expéditeurs internes\n7. Configurer une bannière visible pour tous les emails provenant de l'extérieur de l'organisation\n8. Utiliser des solutions d'intelligence artificielle pour détecter les emails suspects\n9. Auditer régulièrement les journaux de messagerie pour détecter les tentatives d'usurpation\n10. Mettre en place une politique de communication interne claire pour les demandes sensibles",
-        explanation: "L'usurpation d'identité par email est une technique courante utilisée dans les attaques de phishing et de fraude au président. Les protocoles SPF, DKIM et DMARC sont essentiels pour authentifier les emails et empêcher l'usurpation du domaine de l'entreprise. Au-delà des mesures techniques, la formation des employés et l'établissement de processus de vérification pour les demandes sensibles sont cruciaux pour prévenir ce type d'attaque.",
-        category: 'email-security',
-        difficulty: 'medium',
-        points: 3
-      },
-      {
-        id: 'scenario-8',
-        type: 'scenario',
-        question: "En tant que responsable de la sécurité, comment établiriez-vous un programme de gestion des vulnérabilités efficace pour votre organisation?",
-        context: "Votre organisation dispose de plus de 1000 actifs informatiques, y compris des serveurs, des postes de travail et des applications développées en interne. Il n'existe actuellement pas de processus formalisé pour gérer les vulnérabilités.",
-        solution: "1. Établir un inventaire complet et à jour de tous les actifs informatiques\n2. Implémenter une solution de scan de vulnérabilités automatisée avec des scans réguliers\n3. Définir un processus de priorisation des vulnérabilités basé sur le risque (criticité, exploitabilité, impact)\n4. Intégrer les tests de sécurité dans le cycle de développement des applications internes\n5. Établir des SLA (accords de niveau de service) pour la correction des vulnérabilités selon leur criticité\n6. Mettre en place un processus de gestion des exceptions pour les vulnérabilités qui ne peuvent pas être corrigées immédiatement\n7. Créer un tableau de bord pour suivre les métriques clés (délai moyen de correction, vulnérabilités par système, etc.)\n8. Implémenter un processus de vérification des correctifs appliqués\n9. Effectuer des tests de pénétration réguliers pour valider l'efficacité du programme\n10. Réviser et améliorer continuellement le programme en fonction des résultats et des nouvelles menaces",
-        explanation: "Un programme efficace de gestion des vulnérabilités va au-delà de la simple détection des failles pour inclure l'ensemble du cycle de vie de la vulnérabilité, de la découverte à la correction. La priorisation basée sur le risque est essentielle car toutes les vulnérabilités ne présentent pas le même niveau de menace. L'intégration des tests de sécurité dans le développement (shift-left) permet de réduire les vulnérabilités dans les applications internes dès leur conception.",
-        category: 'vulnerability-management',
-        difficulty: 'medium',
-        points: 3
-      },
-      {
-        id: 'scenario-9',
-        type: 'scenario',
-        question: "Vous êtes consultant en cybersécurité et un client vous demande d'évaluer la sécurité de son infrastructure IoT industrielle. Comment procéderiez-vous?",
-        context: "Le client est une usine de fabrication qui utilise des capteurs IoT et des systèmes SCADA pour automatiser et surveiller ses processus de production. Ces systèmes sont partiellement connectés au réseau informatique de l'entreprise.",
-        solution: "1. Cartographier l'ensemble de l'écosystème IoT, y compris les dispositifs, les passerelles et les systèmes de contrôle\n2. Analyser la segmentation réseau entre les systèmes IoT, SCADA et le réseau informatique classique\n3. Évaluer les protocoles de communication utilisés et leurs mécanismes de sécurité\n4. Examiner les pratiques de gestion des identités et des accès pour les dispositifs et systèmes\n5. Vérifier les mécanismes de chiffrement des données en transit et au repos\n6. Évaluer la sécurité physique des dispositifs IoT accessibles\n7. Analyser les processus de mise à jour et de gestion des correctifs\n8. Tester la résilience des systèmes critiques face aux pannes et aux attaques\n9. Examiner les capacités de détection et de réponse aux incidents\n10. Vérifier la conformité aux normes spécifiques à l'industrie (IEC 62443, NIST SP 800-82, etc.)",
-        explanation: "La sécurité des environnements IoT industriels présente des défis uniques, notamment la convergence des technologies opérationnelles (OT) et informatiques (IT), les contraintes des dispositifs, et l'impact potentiel sur la sécurité physique. Une approche holistique est nécessaire, examinant non seulement les aspects techniques mais aussi les processus et la gouvernance. La segmentation réseau est particulièrement critique pour isoler les systèmes industriels sensibles du reste du réseau informatique et d'Internet.",
-        category: 'iot-security',
-        difficulty: 'hard',
-        points: 4
-      },
-      {
-        id: 'scenario-10',
-        type: 'scenario',
-        question: "Votre entreprise souhaite mettre en place une politique BYOD (Bring Your Own Device). Quelles mesures de sécurité recommandez-vous?",
-        context: "L'entreprise compte environ 200 employés qui utiliseront principalement leurs appareils personnels pour accéder aux emails, aux documents partagés et à certaines applications métier.",
-        solution: "1. Mettre en place une solution de gestion des appareils mobiles (MDM) ou de gestion des applications mobiles (MAM)\n2. Exiger l'utilisation de l'authentification multifacteur pour tous les accès aux ressources de l'entreprise\n3. Implémenter une solution de conteneurisation pour séparer les données professionnelles et personnelles\n4. Établir des exigences minimales de sécurité pour les appareils personnels (chiffrement, verrouillage par code, mises à jour)\n5. Développer une politique claire définissant les responsabilités des utilisateurs et de l'entreprise\n6. Mettre en place des contrôles d'accès basés sur l'état de sécurité de l'appareil (accès conditionnel)\n7. Configurer des capacités d'effacement à distance des données de l'entreprise\n8. Former les utilisateurs aux bonnes pratiques de sécurité mobile\n9. Mettre en œuvre une solution VPN pour les connexions à distance\n10. Établir un processus clair pour la perte ou le vol d'appareils",
-        explanation: "Une politique BYOD efficace doit trouver un équilibre entre la sécurité des données de l'entreprise et le respect de la vie privée des employés. La conteneurisation et la séparation des données professionnelles et personnelles sont essentielles pour maintenir cet équilibre. Les solutions MDM/MAM permettent d'appliquer les politiques de sécurité sans avoir un contrôle total sur l'appareil personnel. Une politique claire et la formation des utilisateurs sont cruciales pour assurer que tous comprennent leurs responsabilités.",
-        category: 'mobile-security',
-        difficulty: 'medium',
-        points: 3
-      }
-    ],
-    'open': [
-      {
-        id: 'open-1',
-        type: 'open',
-        question: "Expliquez le concept de Zero Trust et comment vous le mettriez en œuvre dans une organisation.",
-        solution: "Le modèle Zero Trust est une approche de sécurité qui part du principe qu'aucune entité, qu'elle soit à l'intérieur ou à l'extérieur du réseau, ne doit être considérée comme fiable par défaut. Il repose sur le principe de 'ne jamais faire confiance, toujours vérifier'.\n\nPour mettre en œuvre le Zero Trust dans une organisation:\n\n1. Identifier les données sensibles et cartographier leurs flux\n2. Implémenter une authentification multifacteur (MFA) pour tous les utilisateurs\n3. Adopter le principe du moindre privilège pour tous les accès\n4. Segmenter le réseau et utiliser des micro-périmètres\n5. Mettre en place un contrôle d'accès basé sur l'identité (IBAC) et le contexte\n6. Surveiller et analyser en continu toutes les activités sur le réseau\n7. Chiffrer toutes les données, en transit et au repos\n8. Mettre en œuvre une gestion des postes de travail incluant l'évaluation de l'état de santé des appareils\n9. Automatiser les réponses aux incidents de sécurité\n10. Former les employés à ce nouveau paradigme de sécurité",
-        explanation: "Le modèle Zero Trust représente un changement fondamental par rapport à l'approche traditionnelle de sécurité périmétrique 'château et fossé'. Au lieu de supposer que tout ce qui se trouve à l'intérieur du réseau est sûr, Zero Trust exige une vérification continue de chaque utilisateur, appareil et transaction. Cette approche est particulièrement pertinente dans un environnement moderne où les limites du réseau d'entreprise sont de plus en plus floues avec l'adoption du cloud, du travail à distance et des appareils mobiles.",
-        category: 'strategy',
-        difficulty: 'hard',
-        points: 4
-      },
-      {
-        id: 'open-2',
-        type: 'open',
-        question: "Décrivez les différences entre chiffrement symétrique et asymétrique, et donnez des exemples d'utilisation appropriée pour chacun.",
-        solution: "Chiffrement symétrique:\n- Utilise une seule clé pour chiffrer et déchiffrer les données\n- Plus rapide et efficace pour de grands volumes de données\n- Nécessite un canal sécurisé pour partager la clé\n- Exemples d'algorithmes: AES, DES, 3DES\n- Cas d'utilisation: chiffrement de fichiers/disques, chiffrement de session, VPN, chiffrement de base de données\n\nChiffrement asymétrique:\n- Utilise une paire de clés: publique (pour chiffrer) et privée (pour déchiffrer)\n- Plus lent mais résout le problème de l'échange de clés\n- Permet d'établir des communications sécurisées sans partage préalable de secret\n- Exemples d'algorithmes: RSA, ECC, DSA\n- Cas d'utilisation: signature numérique, échange de clés, PKI, authentification, HTTPS (établissement de session)\n\nUtilisation hybride:\nDans la pratique, les deux types sont souvent combinés: le chiffrement asymétrique est utilisé pour échanger en toute sécurité une clé symétrique, qui est ensuite utilisée pour chiffrer les données réelles de la session (comme dans TLS/SSL).",
-        explanation: "Le choix entre chiffrement symétrique et asymétrique dépend des besoins spécifiques en matière de sécurité, de performance et de gestion des clés. Le chiffrement symétrique est généralement préféré pour les opérations nécessitant une haute performance sur de grandes quantités de données, tandis que le chiffrement asymétrique excelle dans les scénarios où l'échange sécurisé de clés est difficile ou pour fournir des services comme la non-répudiation via des signatures numériques.",
-        category: 'cryptography',
-        difficulty: 'medium',
-        points: 3
-      },
-      {
-        id: 'open-3',
-        type: 'open',
-        question: "Expliquez les composants essentiels d'un programme de sensibilisation à la sécurité efficace pour les employés.",
-        solution: "Un programme de sensibilisation à la sécurité efficace pour les employés devrait inclure les composants suivants:\n\n1. Formation initiale obligatoire pour tous les nouveaux employés\n2. Sessions de formation régulières avec du contenu actualisé\n3. Simulations de phishing pour tester et renforcer la vigilance\n4. Contenu diversifié adapté aux différents rôles et niveaux de responsabilité\n5. Méthodes d'apprentissage variées (vidéos, quiz, jeux, études de cas)\n6. Communications régulières sur les menaces émergentes\n7. Politique claire et accessible définissant les attentes en matière de sécurité\n8. Mécanisme simple pour signaler les incidents de sécurité\n9. Reconnaissance des comportements positifs et non-punitif pour les erreurs signalées\n10. Métriques pour mesurer l'efficacité du programme\n11. Implication de la direction pour démontrer l'importance de la sécurité\n12. Culture de sécurité intégrée dans les activités quotidiennes",
-        explanation: "Un programme de sensibilisation efficace va au-delà de la simple conformité pour créer une véritable culture de la sécurité. L'élément humain est souvent le maillon le plus faible de la chaîne de sécurité, mais avec une sensibilisation appropriée, les employés peuvent devenir une première ligne de défense efficace. Le programme doit être continu plutôt que ponctuel, engageant plutôt qu'ennuyeux, et pertinent pour les rôles spécifiques au sein de l'organisation.",
-        category: 'awareness',
-        difficulty: 'easy',
-        points: 2
-      },
-      {
-        id: 'open-4',
-        type: 'open',
-        question: "Décrivez les étapes clés d'une analyse forensique numérique suite à un incident de sécurité.",
-        solution: "Les étapes clés d'une analyse forensique numérique:\n\n1. Préservation de la scène numérique\n   - Isoler les systèmes affectés\n   - Créer des copies forensiques (images) des supports concernés\n   - Documenter la chaîne de possession\n   - Utiliser des méthodes qui préservent l'intégrité des preuves\n\n2. Collecte des données\n   - Récupérer les données volatiles (mémoire RAM, processus en cours, connexions réseau)\n   - Obtenir les journaux système et d'application\n   - Collecter les métadonnées et horodatages des fichiers\n   - Extraire les artefacts pertinents du système de fichiers\n\n3. Analyse des preuves\n   - Examiner la chronologie des événements\n   - Analyser les journaux et les traces réseau\n   - Récupérer les fichiers supprimés ou cachés\n   - Identifier les indicateurs de compromission\n   - Reconstruire les actions de l'attaquant\n\n4. Documentation et rapport\n   - Documenter méthodiquement toutes les constatations\n   - Établir la chronologie détaillée de l'incident\n   - Préparer un rapport technique et un résumé exécutif\n   - Formuler des recommandations pour prévenir des incidents similaires\n\n5. Présentation des résultats\n   - Communiquer les résultats de manière claire et concise\n   - Être prêt à témoigner si nécessaire dans un cadre juridique\n   - Proposer des mesures correctives basées sur les conclusions",
-        explanation: "L'analyse forensique numérique est un processus méthodique et rigoureux qui vise à recueillir, préserver et analyser des preuves numériques tout en maintenant leur intégrité et leur admissibilité potentielle dans un cadre juridique. Les principes fondamentaux incluent la non-modification des preuves originales, la documentation complète de toutes les actions entreprises, et l'utilisation de méthodes scientifiquement valides et reproductibles.",
-        category: 'forensics',
-        difficulty: 'hard',
-        points: 4
-      },
-      {
-        id: 'open-5',
-        type: 'open',
-        question: "Expliquez comment mettre en œuvre une stratégie de défense en profondeur pour protéger les actifs informatiques d'une organisation.",
-        solution: "Une stratégie de défense en profondeur implique la mise en place de multiples couches de sécurité pour protéger les actifs informatiques. Voici comment la mettre en œuvre:\n\n1. Couche de sécurité physique\n   - Contrôles d'accès physique aux installations\n   - Surveillance vidéo et gardes de sécurité\n   - Protection contre les menaces environnementales\n\n2. Couche de sécurité périmétrique\n   - Pare-feu de nouvelle génération\n   - Systèmes de prévention d'intrusion (IPS)\n   - Passerelles VPN sécurisées\n   - Protection DDoS\n\n3. Couche de sécurité réseau\n   - Segmentation du réseau et microsegmentation\n   - Listes de contrôle d'accès (ACL)\n   - Surveillance du trafic réseau\n   - Détection d'anomalies\n\n4. Couche de sécurité des hôtes\n   - Systèmes d'exploitation durcis et correctement patchés\n   - Solutions antimalware et EDR\n   - Contrôle d'application et whitelisting\n   - Gestion des vulnérabilités\n\n5. Couche de sécurité des applications\n   - Développement sécurisé (SDLC)\n   - Tests de sécurité des applications\n   - WAF (Web Application Firewall)\n   - Gestion sécurisée des API\n\n6. Couche de sécurité des données\n   - Chiffrement des données sensibles\n   - Contrôles d'accès basés sur les rôles (RBAC)\n   - Classification des données\n   - Prévention des fuites de données (DLP)\n\n7. Couche de gestion des identités\n   - Authentification multifacteur\n   - Gestion des privilèges\n   - Single Sign-On sécurisé\n   - Gestion du cycle de vie des identités\n\n8. Couche de sensibilisation et formation\n   - Formation régulière des employés\n   - Simulations de phishing\n   - Documentation des politiques\n\n9. Couche de détection et réponse\n   - Surveillance continue et SIEM\n   - Équipe SOC\n   - Plan de réponse aux incidents\n   - Threat hunting proactif",
-        explanation: "La défense en profondeur est une approche qui reconnaît qu'aucune mesure de sécurité n'est infaillible. En implémentant plusieurs couches de contrôles complémentaires, on crée un système où la compromission d'une couche ne compromet pas l'ensemble de la sécurité. Cette approche augmente considérablement le coût et la difficulté pour un attaquant, tout en fournissant du temps supplémentaire pour la détection et la réponse aux menaces.",
-        category: 'strategy',
-        difficulty: 'medium',
-        points: 3
-      },
-      {
-        id: 'open-6',
-        type: 'open',
-        question: "Décrivez les avantages et les risques de l'utilisation de l'intelligence artificielle et du machine learning en cybersécurité.",
-        solution: "Avantages de l'IA et du ML en cybersécurité:\n\n1. Détection améliorée des menaces\n   - Identification de modèles complexes et d'anomalies subtiles\n   - Détection de menaces inconnues (zero-day)\n   - Réduction des faux positifs\n\n2. Automatisation et évolutivité\n   - Analyse de volumes massifs de données en temps réel\n   - Réponse automatisée aux incidents courants\n   - Réduction de la fatigue des analystes\n\n3. Adaptation continue\n   - Apprentissage à partir de nouvelles menaces\n   - Mise à jour constante sans intervention manuelle\n   - Adaptation aux changements dans l'environnement\n\n4. Prédiction et prévention proactive\n   - Anticipation des menaces potentielles\n   - Identification des vulnérabilités avant exploitation\n   - Scoring dynamique des risques\n\nRisques et défis:\n\n1. Risques liés aux données\n   - Dépendance à la qualité des données d'entraînement\n   - Biais potentiels dans les algorithmes\n   - Questions de confidentialité des données\n\n2. Limitations techniques\n   - Opacité des décisions (problème de la 'boîte noire')\n   - Vulnérabilité aux attaques adversarielles\n   - Risque de faux négatifs critiques\n\n3. Considérations opérationnelles\n   - Coûts d'implémentation et de maintenance élevés\n   - Besoin d'expertise spécialisée\n   - Intégration avec les systèmes existants\n\n4. Risques stratégiques\n   - Dépendance excessive à la technologie\n   - Fausse sensation de sécurité\n   - Course aux armements avec les attaquants utilisant également l'IA",
-        explanation: "L'IA et le ML représentent une évolution significative dans le domaine de la cybersécurité, offrant des capacités qui dépassent les approches traditionnelles basées sur des règles. Cependant, ces technologies ne sont pas une panacée et présentent leurs propres défis et limitations. Une approche équilibrée consiste à utiliser l'IA/ML comme un outil puissant dans un arsenal de cybersécurité plus large, tout en maintenant une supervision humaine et une conscience des limites inhérentes à ces technologies.",
-        category: 'emerging-tech',
-        difficulty: 'hard',
-        points: 4
-      },
-      {
-        id: 'open-7',
-        type: 'open',
-        question: "Expliquez les principaux éléments d'un plan de continuité d'activité (PCA) et d'un plan de reprise d'activité (PRA) efficaces.",
-        solution: "Plan de Continuité d'Activité (PCA):\n\n1. Analyse d'impact sur l'activité (BIA)\n   - Identification des processus métier critiques\n   - Évaluation de l'impact financier et opérationnel d'une interruption\n   - Détermination des objectifs de temps de reprise (RTO) et des objectifs de point de reprise (RPO)\n\n2. Stratégies de continuité\n   - Plans de travail alternatif (télétravail, sites de repli)\n   - Redondance des systèmes critiques\n   - Procédures manuelles de secours\n\n3. Organisation et gouvernance\n   - Définition des rôles et responsabilités\n   - Procédures d'escalade et de communication\n   - Coordination avec les fournisseurs et partenaires\n\nPlan de Reprise d'Activité (PRA):\n\n1. Infrastructure technique de reprise\n   - Solutions de sauvegarde et de restauration\n   - Sites de reprise informatique (chaud, tiède, froid)\n   - Architecture de réplication des données\n\n2. Procédures détaillées\n   - Étapes de reprise par système\n   - Ordonnancement de la restauration\n   - Tests de validation post-reprise\n\n3. Gestion et maintenance\n   - Calendrier de tests réguliers\n   - Processus de mise à jour suite aux changements d'infrastructure\n   - Amélioration continue basée sur les retours d'expérience\n\nÉléments communs aux deux plans:\n\n1. Analyse des risques\n   - Identification des menaces potentielles\n   - Évaluation de la probabilité et de l'impact\n   - Mesures de prévention et d'atténuation\n\n2. Documentation et formation\n   - Documentation complète et accessible\n   - Formation régulière des équipes impliquées\n   - Exercices de simulation\n\n3. Communication\n   - Procédures de notification des parties prenantes\n   - Modèles de communication préparés\n   - Coordination avec les autorités si nécessaire",
-        explanation: "Le PCA et le PRA sont complémentaires mais distincts. Le PCA se concentre sur le maintien des fonctions métier critiques pendant une perturbation, tandis que le PRA se concentre sur la restauration de l'infrastructure informatique après un sinistre. Ensemble, ils forment une stratégie complète de résilience organisationnelle. L'efficacité de ces plans dépend de leur caractère pratique, de leur mise à jour régulière et des tests fréquents pour s'assurer qu'ils fonctionneront comme prévu en situation réelle.",
-        category: 'business-continuity',
-        difficulty: 'medium',
-        points: 3
-      },
-      {
-        id: 'open-8',
-        type: 'open',
-        question: "Décrivez les principes et les avantages de l'approche DevSecOps, et comment vous l'intégreriez dans un environnement de développement existant.",
-        solution: "Principes fondamentaux de DevSecOps:\n\n1. Intégration de la sécurité dès le début du cycle de développement\n2. Automatisation des tests et contrôles de sécurité\n3. Collaboration entre les équipes de développement, d'opérations et de sécurité\n4. Responsabilité partagée pour la sécurité\n5. Amélioration continue des pratiques de sécurité\n6. Visibilité et mesurabilité des résultats de sécurité\n\nAvantages de DevSecOps:\n\n1. Détection plus précoce des vulnérabilités, réduisant le coût de correction\n2. Déploiements plus rapides sans compromettre la sécurité\n3. Cohérence et reproductibilité des contrôles de sécurité\n4. Réduction des silos organisationnels\n5. Meilleure traçabilité et conformité\n6. Amélioration de la posture de sécurité globale\n\nIntégration dans un environnement existant:\n\n1. Évaluation et préparation\n   - Évaluer la maturité actuelle des pratiques DevOps et de sécurité\n   - Identifier les champions au sein des équipes existantes\n   - Définir des objectifs clairs et des indicateurs de succès\n\n2. Mise en place des fondations\n   - Intégrer l'analyse de code statique (SAST) dans les pipelines CI/CD\n   - Mettre en place l'analyse de composition de logiciel (SCA) pour les dépendances\n   - Implémenter des scans de vulnérabilités automatisés\n\n3. Développement des compétences\n   - Former les développeurs aux principes de la programmation sécurisée\n   - Créer des ressources et des guides de sécurité accessibles\n   - Organiser des sessions de sensibilisation croisées entre équipes\n\n4. Évolution des processus\n   - Intégrer des revues de sécurité dans les cérémonies agiles existantes\n   - Mettre en place des politiques de branche de code avec validation de sécurité\n   - Développer des bibliothèques et composants sécurisés réutilisables\n\n5. Amélioration continue\n   - Mettre en place des métriques de sécurité et des tableaux de bord\n   - Conduire des exercices de red team/blue team\n   - Organiser des post-mortems après incidents pour l'apprentissage",
-        explanation: "DevSecOps représente une évolution culturelle et technique qui vise à intégrer la sécurité comme une responsabilité partagée tout au long du cycle de vie du développement logiciel. Plutôt que de traiter la sécurité comme une phase distincte ou une préoccupation de dernière minute, cette approche 'shift-left' déplace les considérations de sécurité vers les phases initiales du développement. L'automatisation joue un rôle crucial dans DevSecOps, permettant des tests de sécurité à l'échelle et à la vitesse requises par les méthodologies de développement modernes.",
-        category: 'devsecops',
-        difficulty: 'hard',
-        points: 4
-      },
-      {
-        id: 'open-9',
-        type: 'open',
-        question: "Expliquez comment vous effectueriez une évaluation des risques de sécurité de l'information dans une organisation.",
-        solution: "Processus d'évaluation des risques de sécurité de l'information:\n\n1. Identification du contexte et des actifs\n   - Déterminer le périmètre de l'évaluation\n   - Identifier et classifier les actifs informationnels\n   - Comprendre les processus métier critiques\n   - Identifier les exigences réglementaires applicables\n\n2. Identification des menaces et vulnérabilités\n   - Analyser les menaces externes et internes pertinentes\n   - Identifier les vulnérabilités techniques et organisationnelles\n   - Considérer les vecteurs d'attaque potentiels\n   - Évaluer les contrôles existants\n\n3. Analyse et évaluation des risques\n   - Déterminer la probabilité d'occurrence pour chaque scénario de menace\n   - Évaluer l'impact potentiel (financier, opérationnel, réputationnel, etc.)\n   - Calculer le niveau de risque (généralement probabilité × impact)\n   - Prioriser les risques selon leur niveau\n\n4. Traitement des risques\n   - Définir la stratégie de traitement pour chaque risque significatif:\n     * Mitigation (réduire le risque)\n     * Transfert (assurance, externalisation)\n     * Évitement (éliminer l'activité générant le risque)\n     * Acceptation (pour les risques de faible niveau)\n   - Développer un plan de traitement avec des actions spécifiques\n\n5. Documentation et communication\n   - Documenter la méthodologie et les résultats\n   - Préparer un registre des risques\n   - Communiquer les résultats aux parties prenantes\n   - Obtenir l'approbation formelle pour les risques acceptés\n\n6. Surveillance et révision\n   - Mettre en place des indicateurs pour suivre l'évolution des risques\n   - Planifier des réévaluations périodiques\n   - Ajuster l'évaluation en fonction des changements dans l'environnement\n\nMéthodologies et outils:\n- NIST SP 800-30/39/53\n- ISO/IEC 27005\n- FAIR (Factor Analysis of Information Risk)\n- Matrices de risque et registres de risque\n- Outils d'évaluation automatisée des vulnérabilités",
-        explanation: "L'évaluation des risques de sécurité de l'information est un processus systématique qui permet d'identifier, d'analyser et d'évaluer les risques liés aux actifs informationnels d'une organisation. Ce processus est fondamental pour une approche de sécurité basée sur les risques, permettant d'allouer efficacement des ressources limitées aux menaces les plus significatives. Une évaluation efficace combine des analyses qualitatives et quantitatives, et implique des parties prenantes de différents départements pour obtenir une vision complète des risques métier.",
-        category: 'risk-management',
-        difficulty: 'medium',
-        points: 3
-      },
-      {
-        id: 'open-10',
-        type: 'open',
-        question: "Décrivez les contrôles de sécurité essentiels que vous mettriez en place pour protéger les données sensibles dans un environnement cloud public.",
-        solution: "Contrôles de sécurité essentiels pour les données sensibles dans le cloud public:\n\n1. Gestion des identités et des accès\n   - Mise en œuvre du principe du moindre privilège\n   - Authentification multifacteur (MFA) pour tous les accès\n   - Gestion des identités fédérée et SSO sécurisé\n   - Révision régulière des droits d'accès\n   - Contrôles d'accès basés sur les attributs/contexte\n\n2. Protection des données\n   - Chiffrement des données au repos avec gestion des clés maîtrisée\n   - Chiffrement des données en transit (TLS 1.2+)\n   - Tokenisation des données très sensibles\n   - Masquage des données dans les environnements non-production\n   - Contrôles de prévention des fuites de données (DLP)\n\n3. Sécurité de l'infrastructure cloud\n   - Segmentation réseau et groupes de sécurité restrictifs\n   - Surveillance continue des configurations de sécurité\n   - Durcissement des systèmes d'exploitation et des conteneurs\n   - Gestion des correctifs et des vulnérabilités\n   - Protection DDoS et WAF pour les applications exposées\n\n4. Détection et réponse\n   - Centralisation et analyse des journaux d'audit\n   - Surveillance des comportements anormaux (UEBA)\n   - Alertes automatisées sur les activités suspectes\n   - Plan de réponse aux incidents adapté au cloud\n   - Surveillance des activités privilégiées\n\n5. Gouvernance et conformité\n   - Classification des données et inventaire des actifs\n   - Évaluation régulière des risques spécifiques au cloud\n   - Contrôles d'audit et de conformité automatisés\n   - Revue des contrats avec le fournisseur cloud (SLA, responsabilités)\n   - Documentation des politiques et procédures\n\n6. Résilience et continuité\n   - Stratégie de sauvegarde et de restauration adaptée au cloud\n   - Architecture multi-région/multi-zone pour les systèmes critiques\n   - Tests réguliers de reprise d'activité\n   - Gestion des clés de chiffrement avec récupération d'urgence",
-        explanation: "La sécurisation des données sensibles dans le cloud public nécessite une approche globale qui tient compte du modèle de responsabilité partagée entre le client et le fournisseur cloud. Si le fournisseur est responsable de la sécurité du cloud (infrastructure, réseau, centres de données), le client reste responsable de la sécurité dans le cloud (données, applications, gestion des accès). Les contrôles doivent être adaptés aux risques spécifiques du cloud, comme la multi-location, l'accessibilité depuis Internet, et la complexité de la gestion des configurations.",
-        category: 'cloud-security',
-        difficulty: 'hard',
-        points: 4
-      }
+    exerciseTypes: [
+      { id: 'qcm', name: 'QCM', description: 'Questions à choix multiples' },
+      { id: 'text', name: 'Texte', description: 'Réponses rédigées' },
+      { id: 'code', name: 'Code', description: 'Analyse et correction de code' }
     ]
   };
 
-  // Fonction pour utiliser des questions préétablies ou générer via l'API
-  const getQuestions = async () => {
-    if (useStoredQuestions) {
-      // Simulation de chargement progressif
-      setGenerateProgress(10);
+  // Simulated options loading
+  const [isLoadingOptions, setIsLoadingOptions] = useState(false);
+  const [options, setOptions] = useState(mockOptions);
+
+  // Simulated generate questions mutation
+  const generateQuestionsMutation = useMutation({
+    mutationFn: async (data: any) => {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Update progress during generation
       const progressInterval = setInterval(() => {
         setGenerateProgress(prev => {
-          const newProgress = prev + Math.floor(Math.random() * 15);
-          return newProgress > 90 ? 90 : newProgress;
+          const newValue = prev + 10;
+          if (newValue >= 100) {
+            clearInterval(progressInterval);
+            return 100;
+          }
+          return newValue;
         });
       }, 300);
       
-      try {
-        // Sélectionner des questions préétablies
-        const selectedQuestions = [];
-        const questionType = options?.exerciseTypes?.find(t => t.id === selectedExerciseType)?.type || 'mcq';
-        
-        // Vérifier si nous avons des questions pour ce type
-        if (storedQuestions[questionType] && storedQuestions[questionType].length >= 10) {
-          // Mélanger et prendre 10 questions
-          const shuffled = [...storedQuestions[questionType]].sort(() => 0.5 - Math.random());
-          selectedQuestions.push(...shuffled.slice(0, 10));
-          
-          // Ajuster la difficulté si nécessaire
-          selectedQuestions.forEach(q => {
-            q.difficulty = selectedDifficulty;
-            q.category = selectedCategory;
-          });
-          
-          setTimeout(() => {
-            clearInterval(progressInterval);
-            setGenerateProgress(100);
-            
-            setQuestions(selectedQuestions);
-            
-            // Initialiser les réponses
-            const initialResponses = selectedQuestions.map(q => ({
-              questionId: q.id,
-              answer: q.type === 'mcq' ? -1 : ''
-            }));
-            
-            setResponses(initialResponses);
-            
-            // Définir la durée en fonction du niveau
-            let duration = 20 * 60; // 20 minutes par défaut
-            if (selectedDifficulty === 'easy') duration = 15 * 60;
-            if (selectedDifficulty === 'hard') duration = 30 * 60;
-            
-            setTimeLeft(duration);
-            setCurrentQuestion(0);
-            setStep('quiz');
-            
-            // Réinitialiser la progression après un délai
-            setTimeout(() => setGenerateProgress(0), 500);
-          }, 1500);
-        } else {
-          // Fallback vers l'API si pas assez de questions stockées
-          clearInterval(progressInterval);
-          await apiRequest('/api/cyber/tests/generate', {
-            method: 'POST',
-            body: {
-              category: selectedCategory,
-              difficulty: selectedDifficulty,
-              exerciseType: selectedExerciseType,
-              userName: userName || 'Arnaud Gauthier'
-            }
-          }).then(handleQuestionsGenerated);
+      // Mock questions
+      const mockQuestions = [
+        {
+          id: 'q1',
+          type: 'qcm' as const,
+          question: 'Quelle est la principale faiblesse exploitée par les attaques XSS?',
+          options: [
+            'Absence de validation des entrées utilisateur',
+            'Mauvaise configuration des pare-feu',
+            'Mots de passe faibles',
+            'Permissions système trop élevées'
+          ],
+          correctAnswer: ['Absence de validation des entrées utilisateur'],
+          explanation: 'Les attaques XSS exploitent l\'absence de validation ou d\'échappement des entrées utilisateur, permettant l\'injection de code malveillant.'
+        },
+        {
+          id: 'q2',
+          type: 'text' as const,
+          question: 'Expliquez comment fonctionne une attaque CSRF et comment s\'en protéger.',
+          correctAnswer: 'Une attaque CSRF force un utilisateur authentifié à exécuter des actions non désirées. Pour s\'en protéger, on utilise des tokens anti-CSRF, on vérifie l\'en-tête Referer, et on implémente SameSite pour les cookies.',
+          explanation: 'Les protections principales contre le CSRF incluent l\'utilisation de tokens uniques dans les formulaires et les requêtes AJAX, ainsi que la vérification de l\'origine de la requête.'
         }
-      } catch (error) {
-        clearInterval(progressInterval);
-        setGenerateProgress(0);
-        toast({
-          title: "Erreur",
-          description: "Impossible de générer les questions. Veuillez réessayer.",
-          variant: "destructive",
-        });
-      }
-    } else {
-      // Utiliser l'API
-      generateQuestionsMutation.mutate();
-    }
-  };
-  
-  // Fonction pour traiter les questions générées
-  const handleQuestionsGenerated = (data) => {
-    if (data.questions && Array.isArray(data.questions)) {
+      ];
+      
+      return { questions: mockQuestions };
+    },
+    onSuccess: (data) => {
       setQuestions(data.questions);
-      
-      // Initialiser les réponses
-      const initialResponses = data.questions.map(q => ({
-        questionId: q.id,
-        answer: q.type === 'mcq' ? -1 : ''
-      }));
-      
-      setResponses(initialResponses);
-      
-      // Définir la durée en fonction du niveau
-      let duration = 20 * 60; // 20 minutes par défaut
-      if (selectedDifficulty === 'easy') duration = 15 * 60;
-      if (selectedDifficulty === 'hard') duration = 30 * 60;
-      
-      setTimeLeft(duration);
-      setCurrentQuestion(0);
+      setResponses(data.questions.map(q => ({ questionId: q.id, response: q.type === 'qcm' ? [] : '' })));
       setStep('quiz');
-    } else {
+      setGenerateProgress(0);
       toast({
-        title: "Erreur",
-        description: "Format de réponse incorrect. Veuillez réessayer.",
-        variant: "destructive",
+        title: 'Test généré',
+        description: 'Votre test technique a été généré avec succès.',
+      });
+    },
+    onError: () => {
+      setGenerateProgress(0);
+      toast({
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors de la génération du test.',
+        variant: 'destructive',
       });
     }
+  });
+
+  // Simulated create custom test mutation
+  const createCustomTestMutation = useMutation({
+    mutationFn: async (data: any) => {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 4000));
+      
+      // Update progress during generation
+      const progressInterval = setInterval(() => {
+        setGenerateProgress(prev => {
+          const newValue = prev + 5;
+          if (newValue >= 100) {
+            clearInterval(progressInterval);
+            return 100;
+          }
+          return newValue;
+        });
+      }, 200);
+      
+      // Mock questions
+      const mockQuestions = [
+        {
+          id: 'custom1',
+          type: 'qcm' as const,
+          question: 'Dans le cadre de ' + data.prompt + ', quelle serait la meilleure approche?',
+          options: [
+            'Implémenter une authentification multifacteur',
+            'Renforcer la surveillance du réseau',
+            'Former les utilisateurs aux risques',
+            'Mettre à jour régulièrement les systèmes'
+          ],
+          correctAnswer: ['Former les utilisateurs aux risques'],
+          explanation: 'La formation des utilisateurs est essentielle pour réduire les risques liés à la sécurité.'
+        },
+        {
+          id: 'custom2',
+          type: 'text' as const,
+          question: 'Élaborez une stratégie de réponse à incident adaptée à ' + data.prompt,
+          correctAnswer: 'Une stratégie de réponse efficace comprend la détection, l\'endiguement, l\'éradication, et la récupération, avec une documentation complète et une analyse post-incident.',
+          explanation: 'Une réponse à incident bien structurée minimise les dommages et accélère le retour à la normale.'
+        }
+      ];
+      
+      return { questions: mockQuestions };
+    },
+    onSuccess: (data) => {
+      setQuestions(data.questions);
+      setResponses(data.questions.map(q => ({ questionId: q.id, response: q.type === 'qcm' ? [] : '' })));
+      setStep('quiz');
+      setGenerateProgress(0);
+      toast({
+        title: 'Test personnalisé généré',
+        description: 'Votre test technique personnalisé a été généré avec succès.',
+      });
+    },
+    onError: () => {
+      setGenerateProgress(0);
+      toast({
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors de la génération du test personnalisé.',
+        variant: 'destructive',
+      });
+    }
+  });
+
+  // Function to handle tab change
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    if (value === 'standardTest') {
+      setStep('select');
+    } else if (value === 'customTest') {
+      setStep('custom');
+    }
   };
 
-  // Remplacer la fonction startQuiz
-  const startQuiz = () => {
-    getQuestions();
-  };
-
-  // Composant pour le champ de nom (marqué comme bientôt disponible)
-  const renderNameField = () => (
-    <div className="space-y-2 relative">
-      <div className="absolute inset-0 bg-blue-900/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-md">
-        <span className="bg-amber-600 text-white px-3 py-1 rounded-md text-sm font-medium">
-          Bientôt disponible
-        </span>
+  // Function to render the user name field with "Bientôt disponible" label
+  const renderNameField = () => {
+    return (
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-200 mb-2">
+          Votre nom
+        </label>
+        <div className="relative">
+          <input 
+            type="text" 
+            className="flex h-10 w-full rounded-md border border-blue-700 bg-blue-900/50 px-3 py-2 text-sm text-white ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-blue-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed opacity-50"
+            value="Arnaud Gauthier"
+            readOnly
+            disabled
+          />
+          <div className="absolute top-1/2 -translate-y-1/2 right-3 bg-amber-600 text-white px-2 py-0.5 rounded-sm text-xs">
+            Bientôt disponible
+          </div>
+        </div>
+        <p className="text-xs text-gray-400 mt-1">Ce champ sera personnalisable prochainement</p>
       </div>
-      <label className="text-sm font-medium text-blue-100">Votre nom (pour le certificat)</label>
-      <input 
-        type="text" 
-        className="flex h-10 w-full rounded-md border border-blue-700 bg-blue-900/50 px-3 py-2 text-sm text-white ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-blue-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-        value={userName}
-        onChange={(e) => setUserName(e.target.value)}
-        placeholder="Arnaud Gauthier"
-        disabled
-      />
+    );
+  };
+
+  // Selection view
+  const renderSelectionView = () => (
+    <div className="space-y-6">
+      {renderNameField()}
+      
+      <div>
+        <label className="block text-sm font-medium text-gray-200 mb-2">
+          Catégorie de test
+        </label>
+        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <SelectTrigger className="w-full bg-blue-900/50 border-blue-700 text-white">
+            <SelectValue placeholder="Sélectionnez une catégorie" />
+          </SelectTrigger>
+          <SelectContent className="bg-blue-950 border-blue-800 text-white">
+            {options.categories.map(category => (
+              <SelectItem key={category.id} value={category.id} className="text-white hover:bg-blue-800">
+                {category.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-gray-400 mt-1">
+          {selectedCategory && options.categories.find(c => c.id === selectedCategory)?.description}
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-200 mb-2">
+          Niveau de difficulté
+        </label>
+        <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
+          <SelectTrigger className="w-full bg-blue-900/50 border-blue-700 text-white">
+            <SelectValue placeholder="Sélectionnez un niveau de difficulté" />
+          </SelectTrigger>
+          <SelectContent className="bg-blue-950 border-blue-800 text-white">
+            {options.difficulties.map(difficulty => (
+              <SelectItem key={difficulty.id} value={difficulty.id} className="text-white hover:bg-blue-800">
+                {difficulty.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-gray-400 mt-1">
+          {selectedDifficulty && options.difficulties.find(d => d.id === selectedDifficulty)?.description}
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-200 mb-2">
+          Type d'exercice
+        </label>
+        <Select value={selectedExerciseType} onValueChange={setSelectedExerciseType}>
+          <SelectTrigger className="w-full bg-blue-900/50 border-blue-700 text-white">
+            <SelectValue placeholder="Sélectionnez un type d'exercice" />
+          </SelectTrigger>
+          <SelectContent className="bg-blue-950 border-blue-800 text-white">
+            {options.exerciseTypes.map(type => (
+              <SelectItem key={type.id} value={type.id} className="text-white hover:bg-blue-800">
+                {type.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-gray-400 mt-1">
+          {selectedExerciseType && options.exerciseTypes.find(t => t.id === selectedExerciseType)?.description}
+        </p>
+      </div>
+
+      <div className="pt-4">
+        <Button 
+          onClick={() => generateQuestionsMutation.mutate({ 
+            category: selectedCategory, 
+            difficulty: selectedDifficulty, 
+            exerciseType: selectedExerciseType,
+            useStored: useStoredQuestions
+          })}
+          disabled={isLoadingOptions || !selectedCategory || !selectedDifficulty || !selectedExerciseType || generateQuestionsMutation.isPending}
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+        >
+          {generateQuestionsMutation.isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Génération en cours...
+            </>
+          ) : (
+            <>
+              <ArrowRight className="mr-2 h-4 w-4" />
+              Commencer le test
+            </>
+          )}
+        </Button>
+        
+        {generateQuestionsMutation.isPending && (
+          <div className="mt-2 w-full">
+            <Progress 
+              value={generateProgress} 
+              className="h-1.5 bg-blue-950 w-full"
+              indicatorClassName="bg-gradient-to-r from-blue-500 to-indigo-500"
+            />
+            <p className="text-xs text-gray-400 mt-1 text-right">{generateProgress}%</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  // Custom test view
+  const renderCustomTestView = () => (
+    <div className="space-y-6">
+      {renderNameField()}
+
+      <div>
+        <label className="block text-sm font-medium text-gray-200 mb-2">
+          Décrivez le test personnalisé que vous souhaitez générer
+        </label>
+        <Textarea 
+          value={customTestPrompt}
+          onChange={(e) => setCustomTestPrompt(e.target.value)}
+          placeholder="Ex: Créer un test sur la sécurité des API REST avec un focus sur l'authentification OAuth2"
+          className="min-h-[120px] bg-blue-900/50 border-blue-700 text-white placeholder:text-blue-400"
+        />
+        <p className="text-xs text-gray-400 mt-1">
+          Décrivez le sujet, le contexte et les compétences à évaluer
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-200 mb-2">
+          Niveau technique
+        </label>
+        <div className="flex items-center space-x-4">
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="radio"
+              checked={customTestTechnical}
+              onChange={() => setCustomTestTechnical(true)}
+              className="form-radio h-4 w-4 text-blue-600"
+            />
+            <span>Technique</span>
+          </label>
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="radio"
+              checked={!customTestTechnical}
+              onChange={() => setCustomTestTechnical(false)}
+              className="form-radio h-4 w-4 text-blue-600"
+            />
+            <span>Non technique</span>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-200 mb-2">
+          Niveau de difficulté
+        </label>
+        <Select value={customTestLevel} onValueChange={setCustomTestLevel}>
+          <SelectTrigger className="w-full bg-blue-900/50 border-blue-700 text-white">
+            <SelectValue placeholder="Sélectionnez un niveau de difficulté" />
+          </SelectTrigger>
+          <SelectContent className="bg-blue-950 border-blue-800 text-white">
+            <SelectItem value="easy" className="text-white hover:bg-blue-800">Débutant</SelectItem>
+            <SelectItem value="medium" className="text-white hover:bg-blue-800">Intermédiaire</SelectItem>
+            <SelectItem value="hard" className="text-white hover:bg-blue-800">Avancé</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="pt-4">
+        <Button 
+          onClick={() => createCustomTestMutation.mutate({ 
+            prompt: customTestPrompt,
+            technical: customTestTechnical,
+            level: customTestLevel
+          })}
+          disabled={!customTestPrompt || createCustomTestMutation.isPending}
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+        >
+          {createCustomTestMutation.isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Génération en cours...
+            </>
+          ) : (
+            <>
+              <ArrowRight className="mr-2 h-4 w-4" />
+              Créer un test personnalisé
+            </>
+          )}
+        </Button>
+        
+        {createCustomTestMutation.isPending && (
+          <div className="mt-2 w-full">
+            <Progress 
+              value={generateProgress} 
+              className="h-1.5 bg-blue-950 w-full"
+              indicatorClassName="bg-gradient-to-r from-blue-500 to-indigo-500"
+            />
+            <p className="text-xs text-gray-400 mt-1 text-right">{generateProgress}%</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 
   return (
-    <HomeLayout>
-      <PageTitle title="Test Technique de Cybersécurité" />
-      <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-blue-950 to-slate-950">
-        <div className="absolute top-4 left-4 z-20">
-          <Button 
-            variant="outline" 
-            className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30 hover:text-white"
-            onClick={() => window.location.href = '/cyber/roleplay'}
-          >
-            <Home className="h-4 w-4 mr-2" />
-            Retour
-          </Button>
-        </div>
-        <div className="container py-8 px-4 mx-auto flex flex-col items-center justify-center">
-          {step === 'select' && renderSelectionStep()}
-          {step === 'custom' && renderCustomTestStep()}
-          {step === 'quiz' && renderQuizStep()}
-          {step === 'results' && renderResultsStep()}
-        </div>
+    <div className="container max-w-4xl mx-auto py-6 px-4">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-white">Test Technique de Cybersécurité</h1>
+        <p className="text-gray-300 mt-2">
+          Évaluez vos compétences techniques en cybersécurité à travers une série d'exercices pratiques.
+        </p>
       </div>
-    </HomeLayout>
+
+      <Card className="bg-blue-950 border-blue-900 text-white shadow-xl">
+        <CardHeader>
+          <CardTitle className="text-2xl">Créer un nouveau test</CardTitle>
+          <CardDescription className="text-gray-300">
+            Configurez votre test technique selon vos besoins ou générez un test personnalisé.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="standardTest" value={activeTab} onValueChange={handleTabChange}>
+            <TabsList className="grid grid-cols-2 mb-6 bg-blue-900/50">
+              <TabsTrigger 
+                value="standardTest" 
+                className="data-[state=active]:bg-blue-700 data-[state=active]:text-white"
+              >
+                <GraduationCap className="w-4 h-4 mr-2" />
+                Test Standard
+              </TabsTrigger>
+              <TabsTrigger 
+                value="customTest" 
+                className="data-[state=active]:bg-blue-700 data-[state=active]:text-white"
+              >
+                <Brain className="w-4 h-4 mr-2" />
+                Test Personnalisé
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="standardTest">
+              {renderSelectionView()}
+            </TabsContent>
+            
+            <TabsContent value="customTest">
+              {renderCustomTestView()}
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
