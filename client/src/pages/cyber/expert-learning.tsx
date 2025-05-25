@@ -901,56 +901,9 @@ function ExpertLearningPageContent() {
                                   variant="ghost" 
                                   size="sm" 
                                   className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#00b4d8] hover:bg-[#112641]"
-                                  onClick={async () => {
-                                    // Afficher un indicateur de chargement
-                                    setIsLoading(true);
-                                    
-                                    // Créer un message utilisateur pour le contexte
-                                    const userMsg: Message = {
-                                      id: uuidv4(),
-                                      type: "user",
-                                      content: "Lancer un exercice pratique interactif",
-                                      timestamp: Date.now()
-                                    };
-                                    
-                                    // Ajouter le message à la conversation
-                                    setMessages(msgs => [...msgs, userMsg]);
-                                    
-                                    try {
-                                      // Récupérer le sujet actuel de la conversation si disponible
-                                      const currentTopic = messages.length > 2 ? 
-                                        messages[messages.length - 2].content.substring(0, 100) : 
-                                        "cybersécurité";
-                                      
-                                      // Envoyer directement une requête pour générer un exercice pratique
-                                      const response = await apiRequest<{success: boolean, message: string}>('/api/cyber-expert/message', {
-                                        method: 'POST',
-                                        body: {
-                                          userId,
-                                          message: `[EXERCICE_PRATIQUE] Génère immédiatement un exercice pratique interactif sur ${currentTopic} avec des étapes claires et une évaluation finale. Format: titre, contexte, tâches spécifiques à réaliser, critères d'évaluation.`
-                                        }
-                                      });
-                                      
-                                      if (response.success) {
-                                        // Ajouter la réponse à la conversation
-                                        const botMsg: Message = {
-                                          id: uuidv4(),
-                                          type: "bot",
-                                          content: response.message,
-                                          timestamp: Date.now()
-                                        };
-                                        setMessages(msgs => [...msgs, botMsg]);
-                                      }
-                                    } catch (error) {
-                                      console.error("Erreur lors du démarrage de l'exercice pratique:", error);
-                                      toast({
-                                        title: "Erreur",
-                                        description: "Impossible de lancer l'exercice pratique. Veuillez réessayer.",
-                                        variant: "destructive"
-                                      });
-                                    } finally {
-                                      setIsLoading(false);
-                                    }
+                                  onClick={() => {
+                                    setInputMessage("Crée un exercice pratique interactif sur la cybersécurité");
+                                    setTimeout(sendMessage, 50);
                                   }}
                                 >
                                   <span className="w-2 h-2 bg-amber-500 rounded-full mr-2"></span>
@@ -960,40 +913,9 @@ function ExpertLearningPageContent() {
                                   variant="ghost" 
                                   size="sm" 
                                   className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#00b4d8] hover:bg-[#112641]"
-                                  onClick={async () => {
-                                    // Démarrer directement un scénario de décision
-                                    setIsLoading(true);
-                                    
-                                    try {
-                                      // Récupérer le sujet actuel de la conversation si disponible
-                                      const currentTopic = messages.length > 2 ? 
-                                        messages[messages.length - 2].content.substring(0, 100) : 
-                                        "";
-                                      
-                                      // Lancer directement le flux de décision via l'API
-                                      const response = await apiRequest<{success: boolean, scenario: DecisionScenario}>('/api/cyber-expert/decisions/start', {
-                                        method: 'POST',
-                                        body: {
-                                          userId,
-                                          topic: currentTopic
-                                        }
-                                      });
-                                      
-                                      if (response.success) {
-                                        // Le scénario sera automatiquement affiché via le contexte de décision
-                                        // Actualiser le statut de décision pour afficher le premier scénario
-                                        decision.checkDecisionStatus(userId);
-                                      }
-                                    } catch (error) {
-                                      console.error("Erreur lors du démarrage du scénario de décision:", error);
-                                      toast({
-                                        title: "Erreur",
-                                        description: "Impossible de lancer le scénario de décision. Veuillez réessayer.",
-                                        variant: "destructive"
-                                      });
-                                    } finally {
-                                      setIsLoading(false);
-                                    }
+                                  onClick={() => {
+                                    setInputMessage("Propose-moi un scénario de décision en cybersécurité");
+                                    setTimeout(sendMessage, 50);
                                   }}
                                 >
                                   <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
@@ -1003,56 +925,9 @@ function ExpertLearningPageContent() {
                                   variant="ghost" 
                                   size="sm" 
                                   className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#00b4d8] hover:bg-[#112641]"
-                                  onClick={async () => {
-                                    // Afficher un indicateur de chargement
-                                    setIsLoading(true);
-                                    
-                                    // Créer un message utilisateur pour le contexte
-                                    const userMsg: Message = {
-                                      id: uuidv4(),
-                                      type: "user",
-                                      content: "Lancer une auto-évaluation interactive",
-                                      timestamp: Date.now()
-                                    };
-                                    
-                                    // Ajouter le message à la conversation
-                                    setMessages(msgs => [...msgs, userMsg]);
-                                    
-                                    try {
-                                      // Récupérer le sujet actuel de la conversation si disponible
-                                      const currentTopic = messages.length > 2 ? 
-                                        messages[messages.length - 2].content.substring(0, 100) : 
-                                        "principes de cybersécurité";
-                                      
-                                      // Envoyer directement une requête pour générer un quiz d'auto-évaluation
-                                      const response = await apiRequest<{success: boolean, message: string}>('/api/cyber-expert/message', {
-                                        method: 'POST',
-                                        body: {
-                                          userId,
-                                          message: `[AUTO_EVALUATION] Génère immédiatement un quiz interactif sur ${currentTopic} avec 5 questions à choix multiples. Pour chaque question, indique les réponses possibles avec une lettre (A, B, C, D) et marque la bonne réponse. Format: introduction, série de questions avec choix, puis instructions pour l'auto-correction.`
-                                        }
-                                      });
-                                      
-                                      if (response.success) {
-                                        // Ajouter la réponse à la conversation
-                                        const botMsg: Message = {
-                                          id: uuidv4(),
-                                          type: "bot",
-                                          content: response.message,
-                                          timestamp: Date.now()
-                                        };
-                                        setMessages(msgs => [...msgs, botMsg]);
-                                      }
-                                    } catch (error) {
-                                      console.error("Erreur lors du démarrage de l'auto-évaluation:", error);
-                                      toast({
-                                        title: "Erreur",
-                                        description: "Impossible de lancer l'auto-évaluation. Veuillez réessayer.",
-                                        variant: "destructive"
-                                      });
-                                    } finally {
-                                      setIsLoading(false);
-                                    }
+                                  onClick={() => {
+                                    setInputMessage("Évalue mes connaissances avec un quiz interactif sur la cybersécurité");
+                                    setTimeout(sendMessage, 50);
                                   }}
                                 >
                                   <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
