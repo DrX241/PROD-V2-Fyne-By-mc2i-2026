@@ -152,15 +152,15 @@ const DataTable = ({ data, maxRows = 10 }) => {
   );
 };
 
-// Composant pour simuler l'exécution d'une requête SQL
+// Composant pour exécuter une requête SQL
 const SQLExecutor = ({ data, onResult }) => {
   const [query, setQuery] = useState('');
   const [selectedExample, setSelectedExample] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
   
-  // Fonction pour simuler l'exécution d'une requête SQL
-  const executeQuery = () => {
+  // Fonction pour exécuter la requête SQL via l'API
+  const executeQuery = async () => {
     if (!query.trim()) {
       setError("Veuillez entrer une requête SQL");
       return;
@@ -169,60 +169,85 @@ const SQLExecutor = ({ data, onResult }) => {
     setError('');
     setIsProcessing(true);
     
-    // Simuler un temps de traitement
-    setTimeout(() => {
-      try {
-        // Analyser la requête (simulation simplifiée)
-        const queryLower = query.toLowerCase();
-        let result = '';
-        
-        if (queryLower.includes('select') && queryLower.includes('from')) {
-          // Extraire la table cible
-          const fromMatch = queryLower.match(/from\s+(\w+)/);
-          const tableName = fromMatch ? fromMatch[1] : null;
+    try {
+      // Utiliser l'API existante pour exécuter la requête
+      const response = await fetch('/api/code/execute/sql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          sql: query,
+          dataset: Object.keys(data)[0] // Utiliser la première table disponible comme contexte
+        }),
+      });
+      
+      const responseData = await response.json();
+      
+      if (response.ok) {
+        // Formater le résultat pour l'affichage dans le tableau
+        if (responseData.data && Array.isArray(responseData.data)) {
+          // Construire un résultat CSV à partir des données JSON retournées
+          const columns = responseData.columns || Object.keys(responseData.data[0] || {});
+          const csvHeader = columns.join(',');
           
-          // Vérifier si la table existe dans nos données
-          if (!tableName || !data[tableName]) {
-            throw new Error(`Table '${tableName}' introuvable. Tables disponibles: ${Object.keys(data).join(', ')}`);
-          }
+          const csvRows = responseData.data.map(row => {
+            return columns.map(col => {
+              const value = row[col];
+              return value !== undefined && value !== null ? String(value) : '';
+            }).join(',');
+          });
+          
+          const csvResult = [csvHeader, ...csvRows].join('\n');
+          onResult(csvResult);
+        } else {
+          // Message de succès pour les opérations non-SELECT
+          onResult(responseData.result || 'Opération effectuée avec succès');
+        }
+      } else {
+        throw new Error(responseData.result || responseData.error || 'Erreur lors de l\'exécution de la requête');
+      }
+    } 
+    catch (err) {
+      console.error('Erreur SQL:', err);
+      setError(err.message || 'Erreur lors de l\'exécution de la requête');
+      onResult('');
+      
+      // Fallback au traitement côté client si l'API échoue
+      try {
+        // Extraire la table cible de la requête
+        const queryLower = query.toLowerCase();
+        const fromMatch = queryLower.match(/from\s+(\w+)/);
+        const tableName = fromMatch ? fromMatch[1] : null;
+        
+        // Vérifier si la table existe dans nos données
+        if (tableName && data[tableName]) {
+          let result = '';
           
           // Simuler un résultat en fonction du type de requête
           if (queryLower.includes('group by')) {
-            // Simulation d'une requête d'agrégation
-            result = `col1,col2,aggregated_value\ngroup1,subgroup1,12500\ngroup1,subgroup2,8300\ngroup2,subgroup1,3200\ngroup2,subgroup2,1800`;
+            result = `col1,col2,aggregated_value\ngroup1,subgroup1,12500\ngroup1,subgroup2,8300\ngroup2,subgroup1,3200`;
           } 
           else if (queryLower.includes('order by')) {
-            // Simulation d'une requête avec tri
-            result = `col1,col2,col3\nrow1_sorted,value1,32500\nrow2_sorted,value2,28900\nrow3_sorted,value3,15700\nrow4_sorted,value4,9400\nrow5_sorted,value5,3200`;
-          }
-          else if (queryLower.includes('where')) {
-            // Simulation d'une requête avec filtre
-            result = `col1,col2,col3\nfiltered_row1,value1,12000\nfiltered_row2,value2,9800\nfiltered_row3,value3,7650`;
+            result = `col1,col2,col3\nrow1_sorted,value1,32500\nrow2_sorted,value2,28900\nrow3_sorted,value3,15700`;
           }
           else {
-            // Requête SELECT simple
-            // Retourner les premières lignes de la table
+            // Requête SELECT simple - utiliser les données locales
             const tableLines = data[tableName].split('\n');
             result = tableLines.slice(0, Math.min(6, tableLines.length)).join('\n');
           }
           
           onResult(result);
-        } 
-        else if (queryLower.includes('create table') || queryLower.includes('insert into')) {
-          onResult(`Opération effectuée avec succès.\nLignes affectées: 5`);
+          setError('Note: Résultat simulé localement (mode fallback)');
         }
-        else {
-          throw new Error("Type de requête non pris en charge. Utilisez une requête SELECT.");
-        }
-      } 
-      catch (err) {
-        setError(err.message);
-        onResult('');
+      } catch (fallbackErr) {
+        // Si même le fallback échoue, ne rien faire de plus
+        console.error('Erreur fallback:', fallbackErr);
       }
-      finally {
-        setIsProcessing(false);
-      }
-    }, 800);
+    }
+    finally {
+      setIsProcessing(false);
+    }
   };
   
   // Sélectionner un exemple de requête
