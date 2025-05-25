@@ -1349,7 +1349,7 @@ export default function CyberTestTechnique() {
         id: 'code-1',
         type: 'code',
         question: 'Identifiez et corrigez la vulnérabilité dans ce code PHP:',
-        code: \`<?php
+        code: `<?php
 $username = $_GET['username'];
 $query = "SELECT * FROM users WHERE username = '$username'";
 $result = mysqli_query($conn, $query);
