@@ -5114,60 +5114,89 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
       });
     }
   });
-      
-      try {
-        // Appel à l'API OpenAI pour analyser la justification
-        const completion = await openAIService.getCompletion(systemPrompt, userPrompt, { temperature: 0.3, max_tokens: 500, response_format: { type: "json_object" } });
-        
-        if (!completion || !completion.content) {
-          throw new Error("Réponse OpenAI invalide");
-        }
-        
-        // Analyser la réponse JSON
-        let result;
-        try {
-          result = JSON.parse(completion.content);
-        } catch (e) {
-          console.error("Erreur de parsing JSON:", e);
-          throw new Error("Format de réponse invalide");
-        }
-        
-        // Vérifier que la réponse contient les champs nécessaires
-        if (typeof result.isValid !== 'boolean' || typeof result.feedback !== 'string') {
-          throw new Error("Format de réponse incomplet");
-        }
-        
-        // Retourner le résultat de l'analyse
-        return res.status(200).json({
-          isValid: result.isValid,
-          feedback: result.feedback,
-          score: result.score || (result.isValid ? 8 : 4)
-        });
-      } catch (error) {
-        console.error("Erreur lors de l'analyse de la justification:", error);
-        
-        // En cas d'erreur, utiliser une validation simplifiée
-        const isLongEnough = justification.length >= 50;
-        return res.status(200).json({
-          isValid: isLongEnough,
-          feedback: "Nous n'avons pas pu analyser votre justification en détail. " + 
-                   (isLongEnough ? "Elle semble toutefois suffisamment développée." : "Veuillez fournir plus de détails dans votre explication.")
-        });
-      }
+  
+  // Endpoint pour obtenir les challenges prédéfinis
+  app.get('/api/data-ia/prebuilt-challenges', (req, res) => {
+    try {
+      // Retourner une liste de challenges prédéfinis
+      return res.status(200).json({
+        success: true,
+        challenges: [
+          {
+            id: "1",
+            language: "python",
+            difficulty: "beginner",
+            mode: "code_review",
+            challenge: "Analyser ce code Python simple",
+            code: "def calculate_sum(a, b):\n    return a + b",
+            responses: [
+              { id: "1", text: "Le code calcule la somme de deux nombres", isCorrect: true },
+              { id: "2", text: "Le code calcule la différence entre deux nombres", isCorrect: false }
+            ],
+            explanation: "Cette fonction prend deux paramètres et retourne leur addition"
+          },
+          {
+            id: "2",
+            language: "sql",
+            difficulty: "intermediate",
+            mode: "normal",
+            challenge: "Que fait cette requête SQL?",
+            code: "SELECT name, COUNT(*) as count FROM users GROUP BY name HAVING count > 1",
+            responses: [
+              { id: "1", text: "Elle compte les utilisateurs par nom", isCorrect: false },
+              { id: "2", text: "Elle trouve les noms qui apparaissent plus d'une fois", isCorrect: true }
+            ],
+            explanation: "Cette requête regroupe les utilisateurs par nom et ne conserve que ceux apparaissant plus d'une fois"
+          }
+        ]
+      });
     } catch (error) {
-      console.error("Erreur lors de l'analyse de la justification:", error);
-      res.status(500).json({
-        error: "Erreur serveur lors de l'analyse de la justification",
-        isValid: false,
-        feedback: "Une erreur est survenue lors de l'analyse de votre justification."
+      console.error("Erreur lors de la récupération des challenges:", error);
+      return res.status(500).json({
+        success: false,
+        error: "Une erreur est survenue lors de la récupération des challenges"
+      });
+    }
+  });
+  
+  // Endpoint pour obtenir les statistiques du jeu
+  app.get('/api/data-ia/game-stats', (req, res) => {
+    try {
+      return res.status(200).json({
+        success: true,
+        stats: {
+          challengesCompleted: 42,
+          averageScore: 7.5,
+          totalTime: "2h 15min"
+        }
+      });
+    } catch (error) {
+      console.error("Erreur lors de la récupération des statistiques:", error);
+      return res.status(500).json({
+        success: false,
+        error: "Une erreur est survenue lors de la récupération des statistiques"
       });
     }
   });
 
-      // Créer un prompt adapté au langage, à la difficulté et au mode de jeu
-      let systemPrompt = `Tu es un expert en programmation chargé de créer des défis de code pour un jeu éducatif appelé "Read Me If You Can".
-      
-      TÂCHE: Générer un défi de code complet en ${language === 'python' ? 'Python' : 'SQL'} avec une difficulté "${difficulty}" et pour le mode de jeu "${mode}".
+  // Endpoint pour obtenir la liste des langages disponibles
+  app.get('/api/data-ia/available-languages', (req, res) => {
+    try {
+      return res.status(200).json({
+        success: true,
+        languages: [
+          { id: "python", name: "Python", icon: "python-icon" },
+          { id: "sql", name: "SQL", icon: "database-icon" }
+        ]
+      });
+    } catch (error) {
+      console.error("Erreur lors de la récupération des langages:", error);
+      return res.status(500).json({
+        success: false,
+        error: "Une erreur est survenue lors de la récupération des langages disponibles"
+      });
+    }
+  });
 
       NIVEAU DE DIFFICULTÉ:
       - débutant: Concepts de base, syntaxe simple, peu d'opérations.
