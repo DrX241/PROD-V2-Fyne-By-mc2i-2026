@@ -24,453 +24,392 @@ interface CodeChallenge {
 export const pythonDebutant: CodeChallenge[] = [
   {
     id: "python-debutant-1",
-    code: `def verifier_nombre_pair(n):
-    if n % 2 == 0:
-        return True
-    else:
-        return False
-
-# Test de la fonction
-print(verifier_nombre_pair(4))
-print(verifier_nombre_pair(7))`,
+    code: `fruits = ["pomme", "banane", "orange", "kiwi", "mangue"]
+print(fruits[2])`,
     language: "python",
-    question: "Quel est le résultat de cette fonction lorsqu'on lui passe le nombre 9 ?",
+    question: "Qu'affichera ce code ?",
     difficulty: "débutant",
     responses: [
-      { id: "a", text: "True", isCorrect: false },
-      { id: "b", text: "False", isCorrect: true },
-      { id: "c", text: "None", isCorrect: false },
-      { id: "d", text: "Une erreur sera générée", isCorrect: false }
+      { id: "a", text: "pomme", isCorrect: false },
+      { id: "b", text: "banane", isCorrect: false },
+      { id: "c", text: "orange", isCorrect: true },
+      { id: "d", text: "kiwi", isCorrect: false }
     ],
-    explanation: "La fonction vérifie si un nombre est pair en testant si le reste de la division par 2 est égal à 0. Pour le nombre 9, le reste de la division par 2 est 1, donc la fonction retourne False.",
-    hint: "Rappelez-vous que l'opérateur % calcule le reste de la division. Un nombre pair a un reste de 0 quand il est divisé par 2."
+    explanation: "En Python, l'indexation commence à 0. Le premier élément est à l'indice 0, le deuxième à l'indice 1, etc. Donc fruits[2] correspond au troisième élément, qui est 'orange'.",
+    hint: "Pensez à compter à partir de 0, pas de 1."
   },
   {
     id: "python-debutant-2",
-    code: `nombres = [1, 2, 3, 4, 5]
-somme = 0
-
-for nombre in nombres:
-    if nombre % 2 == 0:
-        somme += nombre
-
-print(somme)`,
+    code: `x = 5
+y = 2
+print(x // y)`,
     language: "python",
-    question: "Que fait ce code et quel est le résultat affiché ?",
+    question: "Quel sera le résultat affiché ?",
     difficulty: "débutant",
     responses: [
-      { id: "a", text: "Il calcule la somme de tous les nombres et affiche 15", isCorrect: false },
-      { id: "b", text: "Il calcule la somme des nombres pairs et affiche 6", isCorrect: true },
-      { id: "c", text: "Il calcule la somme des nombres impairs et affiche 9", isCorrect: false },
-      { id: "d", text: "Il compte le nombre de nombres pairs et affiche 2", isCorrect: false }
+      { id: "a", text: "2.5", isCorrect: false },
+      { id: "b", text: "2", isCorrect: true },
+      { id: "c", text: "2,5", isCorrect: false },
+      { id: "d", text: "1", isCorrect: false }
     ],
-    explanation: "Ce code parcourt la liste [1, 2, 3, 4, 5] et ajoute à la variable 'somme' uniquement les nombres pairs (ceux divisibles par 2). Dans cette liste, les nombres pairs sont 2 et 4, donc la somme affichée est 2 + 4 = 6.",
-    hint: "Regardez bien la condition dans la boucle for. Quels nombres de la liste répondent à cette condition ?"
+    explanation: "L'opérateur // en Python est l'opérateur de division entière. Il renvoie le quotient entier de la division en tronquant la partie décimale. 5 divisé par 2 donne 2.5, mais la division entière donne 2.",
+    hint: "L'opérateur // renvoie la partie entière de la division."
   },
   {
     id: "python-debutant-3",
-    code: `def transformer_liste(liste):
-    resultat = []
-    for element in liste:
-        resultat.append(element * 2)
-    return resultat
-
-nombres = [1, 2, 3, 4, 5]
-print(transformer_liste(nombres))`,
+    code: `chaine = "Python est un langage puissant"
+print(chaine[7:10])`,
     language: "python",
-    question: "Quel est le résultat de l'exécution de ce code ?",
+    question: "Qu'affichera ce code ?",
     difficulty: "débutant",
     responses: [
-      { id: "a", text: "[1, 2, 3, 4, 5, 1, 2, 3, 4, 5]", isCorrect: false },
-      { id: "b", text: "[2, 4, 6, 8, 10]", isCorrect: true },
-      { id: "c", text: "[1, 4, 9, 16, 25]", isCorrect: false },
-      { id: "d", text: "10", isCorrect: false }
+      { id: "a", text: "est", isCorrect: true },
+      { id: "b", text: "est ", isCorrect: false },
+      { id: "c", text: " est", isCorrect: false },
+      { id: "d", text: "Pytho", isCorrect: false }
     ],
-    explanation: "La fonction 'transformer_liste' parcourt chaque élément de la liste passée en paramètre et ajoute à une nouvelle liste le double de chaque élément. Avec la liste [1, 2, 3, 4, 5], le résultat est [2, 4, 6, 8, 10].",
-    hint: "La fonction multiplie chaque élément par 2 et stocke le résultat dans une nouvelle liste."
+    explanation: "Le slicing en Python s'écrit sous la forme [début:fin]. L'indice de début est inclus, mais l'indice de fin est exclu. Ici, chaine[7:10] commence à l'indice 7 (le caractère 'e') et s'arrête avant l'indice 10, ce qui donne 'est'.",
+    hint: "Attention aux espaces dans la chaîne, et n'oubliez pas que l'indexation commence à 0."
   },
   {
     id: "python-debutant-4",
-    code: `def compter_voyelles(texte):
-    voyelles = "aeiouy"
-    compteur = 0
-    
-    for caractere in texte.lower():
-        if caractere in voyelles:
-            compteur += 1
-            
-    return compteur
+    code: `def multiplier(a, b=2):
+    return a * b
 
-phrase = "Bonjour le monde"
-print(compter_voyelles(phrase))`,
+print(multiplier(5))`,
     language: "python",
-    question: "Combien de voyelles seront comptées dans la phrase 'Bonjour le monde' ?",
+    question: "Que va afficher ce programme ?",
     difficulty: "débutant",
     responses: [
-      { id: "a", text: "4", isCorrect: false },
-      { id: "b", text: "5", isCorrect: true },
-      { id: "c", text: "6", isCorrect: false },
-      { id: "d", text: "7", isCorrect: false }
+      { id: "a", text: "5", isCorrect: false },
+      { id: "b", text: "10", isCorrect: true },
+      { id: "c", text: "7", isCorrect: false },
+      { id: "d", text: "Une erreur, car le deuxième argument est manquant", isCorrect: false }
     ],
-    explanation: "La fonction compte le nombre de voyelles (a, e, i, o, u, y) dans le texte. Dans 'Bonjour le monde', on trouve: o, o, u, e, o, soit 5 voyelles au total.",
-    hint: "Pensez à compter toutes les voyelles, y compris celles qui apparaissent plusieurs fois."
+    explanation: "La fonction multiplier a un paramètre b avec une valeur par défaut de 2. Si aucune valeur n'est fournie pour b lors de l'appel, cette valeur par défaut est utilisée. Donc multiplier(5) est équivalent à multiplier(5, 2), ce qui renvoie 5 * 2 = 10.",
+    hint: "Regardez attentivement la définition de la fonction et la valeur par défaut du paramètre b."
   },
   {
     id: "python-debutant-5",
-    code: `def inverser_dictionnaire(dico):
-    resultat = {}
-    for cle, valeur in dico.items():
-        resultat[valeur] = cle
-    return resultat
-
-notes = {"Alice": 85, "Bob": 92, "Charlie": 78}
-print(inverser_dictionnaire(notes))`,
+    code: `nombres = [1, 2, 3, 4, 5]
+total = 0
+for nombre in nombres:
+    if nombre % 2 == 0:
+        total += nombre
+print(total)`,
     language: "python",
-    question: "Que fait cette fonction et quel sera le résultat affiché ?",
+    question: "Quelle est la valeur de total à la fin de l'exécution ?",
     difficulty: "débutant",
     responses: [
-      { id: "a", text: "Elle inverse l'ordre des paires clé-valeur: {'Charlie': 78, 'Bob': 92, 'Alice': 85}", isCorrect: false },
-      { id: "b", text: "Elle échange les clés et les valeurs: {85: 'Alice', 92: 'Bob', 78: 'Charlie'}", isCorrect: true },
-      { id: "c", text: "Elle crée un nouveau dictionnaire avec les mêmes clés: {'Alice': 'Alice', 'Bob': 'Bob', 'Charlie': 'Charlie'}", isCorrect: false },
-      { id: "d", text: "Une erreur sera générée car les valeurs ne peuvent pas être des clés", isCorrect: false }
+      { id: "a", text: "15", isCorrect: false },
+      { id: "b", text: "6", isCorrect: true },
+      { id: "c", text: "9", isCorrect: false },
+      { id: "d", text: "0", isCorrect: false }
     ],
-    explanation: "Cette fonction crée un nouveau dictionnaire où les valeurs du dictionnaire original deviennent les clés, et les clés deviennent les valeurs. Avec le dictionnaire notes, cela donne {85: 'Alice', 92: 'Bob', 78: 'Charlie'}.",
-    hint: "Observez comment les paires clé-valeur sont traitées dans la boucle for."
+    explanation: "Le code parcourt la liste nombres et ajoute à total uniquement les nombres pairs (ceux divisibles par 2). Dans la liste [1, 2, 3, 4, 5], les nombres pairs sont 2 et 4, donc total = 0 + 2 + 4 = 6.",
+    hint: "L'expression nombre % 2 == 0 vérifie si un nombre est pair."
   },
   {
     id: "python-debutant-6",
+    code: `mots = ["python", "est", "un", "langage", "de", "programmation"]
+resultat = " ".join(mots)
+print(resultat)`,
+    language: "python",
+    question: "Qu'affichera ce code ?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "['python', 'est', 'un', 'langage', 'de', 'programmation']", isCorrect: false },
+      { id: "b", text: "python est un langage de programmation", isCorrect: true },
+      { id: "c", text: "pythonestunlangagedeprogrammation", isCorrect: false },
+      { id: "d", text: "python-est-un-langage-de-programmation", isCorrect: false }
+    ],
+    explanation: "La méthode join() prend une séquence (comme une liste) et joint ses éléments en une seule chaîne, en utilisant la chaîne sur laquelle elle est appelée comme séparateur. Ici, le séparateur est un espace, donc les mots sont joints avec des espaces entre eux.",
+    hint: "La syntaxe de join est 'séparateur'.join(liste)."
+  },
+  {
+    id: "python-debutant-7",
+    code: `def fonction(x):
+    if x < 0:
+        return "Négatif"
+    elif x == 0:
+        return "Zéro"
+    else:
+        return "Positif"
+
+print(fonction(0))`,
+    language: "python",
+    question: "Quel sera le résultat de l'exécution de ce code ?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "Négatif", isCorrect: false },
+      { id: "b", text: "Zéro", isCorrect: true },
+      { id: "c", text: "Positif", isCorrect: false },
+      { id: "d", text: "Aucun résultat n'est affiché", isCorrect: false }
+    ],
+    explanation: "La fonction vérifie si x est négatif, égal à zéro, ou positif, et renvoie la chaîne correspondante. Comme x = 0, la condition x == 0 est vraie, donc la fonction renvoie 'Zéro'.",
+    hint: "Suivez le flux d'exécution de la fonction et vérifiez quelle condition est satisfaite pour x = 0."
+  },
+  {
+    id: "python-debutant-8",
+    code: `liste1 = [1, 2, 3]
+liste2 = liste1
+liste2.append(4)
+print(liste1)`,
+    language: "python",
+    question: "Qu'affichera ce code ?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "[1, 2, 3]", isCorrect: false },
+      { id: "b", text: "[1, 2, 3, 4]", isCorrect: true },
+      { id: "c", text: "[4, 1, 2, 3]", isCorrect: false },
+      { id: "d", text: "Une erreur se produira", isCorrect: false }
+    ],
+    explanation: "En Python, lorsqu'on assigne une liste à une autre variable (liste2 = liste1), les deux variables font référence au même objet en mémoire. Donc, toute modification de liste2 affecte également liste1. Après avoir ajouté 4 à liste2, liste1 contient aussi [1, 2, 3, 4].",
+    hint: "En Python, l'assignation de listes crée une référence, pas une copie."
+  },
+  {
+    id: "python-debutant-9",
+    code: `texte = "Python est génial"
+print(texte.upper())`,
+    language: "python",
+    question: "Qu'affichera ce code ?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "python est génial", isCorrect: false },
+      { id: "b", text: "Python Est Génial", isCorrect: false },
+      { id: "c", text: "PYTHON EST GÉNIAL", isCorrect: true },
+      { id: "d", text: "Python est génial", isCorrect: false }
+    ],
+    explanation: "La méthode upper() en Python convertit tous les caractères d'une chaîne en majuscules. Donc 'Python est génial' devient 'PYTHON EST GÉNIAL'.",
+    hint: "La méthode upper() transforme tous les caractères en majuscules."
+  },
+  {
+    id: "python-debutant-10",
+    code: `for i in range(5):
+    if i == 3:
+        continue
+    print(i, end=' ')`,
+    language: "python",
+    question: "Qu'affichera ce code ?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "0 1 2 3 4", isCorrect: false },
+      { id: "b", text: "0 1 2 4", isCorrect: true },
+      { id: "c", text: "1 2 4", isCorrect: false },
+      { id: "d", text: "0 1 2", isCorrect: false }
+    ],
+    explanation: "La boucle parcourt les nombres de 0 à 4. L'instruction continue fait sauter le reste du corps de la boucle pour l'itération courante. Donc, quand i == 3, l'instruction print est ignorée. Les nombres 0, 1, 2 et 4 sont affichés.",
+    hint: "L'instruction continue passe directement à l'itération suivante de la boucle."
+  },
+  {
+    id: "python-debutant-11",
+    code: `a = 10
+b = 3
+print(a % b)`,
+    language: "python",
+    question: "Quel sera le résultat de ce code ?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "3", isCorrect: false },
+      { id: "b", text: "1", isCorrect: true },
+      { id: "c", text: "0", isCorrect: false },
+      { id: "d", text: "3.33", isCorrect: false }
+    ],
+    explanation: "L'opérateur % en Python donne le reste de la division du premier opérande par le second. 10 divisé par 3 donne 3 avec un reste de 1. Donc, a % b = 10 % 3 = 1.",
+    hint: "L'opérateur modulo (%) donne le reste de la division."
+  },
+  {
+    id: "python-debutant-12",
+    code: `d = {'a': 1, 'b': 2, 'c': 3}
+print('b' in d)`,
+    language: "python",
+    question: "Qu'affichera ce code ?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "True", isCorrect: true },
+      { id: "b", text: "False", isCorrect: false },
+      { id: "c", text: "b", isCorrect: false },
+      { id: "d", text: "2", isCorrect: false }
+    ],
+    explanation: "L'opérateur in, lorsqu'il est utilisé avec un dictionnaire, vérifie si la clé spécifiée existe dans le dictionnaire. Comme la clé 'b' existe dans le dictionnaire d, l'expression 'b' in d renvoie True.",
+    hint: "L'opérateur in vérifie l'existence d'une clé dans un dictionnaire."
+  },
+  {
+    id: "python-debutant-13",
+    code: `def addition(a, b):
+    return a + b
+
+resultat = addition(3, 4)
+print(resultat * 2)`,
+    language: "python",
+    question: "Quel nombre sera affiché ?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "7", isCorrect: false },
+      { id: "b", text: "14", isCorrect: true },
+      { id: "c", text: "10", isCorrect: false },
+      { id: "d", text: "Une erreur se produira", isCorrect: false }
+    ],
+    explanation: "La fonction addition renvoie la somme de a et b, donc addition(3, 4) = 3 + 4 = 7. Ensuite, ce résultat est multiplié par 2, ce qui donne 7 * 2 = 14.",
+    hint: "Suivez l'exécution pas à pas : d'abord calculez le résultat de la fonction, puis appliquez la multiplication."
+  },
+  {
+    id: "python-debutant-14",
+    code: `chaine = "abcdef"
+print(chaine[::-1])`,
+    language: "python",
+    question: "Qu'affichera ce code ?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "abcdef", isCorrect: false },
+      { id: "b", text: "fedcba", isCorrect: true },
+      { id: "c", text: "a", isCorrect: false },
+      { id: "d", text: "f", isCorrect: false }
+    ],
+    explanation: "En Python, le slicing avec [::-1] inverse l'ordre des éléments de la séquence. Donc, la chaîne 'abcdef' devient 'fedcba'.",
+    hint: "Le paramètre -1 dans le slicing indique qu'on parcourt la chaîne à l'envers."
+  },
+  {
+    id: "python-debutant-15",
+    code: `x = 5
+y = 3
+z = 2
+print(x > y > z)`,
+    language: "python",
+    question: "Quel sera le résultat ?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "True", isCorrect: true },
+      { id: "b", text: "False", isCorrect: false },
+      { id: "c", text: "5 > 3 > 2", isCorrect: false },
+      { id: "d", text: "Une erreur se produira", isCorrect: false }
+    ],
+    explanation: "En Python, on peut chaîner les opérateurs de comparaison. L'expression x > y > z est équivalente à (x > y) and (y > z). Comme 5 > 3 et 3 > 2 sont tous deux vrais, le résultat final est True.",
+    hint: "Python permet de chaîner les comparaisons de manière intuitive."
+  },
+  {
+    id: "python-debutant-16",
+    code: `nombres = [1, 2, 3, 4, 5]
+resultat = [x * 2 for x in nombres if x % 2 == 0]
+print(resultat)`,
+    language: "python",
+    question: "Qu'affichera ce code ?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "[2, 4, 6, 8, 10]", isCorrect: false },
+      { id: "b", text: "[4, 8]", isCorrect: true },
+      { id: "c", text: "[2, 6, 10]", isCorrect: false },
+      { id: "d", text: "[4]", isCorrect: false }
+    ],
+    explanation: "Cette ligne utilise une compréhension de liste avec un filtre. Elle prend chaque nombre x dans la liste nombres, filtre pour ne garder que les nombres pairs (x % 2 == 0), puis multiplie ces nombres par 2. Dans la liste [1, 2, 3, 4, 5], les nombres pairs sont 2 et 4, et après multiplication par 2, on obtient [4, 8].",
+    hint: "La compréhension de liste applique d'abord le filtre (if x % 2 == 0), puis la transformation (x * 2)."
+  },
+  {
+    id: "python-debutant-17",
+    code: `a = [1, 2, 3]
+b = [4, 5, 6]
+c = a + b
+print(len(c))`,
+    language: "python",
+    question: "Quel nombre sera affiché ?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "2", isCorrect: false },
+      { id: "b", text: "6", isCorrect: false },
+      { id: "c", text: "21", isCorrect: false },
+      { id: "d", text: "6", isCorrect: true }
+    ],
+    explanation: "En Python, l'opérateur + entre deux listes concatène ces listes. a + b donne donc [1, 2, 3, 4, 5, 6]. La fonction len() renvoie le nombre d'éléments dans une séquence, donc len(c) = 6.",
+    hint: "L'opérateur + concatène deux listes, et len() compte le nombre d'éléments."
+  },
+  {
+    id: "python-debutant-18",
+    code: `print(bool(0), bool(1), bool(""), bool("hello"))`,
+    language: "python",
+    question: "Qu'affichera ce code ?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "False True False True", isCorrect: true },
+      { id: "b", text: "False True True True", isCorrect: false },
+      { id: "c", text: "True True False True", isCorrect: false },
+      { id: "d", text: "False False False True", isCorrect: false }
+    ],
+    explanation: "En Python, bool() convertit une valeur en booléen. Les valeurs considérées comme fausses incluent 0, None, les chaînes vides, les listes vides, etc. Toutes les autres valeurs sont considérées comme vraies. Donc, bool(0) = False, bool(1) = True, bool(\"\") = False et bool(\"hello\") = True.",
+    hint: "En Python, certaines valeurs sont naturellement évaluées à False (0, chaînes vides, etc.)."
+  },
+  {
+    id: "python-debutant-19",
+    code: `liste = [1, 2, 3, 4, 5]
+print(liste[-2])`,
+    language: "python",
+    question: "Qu'affichera ce code ?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "5", isCorrect: false },
+      { id: "b", text: "4", isCorrect: true },
+      { id: "c", text: "2", isCorrect: false },
+      { id: "d", text: "Une erreur se produira", isCorrect: false }
+    ],
+    explanation: "En Python, les indices négatifs permettent d'accéder aux éléments d'une séquence en partant de la fin. L'indice -1 correspond au dernier élément, -2 à l'avant-dernier, etc. Donc, liste[-2] désigne l'avant-dernier élément de la liste, qui est 4.",
+    hint: "Les indices négatifs comptent à partir de la fin de la liste."
+  },
+  {
+    id: "python-debutant-20",
+    code: `a = 10
+b = "10"
+print(str(a) == b)`,
+    language: "python",
+    question: "Quel sera le résultat ?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "True", isCorrect: true },
+      { id: "b", text: "False", isCorrect: false },
+      { id: "c", text: "10 == 10", isCorrect: false },
+      { id: "d", text: "Une erreur se produira", isCorrect: false }
+    ],
+    explanation: "La fonction str() convertit son argument en chaîne de caractères. Donc, str(a) donne la chaîne '10'. La comparaison str(a) == b compare deux chaînes : '10' et '10', qui sont égales. Le résultat est donc True.",
+    hint: "La fonction str() convertit un nombre en sa représentation sous forme de chaîne."
+  },
+  {
+    id: "python-debutant-21",
+    code: `nombres = [10, 20, 30, 40, 50]
+print(sum(nombres) / len(nombres))`,
+    language: "python",
+    question: "Que calcule ce code ?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "La somme des nombres", isCorrect: false },
+      { id: "b", text: "La moyenne des nombres", isCorrect: true },
+      { id: "c", text: "Le nombre d'éléments dans la liste", isCorrect: false },
+      { id: "d", text: "Le dernier élément de la liste", isCorrect: false }
+    ],
+    explanation: "Ce code calcule la moyenne des nombres dans la liste. sum(nombres) donne la somme de tous les éléments (10 + 20 + 30 + 40 + 50 = 150), et len(nombres) donne le nombre d'éléments (5). Donc, sum(nombres) / len(nombres) = 150 / 5 = 30.",
+    hint: "Pour calculer une moyenne, on divise la somme des valeurs par le nombre de valeurs."
+  },
+  {
+    id: "python-debutant-22",
     code: `texte = "Python est un langage de programmation"
 mots = texte.split()
 print(len(mots))`,
     language: "python",
-    question: "Que fait ce code et quel est le résultat affiché ?",
+    question: "Quel nombre sera affiché ?",
     difficulty: "débutant",
     responses: [
-      { id: "a", text: "Il compte le nombre de caractères dans le texte et affiche 40", isCorrect: false },
-      { id: "b", text: "Il compte le nombre de mots dans le texte et affiche 6", isCorrect: true },
-      { id: "c", text: "Il compte le nombre de lettres 'p' et affiche 3", isCorrect: false },
-      { id: "d", text: "Il affiche la liste des mots: ['Python', 'est', 'un', 'langage', 'de', 'programmation']", isCorrect: false }
+      { id: "a", text: "6", isCorrect: true },
+      { id: "b", text: "5", isCorrect: false },
+      { id: "c", text: "7", isCorrect: false },
+      { id: "d", text: "39", isCorrect: false }
     ],
-    explanation: "La méthode split() sans argument découpe une chaîne de caractères à chaque espace et retourne une liste des mots. Ensuite, len() calcule la longueur de cette liste, soit le nombre de mots. Dans ce cas, il y a 6 mots.",
-    hint: "La méthode split() divise une chaîne en une liste de sous-chaînes."
-  },
-  {
-    id: "python-debutant-7",
-    code: `nombres = [10, 5, 8, 3, 12]
-max_val = nombres[0]
-for nombre in nombres:
-    if nombre > max_val:
-        max_val = nombre
-print(max_val)`,
-    language: "python",
-    question: "Que fait ce code et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Il trouve la somme des nombres et affiche 38", isCorrect: false },
-      { id: "b", text: "Il trouve la valeur maximale et affiche 12", isCorrect: true },
-      { id: "c", text: "Il affiche le premier nombre: 10", isCorrect: false },
-      { id: "d", text: "Il compte le nombre d'éléments et affiche 5", isCorrect: false }
-    ],
-    explanation: "Ce code initialise max_val avec le premier élément de la liste (10), puis parcourt tous les éléments. Si un élément est plus grand que max_val, celui-ci est mis à jour. À la fin, max_val contient la plus grande valeur trouvée: 12.",
-    hint: "Suivez l'évolution de la variable max_val à chaque itération de la boucle."
-  },
-  {
-    id: "python-debutant-8",
-    code: `def calcul_moyenne(nombres):
-    if len(nombres) == 0:
-        return 0
-    return sum(nombres) / len(nombres)
-
-resultats = [15, 18, 12, 14, 16]
-print(calcul_moyenne(resultats))`,
-    language: "python",
-    question: "Quel est le résultat affiché par ce code ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "15", isCorrect: true },
-      { id: "b", text: "16", isCorrect: false },
-      { id: "c", text: "14", isCorrect: false },
-      { id: "d", text: "75", isCorrect: false }
-    ],
-    explanation: "Cette fonction calcule la moyenne d'une liste de nombres en divisant leur somme par le nombre d'éléments. Pour la liste [15, 18, 12, 14, 16], la somme est 75 et il y a 5 éléments, donc la moyenne est 75/5 = 15.",
-    hint: "La fonction sum() calcule la somme des éléments d'une liste."
-  },
-  {
-    id: "python-debutant-9",
-    code: `def est_palindrome(mot):
-    return mot == mot[::-1]
-
-print(est_palindrome("radar"))
-print(est_palindrome("python"))`,
-    language: "python",
-    question: "Que fait cette fonction et quels seront les résultats affichés ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle vérifie si le mot contient des lettres répétées et affiche False, False", isCorrect: false },
-      { id: "b", text: "Elle vérifie si le mot se lit de la même façon dans les deux sens et affiche True, False", isCorrect: true },
-      { id: "c", text: "Elle compte le nombre de voyelles et affiche 2, 1", isCorrect: false },
-      { id: "d", text: "Elle vérifie si la première lettre est identique à la dernière et affiche True, False", isCorrect: false }
-    ],
-    explanation: "La fonction vérifie si un mot est un palindrome, c'est-à-dire s'il se lit de la même façon de gauche à droite et de droite à gauche. La notation mot[::-1] retourne le mot inversé. 'radar' est un palindrome (True) alors que 'python' ne l'est pas (False).",
-    hint: "L'expression mot[::-1] crée une copie inversée de la chaîne de caractères."
-  },
-  {
-    id: "python-debutant-10",
-    code: `nombres = list(range(1, 6))
-carres = [n**2 for n in nombres]
-print(carres)`,
-    language: "python",
-    question: "Que fait ce code et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Il crée une liste de nombres de 1 à 5 et affiche [1, 2, 3, 4, 5]", isCorrect: false },
-      { id: "b", text: "Il calcule le carré de chaque nombre de 1 à 5 et affiche [1, 4, 9, 16, 25]", isCorrect: true },
-      { id: "c", text: "Il calcule la puissance de 2 pour chaque nombre et affiche [2, 4, 8, 16, 32]", isCorrect: false },
-      { id: "d", text: "Il affiche une erreur car range() ne peut pas être utilisé avec list()", isCorrect: false }
-    ],
-    explanation: "Ce code utilise d'abord range(1, 6) pour créer une séquence de nombres de 1 à 5, puis la convertit en liste. Ensuite, il utilise une compréhension de liste pour calculer le carré de chaque nombre. Le résultat est [1, 4, 9, 16, 25].",
-    hint: "L'opérateur ** en Python est utilisé pour l'exponentiation. n**2 signifie n au carré."
-  },
-  {
-    id: "python-debutant-11",
-    code: `def saluer(nom, heure=12):
-    if heure < 12:
-        return f"Bonjour {nom}, il est {heure}h du matin"
-    elif heure < 18:
-        return f"Bonjour {nom}, il est {heure}h de l'après-midi"
-    else:
-        return f"Bonsoir {nom}, il est {heure}h du soir"
-
-print(saluer("Thomas", 9))
-print(saluer("Julie"))`,
-    language: "python",
-    question: "Quels sont les deux résultats affichés par ce code ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "'Bonjour Thomas, il est 9h du matin' et 'Bonjour Julie, il est 12h du matin'", isCorrect: false },
-      { id: "b", text: "'Bonjour Thomas, il est 9h du matin' et 'Bonjour Julie, il est 12h de l'après-midi'", isCorrect: true },
-      { id: "c", text: "'Bonjour Thomas' et 'Bonjour Julie'", isCorrect: false },
-      { id: "d", text: "'Bonsoir Thomas, il est 9h du soir' et 'Bonjour Julie, il est 12h de l'après-midi'", isCorrect: false }
-    ],
-    explanation: "La fonction saluer() prend un paramètre obligatoire 'nom' et un paramètre optionnel 'heure' qui a une valeur par défaut de 12. Pour le premier appel, avec Thomas et 9, le message est du matin. Pour le second appel, avec Julie et sans préciser l'heure, la valeur par défaut 12 est utilisée, ce qui donne un message de l'après-midi.",
-    hint: "Les paramètres avec des valeurs par défaut permettent d'appeler une fonction sans spécifier tous les arguments."
-  },
-  {
-    id: "python-debutant-12",
-    code: `fruits = ["pomme", "banane", "orange", "fraise", "kiwi"]
-print(fruits[1:4])`,
-    language: "python",
-    question: "Quel est le résultat affiché par ce code ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "['pomme', 'banane', 'orange', 'fraise']", isCorrect: false },
-      { id: "b", text: "['banane', 'orange', 'fraise']", isCorrect: true },
-      { id: "c", text: "['banane', 'orange', 'fraise', 'kiwi']", isCorrect: false },
-      { id: "d", text: "['pomme', 'orange', 'kiwi']", isCorrect: false }
-    ],
-    explanation: "En Python, le découpage (slicing) avec [1:4] signifie 'prendre les éléments à partir de l'indice 1 (inclus) jusqu'à l'indice 4 (exclu)'. Les indices commencent à 0, donc l'indice 1 correspond à 'banane' et l'indice 3 (le dernier inclus) correspond à 'fraise'.",
-    hint: "Dans une opération de découpage list[start:end], l'élément à l'indice start est inclus, mais l'élément à l'indice end est exclu."
-  },
-  {
-    id: "python-debutant-13",
-    code: `mot = "Python"
-resultat = ""
-for i in range(len(mot)):
-    resultat += mot[len(mot) - 1 - i]
-print(resultat)`,
-    language: "python",
-    question: "Que fait ce code et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Il affiche le mot original: 'Python'", isCorrect: false },
-      { id: "b", text: "Il inverse le mot et affiche: 'nohtyP'", isCorrect: true },
-      { id: "c", text: "Il affiche les lettres en double: 'PPyytthhoonn'", isCorrect: false },
-      { id: "d", text: "Il affiche uniquement les voyelles: 'yo'", isCorrect: false }
-    ],
-    explanation: "Ce code parcourt chaque position du mot, de 0 à la longueur-1. Pour chaque position i, il ajoute au résultat le caractère situé à la position (len(mot) - 1 - i), c'est-à-dire en partant de la fin. Cela inverse le mot 'Python' pour donner 'nohtyP'.",
-    hint: "Suivez l'évolution de la variable i et calculez l'indice utilisé pour chaque itération."
-  },
-  {
-    id: "python-debutant-14",
-    code: `def diviser(a, b):
-    try:
-        resultat = a / b
-        return resultat
-    except ZeroDivisionError:
-        return "Division par zéro impossible"
-
-print(diviser(10, 2))
-print(diviser(10, 0))`,
-    language: "python",
-    question: "Quels sont les résultats affichés par ce code ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "5.0 et None", isCorrect: false },
-      { id: "b", text: "5.0 et 'Division par zéro impossible'", isCorrect: true },
-      { id: "c", text: "5 et 0", isCorrect: false },
-      { id: "d", text: "Une erreur est générée lors de la deuxième division", isCorrect: false }
-    ],
-    explanation: "Cette fonction tente de diviser a par b. Pour diviser(10, 2), elle renvoie 5.0 (résultat d'une division flottante). Pour diviser(10, 0), qui causerait normalement une ZeroDivisionError, le bloc except intercepte l'erreur et renvoie le message 'Division par zéro impossible'.",
-    hint: "Le bloc try/except permet de gérer les erreurs qui pourraient survenir pendant l'exécution."
-  },
-  {
-    id: "python-debutant-15",
-    code: `liste = [3, 1, 4, 1, 5, 9, 2, 6, 5]
-liste.sort()
-print(liste)`,
-    language: "python",
-    question: "Que fait ce code et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Il trie la liste dans l'ordre croissant et affiche [1, 1, 2, 3, 4, 5, 5, 6, 9]", isCorrect: true },
-      { id: "b", text: "Il trie la liste dans l'ordre décroissant et affiche [9, 6, 5, 5, 4, 3, 2, 1, 1]", isCorrect: false },
-      { id: "c", text: "Il supprime les doublons et affiche [3, 1, 4, 5, 9, 2, 6]", isCorrect: false },
-      { id: "d", text: "Il affiche la liste originale sans changement: [3, 1, 4, 1, 5, 9, 2, 6, 5]", isCorrect: false }
-    ],
-    explanation: "La méthode sort() trie la liste en place, dans l'ordre croissant par défaut. Les éléments sont réorganisés du plus petit au plus grand, y compris les doublons. Le résultat est [1, 1, 2, 3, 4, 5, 5, 6, 9].",
-    hint: "La méthode sort() modifie la liste originale, contrairement à la fonction sorted() qui retourne une nouvelle liste triée."
-  },
-  {
-    id: "python-debutant-16",
-    code: `def convertir_temperature(celsius):
-    fahrenheit = celsius * 9/5 + 32
-    return fahrenheit
-
-temp_celsius = 25
-temp_fahrenheit = convertir_temperature(temp_celsius)
-print(f"{temp_celsius}°C équivaut à {temp_fahrenheit}°F")`,
-    language: "python",
-    question: "Quel est le résultat affiché par ce code ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "25°C équivaut à 57°F", isCorrect: false },
-      { id: "b", text: "25°C équivaut à 77.0°F", isCorrect: true },
-      { id: "c", text: "25°C équivaut à 77°F", isCorrect: false },
-      { id: "d", text: "25°C équivaut à 45°F", isCorrect: false }
-    ],
-    explanation: "Cette fonction convertit une température de Celsius en Fahrenheit selon la formule F = C × 9/5 + 32. Pour 25°C, le calcul donne 25 × 9/5 + 32 = 45 + 32 = 77.0°F.",
-    hint: "Faites attention à l'ordre des opérations dans la formule de conversion."
-  },
-  {
-    id: "python-debutant-17",
-    code: `phrase = "Le Python est un langage de programmation populaire"
-mots = phrase.split()
-resultat = "-".join(mots)
-print(resultat)`,
-    language: "python",
-    question: "Que fait ce code et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Il compte le nombre de mots et affiche 8", isCorrect: false },
-      { id: "b", text: "Il joint les mots avec des tirets et affiche 'Le-Python-est-un-langage-de-programmation-populaire'", isCorrect: true },
-      { id: "c", text: "Il retire les espaces et affiche 'LePythonestunlangagedeprogrammationpopulaire'", isCorrect: false },
-      { id: "d", text: "Il ajoute des tirets entre chaque lettre et affiche 'L-e- -P-y-t-h-o-n- -e-s-t...'", isCorrect: false }
-    ],
-    explanation: "Le code divise d'abord la phrase en une liste de mots avec split(). Ensuite, join() est utilisé pour recombiner ces mots en une seule chaîne en plaçant un tiret entre chaque mot. Le résultat est une phrase où les espaces ont été remplacés par des tirets.",
-    hint: "La méthode split() divise une chaîne en une liste, tandis que join() fait l'inverse en combinant une liste en une chaîne."
-  },
-  {
-    id: "python-debutant-18",
-    code: `notes = {"math": 15, "physique": 12, "histoire": 18, "anglais": 14}
-matieres = list(notes.keys())
-print(matieres)`,
-    language: "python",
-    question: "Quel est le résultat affiché par ce code ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "['math', 'physique', 'histoire', 'anglais']", isCorrect: true },
-      { id: "b", text: "[15, 12, 18, 14]", isCorrect: false },
-      { id: "c", text: "{'math': 15, 'physique': 12, 'histoire': 18, 'anglais': 14}", isCorrect: false },
-      { id: "d", text: "[('math', 15), ('physique', 12), ('histoire', 18), ('anglais', 14)]", isCorrect: false }
-    ],
-    explanation: "La méthode keys() d'un dictionnaire retourne un objet itérable contenant toutes les clés du dictionnaire. En convertissant cet objet en liste avec list(), on obtient une liste des clés, soit ['math', 'physique', 'histoire', 'anglais'].",
-    hint: "Pour récupérer les valeurs d'un dictionnaire, on utiliserait values() au lieu de keys()."
-  },
-  {
-    id: "python-debutant-19",
-    code: `nombre = 12345
-somme = 0
-while nombre > 0:
-    somme += nombre % 10
-    nombre = nombre // 10
-print(somme)`,
-    language: "python",
-    question: "Que fait ce code et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Il calcule la somme des chiffres de 12345 et affiche 15", isCorrect: true },
-      { id: "b", text: "Il calcule le produit des chiffres de 12345 et affiche 120", isCorrect: false },
-      { id: "c", text: "Il inverse le nombre et affiche 54321", isCorrect: false },
-      { id: "d", text: "Il compte le nombre de chiffres et affiche 5", isCorrect: false }
-    ],
-    explanation: "Ce code calcule la somme des chiffres d'un nombre entier. À chaque itération, il ajoute le dernier chiffre (nombre % 10) à la somme, puis supprime ce dernier chiffre en divisant le nombre par 10 (division entière). Pour 12345, la somme des chiffres est 1+2+3+4+5 = 15.",
-    hint: "L'opération nombre % 10 donne le dernier chiffre du nombre, tandis que nombre // 10 supprime ce dernier chiffre."
-  },
-  {
-    id: "python-debutant-20",
-    code: `def filtrer_positifs(liste):
-    return [x for x in liste if x > 0]
-
-nombres = [-3, 4, 0, -1, 7, -5, 2]
-print(filtrer_positifs(nombres))`,
-    language: "python",
-    question: "Que fait cette fonction et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle supprime les nombres négatifs et affiche [4, 0, 7, 2]", isCorrect: false },
-      { id: "b", text: "Elle garde uniquement les nombres positifs et affiche [4, 7, 2]", isCorrect: true },
-      { id: "c", text: "Elle compte les nombres positifs et affiche 3", isCorrect: false },
-      { id: "d", text: "Elle remplace les nombres négatifs par 0 et affiche [0, 4, 0, 0, 7, 0, 2]", isCorrect: false }
-    ],
-    explanation: "Cette fonction utilise une compréhension de liste pour créer une nouvelle liste contenant uniquement les éléments positifs (strictement supérieurs à 0) de la liste d'origine. Les nombres 4, 7 et 2 sont les seuls nombres positifs de la liste originale.",
-    hint: "La condition x > 0 dans la compréhension de liste filtre tous les éléments négatifs et nuls."
-  },
-  {
-    id: "python-debutant-21",
-    code: `def compte_occurences(texte, lettre):
-    return texte.lower().count(lettre.lower())
-
-phrase = "Python est un langage de Programmation"
-print(compte_occurences(phrase, "p"))`,
-    language: "python",
-    question: "Quel est le résultat affiché par ce code ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "1", isCorrect: false },
-      { id: "b", text: "2", isCorrect: true },
-      { id: "c", text: "3", isCorrect: false },
-      { id: "d", text: "0", isCorrect: false }
-    ],
-    explanation: "Cette fonction compte le nombre d'occurrences d'une lettre dans un texte, en ignorant la casse (majuscules/minuscules). Dans la phrase 'Python est un langage de Programmation', la lettre 'p' apparaît deux fois: au début de 'Python' et de 'Programmation'.",
-    hint: "La méthode lower() convertit toutes les lettres en minuscules avant de compter, ce qui rend la recherche insensible à la casse."
-  },
-  {
-    id: "python-debutant-22",
-    code: `def afficher_table(n, max=10):
-    for i in range(1, max + 1):
-        print(f"{n} x {i} = {n * i}")
-
-afficher_table(7, 5)`,
-    language: "python",
-    question: "Que fait cette fonction et combien de lignes seront affichées ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle affiche la table de multiplication de 7, de 7×1 à 7×10, soit 10 lignes", isCorrect: false },
-      { id: "b", text: "Elle affiche la table de multiplication de 7, de 7×1 à 7×5, soit 5 lignes", isCorrect: true },
-      { id: "c", text: "Elle affiche les multiples de 7 jusqu'à 5×7, soit 1 ligne avec [7, 14, 21, 28, 35]", isCorrect: false },
-      { id: "d", text: "Elle affiche la somme de 7 et des nombres de 1 à 5, soit 1 ligne avec 35", isCorrect: false }
-    ],
-    explanation: "Cette fonction affiche la table de multiplication d'un nombre n jusqu'à n×max. Avec n=7 et max=5, elle affiche les cinq premières lignes de la table de 7: 7×1=7, 7×2=14, 7×3=21, 7×4=28, 7×5=35.",
-    hint: "Le paramètre max=10 est une valeur par défaut, mais elle est remplacée par 5 dans l'appel de fonction."
+    explanation: "La méthode split() sans argument divise une chaîne en mots, en utilisant les espaces comme séparateurs. La chaîne 'Python est un langage de programmation' contient 6 mots : 'Python', 'est', 'un', 'langage', 'de', 'programmation'. Donc, len(mots) = 6.",
+    hint: "Comptez le nombre de mots dans la phrase originale."
   },
   {
     id: "python-debutant-23",
-    code: `nombres = [1, 2, 3, 4, 5]
-resultat = nombres.pop(2)
-print(nombres)
-print(resultat)`,
+    code: `liste = [1, 2, 3, 4, 5]
+element = liste.pop(2)
+print(liste, element)`,
     language: "python",
-    question: "Quels sont les résultats affichés par ce code ?",
+    question: "Qu'affichera ce code ?",
     difficulty: "débutant",
     responses: [
       { id: "a", text: "[1, 2, 4, 5] et 3", isCorrect: true },
@@ -513,550 +452,13 @@ print(dernier_element([], "vide"))`,
     difficulty: "débutant",
     responses: [
       { id: "a", text: "4, None, 'vide'", isCorrect: true },
-      { id: "b", text: "4, '', []", isCorrect: false },
-      { id: "c", text: "[4], None, 'vide'", isCorrect: false },
-      { id: "d", text: "4, '', 'vide'", isCorrect: false }
+      { id: "b", text: "4, '', 'vide'", isCorrect: false },
+      { id: "c", text: "[1, 2, 3, 4], '', []", isCorrect: false },
+      { id: "d", text: "4, '', []", isCorrect: false }
     ],
-    explanation: "Cette fonction retourne le dernier élément d'une séquence (liste, chaîne, etc.). Si la séquence est vide, elle retourne la valeur par défaut. Pour [1, 2, 3, 4], le dernier élément est 4. Pour une chaîne vide '', la séquence est vide, donc la fonction retourne None (la valeur par défaut). Pour [] avec le défaut 'vide', elle retourne 'vide'.",
-    hint: "L'indice -1 en Python accède au dernier élément d'une séquence."
-  },
-  {
-    id: "python-debutant-26",
-    code: `noms = ["Alice", "Bob", "Charlie", "David"]
-ages = [25, 30, 22, 35]
-
-for nom, age in zip(noms, ages):
-    print(f"{nom} a {age} ans")`,
-    language: "python",
-    question: "Que fait ce code et comment fonctionne-t-il ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Il associe chaque nom à son âge et affiche 4 lignes, une pour chaque personne", isCorrect: true },
-      { id: "b", text: "Il crée un dictionnaire où les noms sont les clés et les âges les valeurs", isCorrect: false },
-      { id: "c", text: "Il vérifie si les deux listes ont la même longueur et affiche True", isCorrect: false },
-      { id: "d", text: "Il calcule l'âge moyen et l'associe à chaque nom", isCorrect: false }
-    ],
-    explanation: "La fonction zip() combine des éléments de plusieurs itérables en un itérable de tuples. Ici, elle associe chaque nom à l'âge correspondant à la même position. La boucle for parcourt ces paires et affiche une ligne pour chaque personne, formatée avec son nom et son âge.",
-    hint: "zip() s'arrête lorsque le plus court des itérables est épuisé."
-  },
-  {
-    id: "python-debutant-27",
-    code: `def valeur_absolue(nombre):
-    if nombre < 0:
-        return -nombre
-    return nombre
-
-print(valeur_absolue(-5))
-print(valeur_absolue(3))`,
-    language: "python",
-    question: "Que fait cette fonction et quels sont les résultats affichés ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle inverse le signe du nombre et affiche 5, -3", isCorrect: false },
-      { id: "b", text: "Elle calcule la valeur absolue et affiche 5, 3", isCorrect: true },
-      { id: "c", text: "Elle multiplie le nombre par -1 et affiche 5, -3", isCorrect: false },
-      { id: "d", text: "Elle affiche True, False (si le nombre est négatif ou non)", isCorrect: false }
-    ],
-    explanation: "Cette fonction calcule la valeur absolue d'un nombre. Si le nombre est négatif, elle retourne son opposé (-nombre, qui est positif). Si le nombre est positif ou nul, elle le retourne tel quel. Pour -5, elle retourne 5; pour 3, elle retourne 3.",
-    hint: "La valeur absolue d'un nombre est sa distance par rapport à zéro, sans tenir compte de son signe."
-  },
-  {
-    id: "python-debutant-28",
-    code: `nombres = [1, 2, 3, 4, 5]
-doubles = map(lambda x: x * 2, nombres)
-print(list(doubles))`,
-    language: "python",
-    question: "Que fait ce code et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Il double chaque nombre et affiche [2, 4, 6, 8, 10]", isCorrect: true },
-      { id: "b", text: "Il filtre les nombres pairs et affiche [2, 4]", isCorrect: false },
-      { id: "c", text: "Il crée une fonction double et l'applique à la liste entière", isCorrect: false },
-      { id: "d", text: "Il affiche l'objet map sans le convertir: <map object at 0x...>", isCorrect: false }
-    ],
-    explanation: "La fonction map() applique une fonction (ici, une fonction lambda qui multiplie par 2) à chaque élément d'un itérable et retourne un nouvel itérable. La conversion en liste avec list() permet d'obtenir tous les résultats sous forme de liste: [2, 4, 6, 8, 10].",
-    hint: "La fonction lambda x: x * 2 est une fonction anonyme qui prend un argument x et retourne x multiplié par 2."
-  },
-  {
-    id: "python-debutant-29",
-    code: `texte = "Python"
-for i in range(len(texte)):
-    print(texte[:i+1])`,
-    language: "python",
-    question: "Que fait ce code et que va-t-il afficher ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Les lettres individuelles: 'P', 'y', 't', etc.", isCorrect: false },
-      { id: "b", text: "Des sous-chaînes croissantes: 'P', 'Py', 'Pyt', 'Pyth', 'Pytho', 'Python'", isCorrect: true },
-      { id: "c", text: "Des sous-chaînes décroissantes: 'Python', 'Pytho', 'Pyth', etc.", isCorrect: false },
-      { id: "d", text: "Des permutations des lettres de 'Python'", isCorrect: false }
-    ],
-    explanation: "Ce code utilise une boucle pour afficher des sous-chaînes de plus en plus longues du mot 'Python'. À chaque itération i, il affiche la sous-chaîne du début jusqu'à l'indice i inclus ([:i+1]). Cela crée un effet d'animation textuelle où le mot se construit progressivement.",
-    hint: "Le découpage de chaîne texte[:i+1] donne tous les caractères du début jusqu'à la position i (incluse)."
-  },
-  {
-    id: "python-debutant-30",
-    code: `def est_premier(n):
-    if n <= 1:
-        return False
-    if n <= 3:
-        return True
-    if n % 2 == 0 or n % 3 == 0:
-        return False
-    i = 5
-    while i * i <= n:
-        if n % i == 0 or n % (i + 2) == 0:
-            return False
-        i += 6
-    return True
-
-print(est_premier(7))
-print(est_premier(12))`,
-    language: "python",
-    question: "Que fait cette fonction et quels sont les résultats affichés ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle vérifie si un nombre est premier et affiche True, False", isCorrect: true },
-      { id: "b", text: "Elle vérifie si un nombre est pair et affiche False, True", isCorrect: false },
-      { id: "c", text: "Elle calcule les facteurs premiers et affiche [7], [2, 2, 3]", isCorrect: false },
-      { id: "d", text: "Elle vérifie si un nombre est divisible par 7 et affiche True, False", isCorrect: false }
-    ],
-    explanation: "Cette fonction détermine si un nombre est premier (divisible uniquement par 1 et lui-même). Elle utilise plusieurs optimisations: vérification rapide pour les petits nombres, élimination des multiples de 2 et 3, puis vérification des diviseurs potentiels de forme 6k±1 jusqu'à la racine carrée du nombre. 7 est premier (True), 12 ne l'est pas (False).",
-    hint: "Un nombre premier n'a que deux diviseurs: 1 et lui-même."
-  },
-  {
-    id: "python-debutant-31",
-    code: `dictionnaire = {"a": 1, "b": 2, "c": 3}
-cle = "b"
-if cle in dictionnaire:
-    print(f"La clé {cle} existe avec la valeur {dictionnaire[cle]}")
-else:
-    print(f"La clé {cle} n'existe pas")`,
-    language: "python",
-    question: "Quel est le résultat affiché par ce code ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "La clé b existe avec la valeur 2", isCorrect: true },
-      { id: "b", text: "La clé b n'existe pas", isCorrect: false },
-      { id: "c", text: "La valeur b existe avec la clé 2", isCorrect: false },
-      { id: "d", text: "KeyError: 'b'", isCorrect: false }
-    ],
-    explanation: "Ce code vérifie si une clé ('b') existe dans un dictionnaire. La condition 'if cle in dictionnaire' permet de tester la présence de la clé de façon sécurisée. Puisque la clé 'b' existe et a pour valeur 2, le message 'La clé b existe avec la valeur 2' est affiché.",
-    hint: "L'opérateur 'in' permet de vérifier si une clé existe dans un dictionnaire sans risquer d'erreur."
-  },
-  {
-    id: "python-debutant-32",
-    code: `def filtrer_mots(texte, longueur_min):
-    mots = texte.split()
-    return [mot for mot in mots if len(mot) >= longueur_min]
-
-phrase = "Le Python est un langage de programmation puissant et facile à apprendre"
-print(filtrer_mots(phrase, 6))`,
-    language: "python",
-    question: "Que fait cette fonction et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle compte les mots de plus de 6 lettres et affiche 3", isCorrect: false },
-      { id: "b", text: "Elle filtre les mots d'au moins 6 lettres et affiche ['Python', 'langage', 'programmation', 'puissant', 'apprendre']", isCorrect: true },
-      { id: "c", text: "Elle affiche les 6 premiers mots: ['Le', 'Python', 'est', 'un', 'langage', 'de']", isCorrect: false },
-      { id: "d", text: "Elle affiche les mots avec exactement 6 lettres: ['Python']", isCorrect: false }
-    ],
-    explanation: "Cette fonction divise le texte en mots et ne conserve que ceux dont la longueur est supérieure ou égale à longueur_min (ici, 6). Dans la phrase donnée, les mots ayant au moins 6 lettres sont 'Python', 'langage', 'programmation', 'puissant' et 'apprendre'.",
-    hint: "L'opérateur >= compare la longueur de chaque mot avec la longueur minimale requise."
-  },
-  {
-    id: "python-debutant-33",
-    code: `nombres = [10, 20, 30, 40, 50]
-total = 0
-i = 0
-
-while i < len(nombres):
-    total += nombres[i]
-    i += 2
-
-print(total)`,
-    language: "python",
-    question: "Que fait ce code et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Il calcule la somme de tous les nombres et affiche 150", isCorrect: false },
-      { id: "b", text: "Il calcule la somme des nombres d'indice pair et affiche 90", isCorrect: true },
-      { id: "c", text: "Il calcule la somme des nombres pairs et affiche 110", isCorrect: false },
-      { id: "d", text: "Il affiche le nombre d'éléments dans la liste: 5", isCorrect: false }
-    ],
-    explanation: "Ce code utilise une boucle while pour parcourir la liste en incrémentant l'indice i de 2 à chaque itération. Cela signifie qu'il accède aux éléments d'indice 0, 2, 4, etc. Dans cette liste, ce sont les éléments 10, 30 et 50. La somme de ces nombres est 10 + 30 + 50 = 90.",
-    hint: "L'incrémentation i += 2 fait sauter un élément à chaque itération."
-  },
-  {
-    id: "python-debutant-34",
-    code: `def combiner_listes(liste1, liste2):
-    if len(liste1) != len(liste2):
-        return "Les listes doivent avoir la même longueur"
-    
-    resultat = []
-    for i in range(len(liste1)):
-        resultat.append((liste1[i], liste2[i]))
-    
-    return resultat
-
-nombres = [1, 2, 3]
-lettres = ["a", "b", "c"]
-print(combiner_listes(nombres, lettres))`,
-    language: "python",
-    question: "Que fait cette fonction et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle fusionne les deux listes et affiche [1, 2, 3, 'a', 'b', 'c']", isCorrect: false },
-      { id: "b", text: "Elle crée des paires d'éléments et affiche [(1, 'a'), (2, 'b'), (3, 'c')]", isCorrect: true },
-      { id: "c", text: "Elle vérifie si les deux listes sont identiques et affiche False", isCorrect: false },
-      { id: "d", text: "Elle crée un dictionnaire et affiche {1: 'a', 2: 'b', 3: 'c'}", isCorrect: false }
-    ],
-    explanation: "Cette fonction prend deux listes de même longueur et crée une nouvelle liste contenant des tuples, où chaque tuple combine les éléments aux mêmes indices dans les deux listes. Pour les listes [1, 2, 3] et ['a', 'b', 'c'], le résultat est [(1, 'a'), (2, 'b'), (3, 'c')].",
-    hint: "Cette fonction fait manuellement ce que la fonction zip() fait de manière intégrée en Python."
-  },
-  {
-    id: "python-debutant-35",
-    code: `def tronquer_texte(texte, longueur_max):
-    if len(texte) <= longueur_max:
-        return texte
-    return texte[:longueur_max] + "..."
-
-message = "Python est un langage de programmation facile à apprendre"
-print(tronquer_texte(message, 20))`,
-    language: "python",
-    question: "Que fait cette fonction et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle compte le nombre de caractères et affiche 58", isCorrect: false },
-      { id: "b", text: "Elle tronque le texte à 20 caractères et affiche 'Python est un langag...'", isCorrect: true },
-      { id: "c", text: "Elle affiche les 20 premiers mots du texte", isCorrect: false },
-      { id: "d", text: "Elle divise le texte en segments de 20 caractères", isCorrect: false }
-    ],
-    explanation: "Cette fonction limite un texte à une longueur maximale. Si le texte est plus long que longueur_max, elle le tronque à cette longueur et ajoute '...' à la fin. Pour le message donné, avec une longueur maximale de 20, le résultat est 'Python est un langag...'.",
-    hint: "Le découpage de chaîne texte[:longueur_max] retourne les longueur_max premiers caractères."
-  },
-  {
-    id: "python-debutant-36",
-    code: `nombres = list(range(1, 101))
-resultat = sum(n for n in nombres if n % 3 == 0 and n % 5 == 0)
-print(resultat)`,
-    language: "python",
-    question: "Que fait ce code et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Il calcule la somme des nombres de 1 à 100 et affiche 5050", isCorrect: false },
-      { id: "b", text: "Il calcule la somme des nombres divisibles par 3 et par 5 et affiche 315", isCorrect: true },
-      { id: "c", text: "Il compte les nombres divisibles par 3 et par 5 et affiche 6", isCorrect: false },
-      { id: "d", text: "Il affiche une liste des nombres divisibles par 3 et par 5", isCorrect: false }
-    ],
-    explanation: "Ce code crée d'abord une liste des nombres de 1 à 100. Ensuite, il utilise une expression génératrice pour calculer la somme des nombres qui sont à la fois divisibles par 3 et par 5 (c'est-à-dire divisibles par 15). Ces nombres sont 15, 30, 45, 60, 75, 90, et leur somme est 315.",
-    hint: "Un nombre divisible à la fois par 3 et par 5 est divisible par leur plus petit commun multiple, qui est 15."
-  },
-  {
-    id: "python-debutant-37",
-    code: `mots = ["python", "programmation", "code", "développeur", "logiciel"]
-mots.sort(key=len)
-print(mots)`,
-    language: "python",
-    question: "Que fait ce code et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Il trie les mots par ordre alphabétique", isCorrect: false },
-      { id: "b", text: "Il trie les mots par longueur croissante: ['code', 'python', 'logiciel', 'développeur', 'programmation']", isCorrect: true },
-      { id: "c", text: "Il compte le nombre de lettres dans chaque mot", isCorrect: false },
-      { id: "d", text: "Il trie les mots par longueur décroissante", isCorrect: false }
-    ],
-    explanation: "Ce code trie la liste de mots selon leur longueur (nombre de caractères), grâce au paramètre key=len qui indique d'utiliser la fonction len() comme critère de tri. Le résultat est une liste où les mots sont ordonnés du plus court au plus long.",
-    hint: "Le paramètre key de la méthode sort() définit la fonction à appliquer sur chaque élément pour déterminer l'ordre de tri."
-  },
-  {
-    id: "python-debutant-38",
-    code: `def est_anagramme(mot1, mot2):
-    # Ignorer les espaces et la casse
-    mot1 = mot1.lower().replace(" ", "")
-    mot2 = mot2.lower().replace(" ", "")
-    
-    # Vérifier si les mots ont les mêmes lettres
-    return sorted(mot1) == sorted(mot2)
-
-print(est_anagramme("listen", "silent"))
-print(est_anagramme("triangle", "integral"))`,
-    language: "python",
-    question: "Que fait cette fonction et quels sont les résultats affichés ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle vérifie si deux mots ont la même longueur et affiche True, True", isCorrect: false },
-      { id: "b", text: "Elle vérifie si deux mots sont des anagrammes et affiche True, True", isCorrect: true },
-      { id: "c", text: "Elle vérifie si deux mots commencent par la même lettre et affiche False, False", isCorrect: false },
-      { id: "d", text: "Elle vérifie si deux mots sont identiques et affiche False, False", isCorrect: false }
-    ],
-    explanation: "Cette fonction détermine si deux mots sont des anagrammes, c'est-à-dire s'ils contiennent exactement les mêmes lettres dans un ordre différent. Elle convertit d'abord les mots en minuscules et retire les espaces, puis compare les versions triées des deux mots. 'listen' et 'silent' sont des anagrammes, tout comme 'triangle' et 'integral'.",
-    hint: "Trier les lettres d'un mot permet de comparer facilement si deux mots contiennent exactement les mêmes lettres, indépendamment de leur ordre."
-  },
-  {
-    id: "python-debutant-39",
-    code: `texte = "bonjour le monde"
-resultat = texte.title()
-print(resultat)`,
-    language: "python",
-    question: "Que fait ce code et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Il met tout le texte en majuscules: 'BONJOUR LE MONDE'", isCorrect: false },
-      { id: "b", text: "Il met la première lettre de chaque mot en majuscule: 'Bonjour Le Monde'", isCorrect: true },
-      { id: "c", text: "Il met uniquement la première lettre du texte en majuscule: 'Bonjour le monde'", isCorrect: false },
-      { id: "d", text: "Il compte le nombre de mots dans le texte et affiche 3", isCorrect: false }
-    ],
-    explanation: "La méthode title() met la première lettre de chaque mot en majuscule. Elle convertit 'bonjour le monde' en 'Bonjour Le Monde', où chaque mot commence par une majuscule.",
-    hint: "Cette méthode est souvent utilisée pour formater des titres ou des noms propres."
-  },
-  {
-    id: "python-debutant-40",
-    code: `def multiplier_liste(liste, facteur):
-    for i in range(len(liste)):
-        liste[i] *= facteur
-    return liste
-
-nombres = [1, 2, 3, 4]
-resultat = multiplier_liste(nombres, 3)
-print(nombres)
-print(resultat)`,
-    language: "python",
-    question: "Que fait cette fonction et quels sont les résultats affichés ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "[1, 2, 3, 4] et [3, 6, 9, 12]", isCorrect: false },
-      { id: "b", text: "[3, 6, 9, 12] et [3, 6, 9, 12]", isCorrect: true },
-      { id: "c", text: "[1, 2, 3, 4] et None", isCorrect: false },
-      { id: "d", text: "[3, 6, 9, 12] et None", isCorrect: false }
-    ],
-    explanation: "Cette fonction multiplie chaque élément d'une liste par un facteur, en modifiant la liste originale. Elle retourne également cette liste modifiée. Puisque les listes sont modifiées par référence en Python, nombres et resultat pointent vers la même liste après l'appel. Les deux variables affichent donc [3, 6, 9, 12].",
-    hint: "En Python, les listes sont des objets mutables, ce qui signifie qu'une fonction peut modifier directement une liste passée en paramètre."
-  },
-  {
-    id: "python-debutant-41",
-    code: `def format_telephone(numero):
-    if len(numero) != 10 or not numero.isdigit():
-        return "Numéro invalide"
-    
-    return f"{numero[:2]}.{numero[2:4]}.{numero[4:6]}.{numero[6:8]}.{numero[8:]}"
-
-print(format_telephone("0123456789"))`,
-    language: "python",
-    question: "Que fait cette fonction et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle vérifie si le numéro est valide et affiche True", isCorrect: false },
-      { id: "b", text: "Elle formate un numéro de téléphone et affiche '01.23.45.67.89'", isCorrect: true },
-      { id: "c", text: "Elle compte le nombre de chiffres et affiche 10", isCorrect: false },
-      { id: "d", text: "Elle supprime les points d'un numéro déjà formaté", isCorrect: false }
-    ],
-    explanation: "Cette fonction formate un numéro de téléphone en insérant des points tous les deux chiffres. Elle vérifie d'abord que le numéro contient exactement 10 chiffres. Pour l'entrée '0123456789', elle retourne '01.23.45.67.89'.",
-    hint: "La méthode isdigit() vérifie si une chaîne ne contient que des chiffres."
-  },
-  {
-    id: "python-debutant-42",
-    code: `notes = [15, 12, 18, 10, 8, 16, 14, 13]
-seuil = 12
-
-reussite = 0
-for note in notes:
-    if note >= seuil:
-        reussite += 1
-
-pourcentage = (reussite / len(notes)) * 100
-print(f"{pourcentage}% des notes sont supérieures ou égales à {seuil}")`,
-    language: "python",
-    question: "Que fait ce code et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Il calcule la moyenne des notes et affiche un message", isCorrect: false },
-      { id: "b", text: "Il calcule le pourcentage de notes supérieures ou égales à 12 et affiche '75.0% des notes sont supérieures ou égales à 12'", isCorrect: true },
-      { id: "c", text: "Il compte les notes et affiche '8 notes au total'", isCorrect: false },
-      { id: "d", text: "Il trouve la note maximale et affiche '18 est la note maximale'", isCorrect: false }
-    ],
-    explanation: "Ce code compte le nombre de notes supérieures ou égales au seuil (12), puis calcule le pourcentage que cela représente par rapport au nombre total de notes. Sur les 8 notes, 6 sont supérieures ou égales à 12 (15, 12, 18, 16, 14, 13), ce qui représente 75% des notes.",
-    hint: "Divisez le nombre de notes réussies par le nombre total de notes, puis multipliez par 100 pour obtenir un pourcentage."
-  },
-  {
-    id: "python-debutant-43",
-    code: `def generer_acronyme(phrase):
-    mots = phrase.split()
-    acronyme = ""
-    
-    for mot in mots:
-        if mot[0].isupper():  # On ne prend que les mots commençant par une majuscule
-            acronyme += mot[0]
-    
-    return acronyme
-
-print(generer_acronyme("Organisation des Nations Unies"))`,
-    language: "python",
-    question: "Que fait cette fonction et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle génère un acronyme à partir des premières lettres des mots commençant par une majuscule et affiche 'ONU'", isCorrect: true },
-      { id: "b", text: "Elle compte le nombre de mots commençant par une majuscule et affiche 3", isCorrect: false },
-      { id: "c", text: "Elle génère un acronyme à partir de toutes les premières lettres et affiche 'OdNU'", isCorrect: false },
-      { id: "d", text: "Elle met en majuscule la première lettre de chaque mot et affiche 'Organisation Des Nations Unies'", isCorrect: false }
-    ],
-    explanation: "Cette fonction crée un acronyme en prenant la première lettre de chaque mot qui commence par une majuscule. Pour 'Organisation des Nations Unies', les mots commençant par une majuscule sont 'Organisation', 'Nations' et 'Unies', donc l'acronyme est 'ONU'.",
-    hint: "La méthode isupper() vérifie si un caractère est en majuscule."
-  },
-  {
-    id: "python-debutant-44",
-    code: `def est_bissextile(annee):
-    if (annee % 4 == 0 and annee % 100 != 0) or (annee % 400 == 0):
-        return True
-    return False
-
-annees = [1900, 2000, 2020, 2023]
-for annee in annees:
-    if est_bissextile(annee):
-        print(f"{annee} est une année bissextile")
-    else:
-        print(f"{annee} n'est pas une année bissextile")`,
-    language: "python",
-    question: "Que fait ce code et combien d'années seront identifiées comme bissextiles ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Il vérifie si une année est divisible par 4 et identifie 3 années bissextiles", isCorrect: false },
-      { id: "b", text: "Il applique les règles du calendrier grégorien et identifie 2 années bissextiles", isCorrect: true },
-      { id: "c", text: "Il vérifie si une année est divisible par 400 et identifie 1 année bissextile", isCorrect: false },
-      { id: "d", text: "Il identifie les années divisibles par 100 et n'identifie aucune année bissextile", isCorrect: false }
-    ],
-    explanation: "Cette fonction détermine si une année est bissextile selon les règles du calendrier grégorien: une année est bissextile si elle est divisible par 4 mais pas par 100, ou si elle est divisible par 400. Parmi les années testées, 2000 est bissextile (divisible par 400), 2020 est bissextile (divisible par 4 mais pas par 100), tandis que 1900 (divisible par 100 mais pas par 400) et 2023 (non divisible par 4) ne le sont pas.",
-    hint: "Dans le calendrier grégorien, les années divisibles par 100 ne sont pas bissextiles, sauf si elles sont également divisibles par 400."
-  },
-  {
-    id: "python-debutant-45",
-    code: `def premier_dernier(sequence):
-    if not sequence:
-        return []
-    return [sequence[0], sequence[-1]]
-
-print(premier_dernier([5, 10, 15, 20, 25]))
-print(premier_dernier("Python"))`,
-    language: "python",
-    question: "Que fait cette fonction et quels sont les résultats affichés ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle retourne le premier et le dernier élément et affiche [5, 25] et ['P', 'n']", isCorrect: true },
-      { id: "b", text: "Elle vérifie si le premier élément est égal au dernier et affiche False, False", isCorrect: false },
-      { id: "c", text: "Elle supprime tous les éléments sauf le premier et le dernier et affiche [5, 25] et 'Pn'", isCorrect: false },
-      { id: "d", text: "Elle compte le nombre d'éléments et affiche 5 et 6", isCorrect: false }
-    ],
-    explanation: "Cette fonction retourne une liste contenant le premier et le dernier élément d'une séquence (liste, chaîne, etc.). Pour la liste [5, 10, 15, 20, 25], elle retourne [5, 25]. Pour la chaîne 'Python', elle retourne ['P', 'n'].",
-    hint: "L'indice 0 accède au premier élément d'une séquence, tandis que l'indice -1 accède au dernier."
-  },
-  {
-    id: "python-debutant-46",
-    code: `def compter_occurrences(liste):
-    compteur = {}
-    for element in liste:
-        if element in compteur:
-            compteur[element] += 1
-        else:
-            compteur[element] = 1
-    return compteur
-
-fruits = ["pomme", "banane", "orange", "pomme", "kiwi", "banane", "pomme"]
-print(compter_occurrences(fruits))`,
-    language: "python",
-    question: "Que fait cette fonction et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle trie la liste et affiche les éléments uniques", isCorrect: false },
-      { id: "b", text: "Elle compte les occurrences de chaque élément et affiche {'pomme': 3, 'banane': 2, 'orange': 1, 'kiwi': 1}", isCorrect: true },
-      { id: "c", text: "Elle compte le nombre d'éléments uniques et affiche 4", isCorrect: false },
-      { id: "d", text: "Elle compte le nombre total d'éléments et affiche 7", isCorrect: false }
-    ],
-    explanation: "Cette fonction crée un dictionnaire qui compte combien de fois chaque élément apparaît dans la liste. Pour chaque élément, si celui-ci est déjà dans le dictionnaire, son compteur est incrémenté; sinon, il est ajouté avec un compteur initial de 1. Pour la liste donnée, 'pomme' apparaît 3 fois, 'banane' 2 fois, et 'orange' et 'kiwi' une fois chacun.",
-    hint: "En Python, un dictionnaire est parfait pour associer des éléments à des compteurs ou des valeurs."
-  },
-  {
-    id: "python-debutant-47",
-    code: `chaine = "Python"
-for i, lettre in enumerate(chaine):
-    print(f"La lettre à l'indice {i} est {lettre}")`,
-    language: "python",
-    question: "Que fait ce code et combien de lignes seront affichées ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Il affiche l'indice et la lettre pour chaque caractère, soit 6 lignes", isCorrect: true },
-      { id: "b", text: "Il compte le nombre de voyelles et affiche 1 ligne", isCorrect: false },
-      { id: "c", text: "Il recherche la lettre 'y' et affiche son indice, soit 1 ligne", isCorrect: false },
-      { id: "d", text: "Il affiche les lettres en ordre inverse, soit 6 lignes", isCorrect: false }
-    ],
-    explanation: "Ce code utilise la fonction enumerate() pour parcourir simultanément les indices et les valeurs de la chaîne 'Python'. Pour chaque caractère, il affiche une ligne indiquant son indice et sa valeur. Comme 'Python' contient 6 lettres, 6 lignes seront affichées, de 'La lettre à l'indice 0 est P' jusqu'à 'La lettre à l'indice 5 est n'.",
-    hint: "La fonction enumerate() retourne des paires (indice, valeur) pour chaque élément d'un itérable."
-  },
-  {
-    id: "python-debutant-48",
-    code: `import random
-
-random.seed(42)  # Fixer la graine pour la reproductibilité
-nombres = random.sample(range(1, 51), 6)
-print(nombres)`,
-    language: "python",
-    question: "Que fait ce code et quel type de résultat va-t-il afficher ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Il génère toujours les mêmes 6 nombres aléatoires entre 1 et 50", isCorrect: true },
-      { id: "b", text: "Il génère 6 nombres différents à chaque exécution", isCorrect: false },
-      { id: "c", text: "Il affiche les 6 premiers nombres pairs", isCorrect: false },
-      { id: "d", text: "Il affiche tous les nombres de 1 à 42", isCorrect: false }
-    ],
-    explanation: "Ce code utilise random.sample() pour sélectionner 6 nombres différents dans l'intervalle de 1 à 50 inclus. La fonction seed(42) fixe la graine du générateur de nombres aléatoires, ce qui garantit que la même séquence de nombres sera générée à chaque exécution. Ainsi, ce code produira toujours exactement les mêmes 6 nombres aléatoires.",
-    hint: "Fixer la graine (seed) du générateur aléatoire permet d'obtenir des résultats reproductibles, ce qui est utile pour le débogage et les tests."
-  },
-  {
-    id: "python-debutant-49",
-    code: `def convertir_en_liste(nombre):
-    return [int(chiffre) for chiffre in str(nombre)]
-
-print(convertir_en_liste(12345))`,
-    language: "python",
-    question: "Que fait cette fonction et quel est le résultat affiché ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle convertit un nombre en liste de ses chiffres et affiche [1, 2, 3, 4, 5]", isCorrect: true },
-      { id: "b", text: "Elle convertit un nombre en chaîne de caractères et affiche '12345'", isCorrect: false },
-      { id: "c", text: "Elle additionne les chiffres d'un nombre et affiche 15", isCorrect: false },
-      { id: "d", text: "Elle divise un nombre en facteurs premiers et affiche [5, 823, 3]", isCorrect: false }
-    ],
-    explanation: "Cette fonction prend un nombre entier et le convertit en une liste où chaque élément est un chiffre du nombre. Elle convertit d'abord le nombre en chaîne de caractères avec str(), puis parcourt chaque caractère, le convertit en entier avec int(), et ajoute le résultat à une liste grâce à une compréhension de liste. Pour 12345, le résultat est [1, 2, 3, 4, 5].",
-    hint: "En Python, les compréhensions de liste permettent de créer de nouvelles listes en appliquant une expression à chaque élément d'un itérable."
-  },
-  {
-    id: "python-debutant-50",
-    code: `def remplacer_voyelles(texte, remplacement="*"):
-    voyelles = "aeiouAEIOU"
-    resultat = ""
-    
-    for caractere in texte:
-        if caractere in voyelles:
-            resultat += remplacement
-        else:
-            resultat += caractere
-    
-    return resultat
-
-print(remplacer_voyelles("Bonjour tout le monde"))
-print(remplacer_voyelles("Python est super", "-"))`,
-    language: "python",
-    question: "Que fait cette fonction et quels sont les résultats affichés ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle remplace les voyelles par un caractère spécifié et affiche 'B*nj**r t**t l* m*nd*' et 'P-th-n -st s-p-r'", isCorrect: true },
-      { id: "b", text: "Elle compte les voyelles et affiche 8 et 5", isCorrect: false },
-      { id: "c", text: "Elle supprime les voyelles et affiche 'Bnjr tt l mnd' et 'Pthn st spr'", isCorrect: false },
-      { id: "d", text: "Elle met en majuscules les voyelles et affiche 'BOnjOUr tOUt lE mOndE' et 'PythOn Est sUpEr'", isCorrect: false }
-    ],
-    explanation: "Cette fonction remplace toutes les voyelles d'un texte par un caractère de remplacement spécifié. Si aucun caractère de remplacement n'est fourni, elle utilise '*' par défaut. Pour 'Bonjour tout le monde', elle remplace les voyelles par '*', donnant 'B*nj**r t**t l* m*nd*'. Pour 'Python est super' avec le remplacement '-', elle produit 'P-th-n -st s-p-r'.",
-    hint: "Les paramètres avec des valeurs par défaut permettent de spécifier un comportement par défaut si l'argument n'est pas fourni."
+    explanation: "La fonction dernier_element renvoie le dernier élément d'une séquence ou une valeur par défaut si la séquence est vide. Pour [1, 2, 3, 4], elle renvoie 4. Pour la chaîne vide '', elle renvoie None (la valeur par défaut). Pour la liste vide [] avec 'vide' comme valeur par défaut, elle renvoie 'vide'.",
+    hint: "Analysez comment la fonction gère les séquences vides et non vides."
   }
-
 ];
 
 // Défis Python - Niveau Intermédiaire
@@ -1092,240 +494,356 @@ print(f"Meilleur étudiant: {meilleur_etudiant} avec une moyenne de {moyennes[me
   },
   {
     id: "python-intermediaire-2",
-    code: `from functools import lru_cache
+    code: `from collections import Counter
 
-@lru_cache(maxsize=None)
-def fibonacci(n):
-    if n <= 1:
-        return n
-    return fibonacci(n-1) + fibonacci(n-2)
-
-import time
-
-def mesurer_temps(func, args):
-    debut = time.time()
-    resultat = func(*args)
-    fin = time.time()
-    return resultat, fin - debut
-
-# Sans décorateur
-def fibonacci_sans_cache(n):
-    if n <= 1:
-        return n
-    return fibonacci_sans_cache(n-1) + fibonacci_sans_cache(n-2)
-
-# Comparer les performances pour n=30
-resultat_avec_cache, temps_avec_cache = mesurer_temps(fibonacci, (30,))
-resultat_sans_cache, temps_sans_cache = mesurer_temps(fibonacci_sans_cache, (30,))
-
-print(f"Avec cache: {temps_avec_cache:.6f} secondes")
-print(f"Sans cache: {temps_sans_cache:.6f} secondes")
-print(f"Accélération: {temps_sans_cache / temps_avec_cache:.1f}x")`,
+texte = "Python est un langage de programmation polyvalent et puissant"
+compteur = Counter(texte.lower())
+lettres_frequentes = compteur.most_common(3)
+print(lettres_frequentes)`,
     language: "python",
-    question: "Quel est le principal avantage de l'utilisation du décorateur @lru_cache dans ce code ?",
-    difficulty: "avancé",
-    responses: [
-      { id: "a", text: "Il rend la fonction fibonacci thread-safe", isCorrect: false },
-      { id: "b", text: "Il limite la profondeur de récursion pour éviter les StackOverflowError", isCorrect: false },
-      { id: "c", text: "Il mémorise les résultats précédents pour éviter les calculs redondants", isCorrect: true },
-      { id: "d", text: "Il parallélise automatiquement les calculs pour améliorer les performances", isCorrect: false }
-    ],
-    explanation: "Le décorateur @lru_cache (Least Recently Used Cache) de functools mémorise les résultats des appels précédents à la fonction. Cela permet d'éviter de recalculer plusieurs fois les mêmes valeurs de la suite de Fibonacci, ce qui est particulièrement utile pour cette fonction récursive où les mêmes sous-problèmes sont résolus de nombreuses fois. Sans cette mémorisation, le calcul de fibonacci(n) aurait une complexité exponentielle O(2^n).",
-    hint: "Pensez à comment la récursion dans la fonction fibonacci génère de nombreux appels redondants. Que fait un cache dans ce contexte ?"
-  },
-  {
-    id: "python-avance-2",
-    code: `class NoeudArbre:
-    def __init__(self, valeur):
-        self.valeur = valeur
-        self.gauche = None
-        self.droite = None
-
-def inserer(racine, valeur):
-    if racine is None:
-        return NoeudArbre(valeur)
-    
-    if valeur < racine.valeur:
-        racine.gauche = inserer(racine.gauche, valeur)
-    else:
-        racine.droite = inserer(racine.droite, valeur)
-    
-    return racine
-
-def parcours_inordre(racine, resultat=None):
-    if resultat is None:
-        resultat = []
-    
-    if racine:
-        parcours_inordre(racine.gauche, resultat)
-        resultat.append(racine.valeur)
-        parcours_inordre(racine.droite, resultat)
-    
-    return resultat
-
-# Construction de l'arbre
-racine = None
-for valeur in [50, 30, 70, 20, 40, 60, 80]:
-    racine = inserer(racine, valeur)
-
-print(parcours_inordre(racine))`,
-    language: "python",
-    question: "Quelle sera la sortie de ce code utilisant un arbre binaire de recherche ?",
-    difficulty: "avancé",
-    responses: [
-      { id: "a", text: "[50, 30, 70, 20, 40, 60, 80]", isCorrect: false },
-      { id: "b", text: "[20, 30, 40, 50, 60, 70, 80]", isCorrect: true },
-      { id: "c", text: "[20, 40, 30, 60, 80, 70, 50]", isCorrect: false },
-      { id: "d", text: "[80, 70, 60, 50, 40, 30, 20]", isCorrect: false }
-    ],
-    explanation: "Ce code implémente un arbre binaire de recherche où chaque nœud a une valeur, un sous-arbre gauche contenant des valeurs inférieures et un sous-arbre droit contenant des valeurs supérieures. La fonction parcours_inordre effectue un parcours inordre (gauche-racine-droite), ce qui, pour un arbre binaire de recherche, donne les valeurs dans l'ordre croissant. Avec les valeurs [50, 30, 70, 20, 40, 60, 80], le parcours inordre donne [20, 30, 40, 50, 60, 70, 80].",
-    hint: "Un parcours inordre d'un arbre binaire de recherche visite d'abord le sous-arbre gauche, puis la racine, puis le sous-arbre droit, ce qui donne les valeurs dans l'ordre croissant."
-  }
-];
-
-// Défis SQL - Niveau Débutant
-export const sqlDebutant: CodeChallenge[] = [
-  {
-    id: "sql-debutant-1",
-    code: `SELECT department_id, COUNT(*) as nombre_employes
-FROM employees
-WHERE salary > 5000
-GROUP BY department_id
-HAVING COUNT(*) > 3
-ORDER BY nombre_employes DESC;`,
-    language: "sql",
-    question: "Que fait cette requête SQL ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle compte le nombre total d'employés dans chaque département", isCorrect: false },
-      { id: "b", text: "Elle liste les départements où plus de 3 employés gagnent plus de 5000", isCorrect: true },
-      { id: "c", text: "Elle trouve les départements ayant exactement 3 employés avec un salaire supérieur à 5000", isCorrect: false },
-      { id: "d", text: "Elle calcule le salaire moyen par département pour les employés gagnant plus de 5000", isCorrect: false }
-    ],
-    explanation: "Cette requête SQL filtre d'abord les employés ayant un salaire supérieur à 5000, puis les groupe par département. Ensuite, elle applique un filtre HAVING pour ne garder que les groupes contenant plus de 3 employés. Enfin, elle trie les résultats par ordre décroissant du nombre d'employés.",
-    hint: "Analysez les différentes clauses: WHERE filtre les lignes individuelles, GROUP BY regroupe les résultats, HAVING filtre les groupes, et ORDER BY détermine l'ordre des résultats."
-  },
-  {
-    id: "sql-debutant-2",
-    code: `SELECT c.customer_name, 
-       SUM(o.total_amount) as montant_total
-FROM customers c
-LEFT JOIN orders o ON c.customer_id = o.customer_id
-GROUP BY c.customer_id, c.customer_name
-ORDER BY montant_total DESC NULLS LAST;`,
-    language: "sql",
-    question: "Que fait cette requête et pourquoi utilise-t-elle un LEFT JOIN plutôt qu'un INNER JOIN ?",
-    difficulty: "débutant",
-    responses: [
-      { id: "a", text: "Elle liste le montant total des commandes par client, et inclut les clients sans commandes", isCorrect: true },
-      { id: "b", text: "Elle trouve les clients qui ont dépensé le plus, en excluant ceux sans commandes", isCorrect: false },
-      { id: "c", text: "Elle calcule le nombre de commandes par client, y compris pour ceux sans commandes", isCorrect: false },
-      { id: "d", text: "Elle joint les tables customers et orders pour trouver les commandes sans clients", isCorrect: false }
-    ],
-    explanation: "Cette requête utilise un LEFT JOIN pour conserver tous les clients dans les résultats, même ceux qui n'ont pas passé de commandes. Pour ces clients sans commandes, la valeur de montant_total sera NULL. Un INNER JOIN aurait exclu les clients sans commandes des résultats. La clause NULLS LAST place les clients sans commandes à la fin du tri.",
-    hint: "Un LEFT JOIN garde toutes les lignes de la table de gauche (customers) même s'il n'y a pas de correspondance dans la table de droite (orders)."
-  }
-];
-
-// Défis SQL - Niveau Intermédiaire
-export const sqlIntermediaire: CodeChallenge[] = [
-  {
-    id: "sql-intermediaire-1",
-    code: `WITH ventes_mensuelles AS (
-  SELECT 
-    DATE_TRUNC('month', sale_date) as mois,
-    product_id,
-    SUM(quantity) as quantite_vendue
-  FROM sales
-  WHERE sale_date >= '2023-01-01' AND sale_date < '2024-01-01'
-  GROUP BY DATE_TRUNC('month', sale_date), product_id
-),
-classement_produits AS (
-  SELECT
-    mois,
-    product_id,
-    quantite_vendue,
-    RANK() OVER (PARTITION BY mois ORDER BY quantite_vendue DESC) as rang
-  FROM ventes_mensuelles
-)
-SELECT 
-  cp.mois,
-  p.product_name,
-  cp.quantite_vendue
-FROM classement_produits cp
-JOIN products p ON cp.product_id = p.product_id
-WHERE cp.rang <= 3
-ORDER BY cp.mois, cp.rang;`,
-    language: "sql",
-    question: "Que calcule cette requête SQL avec ses Common Table Expressions (CTE) ?",
+    question: "Qu'affichera ce code?",
     difficulty: "intermédiaire",
     responses: [
-      { id: "a", text: "La quantité totale vendue pour chaque produit en 2023", isCorrect: false },
-      { id: "b", text: "Les 3 produits les plus vendus de tous les temps", isCorrect: false },
-      { id: "c", text: "Les 3 produits les plus vendus pour chaque mois de 2023", isCorrect: true },
-      { id: "d", text: "La progression mensuelle des ventes pour chaque produit en 2023", isCorrect: false }
+      { id: "a", text: "[('p', 5), ('a', 5), ('n', 5)]", isCorrect: false },
+      { id: "b", text: "[(' ', 8), ('a', 5), ('n', 5)]", isCorrect: false },
+      { id: "c", text: "[(' ', 8), ('n', 5), ('a', 4)]", isCorrect: false },
+      { id: "d", text: "[(' ', 8), ('a', 4), ('n', 4)]", isCorrect: true }
     ],
-    explanation: "Cette requête utilise deux CTEs pour trouver les trois produits les plus vendus pour chaque mois de 2023. La première CTE (ventes_mensuelles) agrège les ventes par mois et par produit. La seconde CTE (classement_produits) utilise la fonction de fenêtrage RANK() pour attribuer un rang à chaque produit en fonction de sa quantité vendue au sein de chaque mois. La requête principale sélectionne ensuite uniquement les produits ayant un rang inférieur ou égal à 3.",
-    hint: "Examinez la fonction de fenêtrage RANK() OVER (PARTITION BY...) et comment elle est utilisée avec la clause WHERE dans la requête principale."
-  }
-];
-
-// Défis SQL - Niveau Avancé
-export const sqlAvance: CodeChallenge[] = [
+    explanation: "Ce code utilise la classe Counter pour compter les occurrences de chaque caractère dans la chaîne convertie en minuscules. Ensuite, most_common(3) renvoie les 3 caractères les plus fréquents avec leur nombre d'occurrences. L'espace est le plus fréquent (8 fois), suivi de 'a' et 'n' (4 fois chacun).",
+    hint: "N'oubliez pas que les espaces sont aussi des caractères comptés par Counter."
+  },
   {
-    id: "sql-avance-1",
-    code: `WITH RECURSIVE employee_hierarchy AS (
-  -- Cas de base: employés de niveau supérieur (sans manager)
-  SELECT 
-    employee_id, 
-    first_name, 
-    last_name, 
-    manager_id, 
-    1 as depth,
-    ARRAY[employee_id] as path,
-    first_name || ' ' || last_name as full_path_names
-  FROM employees
-  WHERE manager_id IS NULL
-  
-  UNION ALL
-  
-  -- Cas récursif: tous les subordonnés directs
-  SELECT 
-    e.employee_id, 
-    e.first_name, 
-    e.last_name, 
-    e.manager_id, 
-    eh.depth + 1,
-    eh.path || e.employee_id,
-    eh.full_path_names || ' > ' || e.first_name || ' ' || e.last_name
-  FROM employees e
-  JOIN employee_hierarchy eh ON e.manager_id = eh.employee_id
-  WHERE NOT e.employee_id = ANY(eh.path)  -- Évite les cycles
-)
-SELECT 
-  eh.employee_id,
-  eh.first_name,
-  eh.last_name,
-  eh.depth,
-  eh.full_path_names,
-  (SELECT COUNT(*) FROM employees WHERE manager_id = eh.employee_id) as direct_reports
-FROM employee_hierarchy eh
-ORDER BY eh.path;`,
-    language: "sql",
-    question: "Quel problème potentiel cette requête SQL cherche-t-elle à éviter avec la condition 'WHERE NOT e.employee_id = ANY(eh.path)' ?",
-    difficulty: "avancé",
+    id: "python-intermediaire-3",
+    code: `class Personne:
+    def __init__(self, nom, age):
+        self.nom = nom
+        self.age = age
+    
+    def __lt__(self, autre):
+        return self.age < autre.age
+
+personnes = [
+    Personne("Alice", 30),
+    Personne("Bob", 25),
+    Personne("Charlie", 35)
+]
+
+personnes_triees = sorted(personnes)
+for p in personnes_triees:
+    print(p.nom)`,
+    language: "python",
+    question: "Dans quel ordre les noms seront-ils affichés?",
+    difficulty: "intermédiaire",
     responses: [
-      { id: "a", text: "Les erreurs de performance dues à des jointures trop volumineuses", isCorrect: false },
-      { id: "b", text: "L'inclusion d'employés qui ne font pas partie de la hiérarchie", isCorrect: false },
-      { id: "c", text: "Les boucles infinies dues à des références circulaires dans la hiérarchie", isCorrect: true },
-      { id: "d", text: "La duplication d'employés dans les résultats finaux", isCorrect: false }
+      { id: "a", text: "Alice, Bob, Charlie", isCorrect: false },
+      { id: "b", text: "Bob, Alice, Charlie", isCorrect: true },
+      { id: "c", text: "Charlie, Alice, Bob", isCorrect: false },
+      { id: "d", text: "Alice, Charlie, Bob", isCorrect: false }
     ],
-    explanation: "Cette requête utilise une CTE récursive pour construire une hiérarchie complète des employés. La condition 'WHERE NOT e.employee_id = ANY(eh.path)' vérifie qu'un employé n'apparaît pas déjà dans le chemin hiérarchique actuel, ce qui pourrait arriver si les données contiennent une référence circulaire (par exemple, A est manager de B, B est manager de C, et C est manager de A). Sans cette vérification, la requête récursive pourrait entrer dans une boucle infinie et ne jamais se terminer.",
-    hint: "Pensez à ce qui pourrait se passer dans une structure hiérarchique si un subordonné était enregistré comme le manager de son propre manager. Comment la récursion se comporterait-elle sans cette protection ?"
+    explanation: "La méthode __lt__ (less than) définit comment comparer deux objets Personne. Ici, elle compare les âges. La fonction sorted() utilise cette méthode pour trier les personnes par âge croissant. Bob a 25 ans, Alice 30 ans, et Charlie 35 ans, donc ils seront triés dans cet ordre.",
+    hint: "La méthode __lt__ est utilisée par sorted() pour déterminer l'ordre de tri."
+  },
+  {
+    id: "python-intermediaire-4",
+    code: `def decorator(func):
+    def wrapper(*args, **kwargs):
+        print("Avant l'appel")
+        result = func(*args, **kwargs)
+        print("Après l'appel")
+        return result
+    return wrapper
+
+@decorator
+def saluer(nom):
+    print(f"Bonjour, {nom}!")
+
+saluer("Alice")`,
+    language: "python",
+    question: "Quelle sera la sortie de ce code?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "Bonjour, Alice!", isCorrect: false },
+      { id: "b", text: "Avant l'appel\nBonjour, Alice!\nAprès l'appel", isCorrect: true },
+      { id: "c", text: "Avant l'appel\nAprès l'appel\nBonjour, Alice!", isCorrect: false },
+      { id: "d", text: "Avant l'appel\nAprès l'appel", isCorrect: false }
+    ],
+    explanation: "Ce code utilise un décorateur, qui est une fonction qui prend une autre fonction en entrée et étend son comportement sans la modifier explicitement. La fonction saluer est décorée avec @decorator, ce qui signifie qu'elle est enveloppée par la fonction wrapper. Lorsque saluer est appelée, c'est en fait wrapper qui est exécutée, affichant 'Avant l'appel', puis exécutant la fonction d'origine (qui affiche 'Bonjour, Alice!'), puis affichant 'Après l'appel'.",
+    hint: "Les décorateurs en Python permettent d'envelopper une fonction pour ajouter des fonctionnalités avant et après son exécution."
+  },
+  {
+    id: "python-intermediaire-5",
+    code: `import re
+
+texte = "Contactez-nous à support@example.com ou info@company.org"
+pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}'
+emails = re.findall(pattern, texte)
+print(emails)`,
+    language: "python",
+    question: "Qu'affichera ce code?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "['support@example.com', 'info@company.org']", isCorrect: true },
+      { id: "b", text: "['support', 'info']", isCorrect: false },
+      { id: "c", text: "['example.com', 'company.org']", isCorrect: false },
+      { id: "d", text: "[]", isCorrect: false }
+    ],
+    explanation: "Ce code utilise une expression régulière pour trouver toutes les adresses e-mail dans une chaîne. Le pattern correspond à une séquence de caractères autorisés, suivie d'un @, suivie d'un nom de domaine, suivi d'un point, suivi d'une extension de domaine d'au moins 2 lettres. La fonction re.findall() renvoie toutes les correspondances trouvées dans le texte, qui sont les deux adresses e-mail.",
+    hint: "L'expression régulière est conçue pour correspondre au format standard des adresses e-mail."
+  },
+  {
+    id: "python-intermediaire-6",
+    code: `nombres = [1, 2, 3, 4, 5]
+
+carre = lambda x: x ** 2
+impair = lambda x: x % 2 != 0
+
+resultat = list(map(carre, filter(impair, nombres)))
+print(resultat)`,
+    language: "python",
+    question: "Qu'affichera ce code?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "[1, 9, 25]", isCorrect: true },
+      { id: "b", text: "[1, 3, 5]", isCorrect: false },
+      { id: "c", text: "[1, 4, 9, 16, 25]", isCorrect: false },
+      { id: "d", text: "[2, 4]", isCorrect: false }
+    ],
+    explanation: "Ce code utilise filter() pour ne garder que les nombres impairs (1, 3, 5) de la liste, puis map() pour calculer le carré de chacun de ces nombres. Le résultat est donc [1² = 1, 3² = 9, 5² = 25].",
+    hint: "filter() crée un itérateur qui filtre les éléments pour lesquels la fonction renvoie True, et map() applique une fonction à chaque élément d'un itérable."
+  },
+  {
+    id: "python-intermediaire-7",
+    code: `class MaClasse:
+    __compteur = 0
+    
+    def __init__(self):
+        MaClasse.__compteur += 1
+        self.__id = MaClasse.__compteur
+    
+    def get_id(self):
+        return self.__id
+    
+    @classmethod
+    def get_compteur(cls):
+        return cls.__compteur
+
+a = MaClasse()
+b = MaClasse()
+print(a.get_id())
+print(b.get_id())
+print(MaClasse.get_compteur())`,
+    language: "python",
+    question: "Qu'affichera ce code?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "1\n2\n2", isCorrect: true },
+      { id: "b", text: "0\n1\n2", isCorrect: false },
+      { id: "c", text: "1\n1\n2", isCorrect: false },
+      { id: "d", text: "Une erreur sera générée", isCorrect: false }
+    ],
+    explanation: "Cette classe utilise des attributs privés (préfixés par __). __compteur est un attribut de classe qui est incrémenté chaque fois qu'une nouvelle instance est créée. Chaque instance reçoit un __id égal à la valeur actuelle de __compteur. Après avoir créé deux instances, __compteur vaut 2, a.__id vaut 1 et b.__id vaut 2.",
+    hint: "Les attributs préfixés par __ sont privés en Python, mais peuvent être accédés via des méthodes comme get_id() et get_compteur()."
+  },
+  {
+    id: "python-intermediaire-8",
+    code: `from functools import reduce
+
+nombres = [1, 2, 3, 4, 5]
+resultat = reduce(lambda x, y: x * y, nombres)
+print(resultat)`,
+    language: "python",
+    question: "Quel sera le résultat affiché?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "15", isCorrect: false },
+      { id: "b", text: "120", isCorrect: true },
+      { id: "c", text: "5", isCorrect: false },
+      { id: "d", text: "[1, 2, 3, 4, 5]", isCorrect: false }
+    ],
+    explanation: "La fonction reduce() applique la fonction fournie de façon cumulative aux éléments de l'itérable, de gauche à droite, pour réduire l'itérable à une seule valeur. Ici, elle calcule ((((1 * 2) * 3) * 4) * 5) = 120, qui est le produit (factorielle) de tous les nombres de 1 à 5.",
+    hint: "reduce() accumule les résultats en appliquant la fonction fournie à chaque élément et au résultat accumulé."
+  },
+  {
+    id: "python-intermediaire-9",
+    code: `def generateur():
+    yield 1
+    yield 2
+    yield 3
+
+g = generateur()
+print(next(g))
+print(next(g))
+print(next(g))
+try:
+    print(next(g))
+except StopIteration:
+    print("Fin du générateur")`,
+    language: "python",
+    question: "Quelle sera la sortie de ce code?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "1\n2\n3\nFin du générateur", isCorrect: true },
+      { id: "b", text: "1\n2\n3\nNone", isCorrect: false },
+      { id: "c", text: "1\n2\n3\nUne exception non capturée sera levée", isCorrect: false },
+      { id: "d", text: "1\n2\n3\n1", isCorrect: false }
+    ],
+    explanation: "Un générateur est une fonction qui produit une séquence de résultats au lieu de renvoyer une seule valeur. Chaque fois que next() est appelé sur un générateur, l'exécution se poursuit jusqu'au prochain yield, qui renvoie une valeur. Après avoir généré toutes les valeurs (1, 2, 3), l'appel suivant à next() lève une exception StopIteration, qui est capturée par le bloc try-except, affichant 'Fin du générateur'.",
+    hint: "Les générateurs en Python sont des fonctions spéciales qui peuvent être pausées et reprises, renvoyant une valeur à chaque yield."
+  },
+  {
+    id: "python-intermediaire-10",
+    code: `class Calculatrice:
+    def __call__(self, x, y):
+        return x + y
+
+calc = Calculatrice()
+resultat = calc(5, 3)
+print(resultat)`,
+    language: "python",
+    question: "Quel nombre sera affiché?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "8", isCorrect: true },
+      { id: "b", text: "5", isCorrect: false },
+      { id: "c", text: "3", isCorrect: false },
+      { id: "d", text: "Une erreur sera générée", isCorrect: false }
+    ],
+    explanation: "La méthode __call__ permet de rendre un objet 'appelable' comme une fonction. Ici, l'instance calc de la classe Calculatrice peut être appelée avec des arguments, et calc(5, 3) exécute la méthode __call__ avec x=5 et y=3, renvoyant 5 + 3 = 8.",
+    hint: "Lorsqu'on 'appelle' un objet comme une fonction, c'est sa méthode __call__ qui est exécutée."
+  },
+  {
+    id: "python-intermediaire-11",
+    code: `import json
+
+donnees = {
+    "nom": "Alice",
+    "age": 30,
+    "langages": ["Python", "JavaScript", "C++"],
+    "actif": True,
+    "adresse": None
+}
+
+json_str = json.dumps(donnees, indent=2)
+print(type(json_str))
+print(json_str)`,
+    language: "python",
+    question: "Quel sera le type de json_str et quelle est la particularité de son contenu?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "<class 'str'>, et True est écrit en majuscule", isCorrect: false },
+      { id: "b", text: "<class 'str'>, et True est écrit en minuscule (true)", isCorrect: true },
+      { id: "c", text: "<class 'dict'>, et None devient null", isCorrect: false },
+      { id: "d", text: "<class 'json'>, et les guillemets sont échappés", isCorrect: false }
+    ],
+    explanation: "La fonction json.dumps() convertit un objet Python en une chaîne formatée en JSON. Le type de json_str est donc 'str'. Dans JSON, les valeurs booléennes sont en minuscules (true/false), contrairement à Python où elles sont en majuscules (True/False). De même, None en Python devient null en JSON.",
+    hint: "JSON et Python ont des conventions différentes pour les booléens et les valeurs nulles."
+  },
+  {
+    id: "python-intermediaire-12",
+    code: `import datetime
+
+date1 = datetime.datetime(2023, 1, 1, 12, 0)
+date2 = datetime.datetime(2023, 1, 3, 18, 30)
+
+difference = date2 - date1
+print(difference)
+print(type(difference))
+print(difference.total_seconds() / 3600)`,
+    language: "python",
+    question: "Qu'affichera la dernière ligne du code?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "54.5", isCorrect: true },
+      { id: "b", text: "2.25", isCorrect: false },
+      { id: "c", text: "30.5", isCorrect: false },
+      { id: "d", text: "3270", isCorrect: false }
+    ],
+    explanation: "Ce code calcule la différence entre deux dates, qui est un objet timedelta. La différence entre le 3 janvier 18h30 et le 1er janvier 12h00 est de 2 jours et 6.5 heures. La méthode total_seconds() renvoie le nombre total de secondes, et en divisant par 3600 (nombre de secondes dans une heure), on obtient le nombre d'heures : (2*24 + 6.5) = 54.5 heures.",
+    hint: "Pour convertir des secondes en heures, divisez par 3600."
+  },
+  {
+    id: "python-intermediaire-13",
+    code: `def insertion_sort(arr):
+    for i in range(1, len(arr)):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+
+print(insertion_sort([5, 2, 9, 1, 5, 6]))`,
+    language: "python",
+    question: "Qu'affichera ce code?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "[1, 2, 5, 5, 6, 9]", isCorrect: true },
+      { id: "b", text: "[9, 6, 5, 5, 2, 1]", isCorrect: false },
+      { id: "c", text: "[5, 2, 9, 1, 5, 6]", isCorrect: false },
+      { id: "d", text: "[1, 5, 9, 2, 5, 6]", isCorrect: false }
+    ],
+    explanation: "Cette fonction implémente l'algorithme de tri par insertion. Elle parcourt la liste élément par élément, et à chaque étape, insère l'élément courant à sa position correcte dans la partie déjà triée. Le résultat est la liste triée par ordre croissant.",
+    hint: "Le tri par insertion maintient une sous-liste triée et y insère chaque nouvel élément à la bonne position."
+  },
+  {
+    id: "python-intermediaire-14",
+    code: `class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def __add__(self, other):
+        return Point(self.x + other.x, self.y + other.y)
+    
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+
+p1 = Point(1, 2)
+p2 = Point(3, 4)
+p3 = p1 + p2
+print(p3)`,
+    language: "python",
+    question: "Qu'affichera ce code?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "(4, 6)", isCorrect: true },
+      { id: "b", text: "Point(4, 6)", isCorrect: false },
+      { id: "c", text: "[4, 6]", isCorrect: false },
+      { id: "d", text: "Une erreur sera générée", isCorrect: false }
+    ],
+    explanation: "Ce code définit une classe Point avec une surcharge de l'opérateur + via la méthode __add__. Lorsqu'on écrit p1 + p2, Python appelle p1.__add__(p2), qui crée un nouveau Point avec les coordonnées x et y additionnées. La méthode __str__ définit comment l'objet est converti en chaîne, donc print(p3) affiche '(4, 6)'.",
+    hint: "La surcharge d'opérateurs en Python permet de définir le comportement des opérateurs standards pour nos propres classes."
+  },
+  {
+    id: "python-intermediaire-15",
+    code: `class ParentA:
+    def methode(self):
+        return "ParentA"
+
+class ParentB:
+    def methode(self):
+        return "ParentB"
+
+class Enfant(ParentB, ParentA):
+    pass
+
+e = Enfant()
+print(e.methode())`,
+    language: "python",
+    question: "Qu'affichera ce code?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "ParentA", isCorrect: false },
+      { id: "b", text: "ParentB", isCorrect: true },
+      { id: "c", text: "ParentAParentB", isCorrect: false },
+      { id: "d", text: "Une erreur sera générée", isCorrect: false }
+    ],
+    explanation: "Ce code illustre l'héritage multiple en Python. Lorsqu'une méthode est appelée sur un objet, Python recherche cette méthode en suivant l'ordre de résolution des méthodes (Method Resolution Order, MRO). Dans cet exemple, la classe Enfant hérite de ParentB puis de ParentA, donc la méthode de ParentB est trouvée en premier.",
+    hint: "L'ordre dans lequel les classes parentes sont listées dans la définition de la classe Enfant détermine l'ordre de recherche des méthodes."
   }
 ];
 
-// Fonction pour obtenir des défis aléatoires
 // Défis Python - Niveau Avancé
 export const pythonAvance: CodeChallenge[] = [
   {
@@ -1380,6 +898,485 @@ print(MaClasse.get_compteur())`,
     ],
     explanation: "Le code utilise une variable de classe 'compteur' qui est partagée entre toutes les instances. Chaque fois qu'une nouvelle instance est créée, le compteur est incrémenté. L'instance 'c' est la troisième créée, donc son 'id' est 3. La méthode de classe get_compteur() renvoie la valeur actuelle du compteur, qui est aussi 3.",
     hint: "Faites attention à la différence entre les variables de classe et les variables d'instance."
+  }
+];
+
+// Défis SQL - Niveau Débutant
+export const sqlDebutant: CodeChallenge[] = [
+  {
+    id: "sql-debutant-1",
+    code: `SELECT name, age
+FROM users
+WHERE age > 30
+ORDER BY age DESC;`,
+    language: "sql",
+    question: "Que fait cette requête SQL?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "Elle affiche le nom et l'âge des utilisateurs de plus de 30 ans, classés du plus âgé au plus jeune", isCorrect: true },
+      { id: "b", text: "Elle affiche le nom et l'âge de tous les utilisateurs, classés du plus jeune au plus âgé", isCorrect: false },
+      { id: "c", text: "Elle affiche le nom et l'âge des utilisateurs de plus de 30 ans, classés par ordre alphabétique", isCorrect: false },
+      { id: "d", text: "Elle affiche le nom et l'âge des utilisateurs de moins de 30 ans", isCorrect: false }
+    ],
+    explanation: "Cette requête sélectionne les colonnes name et age de la table users, filtre pour ne garder que les utilisateurs dont l'âge est supérieur à 30, et trie les résultats par âge en ordre décroissant (du plus grand au plus petit, donc du plus âgé au plus jeune).",
+    hint: "ORDER BY ... DESC trie les résultats dans l'ordre décroissant."
+  },
+  {
+    id: "sql-debutant-2",
+    code: `SELECT COUNT(*) AS total_products,
+       AVG(price) AS average_price
+FROM products
+WHERE category = 'Electronics';`,
+    language: "sql",
+    question: "Que calcule cette requête SQL?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "Le nombre total de produits et le prix moyen de tous les produits", isCorrect: false },
+      { id: "b", text: "Le nombre total de produits électroniques et leur prix moyen", isCorrect: true },
+      { id: "c", text: "Le nombre de catégories et le prix moyen par catégorie", isCorrect: false },
+      { id: "d", text: "Le prix total et le prix moyen des produits électroniques", isCorrect: false }
+    ],
+    explanation: "Cette requête utilise des fonctions d'agrégation pour calculer: 1) le nombre total de produits (COUNT(*)) et 2) le prix moyen (AVG(price)) des produits dans la catégorie 'Electronics'.",
+    hint: "COUNT(*) compte le nombre de lignes, et AVG(price) calcule la moyenne des valeurs de la colonne price."
+  },
+  {
+    id: "sql-debutant-3",
+    code: `SELECT customers.name, orders.order_date
+FROM customers
+JOIN orders ON customers.id = orders.customer_id
+WHERE orders.total > 1000
+ORDER BY orders.order_date DESC
+LIMIT 5;`,
+    language: "sql",
+    question: "Que renvoie cette requête SQL?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "Les 5 clients qui ont passé les commandes les plus récentes de plus de 1000€", isCorrect: true },
+      { id: "b", text: "Les 5 clients qui ont passé le plus de commandes", isCorrect: false },
+      { id: "c", text: "Les 5 clients qui ont dépensé le plus d'argent", isCorrect: false },
+      { id: "d", text: "Les 5 commandes les plus anciennes de plus de 1000€", isCorrect: false }
+    ],
+    explanation: "Cette requête joint les tables customers et orders pour associer chaque commande à son client. Elle filtre pour ne garder que les commandes dont le total dépasse 1000, trie les résultats par date de commande décroissante (du plus récent au plus ancien), et limite le résultat aux 5 premières lignes.",
+    hint: "La clause LIMIT 5 restreint le résultat aux 5 premières lignes après le tri."
+  },
+  {
+    id: "sql-debutant-4",
+    code: `INSERT INTO employees (first_name, last_name, email, hire_date, department_id)
+VALUES ('John', 'Doe', 'john.doe@example.com', '2023-01-15', 3);`,
+    language: "sql",
+    question: "Que fait cette requête SQL?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "Elle met à jour les informations de l'employé John Doe", isCorrect: false },
+      { id: "b", text: "Elle ajoute un nouvel employé dans la table employees", isCorrect: true },
+      { id: "c", text: "Elle supprime l'employé John Doe de la table employees", isCorrect: false },
+      { id: "d", text: "Elle vérifie si John Doe existe dans la table employees", isCorrect: false }
+    ],
+    explanation: "Cette requête utilise l'instruction INSERT INTO pour ajouter une nouvelle ligne dans la table employees. Elle spécifie les colonnes à remplir et les valeurs correspondantes pour créer un nouvel enregistrement d'employé.",
+    hint: "INSERT INTO est utilisé pour ajouter de nouvelles données dans une table."
+  },
+  {
+    id: "sql-debutant-5",
+    code: `UPDATE products
+SET price = price * 1.1
+WHERE category = 'Books' AND price < 20;`,
+    language: "sql",
+    question: "Que fait cette requête SQL?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "Elle augmente de 10% le prix de tous les livres", isCorrect: false },
+      { id: "b", text: "Elle augmente de 10% le prix des livres coûtant moins de 20€", isCorrect: true },
+      { id: "c", text: "Elle fixe le prix de tous les livres à 1.1 fois leur catégorie", isCorrect: false },
+      { id: "d", text: "Elle vérifie quels livres ont un prix inférieur à 20€", isCorrect: false }
+    ],
+    explanation: "Cette requête utilise l'instruction UPDATE pour modifier les données existantes. Elle augmente le prix de 10% (en le multipliant par 1.1) pour tous les produits de la catégorie 'Books' dont le prix actuel est inférieur à 20.",
+    hint: "price * 1.1 correspond à une augmentation de 10% du prix actuel."
+  },
+  {
+    id: "sql-debutant-6",
+    code: `SELECT department_name, COUNT(employees.id) AS employee_count
+FROM departments
+LEFT JOIN employees ON departments.id = employees.department_id
+GROUP BY department_name
+ORDER BY employee_count DESC;`,
+    language: "sql",
+    question: "Que fait cette requête SQL?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "Elle compte le nombre d'employés dans chaque département, y compris les départements sans employés", isCorrect: true },
+      { id: "b", text: "Elle liste tous les départements qui ont au moins un employé", isCorrect: false },
+      { id: "c", text: "Elle compte le nombre de départements pour chaque employé", isCorrect: false },
+      { id: "d", text: "Elle affiche uniquement les départements qui ont le plus d'employés", isCorrect: false }
+    ],
+    explanation: "Cette requête utilise un LEFT JOIN pour combiner les tables departments et employees, ce qui garantit que tous les départements sont inclus même s'ils n'ont pas d'employés. Elle groupe ensuite les résultats par nom de département et compte le nombre d'employés dans chaque groupe. Enfin, elle trie les résultats par nombre d'employés décroissant.",
+    hint: "LEFT JOIN permet d'inclure tous les enregistrements de la table de gauche (departments), même ceux qui n'ont pas de correspondance dans la table de droite (employees)."
+  },
+  {
+    id: "sql-debutant-7",
+    code: `DELETE FROM orders
+WHERE order_date < '2020-01-01';`,
+    language: "sql",
+    question: "Que fait cette requête SQL?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "Elle supprime toutes les commandes", isCorrect: false },
+      { id: "b", text: "Elle supprime les commandes passées avant 2020", isCorrect: true },
+      { id: "c", text: "Elle archive les commandes antérieures à 2020", isCorrect: false },
+      { id: "d", text: "Elle masque les commandes passées avant 2020 dans les résultats", isCorrect: false }
+    ],
+    explanation: "Cette requête utilise l'instruction DELETE FROM pour supprimer des données de la table orders. Elle supprime toutes les lignes où la date de commande (order_date) est antérieure au 1er janvier 2020.",
+    hint: "DELETE FROM supprime définitivement les lignes qui correspondent à la condition WHERE."
+  },
+  {
+    id: "sql-debutant-8",
+    code: `SELECT category, SUM(price * quantity) AS total_sales
+FROM order_items
+JOIN products ON order_items.product_id = products.id
+GROUP BY category
+HAVING SUM(price * quantity) > 10000;`,
+    language: "sql",
+    question: "Que calcule cette requête SQL?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "Le montant total des ventes pour chaque catégorie, mais n'affiche que celles dépassant 10000€", isCorrect: true },
+      { id: "b", text: "Le nombre de produits vendus dans chaque catégorie", isCorrect: false },
+      { id: "c", text: "Les catégories qui ont plus de 10000 produits", isCorrect: false },
+      { id: "d", text: "Le prix moyen des produits par catégorie", isCorrect: false }
+    ],
+    explanation: "Cette requête calcule le montant total des ventes (prix × quantité) pour chaque catégorie de produits. Elle utilise GROUP BY pour regrouper les résultats par catégorie, et HAVING pour filtrer les groupes après l'agrégation, ne gardant que ceux où le total des ventes dépasse 10000.",
+    hint: "HAVING filtre les groupes après l'agrégation, contrairement à WHERE qui filtre les lignes avant l'agrégation."
+  },
+  {
+    id: "sql-debutant-9",
+    code: `SELECT DISTINCT city
+FROM customers
+WHERE country = 'France'
+ORDER BY city;`,
+    language: "sql",
+    question: "Que renvoie cette requête SQL?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "La liste des villes françaises où habitent des clients, sans doublons et par ordre alphabétique", isCorrect: true },
+      { id: "b", text: "Le nombre de clients par ville en France", isCorrect: false },
+      { id: "c", text: "La liste de tous les clients français avec leur ville", isCorrect: false },
+      { id: "d", text: "La ville française qui compte le plus de clients", isCorrect: false }
+    ],
+    explanation: "Cette requête sélectionne la colonne city de la table customers, mais avec le mot-clé DISTINCT qui élimine les doublons. Elle filtre pour ne garder que les lignes où le pays est 'France' et trie les résultats par ordre alphabétique des villes.",
+    hint: "DISTINCT supprime les valeurs en double dans les résultats de la requête."
+  },
+  {
+    id: "sql-debutant-10",
+    code: `SELECT customers.name, 
+       COALESCE(SUM(orders.total), 0) AS total_spent
+FROM customers
+LEFT JOIN orders ON customers.id = orders.customer_id
+GROUP BY customers.name
+ORDER BY total_spent DESC;`,
+    language: "sql",
+    question: "Quel est le but de cette requête SQL?",
+    difficulty: "débutant",
+    responses: [
+      { id: "a", text: "Calculer combien chaque client a dépensé au total, y compris ceux qui n'ont jamais commandé (affichés avec 0)", isCorrect: true },
+      { id: "b", text: "Trouver le client qui a dépensé le plus d'argent", isCorrect: false },
+      { id: "c", text: "Calculer le montant moyen dépensé par chaque client", isCorrect: false },
+      { id: "d", text: "Compter le nombre de commandes passées par chaque client", isCorrect: false }
+    ],
+    explanation: "Cette requête calcule le montant total dépensé par chaque client en additionnant les montants de leurs commandes. Elle utilise LEFT JOIN pour inclure tous les clients, même ceux qui n'ont pas de commandes, et COALESCE pour remplacer les valeurs NULL (pour les clients sans commandes) par 0. Les résultats sont triés par montant total décroissant.",
+    hint: "COALESCE(x, y) renvoie y si x est NULL, sinon il renvoie x."
+  }
+];
+
+// Défis SQL - Niveau Intermédiaire
+export const sqlIntermediaire: CodeChallenge[] = [
+  {
+    id: "sql-intermediaire-1",
+    code: `WITH monthly_sales AS (
+  SELECT 
+    DATE_TRUNC('month', order_date) AS month,
+    SUM(total) AS total_sales
+  FROM orders
+  WHERE order_date >= CURRENT_DATE - INTERVAL '12 months'
+  GROUP BY DATE_TRUNC('month', order_date)
+)
+SELECT 
+  month,
+  total_sales,
+  LAG(total_sales, 1) OVER (ORDER BY month) AS previous_month_sales,
+  (total_sales - LAG(total_sales, 1) OVER (ORDER BY month)) / LAG(total_sales, 1) OVER (ORDER BY month) * 100 AS growth_percentage
+FROM monthly_sales
+ORDER BY month;`,
+    language: "sql",
+    question: "Que calcule cette requête SQL?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "Les ventes mensuelles totales et le pourcentage de croissance par rapport au mois précédent", isCorrect: true },
+      { id: "b", text: "Les ventes totales de l'année et leur répartition mensuelle", isCorrect: false },
+      { id: "c", text: "Le nombre de commandes par mois et leur valeur moyenne", isCorrect: false },
+      { id: "d", text: "Les mois où les ventes ont dépassé un certain seuil", isCorrect: false }
+    ],
+    explanation: "Cette requête utilise une CTE (Common Table Expression) pour calculer d'abord les ventes mensuelles totales sur les 12 derniers mois. Ensuite, elle utilise la fonction de fenêtrage LAG() pour accéder aux ventes du mois précédent pour chaque mois. Enfin, elle calcule le pourcentage de croissance en comparant les ventes actuelles avec celles du mois précédent.",
+    hint: "La fonction LAG() permet d'accéder aux valeurs des lignes précédentes dans un ensemble de résultats ordonné."
+  },
+  {
+    id: "sql-intermediaire-2",
+    code: `SELECT 
+  product_name,
+  price,
+  category,
+  RANK() OVER (PARTITION BY category ORDER BY price DESC) AS price_rank
+FROM products
+WHERE is_active = TRUE
+HAVING price_rank <= 3
+ORDER BY category, price_rank;`,
+    language: "sql",
+    question: "Quel est l'objectif de cette requête SQL?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "Trouver les 3 produits les plus chers dans chaque catégorie", isCorrect: true },
+      { id: "b", text: "Classer tous les produits par prix décroissant au sein de leur catégorie", isCorrect: false },
+      { id: "c", text: "Calculer le prix moyen des produits par catégorie", isCorrect: false },
+      { id: "d", text: "Identifier les catégories qui ont moins de 3 produits", isCorrect: false }
+    ],
+    explanation: "Cette requête utilise la fonction de fenêtrage RANK() pour attribuer un rang à chaque produit au sein de sa catégorie, en fonction de son prix (du plus élevé au plus bas). La clause HAVING filtre les résultats pour ne garder que les produits ayant un rang inférieur ou égal à 3, c'est-à-dire les 3 produits les plus chers de chaque catégorie.",
+    hint: "PARTITION BY divise les données en partitions sur lesquelles les fonctions de fenêtrage sont appliquées séparément."
+  },
+  {
+    id: "sql-intermediaire-3",
+    code: `SELECT 
+  user_id,
+  AVG(time_spent) AS avg_time,
+  CASE 
+    WHEN AVG(time_spent) < 60 THEN 'Visiteur rapide'
+    WHEN AVG(time_spent) BETWEEN 60 AND 300 THEN 'Visiteur standard'
+    ELSE 'Visiteur engagé'
+  END AS user_category
+FROM page_visits
+GROUP BY user_id
+ORDER BY avg_time DESC;`,
+    language: "sql",
+    question: "Que fait cette requête SQL?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "Elle classe les utilisateurs en trois catégories selon leur temps moyen passé sur le site", isCorrect: true },
+      { id: "b", text: "Elle calcule le temps total passé par chaque utilisateur sur le site", isCorrect: false },
+      { id: "c", text: "Elle identifie les pages sur lesquelles les utilisateurs passent le plus de temps", isCorrect: false },
+      { id: "d", text: "Elle compte le nombre de visites par utilisateur", isCorrect: false }
+    ],
+    explanation: "Cette requête calcule le temps moyen passé sur le site pour chaque utilisateur, puis utilise une expression CASE pour classer les utilisateurs en trois catégories: 'Visiteur rapide' (moins de 60 secondes en moyenne), 'Visiteur standard' (entre 60 et 300 secondes) ou 'Visiteur engagé' (plus de 300 secondes).",
+    hint: "L'expression CASE permet de créer une logique conditionnelle dans une requête SQL, similaire à if-else en programmation."
+  },
+  {
+    id: "sql-intermediaire-4",
+    code: `SELECT 
+  departments.name AS department,
+  ROUND(AVG(employees.salary), 2) AS avg_salary,
+  ROUND(AVG(CASE WHEN employees.gender = 'F' THEN employees.salary END), 2) AS avg_female_salary,
+  ROUND(AVG(CASE WHEN employees.gender = 'M' THEN employees.salary END), 2) AS avg_male_salary,
+  ROUND(COUNT(CASE WHEN employees.gender = 'F' THEN 1 END) * 100.0 / COUNT(*), 2) AS female_percentage
+FROM employees
+JOIN departments ON employees.department_id = departments.id
+GROUP BY departments.name
+ORDER BY department;`,
+    language: "sql",
+    question: "Quelles informations cette requête SQL analyse-t-elle?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "Les disparités salariales et la représentation par genre dans chaque département", isCorrect: true },
+      { id: "b", text: "L'ancienneté moyenne des employés par département et par genre", isCorrect: false },
+      { id: "c", text: "Le nombre total d'employés et leur répartition dans les départements", isCorrect: false },
+      { id: "d", text: "Les départements ayant le plus grand écart de salaire entre les employés", isCorrect: false }
+    ],
+    explanation: "Cette requête analyse les données salariales par département et par genre. Pour chaque département, elle calcule: le salaire moyen global, le salaire moyen des femmes, le salaire moyen des hommes, et le pourcentage de femmes. Elle utilise CASE WHEN dans des fonctions d'agrégation pour calculer des statistiques conditionnelles.",
+    hint: "L'expression CASE WHEN employees.gender = 'F' THEN ... END ne prend en compte que les employées féminines dans le calcul."
+  },
+  {
+    id: "sql-intermediaire-5",
+    code: `WITH RECURSIVE subordinates AS (
+  -- Manager initial
+  SELECT id, name, manager_id, 1 AS level
+  FROM employees
+  WHERE id = 42
+  
+  UNION ALL
+  
+  -- Récursion pour trouver tous les subordonnés
+  SELECT e.id, e.name, e.manager_id, s.level + 1
+  FROM employees e
+  JOIN subordinates s ON e.manager_id = s.id
+)
+SELECT id, name, level
+FROM subordinates
+ORDER BY level, name;`,
+    language: "sql",
+    question: "Que fait cette requête SQL?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "Elle affiche tous les subordonnés directs et indirects de l'employé 42, avec leur niveau hiérarchique", isCorrect: true },
+      { id: "b", text: "Elle trouve tous les managers au-dessus de l'employé 42", isCorrect: false },
+      { id: "c", text: "Elle calcule le nombre de niveaux hiérarchiques dans l'entreprise", isCorrect: false },
+      { id: "d", text: "Elle identifie les employés qui n'ont pas de manager", isCorrect: false }
+    ],
+    explanation: "Cette requête utilise une CTE (Common Table Expression) récursive pour explorer la hiérarchie des employés. Elle commence par l'employé dont l'ID est 42, puis trouve récursivement tous les employés qui ont cet employé (ou ses subordonnés) comme manager. Le résultat est une liste de tous les subordonnés directs et indirects, avec leur niveau dans la hiérarchie.",
+    hint: "Les CTEs récursives ont une partie initiale (avant UNION ALL) qui définit le point de départ, et une partie récursive qui définit comment explorer davantage."
+  },
+  {
+    id: "sql-intermediaire-6",
+    code: `SELECT
+  DATE_TRUNC('month', order_date) AS month,
+  region,
+  SUM(total) AS total_sales,
+  SUM(SUM(total)) OVER (PARTITION BY region ORDER BY DATE_TRUNC('month', order_date)) AS cumulative_sales,
+  ROUND(SUM(total) * 100.0 / SUM(SUM(total)) OVER (PARTITION BY region), 2) AS percentage_of_total
+FROM orders
+JOIN customers ON orders.customer_id = customers.id
+WHERE order_date >= '2022-01-01' AND order_date < '2023-01-01'
+GROUP BY DATE_TRUNC('month', order_date), region
+ORDER BY region, month;`,
+    language: "sql",
+    question: "Quelles métriques cette requête SQL calcule-t-elle?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "Les ventes mensuelles, les ventes cumulatives et le pourcentage du total par région", isCorrect: true },
+      { id: "b", text: "Le nombre de commandes par mois et par région", isCorrect: false },
+      { id: "c", text: "La valeur moyenne des commandes par région et par mois", isCorrect: false },
+      { id: "d", text: "Les régions avec les meilleures ventes pour chaque mois", isCorrect: false }
+    ],
+    explanation: "Cette requête analyse les ventes de 2022 par mois et par région. Pour chaque combinaison mois/région, elle calcule: le total des ventes du mois, le total cumulatif des ventes jusqu'à ce mois (pour cette région), et le pourcentage que représente ce mois dans le total annuel de la région. Elle utilise des fonctions de fenêtrage (OVER) pour effectuer ces calculs sans avoir besoin de sous-requêtes multiples.",
+    hint: "La clause OVER (PARTITION BY ... ORDER BY ...) définit le 'cadre' sur lequel les fonctions de fenêtrage sont appliquées."
+  },
+  {
+    id: "sql-intermediaire-7",
+    code: `SELECT 
+  customer_id,
+  order_id,
+  order_date,
+  total,
+  ROUND(AVG(total) OVER (PARTITION BY customer_id ORDER BY order_date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 2) AS moving_avg_3_orders
+FROM orders
+ORDER BY customer_id, order_date;`,
+    language: "sql",
+    question: "Que calcule cette requête SQL?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "La moyenne mobile sur les 3 dernières commandes de chaque client", isCorrect: true },
+      { id: "b", text: "Le total des 3 dernières commandes pour chaque client", isCorrect: false },
+      { id: "c", text: "La moyenne des montants de commande pour chaque client", isCorrect: false },
+      { id: "d", text: "Les 3 commandes les plus récentes de chaque client", isCorrect: false }
+    ],
+    explanation: "Cette requête calcule une moyenne mobile sur les commandes de chaque client. Pour chaque commande, elle calcule la moyenne du montant de cette commande et des 2 commandes précédentes du même client (ou moins s'il y a moins de 2 commandes précédentes). C'est un exemple d'analyse de séries temporelles en SQL.",
+    hint: "La clause ROWS BETWEEN 2 PRECEDING AND CURRENT ROW définit une fenêtre glissante qui inclut la ligne actuelle et les 2 lignes précédentes."
+  },
+  {
+    id: "sql-intermediaire-8",
+    code: `SELECT 
+  product_id,
+  order_date,
+  quantity,
+  SUM(quantity) OVER (PARTITION BY product_id ORDER BY order_date) AS running_total,
+  CASE
+    WHEN LAG(order_date) OVER (PARTITION BY product_id ORDER BY order_date) IS NULL THEN NULL
+    ELSE order_date - LAG(order_date) OVER (PARTITION BY product_id ORDER BY order_date)
+  END AS days_since_last_order
+FROM order_items
+JOIN orders ON order_items.order_id = orders.id
+WHERE product_id IN (
+  SELECT product_id
+  FROM order_items
+  GROUP BY product_id
+  ORDER BY COUNT(*) DESC
+  LIMIT 5
+)
+ORDER BY product_id, order_date;`,
+    language: "sql",
+    question: "Quelles informations cette requête SQL analyse-t-elle?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "Les tendances de vente et la fréquence d'achat pour les 5 produits les plus commandés", isCorrect: true },
+      { id: "b", text: "Les 5 commandes les plus importantes en termes de quantité", isCorrect: false },
+      { id: "c", text: "Les produits qui n'ont pas été commandés depuis longtemps", isCorrect: false },
+      { id: "d", text: "Le délai moyen entre les commandes pour chaque produit", isCorrect: false }
+    ],
+    explanation: "Cette requête analyse l'historique des commandes pour les 5 produits les plus populaires (ceux qui apparaissent dans le plus grand nombre de commandes). Pour chaque commande de ces produits, elle calcule: le total cumulatif des quantités vendues jusqu'à cette date, et le nombre de jours écoulés depuis la commande précédente du même produit.",
+    hint: "La sous-requête dans la clause WHERE sélectionne les 5 produits les plus fréquemment commandés, puis la requête principale analyse leur historique de vente."
+  },
+  {
+    id: "sql-intermediaire-9",
+    code: `SELECT 
+  u.name,
+  COUNT(o.id) AS order_count,
+  ROUND(AVG(o.total), 2) AS avg_order_value,
+  ROUND(SUM(o.total), 2) AS total_spent,
+  MAX(o.order_date) AS last_order_date,
+  CASE
+    WHEN MAX(o.order_date) >= CURRENT_DATE - INTERVAL '3 months' THEN 'Actif'
+    WHEN MAX(o.order_date) >= CURRENT_DATE - INTERVAL '6 months' THEN 'En risque'
+    ELSE 'Inactif'
+  END AS customer_status
+FROM users u
+LEFT JOIN orders o ON u.id = o.user_id
+GROUP BY u.id, u.name
+HAVING COUNT(o.id) > 0
+ORDER BY total_spent DESC;`,
+    language: "sql",
+    question: "Quel est l'objectif de cette requête SQL?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "Créer un tableau de bord d'analyse de clientèle avec segmentation par statut d'activité", isCorrect: true },
+      { id: "b", text: "Identifier les clients inactifs pour une campagne de relance", isCorrect: false },
+      { id: "c", text: "Calculer la valeur totale des commandes par utilisateur", isCorrect: false },
+      { id: "d", text: "Trouver les clients qui ont commandé au cours des 3 derniers mois", isCorrect: false }
+    ],
+    explanation: "Cette requête crée un tableau de bord complet d'analyse client. Pour chaque client ayant passé au moins une commande, elle calcule: le nombre total de commandes, la valeur moyenne des commandes, le montant total dépensé, la date de la dernière commande, et attribue un statut ('Actif', 'En risque' ou 'Inactif') en fonction de la date de la dernière commande.",
+    hint: "La requête segmente les clients en trois catégories selon la récence de leur dernière commande, une technique courante en analyse RFM (Récence, Fréquence, Montant)."
+  },
+  {
+    id: "sql-intermediaire-10",
+    code: `WITH month_stats AS (
+  SELECT
+    DATE_TRUNC('month', order_date) AS month,
+    COUNT(DISTINCT user_id) AS monthly_active_users,
+    COUNT(id) AS total_orders,
+    SUM(total) AS total_revenue,
+    SUM(total) / COUNT(id) AS avg_order_value
+  FROM orders
+  WHERE order_date >= CURRENT_DATE - INTERVAL '12 months'
+  GROUP BY DATE_TRUNC('month', order_date)
+),
+prev_month_stats AS (
+  SELECT
+    month,
+    monthly_active_users,
+    LAG(monthly_active_users) OVER (ORDER BY month) AS prev_month_users,
+    total_orders,
+    LAG(total_orders) OVER (ORDER BY month) AS prev_month_orders,
+    total_revenue,
+    LAG(total_revenue) OVER (ORDER BY month) AS prev_month_revenue,
+    avg_order_value
+  FROM month_stats
+)
+SELECT
+  month,
+  monthly_active_users,
+  ROUND((monthly_active_users - prev_month_users) * 100.0 / prev_month_users, 2) AS user_growth,
+  total_orders,
+  ROUND((total_orders - prev_month_orders) * 100.0 / prev_month_orders, 2) AS order_growth,
+  total_revenue,
+  ROUND((total_revenue - prev_month_revenue) * 100.0 / prev_month_revenue, 2) AS revenue_growth,
+  avg_order_value
+FROM prev_month_stats
+WHERE prev_month_users IS NOT NULL
+ORDER BY month;`,
+    language: "sql",
+    question: "Que produit cette requête SQL?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "Un rapport mensuel de performance avec calculs de croissance pour les utilisateurs, commandes et revenus", isCorrect: true },
+      { id: "b", text: "Une prévision des ventes futures basée sur les tendances historiques", isCorrect: false },
+      { id: "c", text: "Une comparaison des performances entre différentes catégories de produits", isCorrect: false },
+      { id: "d", text: "Une analyse de la saisonnalité des ventes au cours de l'année", isCorrect: false }
+    ],
+    explanation: "Cette requête génère un rapport mensuel complet qui analyse les performances commerciales sur les 12 derniers mois. Pour chaque mois, elle calcule: le nombre d'utilisateurs actifs, le nombre total de commandes, le revenu total et la valeur moyenne des commandes. De plus, elle calcule le pourcentage de croissance pour les utilisateurs, les commandes et les revenus par rapport au mois précédent.",
+    hint: "La requête utilise deux CTEs (Common Table Expressions): la première pour calculer les métriques mensuelles, et la seconde pour accéder aux valeurs du mois précédent afin de calculer les taux de croissance."
   }
 ];
 
@@ -1506,12 +1503,11 @@ export function getRandomChallenges(
     return [...challenges];
   }
   
-  // Sinon, sélectionner aléatoirement 'count' défis
+  // Sinon, sélectionner aléatoirement le nombre demandé
   const shuffled = [...challenges].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 }
 
-// Fonction pour générer un ID unique basé sur un timestamp
 export function generateUniqueId(prefix: string): string {
-  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 }
