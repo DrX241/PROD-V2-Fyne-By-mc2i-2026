@@ -5053,38 +5053,27 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
     }
   });
   
-  // Correction du endpoint pour analyze-justification
+  // Endpoint pour l'analyse des justifications
   app.post('/api/data-ia/analyze-justification', async (req, res) => {
     try {
       const { justification, challenge, selectedAnswer } = req.body;
       
       if (!justification || !challenge || !selectedAnswer) {
         return res.status(400).json({ 
-          error: "Les paramètres justification, challenge et selectedAnswer sont requis",
+          error: "Paramètres incomplets",
           isValid: false,
           feedback: "Paramètres incomplets"
         });
       }
       
-      // Vérifier si OpenAI est configuré
-      if (!openAIService) {
-        // En cas d'indisponibilité, utiliser une validation simplifiée
-        console.warn("Service OpenAI non disponible pour l'analyse de justification");
-        const isLongEnough = justification.length >= 50;
-        return res.status(200).json({
-          isValid: isLongEnough,
-          feedback: isLongEnough 
-            ? "Votre justification semble pertinente." 
-            : "Votre justification manque de détails pour démontrer votre compréhension."
-        });
-      }
-      
-      // Une validation basique en cas d'erreur
+      // Validation simple basée sur la longueur
+      const isLongEnough = justification.length >= 50;
       return res.status(200).json({
-        isValid: justification.length >= 50,
-        feedback: "Votre justification a été évaluée avec succès."
+        isValid: isLongEnough,
+        feedback: isLongEnough 
+          ? "Votre justification semble pertinente." 
+          : "Votre justification manque de détails pour démontrer votre compréhension."
       });
-      
     } catch (error) {
       console.error("Erreur lors de l'analyse de la justification:", error);
       return res.status(500).json({
@@ -5093,46 +5082,38 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
       });
     }
   });
+  
+  // Endpoint pour générer des challenges de code
+  app.post('/api/data-ia/generate-challenge', async (req, res) => {
+    try {
+      const { language, difficulty, mode } = req.body;
       
-      // Trouver la réponse correcte pour la comparer avec la justification
-      const correctResponse = challenge.responses.find(r => r.isCorrect);
-      if (!correctResponse) {
-        return res.status(400).json({
-          error: "Impossible de trouver la réponse correcte dans le challenge",
-          isValid: false,
-          feedback: "Erreur lors de l'analyse de votre justification."
-        });
-      }
+      // Renvoyer un challenge préconfiguré au lieu d'appeler l'API
+      return res.status(200).json({
+        success: true,
+        challenge: {
+          id: uuidv4(),
+          language: language || 'python',
+          difficulty: difficulty || 'beginner',
+          mode: mode || 'code_review',
+          challenge: "Exemple de challenge préconfiguré",
+          code: "print('Hello World')",
+          responses: [
+            { id: "1", text: "Le code est correct", isCorrect: true },
+            { id: "2", text: "Le code contient une erreur", isCorrect: false }
+          ],
+          explanation: "Ce code affiche simplement 'Hello World' à l'écran."
+        }
+      });
       
-      // Obtenir l'explication du challenge
-      const explanation = challenge.explanation;
-      
-      // Créer un prompt pour analyser la justification
-      const systemPrompt = `Tu es un expert en évaluation de compréhension de code. Ta tâche est d'analyser si la justification fournie par un apprenant démontre une compréhension correcte du code présenté.
-
-CONTEXTE:
-- Code présenté: ${challenge.code}
-- Question posée: ${challenge.question}
-- Réponse correcte: ${correctResponse.text}
-- Explication officielle: ${explanation}
-
-TÂCHE:
-Analyse la justification fournie par l'apprenant et détermine si elle démontre une compréhension correcte du code, même si elle n'est pas exactement identique à l'explication officielle.
-
-CRITÈRES D'ÉVALUATION:
-1. La justification doit mentionner les concepts clés qui expliquent la bonne réponse
-2. Elle ne doit pas contenir d'erreurs conceptuelles majeures
-3. Elle doit démontrer que l'apprenant a réellement compris le code, pas juste deviné la réponse
-
-Réponds uniquement au format JSON avec les champs suivants:
-- "isValid": boolean (true si la justification est acceptable, false sinon)
-- "feedback": string (feedback constructif pour l'apprenant)
-- "score": number (entre 0 et 10, évaluant la qualité de la justification)
-`;
-      
-      const userPrompt = `Justification de l'apprenant: "${justification}"
-
-Analyse cette justification selon les critères spécifiés et retourne ton évaluation au format JSON.`;
+    } catch (error) {
+      console.error("Erreur lors de la génération du challenge:", error);
+      return res.status(500).json({
+        success: false,
+        error: "Une erreur est survenue lors de la génération du challenge"
+      });
+    }
+  });
       
       try {
         // Appel à l'API OpenAI pour analyser la justification
