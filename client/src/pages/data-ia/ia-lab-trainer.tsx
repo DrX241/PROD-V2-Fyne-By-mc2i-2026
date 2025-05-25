@@ -456,16 +456,21 @@ const IALabTrainer: React.FC = () => {
     setAnalysis(null);
     
     try {
-      // Appel à l'API pour traduire le texte en code
-      const response = await fetch('/api/code/translate', {
+      // Utiliser l'API de chat simple pour générer du code
+      const response = await fetch('/api/cyber/simple-chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          text: naturalText,
-          language: selectedLanguage,
-          sessionId
+          message: `Traduis cette description en code ${selectedLanguage}: ${naturalText}`,
+          config: {
+            difficultyLevel: 'Expert',
+            systemPrompt: `Tu es un expert en programmation ${selectedLanguage === 'python' ? 'Python' : 'SQL'}. 
+              Ta mission est de traduire des descriptions en langage naturel en code ${selectedLanguage} fonctionnel et optimisé.
+              Tu dois fournir uniquement le code source sans explications préliminaires, puis une explication séparée après le code.
+              Utilise des blocs de code avec triple backticks pour délimiter clairement le code.`
+          }
         }),
       });
       
@@ -476,33 +481,55 @@ const IALabTrainer: React.FC = () => {
       
       const data = await response.json();
       
-      // Mettre à jour l'éditeur avec le code généré
-      if (data.code) {
-        setCode(data.code);
-        setAnalysis(data.explanation || "Code généré à partir de votre description en langage naturel.");
-        
-        // Copier automatiquement le code dans le presse-papier
-        navigator.clipboard.writeText(data.code).then(() => {
-          toast({
-            title: "Code généré et copié",
-            description: "Le code a été généré et copié dans le presse-papier.",
-            variant: "default",
-          });
-        }).catch(() => {
-          toast({
-            title: "Code généré",
-            description: "Le code a été généré mais n'a pas pu être copié automatiquement.",
-            variant: "default",
-          });
-        });
-      } else {
-        throw new Error("Aucun code n'a été généré");
+      if (!data.content) {
+        throw new Error("Aucune réponse générée");
       }
+      
+      // Extraire le code et l'explication de la réponse
+      const content = data.content;
+      let code = content;
+      let explanation = "Code généré à partir de votre description en langage naturel.";
+      
+      // Essayer d'extraire le code entre les balises markdown
+      const codeBlockRegex = /```(?:python|sql)?\s*([\s\S]*?)```/;
+      const codeMatch = content.match(codeBlockRegex);
+      
+      if (codeMatch && codeMatch[1]) {
+        code = codeMatch[1].trim();
+        
+        // Extraire une éventuelle explication (texte après le dernier bloc de code)
+        const parts = content.split("```");
+        if (parts.length > 2) {
+          const possibleExplanation = parts[parts.length - 1].trim();
+          if (possibleExplanation) {
+            explanation = possibleExplanation;
+          }
+        }
+      }
+      
+      // Mettre à jour l'éditeur avec le code généré
+      setCode(code);
+      setAnalysis(explanation);
+      
+      // Copier automatiquement le code dans le presse-papier
+      navigator.clipboard.writeText(code).then(() => {
+        toast({
+          title: "Code généré et copié",
+          description: "Le code a été généré et copié dans le presse-papier.",
+          variant: "default",
+        });
+      }).catch(() => {
+        toast({
+          title: "Code généré",
+          description: "Le code a été généré mais n'a pas pu être copié automatiquement.",
+          variant: "default",
+        });
+      });
     } catch (error) {
       console.error('Erreur lors de la traduction:', error);
       toast({
         title: "Erreur de traduction",
-        description: error.message || "Une erreur est survenue lors de la traduction.",
+        description: "Une erreur est survenue lors de la traduction. Veuillez réessayer.",
         variant: "destructive",
       });
     } finally {

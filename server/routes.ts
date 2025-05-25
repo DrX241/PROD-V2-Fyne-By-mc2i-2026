@@ -5052,75 +5052,7 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
     }
   });
   
-  // Endpoint pour traduire du langage naturel en code
-  app.post('/api/code/translate', async (req, res) => {
-    try {
-      const { text, language, sessionId } = req.body;
-      
-      if (!text || !language) {
-        return res.status(400).json({
-          error: "Le texte et le langage cible sont requis"
-        });
-      }
 
-      // Vérifier si OpenAI est configuré
-      if (!openAIService) {
-        return res.status(503).json({
-          error: "Le service IA n'est pas disponible actuellement"
-        });
-      }
-
-      // Définir le prompt système selon le langage
-      const systemPrompt = language === 'python' 
-        ? `Tu es un expert en programmation Python. Ta mission est de traduire des descriptions en langage naturel en code Python efficace et bien structuré. 
-          - Génère un code Python clair et commenté
-          - Utilise les bibliothèques standard (numpy, pandas, matplotlib, etc. si nécessaire)
-          - Respecte les bonnes pratiques PEP8
-          - Ajoute des commentaires explicatifs pertinents`
-        : `Tu es un expert en SQL. Ta mission est de traduire des descriptions en langage naturel en requêtes SQL efficaces.
-          - Génère des requêtes SQL standard et optimisées
-          - Utilise la syntaxe la plus compatible (MySQL/PostgreSQL)
-          - Ajoute des commentaires explicatifs pertinents`;
-
-      // Créer le prompt utilisateur
-      const userPrompt = `Traduis cette description en code ${language} : ${text}`;
-
-      // Structurer la demande pour obtenir une réponse JSON
-      const completion = await openAIService.getChatCompletion([
-        { role: "system", content: systemPrompt + "\nRéponds avec un JSON contenant le code généré et une explication: { \"code\": \"le code généré\", \"explanation\": \"explication du code\" }" },
-        { role: "user", content: userPrompt }
-      ], {
-        temperature: 0.3,
-        response_format: { type: "json_object" }
-      });
-
-      if (!completion || !completion.content) {
-        throw new Error("Réponse IA invalide");
-      }
-
-      // Extraire le code et l'explication
-      try {
-        const result = JSON.parse(completion.content);
-        
-        if (!result.code) {
-          throw new Error("Le format de la réponse est invalide");
-        }
-
-        return res.status(200).json({
-          code: result.code,
-          explanation: result.explanation || "Voici le code généré à partir de votre description."
-        });
-      } catch (error) {
-        console.error("Erreur lors du traitement de la réponse IA:", error);
-        throw new Error("Erreur lors du traitement de la réponse IA");
-      }
-    } catch (error) {
-      console.error("Erreur lors de la traduction:", error);
-      res.status(500).json({ 
-        error: error instanceof Error ? error.message : "Une erreur est survenue lors de la traduction"
-      });
-    }
-  });
 
   // Endpoint pour analyser la justification d'une réponse dans Read Me If You Can
   app.post('/api/data-ia/analyze-justification', async (req, res) => {
