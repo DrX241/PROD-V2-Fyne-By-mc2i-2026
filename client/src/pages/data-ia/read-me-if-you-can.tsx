@@ -772,7 +772,7 @@ const ReadMeIfYouCan = () => {
   const [questionCount, setQuestionCount] = useState(0);
   const [hintRequested, setHintRequested] = useState(false);
   const [highContrastMode, setHighContrastMode] = useState(false);
-  const [consecutiveFailures, setConsecutiveFailures] = useState(0);
+  // Nous n'utilisons plus le système d'échecs consécutifs
   
   // Cache pour les défis déjà présentés à l'utilisateur (évite les répétitions)
   const [challengeCache, setChallengeCache] = useState({
@@ -1094,26 +1094,17 @@ const ReadMeIfYouCan = () => {
     // Considérer la réponse comme correcte uniquement si la réponse ET la justification sont correctes
     const isOverallCorrect = isCorrect && justificationValid;
     
-    // Mettre à jour le score et les échecs consécutifs
+    // Mettre à jour le score uniquement
     if (isOverallCorrect) {
       setScore(prev => prev + 1);
-      setConsecutiveFailures(0); // Réinitialiser les échecs consécutifs en cas de succès
-    } else {
-      setConsecutiveFailures(prev => prev + 1);
     }
     
     // Afficher le résultat
     setShowResult(true);
     setIsLoading(false);
     
-    // Vérifier si l'utilisateur a atteint deux échecs consécutifs
-    if (!isOverallCorrect && consecutiveFailures >= 1) {
-      toast({
-        title: "Attention !",
-        description: "Vous avez eu 2 réponses incorrectes consécutives. Le jeu va s'arrêter après cette question.",
-        variant: "destructive",
-      });
-    } else if (!isCorrect) {
+    // Notification selon le résultat
+    if (!isCorrect) {
       // Notification pour réponse incorrecte
       toast({
         title: "Incorrect !",
