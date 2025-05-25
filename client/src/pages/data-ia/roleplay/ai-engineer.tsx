@@ -3,9 +3,9 @@ import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft, Braces, Code, Play, Save, Copy, FileCode, Cpu, 
-  RefreshCw, BarChart, BrainCircuit, Settings, Sliders, UploadCloud, 
+  RefreshCw, BarChart, BrainCircuit, Settings, Sliders, Upload as UploadCloud, 
   BookOpen, CheckCircle, AlertCircle, HelpCircle, Search, 
-  Layers, Database, GitBranch
+  Layers, Database, GitBranch, Plus
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 
@@ -632,7 +632,7 @@ export default function AIEngineer() {
                 value="deployment" 
                 className="data-[state=active]:bg-purple-800/40 rounded-md px-4"
               >
-                <Upload className="h-4 w-4 mr-2" />
+                <UploadCloud className="h-4 w-4 mr-2" />
                 Déploiement
               </TabsTrigger>
               <TabsTrigger 
@@ -1269,7 +1269,7 @@ export default function AIEngineer() {
                         <div className="relative w-16 h-16">
                           <div className="absolute inset-0 rounded-full border-4 border-t-purple-500 border-slate-700 animate-spin"></div>
                           <div className="absolute inset-3 bg-slate-900 rounded-full"></div>
-                          <Upload className="absolute inset-0 m-auto h-6 w-6 text-purple-400" />
+                          <UploadCloud className="absolute inset-0 m-auto h-6 w-6 text-purple-400" />
                         </div>
                         <h3 className="text-xl font-medium text-purple-300 mt-4">Déploiement en cours...</h3>
                         <p className="text-slate-400 max-w-md text-center">
@@ -1337,9 +1337,9 @@ export default function AIEngineer() {
                                   <div className="pl-4">body: JSON.stringify({'{'}</div>
                                   <div className="pl-8">text: "Ce produit est vraiment formidable, je le recommande !"</div>
                                   <div className="pl-4">{'}'})</div>
-                                  <div>{'}'})</div>
-                                  <div>.then(response => response.json())</div>
-                                  <div>.then(data => console.log(data));</div>
+                                  <div>{'}'}))</div>
+                                  <div>{'.then(response => response.json())'}</div>
+                                  <div>{'.then(data => console.log(data));'}</div>
                                 </div>
                               </div>
                             </div>
@@ -1363,7 +1363,7 @@ export default function AIEngineer() {
                         className="bg-purple-600 hover:bg-purple-700"
                         onClick={deployModel}
                       >
-                        <Upload className="h-4 w-4 mr-2" />
+                        <UploadCloud className="h-4 w-4 mr-2" />
                         Déployer le modèle
                       </Button>
                     </>
@@ -1380,7 +1380,7 @@ export default function AIEngineer() {
                         className="bg-purple-600 hover:bg-purple-700"
                         onClick={() => setDeploymentStage("configuration")}
                       >
-                        <Upload className="h-4 w-4 mr-2" />
+                        <UploadCloud className="h-4 w-4 mr-2" />
                         Configurer le déploiement
                       </Button>
                     </>
