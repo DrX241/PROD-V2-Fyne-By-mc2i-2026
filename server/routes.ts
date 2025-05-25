@@ -4910,6 +4910,8 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   // Routes CyberQuest supprimées
   
   // Endpoint pour générer des questions pour le jeu Read Me If You Can
+  // Service de génération dynamique est importé en haut du fichier
+  
   app.post('/api/data-ia/generate-code-challenge', async (req, res) => {
     try {
       const { language, difficulty, mode } = req.body;
@@ -4923,6 +4925,28 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
         return res.status(500).json({ 
           error: "Le service Azure OpenAI n'est pas disponible actuellement." 
         });
+      }
+      
+      // Utiliser le service de génération dynamique de défis
+      try {
+        // Tenter de récupérer un défi du cache ou d'en générer un nouveau
+        const challenge = await dynamicChallengeService.getChallenge(
+          language,
+          difficulty
+        );
+        
+        if (challenge) {
+          return res.status(200).json({
+            success: true,
+            challenge
+          });
+        }
+        
+        // Si la génération dynamique échoue, continuer avec la génération standard
+        console.log("Génération dynamique échouée, utilisation de la méthode standard");
+      } catch (dynamicError) {
+        console.error("Erreur avec la génération dynamique:", dynamicError);
+        // Continuer avec la méthode standard en cas d'erreur
       }
       
       // Créer un prompt adapté au langage, à la difficulté et au mode de jeu
