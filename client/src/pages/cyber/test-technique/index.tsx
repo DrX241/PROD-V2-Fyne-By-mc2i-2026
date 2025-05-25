@@ -24,6 +24,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { 
   ArrowRight, 
+  ArrowLeft,
   Loader2, 
   GraduationCap, 
   Brain, 
@@ -505,6 +506,18 @@ export default function CyberTestTechnique() {
       </div>
       
       <div className="relative z-10 container max-w-4xl mx-auto py-6 px-4">
+        {/* Bouton retour */}
+        <div className="mb-6">
+          <Button 
+            variant="outline" 
+            className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30 hover:text-white mb-4"
+            onClick={() => window.history.back()}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Retour
+          </Button>
+        </div>
+        
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-white">Test Technique de Cybersécurité</h1>
           <p className="text-blue-200 mt-2">
