@@ -273,7 +273,7 @@ export default function CyberTestTechnique() {
           <input 
             type="text" 
             className="flex h-10 w-full rounded-md border border-blue-700 bg-blue-900/50 px-3 py-2 text-sm text-white ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-blue-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed opacity-50"
-            value="Julien Grimault"
+            placeholder="Ex: Julien Grimault"
             readOnly
             disabled
           />
