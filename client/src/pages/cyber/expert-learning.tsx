@@ -971,61 +971,49 @@ function ExpertLearningPageContent() {
                                   size="sm" 
                                   className="w-full justify-start p-1.5 h-auto text-xs text-[#c3d9ee] hover:text-[#00b4d8] hover:bg-[#112641]"
                                   onClick={() => {
-                                    // Utiliser un léger délai pour s'assurer que l'état est mis à jour
+                                    // Démarrer immédiatement le scénario de décision
+                                    setIsLoading(true);
+                                    
+                                    // Créer un message utilisateur pour le feedback immédiat
+                                    const userMessage: Message = {
+                                      id: uuidv4(),
+                                      type: "user",
+                                      content: "Démarrer un scénario de décision en cybersécurité",
+                                      timestamp: Date.now()
+                                    };
+                                    
+                                    // Ajouter à la liste des messages
+                                    setMessages(prev => [...prev, userMessage]);
+                                    
+                                    // Ajouter immédiatement un message de chargement pour feedback immédiat
+                                    const loadingMessage: Message = {
+                                      id: uuidv4(),
+                                      type: "bot",
+                                      content: `
+                                        <div class="p-3 bg-[#112641] border border-[#00b4d8]/30 rounded-md mb-2">
+                                          <div class="flex items-center">
+                                            <span class="animate-pulse h-3 w-3 bg-[#00b4d8] rounded-full mr-3"></span>
+                                            <span class="text-[#00b4d8] font-medium">Préparation d'un scénario de décision...</span>
+                                          </div>
+                                          <p class="text-sm text-[#c3d9ee] mt-2">
+                                            Je suis en train de générer un scénario de décision complexe 
+                                            qui mettra à l'épreuve vos compétences en cybersécurité. 
+                                            Préparez-vous à prendre des décisions difficiles face à des incidents réalistes...
+                                          </p>
+                                        </div>
+                                      `,
+                                      timestamp: Date.now()
+                                    };
+                                    
+                                    setMessages(prev => [...prev, loadingMessage]);
+                                    
+                                    // Lancer directement le flux de décision
+                                    // Cela permettra à l'utilisateur de voir immédiatement le scénario
                                     setTimeout(() => {
-                                      const tmpMessage = "Propose-moi un scénario de décision en cybersécurité";
-                                      
-                                      // Créer un message utilisateur
-                                      const userMessage: Message = {
-                                        id: uuidv4(),
-                                        type: "user",
-                                        content: tmpMessage,
-                                        timestamp: Date.now()
-                                      };
-                                      
-                                      // Ajouter à la liste des messages
-                                      setMessages(prev => [...prev, userMessage]);
-                                      
-                                      setIsLoading(true);
-                                      
-                                      // Envoyer la requête API
-                                      apiRequest<{success: boolean, message: string, sessionStatus: SessionStatus}>('/api/cyber-expert/message', {
-                                        method: 'POST',
-                                        body: JSON.stringify({
-                                          userId,
-                                          message: tmpMessage
-                                        })
-                                      })
-                                      .then(response => {
-                                        if (response.success) {
-                                          // Ajouter la réponse du bot
-                                          const botResponse: Message = {
-                                            id: uuidv4(),
-                                            type: "bot",
-                                            content: response.message,
-                                            timestamp: Date.now()
-                                          };
-                                          
-                                          setMessages(prev => [...prev, botResponse]);
-                                          
-                                          // Mettre à jour le statut de la session
-                                          if (response.sessionStatus) {
-                                            setSessionStatus(response.sessionStatus);
-                                          }
-                                        }
-                                      })
-                                      .catch(error => {
-                                        console.error("Erreur lors de l'envoi du message:", error);
-                                        toast({
-                                          title: "Erreur",
-                                          description: "Impossible de lancer le scénario de décision. Veuillez réessayer.",
-                                          variant: "destructive"
-                                        });
-                                      })
-                                      .finally(() => {
-                                        setIsLoading(false);
-                                      });
-                                    }, 50);
+                                      if (userId) {
+                                        decision.startDecisionFlow(userId, "cybersécurité");
+                                      }
+                                    }, 100);
                                   }}
                                 >
                                   <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>

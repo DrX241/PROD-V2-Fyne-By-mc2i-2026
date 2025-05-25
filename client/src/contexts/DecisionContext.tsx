@@ -68,9 +68,39 @@ export const DecisionProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const { toast } = useToast();
 
-  // Démarrer le flux de décision après un débriefing
+  // Démarrer le flux de décision après un débriefing - version améliorée avec retour immédiat
   const startDecisionFlow = async (userId: string, topic: string) => {
-    setState(prev => ({ ...prev, isLoading: true }));
+    // Afficher immédiatement un scénario temporaire pour donner un retour visuel instantané
+    setState({
+      isInDecisionMode: true,
+      currentScenario: {
+        id: "loading-scenario",
+        situation: "Préparation du scénario de décision en cybersécurité...",
+        context: "Analyse du contexte de cybersécurité en cours...",
+        historicalFacts: "Compilation des incidents récents et bonnes pratiques...",
+        consequences: "Évaluation des impacts potentiels des décisions...",
+        urgencyLevel: "medium",
+        deadline: "Chargement...",
+        options: [
+          {
+            id: "loading-option",
+            text: "Préparation des options...",
+            description: "Veuillez patienter pendant que nous préparons des choix pertinents basés sur des scénarios réels...",
+            impacts: {
+              security: "neutral",
+              business: "neutral",
+              team: "neutral",
+              legal: "neutral",
+              career: "neutral"
+            }
+          }
+        ]
+      },
+      currentScenarioNumber: 1,
+      totalScenarios: 5, // Valeur par défaut en attendant la réponse de l'API
+      isLoading: true,
+      summary: null
+    });
     
     try {
       const response = await apiRequest<{
