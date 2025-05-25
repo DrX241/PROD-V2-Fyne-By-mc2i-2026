@@ -226,61 +226,11 @@ export default function DataIaRoleplay() {
             </Card>
           </motion.div>
 
-          {/* Option 4: Je suis Data Engineer */}
+          {/* Option 4: Je suis AI Engineer */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            whileHover={{ scale: 1.02 }}
-          >
-            <Card className="h-full bg-gradient-to-br from-amber-900/40 to-amber-950 border-amber-700 hover:border-amber-500 hover:shadow-lg transition-all duration-300">
-              <CardHeader>
-                <div className="flex justify-center mb-4">
-                  <div className="p-4 rounded-full bg-amber-800/70">
-                    <BsServer className="h-10 w-10 text-amber-200" />
-                  </div>
-                </div>
-                <CardTitle className="text-2xl text-center mb-2">Je suis Data Engineer</CardTitle>
-                <CardDescription className="text-amber-300 text-center text-lg">
-                  Je construis des pipelines de données
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <p className="mb-6 text-amber-200">
-                  Concevez des architectures robustes pour collecter, transformer et stocker des données à grande échelle.
-                </p>
-                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
-                  <li className="flex items-center text-amber-200">
-                    <div className="h-2 w-2 rounded-full bg-amber-400 mr-2"></div>
-                    Conception de bases de données
-                  </li>
-                  <li className="flex items-center text-amber-200">
-                    <div className="h-2 w-2 rounded-full bg-amber-400 mr-2"></div>
-                    ETL et intégration de données
-                  </li>
-                  <li className="flex items-center text-amber-200">
-                    <div className="h-2 w-2 rounded-full bg-amber-400 mr-2"></div>
-                    Optimisation de requêtes SQL
-                  </li>
-                </ul>
-              </CardContent>
-              <CardFooter className="flex justify-center">
-                <Button 
-                  className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-5"
-                  onClick={() => setLocation('/data-ia/roleplay/ia-lab-trainer')}
-                >
-                  Construire des pipelines
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
-          </motion.div>
-
-          {/* Option 5: Je suis AI Engineer */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
             whileHover={{ scale: 1.02 }}
           >
             <Card className="h-full bg-gradient-to-br from-purple-900/40 to-purple-950 border-purple-700 hover:border-purple-500 hover:shadow-lg transition-all duration-300">
@@ -326,14 +276,121 @@ export default function DataIaRoleplay() {
             </Card>
           </motion.div>
 
-          {/* Option 6: Je suis Développeur IA */}
+          {/* Option 5: Je suis Data Engineer - Bientôt disponible */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <Card className="h-full bg-gradient-to-br from-amber-900/40 to-amber-950 border-amber-700 hover:border-amber-500 hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-amber-600 text-white px-3 py-1 rotate-45 transform translate-x-4 -translate-y-1 text-xs font-semibold">
+                Bientôt disponible
+              </div>
+              <CardHeader>
+                <div className="flex justify-center mb-4">
+                  <div className="p-4 rounded-full bg-amber-800/70">
+                    <BsServer className="h-10 w-10 text-amber-200" />
+                  </div>
+                </div>
+                <CardTitle className="text-2xl text-center mb-2">Je suis Data Engineer</CardTitle>
+                <CardDescription className="text-amber-300 text-center text-lg">
+                  Je construis des pipelines de données
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="mb-6 text-amber-200">
+                  Concevez des architectures robustes pour collecter, transformer et stocker des données à grande échelle.
+                </p>
+                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
+                  <li className="flex items-center text-amber-200">
+                    <div className="h-2 w-2 rounded-full bg-amber-400 mr-2"></div>
+                    Conception de bases de données
+                  </li>
+                  <li className="flex items-center text-amber-200">
+                    <div className="h-2 w-2 rounded-full bg-amber-400 mr-2"></div>
+                    ETL et intégration de données
+                  </li>
+                  <li className="flex items-center text-amber-200">
+                    <div className="h-2 w-2 rounded-full bg-amber-400 mr-2"></div>
+                    Optimisation de requêtes SQL
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <Button 
+                  className="bg-amber-600/60 hover:bg-amber-700/60 text-white px-6 py-5"
+                  disabled
+                >
+                  Module en préparation
+                </Button>
+              </CardFooter>
+            </Card>
+          </motion.div>
+
+          {/* Option 6: Je suis Data Manager - Bientôt disponible */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
             whileHover={{ scale: 1.02 }}
           >
-            <Card className="h-full bg-gradient-to-br from-cyan-900/40 to-cyan-950 border-cyan-700 hover:border-cyan-500 hover:shadow-lg transition-all duration-300">
+            <Card className="h-full bg-gradient-to-br from-rose-900/40 to-rose-950 border-rose-700 hover:border-rose-500 hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-rose-600 text-white px-3 py-1 rotate-45 transform translate-x-4 -translate-y-1 text-xs font-semibold">
+                Bientôt disponible
+              </div>
+              <CardHeader>
+                <div className="flex justify-center mb-4">
+                  <div className="p-4 rounded-full bg-rose-800/70">
+                    <BsDisplay className="h-10 w-10 text-rose-200" />
+                  </div>
+                </div>
+                <CardTitle className="text-2xl text-center mb-2">Je suis Data Manager</CardTitle>
+                <CardDescription className="text-rose-300 text-center text-lg">
+                  J'organise la gouvernance des données
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="mb-6 text-rose-200">
+                  Pilotez la stratégie data et assurez la qualité, la conformité et la valorisation du patrimoine de données.
+                </p>
+                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
+                  <li className="flex items-center text-rose-200">
+                    <div className="h-2 w-2 rounded-full bg-rose-400 mr-2"></div>
+                    Stratégie et gouvernance des données
+                  </li>
+                  <li className="flex items-center text-rose-200">
+                    <div className="h-2 w-2 rounded-full bg-rose-400 mr-2"></div>
+                    Gestion des métadonnées et qualité
+                  </li>
+                  <li className="flex items-center text-rose-200">
+                    <div className="h-2 w-2 rounded-full bg-rose-400 mr-2"></div>
+                    Politiques de conformité et sécurité
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <Button 
+                  className="bg-rose-600/60 hover:bg-rose-700/60 text-white px-6 py-5"
+                  disabled
+                >
+                  Module en préparation
+                </Button>
+              </CardFooter>
+            </Card>
+          </motion.div>
+          
+          {/* Option 7: Je suis Développeur IA - Bientôt disponible */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <Card className="h-full bg-gradient-to-br from-cyan-900/40 to-cyan-950 border-cyan-700 hover:border-cyan-500 hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-cyan-600 text-white px-3 py-1 rotate-45 transform translate-x-4 -translate-y-1 text-xs font-semibold">
+                Bientôt disponible
+              </div>
               <CardHeader>
                 <div className="flex justify-center mb-4">
                   <div className="p-4 rounded-full bg-cyan-800/70">
@@ -366,11 +423,10 @@ export default function DataIaRoleplay() {
               </CardContent>
               <CardFooter className="flex justify-center">
                 <Button 
-                  className="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-5"
-                  onClick={() => setLocation('/data-ia/roleplay/ia-lab-trainer')}
+                  className="bg-cyan-600/60 hover:bg-cyan-700/60 text-white px-6 py-5"
+                  disabled
                 >
-                  Développer des apps
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  Module en préparation
                 </Button>
               </CardFooter>
             </Card>
