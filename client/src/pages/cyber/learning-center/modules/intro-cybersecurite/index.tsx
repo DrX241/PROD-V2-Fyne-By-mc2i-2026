@@ -1378,21 +1378,420 @@ export default function IntroductionCybersecurite() {
                         </p>
                         
                         <div className="p-4 bg-blue-950/70 rounded-lg border border-blue-800/50 mb-4">
-                          <h4 className="font-medium text-white mb-2">Question de réflexion</h4>
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium text-white flex items-center">
+                              <BrainCircuit className="h-4 w-4 mr-2 text-purple-400" />
+                              Exercice d'analyse de cas
+                            </h4>
+                            <Badge className="bg-purple-600/70">
+                              <FileCheck className="h-3 w-3 mr-1" />
+                              INTERACTIF
+                            </Badge>
+                          </div>
+                          
                           {selectedCaseStudy === 0 && (
-                            <p className="text-sm text-blue-200">
-                              Comment auriez-vous sécurisé les accès VPN pour éviter la compromission initiale dans le cas Colonial Pipeline ?
-                            </p>
+                            <div className="space-y-3">
+                              <p className="text-sm text-blue-200">
+                                Analysez le cas Colonial Pipeline et identifiez les mesures de sécurité qui auraient pu prévenir cette attaque.
+                              </p>
+                              
+                              <div className="space-y-2 mt-3">
+                                <p className="text-xs font-medium text-white">Sélectionnez les mesures qui auraient été les plus efficaces :</p>
+                                <div className="space-y-2">
+                                  <div className="flex items-start space-x-2">
+                                    <Checkbox id="vpn-mfa" />
+                                    <div className="grid gap-1">
+                                      <Label htmlFor="vpn-mfa" className="text-xs text-blue-200">
+                                        Authentification multifacteur (MFA) sur tous les accès VPN
+                                      </Label>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start space-x-2">
+                                    <Checkbox id="vpn-monitoring" />
+                                    <div className="grid gap-1">
+                                      <Label htmlFor="vpn-monitoring" className="text-xs text-blue-200">
+                                        Surveillance renforcée des connexions VPN inhabituelles
+                                      </Label>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start space-x-2">
+                                    <Checkbox id="vpn-segmentation" />
+                                    <div className="grid gap-1">
+                                      <Label htmlFor="vpn-segmentation" className="text-xs text-blue-200">
+                                        Segmentation réseau limitant les accès depuis le VPN
+                                      </Label>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start space-x-2">
+                                    <Checkbox id="backup-offline" />
+                                    <div className="grid gap-1">
+                                      <Label htmlFor="backup-offline" className="text-xs text-blue-200">
+                                        Sauvegardes hors ligne régulières des systèmes critiques
+                                      </Label>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start space-x-2">
+                                    <Checkbox id="incident-response" />
+                                    <div className="grid gap-1">
+                                      <Label htmlFor="incident-response" className="text-xs text-blue-200">
+                                        Plan de réponse aux incidents testé régulièrement
+                                      </Label>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                <textarea 
+                                  placeholder="Expliquez comment ces mesures auraient pu empêcher l'attaque sur Colonial Pipeline..."
+                                  className="w-full p-2 mt-3 bg-blue-900/20 border border-blue-800/40 rounded text-xs text-blue-200 h-20"
+                                />
+                                
+                                <Button
+                                  className="w-full mt-2 bg-purple-600 hover:bg-purple-700 text-white text-xs py-1"
+                                  onClick={() => {
+                                    const mfaChecked = (document.getElementById('vpn-mfa') as HTMLInputElement)?.checked;
+                                    const monitoringChecked = (document.getElementById('vpn-monitoring') as HTMLInputElement)?.checked;
+                                    const segmentationChecked = (document.getElementById('vpn-segmentation') as HTMLInputElement)?.checked;
+                                    const backupChecked = (document.getElementById('backup-offline') as HTMLInputElement)?.checked;
+                                    const incidentChecked = (document.getElementById('incident-response') as HTMLInputElement)?.checked;
+                                    
+                                    // Compte le nombre de bonnes réponses
+                                    let score = 0;
+                                    if (mfaChecked) score++; // MFA est crucial
+                                    if (monitoringChecked) score++; // La surveillance aurait pu détecter l'intrusion
+                                    if (segmentationChecked) score++; // La segmentation aurait limité la propagation
+                                    
+                                    let feedback = "";
+                                    if (score >= 3 && backupChecked && incidentChecked) {
+                                      feedback = "Excellente analyse ! Vous avez identifié les mesures clés qui auraient pu prévenir ou limiter l'impact de l'attaque contre Colonial Pipeline. L'authentification MFA aurait empêché l'accès initial via le compte VPN compromis, la surveillance aurait détecté les comportements anormaux, et la segmentation réseau aurait limité la propagation du ransomware. Les sauvegardes hors ligne et un plan de réponse aux incidents auraient également réduit considérablement le temps de reprise.";
+                                      
+                                      if (!completedInteractions.includes('case-study-analysis-0')) {
+                                        setUserPoints(prev => prev + 25);
+                                        setCompletedInteractions(prev => [...prev, 'case-study-analysis-0']);
+                                        
+                                        toast({
+                                          title: "Analyse de cas réussie !",
+                                          description: "+25 points pour votre excellente analyse du cas Colonial Pipeline",
+                                        });
+                                      }
+                                    } else if (score >= 2) {
+                                      feedback = "Bonne analyse ! Vous avez identifié plusieurs mesures importantes. L'authentification MFA sur le VPN aurait été particulièrement cruciale pour empêcher l'accès initial des attaquants. Considérez également l'importance de la segmentation réseau pour limiter la propagation latérale et des sauvegardes hors ligne pour faciliter la reprise après un ransomware.";
+                                      
+                                      if (!completedInteractions.includes('case-study-analysis-0')) {
+                                        setUserPoints(prev => prev + 15);
+                                        setCompletedInteractions(prev => [...prev, 'case-study-analysis-0']);
+                                        
+                                        toast({
+                                          title: "Analyse de cas complétée !",
+                                          description: "+15 points pour votre analyse du cas Colonial Pipeline",
+                                        });
+                                      }
+                                    } else {
+                                      feedback = "Vous avez identifié quelques mesures pertinentes, mais n'oubliez pas que la compromission initiale de Colonial Pipeline s'est faite via un compte VPN sans MFA. L'authentification multifacteur, la surveillance des connexions et la segmentation réseau sont des éléments essentiels pour prévenir ce type d'attaque. Les sauvegardes hors ligne sont également cruciales pour se remettre d'un ransomware.";
+                                    }
+                                    
+                                    setExerciseData({
+                                      ...exerciseData,
+                                      caseStudyAnalysis: score.toString(),
+                                      caseStudyFeedback: feedback
+                                    });
+                                  }}
+                                >
+                                  Analyser mes réponses
+                                </Button>
+                                
+                                {exerciseData.caseStudyFeedback && selectedCaseStudy === 0 && (
+                                  <div className="mt-3 p-3 bg-purple-900/30 border border-purple-700/50 rounded-md">
+                                    <h5 className="text-xs font-medium text-white mb-1 flex items-center">
+                                      <CheckCircle className="h-3 w-3 mr-2 text-green-400" />
+                                      Feedback sur votre analyse
+                                    </h5>
+                                    <p className="text-xs text-blue-200">
+                                      {exerciseData.caseStudyFeedback}
+                                    </p>
+                                    <div className="mt-2 pt-2 border-t border-purple-800/30">
+                                      <p className="text-xs text-purple-300 font-medium">Impact de l'attaque Colonial Pipeline :</p>
+                                      <ul className="list-disc pl-4 mt-1 text-xs text-blue-200 space-y-1">
+                                        <li>Arrêt complet du pipeline pendant 6 jours</li>
+                                        <li>Pénurie de carburant dans plusieurs États américains</li>
+                                        <li>Hausse des prix du carburant de 8% en moyenne</li>
+                                        <li>Rançon payée : 4,4 millions de dollars (partiellement récupérée)</li>
+                                        <li>Dommages à la réputation et perte de confiance des consommateurs</li>
+                                      </ul>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           )}
+                          
                           {selectedCaseStudy === 1 && (
-                            <p className="text-sm text-blue-200">
-                              Quelles mesures de vérification et de sécurité auriez-vous mises en place dans la chaîne d'approvisionnement logicielle pour éviter une attaque comme SolarWinds ?
-                            </p>
+                            <div className="space-y-3">
+                              <p className="text-sm text-blue-200">
+                                Analysez la sophistication de l'attaque SolarWinds et identifiez les mesures qui auraient pu la détecter ou la prévenir.
+                              </p>
+                              
+                              <div className="space-y-2 mt-3">
+                                <p className="text-xs font-medium text-white">Sélectionnez les mesures qui auraient été les plus efficaces :</p>
+                                <div className="space-y-2">
+                                  <div className="flex items-start space-x-2">
+                                    <Checkbox id="code-review" />
+                                    <div className="grid gap-1">
+                                      <Label htmlFor="code-review" className="text-xs text-blue-200">
+                                        Audits de code renforcés avant chaque mise en production
+                                      </Label>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start space-x-2">
+                                    <Checkbox id="supply-chain" />
+                                    <div className="grid gap-1">
+                                      <Label htmlFor="supply-chain" className="text-xs text-blue-200">
+                                        Vérification cryptographique de l'intégrité des mises à jour logicielles
+                                      </Label>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start space-x-2">
+                                    <Checkbox id="zero-trust" />
+                                    <div className="grid gap-1">
+                                      <Label htmlFor="zero-trust" className="text-xs text-blue-200">
+                                        Architecture Zero Trust limitant l'accès aux ressources sensibles
+                                      </Label>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start space-x-2">
+                                    <Checkbox id="behavior-analysis" />
+                                    <div className="grid gap-1">
+                                      <Label htmlFor="behavior-analysis" className="text-xs text-blue-200">
+                                        Analyse comportementale des applications pour détecter les activités anormales
+                                      </Label>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start space-x-2">
+                                    <Checkbox id="vendor-assessment" />
+                                    <div className="grid gap-1">
+                                      <Label htmlFor="vendor-assessment" className="text-xs text-blue-200">
+                                        Évaluation rigoureuse de sécurité des fournisseurs de logiciels
+                                      </Label>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                <textarea 
+                                  placeholder="Expliquez comment ces mesures auraient pu détecter ou prévenir l'attaque SolarWinds..."
+                                  className="w-full p-2 mt-3 bg-blue-900/20 border border-blue-800/40 rounded text-xs text-blue-200 h-20"
+                                />
+                                
+                                <Button
+                                  className="w-full mt-2 bg-purple-600 hover:bg-purple-700 text-white text-xs py-1"
+                                  onClick={() => {
+                                    const codeReviewChecked = (document.getElementById('code-review') as HTMLInputElement)?.checked;
+                                    const supplyChainChecked = (document.getElementById('supply-chain') as HTMLInputElement)?.checked;
+                                    const zeroTrustChecked = (document.getElementById('zero-trust') as HTMLInputElement)?.checked;
+                                    const behaviorChecked = (document.getElementById('behavior-analysis') as HTMLInputElement)?.checked;
+                                    const vendorChecked = (document.getElementById('vendor-assessment') as HTMLInputElement)?.checked;
+                                    
+                                    // Compte le nombre de bonnes réponses
+                                    let score = 0;
+                                    if (supplyChainChecked) score++; // Critique pour détecter la modification
+                                    if (behaviorChecked) score++; // Pour détecter des comportements anormaux
+                                    if (vendorChecked) score++; // Pour évaluer la sécurité du fournisseur
+                                    
+                                    let feedback = "";
+                                    if (score >= 3 && codeReviewChecked && zeroTrustChecked) {
+                                      feedback = "Excellente analyse ! Vous avez identifié les principales mesures qui auraient pu détecter ou limiter l'impact de l'attaque SolarWinds. La vérification cryptographique des mises à jour aurait pu révéler l'altération du code, tandis que l'analyse comportementale aurait pu détecter les communications suspectes. L'approche Zero Trust et l'évaluation des fournisseurs sont également essentielles pour limiter les dégâts potentiels de ce type d'attaque sophistiquée de la chaîne d'approvisionnement.";
+                                      
+                                      if (!completedInteractions.includes('case-study-analysis-1')) {
+                                        setUserPoints(prev => prev + 25);
+                                        setCompletedInteractions(prev => [...prev, 'case-study-analysis-1']);
+                                        
+                                        toast({
+                                          title: "Analyse de cas réussie !",
+                                          description: "+25 points pour votre excellente analyse du cas SolarWinds",
+                                        });
+                                      }
+                                    } else if (score >= 2) {
+                                      feedback = "Bonne analyse ! Vous avez identifié plusieurs mesures importantes pour lutter contre ce type d'attaque sophistiquée. La vérification cryptographique de l'intégrité des mises à jour et l'analyse comportementale sont particulièrement importantes pour détecter les modifications malveillantes dans la chaîne d'approvisionnement logicielle. N'oubliez pas l'importance d'une évaluation rigoureuse des fournisseurs.";
+                                      
+                                      if (!completedInteractions.includes('case-study-analysis-1')) {
+                                        setUserPoints(prev => prev + 15);
+                                        setCompletedInteractions(prev => [...prev, 'case-study-analysis-1']);
+                                        
+                                        toast({
+                                          title: "Analyse de cas complétée !",
+                                          description: "+15 points pour votre analyse du cas SolarWinds",
+                                        });
+                                      }
+                                    } else {
+                                      feedback = "Vous avez identifié quelques mesures pertinentes, mais la protection contre une attaque aussi sophistiquée que SolarWinds nécessite une approche multicouche. La vérification cryptographique de l'intégrité des mises à jour est essentielle pour détecter les modifications malveillantes dans le code. L'analyse comportementale et l'évaluation des fournisseurs sont également cruciales pour cette menace avancée.";
+                                    }
+                                    
+                                    setExerciseData({
+                                      ...exerciseData,
+                                      caseStudyAnalysis: score.toString(),
+                                      caseStudyFeedback: feedback
+                                    });
+                                  }}
+                                >
+                                  Analyser mes réponses
+                                </Button>
+                                
+                                {exerciseData.caseStudyFeedback && selectedCaseStudy === 1 && (
+                                  <div className="mt-3 p-3 bg-purple-900/30 border border-purple-700/50 rounded-md">
+                                    <h5 className="text-xs font-medium text-white mb-1 flex items-center">
+                                      <CheckCircle className="h-3 w-3 mr-2 text-green-400" />
+                                      Feedback sur votre analyse
+                                    </h5>
+                                    <p className="text-xs text-blue-200">
+                                      {exerciseData.caseStudyFeedback}
+                                    </p>
+                                    <div className="mt-2 pt-2 border-t border-purple-800/30">
+                                      <p className="text-xs text-purple-300 font-medium">Impact de l'attaque SolarWinds :</p>
+                                      <ul className="list-disc pl-4 mt-1 text-xs text-blue-200 space-y-1">
+                                        <li>Plus de 18 000 organisations compromises, dont de nombreuses agences gouvernementales</li>
+                                        <li>Accès non détecté pendant plusieurs mois (stealth parfaite)</li>
+                                        <li>Vol de données sensibles et d'informations classifiées</li>
+                                        <li>Coût estimé des dommages : plusieurs milliards de dollars</li>
+                                        <li>Remise en question fondamentale de la sécurité de la chaîne d'approvisionnement logicielle</li>
+                                      </ul>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           )}
+                          
                           {selectedCaseStudy === 2 && (
-                            <p className="text-sm text-blue-200">
-                              Comment auriez-vous géré le risque lié aux bibliothèques open-source comme Log4j dans votre organisation ?
-                            </p>
+                            <div className="space-y-3">
+                              <p className="text-sm text-blue-200">
+                                Analysez la vulnérabilité Log4j et identifiez les mesures de sécurité qui auraient pu réduire son impact.
+                              </p>
+                              
+                              <div className="space-y-2 mt-3">
+                                <p className="text-xs font-medium text-white">Sélectionnez les mesures qui auraient été les plus efficaces :</p>
+                                <div className="space-y-2">
+                                  <div className="flex items-start space-x-2">
+                                    <Checkbox id="dependency-scanning" />
+                                    <div className="grid gap-1">
+                                      <Label htmlFor="dependency-scanning" className="text-xs text-blue-200">
+                                        Analyse automatisée des dépendances pour identifier les composants vulnérables
+                                      </Label>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start space-x-2">
+                                    <Checkbox id="patch-management" />
+                                    <div className="grid gap-1">
+                                      <Label htmlFor="patch-management" className="text-xs text-blue-200">
+                                        Processus accéléré de gestion des correctifs pour les vulnérabilités critiques
+                                      </Label>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start space-x-2">
+                                    <Checkbox id="waf-implementation" />
+                                    <div className="grid gap-1">
+                                      <Label htmlFor="waf-implementation" className="text-xs text-blue-200">
+                                        Déploiement de WAF (Web Application Firewall) avec règles spécifiques
+                                      </Label>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start space-x-2">
+                                    <Checkbox id="inventory-management" />
+                                    <div className="grid gap-1">
+                                      <Label htmlFor="inventory-management" className="text-xs text-blue-200">
+                                        Inventaire complet et à jour de tous les actifs logiciels et leurs composants
+                                      </Label>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start space-x-2">
+                                    <Checkbox id="runtime-protection" />
+                                    <div className="grid gap-1">
+                                      <Label htmlFor="runtime-protection" className="text-xs text-blue-200">
+                                        Protection à l'exécution pour bloquer les comportements suspects des applications
+                                      </Label>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                <textarea 
+                                  placeholder="Expliquez comment ces mesures auraient pu limiter l'impact de la vulnérabilité Log4j..."
+                                  className="w-full p-2 mt-3 bg-blue-900/20 border border-blue-800/40 rounded text-xs text-blue-200 h-20"
+                                />
+                                
+                                <Button
+                                  className="w-full mt-2 bg-purple-600 hover:bg-purple-700 text-white text-xs py-1"
+                                  onClick={() => {
+                                    const dependencyChecked = (document.getElementById('dependency-scanning') as HTMLInputElement)?.checked;
+                                    const patchChecked = (document.getElementById('patch-management') as HTMLInputElement)?.checked;
+                                    const wafChecked = (document.getElementById('waf-implementation') as HTMLInputElement)?.checked;
+                                    const inventoryChecked = (document.getElementById('inventory-management') as HTMLInputElement)?.checked;
+                                    const runtimeChecked = (document.getElementById('runtime-protection') as HTMLInputElement)?.checked;
+                                    
+                                    // Compte le nombre de bonnes réponses
+                                    let score = 0;
+                                    if (dependencyChecked) score++; // Critique pour identifier les composants vulnérables
+                                    if (wafChecked) score++; // Pour bloquer les tentatives d'exploitation
+                                    if (inventoryChecked) score++; // Pour savoir où se trouve Log4j
+                                    
+                                    let feedback = "";
+                                    if (score >= 3 && patchChecked && runtimeChecked) {
+                                      feedback = "Excellente analyse ! Vous avez identifié les mesures clés pour gérer efficacement une vulnérabilité comme Log4j. L'analyse des dépendances et l'inventaire complet des actifs sont cruciaux pour identifier rapidement où se trouve Log4j dans l'infrastructure. Un WAF correctement configuré aurait bloqué de nombreuses tentatives d'exploitation, tandis que le processus accéléré de correctifs et la protection à l'exécution auraient fourni des défenses supplémentaires essentielles.";
+                                      
+                                      if (!completedInteractions.includes('case-study-analysis-2')) {
+                                        setUserPoints(prev => prev + 25);
+                                        setCompletedInteractions(prev => [...prev, 'case-study-analysis-2']);
+                                        
+                                        toast({
+                                          title: "Analyse de cas réussie !",
+                                          description: "+25 points pour votre excellente analyse du cas Log4j",
+                                        });
+                                      }
+                                    } else if (score >= 2) {
+                                      feedback = "Bonne analyse ! Vous avez identifié plusieurs mesures importantes pour faire face à une vulnérabilité critique comme Log4j. L'analyse des dépendances et l'inventaire des actifs sont particulièrement importants pour localiser rapidement les composants vulnérables. N'oubliez pas l'importance d'un WAF pour bloquer les tentatives d'exploitation et d'un processus de correction accéléré.";
+                                      
+                                      if (!completedInteractions.includes('case-study-analysis-2')) {
+                                        setUserPoints(prev => prev + 15);
+                                        setCompletedInteractions(prev => [...prev, 'case-study-analysis-2']);
+                                        
+                                        toast({
+                                          title: "Analyse de cas complétée !",
+                                          description: "+15 points pour votre analyse du cas Log4j",
+                                        });
+                                      }
+                                    } else {
+                                      feedback = "Vous avez identifié quelques mesures pertinentes, mais la gestion d'une vulnérabilité omniprésente comme Log4j nécessite une approche complète. L'analyse des dépendances et l'inventaire des actifs sont essentiels pour savoir où se trouve Log4j dans votre infrastructure. Un WAF bien configuré et un processus de correctifs accéléré sont également cruciaux pour limiter l'exposition.";
+                                    }
+                                    
+                                    setExerciseData({
+                                      ...exerciseData,
+                                      caseStudyAnalysis: score.toString(),
+                                      caseStudyFeedback: feedback
+                                    });
+                                  }}
+                                >
+                                  Analyser mes réponses
+                                </Button>
+                                
+                                {exerciseData.caseStudyFeedback && selectedCaseStudy === 2 && (
+                                  <div className="mt-3 p-3 bg-purple-900/30 border border-purple-700/50 rounded-md">
+                                    <h5 className="text-xs font-medium text-white mb-1 flex items-center">
+                                      <CheckCircle className="h-3 w-3 mr-2 text-green-400" />
+                                      Feedback sur votre analyse
+                                    </h5>
+                                    <p className="text-xs text-blue-200">
+                                      {exerciseData.caseStudyFeedback}
+                                    </p>
+                                    <div className="mt-2 pt-2 border-t border-purple-800/30">
+                                      <p className="text-xs text-purple-300 font-medium">Impact de la vulnérabilité Log4j :</p>
+                                      <ul className="list-disc pl-4 mt-1 text-xs text-blue-200 space-y-1">
+                                        <li>Des millions de systèmes vulnérables à travers le monde</li>
+                                        <li>Exploitation massive quelques heures après la divulgation</li>
+                                        <li>Difficulté à identifier tous les systèmes affectés en raison de dépendances imbriquées</li>
+                                        <li>Nombreuses campagnes d'attaques : cryptomining, ransomware, exfiltration de données</li>
+                                        <li>Des années seront nécessaires pour corriger complètement toutes les instances</li>
+                                      </ul>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           )}
                         </div>
                         
