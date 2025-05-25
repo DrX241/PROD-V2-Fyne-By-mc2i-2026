@@ -38,7 +38,7 @@ const RoleplayHub: React.FC = () => {
     {
       id: 'recruiter',
       title: "Je suis Recruteur",
-      description: "Je souhaite évaluer les compétences techniques d'un candidat en cybersécurité",
+      description: "Je souhaite évaluer les compétences d'un candidat en cyber",
       link: '/cyber/test-technique',
       icon: <Users className="h-10 w-10 text-indigo-300" />,
       color: 'indigo',
@@ -48,15 +48,15 @@ const RoleplayHub: React.FC = () => {
       buttonHover: 'hover:from-indigo-600 hover:to-indigo-500',
       textColor: 'text-indigo-300',
       details: [
-        "Évaluation des compétences techniques des candidats",
+        "Évaluation des compétences techniques",
         "Tests standardisés pour profils cybersécurité",
-        "Simulation d'entretien technique pour recrutement"
+        "Simulation d'entretien"
       ],
       comingSoon: false
     },
     {
       id: 'interview-test',
-      title: "Je suis un professionnel de la cyber",
+      title: "Je suis un pro de la cyber",
       description: "Je prépare une audition auprès d'un client",
       link: '/cyber/interview-test',
       icon: <Briefcase className="h-10 w-10 text-blue-300" />,
@@ -67,9 +67,9 @@ const RoleplayHub: React.FC = () => {
       buttonHover: 'hover:from-blue-600 hover:to-blue-500',
       textColor: 'text-blue-300',
       details: [
-        "Simulations d'entretiens techniques avec feedback",
-        "Questions adaptées au niveau et à la spécialité visée",
-        "Analyse détaillée de vos réponses pour progresser"
+        "Mise en situation d'audition client",
+        "Questions adaptées en fonction du niveau",
+        "Analyse détaillée de vos réponses avec feedback"
       ],
       comingSoon: false
     },
@@ -91,44 +91,6 @@ const RoleplayHub: React.FC = () => {
         "Méthodologie structurée de tests d'intrusion"
       ],
       comingSoon: false
-    },
-    {
-      id: 'crisis-management',
-      title: 'Je suis RSSI',
-      description: "Je gère une crise majeure de cybersécurité",
-      link: '/cyber/crisis-management',
-      icon: <AlertTriangle className="h-10 w-10 text-rose-300" />,
-      color: 'rose',
-      gradient: 'from-rose-900/70 to-rose-700/30',
-      border: 'border-rose-500/30',
-      buttonGradient: 'from-rose-700 to-rose-600',
-      buttonHover: 'hover:from-rose-600 hover:to-rose-500',
-      textColor: 'text-rose-300',
-      details: [
-        "Simulation de crise avec multiples parties prenantes",
-        "Décisions stratégiques en temps sous pression",
-        "Gestion de la communication interne et externe"
-      ],
-      comingSoon: false
-    },
-    {
-      id: 'comex-member',
-      title: "Je suis Membre du COMEX",
-      description: "Je veux comprendre les enjeux stratégiques de cybersécurité",
-      link: '/cyber/comex-training',
-      icon: <BrainCircuit className="h-10 w-10 text-emerald-300" />,
-      color: 'emerald',
-      gradient: 'from-emerald-900/70 to-emerald-700/30',
-      border: 'border-emerald-500/30',
-      buttonGradient: 'from-emerald-700 to-emerald-600',
-      buttonHover: 'hover:from-emerald-600 hover:to-emerald-500',
-      textColor: 'text-emerald-300',
-      details: [
-        "Formation adaptée aux dirigeants d'entreprise",
-        "Mesure et priorisation des risques numériques",
-        "Préparation à la gestion de crise cybernétique"
-      ],
-      comingSoon: true
     },
     {
       id: 'assistant-creator',
@@ -162,9 +124,47 @@ const RoleplayHub: React.FC = () => {
       buttonHover: 'hover:from-amber-600 hover:to-amber-500',
       textColor: 'text-amber-300',
       details: [
-        "Contenu adapté aux débutants sans connaissances",
+        "Contenu adapté aux débutants",
         "Exercices pratiques pour sécuriser vos appareils",
-        "Apprentissage des bons réflexes face aux menaces"
+        "Apprentissage des bons réflexes"
+      ],
+      comingSoon: true
+    },
+    {
+      id: 'comex-member',
+      title: "Je suis Membre du COMEX",
+      description: "Je veux comprendre les enjeux stratégiques de cybersécurité",
+      link: '/cyber/comex-training',
+      icon: <BrainCircuit className="h-10 w-10 text-emerald-300" />,
+      color: 'emerald',
+      gradient: 'from-emerald-900/70 to-emerald-700/30',
+      border: 'border-emerald-500/30',
+      buttonGradient: 'from-emerald-700 to-emerald-600',
+      buttonHover: 'hover:from-emerald-600 hover:to-emerald-500',
+      textColor: 'text-emerald-300',
+      details: [
+        "Formation adaptée aux dirigeants d'entreprise",
+        "Mesure et priorisation des risques numériques",
+        "Préparation à la gestion de crise cybernétique"
+      ],
+      comingSoon: true
+    },
+    {
+      id: 'crisis-management',
+      title: 'Je suis RSSI',
+      description: "Je gère une crise majeure de cybersécurité",
+      link: '/cyber/crisis-management',
+      icon: <AlertTriangle className="h-10 w-10 text-rose-300" />,
+      color: 'rose',
+      gradient: 'from-rose-900/70 to-rose-700/30',
+      border: 'border-rose-500/30',
+      buttonGradient: 'from-rose-700 to-rose-600',
+      buttonHover: 'hover:from-rose-600 hover:to-rose-500',
+      textColor: 'text-rose-300',
+      details: [
+        "Simulation de crise réaliste",
+        "Décisions stratégiques en temps sous pression",
+        "Gestion de la communication interne et externe"
       ],
       comingSoon: true
     }
