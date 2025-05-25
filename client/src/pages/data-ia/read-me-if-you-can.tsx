@@ -1576,6 +1576,68 @@ const ReadMeIfYouCan = () => {
                   </div>
                 </CardFooter>
               </Card>
+            ) : sessionCompleted ? (
+              // Écran de fin de session avec feedback
+              <div className="flex items-center justify-center h-[600px]">
+                <div className="text-center max-w-2xl">
+                  <div className="mb-4 inline-flex p-6 rounded-full bg-blue-900/20">
+                    <Trophy className="h-12 w-12 text-yellow-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-3">Session terminée !</h3>
+                  
+                  <div className="text-lg font-medium text-white mb-2">
+                    Score final: {score}/{maxQuestions}
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-blue-900/50 to-cyan-900/50 p-6 rounded-lg mb-6 border border-blue-700/30">
+                    <p className="text-gray-200 mb-4">
+                      {sessionFeedback}
+                    </p>
+                    
+                    <div className="flex flex-col sm:flex-row justify-center gap-4 mt-4">
+                      <div className="bg-blue-900/30 p-3 rounded-lg">
+                        <h4 className="text-cyan-400 font-bold text-sm mb-1">Langage</h4>
+                        <p className="text-white">{selectedLanguage.toUpperCase()}</p>
+                      </div>
+                      
+                      <div className="bg-blue-900/30 p-3 rounded-lg">
+                        <h4 className="text-cyan-400 font-bold text-sm mb-1">Niveau</h4>
+                        <p className="text-white capitalize">{selectedDifficulty}</p>
+                      </div>
+                      
+                      <div className="bg-blue-900/30 p-3 rounded-lg">
+                        <h4 className="text-cyan-400 font-bold text-sm mb-1">Mode</h4>
+                        <p className="text-white capitalize">{selectedMode}</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Button
+                      onClick={startNewSession}
+                      className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
+                    >
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                      Nouvelle session
+                    </Button>
+                    
+                    <Button
+                      onClick={() => {
+                        setCurrentChallenge(null);
+                        setScore(0);
+                        setQuestionCount(0);
+                        setSessionCompleted(false);
+                        setSessionFeedback("");
+                      }}
+                      variant="outline"
+                      className="border-blue-600 text-blue-400 hover:text-blue-300"
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      Changer les paramètres
+                    </Button>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="flex items-center justify-center h-[600px]">
                 <div className="text-center">
