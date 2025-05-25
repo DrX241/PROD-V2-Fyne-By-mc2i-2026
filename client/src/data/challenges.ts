@@ -1063,6 +1063,35 @@ print(remplacer_voyelles("Python est super", "-"))`,
 export const pythonIntermediaire: CodeChallenge[] = [
   {
     id: "python-intermediaire-1",
+    code: `def calculer_moyenne(notes):
+    if not notes:
+        return 0
+    return sum(notes) / len(notes)
+    
+notes_etudiants = {
+    'Alice': [15, 17, 19],
+    'Bob': [12, 14, 11],
+    'Charlie': [18, 16, 20]
+}
+
+moyennes = {etudiant: calculer_moyenne(notes) for etudiant, notes in notes_etudiants.items()}
+meilleur_etudiant = max(moyennes, key=moyennes.get)
+
+print(f"Meilleur étudiant: {meilleur_etudiant} avec une moyenne de {moyennes[meilleur_etudiant]}")`,
+    language: "python",
+    question: "Quel est l'étudiant qui sera affiché comme le meilleur?",
+    difficulty: "intermédiaire",
+    responses: [
+      { id: "a", text: "Charlie", isCorrect: true },
+      { id: "b", text: "Alice", isCorrect: false },
+      { id: "c", text: "Bob", isCorrect: false },
+      { id: "d", text: "Aucun, le code génère une erreur", isCorrect: false }
+    ],
+    explanation: "Le code calcule la moyenne des notes pour chaque étudiant en utilisant une compréhension de dictionnaire. Charlie a les notes [18, 16, 20], ce qui donne une moyenne de 18, la plus élevée parmi tous les étudiants.",
+    hint: "Calculez manuellement la moyenne pour chaque étudiant et trouvez la plus élevée."
+  },
+  {
+    id: "python-intermediaire-2",
     code: `from functools import lru_cache
 
 @lru_cache(maxsize=None)
@@ -1297,6 +1326,156 @@ ORDER BY eh.path;`,
 ];
 
 // Fonction pour obtenir des défis aléatoires
+// Défis Python - Niveau Avancé
+export const pythonAvance: CodeChallenge[] = [
+  {
+    id: "python-avance-1",
+    code: `from functools import lru_cache
+
+@lru_cache(maxsize=None)
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+print(fibonacci(35))`,
+    language: "python",
+    question: "Que fait ce code et quelle est sa particularité?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "Il calcule le 35e nombre de Fibonacci en utilisant la récursivité avec mémoïsation", isCorrect: true },
+      { id: "b", text: "Il calcule le 35e nombre de Fibonacci avec une complexité O(2^n)", isCorrect: false },
+      { id: "c", text: "Il utilise une boucle for cachée pour calculer la suite de Fibonacci", isCorrect: false },
+      { id: "d", text: "Il crée un générateur de nombres de Fibonacci", isCorrect: false }
+    ],
+    explanation: "Ce code utilise le décorateur @lru_cache pour mémoriser les résultats précédents des appels à la fonction fibonacci(), évitant ainsi les calculs redondants. Sans cette optimisation, le calcul récursif aurait une complexité exponentielle O(2^n).",
+    hint: "Regardez attentivement le décorateur utilisé avant la définition de la fonction."
+  },
+  {
+    id: "python-avance-2",
+    code: `class MaClasse:
+    compteur = 0
+    
+    def __init__(self):
+        MaClasse.compteur += 1
+        self.id = MaClasse.compteur
+        
+    @classmethod
+    def get_compteur(cls):
+        return cls.compteur
+        
+a = MaClasse()
+b = MaClasse()
+c = MaClasse()
+print(c.id)
+print(MaClasse.get_compteur())`,
+    language: "python",
+    question: "Qu'affichera ce code?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "3 et 3", isCorrect: true },
+      { id: "b", text: "3 et 0", isCorrect: false },
+      { id: "c", text: "2 et 3", isCorrect: false },
+      { id: "d", text: "3 et 1", isCorrect: false }
+    ],
+    explanation: "Le code utilise une variable de classe 'compteur' qui est partagée entre toutes les instances. Chaque fois qu'une nouvelle instance est créée, le compteur est incrémenté. L'instance 'c' est la troisième créée, donc son 'id' est 3. La méthode de classe get_compteur() renvoie la valeur actuelle du compteur, qui est aussi 3.",
+    hint: "Faites attention à la différence entre les variables de classe et les variables d'instance."
+  }
+];
+
+// Défis SQL - Niveau Avancé
+export const sqlAvance: CodeChallenge[] = [
+  {
+    id: "sql-avance-1",
+    code: `WITH RECURSIVE EmployeeHierarchy AS (
+  -- Cas de base: le CEO (sans manager)
+  SELECT 
+    employee_id, 
+    first_name, 
+    last_name, 
+    manager_id, 
+    1 as depth,
+    ARRAY[employee_id] as path,
+    first_name || ' ' || last_name as full_path_names
+  FROM employees
+  WHERE manager_id IS NULL
+  
+  UNION ALL
+  
+  -- Cas récursif: tous les subordonnés directs
+  SELECT 
+    e.employee_id, 
+    e.first_name, 
+    e.last_name, 
+    e.manager_id, 
+    eh.depth + 1,
+    eh.path || e.employee_id,
+    eh.full_path_names || ' > ' || e.first_name || ' ' || e.last_name
+  FROM employees e
+  JOIN EmployeeHierarchy eh ON e.manager_id = eh.employee_id
+)
+
+SELECT 
+  employee_id,
+  first_name,
+  last_name,
+  depth,
+  full_path_names
+FROM EmployeeHierarchy
+ORDER BY path;`,
+    language: "sql",
+    question: "Que fait cette requête SQL?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "Elle affiche la hiérarchie complète des employés sous forme d'arborescence avec le chemin depuis le CEO", isCorrect: true },
+      { id: "b", text: "Elle compte le nombre d'employés par niveau hiérarchique", isCorrect: false },
+      { id: "c", text: "Elle identifie les employés qui n'ont pas de manager", isCorrect: false },
+      { id: "d", text: "Elle calcule le salaire total par niveau hiérarchique", isCorrect: false }
+    ],
+    explanation: "Cette requête utilise une expression CTE (Common Table Expression) récursive pour construire l'arborescence hiérarchique complète des employés. Elle commence par le CEO (employé sans manager), puis ajoute récursivement tous les subordonnés directs à chaque niveau. Pour chaque employé, elle conserve le chemin complet depuis le CEO, la profondeur dans la hiérarchie, et construit une représentation textuelle du chemin hiérarchique.",
+    hint: "Les requêtes récursives en SQL commencent par un cas de base, puis appliquent récursivement une opération pour construire un résultat complet."
+  },
+  {
+    id: "sql-avance-2",
+    code: `WITH monthly_sales AS (
+  SELECT 
+    DATE_TRUNC('month', order_date) AS month,
+    product_id,
+    SUM(quantity) AS total_quantity
+  FROM orders
+  WHERE order_date >= CURRENT_DATE - INTERVAL '12 months'
+  GROUP BY DATE_TRUNC('month', order_date), product_id
+),
+ranked_products AS (
+  SELECT
+    month,
+    product_id,
+    total_quantity,
+    RANK() OVER (PARTITION BY month ORDER BY total_quantity DESC) as rank
+  FROM monthly_sales
+)
+SELECT
+  rp.month,
+  p.product_name,
+  rp.total_quantity
+FROM ranked_products rp
+JOIN products p ON rp.product_id = p.product_id
+WHERE rp.rank <= 3
+ORDER BY rp.month DESC, rp.rank;`,
+    language: "sql",
+    question: "Quel est l'objectif de cette requête SQL?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "Trouver les 3 produits les plus vendus pour chaque mois des 12 derniers mois", isCorrect: true },
+      { id: "b", text: "Calculer les ventes totales par produit sur les 12 derniers mois", isCorrect: false },
+      { id: "c", text: "Identifier les mois avec les ventes les plus élevées pour chaque produit", isCorrect: false },
+      { id: "d", text: "Comparer les ventes mensuelles de chaque produit avec la moyenne", isCorrect: false }
+    ],
+    explanation: "Cette requête utilise des CTEs (Common Table Expressions) et des fonctions de fenêtrage (window functions) pour analyser les ventes. D'abord, elle calcule les ventes mensuelles par produit sur les 12 derniers mois. Ensuite, elle attribue un rang à chaque produit au sein de chaque mois en fonction des quantités vendues. Enfin, elle ne conserve que les 3 produits les mieux classés pour chaque mois.",
+    hint: "La fonction RANK() OVER (PARTITION BY ... ORDER BY ...) est utilisée pour classer des éléments au sein de groupes spécifiques."
+  }
+];
+
 export function getRandomChallenges(
   language: 'python' | 'sql',
   difficulty: 'débutant' | 'intermédiaire' | 'avancé',
