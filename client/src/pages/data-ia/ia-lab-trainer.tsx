@@ -431,224 +431,6 @@ const IALabTrainer: React.FC = () => {
     setAnalysis(null);
   };
   
-  // Fonction pour traduire du langage naturel en code avec l'IA
-  const translateToCode = async (naturalText: string) => {
-    if (!naturalText.trim()) {
-      return;
-    }
-    
-    setIsProcessing(true);
-    setResult('');
-    setAnalysis(null);
-    
-    try {
-      // Simuler l'attente d'une réponse de l'API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Générer des exemples de code basés sur le langage et la description
-      let generatedCode = '';
-      let explanation = '';
-      
-      if (selectedLanguage === 'python') {
-        if (naturalText.toLowerCase().includes('calculer') || naturalText.toLowerCase().includes('moyenne')) {
-          generatedCode = `# Calcul de la moyenne de nombres
-import numpy as np
-
-def calculer_moyenne(nombres):
-    """
-    Calcule la moyenne d'une liste de nombres
-    
-    Args:
-        nombres (list): Liste de nombres
-        
-    Returns:
-        float: La moyenne des nombres
-    """
-    return np.mean(nombres)
-
-# Exemple d'utilisation
-donnees = [12, 15, 18, 22, 14, 16, 19]
-resultat = calculer_moyenne(donnees)
-print(f"La moyenne des données est: {resultat}")`;
-          explanation = "Ce code Python utilise NumPy pour calculer la moyenne d'une liste de nombres. La fonction calculer_moyenne prend une liste en entrée et retourne sa moyenne arithmétique.";
-        } else if (naturalText.toLowerCase().includes('dataframe') || naturalText.toLowerCase().includes('csv')) {
-          generatedCode = `# Analyse de données avec pandas
-import pandas as pd
-import matplotlib.pyplot as plt
-
-# Charger les données depuis un fichier CSV
-try:
-    df = pd.read_csv('donnees.csv')
-    
-    # Afficher les premières lignes
-    print("Aperçu des données:")
-    print(df.head())
-    
-    # Statistiques descriptives
-    print("\\nStatistiques descriptives:")
-    print(df.describe())
-    
-    # Vérifier les valeurs manquantes
-    print("\\nValeurs manquantes par colonne:")
-    print(df.isnull().sum())
-    
-except FileNotFoundError:
-    print("Le fichier CSV n'a pas été trouvé. Création d'un exemple:")
-    # Créer un DataFrame d'exemple
-    data = {
-        'Age': [25, 30, 35, 40, 45],
-        'Salaire': [50000, 60000, 75000, 90000, 100000],
-        'Experience': [1, 5, 9, 15, 20]
-    }
-    df = pd.DataFrame(data)
-    print(df)`;
-          explanation = "Ce code Python utilise pandas pour charger et analyser des données à partir d'un fichier CSV. Si le fichier n'est pas trouvé, il crée un DataFrame d'exemple. Le code affiche un aperçu des données, des statistiques descriptives et vérifie les valeurs manquantes.";
-        } else {
-          generatedCode = `# Script Python basé sur votre description
-def main():
-    """
-    Fonction principale basée sur la description:
-    "${naturalText}"
-    """
-    print("Exécution du script...")
-    
-    # Initialisation des variables
-    resultat = 0
-    message = "Opération terminée avec succès"
-    
-    # Logique principale
-    try:
-        # Ajouter votre code spécifique ici
-        resultat = 42  # Valeur d'exemple
-        
-        print(f"Résultat: {resultat}")
-        return resultat
-    except Exception as e:
-        print(f"Erreur: {e}")
-        return None
-        
-if __name__ == "__main__":
-    main()`;
-          explanation = "Ce code Python crée une structure de base avec une fonction principale. Il inclut une gestion d'erreurs et un point d'entrée standard. Vous pouvez maintenant ajouter votre logique spécifique à l'intérieur de la fonction main().";
-        }
-      } else if (selectedLanguage === 'sql') {
-        if (naturalText.toLowerCase().includes('select') || naturalText.toLowerCase().includes('afficher')) {
-          generatedCode = `-- Requête SQL pour sélectionner des données avec filtrage et tri
-SELECT 
-    c.client_id,
-    c.nom,
-    c.prenom,
-    c.email,
-    COUNT(co.commande_id) AS nombre_commandes,
-    SUM(co.montant) AS montant_total,
-    MAX(co.date_commande) AS derniere_commande
-FROM 
-    clients c
-LEFT JOIN 
-    commandes co ON c.client_id = co.client_id
-WHERE 
-    co.date_commande >= DATE_SUB(CURRENT_DATE, INTERVAL 1 YEAR)
-    AND co.statut = 'Livré'
-GROUP BY 
-    c.client_id, c.nom, c.prenom, c.email
-HAVING 
-    COUNT(co.commande_id) > 0
-ORDER BY 
-    montant_total DESC
-LIMIT 10;`;
-          explanation = "Cette requête SQL sélectionne les informations clients avec leurs statistiques de commandes (nombre, montant total, date de dernière commande). Elle filtre sur les commandes de l'année passée avec statut 'Livré', regroupe par client, et trie par montant total décroissant.";
-        } else if (naturalText.toLowerCase().includes('update') || naturalText.toLowerCase().includes('mettre à jour')) {
-          generatedCode = `-- Requête SQL pour mettre à jour des données avec conditions
-BEGIN TRANSACTION;
-
--- Mise à jour des prix avec une augmentation de 5% pour une catégorie spécifique
-UPDATE produits
-SET 
-    prix = prix * 1.05,
-    date_modification = CURRENT_TIMESTAMP,
-    modifie_par = 'Système'
-WHERE 
-    categorie_id = (SELECT categorie_id FROM categories WHERE nom = 'Électronique')
-    AND date_creation < DATE_SUB(CURRENT_DATE, INTERVAL 6 MONTH)
-    AND statut = 'Actif';
-
--- Vérification du nombre de lignes affectées
-SELECT ROW_COUNT() AS produits_mis_a_jour;
-
-COMMIT;`;
-          explanation = "Cette requête SQL met à jour les prix des produits de la catégorie 'Électronique' en appliquant une augmentation de 5%. La mise à jour ne concerne que les produits actifs créés il y a plus de 6 mois. L'opération est encadrée par une transaction pour garantir son intégrité.";
-        } else {
-          generatedCode = `-- Requête SQL basée sur votre description
--- "${naturalText}"
-
--- Sélection simple avec jointures
-SELECT 
-    t1.id,
-    t1.nom,
-    t1.description,
-    t2.categorie
-FROM 
-    table_principale t1
-JOIN 
-    table_secondaire t2 ON t1.categorie_id = t2.id
-WHERE 
-    t1.statut = 'actif'
-    AND t1.date_creation >= '2023-01-01'
-ORDER BY 
-    t1.date_creation DESC;
-    
--- Vous pouvez ajuster cette requête en fonction de vos besoins spécifiques
--- Exemple d'agrégation:
-/*
-SELECT 
-    t2.categorie,
-    COUNT(*) as nombre_items,
-    AVG(t1.prix) as prix_moyen
-FROM 
-    table_principale t1
-JOIN 
-    table_secondaire t2 ON t1.categorie_id = t2.id
-GROUP BY 
-    t2.categorie;
-*/`;
-          explanation = "Cette requête SQL de base effectue une sélection avec jointure entre deux tables. Elle inclut des filtres sur le statut et la date de création, et trie les résultats par date de création décroissante. Un exemple d'agrégation est également fourni en commentaire.";
-        }
-      }
-      
-      // Mettre à jour l'éditeur avec le code généré
-      if (generatedCode) {
-        setCode(generatedCode);
-        setAnalysis(explanation);
-        
-        // Copier le code dans le presse-papier
-        navigator.clipboard.writeText(generatedCode).then(() => {
-          toast({
-            title: "Code généré et copié",
-            description: "Le code a été généré et copié dans le presse-papier.",
-            variant: "default",
-          });
-        }).catch(() => {
-          toast({
-            title: "Code généré",
-            description: "Le code a été généré mais n'a pas pu être copié automatiquement.",
-            variant: "default",
-          });
-        });
-      } else {
-        throw new Error("Aucun code n'a été généré");
-      }
-    } catch (error: any) {
-      console.error('Erreur lors de la traduction:', error);
-      toast({
-        title: "Erreur de traduction",
-        description: error.message || "Une erreur est survenue lors de la traduction.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-  
   // Fonction pour exécuter le code avec l'IA
   const executeCode = async () => {
     if (!code.trim()) {
@@ -907,58 +689,6 @@ GROUP BY
                   {codeDescription}
                 </div>
               )}
-              
-              {/* Boutons d'exécution déplacés ici */}
-              <div className="flex justify-between mt-3 pt-3 border-t border-blue-500/20">
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={clearEditor}
-                    className="border-blue-500/30 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
-                    disabled={isProcessing}
-                  >
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Effacer
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      // Ouvre une boîte de dialogue pour entrer du texte en langage naturel
-                      const naturelText = prompt("Décrivez en langage naturel ce que vous voulez accomplir, et l'IA le traduira en code:");
-                      if (naturelText?.trim()) {
-                        translateToCode(naturelText);
-                      }
-                    }}
-                    className="border-purple-500/30 text-purple-400 hover:text-purple-300 hover:bg-purple-900/20"
-                    disabled={isProcessing}
-                  >
-                    <Brain className="mr-2 h-4 w-4" />
-                    IA Translator
-                  </Button>
-                </div>
-                
-                <Button
-                  onClick={executeCode}
-                  disabled={isProcessing}
-                  size="sm"
-                  className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Exécution...
-                    </>
-                  ) : (
-                    <>
-                      <PlayCircle className="mr-2 h-4 w-4" />
-                      Exécuter
-                    </>
-                  )}
-                </Button>
-              </div>
             </CardHeader>
             
             <CardContent className="p-0">
@@ -1082,10 +812,34 @@ GROUP BY
               )}
             </CardContent>
             
-            <CardFooter className="border-t border-blue-500/20 py-3 flex justify-end">
-              <div className="text-gray-400 text-sm italic">
-                Utilisez les boutons en haut de l'éditeur pour exécuter votre code ou demander de l'aide à l'IA
-              </div>
+            <CardFooter className="border-t border-blue-500/20 py-3 flex justify-between">
+              <Button
+                variant="outline"
+                onClick={clearEditor}
+                className="border-blue-500/30 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
+                disabled={isProcessing}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Effacer
+              </Button>
+              
+              <Button
+                onClick={executeCode}
+                disabled={isProcessing}
+                className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Exécution...
+                  </>
+                ) : (
+                  <>
+                    <PlayCircle className="mr-2 h-4 w-4" />
+                    Exécuter
+                  </>
+                )}
+              </Button>
             </CardFooter>
           </Card>
           

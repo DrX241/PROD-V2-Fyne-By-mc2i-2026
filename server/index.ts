@@ -1,5 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
-import createRoutes from "./routes";
+import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import mapEnvironmentVariables from "./config/env-mapping";
 
@@ -48,7 +48,7 @@ app.use((req, res, next) => {
   // Mapper les variables d'environnement
   mapEnvironmentVariables();
   
-  const server = createRoutes(app);
+  const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
