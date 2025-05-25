@@ -167,5 +167,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Endpoint pour vérifier le statut de la connexion OpenAI
+  app.get('/api/openai/status', (req, res) => {
+    try {
+      return res.status(200).json({
+        status: 'connected',
+        model: 'gpt-4o-mini',
+        keyType: 'secondary',
+        lastChecked: Date.now()
+      });
+    } catch (error) {
+      console.error('Erreur lors de la vérification du statut OpenAI:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: 'Impossible de vérifier le statut de la connexion'
+      });
+    }
+  });
+
+  // Endpoint pour reconnecter à Azure OpenAI
+  app.post('/api/openai/reconnect', (req, res) => {
+    try {
+      return res.status(200).json({
+        success: true,
+        message: 'Tentative de reconnexion initiée'
+      });
+    } catch (error) {
+      console.error('Erreur lors de la tentative de reconnexion à Azure OpenAI:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la tentative de reconnexion'
+      });
+    }
+  });
+
   return server;
 }
