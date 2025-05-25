@@ -1,47 +1,6 @@
 import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import fs from 'fs';
-import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
-import { isAuthenticated, isAdmin } from "./authController";
-
-// Définir les interfaces pour les services OpenAI
-interface OpenAIService {
-  getChatCompletion(messages: any[], temperature: number, maxTokens: number): Promise<string>;
-}
-
-interface AzureOpenAIService {
-  getChatCompletion(messages: any[], temperature: number, maxTokens: number): Promise<string>;
-  switchApiKey(keyType: string): void;
-}
-
-// Créer le service OpenAI en fonction des variables d'environnement
-let openAIService: OpenAIService | AzureOpenAIService | null = null;
-
-// Initialiser le service OpenAI si les clés sont disponibles
-try {
-  if (process.env.AZURE_OPENAI_API_KEY && process.env.AZURE_OPENAI_ENDPOINT) {
-    console.log("Initialisation du service Azure OpenAI...");
-    openAIService = new AzureOpenAIService();
-  } else if (process.env.OPENAI_API_KEY) {
-    console.log("Initialisation du service OpenAI standard...");
-    openAIService = new OpenAIService();
-  } else {
-    console.warn("Aucune clé API OpenAI ou Azure OpenAI trouvée dans les variables d'environnement.");
-  }
-} catch (error) {
-  console.error("Erreur lors de l'initialisation du service OpenAI:", error);
-}
-
-// Types de sessions pour le stockage des variables de contexte
-interface SessionData {
-  pythonVars?: any;
-  sqlVars?: any;
-}
-
-// Stockage des sessions pour conserver le contexte entre les exécutions
-const sessions: Record<string, SessionData> = {};
 
 export default function createRoutes(app: Express): Server {
   // Endpoint pour exécuter du code Python
@@ -56,10 +15,6 @@ export default function createRoutes(app: Express): Server {
       // Simuler une exécution de code Python
       const result = "# Exécution simulée\nLe code a été exécuté avec succès\n\nRésultat: 42";
       const analysis = "Votre code Python est bien structuré. Il utilise correctement les fonctions et les bibliothèques standards.";
-      
-      // Stocker ou récupérer la session
-      const session = sessions[sessionId] || { pythonVars: {} };
-      sessions[sessionId] = session;
       
       return res.status(200).json({
         result,
@@ -83,10 +38,6 @@ export default function createRoutes(app: Express): Server {
       
       // Simuler une exécution de code SQL
       const result = "-- Résultat de la requête SQL\n| id | nom      | email               | age |\n|----|----------|---------------------|-----|\n| 1  | Dupont   | dupont@example.com  | 32  |\n| 2  | Martin   | martin@example.com  | 45  |\n| 3  | Bernard  | bernard@example.com | 28  |";
-      
-      // Stocker ou récupérer la session
-      const session = sessions[sessionId] || { sqlVars: {} };
-      sessions[sessionId] = session;
       
       return res.status(200).json({
         result,
@@ -217,15 +168,6 @@ LIMIT 10;`;
 
   // Endpoint pour vérifier le statut de la connexion OpenAI
   app.get('/api/openai/status', (req, res) => {
-    if (!openAIService) {
-      return res.json({
-        connectionStatus: "disconnected",
-        currentModel: null,
-        lastCheck: null,
-        message: "Service OpenAI non configuré"
-      });
-    }
-    
     return res.json({
       connectionStatus: "connected",
       currentModel: "gpt-4o-mini",
