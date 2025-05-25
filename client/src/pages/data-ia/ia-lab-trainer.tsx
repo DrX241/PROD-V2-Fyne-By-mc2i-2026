@@ -24,6 +24,15 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Terminal,
   Brain,
   Code,
@@ -43,6 +52,7 @@ import {
   Copy,
   Trophy,
   Award,
+  X
 } from 'lucide-react';
 import ChallengeMode from '@/components/ia-lab/ChallengeMode';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -376,6 +386,10 @@ const IALabTrainer: React.FC = () => {
   // État pour le titre et la description du code actuel
   const [codeTitle, setCodeTitle] = useState('');
   const [codeDescription, setCodeDescription] = useState('');
+  
+  // État pour le dialogue de traduction IA
+  const [showTranslateDialog, setShowTranslateDialog] = useState(false);
+  const [naturalLanguageText, setNaturalLanguageText] = useState('');
   
   // ID de session unique pour l'utilisateur
   const [sessionId] = useState<string>(() => {
@@ -769,22 +783,71 @@ const IALabTrainer: React.FC = () => {
                     Effacer
                   </Button>
                   
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      // Ouvre une boîte de dialogue pour entrer du texte en langage naturel
-                      const naturelText = prompt("Décrivez en langage naturel ce que vous voulez accomplir, et l'IA le traduira en code:");
-                      if (naturelText?.trim()) {
-                        translateToCode(naturelText);
-                      }
-                    }}
-                    className="border-purple-500/30 text-purple-400 hover:text-purple-300 hover:bg-purple-900/20"
-                    disabled={isProcessing}
-                  >
-                    <Brain className="mr-2 h-4 w-4" />
-                    IA Translator
-                  </Button>
+                  <Dialog open={showTranslateDialog} onOpenChange={setShowTranslateDialog}>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowTranslateDialog(true)}
+                        className="border-purple-500/30 text-purple-400 hover:text-purple-300 hover:bg-purple-900/20"
+                        disabled={isProcessing}
+                      >
+                        <Brain className="mr-2 h-4 w-4" />
+                        IA Translator
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[525px] bg-gradient-to-br from-slate-900 to-slate-800 border-blue-500/20">
+                      <DialogHeader>
+                        <DialogTitle className="text-white flex items-center">
+                          <Brain className="mr-2 h-5 w-5 text-purple-400" />
+                          IA Translator - {selectedLanguage === 'python' ? 'Python' : 'SQL'}
+                        </DialogTitle>
+                        <DialogDescription className="text-gray-400">
+                          Décrivez ce que vous voulez accomplir en langage naturel, et l'IA le traduira en code {selectedLanguage === 'python' ? 'Python' : 'SQL'}.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <Textarea
+                          placeholder="Exemple: Créer une fonction qui calcule la moyenne d'une liste de nombres et qui gère les cas d'erreurs"
+                          className="h-32 bg-slate-900/80 border-blue-500/20 text-white"
+                          value={naturalLanguageText}
+                          onChange={(e) => setNaturalLanguageText(e.target.value)}
+                        />
+                      </div>
+                      <DialogFooter className="flex justify-between">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setShowTranslateDialog(false)}
+                          className="border-blue-500/30 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
+                        >
+                          Annuler
+                        </Button>
+                        <Button 
+                          onClick={() => {
+                            if (naturalLanguageText.trim()) {
+                              translateToCode(naturalLanguageText);
+                              setShowTranslateDialog(false);
+                              setNaturalLanguageText('');
+                            }
+                          }}
+                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                          disabled={!naturalLanguageText.trim() || isProcessing}
+                        >
+                          {isProcessing ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Génération...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="mr-2 h-4 w-4" />
+                              Générer du code
+                            </>
+                          )}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </div>
                 
                 <Button
