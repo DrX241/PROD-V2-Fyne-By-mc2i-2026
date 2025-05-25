@@ -317,7 +317,7 @@ export default function DataIaRoleplay() {
               <CardFooter className="flex justify-center">
                 <Button 
                   className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-5"
-                  onClick={() => setLocation('/data-ia/roleplay/ia-lab-trainer')}
+                  onClick={() => setLocation('/data-ia/roleplay/ai-engineer')}
                 >
                   Créer des modèles
                   <ArrowRight className="ml-2 h-4 w-4" />
