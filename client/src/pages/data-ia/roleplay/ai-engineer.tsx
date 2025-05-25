@@ -629,6 +629,20 @@ export default function AIEngineer() {
                 Entraînement
               </TabsTrigger>
               <TabsTrigger 
+                value="finetuning" 
+                className="data-[state=active]:bg-purple-800/40 rounded-md px-4"
+              >
+                <Sliders className="h-4 w-4 mr-2" />
+                Fine-tuning
+              </TabsTrigger>
+              <TabsTrigger 
+                value="rag" 
+                className="data-[state=active]:bg-purple-800/40 rounded-md px-4"
+              >
+                <Database className="h-4 w-4 mr-2" />
+                RAG
+              </TabsTrigger>
+              <TabsTrigger 
                 value="deployment" 
                 className="data-[state=active]:bg-purple-800/40 rounded-md px-4"
               >
@@ -641,6 +655,13 @@ export default function AIEngineer() {
               >
                 <Layers className="h-4 w-4 mr-2" />
                 Modèles disponibles
+              </TabsTrigger>
+              <TabsTrigger 
+                value="resources" 
+                className="data-[state=active]:bg-purple-800/40 rounded-md px-4"
+              >
+                <BookOpen className="h-4 w-4 mr-2" />
+                Ressources
               </TabsTrigger>
             </TabsList>
           </div>
@@ -1405,6 +1426,668 @@ export default function AIEngineer() {
           </TabsContent>
           
           {/* Onglet Hub de modèles */}
+          {/* Onglet Fine-tuning */}
+          <TabsContent value="finetuning" className="m-0 space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card className="col-span-1 bg-slate-800/50 border-slate-700 h-full">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-purple-300">
+                    <Sliders className="h-5 w-5 mr-2" />
+                    Fine-tuning avec Azure OpenAI
+                  </CardTitle>
+                  <CardDescription>
+                    Adaptez des modèles pré-entraînés à vos besoins spécifiques
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <h3 className="text-lg text-purple-200">Qu'est-ce que le fine-tuning?</h3>
+                    <p className="text-sm text-slate-300">
+                      Le fine-tuning est une technique qui permet d'adapter un modèle d'IA pré-entraîné 
+                      à des tâches ou domaines spécifiques en l'entraînant sur un jeu de données ciblé.
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h3 className="text-lg text-purple-200">Avantages clés</h3>
+                    <ul className="text-sm text-slate-300 space-y-1 pl-4">
+                      <li className="list-disc list-inside">Adaptation à votre domaine spécifique</li>
+                      <li className="list-disc list-inside">Meilleure performance sur des tâches spécialisées</li>
+                      <li className="list-disc list-inside">Réduction du coût par rapport à l'entraînement complet</li>
+                      <li className="list-disc list-inside">Utilisation réduite de tokens dans les prompts</li>
+                      <li className="list-disc list-inside">Réponses plus cohérentes et prévisibles</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h3 className="text-lg text-purple-200">Modèles compatibles</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Badge className="justify-center bg-blue-900/60 hover:bg-blue-900/80">GPT-3.5 Turbo</Badge>
+                      <Badge className="justify-center bg-blue-900/60 hover:bg-blue-900/80">GPT-4</Badge>
+                      <Badge className="justify-center bg-blue-900/60 hover:bg-blue-900/80">DALL-E 3</Badge>
+                      <Badge className="justify-center bg-blue-900/60 hover:bg-blue-900/80">Whisper</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <div className="col-span-2">
+                <Card className="bg-slate-800/50 border-slate-700 mb-6">
+                  <CardHeader>
+                    <CardTitle className="text-purple-300">Processus de fine-tuning</CardTitle>
+                    <CardDescription>
+                      Les étapes clés pour réussir votre projet de fine-tuning
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600">
+                        <div className="flex items-center mb-2">
+                          <div className="h-8 w-8 rounded-full bg-purple-900/60 flex items-center justify-center mr-3">
+                            <span className="font-bold">1</span>
+                          </div>
+                          <h3 className="text-lg font-medium text-purple-200">Préparation des données</h3>
+                        </div>
+                        <p className="text-sm text-slate-300">
+                          Collectez et formatez des exemples de haute qualité qui représentent votre cas d'usage spécifique.
+                        </p>
+                      </div>
+                      
+                      <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600">
+                        <div className="flex items-center mb-2">
+                          <div className="h-8 w-8 rounded-full bg-purple-900/60 flex items-center justify-center mr-3">
+                            <span className="font-bold">2</span>
+                          </div>
+                          <h3 className="text-lg font-medium text-purple-200">Configuration du modèle</h3>
+                        </div>
+                        <p className="text-sm text-slate-300">
+                          Sélectionnez le modèle de base et configurez les hyperparamètres appropriés pour votre tâche.
+                        </p>
+                      </div>
+                      
+                      <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600">
+                        <div className="flex items-center mb-2">
+                          <div className="h-8 w-8 rounded-full bg-purple-900/60 flex items-center justify-center mr-3">
+                            <span className="font-bold">3</span>
+                          </div>
+                          <h3 className="text-lg font-medium text-purple-200">Entraînement</h3>
+                        </div>
+                        <p className="text-sm text-slate-300">
+                          Lancez le processus de fine-tuning et surveillez les métriques d'entraînement pour détecter les problèmes.
+                        </p>
+                      </div>
+                      
+                      <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600">
+                        <div className="flex items-center mb-2">
+                          <div className="h-8 w-8 rounded-full bg-purple-900/60 flex items-center justify-center mr-3">
+                            <span className="font-bold">4</span>
+                          </div>
+                          <h3 className="text-lg font-medium text-purple-200">Évaluation</h3>
+                        </div>
+                        <p className="text-sm text-slate-300">
+                          Testez le modèle fine-tuné sur un ensemble de validation pour mesurer ses performances.
+                        </p>
+                      </div>
+                      
+                      <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600">
+                        <div className="flex items-center mb-2">
+                          <div className="h-8 w-8 rounded-full bg-purple-900/60 flex items-center justify-center mr-3">
+                            <span className="font-bold">5</span>
+                          </div>
+                          <h3 className="text-lg font-medium text-purple-200">Déploiement</h3>
+                        </div>
+                        <p className="text-sm text-slate-300">
+                          Déployez votre modèle fine-tuné et intégrez-le dans vos applications.
+                        </p>
+                      </div>
+                      
+                      <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600">
+                        <div className="flex items-center mb-2">
+                          <div className="h-8 w-8 rounded-full bg-purple-900/60 flex items-center justify-center mr-3">
+                            <span className="font-bold">6</span>
+                          </div>
+                          <h3 className="text-lg font-medium text-purple-200">Monitoring & Itération</h3>
+                        </div>
+                        <p className="text-sm text-slate-300">
+                          Surveillez les performances en production et itérez avec de nouvelles données si nécessaire.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-purple-300">Créer un job de fine-tuning</CardTitle>
+                    <CardDescription>
+                      Configurez votre projet de fine-tuning en quelques étapes
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="base-model">Modèle de base</Label>
+                          <Select>
+                            <SelectTrigger className="w-full bg-slate-800 border-slate-600">
+                              <SelectValue placeholder="Sélectionnez un modèle" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-slate-800 border-slate-600">
+                              <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                              <SelectItem value="gpt-4">GPT-4</SelectItem>
+                              <SelectItem value="gpt-4-vision">GPT-4 Vision</SelectItem>
+                              <SelectItem value="dall-e-3">DALL-E 3</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="task-type">Type de tâche</Label>
+                          <Select>
+                            <SelectTrigger className="w-full bg-slate-800 border-slate-600">
+                              <SelectValue placeholder="Sélectionnez un type" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-slate-800 border-slate-600">
+                              <SelectItem value="classification">Classification</SelectItem>
+                              <SelectItem value="generation">Génération de texte</SelectItem>
+                              <SelectItem value="summarization">Résumé</SelectItem>
+                              <SelectItem value="qa">Question-Réponse</SelectItem>
+                              <SelectItem value="chat">Chatbot personnalisé</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="data-upload">Données d'entraînement (JSONL)</Label>
+                        <div className="border-2 border-dashed border-slate-600 rounded-lg p-6 text-center bg-slate-800/30">
+                          <UploadCloud className="h-10 w-10 text-slate-500 mx-auto mb-2" />
+                          <p className="text-sm text-slate-400 mb-2">
+                            Glissez-déposez votre fichier JSONL ici ou cliquez pour parcourir
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            Format: JSONL avec paires de messages &quot;prompt&quot; et &quot;completion&quot;
+                          </p>
+                          <Button variant="outline" size="sm" className="mt-4 border-slate-600">
+                            Parcourir les fichiers
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="epochs">Nombre d'époques</Label>
+                          <Input 
+                            id="epochs" 
+                            type="number" 
+                            placeholder="4" 
+                            className="bg-slate-800 border-slate-600" 
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="batch-size">Taille du batch</Label>
+                          <Input 
+                            id="batch-size" 
+                            type="number" 
+                            placeholder="4" 
+                            className="bg-slate-800 border-slate-600" 
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="learning-rate">Taux d'apprentissage</Label>
+                          <Input 
+                            id="learning-rate" 
+                            type="number" 
+                            placeholder="0.0001" 
+                            className="bg-slate-800 border-slate-600" 
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="flex justify-end space-x-2">
+                    <Button variant="outline" className="border-slate-600">
+                      Annuler
+                    </Button>
+                    <Button className="bg-purple-600 hover:bg-purple-700">
+                      <Cpu className="h-4 w-4 mr-2" />
+                      Démarrer le fine-tuning
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+          
+          {/* Onglet RAG */}
+          <TabsContent value="rag" className="m-0 space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card className="col-span-1 bg-slate-800/50 border-slate-700 h-full">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-purple-300">
+                    <Database className="h-5 w-5 mr-2" />
+                    Retrieval Augmented Generation
+                  </CardTitle>
+                  <CardDescription>
+                    Améliorez vos modèles de langage avec des connaissances externes
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <h3 className="text-lg text-purple-200">Qu'est-ce que le RAG?</h3>
+                    <p className="text-sm text-slate-300">
+                      Le RAG (Retrieval Augmented Generation) est une technique qui combine la récupération 
+                      d'informations pertinentes à partir d'une base de connaissances externe avec la génération 
+                      de texte par un modèle de langage.
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h3 className="text-lg text-purple-200">Avantages clés</h3>
+                    <ul className="text-sm text-slate-300 space-y-1 pl-4">
+                      <li className="list-disc list-inside">Informations actualisées et précises</li>
+                      <li className="list-disc list-inside">Réduction des hallucinations</li>
+                      <li className="list-disc list-inside">Personnalisation avec vos propres données</li>
+                      <li className="list-disc list-inside">Traçabilité des sources d'information</li>
+                      <li className="list-disc list-inside">Moins coûteux que le fine-tuning complet</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-purple-950/30 border border-purple-800/30 rounded-lg p-4">
+                    <h3 className="text-md font-medium text-purple-300 mb-2 flex items-center">
+                      <AlertCircle className="h-4 w-4 mr-2" />
+                      À savoir
+                    </h3>
+                    <p className="text-xs text-purple-200">
+                      Le RAG est particulièrement efficace pour les cas d'usage où les informations changent 
+                      fréquemment ou lorsque vous avez besoin d'une source fiable pour des données spécifiques 
+                      à votre organisation.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <div className="col-span-2">
+                <Card className="bg-slate-800/50 border-slate-700 mb-6">
+                  <CardHeader>
+                    <CardTitle className="text-purple-300">Architecture RAG</CardTitle>
+                    <CardDescription>
+                      Les composants clés d'un système RAG
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="p-4 bg-slate-900/60 rounded-lg border border-slate-700 mb-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-blue-900/20 border border-blue-900/30 p-4 rounded-lg text-center">
+                          <h3 className="text-lg font-medium text-blue-300 mb-2">1. Ingestion & Indexation</h3>
+                          <p className="text-sm text-slate-300">
+                            Traitement des documents, génération d'embeddings et stockage dans une base vectorielle.
+                          </p>
+                        </div>
+                        
+                        <div className="bg-purple-900/20 border border-purple-900/30 p-4 rounded-lg text-center">
+                          <h3 className="text-lg font-medium text-purple-300 mb-2">2. Récupération</h3>
+                          <p className="text-sm text-slate-300">
+                            Recherche sémantique pour trouver les informations les plus pertinentes par rapport à la requête.
+                          </p>
+                        </div>
+                        
+                        <div className="bg-green-900/20 border border-green-900/30 p-4 rounded-lg text-center">
+                          <h3 className="text-lg font-medium text-green-300 mb-2">3. Génération</h3>
+                          <p className="text-sm text-slate-300">
+                            Intégration des données récupérées dans le prompt pour guider le modèle de langage.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-6">
+                        <h3 className="text-lg font-medium text-purple-300 mb-3">Flux de travail RAG</h3>
+                        <div className="bg-slate-800/80 p-4 rounded-lg border border-slate-600">
+                          <code className="text-xs text-slate-300 font-mono whitespace-pre-wrap block">
+{`1. Prétraitement des documents
+   ├─ Extraction du texte (PDF, HTML, etc.)
+   ├─ Chunking (division en segments gérables)
+   └─ Nettoyage et normalisation
+
+2. Génération des embeddings vectoriels
+   ├─ Transformation du texte en vecteurs numériques
+   ├─ Utilisation de modèles comme Ada ou BERT
+   └─ Stockage dans une base de données vectorielle
+
+3. Requête utilisateur
+   ├─ Transformation de la requête en embedding
+   ├─ Recherche des chunks les plus similaires
+   └─ Récupération du contexte pertinent
+
+4. Augmentation du prompt
+   ├─ Construction d'un prompt enrichi
+   ├─ Intégration du contexte récupéré
+   └─ Instructions pour le modèle
+
+5. Génération de la réponse
+   ├─ Envoi du prompt augmenté au LLM
+   ├─ Génération de la réponse basée sur le contexte
+   └─ Post-traitement et formatage`}
+                          </code>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-purple-300">Créer un système RAG</CardTitle>
+                    <CardDescription>
+                      Commencez à construire votre pipeline RAG avec Azure OpenAI
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="embedding-model">Modèle d'embedding</Label>
+                          <Select>
+                            <SelectTrigger className="w-full bg-slate-800 border-slate-600">
+                              <SelectValue placeholder="Sélectionnez un modèle" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-slate-800 border-slate-600">
+                              <SelectItem value="text-embedding-ada-002">text-embedding-ada-002</SelectItem>
+                              <SelectItem value="text-embedding-3-small">text-embedding-3-small</SelectItem>
+                              <SelectItem value="text-embedding-3-large">text-embedding-3-large</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="vector-db">Base de données vectorielle</Label>
+                          <Select>
+                            <SelectTrigger className="w-full bg-slate-800 border-slate-600">
+                              <SelectValue placeholder="Sélectionnez une base" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-slate-800 border-slate-600">
+                              <SelectItem value="azure-cognitive-search">Azure Cognitive Search</SelectItem>
+                              <SelectItem value="pinecone">Pinecone</SelectItem>
+                              <SelectItem value="qdrant">Qdrant</SelectItem>
+                              <SelectItem value="milvus">Milvus</SelectItem>
+                              <SelectItem value="weaviate">Weaviate</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="data-sources">Sources de données</Label>
+                        <div className="border border-slate-600 rounded-lg p-4 bg-slate-800/30">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between p-2 bg-slate-700/40 rounded border border-slate-600">
+                              <span className="text-sm">Documents d'entreprise.pdf</span>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Search className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <div className="flex items-center justify-between p-2 bg-slate-700/40 rounded border border-slate-600">
+                              <span className="text-sm">Base de connaissances.docx</span>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Search className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <div className="flex items-center justify-between p-2 bg-slate-700/40 rounded border border-slate-600">
+                              <span className="text-sm">FAQ produit.xlsx</span>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Search className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                          <Button variant="outline" size="sm" className="mt-4 border-slate-600">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Ajouter des fichiers
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="chunk-size">Taille des chunks</Label>
+                          <div className="flex items-center">
+                            <Input 
+                              id="chunk-size" 
+                              type="number" 
+                              placeholder="1024" 
+                              className="bg-slate-800 border-slate-600" 
+                            />
+                            <span className="ml-2 text-sm text-slate-400">tokens</span>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="chunk-overlap">Chevauchement</Label>
+                          <div className="flex items-center">
+                            <Input 
+                              id="chunk-overlap" 
+                              type="number" 
+                              placeholder="200" 
+                              className="bg-slate-800 border-slate-600" 
+                            />
+                            <span className="ml-2 text-sm text-slate-400">tokens</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="flex justify-end space-x-2">
+                    <Button variant="outline" className="border-slate-600">
+                      Réinitialiser
+                    </Button>
+                    <Button className="bg-purple-600 hover:bg-purple-700">
+                      <Database className="h-4 w-4 mr-2" />
+                      Créer le système RAG
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Onglet Ressources */}
+          <TabsContent value="resources" className="m-0 space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card className="col-span-1 bg-slate-800/50 border-slate-700 h-full">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-purple-300">
+                    <BookOpen className="h-5 w-5 mr-2" />
+                    Centre de ressources IA
+                  </CardTitle>
+                  <CardDescription>
+                    Guides, tutoriels et meilleures pratiques pour l'ingénierie d'IA
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <h3 className="text-lg text-purple-200">Explorer par domaine</h3>
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="outline" size="sm" className="border-slate-600 hover:bg-slate-700/50">
+                        Fondamentaux
+                      </Button>
+                      <Button variant="outline" size="sm" className="border-slate-600 hover:bg-slate-700/50">
+                        NLP
+                      </Button>
+                      <Button variant="outline" size="sm" className="border-slate-600 hover:bg-slate-700/50">
+                        Vision
+                      </Button>
+                      <Button variant="outline" size="sm" className="border-slate-600 hover:bg-slate-700/50">
+                        LLMs
+                      </Button>
+                      <Button variant="outline" size="sm" className="border-slate-600 hover:bg-slate-700/50">
+                        MLOps
+                      </Button>
+                      <Button variant="outline" size="sm" className="border-slate-600 hover:bg-slate-700/50">
+                        Azure AI
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-purple-900/20 border border-purple-900/30 rounded-lg">
+                    <h3 className="text-md font-medium text-purple-300 mb-2 flex items-center">
+                      <HelpCircle className="h-4 w-4 mr-2" />
+                      Besoin d'aide ?
+                    </h3>
+                    <p className="text-sm text-slate-300 mb-3">
+                      Posez une question à notre assistant IA spécialisé pour obtenir des conseils personnalisés.
+                    </p>
+                    <Button className="w-full bg-purple-700 hover:bg-purple-800 text-white">
+                      Consulter l'assistant IA
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <div className="col-span-2">
+                <Card className="bg-slate-800/50 border-slate-700 mb-6">
+                  <CardHeader>
+                    <CardTitle className="text-purple-300">Guides et tutoriels</CardTitle>
+                    <CardDescription>
+                      Ressources essentielles pour développer vos compétences en IA
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600 hover:border-purple-500 transition-colors cursor-pointer">
+                          <h3 className="text-lg font-medium text-purple-200 mb-2">Introduction aux LLMs</h3>
+                          <p className="text-sm text-slate-300 mb-3">
+                            Comprendre les fondamentaux des modèles de langage et leur fonctionnement.
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <Badge className="bg-blue-600">Débutant</Badge>
+                            <span className="text-xs text-slate-400">20 min</span>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600 hover:border-purple-500 transition-colors cursor-pointer">
+                          <h3 className="text-lg font-medium text-purple-200 mb-2">Techniques de prompt engineering</h3>
+                          <p className="text-sm text-slate-300 mb-3">
+                            Maîtrisez l'art de formuler des prompts efficaces pour obtenir de meilleurs résultats.
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <Badge className="bg-blue-600">Débutant</Badge>
+                            <span className="text-xs text-slate-400">25 min</span>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600 hover:border-purple-500 transition-colors cursor-pointer">
+                          <h3 className="text-lg font-medium text-purple-200 mb-2">Fine-tuning avancé</h3>
+                          <p className="text-sm text-slate-300 mb-3">
+                            Techniques avancées pour adapter les modèles pré-entraînés à vos besoins spécifiques.
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <Badge className="bg-yellow-600">Intermédiaire</Badge>
+                            <span className="text-xs text-slate-400">45 min</span>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600 hover:border-purple-500 transition-colors cursor-pointer">
+                          <h3 className="text-lg font-medium text-purple-200 mb-2">Construction d'un système RAG</h3>
+                          <p className="text-sm text-slate-300 mb-3">
+                            Guide étape par étape pour implémenter un système RAG performant avec Azure.
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <Badge className="bg-yellow-600">Intermédiaire</Badge>
+                            <span className="text-xs text-slate-400">50 min</span>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600 hover:border-purple-500 transition-colors cursor-pointer">
+                          <h3 className="text-lg font-medium text-purple-200 mb-2">Déploiement de modèles avec Azure</h3>
+                          <p className="text-sm text-slate-300 mb-3">
+                            Déployez des modèles d'IA en production avec Azure Machine Learning et Azure OpenAI.
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <Badge className="bg-red-600">Avancé</Badge>
+                            <span className="text-xs text-slate-400">60 min</span>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600 hover:border-purple-500 transition-colors cursor-pointer">
+                          <h3 className="text-lg font-medium text-purple-200 mb-2">Évaluation et monitoring</h3>
+                          <p className="text-sm text-slate-300 mb-3">
+                            Comment mesurer et surveiller les performances de vos modèles d'IA en production.
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <Badge className="bg-red-600">Avancé</Badge>
+                            <span className="text-xs text-slate-400">40 min</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardHeader>
+                    <CardTitle className="text-purple-300">Références et documentation</CardTitle>
+                    <CardDescription>
+                      Ressources techniques et documentation officielle
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-start p-3 border border-slate-700 rounded-lg hover:border-purple-500 transition-colors">
+                        <div className="bg-blue-900/40 p-2 rounded mr-3">
+                          <FileCode className="h-5 w-5 text-blue-300" />
+                        </div>
+                        <div>
+                          <h3 className="text-md font-medium text-blue-300">Documentation Azure OpenAI</h3>
+                          <p className="text-sm text-slate-300 mt-1">
+                            Documentation officielle pour l'utilisation des services Azure OpenAI, incluant API, modèles et exemples.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start p-3 border border-slate-700 rounded-lg hover:border-purple-500 transition-colors">
+                        <div className="bg-green-900/40 p-2 rounded mr-3">
+                          <Code className="h-5 w-5 text-green-300" />
+                        </div>
+                        <div>
+                          <h3 className="text-md font-medium text-green-300">Exemples de code et notebooks</h3>
+                          <p className="text-sm text-slate-300 mt-1">
+                            Collection de notebooks Jupyter et exemples de code pour implémenter différentes solutions d'IA.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start p-3 border border-slate-700 rounded-lg hover:border-purple-500 transition-colors">
+                        <div className="bg-purple-900/40 p-2 rounded mr-3">
+                          <BrainCircuit className="h-5 w-5 text-purple-300" />
+                        </div>
+                        <div>
+                          <h3 className="text-md font-medium text-purple-300">Patterns et architectures</h3>
+                          <p className="text-sm text-slate-300 mt-1">
+                            Bonnes pratiques et patterns d'architecture pour la conception de systèmes d'IA robustes et évolutifs.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start p-3 border border-slate-700 rounded-lg hover:border-purple-500 transition-colors">
+                        <div className="bg-amber-900/40 p-2 rounded mr-3">
+                          <AlertCircle className="h-5 w-5 text-amber-300" />
+                        </div>
+                        <div>
+                          <h3 className="text-md font-medium text-amber-300">Guide de l'IA responsable</h3>
+                          <p className="text-sm text-slate-300 mt-1">
+                            Recommandations pour développer des systèmes d'IA éthiques, équitables et transparents.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+
           <TabsContent value="model-hub" className="m-0 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Card className="bg-slate-800/50 border-slate-700">
