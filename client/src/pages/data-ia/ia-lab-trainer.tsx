@@ -24,6 +24,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Terminal,
   Brain,
   Code,
@@ -367,6 +374,11 @@ const IALabTrainer: React.FC = () => {
   const [showExamples, setShowExamples] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   
+  // État pour le composant de traduction IA
+  const [showTranslator, setShowTranslator] = useState(false);
+  const [naturalText, setNaturalText] = useState('');
+  const [targetLanguage, setTargetLanguage] = useState<'python' | 'sql'>('python');
+  
   // États pour les résultats
   const [result, setResult] = useState<string>('');
   const [analysis, setAnalysis] = useState<string | null>(null);
@@ -432,8 +444,8 @@ const IALabTrainer: React.FC = () => {
   };
   
   // Fonction pour traduire du langage naturel en code avec l'IA
-  const translateToCode = async (naturalText: string) => {
-    if (!naturalText.trim()) {
+  const translateToCode = async (text: string, language: 'python' | 'sql' = targetLanguage) => {
+    if (!text.trim()) {
       return;
     }
     
@@ -449,8 +461,8 @@ const IALabTrainer: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          text: naturalText,
-          language: selectedLanguage,
+          text: text,
+          language: language,
           sessionId
         }),
       });
@@ -772,13 +784,7 @@ const IALabTrainer: React.FC = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      // Ouvre une boîte de dialogue pour entrer du texte en langage naturel
-                      const naturelText = prompt("Décrivez en langage naturel ce que vous voulez accomplir, et l'IA le traduira en code:");
-                      if (naturelText?.trim()) {
-                        translateToCode(naturelText);
-                      }
-                    }}
+                    onClick={() => setShowTranslator(!showTranslator)}
                     className="border-purple-500/30 text-purple-400 hover:text-purple-300 hover:bg-purple-900/20"
                     disabled={isProcessing}
                   >
@@ -809,6 +815,91 @@ const IALabTrainer: React.FC = () => {
             </CardHeader>
             
             <CardContent className="p-0">
+              {/* Interface de traduction IA */}
+              {showTranslator && (
+                <div className="border-b border-purple-500/30 bg-purple-900/20 p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-white font-semibold flex items-center">
+                      <Brain className="mr-2 h-4 w-4 text-purple-400" />
+                      IA Translator
+                    </h3>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 text-gray-400 hover:text-gray-300"
+                      onClick={() => setShowTranslator(false)}
+                    >
+                      <span className="sr-only">Fermer</span>
+                      ×
+                    </Button>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <Textarea
+                      placeholder="Décrivez en langage naturel ce que vous voulez accomplir, et l'IA le traduira en code..."
+                      className="bg-black/30 border-purple-500/30 text-gray-200 h-24"
+                      value={naturalText}
+                      onChange={(e) => setNaturalText(e.target.value)}
+                    />
+                    
+                    <div className="flex flex-wrap items-center gap-3">
+                      <div className="flex-1">
+                        <Label htmlFor="target-language" className="text-gray-300 mb-1 block">
+                          Langue cible
+                        </Label>
+                        <Select
+                          value={targetLanguage}
+                          onValueChange={(value) => setTargetLanguage(value as 'python' | 'sql')}
+                        >
+                          <SelectTrigger className="bg-black/30 border-purple-500/30 text-gray-200">
+                            <SelectValue placeholder="Choisir la langue" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-gray-900 border-purple-500/30">
+                            <SelectItem value="python">Python</SelectItem>
+                            <SelectItem value="sql">SQL</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="flex space-x-2 mt-auto">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="bg-purple-800/50 text-purple-200 hover:bg-purple-800/70"
+                          onClick={() => {
+                            if (naturalText.trim()) {
+                              translateToCode(naturalText, targetLanguage);
+                              setShowTranslator(false);
+                            }
+                          }}
+                          disabled={isProcessing || !naturalText.trim()}
+                        >
+                          {isProcessing ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Traduction...
+                            </>
+                          ) : (
+                            <>
+                              <Brain className="mr-2 h-4 w-4" />
+                              Traduire
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowTranslator(false)}
+                          className="border-gray-700 text-gray-300"
+                        >
+                          Annuler
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               <div style={{ height: editorHeight }} className="border-b border-blue-500/20">
                 <Editor
                   height={editorHeight}
