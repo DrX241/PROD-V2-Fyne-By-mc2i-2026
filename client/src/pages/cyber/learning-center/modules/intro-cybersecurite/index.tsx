@@ -2951,10 +2951,6 @@ export default function IntroductionCybersecurite() {
                         }
                         // Rediriger vers le PDF de l'ANSSI
                         window.open("https://cyber.gouv.fr/sites/default/files/document/livret-1-former-a-la-cybersecurite.pdf", "_blank");
-                        toast({
-                          title: "Téléchargement démarré",
-                          description: "Le document est en cours de téléchargement...",
-                        });
                       }}
                     >
                       <FileText className="mr-2 h-4 w-4" />
