@@ -466,10 +466,11 @@ const IALabTrainer: React.FC = () => {
           message: `Traduis cette description en code ${selectedLanguage}: ${naturalText}`,
           config: {
             difficultyLevel: 'Expert',
+            domain: 'programmation',
             systemPrompt: `Tu es un expert en programmation ${selectedLanguage === 'python' ? 'Python' : 'SQL'}. 
-              Ta mission est de traduire des descriptions en langage naturel en code ${selectedLanguage} fonctionnel et optimisé.
-              Tu dois fournir uniquement le code source sans explications préliminaires, puis une explication séparée après le code.
-              Utilise des blocs de code avec triple backticks pour délimiter clairement le code.`
+Ta mission est de traduire des descriptions en langage naturel en code ${selectedLanguage} fonctionnel et optimisé.
+Tu dois fournir uniquement le code source sans explications préliminaires, puis une explication séparée après le code.
+Utilise des blocs de code avec triple backticks pour délimiter clairement le code.`
           }
         }),
       });
@@ -481,12 +482,12 @@ const IALabTrainer: React.FC = () => {
       
       const data = await response.json();
       
-      if (!data.content) {
+      if (!data.response) {
         throw new Error("Aucune réponse générée");
       }
       
       // Extraire le code et l'explication de la réponse
-      const content = data.content;
+      const content = data.response;
       let code = content;
       let explanation = "Code généré à partir de votre description en langage naturel.";
       

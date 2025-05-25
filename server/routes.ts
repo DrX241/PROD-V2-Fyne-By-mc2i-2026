@@ -5306,19 +5306,10 @@ Analyse cette justification selon les critères spécifiés et retourne ton éva
         });
       } catch (parseError) {
         console.error("Erreur lors du parsing de la réponse:", parseError);
-        console.log("Réponse brute:", response.content);
+        console.log("Réponse brute:", response ? response.content : "Pas de réponse");
         
         return res.status(500).json({ 
           error: "Format de réponse invalide. Veuillez réessayer." 
         });
       }
-    } catch (error) {
-      console.error("Erreur lors de la génération du défi:", error);
-      return res.status(500).json({ 
-        error: "Une erreur est survenue lors de la génération du défi." 
-      });
-    }
-  });
-
-  return createServer(app);
-}
+    });
