@@ -1224,8 +1224,7 @@ const ReadMeIfYouCan = () => {
               </h1>
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2">
                 <Switch
                   id="contrast-mode"
                   checked={highContrastMode}
@@ -1244,7 +1243,6 @@ const ReadMeIfYouCan = () => {
                   </Badge>
                 )}
               </div>
-            </div>
           </div>
         </div>
       </header>
