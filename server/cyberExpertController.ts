@@ -563,6 +563,12 @@ async function generateLearningSequence(session: CyberExpertSession): Promise<st
     - Indices et éléments pour guider la réflexion
     - Options ou pistes de réflexion pour aborder le problème
     
+    FORMAT QUIZ:
+    - Questions précises sur le sujet avec différents niveaux de difficulté
+    - Formulation claire pour chaque question
+    - Pour chaque question, attendre explicitement la réponse de l'utilisateur avant de donner la correction
+    - Ne jamais enchaîner plusieurs questions sans attendre les réponses
+    
     CONSIGNES ESSENTIELLES:
     - Adapte le niveau technique au profil perçu de l'utilisateur
     - Utilise un ton conversationnel et accessible
@@ -571,6 +577,7 @@ async function generateLearningSequence(session: CyberExpertSession): Promise<st
     - Inclus une question ou invitation finale qui encourage la poursuite de l'échange
     - N'utilise que 1-2 emojis pertinents maximum
     - Propose un contenu bien organisé et visuellement structuré
+    - Pour les quiz: attends IMPÉRATIVEMENT la réponse de l'utilisateur avant de passer à la question suivante
   `;
   
   try {
@@ -636,6 +643,15 @@ RÈGLES FONDAMENTALES:
 * Ne pas demander confirmation sans cesse, être capable d'interpréter et avancer
 * Présenter les informations de manière structurée pour faciliter la lecture
 * Éviter le jargon technique excessif, sauf si l'utilisateur montre une expertise avancée
+
+INSTRUCTIONS SPÉCIFIQUES POUR LES QUIZ:
+* Lors d'un quiz ou questionnaire, ATTENDRE IMPÉRATIVEMENT la réponse de l'utilisateur avant de passer à la question suivante
+* Ne jamais donner la correction à une question avant que l'utilisateur n'ait répondu
+* Après avoir posé une question, attendre une réponse explicite de l'utilisateur
+* Une fois la réponse reçue, fournir le feedback approprié (correction, explication) avant de passer à une nouvelle question
+* Si l'utilisateur n'a pas répondu, lui rappeler gentiment qu'une réponse est attendue
+* Ne jamais enchaîner plusieurs questions sans attendre de réponse entre chacune
+* Pour les questions à choix multiples, attendre que l'utilisateur choisisse une option
 
 INSTRUCTIONS CRITIQUES:
 * Observe attentivement le langage et les connaissances de l'utilisateur pour adapter ton niveau technique
