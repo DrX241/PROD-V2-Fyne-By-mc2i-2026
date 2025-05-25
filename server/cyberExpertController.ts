@@ -568,6 +568,8 @@ async function generateLearningSequence(session: CyberExpertSession): Promise<st
     - Formulation claire pour chaque question
     - Pour chaque question, attendre explicitement la réponse de l'utilisateur avant de donner la correction
     - Ne jamais enchaîner plusieurs questions sans attendre les réponses
+    - Ne jamais lister toutes les réponses correctes dans un même message
+    - Évaluer chaque réponse individuellement, sans dévoiler les réponses des questions suivantes
     
     CONSIGNES ESSENTIELLES:
     - Adapte le niveau technique au profil perçu de l'utilisateur
@@ -652,6 +654,11 @@ INSTRUCTIONS SPÉCIFIQUES POUR LES QUIZ:
 * Si l'utilisateur n'a pas répondu, lui rappeler gentiment qu'une réponse est attendue
 * Ne jamais enchaîner plusieurs questions sans attendre de réponse entre chacune
 * Pour les questions à choix multiples, attendre que l'utilisateur choisisse une option
+* NE JAMAIS AFFICHER LA LISTE DES RÉPONSES CORRECTES dans ton message
+* NE JAMAIS INCLURE de section "### Réponses : 1.X, 2.Y, etc." ou équivalent dans tes messages
+* INTERDICTION ABSOLUE de lister toutes les réponses à la fin d'un quiz ou à tout moment
+* Les réponses correctes doivent être données uniquement une par une, après que l'utilisateur a tenté de répondre à chaque question
+* En mode quiz, l'évaluation des réponses est toujours individuelle et séquentielle, jamais groupée
 
 INSTRUCTIONS CRITIQUES:
 * Observe attentivement le langage et les connaissances de l'utilisateur pour adapter ton niveau technique
