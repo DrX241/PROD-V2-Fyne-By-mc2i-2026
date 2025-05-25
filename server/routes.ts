@@ -4896,11 +4896,11 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   app.post('/api/mc2i/generateur-livrables', generateLivrable);
   
   // Routes pour les défis du IA Lab Trainer
-  app.get('/api/ia-lab/challenge/categories/:language', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.getChallengeCategories(req, res)));
+  app.get('/api/ia-lab/challenge/categories/:language', (req, res) => import('./controllers/iaLabChallengeController.ts').then(m => m.getChallengeCategories(req, res)));
   // Route pour les secteurs supprimée selon les instructions
-  app.post('/api/ia-lab/challenge/generate', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.generateChallenge(req, res)));
-  app.post('/api/ia-lab/challenge/evaluate', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.evaluateChallengeSolution(req, res)));
-  app.post('/api/ia-lab/challenge/hint', (req, res) => import('./controllers/iaLabChallengeController.js').then(m => m.getAdditionalHint(req, res)));
+  app.post('/api/ia-lab/challenge/generate', (req, res) => import('./controllers/iaLabChallengeController.ts').then(m => m.generateChallenge(req, res)));
+  app.post('/api/ia-lab/challenge/evaluate', (req, res) => import('./controllers/iaLabChallengeController.ts').then(m => m.evaluateChallengeSolution(req, res)));
+  app.post('/api/ia-lab/challenge/hint', (req, res) => import('./controllers/iaLabChallengeController.ts').then(m => m.getAdditionalHint(req, res)));
 
   // Fin des routes API
 
@@ -5237,150 +5237,7 @@ Analyse cette justification selon les critères spécifiés et retourne ton éva
     }
   });
 
-      // Créer un prompt adapté au langage, à la difficulté et au mode de jeu
-      let systemPrompt = `Tu es un expert en programmation chargé de créer des défis de code pour un jeu éducatif appelé "Read Me If You Can".
-      
-      TÂCHE: Générer un défi de code complet en ${language === 'python' ? 'Python' : 'SQL'} avec une difficulté "${difficulty}" et pour le mode de jeu "${mode}".
-
-      NIVEAU DE DIFFICULTÉ:
-      - débutant: Concepts de base, syntaxe simple, peu d'opérations.
-      - intermédiaire: Utilisation de structures plus complexes, algorithmes simples.
-      - avancé: Concepts avancés, optimisation, cas d'utilisation réels complexes.
-
-      MODE DE JEU:
-      - normal: Questions classiques de compréhension du code "que fait ce code?"
-      - analyse: Questions qui demandent d'expliquer le fonctionnement détaillé
-      - défense: Code contenant des bugs ou failles à identifier
-      - vitesse: Questions rapides avec une réponse évidente pour un expert
-
-      SPÉCIFICITÉS PAR LANGAGE:
-      - Python: ${language === 'python' ? `
-        * Débutant: variables, boucles simples, conditions, listes
-        * Intermédiaire: fonctions, dictionnaires, exceptions, traitement de fichiers
-        * Avancé: classes, décorateurs, générateurs, optimisation, frameworks
-      ` : ''}
-      - SQL: ${language === 'sql' ? `
-        * Débutant: SELECT simples, filtrages basiques, jointures simples
-        * Intermédiaire: GROUP BY, agrégations, sous-requêtes
-        * Avancé: CTE, window functions, optimisation de requêtes
-      ` : ''}
-
-      FORMAT DE SORTIE (JSON):
-      {
-        "code": "Le code du défi (avec sauts de ligne)",
-        "question": "La question posée à l'utilisateur",
-        "responses": [
-          {"id": "a", "text": "Première réponse", "isCorrect": true},
-          {"id": "b", "text": "Deuxième réponse", "isCorrect": false},
-          {"id": "c", "text": "Troisième réponse", "isCorrect": false},
-          {"id": "d", "text": "Quatrième réponse", "isCorrect": false}
-        ],
-        "explanation": "Explication détaillée de la réponse correcte",
-        "hint": "Un indice pour aider l'utilisateur (optionnel)"
-      }
-
-      IMPORTANT:
-      - La question et les réponses doivent être STRICTEMENT en français
-      - Le défi doit être unique et original (pas de code générique ou déjà utilisé)
-      - Le code doit être réaliste et applicable dans un contexte professionnel
-      - Les options de réponse doivent être plausibles et distinctes
-      - L'explication doit être pédagogique et détaillée
-      - Adapte le challenge au mode de jeu spécifié`;
-
-      // Appeler Azure OpenAI pour générer le défi avec un paramètre timestamp pour garantir l'unicité
-      const timestamp = req.body.timestamp || Date.now();
-      const messages: ChatCompletionRequestMessage[] = [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: `Génère un défi de code en ${language === 'python' ? 'Python' : 'SQL'} adapté au niveau "${difficulty}" et au mode "${mode}". ID unique: ${timestamp} - assure-toi que ce défi soit complètement original et différent des précédents.` }
-      ];
-      
-      // Utiliser le modèle secondaire (GPT-4o-mini) pour économiser les tokens
-      if (typeof openAIService.switchApiKey === 'function') {
-        openAIService.switchApiKey('secondary');
-      }
-      
-      // Appeler l'API pour générer la réponse
-      const content = await openAIService.getChatCompletion(messages, 0.7, 1500);
-      const response = { content };
-
-      if (!response || !response.content) {
-        return res.status(500).json({ 
-          error: "Impossible de générer un défi de code. Veuillez réessayer." 
-        });
-      }
-
-      // Traiter la réponse JSON
-      try {
-        // Extraire le JSON de la réponse et nettoyer les délimiteurs markdown
-        let contentToParse = response.content;
-        
-        // Supprimer les délimiteurs de bloc de code markdown s'ils existent
-        if (contentToParse.includes('```json')) {
-          contentToParse = contentToParse.replace(/```json\s*/, '').replace(/\s*```\s*$/, '');
-        }
-        
-        // Assurer que la chaîne commence par { et se termine par }
-        const jsonRegex = /{[\s\S]*}/;
-        const jsonMatch = contentToParse.match(jsonRegex);
-        
-        let parsedResponse;
-        
-        try {
-          // Tenter de parser la réponse JSON
-          if (jsonMatch) {
-            parsedResponse = JSON.parse(jsonMatch[0]);
-          } else {
-            // Dernier recours: essayer de parser le contenu complet
-            parsedResponse = JSON.parse(contentToParse);
-          }
-        } catch (parseError) {
-          console.error("Erreur de parsing initial:", parseError);
-          
-          // Tentative de nettoyage supplémentaire et nouvelle analyse
-          try {
-            // Nettoyer les caractères d'échappement problématiques et réessayer
-            const cleanedContent = contentToParse
-              .replace(/\\'/g, "'")
-              .replace(/\\\\/g, "\\")
-              .replace(/\\n/g, "\n");
-              
-            parsedResponse = JSON.parse(cleanedContent);
-          } catch (secondError) {
-            console.error("Échec de parsing après nettoyage:", secondError);
-            throw new Error("Impossible de parser la réponse JSON");
-          }
-        }
-        
-        // Valider que la structure est correcte
-        if (!parsedResponse.code || !parsedResponse.question || !parsedResponse.responses || !parsedResponse.explanation) {
-          throw new Error("Structure de réponse invalide");
-        }
-        
-        // S'assurer qu'il y a exactement 4 réponses et une seule correcte
-        if (parsedResponse.responses.length !== 4 || 
-            !parsedResponse.responses.some(r => r.isCorrect) ||
-            parsedResponse.responses.filter(r => r.isCorrect).length !== 1) {
-          throw new Error("Format de réponses invalide");
-        }
-        
-        return res.json({
-          success: true,
-          challenge: {
-            ...parsedResponse,
-            language,
-            difficulty,
-            id: `${language}-${difficulty}-${Date.now()}`
-          }
-        });
-      } catch (parseError) {
-        console.error("Erreur lors du parsing de la réponse:", parseError);
-        console.log("Réponse brute:", response.content);
-        
-        return res.status(500).json({ 
-          error: "Format de réponse invalide. Veuillez réessayer." 
-        });
-      }
-  });
+  // Additional route handlers can be added here
 
   return createServer(app);
 }
