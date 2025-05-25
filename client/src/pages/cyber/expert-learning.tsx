@@ -651,14 +651,7 @@ function ExpertLearningPageContent() {
           >
             Scénario de décision
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onSuggestionClick("Crée un quiz d'auto-évaluation sur la cybersécurité")}
-            className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
-          >
-            Quiz d'auto-évaluation
-          </Button>
+
         </>
       );
     }
@@ -738,8 +731,7 @@ function ExpertLearningPageContent() {
     
     // Suggestions communes à tous les sujets
     const commonSuggestions: Suggestion[] = [
-      { text: "Scénario de décision", prompt: `Propose-moi un scénario de décision sur ${mainTopic}` },
-      { text: "Quiz sur ce sujet", prompt: `Crée un quiz d'auto-évaluation sur ${mainTopic}` }
+      { text: "Scénario de décision", prompt: `Propose-moi un scénario de décision sur ${mainTopic}` }
     ];
     
     // Sélectionner les suggestions spécifiques au sujet
@@ -1322,14 +1314,6 @@ function ExpertLearningPageContent() {
                                       className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
                                     >
                                       Scénario de décision
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => setInputMessage("Crée un quiz d'auto-évaluation sur la cybersécurité")}
-                                      className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
-                                    >
-                                      Quiz d'auto-évaluation
                                     </Button>
                                   </>
                                 );

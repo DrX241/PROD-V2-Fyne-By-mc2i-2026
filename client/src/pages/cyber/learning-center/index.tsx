@@ -342,19 +342,7 @@ export default function LearningCenter() {
       destination: '/cyber/learning-center/modules/fiches-cyber-express',
       isNew: true
     },
-    {
-      id: 'quiz-adaptatif-ia',
-      title: 'Quiz adaptatif IA',
-      description: 'Évaluez vos connaissances avec des quiz personnalisés par l\'IA',
-      icon: <BrainCircuit />,
-      duration: '10-15min',
-      level: 'tous niveaux',
-      category: 'parcours-rapide',
-      tags: ['quiz', 'évaluation', 'adaptatif', 'IA'],
-      progress: 0,
-      destination: '/cyber/learning-center/modules/quiz-adaptatif-ia',
-      isNew: true
-    },
+
     {
       id: 'glossaire-visuel',
       title: 'Glossaire visuel',
