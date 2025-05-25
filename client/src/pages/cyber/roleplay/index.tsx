@@ -93,7 +93,7 @@ const RoleplayHub: React.FC = () => {
       comingSoon: false
     },
     {
-      id: 'assistant-creator',
+      id: 'ai-assistant-creator',
       title: "Je suis Créateur d'IA",
       description: "Je développe un assistant cyber personnalisé",
       link: '/cyber/tools/assistant-cyber',
