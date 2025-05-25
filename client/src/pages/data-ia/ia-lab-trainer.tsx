@@ -941,30 +941,46 @@ const IALabTrainer: React.FC = () => {
                   ) : selectedLanguage === 'sql' && result.includes('|') ? (
                     <div className="text-gray-300 font-mono text-sm bg-black/30 p-3 rounded-md max-h-56 overflow-auto">
                       <table className="w-full border-collapse">
-                        {result.split('\n').filter(line => line.trim()).map((line, index) => {
-                          const cells = line.split('|').filter(cell => cell.trim() !== '');
-                          return (
-                            <tr 
-                              key={index} 
-                              className={index === 0 
-                                ? "bg-blue-900/30 border-b border-blue-500/40" 
-                                : "border-b border-gray-800"
-                              }
-                            >
-                              {cells.map((cell, cellIndex) => (
-                                <td 
-                                  key={cellIndex} 
-                                  className={index === 0 
-                                    ? "px-3 py-2 font-semibold text-blue-300 border-r border-blue-500/40 last:border-r-0" 
-                                    : "px-3 py-2 border-r border-gray-800 last:border-r-0"
-                                  }
-                                >
-                                  {cell.trim()}
-                                </td>
-                              ))}
-                            </tr>
-                          );
-                        })}
+                        <thead>
+                          {result.split('\n').filter(line => line.trim()).slice(0, 1).map((line) => {
+                            const cells = line.split('|').filter(cell => cell.trim() !== '');
+                            return (
+                              <tr 
+                                key="header" 
+                                className="bg-blue-900/30 border-b border-blue-500/40"
+                              >
+                                {cells.map((cell, cellIndex) => (
+                                  <th 
+                                    key={cellIndex} 
+                                    className="px-3 py-2 font-semibold text-blue-300 border-r border-blue-500/40 last:border-r-0 text-left"
+                                  >
+                                    {cell.trim()}
+                                  </th>
+                                ))}
+                              </tr>
+                            );
+                          })}
+                        </thead>
+                        <tbody>
+                          {result.split('\n').filter(line => line.trim()).slice(1).map((line, index) => {
+                            const cells = line.split('|').filter(cell => cell.trim() !== '');
+                            return (
+                              <tr 
+                                key={index} 
+                                className="border-b border-gray-800"
+                              >
+                                {cells.map((cell, cellIndex) => (
+                                  <td 
+                                    key={cellIndex} 
+                                    className="px-3 py-2 border-r border-gray-800 last:border-r-0"
+                                  >
+                                    {cell.trim()}
+                                  </td>
+                                ))}
+                              </tr>
+                            );
+                          })}
+                        </tbody>
                       </table>
                     </div>
                   ) : (
