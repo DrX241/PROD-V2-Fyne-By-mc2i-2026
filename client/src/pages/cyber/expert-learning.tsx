@@ -1215,22 +1215,35 @@ function ExpertLearningPageContent() {
                                 );
                               }
                               
-                              // Récupérer les 3 derniers messages pour analyser le contexte
-                              const recentMessages = messages.slice(-3);
-                              const combinedContent = recentMessages.map(msg => msg.content).join(' ');
+                              // Récupérer les 5 derniers messages pour analyser le contexte (au lieu de 3)
+                              const recentMessages = messages.slice(-5);
                               
-                              // Mots-clés pour différents sujets
+                              // Pondérer les messages en fonction de leur récence (les plus récents ont plus de poids)
+                              let combinedContent = '';
+                              recentMessages.forEach((msg, index) => {
+                                // Plus l'index est élevé, plus le message est récent
+                                const weight = index + 1;
+                                // Répéter le contenu en fonction du poids pour augmenter son importance
+                                for (let i = 0; i < weight; i++) {
+                                  combinedContent += ' ' + msg.content;
+                                }
+                              });
+                              
+                              // Mots-clés enrichis pour différents sujets
                               const topicKeywords = {
-                                phishing: ["phishing", "email", "hameçonnage", "courriel", "malveillant", "social engineering"],
-                                ransomware: ["ransomware", "rançongiciel", "chiffrement", "rançon", "malware"],
-                                passwords: ["mot de passe", "password", "authentification", "mfa", "2fa", "double facteur"],
-                                network: ["réseau", "wifi", "vpn", "firewall", "pare-feu", "routeur", "dns"],
-                                malware: ["malware", "virus", "logiciel malveillant", "trojan", "cheval de troie", "spyware"],
-                                dataProtection: ["données", "sauvegarde", "backup", "chiffrement", "rgpd", "confidentialité"],
-                                zeroTrust: ["zero trust", "confiance zéro", "identité", "iam", "privilèges", "moindre privilège"],
-                                iot: ["iot", "objets connectés", "domotique", "smart home", "internet des objets"],
-                                mobile: ["mobile", "smartphone", "android", "ios", "byod", "tablette", "application"],
-                                cloud: ["cloud", "saas", "iaas", "paas", "aws", "azure", "gcp", "nuage"]
+                                phishing: ["phishing", "email", "hameçonnage", "courriel", "malveillant", "social engineering", "ingénierie sociale", "usurpation", "spoofing", "fraude", "arnaque", "spear phishing", "whaling", "smishing", "vishing", "spam"],
+                                ransomware: ["ransomware", "rançongiciel", "chiffrement", "rançon", "malware", "cryptovirus", "cryptolocker", "décryptage", "otage", "extorsion", "wannacry", "petya", "notpetya", "ryuk", "lockbit", "conti"],
+                                passwords: ["mot de passe", "password", "authentification", "mfa", "2fa", "double facteur", "biométrie", "phrase secrète", "gestionnaire", "authentificateur", "hash", "passphrase", "token", "sécurité des comptes", "complexité"],
+                                network: ["réseau", "wifi", "vpn", "firewall", "pare-feu", "routeur", "dns", "wan", "lan", "nat", "dmz", "proxy", "réseau privé", "filtrage", "segmentation", "vlan", "dhcp", "wpa", "wpa2", "wpa3", "wep", "man in the middle", "mitm"],
+                                malware: ["malware", "virus", "logiciel malveillant", "trojan", "cheval de troie", "spyware", "adware", "rootkit", "worm", "ver informatique", "backdoor", "porte dérobée", "keylogger", "botnet", "cryptominer", "miner", "infection"],
+                                dataProtection: ["données", "sauvegarde", "backup", "chiffrement", "rgpd", "confidentialité", "fuite de données", "data breach", "data leak", "exfiltration", "anonymisation", "pseudonymisation", "cryptage", "pii", "données personnelles", "privacy", "dcp", "droit à l'oubli"],
+                                zeroTrust: ["zero trust", "confiance zéro", "identité", "iam", "privilèges", "moindre privilège", "least privilege", "pam", "contrôle d'accès", "rbac", "abac", "mfa", "microsegmentation", "vérification continue", "contexte", "sase"],
+                                iot: ["iot", "objets connectés", "domotique", "smart home", "internet des objets", "appareil intelligent", "smart device", "smart tv", "connected", "connectés", "maison connectée", "capteurs", "caméra", "alexa", "siri", "assistant vocal"],
+                                mobile: ["mobile", "smartphone", "android", "ios", "byod", "tablette", "application", "apps", "app store", "play store", "mdm", "gestion des appareils", "mobile device management", "emm", "uem", "app permissions", "app permissions", "applications mobiles", "paiement mobile"],
+                                cloud: ["cloud", "saas", "iaas", "paas", "aws", "azure", "gcp", "nuage", "fournisseur cloud", "cloud provider", "multicloud", "hybride", "serverless", "conteneur", "docker", "kubernetes", "k8s", "microservices", "virtualisation", "vm", "instance"],
+                                threat: ["menaces", "apt", "threat", "menace avancée", "persistante", "attaque", "cible", "ciblé", "targeted", "0-day", "zero day", "jour zéro", "exploit", "vulnérabilité", "cve", "surface d'attaque", "vecteur d'attaque", "kill chain", "pentest", "test d'intrusion"],
+                                governance: ["gouvernance", "conformité", "compliance", "audit", "norme", "standard", "iso27001", "iso 27001", "iso", "nist", "anssi", "framework", "cadre", "politique", "policy", "procédure", "directive", "règlement", "règle", "gestion des risques"],
+                                incidentResponse: ["incident", "crise", "gestion de crise", "forensics", "analyse forensique", "investigation", "détection", "soc", "sirp", "siem", "soar", "csirt", "cert", "cirt", "réponse", "plan de continuité", "pca", "pra", "disaster recovery"]
                               };
                               
                               // Détecter les sujets dans la conversation
