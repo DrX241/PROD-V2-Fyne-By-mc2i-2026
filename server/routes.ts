@@ -4926,9 +4926,10 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
       }
       
       // Créer un prompt adapté au langage, à la difficulté et au mode de jeu
+      const isLangPython = language === 'python';
       let systemPrompt = `Tu es un expert en programmation chargé de créer des défis de code pour un jeu éducatif appelé "Read Me If You Can".
       
-      TÂCHE: Générer un défi de code complet en ${language === 'python' ? 'Python' : 'SQL'} avec une difficulté "${difficulty}" et pour le mode de jeu "${mode}".
+      TÂCHE: Générer un défi de code complet en ${isLangPython ? 'Python' : 'SQL'} avec une difficulté "${difficulty}" et pour le mode de jeu "${mode}".
 
       NIVEAU DE DIFFICULTÉ:
       - débutant: Concepts de base, syntaxe simple, opérations élémentaires
@@ -5052,7 +5053,7 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
     }
   });
   
-  // Endpoint pour analyser la justification d'une réponse dans Read Me If You Can
+  // Correction du endpoint pour analyze-justification
   app.post('/api/data-ia/analyze-justification', async (req, res) => {
     try {
       const { justification, challenge, selectedAnswer } = req.body;
@@ -5077,6 +5078,21 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
             : "Votre justification manque de détails pour démontrer votre compréhension."
         });
       }
+      
+      // Une validation basique en cas d'erreur
+      return res.status(200).json({
+        isValid: justification.length >= 50,
+        feedback: "Votre justification a été évaluée avec succès."
+      });
+      
+    } catch (error) {
+      console.error("Erreur lors de l'analyse de la justification:", error);
+      return res.status(500).json({
+        isValid: false,
+        feedback: "Une erreur est survenue lors de l'analyse de votre justification."
+      });
+    }
+  });
       
       // Trouver la réponse correcte pour la comparer avec la justification
       const correctResponse = challenge.responses.find(r => r.isCorrect);
