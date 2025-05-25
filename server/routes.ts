@@ -5135,21 +5135,23 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
       const userPrompt = `Traduis cette description en code ${language} : ${text}`;
 
       // Structurer la demande pour obtenir une réponse JSON
-      const completion = await openAIService.getChatCompletion([
-        { role: "system", content: systemPrompt + "\nRéponds avec un JSON contenant le code généré et une explication: { \"code\": \"le code généré\", \"explanation\": \"explication du code\" }" },
-        { role: "user", content: userPrompt }
-      ], {
-        temperature: 0.3,
-        response_format: { type: "json_object" }
-      });
+      const completion = await openAIService.getChatCompletion(
+        [
+          { role: "system", content: systemPrompt + "\nRéponds avec un JSON contenant le code généré et une explication: { \"code\": \"le code généré\", \"explanation\": \"explication du code\" }" },
+          { role: "user", content: userPrompt }
+        ], 
+        0.3,  // temperature
+        2000, // maxTokens
+        { responseFormat: 'json_object', useSecondaryKey: true }
+      );
 
-      if (!completion || !completion.content) {
+      if (!completion) {
         throw new Error("Réponse IA invalide");
       }
 
       // Extraire le code et l'explication
       try {
-        const result = JSON.parse(completion.content);
+        const result = JSON.parse(completion);
         
         if (!result.code) {
           throw new Error("Le format de la réponse est invalide");
