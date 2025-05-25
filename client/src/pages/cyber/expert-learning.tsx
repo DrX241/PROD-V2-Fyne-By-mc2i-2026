@@ -282,12 +282,41 @@ function ExpertLearningPageContent() {
   // Fonction pour démarrer une nouvelle session
   const startSession = async () => {
     setIsLoading(true);
+    
+    // Réinitialiser complètement tous les états
+    setMessages([]);
+    setSessionStatus(null);
+    setSessionSummary(null);
+    setContextualSuggestions([
+      { text: "Comment me protéger contre le phishing ?", prompt: "Comment me protéger contre le phishing ?" },
+      { text: "Explique-moi les ransomwares", prompt: "Explique-moi les ransomwares" },
+      { text: "Comment sécuriser mon Wi-Fi ?", prompt: "Comment sécuriser mon Wi-Fi ?" },
+    ]);
+    
+    // Réinitialiser l'état des décisions
+    decision.resetDecisionState();
+    
     try {
+      // Terminer la session existante si nécessaire
+      if (userId) {
+        try {
+          await apiRequest('/api/cyber-expert/terminate', {
+            method: 'POST',
+            body: JSON.stringify({ userId })
+          });
+        } catch (error) {
+          console.error("Erreur lors de la terminaison de la session précédente:", error);
+          // Continuer même en cas d'erreur
+        }
+      }
+      
+      // Démarrer une nouvelle session
       const response = await apiRequest<{success: boolean, userId: string, message: string}>('/api/cyber-expert/init', {
         method: 'POST'
       });
 
       if (response.success && response.userId) {
+        // Définir le nouvel ID utilisateur
         setUserId(response.userId);
         setIsSessionActive(true);
         
