@@ -660,8 +660,8 @@ export const generateUniqueId = (prefix: string) => {
 
 // Fonction pour obtenir des défis aléatoires préconstruits
 export const getRandomPrebuiltChallenges = (
-  language: 'python' | 'sql',
-  difficulty: 'débutant' | 'intermédiaire' | 'avancé',
+  language: string,
+  difficulty: string,
   count: number = 3
 ): CodeChallenge[] => {
   const challenges = prebuiltChallenges[language][difficulty];
@@ -678,8 +678,8 @@ export const getRandomPrebuiltChallenges = (
 
 // Fonction pour récupérer un défi par ID
 export const getChallengeById = (id: string): CodeChallenge | null => {
-  for (const language of Object.keys(prebuiltChallenges) as Array<keyof typeof prebuiltChallenges>) {
-    for (const difficulty of Object.keys(prebuiltChallenges[language]) as Array<keyof typeof prebuiltChallenges[language]>) {
+  for (const language of Object.keys(prebuiltChallenges)) {
+    for (const difficulty of Object.keys(prebuiltChallenges[language])) {
       const challenge = prebuiltChallenges[language][difficulty].find(c => c.id === id);
       if (challenge) {
         return challenge;
