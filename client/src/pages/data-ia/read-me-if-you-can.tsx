@@ -23,13 +23,13 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { Sparkles, Brain, Code, PlayCircle, Book, Trophy, ArrowLeft, RefreshCw, RotateCw, Lightbulb, Clock3, Terminal } from 'lucide-react';
+import { Sparkles, Brain, Code, PlayCircle, Book, Trophy, ArrowLeft, RefreshCw, RotateCw, Lightbulb, Clock3, Terminal, Settings, Loader2 } from 'lucide-react';
 import 'highlight.js/styles/atom-one-dark.css';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2 } from 'lucide-react';
+
 
 // Import du reducer et des types
 // Importer les défis préconstruits
@@ -1218,9 +1218,16 @@ const ReadMeIfYouCan = () => {
                 <Label htmlFor="contrast-mode" className="text-white text-sm">Mode contraste élevé</Label>
               </div>
               
-              <Badge className="bg-cyan-600 hover:bg-cyan-700">
-                Score: {score}/{questionCount}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge className="bg-cyan-600 hover:bg-cyan-700">
+                  Score: {score}/{questionCount}
+                </Badge>
+                {currentChallenge && (
+                  <Badge className="bg-blue-600 hover:bg-blue-700">
+                    Question: {questionCount}/{maxQuestions}
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
         </div>
