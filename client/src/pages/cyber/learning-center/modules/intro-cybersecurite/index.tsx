@@ -2690,7 +2690,7 @@ export default function IntroductionCybersecurite() {
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-blue-300 hover:text-white hover:bg-blue-800/30"
-                      onClick={() => window.open("https://www.anssi.fr/publications/guide-dhygiene-informatique", "_blank")}
+                      onClick={() => window.open("https://cyber.gouv.fr/publications/guide-dhygiene-informatique", "_blank")}
                     >
                       <ExternalLink className="mr-2 h-4 w-4" />
                       <span className="text-sm">Guide des bonnes pratiques ANSSI</span>
@@ -2699,10 +2699,10 @@ export default function IntroductionCybersecurite() {
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-blue-300 hover:text-white hover:bg-blue-800/30"
-                      onClick={() => window.open("https://www.cybermalveillance.gouv.fr/tous-nos-contenus/fiches-reflexes", "_blank")}
+                      onClick={() => window.open("https://www.intercert-france.fr/publications/fiches-reflexes/", "_blank")}
                     >
                       <ExternalLink className="mr-2 h-4 w-4" />
-                      <span className="text-sm">Fiches réflexes cybermalveillance</span>
+                      <span className="text-sm">Les fiches réflexes d'InterCERT France</span>
                     </Button>
                     
                     <Button 
@@ -2713,7 +2713,8 @@ export default function IntroductionCybersecurite() {
                           setUserPoints(prev => prev + 5);
                           setCompletedInteractions(prev => [...prev, 'resource-click']);
                         }
-                        // Simulation de téléchargement d'un PDF
+                        // Rediriger vers le PDF de l'ANSSI
+                        window.open("https://cyber.gouv.fr/sites/default/files/document/livret-1-former-a-la-cybersecurite.pdf", "_blank");
                         toast({
                           title: "Téléchargement démarré",
                           description: "Le document est en cours de téléchargement...",
@@ -2721,7 +2722,7 @@ export default function IntroductionCybersecurite() {
                       }}
                     >
                       <FileText className="mr-2 h-4 w-4" />
-                      <span className="text-sm">Cours avancé PDF (télécharger)</span>
+                      <span className="text-sm">Se former à la cybersécurité PDF (télécharger)</span>
                     </Button>
                   </div>
                 </CardContent>
