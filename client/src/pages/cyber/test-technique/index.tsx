@@ -88,7 +88,7 @@ export default function CyberTestTechnique() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('');
   const [selectedExerciseType, setSelectedExerciseType] = useState<string>('');
-  const [step, setStep] = useState<'select' | 'quiz' | 'results'>('select');
+  const [step, setStep] = useState<'select' | 'quiz' | 'results' | 'custom'>('select');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [responses, setResponses] = useState<QuizResponse[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -97,6 +97,10 @@ export default function CyberTestTechnique() {
   const [userName, setUserName] = useState<string>('');
   const [certificateHtml, setCertificateHtml] = useState<string>('');
   const [showCertificate, setShowCertificate] = useState(false);
+  const [generateProgress, setGenerateProgress] = useState(0);
+  const [customTestPrompt, setCustomTestPrompt] = useState('');
+  const [customTestTechnical, setCustomTestTechnical] = useState(true);
+  const [customTestLevel, setCustomTestLevel] = useState('medium');
 
   // Define options interface
   interface ExerciseType {
@@ -571,34 +575,44 @@ export default function CyberTestTechnique() {
           <Button 
             variant="outline" 
             className="bg-amber-900/20 border-amber-700 text-amber-300 hover:bg-amber-800/30"
-            onClick={() => toast({
-              title: "Fonctionnalité en développement",
-              description: "La création de tests personnalisés sera bientôt disponible.",
-              variant: "default"
-            })}
+            onClick={() => setStep('custom')}
           >
             <FileText className="mr-2 h-4 w-4" />
-            Créer un test
+            Créer un test personnalisé
           </Button>
         </div>
         
-        <Button 
-          onClick={startQuiz} 
-          disabled={isLoadingOptions || !selectedCategory || !selectedDifficulty || !selectedExerciseType || generateQuestionsMutation.isPending}
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-        >
-          {generateQuestionsMutation.isPending ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Génération en cours...
-            </>
-          ) : (
-            <>
-              <ArrowRight className="mr-2 h-4 w-4" />
-              Commencer le test
-            </>
+        <div className="flex flex-col">
+          <Button 
+            onClick={startQuiz} 
+            disabled={isLoadingOptions || !selectedCategory || !selectedDifficulty || !selectedExerciseType || generateQuestionsMutation.isPending}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+          >
+            {generateQuestionsMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Génération en cours...
+              </>
+            ) : (
+              <>
+                <ArrowRight className="mr-2 h-4 w-4" />
+                Commencer le test
+              </>
+            )}
+          </Button>
+          
+          {generateQuestionsMutation.isPending && (
+            <div className="mt-2 w-full">
+              <Progress 
+                value={generateProgress} 
+                className="h-1.5 bg-blue-950 w-full"
+              />
+              <p className="text-xs text-blue-300 mt-1 text-center">
+                Génération des questions en cours ({generateProgress}%)
+              </p>
+            </div>
           )}
-        </Button>
+        </div>
       </div>
     </div>
   );
@@ -1190,6 +1204,7 @@ export default function CyberTestTechnique() {
         </div>
         <div className="container py-8 px-4 mx-auto flex flex-col items-center justify-center">
           {step === 'select' && renderSelectionStep()}
+          {step === 'custom' && renderCustomTestStep()}
           {step === 'quiz' && renderQuizStep()}
           {step === 'results' && renderResultsStep()}
         </div>
