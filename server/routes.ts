@@ -48,6 +48,7 @@ import { terminateCyberPulseSession } from "./cyberPulseSessionManager";
 import { startImposteurSimulation, processImposteurMessage, completeImposteurSimulation } from "./imposteurSimulationController";
 import { simulateTargetResponse, analyzePerformance } from "./brainHackerController";
 import { analyzeDefenseStrategy, generateAttackScenario, generateTacticalTip } from "./firewallTactiqueController";
+import { generateDynamicChallenge } from './dynamicChallengeController';
 import { generateLivrable } from "./livrablesGeneratorController";
 import { generateClientMessage as generateProspectMessage, evaluateSession as evaluateProspectSession } from "./prospectPulseController";
 import {
@@ -4912,6 +4913,30 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
   // Endpoint pour générer des questions pour le jeu Read Me If You Can
   // Service de génération dynamique est importé en haut du fichier
   
+  app.post('/api/data-ia/generate-dynamic-challenge', async (req, res) => {
+    try {
+      const { language, difficulty } = req.body;
+      
+      if (!language || !difficulty) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Les paramètres language et difficulty sont requis" 
+        });
+      }
+      
+      // Générer un défi dynamique
+      const result = await generateDynamicChallenge(language, difficulty);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error("Erreur lors de la génération du défi dynamique:", error);
+      return res.status(500).json({ 
+        success: false, 
+        error: "Erreur lors de la génération du défi dynamique" 
+      });
+    }
+  });
+  
+  // Endpoint existant pour la génération de défis
   app.post('/api/data-ia/generate-code-challenge', async (req, res) => {
     try {
       const { language, difficulty, mode } = req.body;
