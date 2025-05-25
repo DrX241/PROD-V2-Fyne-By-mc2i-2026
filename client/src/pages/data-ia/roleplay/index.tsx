@@ -5,13 +5,9 @@ import {
   HelpCircle, 
   ArrowRight,
   ArrowLeft,
-  Code,
-  BarChart,
-  Server,
-  Cpu,
-  Monitor
+  Code
 } from 'lucide-react';
-import { BsFileEarmarkCode } from 'react-icons/bs';
+import { BsFileEarmarkCode, BsBarChartFill, BsServer, BsCpu, BsDisplay } from 'react-icons/bs';
 import { FiSun, FiMoon } from 'react-icons/fi';
 
 import { Helmet } from 'react-helmet-async';
@@ -191,7 +187,7 @@ export default function DataIaRoleplay() {
               <CardHeader>
                 <div className="flex justify-center mb-4">
                   <div className="p-4 rounded-full bg-green-800/70">
-                    <BarChart className="h-10 w-10 text-green-200" />
+                    <BsBarChartFill className="h-10 w-10 text-green-200" />
                   </div>
                 </div>
                 <CardTitle className="text-2xl text-center mb-2">Je suis Data Analyst</CardTitle>
@@ -241,7 +237,7 @@ export default function DataIaRoleplay() {
               <CardHeader>
                 <div className="flex justify-center mb-4">
                   <div className="p-4 rounded-full bg-amber-800/70">
-                    <Server className="h-10 w-10 text-amber-200" />
+                    <BsServer className="h-10 w-10 text-amber-200" />
                   </div>
                 </div>
                 <CardTitle className="text-2xl text-center mb-2">Je suis Data Engineer</CardTitle>
@@ -291,7 +287,7 @@ export default function DataIaRoleplay() {
               <CardHeader>
                 <div className="flex justify-center mb-4">
                   <div className="p-4 rounded-full bg-purple-800/70">
-                    <Cpu className="h-10 w-10 text-purple-200" />
+                    <BsCpu className="h-10 w-10 text-purple-200" />
                   </div>
                 </div>
                 <CardTitle className="text-2xl text-center mb-2">Je suis AI Engineer</CardTitle>
@@ -341,7 +337,7 @@ export default function DataIaRoleplay() {
               <CardHeader>
                 <div className="flex justify-center mb-4">
                   <div className="p-4 rounded-full bg-cyan-800/70">
-                    <Monitor className="h-10 w-10 text-cyan-200" />
+                    <BsDisplay className="h-10 w-10 text-cyan-200" />
                   </div>
                 </div>
                 <CardTitle className="text-2xl text-center mb-2">Je suis Développeur IA</CardTitle>
