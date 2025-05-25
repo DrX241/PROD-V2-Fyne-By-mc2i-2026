@@ -1056,12 +1056,7 @@ print(remplacer_voyelles("Python est super", "-"))`,
     explanation: "Cette fonction remplace toutes les voyelles d'un texte par un caractère de remplacement spécifié. Si aucun caractère de remplacement n'est fourni, elle utilise '*' par défaut. Pour 'Bonjour tout le monde', elle remplace les voyelles par '*', donnant 'B*nj**r t**t l* m*nd*'. Pour 'Python est super' avec le remplacement '-', elle produit 'P-th-n -st s-p-r'.",
     hint: "Les paramètres avec des valeurs par défaut permettent de spécifier un comportement par défaut si l'argument n'est pas fourni."
   }
-];
 
-
-];
-
-// Défis Python - Niveau Avancé
 export const pythonAvance: CodeChallenge[] = [
   {
     id: "python-avance-1",
