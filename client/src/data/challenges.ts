@@ -898,6 +898,353 @@ print(MaClasse.get_compteur())`,
     ],
     explanation: "Le code utilise une variable de classe 'compteur' qui est partagée entre toutes les instances. Chaque fois qu'une nouvelle instance est créée, le compteur est incrémenté. L'instance 'c' est la troisième créée, donc son 'id' est 3. La méthode de classe get_compteur() renvoie la valeur actuelle du compteur, qui est aussi 3.",
     hint: "Faites attention à la différence entre les variables de classe et les variables d'instance."
+  },
+  {
+    id: "python-avance-3",
+    code: `import asyncio
+
+async def tache(nom, delai):
+    print(f"{nom} commence")
+    await asyncio.sleep(delai)
+    print(f"{nom} terminée après {delai} secondes")
+    return f"Résultat de {nom}"
+
+async def main():
+    taches = [
+        asyncio.create_task(tache("Tâche A", 2)),
+        asyncio.create_task(tache("Tâche B", 1)),
+        asyncio.create_task(tache("Tâche C", 3))
+    ]
+    resultats = await asyncio.gather(*taches)
+    print(resultats)
+
+# Exécution dans un environnement asynchrone
+# asyncio.run(main())`,
+    language: "python",
+    question: "Comment s'exécuterait ce code et quel serait l'ordre d'affichage des 'commence' et 'terminée'?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "Toutes les tâches commencent ensemble, puis B termine, puis A, puis C", isCorrect: true },
+      { id: "b", text: "Les tâches s'exécutent séquentiellement: A commence et termine, puis B, puis C", isCorrect: false },
+      { id: "c", text: "Toutes les tâches commencent et terminent dans l'ordre: A, B, C", isCorrect: false },
+      { id: "d", text: "Les tâches commencent dans l'ordre A, B, C mais terminent dans l'ordre aléatoire", isCorrect: false }
+    ],
+    explanation: "Ce code utilise asyncio pour la programmation asynchrone. Toutes les tâches sont créées et démarrées presque simultanément (elles affichent toutes 'commence' sans attendre). Ensuite, chaque tâche 'dort' pendant son délai spécifié. La tâche B a le délai le plus court (1 seconde), donc elle se termine en premier, suivie de A (2 secondes), puis C (3 secondes).",
+    hint: "La fonction asyncio.create_task() démarre l'exécution de la coroutine immédiatement, et asyncio.gather() attend que toutes les tâches soient terminées."
+  },
+  {
+    id: "python-avance-4",
+    code: `from contextlib import contextmanager
+
+@contextmanager
+def gestion_fichier(nom_fichier, mode='r'):
+    try:
+        f = open(nom_fichier, mode)
+        print(f"Fichier {nom_fichier} ouvert")
+        yield f
+    finally:
+        f.close()
+        print(f"Fichier {nom_fichier} fermé")
+
+# Utilisation
+def traitement():
+    with gestion_fichier('exemple.txt', 'w') as f:
+        f.write('Bonjour, monde!')
+        print("Écriture effectuée")
+        # Simulation d'une erreur
+        # raise ValueError("Erreur simulée")
+    print("Après le bloc with")`,
+    language: "python",
+    question: "Que se passerait-il si on décommentait la ligne 'raise ValueError'?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "L'exception serait levée, le fichier serait fermé, et 'Après le bloc with' ne s'afficherait pas", isCorrect: true },
+      { id: "b", text: "L'exception serait levée, mais le fichier resterait ouvert", isCorrect: false },
+      { id: "c", text: "L'exception serait supprimée par le gestionnaire de contexte", isCorrect: false },
+      { id: "d", text: "L'exception serait levée, le fichier serait fermé, et l'exécution continuerait normalement", isCorrect: false }
+    ],
+    explanation: "Ce code utilise un gestionnaire de contexte personnalisé avec @contextmanager. Si une exception est levée dans le bloc 'with', le bloc 'finally' du gestionnaire de contexte est quand même exécuté, assurant que le fichier est fermé. Cependant, l'exception se propage ensuite, donc le code après le bloc 'with' ne s'exécutera pas.",
+    hint: "Les gestionnaires de contexte garantissent que les ressources sont correctement libérées, même en cas d'exception."
+  },
+  {
+    id: "python-avance-5",
+    code: `class Descripteur:
+    def __init__(self, name=None):
+        self.name = name
+        self._attr_name = None
+
+    def __set_name__(self, owner, name):
+        self._attr_name = name if self.name is None else self.name
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        return instance.__dict__.get(self._attr_name)
+
+    def __set__(self, instance, value):
+        if value < 0:
+            raise ValueError("La valeur doit être positive")
+        instance.__dict__[self._attr_name] = value
+
+class Produit:
+    prix = Descripteur()
+    quantite = Descripteur()
+    
+    def __init__(self, nom, prix, quantite):
+        self.nom = nom
+        self.prix = prix
+        self.quantite = quantite
+    
+    @property
+    def valeur_totale(self):
+        return self.prix * self.quantite
+
+p = Produit("Livre", 20, 5)
+print(p.valeur_totale)
+# Essayez: p.prix = -10  # Lèvera une ValueError`,
+    language: "python",
+    question: "Quel concept avancé ce code illustre-t-il?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "Les descripteurs pour contrôler l'accès aux attributs", isCorrect: true },
+      { id: "b", text: "La métaprogrammation par décorateurs", isCorrect: false },
+      { id: "c", text: "L'héritage multiple avec résolution de méthodes", isCorrect: false },
+      { id: "d", text: "Le modèle de conception Singleton", isCorrect: false }
+    ],
+    explanation: "Ce code illustre l'utilisation de descripteurs en Python, qui permettent de contrôler l'accès aux attributs d'une classe. La classe Descripteur définit comment les attributs prix et quantite de la classe Produit sont accédés (__get__) et modifiés (__set__). Dans cet exemple, le descripteur empêche l'attribution de valeurs négatives.",
+    hint: "Les méthodes __get__, __set__ et __set_name__ sont caractéristiques d'un type particulier d'objet en Python qui contrôle l'accès aux attributs."
+  },
+  {
+    id: "python-avance-6",
+    code: `from typing import List, Dict, Callable, TypeVar, Generic
+
+T = TypeVar('T')
+U = TypeVar('U')
+
+class Pipeline(Generic[T, U]):
+    def __init__(self, initial_value: T):
+        self.value = initial_value
+        self.operations: List[Callable] = []
+    
+    def add_operation(self, operation: Callable[[T], T]) -> 'Pipeline[T, U]':
+        self.operations.append(operation)
+        return self
+    
+    def transform(self, transformer: Callable[[T], U]) -> U:
+        result = self.value
+        for op in self.operations:
+            result = op(result)
+        return transformer(result)
+
+# Exemple d'utilisation
+pipeline = Pipeline([1, 2, 3, 4, 5])
+result = (pipeline
+    .add_operation(lambda x: [i * 2 for i in x])
+    .add_operation(lambda x: [i for i in x if i > 5])
+    .transform(lambda x: sum(x))
+)
+print(result)  # Que vaut result?`,
+    language: "python",
+    question: "Quelle est la valeur de 'result' à la fin de ce code?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "18", isCorrect: true },
+      { id: "b", text: "30", isCorrect: false },
+      { id: "c", text: "[6, 8, 10]", isCorrect: false },
+      { id: "d", text: "15", isCorrect: false }
+    ],
+    explanation: "Ce code implémente un pipeline de traitement avec des types génériques. La liste initiale [1, 2, 3, 4, 5] est d'abord transformée en doublant chaque élément pour donner [2, 4, 6, 8, 10]. Ensuite, seuls les éléments supérieurs à 5 sont conservés, donnant [6, 8, 10]. Enfin, la somme de ces éléments est calculée: 6 + 8 + 10 = 24.",
+    hint: "Suivez pas à pas l'exécution des opérations du pipeline et les transformations appliquées à la liste initiale."
+  },
+  {
+    id: "python-avance-7",
+    code: `import inspect
+from functools import wraps
+
+def log_params(func):
+    signature = inspect.signature(func)
+    
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # Lier les arguments à leurs paramètres
+        bound_args = signature.bind(*args, **kwargs)
+        bound_args.apply_defaults()
+        
+        # Journaliser les paramètres
+        for param, value in bound_args.arguments.items():
+            print(f"{param}: {value}")
+        
+        # Appeler la fonction d'origine
+        return func(*args, **kwargs)
+    
+    return wrapper
+
+@log_params
+def calculer_prix(base, taxe=0.2, remise=0):
+    return base * (1 + taxe) * (1 - remise)
+
+resultat = calculer_prix(100, remise=0.1)
+print(f"Résultat: {resultat}")`,
+    language: "python",
+    question: "Qu'affichera ce code?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "base: 100\ntaxe: 0.2\nremise: 0.1\nRésultat: 108.0", isCorrect: true },
+      { id: "b", text: "Résultat: 108.0", isCorrect: false },
+      { id: "c", text: "base: 100\nremise: 0.1\nRésultat: 108.0", isCorrect: false },
+      { id: "d", text: "base: 100\ntaxe: 0.2\nremise: 0.1\nRésultat: 90.0", isCorrect: false }
+    ],
+    explanation: "Ce code utilise l'introspection avec le module inspect pour créer un décorateur qui journalise tous les paramètres d'une fonction. Le décorateur log_params utilise signature.bind() pour associer les arguments passés à leurs paramètres nommés, puis les affiche. La fonction calculer_prix est appelée avec base=100, la valeur par défaut taxe=0.2, et remise=0.1. Le résultat est 100 * (1 + 0.2) * (1 - 0.1) = 100 * 1.2 * 0.9 = 108.",
+    hint: "Le décorateur inspect.signature permet d'examiner la signature d'une fonction, et bind() associe les arguments aux paramètres."
+  },
+  {
+    id: "python-avance-8",
+    code: `class LazyProperty:
+    def __init__(self, function):
+        self.function = function
+        self.name = function.__name__
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        
+        value = self.function(instance)
+        # Stocker le résultat calculé dans l'instance
+        setattr(instance, self.name, value)
+        return value
+
+class GrosCalcul:
+    def __init__(self, data):
+        self.data = data
+    
+    @LazyProperty
+    def resultat(self):
+        print("Calcul coûteux en cours...")
+        return sum(x * x for x in self.data)
+
+calc = GrosCalcul(range(10))
+print("Premier appel:")
+print(calc.resultat)
+print("Deuxième appel:")
+print(calc.resultat)`,
+    language: "python",
+    question: "Qu'affichera ce code lors du deuxième appel à calc.resultat?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "Seulement la valeur 285, sans message 'Calcul coûteux en cours...'", isCorrect: true },
+      { id: "b", text: "Calcul coûteux en cours...\n285", isCorrect: false },
+      { id: "c", text: "Une erreur car la propriété a été remplacée", isCorrect: false },
+      { id: "d", text: "Calcul coûteux en cours...\n0", isCorrect: false }
+    ],
+    explanation: "Ce code implémente un descripteur LazyProperty qui effectue le calcul seulement lors du premier accès. Lors du premier appel à calc.resultat, la méthode __get__ du descripteur exécute la fonction resultat() qui affiche le message et calcule la somme des carrés (0²+1²+...+9² = 285). Le résultat est stocké directement comme attribut d'instance avec setattr(). Lors du deuxième appel, Python trouve d'abord l'attribut d'instance qui a été créé, court-circuitant le descripteur, donc la fonction n'est pas recalculée et seule la valeur est affichée.",
+    hint: "La clé est dans la ligne 'setattr(instance, self.name, value)' qui remplace le descripteur par la valeur calculée."
+  },
+  {
+    id: "python-avance-9",
+    code: `from collections import defaultdict
+from itertools import chain
+
+class MultiDict:
+    def __init__(self):
+        self._data = defaultdict(list)
+    
+    def add(self, key, value):
+        self._data[key].append(value)
+    
+    def get(self, key, default=None):
+        return self._data.get(key, default or [])
+    
+    def get_first(self, key, default=None):
+        values = self.get(key)
+        return values[0] if values else default
+    
+    def items(self):
+        return chain.from_iterable(
+            ((key, value) for value in values)
+            for key, values in self._data.items()
+        )
+    
+    def __iter__(self):
+        return iter(self._data)
+    
+    def __repr__(self):
+        return f"MultiDict({dict(self._data)})"
+
+md = MultiDict()
+md.add('a', 1)
+md.add('a', 2)
+md.add('b', 3)
+
+# Qu'affichera cette ligne?
+print(list(md.items()))`,
+    language: "python",
+    question: "Qu'affichera 'print(list(md.items()))'?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "[('a', 1), ('a', 2), ('b', 3)]", isCorrect: true },
+      { id: "b", text: "[('a', [1, 2]), ('b', [3])]", isCorrect: false },
+      { id: "c", text: "[('a', 1), ('b', 3)]", isCorrect: false },
+      { id: "d", text: "{'a': [1, 2], 'b': [3]}", isCorrect: false }
+    ],
+    explanation: "Cette classe MultiDict permet de stocker plusieurs valeurs pour une même clé. La méthode items() utilise itertools.chain.from_iterable pour aplatir les résultats et retourner toutes les paires (clé, valeur) individuelles. Pour 'a', il y a deux valeurs (1 et 2), donc deux paires ('a', 1) et ('a', 2) sont générées. Pour 'b', il y a une seule valeur, donc une paire ('b', 3) est générée.",
+    hint: "Regardez attentivement l'implémentation de la méthode items() qui utilise chain.from_iterable pour aplatir une liste de listes."
+  },
+  {
+    id: "python-avance-10",
+    code: `import sys
+from types import FrameType
+from typing import Dict, List, Any, Optional, Callable
+
+class Debugger:
+    def __init__(self):
+        self.breakpoints: Dict[str, List[int]] = {}
+        self.original_trace_func = None
+    
+    def set_breakpoint(self, filename: str, lineno: int) -> None:
+        if filename not in self.breakpoints:
+            self.breakpoints[filename] = []
+        self.breakpoints[filename].append(lineno)
+        print(f"Breakpoint défini: {filename}:{lineno}")
+    
+    def start(self) -> None:
+        self.original_trace_func = sys.gettrace()
+        sys.settrace(self._trace_func)
+        print("Debugger activé")
+    
+    def stop(self) -> None:
+        sys.settrace(self.original_trace_func)
+        print("Debugger désactivé")
+    
+    def _trace_func(self, frame: FrameType, event: str, arg: Any) -> Optional[Callable]:
+        if event != 'line':
+            return self._trace_func
+        
+        filename = frame.f_code.co_filename
+        lineno = frame.f_lineno
+        
+        if filename in self.breakpoints and lineno in self.breakpoints[filename]:
+            print(f"Breakpoint atteint: {filename}:{lineno}")
+            print(f"Variables locales: {frame.f_locals}")
+        
+        return self._trace_func
+
+# Pour utiliser:
+# debugger = Debugger()
+# debugger.set_breakpoint('mon_script.py', 10)
+# debugger.start()
+# ... code à exécuter ...
+# debugger.stop()`,
+    language: "python",
+    question: "Quel mécanisme avancé de Python ce code utilise-t-il?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "La fonction sys.settrace() pour intercepter l'exécution du code", isCorrect: true },
+      { id: "b", text: "Le module pdb intégré à Python", isCorrect: false },
+      { id: "c", text: "Le mécanisme d'introspection __debug__", isCorrect: false },
+      { id: "d", text: "Un décorateur de trace automatique", isCorrect: false }
+    ],
+    explanation: "Ce code implémente un débogueur simple en utilisant sys.settrace(), une fonction puissante mais peu connue qui permet d'intercepter l'exécution du code Python. La fonction de trace fournie est appelée à chaque ligne, appel de fonction et retour de fonction. Ici, le débogueur l'utilise pour vérifier si la ligne courante correspond à un point d'arrêt défini, et si oui, il affiche les variables locales.",
+    hint: "sys.settrace() est le mécanisme sous-jacent utilisé par les débogueurs Python comme pdb pour surveiller l'exécution du code."
   }
 ];
 
@@ -1470,6 +1817,504 @@ ORDER BY rp.month DESC, rp.rank;`,
     ],
     explanation: "Cette requête utilise des CTEs (Common Table Expressions) et des fonctions de fenêtrage (window functions) pour analyser les ventes. D'abord, elle calcule les ventes mensuelles par produit sur les 12 derniers mois. Ensuite, elle attribue un rang à chaque produit au sein de chaque mois en fonction des quantités vendues. Enfin, elle ne conserve que les 3 produits les mieux classés pour chaque mois.",
     hint: "La fonction RANK() OVER (PARTITION BY ... ORDER BY ...) est utilisée pour classer des éléments au sein de groupes spécifiques."
+  },
+  {
+    id: "sql-avance-3",
+    code: `WITH DateSeries AS (
+  SELECT 
+    GENERATE_SERIES(
+      DATE_TRUNC('day', CURRENT_DATE - INTERVAL '30 days'),
+      DATE_TRUNC('day', CURRENT_DATE),
+      INTERVAL '1 day'
+    )::DATE AS day
+),
+DailyStats AS (
+  SELECT 
+    DATE_TRUNC('day', created_at)::DATE AS day,
+    COUNT(*) AS total_users,
+    COUNT(CASE WHEN subscription_tier = 'premium' THEN 1 END) AS premium_users,
+    SUM(CASE WHEN last_login >= created_at + INTERVAL '7 days' THEN 1 ELSE 0 END) AS retained_users
+  FROM users
+  WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
+  GROUP BY 1
+)
+SELECT 
+  d.day,
+  COALESCE(s.total_users, 0) AS new_users,
+  COALESCE(s.premium_users, 0) AS new_premium_users,
+  CASE 
+    WHEN COALESCE(s.total_users, 0) > 0 
+    THEN ROUND((COALESCE(s.premium_users, 0)::NUMERIC / s.total_users) * 100, 2)
+    ELSE 0
+  END AS premium_conversion_rate,
+  COALESCE(s.retained_users, 0) AS retained_after_week,
+  CASE 
+    WHEN COALESCE(s.total_users, 0) > 0 AND d.day <= CURRENT_DATE - INTERVAL '7 days'
+    THEN ROUND((COALESCE(s.retained_users, 0)::NUMERIC / s.total_users) * 100, 2)
+    ELSE NULL
+  END AS retention_rate
+FROM DateSeries d
+LEFT JOIN DailyStats s ON d.day = s.day
+ORDER BY d.day DESC;`,
+    language: "sql",
+    question: "Quel type d'analyse cette requête réalise-t-elle?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "Une analyse de cohorte des nouveaux utilisateurs avec calcul des taux de conversion et de rétention", isCorrect: true },
+      { id: "b", text: "Une simple agrégation des utilisateurs par jour", isCorrect: false },
+      { id: "c", text: "Une prévision des inscriptions futures basée sur les tendances historiques", isCorrect: false },
+      { id: "d", text: "Un calcul du chiffre d'affaires généré par les utilisateurs premium", isCorrect: false }
+    ],
+    explanation: "Cette requête réalise une analyse de cohorte sophistiquée des utilisateurs. Elle crée d'abord une série de dates pour les 30 derniers jours, puis calcule pour chaque jour: le nombre de nouveaux utilisateurs, le nombre de nouveaux utilisateurs premium, le taux de conversion premium, le nombre d'utilisateurs retenus après une semaine, et le taux de rétention. La fonction GENERATE_SERIES assure que tous les jours sont inclus, même ceux sans nouvelles inscriptions.",
+    hint: "Les analyses de cohorte permettent de suivre les comportements de groupes d'utilisateurs définis par leur date d'acquisition, et d'évaluer des métriques comme la rétention au fil du temps."
+  },
+  {
+    id: "sql-avance-4",
+    code: `CREATE OR REPLACE FUNCTION calculate_distance(
+  lat1 FLOAT, lon1 FLOAT,
+  lat2 FLOAT, lon2 FLOAT
+) RETURNS FLOAT AS $$
+DECLARE
+  r FLOAT := 6371; -- Rayon de la Terre en km
+  dLat FLOAT := RADIANS(lat2 - lat1);
+  dLon FLOAT := RADIANS(lon2 - lon1);
+  a FLOAT := SIN(dLat/2) * SIN(dLat/2) +
+            COS(RADIANS(lat1)) * COS(RADIANS(lat2)) *
+            SIN(dLon/2) * SIN(dLon/2);
+  c FLOAT := 2 * ATAN2(SQRT(a), SQRT(1-a));
+  distance FLOAT := r * c;
+BEGIN
+  RETURN distance;
+END;
+$$ LANGUAGE plpgsql;
+
+WITH UserLocation AS (
+  SELECT 
+    latitude AS user_lat,
+    longitude AS user_lon
+  FROM users
+  WHERE id = 123
+)
+SELECT 
+  s.id,
+  s.name,
+  s.address,
+  s.category,
+  calculate_distance(
+    ul.user_lat, ul.user_lon,
+    s.latitude, s.longitude
+  ) AS distance_km
+FROM stores s
+CROSS JOIN UserLocation ul
+WHERE s.is_active = TRUE
+  AND calculate_distance(
+    ul.user_lat, ul.user_lon,
+    s.latitude, s.longitude
+  ) <= 5 -- Magasins dans un rayon de 5 km
+ORDER BY distance_km;`,
+    language: "sql",
+    question: "Qu'est-ce que cette requête calcule?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "Les magasins actifs dans un rayon de 5 km autour d'un utilisateur, triés par distance", isCorrect: true },
+      { id: "b", text: "La distance totale parcourue par un utilisateur entre différents magasins", isCorrect: false },
+      { id: "c", text: "Le nombre moyen de clients par magasin dans différentes zones géographiques", isCorrect: false },
+      { id: "d", text: "L'itinéraire optimal pour visiter plusieurs magasins", isCorrect: false }
+    ],
+    explanation: "Cette requête utilise une fonction personnalisée calculate_distance qui implémente la formule de Haversine pour calculer la distance entre deux points sur la surface terrestre à partir de leurs coordonnées (latitude/longitude). La requête récupère d'abord la position de l'utilisateur avec l'ID 123, puis trouve tous les magasins actifs situés dans un rayon de 5 km autour de l'utilisateur, et les trie du plus proche au plus éloigné.",
+    hint: "La formule de Haversine est utilisée pour calculer la distance entre deux points sur une sphère à partir de leurs coordonnées de latitude et longitude."
+  },
+  {
+    id: "sql-avance-5",
+    code: `WITH RECURSIVE event_chain AS (
+  -- Point de départ: l'événement initial
+  SELECT 
+    e.id, 
+    e.event_type, 
+    e.event_data, 
+    e.created_at,
+    e.user_id,
+    e.entity_id,
+    0 AS depth,
+    ARRAY[e.id] AS path,
+    e.id::TEXT AS path_display
+  FROM events e
+  WHERE e.id = 12345
+  
+  UNION ALL
+  
+  -- Événements liés: soit même utilisateur, même entité, dans les 30 minutes
+  SELECT 
+    e.id, 
+    e.event_type, 
+    e.event_data, 
+    e.created_at,
+    e.user_id,
+    e.entity_id,
+    ec.depth + 1,
+    ec.path || e.id,
+    ec.path_display || ' -> ' || e.id::TEXT
+  FROM events e
+  JOIN event_chain ec ON (
+    e.user_id = ec.user_id OR 
+    e.entity_id = ec.entity_id
+  )
+  WHERE 
+    e.created_at > ec.created_at AND
+    e.created_at <= ec.created_at + INTERVAL '30 minutes' AND
+    e.id <> ALL(ec.path)
+)
+SELECT 
+  id,
+  event_type,
+  event_data,
+  created_at,
+  user_id,
+  entity_id,
+  depth,
+  path_display
+FROM event_chain
+ORDER BY depth, created_at;`,
+    language: "sql",
+    question: "Que retourne cette requête SQL?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "Une chaîne d'événements liés temporellement et par utilisateur/entité, à partir d'un événement initial", isCorrect: true },
+      { id: "b", text: "Tous les événements dans le système, regroupés par utilisateur", isCorrect: false },
+      { id: "c", text: "Les événements dupliqués qui doivent être supprimés", isCorrect: false },
+      { id: "d", text: "Une analyse des pics d'activité par période de 30 minutes", isCorrect: false }
+    ],
+    explanation: "Cette requête utilise une CTE récursive pour construire une chaîne d'événements liés. Elle commence par un événement spécifique (ID 12345), puis trouve tous les événements subséquents qui sont liés soit par le même utilisateur, soit par la même entité, et qui se sont produits dans les 30 minutes suivantes. La condition e.id <> ALL(ec.path) empêche les cycles en s'assurant qu'un événement n'apparaît pas deux fois dans le chemin.",
+    hint: "Cette technique est utile pour l'analyse comportementale, la détection de fraudes, ou la reconstruction de sessions utilisateur à partir d'événements distincts."
+  },
+  {
+    id: "sql-avance-6",
+    code: `CREATE TABLE IF NOT EXISTS audit_log (
+  id SERIAL PRIMARY KEY,
+  table_name VARCHAR(50) NOT NULL,
+  operation CHAR(1) NOT NULL, -- 'I'nsert, 'U'pdate, 'D'elete
+  record_id INTEGER NOT NULL,
+  old_data JSONB,
+  new_data JSONB,
+  changed_by VARCHAR(50) NOT NULL,
+  changed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE OR REPLACE FUNCTION audit_trigger_function()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    INSERT INTO audit_log (
+      table_name, operation, record_id, 
+      old_data, new_data, changed_by
+    ) VALUES (
+      TG_TABLE_NAME, 'I', NEW.id,
+      NULL, to_jsonb(NEW), current_user
+    );
+    RETURN NEW;
+  ELSIF TG_OP = 'UPDATE' THEN
+    INSERT INTO audit_log (
+      table_name, operation, record_id, 
+      old_data, new_data, changed_by
+    ) VALUES (
+      TG_TABLE_NAME, 'U', OLD.id,
+      to_jsonb(OLD), to_jsonb(NEW), current_user
+    );
+    RETURN NEW;
+  ELSIF TG_OP = 'DELETE' THEN
+    INSERT INTO audit_log (
+      table_name, operation, record_id, 
+      old_data, new_data, changed_by
+    ) VALUES (
+      TG_TABLE_NAME, 'D', OLD.id,
+      to_jsonb(OLD), NULL, current_user
+    );
+    RETURN OLD;
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Pour appliquer ce trigger à une table:
+-- CREATE TRIGGER audit_products_trigger
+-- AFTER INSERT OR UPDATE OR DELETE ON products
+-- FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();`,
+    language: "sql",
+    question: "Quel est l'objectif de ce code SQL?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "Implémenter un système d'audit qui enregistre toutes les modifications de données dans une table dédiée", isCorrect: true },
+      { id: "b", text: "Créer une sauvegarde régulière des données", isCorrect: false },
+      { id: "c", text: "Valider l'intégrité des données avant leur insertion", isCorrect: false },
+      { id: "d", text: "Optimiser les performances des requêtes sur les tables auditées", isCorrect: false }
+    ],
+    explanation: "Ce code implémente un système d'audit complet en PostgreSQL. Il crée d'abord une table audit_log pour stocker l'historique des modifications, puis définit une fonction de déclencheur (trigger) qui sera exécutée automatiquement lors des opérations INSERT, UPDATE ou DELETE sur les tables auditées. Pour chaque modification, le trigger enregistre l'ancienne et la nouvelle valeur de l'enregistrement (au format JSON), l'utilisateur qui a effectué la modification, et d'autres métadonnées utiles.",
+    hint: "Les déclencheurs (triggers) en SQL permettent d'exécuter automatiquement du code en réponse à certains événements sur les tables, comme les insertions ou les mises à jour."
+  },
+  {
+    id: "sql-avance-7",
+    code: `-- Partitionnement d'une table de transactions par mois
+CREATE TABLE transactions (
+  id SERIAL,
+  user_id INTEGER NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  transaction_date TIMESTAMP NOT NULL,
+  description TEXT,
+  status VARCHAR(20) DEFAULT 'completed',
+  PRIMARY KEY (id, transaction_date)
+) PARTITION BY RANGE (transaction_date);
+
+-- Création des partitions mensuelles pour l'année 2023
+CREATE TABLE transactions_y2023m01 PARTITION OF transactions
+  FOR VALUES FROM ('2023-01-01') TO ('2023-02-01');
+
+CREATE TABLE transactions_y2023m02 PARTITION OF transactions
+  FOR VALUES FROM ('2023-02-01') TO ('2023-03-01');
+
+-- ... autres mois ...
+
+CREATE TABLE transactions_y2023m12 PARTITION OF transactions
+  FOR VALUES FROM ('2023-12-01') TO ('2024-01-01');
+
+-- Fonction pour créer automatiquement la prochaine partition
+CREATE OR REPLACE FUNCTION create_next_month_partition()
+RETURNS VOID AS $$
+DECLARE
+  next_month_start DATE;
+  next_month_end DATE;
+  partition_name TEXT;
+  partition_exists INTEGER;
+BEGIN
+  -- Calculer le début du mois prochain
+  next_month_start := DATE_TRUNC('month', CURRENT_DATE + INTERVAL '1 month');
+  -- Calculer la fin du mois prochain (début du mois suivant)
+  next_month_end := DATE_TRUNC('month', next_month_start + INTERVAL '1 month');
+  
+  -- Construire le nom de la partition
+  partition_name := 'transactions_y' || 
+                    TO_CHAR(next_month_start, 'YYYY') || 
+                    'm' || 
+                    TO_CHAR(next_month_start, 'MM');
+  
+  -- Vérifier si la partition existe déjà
+  SELECT COUNT(*) INTO partition_exists
+  FROM pg_class c
+  JOIN pg_namespace n ON n.oid = c.relnamespace
+  WHERE c.relname = partition_name AND n.nspname = 'public';
+  
+  -- Créer la partition si elle n'existe pas
+  IF partition_exists = 0 THEN
+    EXECUTE format('
+      CREATE TABLE %I PARTITION OF transactions
+      FOR VALUES FROM (%L) TO (%L)',
+      partition_name, next_month_start, next_month_end
+    );
+    RAISE NOTICE 'Created partition: %', partition_name;
+  ELSE
+    RAISE NOTICE 'Partition % already exists', partition_name;
+  END IF;
+END;
+$$ LANGUAGE plpgsql;`,
+    language: "sql",
+    question: "Quelle technique avancée de gestion de données ce code implémente-t-il?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "Le partitionnement de table par plage temporelle avec création automatique de partitions", isCorrect: true },
+      { id: "b", text: "La compression de données pour les transactions historiques", isCorrect: false },
+      { id: "c", text: "La réplication asynchrone entre plusieurs serveurs de base de données", isCorrect: false },
+      { id: "d", text: "L'archivage automatique des données obsolètes", isCorrect: false }
+    ],
+    explanation: "Ce code implémente le partitionnement de table, une technique qui divise une grande table en plusieurs parties physiques plus petites selon une règle définie. Ici, la table 'transactions' est partitionnée par mois. Chaque partition contient les données d'un mois spécifique, ce qui améliore considérablement les performances pour les requêtes qui filtrent par date. De plus, une fonction PL/pgSQL est créée pour générer automatiquement la partition du mois suivant, assurant que le système reste fonctionnel sans intervention manuelle.",
+    hint: "Le partitionnement est particulièrement utile pour les tables très volumineuses avec des données qui peuvent être logiquement segmentées, comme les données temporelles ou géographiques."
+  },
+  {
+    id: "sql-avance-8",
+    code: `WITH UserSessions AS (
+  SELECT
+    user_id,
+    event_time,
+    -- Détection d'une nouvelle session: si > 30 minutes depuis dernier événement
+    CASE
+      WHEN LAG(event_time) OVER (PARTITION BY user_id ORDER BY event_time) IS NULL OR
+           event_time - LAG(event_time) OVER (PARTITION BY user_id ORDER BY event_time) > INTERVAL '30 minutes'
+      THEN 1
+      ELSE 0
+    END AS is_new_session
+  FROM user_events
+  WHERE event_date = CURRENT_DATE - INTERVAL '1 day'
+  ORDER BY user_id, event_time
+),
+SessionIdentification AS (
+  SELECT
+    user_id,
+    event_time,
+    -- Création d'un identifiant de session incrémental pour chaque utilisateur
+    SUM(is_new_session) OVER (PARTITION BY user_id ORDER BY event_time ROWS UNBOUNDED PRECEDING) AS session_id
+  FROM UserSessions
+),
+SessionAggregation AS (
+  SELECT
+    user_id,
+    session_id,
+    MIN(event_time) AS session_start,
+    MAX(event_time) AS session_end,
+    COUNT(*) AS event_count,
+    MAX(event_time) - MIN(event_time) AS session_duration
+  FROM SessionIdentification
+  GROUP BY user_id, session_id
+)
+SELECT
+  user_id,
+  COUNT(*) AS total_sessions,
+  AVG(EXTRACT(EPOCH FROM session_duration) / 60) AS avg_session_minutes,
+  AVG(event_count) AS avg_events_per_session,
+  SUM(event_count) AS total_events
+FROM SessionAggregation
+GROUP BY user_id
+ORDER BY total_events DESC
+LIMIT 100;`,
+    language: "sql",
+    question: "Que fait cette requête d'analyse avancée?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "Elle reconstruit les sessions utilisateurs à partir d'événements individuels et calcule des métriques d'engagement", isCorrect: true },
+      { id: "b", text: "Elle identifie les utilisateurs qui ont eu des problèmes techniques durant leur navigation", isCorrect: false },
+      { id: "c", text: "Elle détecte les comportements frauduleux basés sur la fréquence anormale des événements", isCorrect: false },
+      { id: "d", text: "Elle segmente les utilisateurs en fonction de leur parcours sur le site", isCorrect: false }
+    ],
+    explanation: "Cette requête analyse le comportement des utilisateurs en reconstruisant leurs sessions à partir d'événements individuels. Elle utilise une approche en trois étapes avec des CTEs: 1) UserSessions identifie le début de nouvelles sessions (30 minutes d'inactivité), 2) SessionIdentification crée un identifiant incrémental pour chaque session, 3) SessionAggregation calcule des métriques par session (durée, nombre d'événements). Enfin, la requête principale agrège ces données par utilisateur pour obtenir des métriques d'engagement comme le nombre de sessions, la durée moyenne, et le nombre moyen d'événements par session.",
+    hint: "La fonction LAG() est utilisée pour comparer chaque événement avec le précédent et détecter les nouvelles sessions basées sur l'intervalle de temps."
+  },
+  {
+    id: "sql-avance-9",
+    code: `-- Création d'un type personnalisé pour représenter une adresse
+CREATE TYPE address_type AS (
+  street VARCHAR(100),
+  city VARCHAR(50),
+  state VARCHAR(20),
+  postal_code VARCHAR(20),
+  country VARCHAR(50)
+);
+
+-- Création d'une table utilisant le type personnalisé
+CREATE TABLE customers (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  billing_address address_type,
+  shipping_address address_type
+);
+
+-- Requête avec décomposition et manipulation du type personnalisé
+SELECT 
+  c.id,
+  c.name,
+  (c.billing_address).street AS billing_street,
+  (c.billing_address).city AS billing_city,
+  (c.shipping_address).street AS shipping_street,
+  (c.shipping_address).city AS shipping_city,
+  -- Vérifier si les adresses de facturation et livraison sont identiques
+  CASE
+    WHEN c.billing_address = c.shipping_address THEN TRUE
+    ELSE FALSE
+  END AS same_address,
+  -- Vérifier si les clients sont dans le même pays
+  CASE
+    WHEN (c.billing_address).country = (c.shipping_address).country THEN TRUE
+    ELSE FALSE
+  END AS same_country
+FROM customers c
+WHERE (c.billing_address).country = 'France'
+-- Tri par ville de facturation
+ORDER BY (c.billing_address).city;`,
+    language: "sql",
+    question: "Quelle fonctionnalité avancée de PostgreSQL ce code démontre-t-il?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "La création et l'utilisation de types de données composites personnalisés", isCorrect: true },
+      { id: "b", text: "L'héritage de tables avec spécialisation des colonnes", isCorrect: false },
+      { id: "c", text: "L'implémentation d'un système de géocodage pour les adresses", isCorrect: false },
+      { id: "d", text: "La normalisation automatique des adresses internationales", isCorrect: false }
+    ],
+    explanation: "Ce code démontre la création et l'utilisation de types de données composites personnalisés en PostgreSQL. Il crée d'abord un type 'address_type' qui encapsule tous les composants d'une adresse. Ce type est ensuite utilisé dans la table 'customers' pour stocker les adresses de facturation et de livraison, permettant une structure de données plus organisée et sémantique. La requête montre comment accéder aux composants individuels d'un type composite avec la notation point (c.address).field, et comment comparer directement des valeurs composites.",
+    hint: "Les types composites permettent de regrouper logiquement des données liées, réduisant la duplication de schéma et améliorant la cohérence des données."
+  },
+  {
+    id: "sql-avance-10",
+    code: `-- Configuration de l'extension pour le texte intégral
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS unaccent;
+
+-- Table des articles avec recherche plein texte
+CREATE TABLE articles (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  published_date DATE NOT NULL,
+  author_id INTEGER REFERENCES authors(id),
+  category_id INTEGER REFERENCES categories(id),
+  tags TEXT[],
+  is_published BOOLEAN DEFAULT TRUE,
+  
+  -- Colonne de recherche vectorielle
+  search_vector TSVECTOR
+);
+
+-- Index pour la recherche plein texte
+CREATE INDEX articles_search_idx ON articles USING GIN(search_vector);
+
+-- Fonction de mise à jour automatique du vecteur de recherche
+CREATE OR REPLACE FUNCTION articles_search_trigger() RETURNS TRIGGER AS $$
+BEGIN
+  NEW.search_vector :=
+    setweight(to_tsvector('french', unaccent(COALESCE(NEW.title, ''))), 'A') ||
+    setweight(to_tsvector('french', unaccent(COALESCE(array_to_string(NEW.tags, ' '), ''))), 'B') ||
+    setweight(to_tsvector('french', unaccent(COALESCE(NEW.content, ''))), 'C');
+  RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+-- Trigger pour mettre à jour le vecteur de recherche
+CREATE TRIGGER articles_search_update
+BEFORE INSERT OR UPDATE ON articles
+FOR EACH ROW EXECUTE FUNCTION articles_search_trigger();
+
+-- Requête de recherche avancée
+SELECT 
+  a.id,
+  a.title,
+  a.published_date,
+  au.name AS author,
+  c.name AS category,
+  a.tags,
+  ts_headline('french', a.content, 
+              plainto_tsquery('french', unaccent('intelligence artificielle')),
+              'MaxFragments=2, MinWords=5, MaxWords=20, FragmentDelimiter=" ... "') AS excerpt,
+  ts_rank(a.search_vector, query) AS rank
+FROM 
+  articles a
+JOIN 
+  authors au ON a.author_id = au.id
+JOIN 
+  categories c ON a.category_id = c.id,
+  plainto_tsquery('french', unaccent('intelligence artificielle')) query
+WHERE 
+  a.search_vector @@ query
+  AND a.is_published = TRUE
+  AND a.published_date >= CURRENT_DATE - INTERVAL '1 year'
+ORDER BY 
+  rank DESC, 
+  a.published_date DESC
+LIMIT 20;`,
+    language: "sql",
+    question: "Quelle fonctionnalité avancée cette requête implémente-t-elle?",
+    difficulty: "avancé",
+    responses: [
+      { id: "a", text: "La recherche plein texte multilingue avec mise en évidence et classement des résultats", isCorrect: true },
+      { id: "b", text: "L'indexation automatique du contenu des articles dans une base externe", isCorrect: false },
+      { id: "c", text: "La traduction automatique des articles en plusieurs langues", isCorrect: false },
+      { id: "d", text: "L'analyse sémantique du contenu pour extraire des sujets", isCorrect: false }
+    ],
+    explanation: "Ce code implémente un système complet de recherche plein texte (full-text search) en PostgreSQL. Il utilise des extensions (pg_trgm, unaccent) pour améliorer la recherche avec gestion des accents, crée un index GIN pour des recherches rapides, et utilise un trigger pour maintenir automatiquement un vecteur de recherche (tsvector) avec différents poids selon l'importance du champ (titre, tags, contenu). La requête de recherche utilise ts_headline pour générer des extraits pertinents avec mise en évidence des termes recherchés, et ts_rank pour classer les résultats par pertinence.",
+    hint: "La recherche plein texte dans PostgreSQL permet d'effectuer des recherches linguistiquement intelligentes qui vont au-delà des simples correspondances LIKE, avec gestion de la pertinence, des synonymes, et du contexte."
   }
 ];
 

@@ -770,6 +770,9 @@ const ReadMeIfYouCan = () => {
   const [timerActive, setTimerActive] = useState(false);
   const [score, setScore] = useState(0);
   const [questionCount, setQuestionCount] = useState(0);
+  const [maxQuestions, setMaxQuestions] = useState(10); // Nombre de questions par session
+  const [sessionCompleted, setSessionCompleted] = useState(false); // Pour savoir si la session est terminée
+  const [sessionFeedback, setSessionFeedback] = useState(""); // Feedback de l'IA à la fin de la session
   const [hintRequested, setHintRequested] = useState(false);
   const [highContrastMode, setHighContrastMode] = useState(false);
   // Nous n'utilisons plus le système d'échecs consécutifs
@@ -1099,9 +1102,35 @@ const ReadMeIfYouCan = () => {
       setScore(prev => prev + 1);
     }
     
+    // Mettre à jour le compteur de questions
+    setQuestionCount(prev => prev + 1);
+    
+    // Vérifier si c'est la dernière question de la session
+    const isLastQuestion = questionCount + 1 >= maxQuestions;
+    
     // Afficher le résultat
     setShowResult(true);
     setIsLoading(false);
+    
+    // Mettre à jour le statut de fin de session si c'est la dernière question
+    if (isLastQuestion) {
+      // Générer le feedback de fin de session
+      const percentage = ((score + (isOverallCorrect ? 1 : 0)) / maxQuestions) * 100;
+      let feedback = "";
+      
+      if (percentage >= 90) {
+        feedback = `Excellent travail ! Vous avez obtenu un score impressionnant de ${score + (isOverallCorrect ? 1 : 0)}/${maxQuestions} (${percentage.toFixed(0)}%). Vous maîtrisez parfaitement les concepts de ${selectedLanguage} au niveau ${selectedDifficulty}. Continuez comme ça !`;
+      } else if (percentage >= 70) {
+        feedback = `Très bon résultat ! Vous avez obtenu un score de ${score + (isOverallCorrect ? 1 : 0)}/${maxQuestions} (${percentage.toFixed(0)}%). Vous avez une bonne compréhension des concepts de ${selectedLanguage} au niveau ${selectedDifficulty}. Continuez à pratiquer pour vous améliorer encore plus.`;
+      } else if (percentage >= 50) {
+        feedback = `Bon travail ! Vous avez obtenu un score de ${score + (isOverallCorrect ? 1 : 0)}/${maxQuestions} (${percentage.toFixed(0)}%). Vous avez une compréhension correcte des bases de ${selectedLanguage} au niveau ${selectedDifficulty}, mais il y a encore place à l'amélioration. Continuez à pratiquer !`;
+      } else {
+        feedback = `Vous avez obtenu un score de ${score + (isOverallCorrect ? 1 : 0)}/${maxQuestions} (${percentage.toFixed(0)}%). C'est un bon début, mais n'hésitez pas à revoir les concepts fondamentaux de ${selectedLanguage} au niveau ${selectedDifficulty} et à réessayer. La pratique régulière est la clé du succès !`;
+      }
+      
+      setSessionFeedback(feedback);
+      setSessionCompleted(true);
+    }
     
     // Notification selon le résultat
     if (!isCorrect) {
