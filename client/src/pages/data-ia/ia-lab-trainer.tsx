@@ -1089,6 +1089,10 @@ const IALabTrainer: React.FC = () => {
                     <Trophy className="h-4 w-4 mr-2" />
                     Défis IA
                   </TabsTrigger>
+                  <TabsTrigger value="resources" className="data-[state=active]:bg-green-800/40 rounded-md px-4">
+                    <Lightbulb className="h-4 w-4 mr-2" />
+                    Ressources
+                  </TabsTrigger>
                 </TabsList>
               </div>
               
@@ -1197,6 +1201,196 @@ const IALabTrainer: React.FC = () => {
                   executionResult={result}
                   isProcessing={isProcessing}
                 />
+              </TabsContent>
+              
+              {/* Contenu pour l'onglet Ressources */}
+              <TabsContent value="resources" className="flex-grow overflow-auto p-4">
+                <div className="space-y-5">
+                  <h3 className="text-white font-semibold flex items-center">
+                    <Lightbulb className="mr-2 h-5 w-5 text-green-400" />
+                    Ressources {selectedLanguage === 'python' ? 'Python' : 'SQL'}
+                  </h3>
+                  
+                  {selectedLanguage === 'python' ? (
+                    <>
+                      {/* Ressources Python */}
+                      <div className="border border-green-500/30 bg-green-900/10 rounded-md p-4">
+                        <h4 className="text-green-300 font-medium text-lg mb-2">Bonnes pratiques Python</h4>
+                        <ul className="space-y-2 text-gray-300 text-sm list-disc list-inside">
+                          <li>Suivez la <span className="text-blue-300">PEP 8</span> pour le style de code (indentation de 4 espaces, noms de variables en snake_case)</li>
+                          <li>Utilisez des noms de variables explicites (préférez <code className="bg-black/30 px-1 rounded">temperature_celsius</code> à <code className="bg-black/30 px-1 rounded">t</code>)</li>
+                          <li>Commentez votre code pour expliquer le "pourquoi" et non le "comment"</li>
+                          <li>Utilisez des fonctions pour éviter la répétition de code</li>
+                          <li>Gérez les exceptions avec des blocs try/except appropriés</li>
+                          <li>Utilisez des tests unitaires pour valider votre code</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="border border-blue-500/30 bg-blue-900/10 rounded-md p-4">
+                        <h4 className="text-blue-300 font-medium text-lg mb-2">Bibliothèques Python essentielles</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="bg-black/20 p-3 rounded-md">
+                            <h5 className="font-medium text-blue-300">NumPy</h5>
+                            <p className="text-sm text-gray-300 mt-1">Calcul scientifique, manipulation de tableaux multidimensionnels</p>
+                            <code className="text-xs bg-black/30 block p-2 mt-2 rounded">import numpy as np</code>
+                          </div>
+                          <div className="bg-black/20 p-3 rounded-md">
+                            <h5 className="font-medium text-blue-300">Pandas</h5>
+                            <p className="text-sm text-gray-300 mt-1">Analyse et manipulation de données tabulaires</p>
+                            <code className="text-xs bg-black/30 block p-2 mt-2 rounded">import pandas as pd</code>
+                          </div>
+                          <div className="bg-black/20 p-3 rounded-md">
+                            <h5 className="font-medium text-blue-300">Matplotlib</h5>
+                            <p className="text-sm text-gray-300 mt-1">Création de graphiques et visualisations</p>
+                            <code className="text-xs bg-black/30 block p-2 mt-2 rounded">import matplotlib.pyplot as plt</code>
+                          </div>
+                          <div className="bg-black/20 p-3 rounded-md">
+                            <h5 className="font-medium text-blue-300">Scikit-learn</h5>
+                            <p className="text-sm text-gray-300 mt-1">Apprentissage automatique et modèles prédictifs</p>
+                            <code className="text-xs bg-black/30 block p-2 mt-2 rounded">from sklearn import ...</code>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="border border-purple-500/30 bg-purple-900/10 rounded-md p-4">
+                        <h4 className="text-purple-300 font-medium text-lg mb-2">Astuces pour déboguer</h4>
+                        <ul className="space-y-2 text-gray-300 text-sm">
+                          <li className="flex items-start">
+                            <span className="bg-purple-900/40 text-purple-300 px-2 py-0.5 rounded mr-2 font-mono text-xs mt-0.5">print()</span>
+                            <span>Utilisez des instructions print() pour afficher l'état des variables</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="bg-purple-900/40 text-purple-300 px-2 py-0.5 rounded mr-2 font-mono text-xs mt-0.5">type()</span>
+                            <span>Vérifiez le type d'une variable avec type(variable)</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="bg-purple-900/40 text-purple-300 px-2 py-0.5 rounded mr-2 font-mono text-xs mt-0.5">dir()</span>
+                            <span>Explorez les attributs d'un objet avec dir(object)</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="bg-purple-900/40 text-purple-300 px-2 py-0.5 rounded mr-2 font-mono text-xs mt-0.5">help()</span>
+                            <span>Obtenez de l'aide sur une fonction avec help(function)</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="bg-purple-900/40 text-purple-300 px-2 py-0.5 rounded mr-2 font-mono text-xs mt-0.5">pdb</span>
+                            <span>Pour le débogage avancé: import pdb; pdb.set_trace()</span>
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      <div className="border border-cyan-500/30 bg-cyan-900/10 rounded-md p-4">
+                        <h4 className="text-cyan-300 font-medium text-lg mb-2">Ressources d'apprentissage</h4>
+                        <ul className="space-y-2 text-gray-300 text-sm list-disc list-inside">
+                          <li>Documentation officielle Python: <span className="text-cyan-300">python.org/doc</span></li>
+                          <li>Real Python: tutoriels et articles détaillés</li>
+                          <li>Python Data Science Handbook par Jake VanderPlas</li>
+                          <li>Automate the Boring Stuff with Python par Al Sweigart</li>
+                          <li>Cours en ligne: Coursera, Udemy, DataCamp</li>
+                        </ul>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Ressources SQL */}
+                      <div className="border border-green-500/30 bg-green-900/10 rounded-md p-4">
+                        <h4 className="text-green-300 font-medium text-lg mb-2">Bonnes pratiques SQL</h4>
+                        <ul className="space-y-2 text-gray-300 text-sm list-disc list-inside">
+                          <li>Utilisez des noms de tables et colonnes explicites et cohérents</li>
+                          <li>Préférez les jointures explicites (JOIN) aux jointures implicites</li>
+                          <li>Utilisez les index pour optimiser les performances des requêtes</li>
+                          <li>Limitez les résultats avec WHERE avant de faire des opérations coûteuses</li>
+                          <li>Évitez SELECT * et spécifiez les colonnes dont vous avez besoin</li>
+                          <li>Utilisez des commentaires pour documenter les requêtes complexes</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="border border-blue-500/30 bg-blue-900/10 rounded-md p-4">
+                        <h4 className="text-blue-300 font-medium text-lg mb-2">Fonctions SQL essentielles</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="bg-black/20 p-3 rounded-md">
+                            <h5 className="font-medium text-blue-300">Agrégation</h5>
+                            <p className="text-sm text-gray-300 mt-1">Fonctions pour calculer des statistiques sur des groupes</p>
+                            <code className="text-xs bg-black/30 block p-2 mt-2 rounded">COUNT(), SUM(), AVG(), MIN(), MAX()</code>
+                          </div>
+                          <div className="bg-black/20 p-3 rounded-md">
+                            <h5 className="font-medium text-blue-300">Manipulation de chaînes</h5>
+                            <p className="text-sm text-gray-300 mt-1">Fonctions pour traiter les données textuelles</p>
+                            <code className="text-xs bg-black/30 block p-2 mt-2 rounded">CONCAT(), SUBSTRING(), LOWER(), UPPER()</code>
+                          </div>
+                          <div className="bg-black/20 p-3 rounded-md">
+                            <h5 className="font-medium text-blue-300">Dates et heures</h5>
+                            <p className="text-sm text-gray-300 mt-1">Fonctions pour manipuler les dates</p>
+                            <code className="text-xs bg-black/30 block p-2 mt-2 rounded">DATE_FORMAT(), DATEDIFF(), NOW()</code>
+                          </div>
+                          <div className="bg-black/20 p-3 rounded-md">
+                            <h5 className="font-medium text-blue-300">Fenêtrage (Window)</h5>
+                            <p className="text-sm text-gray-300 mt-1">Analyses avancées sur des ensembles de lignes</p>
+                            <code className="text-xs bg-black/30 block p-2 mt-2 rounded">OVER(), PARTITION BY, RANK()</code>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="border border-purple-500/30 bg-purple-900/10 rounded-md p-4">
+                        <h4 className="text-purple-300 font-medium text-lg mb-2">Types de requêtes avancées</h4>
+                        <ul className="space-y-2 text-gray-300 text-sm">
+                          <li className="flex items-start">
+                            <span className="bg-purple-900/40 text-purple-300 px-2 py-0.5 rounded mr-2 font-mono text-xs mt-0.5">CTE</span>
+                            <span>Common Table Expressions pour des requêtes plus lisibles (WITH clause)</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="bg-purple-900/40 text-purple-300 px-2 py-0.5 rounded mr-2 font-mono text-xs mt-0.5">PIVOT</span>
+                            <span>Transformez des lignes en colonnes pour des vues tabulaires</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="bg-purple-900/40 text-purple-300 px-2 py-0.5 rounded mr-2 font-mono text-xs mt-0.5">CASE</span>
+                            <span>Expression conditionnelle pour logique complexe dans les requêtes</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="bg-purple-900/40 text-purple-300 px-2 py-0.5 rounded mr-2 font-mono text-xs mt-0.5">EXPLAIN</span>
+                            <span>Analysez comment la base de données exécute votre requête</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="bg-purple-900/40 text-purple-300 px-2 py-0.5 rounded mr-2 font-mono text-xs mt-0.5">TRIGGER</span>
+                            <span>Exécutez automatiquement des actions sur des événements</span>
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      <div className="border border-cyan-500/30 bg-cyan-900/10 rounded-md p-4">
+                        <h4 className="text-cyan-300 font-medium text-lg mb-2">Outils SQL populaires</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="bg-black/20 p-3 rounded-md">
+                            <h5 className="font-medium text-cyan-300">MySQL</h5>
+                            <p className="text-sm text-gray-300 mt-1">Le SGBD open-source le plus populaire</p>
+                          </div>
+                          <div className="bg-black/20 p-3 rounded-md">
+                            <h5 className="font-medium text-cyan-300">PostgreSQL</h5>
+                            <p className="text-sm text-gray-300 mt-1">SGBD avancé avec fonctionnalités étendues</p>
+                          </div>
+                          <div className="bg-black/20 p-3 rounded-md">
+                            <h5 className="font-medium text-cyan-300">SQLite</h5>
+                            <p className="text-sm text-gray-300 mt-1">Base de données légère pour applications simples</p>
+                          </div>
+                          <div className="bg-black/20 p-3 rounded-md">
+                            <h5 className="font-medium text-cyan-300">ORM</h5>
+                            <p className="text-sm text-gray-300 mt-1">SQLAlchemy, Django ORM, Sequelize</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="border border-amber-500/30 bg-amber-900/10 rounded-md p-4">
+                        <h4 className="text-amber-300 font-medium text-lg mb-2">Ressources d'apprentissage</h4>
+                        <ul className="space-y-2 text-gray-300 text-sm list-disc list-inside">
+                          <li>Mode Analytics SQL Tutorial</li>
+                          <li>W3Schools SQL Tutorial</li>
+                          <li>SQLZoo: Exercices interactifs SQL</li>
+                          <li>Documentation officielle de MySQL et PostgreSQL</li>
+                          <li>DataCamp: SQL Fundamentals</li>
+                        </ul>
+                      </div>
+                    </>
+                  )}
+                </div>
               </TabsContent>
             </Tabs>
           </Card>
