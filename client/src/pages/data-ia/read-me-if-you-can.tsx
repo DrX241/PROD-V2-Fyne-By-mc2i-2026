@@ -1233,16 +1233,7 @@ const ReadMeIfYouCan = () => {
                 <Label htmlFor="contrast-mode" className="text-white text-sm">Mode contraste élevé</Label>
               </div>
               
-              <div className="flex items-center gap-2">
-                <Badge className="bg-cyan-600 hover:bg-cyan-700">
-                  Score: {score}/{questionCount}
-                </Badge>
-                {currentChallenge && (
-                  <Badge className="bg-blue-600 hover:bg-blue-700">
-                    Question: {questionCount}/{maxQuestions}
-                  </Badge>
-                )}
-              </div>
+
           </div>
         </div>
       </header>
