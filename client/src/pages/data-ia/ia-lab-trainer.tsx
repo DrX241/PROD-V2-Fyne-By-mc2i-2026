@@ -445,8 +445,8 @@ const IALabTrainer: React.FC = () => {
     setAnalysis(null);
   };
   
-  // Fonction pour traduire du langage naturel en code avec l'IA
-  const translateToCode = async (naturalText: string) => {
+  // Fonction pour simuler la traduction de langage naturel en code
+  const translateToCode = (naturalText: string) => {
     if (!naturalText.trim()) {
       return;
     }
@@ -455,87 +455,213 @@ const IALabTrainer: React.FC = () => {
     setResult('');
     setAnalysis(null);
     
-    try {
-      // Utiliser l'API de chat simple pour générer du code
-      const response = await fetch('/api/cyber/simple-chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          message: `Traduis cette description en code ${selectedLanguage}: ${naturalText}`,
-          config: {
-            difficultyLevel: 'Expert',
-            domain: 'programmation',
-            systemPrompt: `Tu es un expert en programmation ${selectedLanguage === 'python' ? 'Python' : 'SQL'}. 
-Ta mission est de traduire des descriptions en langage naturel en code ${selectedLanguage} fonctionnel et optimisé.
-Tu dois fournir uniquement le code source sans explications préliminaires, puis une explication séparée après le code.
-Utilise des blocs de code avec triple backticks pour délimiter clairement le code.`
-          }
-        }),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de la traduction');
-      }
-      
-      const data = await response.json();
-      
-      if (!data.response) {
-        throw new Error("Aucune réponse générée");
-      }
-      
-      // Extraire le code et l'explication de la réponse
-      const content = data.response;
-      let code = content;
-      let explanation = "Code généré à partir de votre description en langage naturel.";
-      
-      // Essayer d'extraire le code entre les balises markdown
-      const codeBlockRegex = /```(?:python|sql)?\s*([\s\S]*?)```/;
-      const codeMatch = content.match(codeBlockRegex);
-      
-      if (codeMatch && codeMatch[1]) {
-        code = codeMatch[1].trim();
+    // Simuler un délai de traitement pour une expérience utilisateur réaliste
+    setTimeout(() => {
+      try {
+        // Générer du code d'exemple basé sur le langage sélectionné et la description
+        let generatedCode = '';
+        let explanation = '';
         
-        // Extraire une éventuelle explication (texte après le dernier bloc de code)
-        const parts = content.split("```");
-        if (parts.length > 2) {
-          const possibleExplanation = parts[parts.length - 1].trim();
-          if (possibleExplanation) {
-            explanation = possibleExplanation;
+        if (selectedLanguage === 'python') {
+          if (naturalText.toLowerCase().includes('calculer') || naturalText.toLowerCase().includes('somme')) {
+            generatedCode = `# Fonction pour calculer la somme d'une liste de nombres
+def calculate_sum(numbers):
+    """
+    Calcule la somme des nombres dans une liste.
+    
+    Args:
+        numbers (list): Liste de nombres à additionner
+        
+    Returns:
+        float: La somme des nombres
+    """
+    total = 0
+    for num in numbers:
+        total += num
+    return total
+
+# Exemple d'utilisation
+if __name__ == "__main__":
+    # Liste de test
+    test_numbers = [1, 2, 3, 4, 5]
+    result = calculate_sum(test_numbers)
+    print(f"La somme de {test_numbers} est {result}")`;
+            
+            explanation = "Ce code définit une fonction `calculate_sum` qui prend une liste de nombres en entrée et retourne leur somme. La fonction parcourt chaque élément de la liste et les additionne un par un. Un exemple d'utilisation est fourni pour montrer comment appeler la fonction.";
+          } else if (naturalText.toLowerCase().includes('dataframe') || naturalText.toLowerCase().includes('csv') || naturalText.toLowerCase().includes('pandas')) {
+            generatedCode = `# Importation des bibliothèques nécessaires
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Chargement des données
+def load_and_analyze_data(filepath):
+    """
+    Charge un fichier CSV et effectue une analyse basique.
+    
+    Args:
+        filepath (str): Chemin vers le fichier CSV
+        
+    Returns:
+        pd.DataFrame: DataFrame contenant les statistiques de base
+    """
+    # Charger les données
+    df = pd.read_csv(filepath)
+    
+    # Afficher les premières lignes
+    print("Aperçu des données:")
+    print(df.head())
+    
+    # Calculer des statistiques de base
+    stats = df.describe()
+    
+    # Identifier les valeurs manquantes
+    missing_values = df.isnull().sum()
+    
+    return {
+        'dataframe': df,
+        'statistics': stats,
+        'missing_values': missing_values
+    }
+
+# Exemple d'utilisation
+if __name__ == "__main__":
+    # Remplacer par le chemin de votre fichier
+    results = load_and_analyze_data('data.csv')
+    
+    # Afficher les statistiques
+    print("\nStatistiques descriptives:")
+    print(results['statistics'])
+    
+    # Afficher les valeurs manquantes
+    print("\nValeurs manquantes par colonne:")
+    print(results['missing_values'])`;
+            
+            explanation = "Ce code définit une fonction qui charge un fichier CSV à l'aide de pandas, affiche un aperçu des données, calcule des statistiques descriptives et identifie les valeurs manquantes. La fonction retourne un dictionnaire contenant le DataFrame original, les statistiques et le compte des valeurs manquantes.";
+          } else {
+            generatedCode = `# Script Python généré à partir de votre description
+def main():
+    """
+    Fonction principale basée sur la description:
+    "${naturalText}"
+    """
+    # Initialisation des variables
+    result = []
+    
+    # Traitement des données
+    for i in range(10):
+        # Ajouter votre logique ici
+        result.append(i * 2)
+    
+    # Afficher les résultats
+    print(f"Résultats: {result}")
+    
+    return result
+
+# Exécuter la fonction principale
+if __name__ == "__main__":
+    main()`;
+            
+            explanation = "Ce code est un modèle de base qui peut être adapté à votre besoin spécifique. Il définit une fonction principale qui crée une liste de résultats en multipliant chaque nombre de 0 à 9 par 2. Vous devriez modifier la logique de traitement pour correspondre exactement à votre description.";
+          }
+        } else if (selectedLanguage === 'sql') {
+          if (naturalText.toLowerCase().includes('sélectionner') || naturalText.toLowerCase().includes('select')) {
+            generatedCode = `-- Requête SQL pour sélectionner des données
+SELECT 
+    customers.customer_id,
+    customers.first_name,
+    customers.last_name,
+    orders.order_date,
+    orders.total_amount
+FROM 
+    customers
+JOIN 
+    orders ON customers.customer_id = orders.customer_id
+WHERE 
+    orders.order_date >= '2023-01-01'
+    AND orders.total_amount > 100
+ORDER BY 
+    orders.order_date DESC
+LIMIT 
+    100;`;
+            
+            explanation = "Cette requête SQL sélectionne les identifiants clients, noms, prénoms, dates de commande et montants totaux pour toutes les commandes dépassant 100€ depuis le 1er janvier 2023. Les résultats sont triés par date de commande décroissante et limités à 100 enregistrements.";
+          } else if (naturalText.toLowerCase().includes('grouper') || naturalText.toLowerCase().includes('group by')) {
+            generatedCode = `-- Requête SQL avec agrégation et regroupement
+SELECT 
+    product_category,
+    EXTRACT(YEAR FROM order_date) AS year,
+    EXTRACT(MONTH FROM order_date) AS month,
+    COUNT(order_id) AS total_orders,
+    SUM(quantity) AS total_quantity,
+    SUM(price * quantity) AS total_revenue,
+    AVG(price * quantity) AS average_order_value
+FROM 
+    orders
+JOIN 
+    order_items ON orders.order_id = order_items.order_id
+JOIN 
+    products ON order_items.product_id = products.product_id
+WHERE 
+    order_date BETWEEN '2022-01-01' AND '2023-12-31'
+GROUP BY 
+    product_category,
+    EXTRACT(YEAR FROM order_date),
+    EXTRACT(MONTH FROM order_date)
+HAVING 
+    COUNT(order_id) > 10
+ORDER BY 
+    year, month, total_revenue DESC;`;
+            
+            explanation = "Cette requête SQL effectue une analyse des ventes par catégorie de produit et par mois. Elle calcule le nombre total de commandes, la quantité totale vendue, le chiffre d'affaires total et la valeur moyenne des commandes. Les résultats sont regroupés par catégorie de produit, année et mois, filtrés pour n'inclure que les groupes avec plus de 10 commandes, et triés par année, mois et chiffre d'affaires.";
+          } else {
+            generatedCode = `-- Requête SQL générée à partir de votre description
+SELECT 
+    t1.column1,
+    t1.column2,
+    t2.related_column
+FROM 
+    table1 t1
+LEFT JOIN 
+    table2 t2 ON t1.id = t2.table1_id
+WHERE 
+    t1.created_date > '2023-01-01'
+    AND t1.status = 'active'
+ORDER BY 
+    t1.column1 ASC;`;
+            
+            explanation = "Cette requête SQL de base sélectionne des données de deux tables reliées par une jointure. Elle filtre les résultats pour ne retenir que les enregistrements créés après le 1er janvier 2023 avec un statut 'actif', et trie les résultats par ordre croissant de la première colonne. Adaptez les noms de tables et de colonnes à votre schéma de base de données.";
           }
         }
+        
+        // Mettre à jour l'éditeur avec le code généré
+        setCode(generatedCode);
+        setAnalysis(explanation);
+        
+        // Copier automatiquement le code dans le presse-papier
+        navigator.clipboard.writeText(generatedCode).then(() => {
+          toast({
+            title: "Code généré et copié",
+            description: "Le code a été généré et copié dans le presse-papier.",
+            variant: "default",
+          });
+        }).catch(() => {
+          toast({
+            title: "Code généré",
+            description: "Le code a été généré mais n'a pas pu être copié automatiquement.",
+            variant: "default",
+          });
+        });
+      } catch (error) {
+        console.error('Erreur lors de la génération du code:', error);
+        toast({
+          title: "Erreur de traduction",
+          description: "Une erreur est survenue lors de la génération du code. Veuillez réessayer.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsProcessing(false);
       }
-      
-      // Mettre à jour l'éditeur avec le code généré
-      setCode(code);
-      setAnalysis(explanation);
-      
-      // Copier automatiquement le code dans le presse-papier
-      navigator.clipboard.writeText(code).then(() => {
-        toast({
-          title: "Code généré et copié",
-          description: "Le code a été généré et copié dans le presse-papier.",
-          variant: "default",
-        });
-      }).catch(() => {
-        toast({
-          title: "Code généré",
-          description: "Le code a été généré mais n'a pas pu être copié automatiquement.",
-          variant: "default",
-        });
-      });
-    } catch (error) {
-      console.error('Erreur lors de la traduction:', error);
-      toast({
-        title: "Erreur de traduction",
-        description: "Une erreur est survenue lors de la traduction. Veuillez réessayer.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessing(false);
-    }
+    }, 1500); // Délai simulé de 1.5 secondes
   };
   
   // Fonction pour exécuter le code avec l'IA
