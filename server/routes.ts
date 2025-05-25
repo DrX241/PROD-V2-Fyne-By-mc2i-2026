@@ -4924,6 +4924,132 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
           error: "Le service Azure OpenAI n'est pas disponible actuellement." 
         });
       }
+      
+      // Créer un prompt adapté au langage, à la difficulté et au mode de jeu
+      let systemPrompt = `Tu es un expert en programmation chargé de créer des défis de code pour un jeu éducatif appelé "Read Me If You Can".
+      
+      TÂCHE: Générer un défi de code complet en ${language === 'python' ? 'Python' : 'SQL'} avec une difficulté "${difficulty}" et pour le mode de jeu "${mode}".
+
+      NIVEAU DE DIFFICULTÉ:
+      - débutant: Concepts de base, syntaxe simple, opérations élémentaires
+      - intermédiaire: Combinaison de concepts, algorithmes simples, utilisation de bibliothèques standard
+      - avancé: Algorithmes complexes, concepts avancés, optimisation
+
+      FORMAT DE SORTIE (JSON):
+      {
+        "success": true,
+        "challenge": {
+          "code": "string (code source qui doit être analysé)",
+          "language": "${language}",
+          "question": "string (question sur le code)",
+          "difficulty": "${difficulty}",
+          "responses": [
+            {
+              "id": "a",
+              "text": "string (première option)",
+              "isCorrect": boolean
+            },
+            {
+              "id": "b",
+              "text": "string (deuxième option)",
+              "isCorrect": boolean
+            },
+            {
+              "id": "c",
+              "text": "string (troisième option)",
+              "isCorrect": boolean
+            },
+            {
+              "id": "d",
+              "text": "string (quatrième option)",
+              "isCorrect": boolean
+            }
+          ],
+          "explanation": "string (explication détaillée de la bonne réponse)",
+          "hint": "string (indice facultatif)"
+        }
+      }
+
+      CONTRAINTES:
+      1. Le code doit être correct syntaxiquement et logiquement
+      2. Une seule réponse doit être correcte (isCorrect: true)
+      3. Les mauvaises réponses doivent être plausibles
+      4. L'explication doit être claire et pédagogique
+      5. Le niveau de difficulté doit correspondre à celui demandé
+      6. Le code doit tenir sur un écran (maximum 25 lignes)`;
+
+      // Adapter le prompt selon le mode de jeu
+      if (mode === 'analyse') {
+        systemPrompt += `
+        
+        MODE: ANALYSE
+        Pour ce mode, crée un code qui nécessite une analyse attentive. L'apprenant doit comprendre ce que fait le code, pas seulement sa syntaxe. Privilégie les questions du type "Que fait ce code?" ou "Quel est le résultat de l'exécution de ce code?".`;
+      } else if (mode === 'défense') {
+        systemPrompt += `
+        
+        MODE: DÉFENSE
+        Pour ce mode, crée un code contenant une vulnérabilité ou un bug subtil. L'apprenant doit identifier le problème. Privilégie les questions du type "Quel est le problème dans ce code?" ou "Quelle vulnérabilité est présente?".`;
+      } else if (mode === 'vitesse') {
+        systemPrompt += `
+        
+        MODE: VITESSE
+        Pour ce mode, crée un défi relativement simple mais qui demande une lecture rapide et efficace. L'apprenant doit pouvoir y répondre en moins de 30 secondes. Privilégie un code court et une question directe.`;
+      }
+
+      // Générer le défi via l'API d'IA
+      const userPrompt = `Génère un nouveau défi de code en ${language} de niveau ${difficulty} pour le mode ${mode}.`;
+      
+      const completion = await openAIService.getCompletion(systemPrompt, userPrompt, {
+        temperature: 0.7,
+        max_tokens: 1000,
+        response_format: { type: "json_object" }
+      });
+      
+      if (!completion || !completion.content) {
+        throw new Error("Réponse OpenAI invalide");
+      }
+      
+      // Convertir la réponse en JSON
+      try {
+        const result = JSON.parse(completion.content);
+        
+        // Vérifier que la réponse contient les champs nécessaires
+        if (!result.success || !result.challenge) {
+          throw new Error("Format de réponse OpenAI invalide");
+        }
+        
+        // Vérifier que le challenge contient les champs nécessaires
+        const requiredFields = ['code', 'language', 'question', 'difficulty', 'responses', 'explanation'];
+        for (const field of requiredFields) {
+          if (!result.challenge[field]) {
+            throw new Error(`Le champ ${field} est manquant dans le challenge`);
+          }
+        }
+        
+        // Vérifier que les réponses sont au bon format
+        if (!Array.isArray(result.challenge.responses) || result.challenge.responses.length !== 4) {
+          throw new Error("Le format des réponses est invalide");
+        }
+        
+        // Vérifier qu'il y a exactement une réponse correcte
+        const correctResponses = result.challenge.responses.filter(r => r.isCorrect);
+        if (correctResponses.length !== 1) {
+          throw new Error("Il doit y avoir exactement une réponse correcte");
+        }
+        
+        // Envoyer le résultat
+        return res.status(200).json(result);
+      } catch (error) {
+        console.error("Erreur lors du traitement de la réponse OpenAI:", error);
+        throw new Error("Erreur lors du traitement de la réponse OpenAI: " + error.message);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la génération du challenge:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Erreur lors de la génération du challenge: " + error.message 
+      });
+    }
   });
   
   // Endpoint pour analyser la justification d'une réponse dans Read Me If You Can
@@ -4951,6 +5077,95 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
             : "Votre justification manque de détails pour démontrer votre compréhension."
         });
       }
+      
+      // Trouver la réponse correcte pour la comparer avec la justification
+      const correctResponse = challenge.responses.find(r => r.isCorrect);
+      if (!correctResponse) {
+        return res.status(400).json({
+          error: "Impossible de trouver la réponse correcte dans le challenge",
+          isValid: false,
+          feedback: "Erreur lors de l'analyse de votre justification."
+        });
+      }
+      
+      // Obtenir l'explication du challenge
+      const explanation = challenge.explanation;
+      
+      // Créer un prompt pour analyser la justification
+      const systemPrompt = `Tu es un expert en évaluation de compréhension de code. Ta tâche est d'analyser si la justification fournie par un apprenant démontre une compréhension correcte du code présenté.
+
+CONTEXTE:
+- Code présenté: ${challenge.code}
+- Question posée: ${challenge.question}
+- Réponse correcte: ${correctResponse.text}
+- Explication officielle: ${explanation}
+
+TÂCHE:
+Analyse la justification fournie par l'apprenant et détermine si elle démontre une compréhension correcte du code, même si elle n'est pas exactement identique à l'explication officielle.
+
+CRITÈRES D'ÉVALUATION:
+1. La justification doit mentionner les concepts clés qui expliquent la bonne réponse
+2. Elle ne doit pas contenir d'erreurs conceptuelles majeures
+3. Elle doit démontrer que l'apprenant a réellement compris le code, pas juste deviné la réponse
+
+Réponds uniquement au format JSON avec les champs suivants:
+- "isValid": boolean (true si la justification est acceptable, false sinon)
+- "feedback": string (feedback constructif pour l'apprenant)
+- "score": number (entre 0 et 10, évaluant la qualité de la justification)
+`;
+      
+      const userPrompt = `Justification de l'apprenant: "${justification}"
+
+Analyse cette justification selon les critères spécifiés et retourne ton évaluation au format JSON.`;
+      
+      try {
+        // Appel à l'API OpenAI pour analyser la justification
+        const completion = await openAIService.getCompletion(systemPrompt, userPrompt, { temperature: 0.3, max_tokens: 500, response_format: { type: "json_object" } });
+        
+        if (!completion || !completion.content) {
+          throw new Error("Réponse OpenAI invalide");
+        }
+        
+        // Analyser la réponse JSON
+        let result;
+        try {
+          result = JSON.parse(completion.content);
+        } catch (e) {
+          console.error("Erreur de parsing JSON:", e);
+          throw new Error("Format de réponse invalide");
+        }
+        
+        // Vérifier que la réponse contient les champs nécessaires
+        if (typeof result.isValid !== 'boolean' || typeof result.feedback !== 'string') {
+          throw new Error("Format de réponse incomplet");
+        }
+        
+        // Retourner le résultat de l'analyse
+        return res.status(200).json({
+          isValid: result.isValid,
+          feedback: result.feedback,
+          score: result.score || (result.isValid ? 8 : 4)
+        });
+      } catch (error) {
+        console.error("Erreur lors de l'analyse de la justification:", error);
+        
+        // En cas d'erreur, utiliser une validation simplifiée
+        const isLongEnough = justification.length >= 50;
+        return res.status(200).json({
+          isValid: isLongEnough,
+          feedback: "Nous n'avons pas pu analyser votre justification en détail. " + 
+                   (isLongEnough ? "Elle semble toutefois suffisamment développée." : "Veuillez fournir plus de détails dans votre explication.")
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'analyse de la justification:", error);
+      res.status(500).json({
+        error: "Erreur serveur lors de l'analyse de la justification",
+        isValid: false,
+        feedback: "Une erreur est survenue lors de l'analyse de votre justification."
+      });
+    }
+  });
 
       // Créer un prompt adapté au langage, à la difficulté et au mode de jeu
       let systemPrompt = `Tu es un expert en programmation chargé de créer des défis de code pour un jeu éducatif appelé "Read Me If You Can".
