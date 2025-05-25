@@ -943,10 +943,10 @@ ORDER BY
                         variant="outline"
                         size="sm"
                         onClick={() => setShowTranslateDialog(true)}
-                        className="border-purple-500/30 text-purple-400 hover:text-purple-300 hover:bg-purple-900/20"
+                        className="border-purple-500/30 bg-purple-900/20 text-purple-300 hover:text-purple-100 hover:bg-purple-800/40"
                         disabled={isProcessing}
                       >
-                        <Brain className="mr-2 h-4 w-4" />
+                        <Sparkles className="mr-2 h-4 w-4" />
                         IA Translator
                       </Button>
                     </DialogTrigger>
