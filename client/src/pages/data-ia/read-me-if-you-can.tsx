@@ -982,6 +982,22 @@ const ReadMeIfYouCan = () => {
       });
     }
   };
+  
+  // Fonction pour démarrer une nouvelle session de 10 questions
+  const startNewSession = () => {
+    // Réinitialiser tous les états
+    setScore(0);
+    setQuestionCount(0);
+    setSessionCompleted(false);
+    setSessionFeedback("");
+    setShowResult(false);
+    setSelectedAnswer(null);
+    setUserJustification('');
+    setHintRequested(false);
+    
+    // Récupérer un nouveau défi
+    fetchNewChallenge();
+  };
 
   // Analyser la justification fournie par l'utilisateur
   const analyzeJustification = async (justification: string, isCorrectAnswer: boolean): Promise<{
