@@ -73,7 +73,13 @@ export default function IntroductionCybersecurite() {
     passwordFeedback: "",
     phishingDetected: false,
     phishingChecks: [] as string[],
-    phishingFeedback: ""
+    phishingFeedback: "",
+    glossaryScore: 0,
+    glossaryFeedback: "",
+    securityAuditLevel: "",
+    securityAuditFeedback: "",
+    caseStudyAnalysis: "",
+    caseStudyFeedback: ""
   });
   
   // États pour les cas d'études concrets récents
