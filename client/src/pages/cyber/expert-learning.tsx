@@ -200,7 +200,7 @@ function ExpertLearningPageContent() {
     const mainTopic = topicCounts[0].topic;
     
     // Suggestions spécifiques au sujet principal
-    const suggestionsMap = {
+    const suggestionsMap: Record<string, Array<{text: string, prompt: string}>> = {
       phishing: [
         { text: "Détecter un email de phishing", prompt: "Comment détecter un email de phishing ?" },
         { text: "Nouvelles techniques de phishing", prompt: "Quelles sont les dernières techniques de phishing ?" },
@@ -254,11 +254,13 @@ function ExpertLearningPageContent() {
     };
     
     // Sélectionner les suggestions spécifiques au sujet ou utiliser les suggestions par défaut
-    const specificSuggestions = suggestionsMap[mainTopic] || [
-      { text: "Renforcer ma cybersécurité", prompt: "Comment renforcer ma cybersécurité ?" },
-      { text: "Meilleures pratiques 2025", prompt: "Quelles sont les meilleures pratiques de cybersécurité en 2025 ?" },
-      { text: "Exercice pratique", prompt: "Crée un exercice pratique sur la cybersécurité" }
-    ];
+    const specificSuggestions = mainTopic in suggestionsMap 
+      ? suggestionsMap[mainTopic as keyof typeof suggestionsMap]
+      : [
+          { text: "Renforcer ma cybersécurité", prompt: "Comment renforcer ma cybersécurité ?" },
+          { text: "Meilleures pratiques 2025", prompt: "Quelles sont les meilleures pratiques de cybersécurité en 2025 ?" },
+          { text: "Exercice pratique", prompt: "Crée un exercice pratique sur la cybersécurité" }
+        ];
     
     // Ajouter des suggestions génériques
     const generalSuggestions = [
@@ -1308,7 +1310,7 @@ function ExpertLearningPageContent() {
                               const mainTopic = topicScores[0].topic;
                               
                               // Suggestions spécifiques pour chaque sujet
-                              const topicSuggestions = {
+                              const topicSuggestions: Record<string, Array<{text: string, prompt: string}>> = {
                                 phishing: [
                                   { text: "Détecter un email de phishing", prompt: "Comment détecter un email de phishing ?" },
                                   { text: "Techniques de phishing récentes", prompt: "Quelles sont les dernières techniques de phishing ?" },
@@ -1358,6 +1360,22 @@ function ExpertLearningPageContent() {
                                   { text: "Responsabilité partagée cloud", prompt: "Explique le modèle de responsabilité partagée dans le cloud" },
                                   { text: "Sécuriser services cloud", prompt: "Comment sécuriser mes services cloud ?" },
                                   { text: "Cloud vs On-premise", prompt: "Quelles sont les différences de sécurité entre cloud et on-premise ?" }
+                                ],
+                                // Nouvelles catégories ajoutées
+                                threat: [
+                                  { text: "APT et menaces avancées", prompt: "Explique ce qu'est une menace persistante avancée (APT)" },
+                                  { text: "Vulnérabilités zero-day", prompt: "Comment se protéger contre les vulnérabilités zero-day ?" },
+                                  { text: "Tests de pénétration", prompt: "Pourquoi réaliser des tests de pénétration réguliers ?" }
+                                ],
+                                governance: [
+                                  { text: "Normes ISO 27001", prompt: "Que couvre la norme ISO 27001 ?" },
+                                  { text: "Cadre NIST", prompt: "Explique le cadre de cybersécurité NIST" },
+                                  { text: "Politiques de sécurité", prompt: "Comment élaborer une politique de sécurité efficace ?" }
+                                ],
+                                incidentResponse: [
+                                  { text: "Plan de réponse aux incidents", prompt: "Comment élaborer un plan de réponse aux incidents ?" },
+                                  { text: "Analyse forensique", prompt: "Quelles sont les bases de l'analyse forensique ?" },
+                                  { text: "Plan de continuité d'activité", prompt: "Comment créer un plan de continuité d'activité (PCA) ?" }
                                 ]
                               };
                               
@@ -1368,11 +1386,13 @@ function ExpertLearningPageContent() {
                               ];
                               
                               // Sélectionner les suggestions spécifiques au sujet
-                              const specificSuggestions = topicSuggestions[mainTopic] || [
-                                { text: "Approfondir ce sujet", prompt: "Je voudrais approfondir ce sujet" },
-                                { text: "Cas concrets", prompt: "Donne-moi des exemples concrets sur ce sujet" },
-                                { text: "Exercice pratique", prompt: "Crée un exercice pratique sur ce sujet" }
-                              ];
+                              const specificSuggestions = mainTopic in topicSuggestions 
+                                ? topicSuggestions[mainTopic as keyof typeof topicSuggestions] 
+                                : [
+                                    { text: "Approfondir ce sujet", prompt: "Je voudrais approfondir ce sujet" },
+                                    { text: "Cas concrets", prompt: "Donne-moi des exemples concrets sur ce sujet" },
+                                    { text: "Exercice pratique", prompt: "Crée un exercice pratique sur ce sujet" }
+                                  ];
                               
                               // Combiner les suggestions spécifiques et communes
                               const allSuggestions = [...specificSuggestions, ...commonSuggestions];
