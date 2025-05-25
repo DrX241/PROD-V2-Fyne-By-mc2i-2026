@@ -397,7 +397,7 @@ export default function CyberTestTechnique() {
       {renderNameField()}
 
       <div>
-        <label className="block text-sm font-medium text-gray-200 mb-2">
+        <label className="block text-sm font-medium text-blue-200 mb-2">
           Décrivez le test personnalisé que vous souhaitez générer
         </label>
         <Textarea 
@@ -406,17 +406,17 @@ export default function CyberTestTechnique() {
           placeholder="Ex: Créer un test sur la sécurité des API REST avec un focus sur l'authentification OAuth2"
           className="min-h-[120px] bg-blue-900/50 border-blue-700 text-white placeholder:text-blue-400"
         />
-        <p className="text-xs text-gray-400 mt-1">
+        <p className="text-xs text-blue-300 mt-1">
           Décrivez le sujet, le contexte et les compétences à évaluer
         </p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-200 mb-2">
+        <label className="block text-sm font-medium text-blue-200 mb-2">
           Niveau technique
         </label>
         <div className="flex items-center space-x-4">
-          <label className="flex items-center space-x-2 cursor-pointer">
+          <label className="flex items-center space-x-2 cursor-pointer text-white">
             <input
               type="radio"
               checked={customTestTechnical}
@@ -425,7 +425,7 @@ export default function CyberTestTechnique() {
             />
             <span>Technique</span>
           </label>
-          <label className="flex items-center space-x-2 cursor-pointer">
+          <label className="flex items-center space-x-2 cursor-pointer text-white">
             <input
               type="radio"
               checked={!customTestTechnical}
@@ -438,7 +438,7 @@ export default function CyberTestTechnique() {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-200 mb-2">
+        <label className="block text-sm font-medium text-blue-200 mb-2">
           Niveau de difficulté
         </label>
         <Select value={customTestLevel} onValueChange={setCustomTestLevel}>
@@ -483,7 +483,7 @@ export default function CyberTestTechnique() {
               className="h-1.5 bg-blue-950 w-full"
               indicatorClassName="bg-gradient-to-r from-blue-500 to-indigo-500"
             />
-            <p className="text-xs text-gray-400 mt-1 text-right">{generateProgress}%</p>
+            <p className="text-xs text-blue-300 mt-1 text-right">{generateProgress}%</p>
           </div>
         )}
       </div>
@@ -491,34 +491,47 @@ export default function CyberTestTechnique() {
   );
 
   return (
-    <div className="container max-w-4xl mx-auto py-6 px-4">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white">Test Technique de Cybersécurité</h1>
-        <p className="text-gray-300 mt-2">
-          Évaluez vos compétences techniques en cybersécurité à travers une série d'exercices pratiques.
-        </p>
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-blue-950 to-slate-950">
+      {/* Background grid pattern like other cyber pages */}
+      <div className="absolute inset-0 z-0 opacity-20">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255, 255, 255, 0.2)" strokeWidth="0.5"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg>
       </div>
+      
+      <div className="relative z-10 container max-w-4xl mx-auto py-6 px-4">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-white">Test Technique de Cybersécurité</h1>
+          <p className="text-blue-200 mt-2">
+            Évaluez vos compétences techniques en cybersécurité à travers une série d'exercices pratiques.
+          </p>
+        </div>
 
-      <Card className="bg-blue-950 border-blue-900 text-white shadow-xl">
+        <Card className="bg-gradient-to-b from-blue-950 to-slate-950 border-blue-800 text-white shadow-xl border">
         <CardHeader>
-          <CardTitle className="text-2xl">Créer un nouveau test</CardTitle>
-          <CardDescription className="text-gray-300">
+          <CardTitle className="text-2xl text-white">Créer un nouveau test</CardTitle>
+          <CardDescription className="text-blue-200">
             Configurez votre test technique selon vos besoins ou générez un test personnalisé.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="standardTest" value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="grid grid-cols-2 mb-6 bg-blue-900/50">
+            <TabsList className="grid grid-cols-2 mb-6 bg-blue-900/30 border border-blue-700">
               <TabsTrigger 
                 value="standardTest" 
-                className="data-[state=active]:bg-blue-700 data-[state=active]:text-white"
+                className="data-[state=active]:bg-blue-700 data-[state=active]:text-white text-blue-200"
               >
                 <GraduationCap className="w-4 h-4 mr-2" />
                 Test Standard
               </TabsTrigger>
               <TabsTrigger 
                 value="customTest" 
-                className="data-[state=active]:bg-blue-700 data-[state=active]:text-white"
+                className="data-[state=active]:bg-blue-700 data-[state=active]:text-white text-blue-200"
               >
                 <Brain className="w-4 h-4 mr-2" />
                 Test Personnalisé
@@ -535,6 +548,7 @@ export default function CyberTestTechnique() {
           </Tabs>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
