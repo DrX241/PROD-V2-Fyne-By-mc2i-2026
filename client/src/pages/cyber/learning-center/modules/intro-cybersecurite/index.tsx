@@ -386,6 +386,9 @@ export default function IntroductionCybersecurite() {
     setShowQuizResult(true);
     
     // Mettre à jour la progression
+    setProgress(90 + (score * 2)); // 90% + 2% par bonne réponse
+    
+    // Accorder le badge seulement si score >= 4/5 (80% ou plus)
     if (score >= 4 && !badgeEarned) {
       setBadgeEarned(true);
       setProgress(100);
@@ -400,6 +403,23 @@ export default function IntroductionCybersecurite() {
         title: "Badge obtenu !",
         description: "Félicitations ! Vous avez obtenu le badge 'Fondamentaux de la Cybersécurité'.",
       });
+    } else if (!completedInteractions.includes('quiz-completed')) {
+      // Ajouter quelques points même si le score n'est pas parfait
+      setUserPoints(prev => prev + (score * 3));
+      setCompletedInteractions(prev => [...prev, 'quiz-completed']);
+      
+      if (score < 3) {
+        toast({
+          title: "Quiz terminé",
+          description: `Vous avez obtenu ${score}/5. Révisez le contenu et retentez votre chance !`,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Quiz terminé",
+          description: `Vous avez obtenu ${score}/5. Une bonne base, continuez à vous améliorer !`,
+        });
+      }
     }
   };
   
@@ -2972,10 +2992,10 @@ export default function IntroductionCybersecurite() {
                         <div className="text-center">
                           <div className="mb-4">
                             <h3 className="text-xl font-bold text-white">
-                              {quizScore === 3 ? "Excellent !" : quizScore === 2 ? "Bon travail !" : "Continuez vos efforts !"}
+                              {quizScore === 5 ? "Excellent !" : quizScore >= 4 ? "Très bien !" : quizScore >= 3 ? "Bon travail !" : "Continuez vos efforts !"}
                             </h3>
                             <p className="text-blue-200 mt-1">
-                              Vous avez obtenu {quizScore}/3 bonnes réponses.
+                              Vous avez obtenu {quizScore}/5 bonnes réponses.
                             </p>
                           </div>
                           

@@ -56,8 +56,8 @@ const RoleplayHub: React.FC = () => {
     },
     {
       id: 'interview-test',
-      title: "Je suis un pro de la cyber",
-      description: "Je prépare une audition auprès d'un client",
+      title: "Je suis un professionnel",
+      description: "Je prépare une audition en cyber auprès d'un client",
       link: '/cyber/interview-test',
       icon: <Briefcase className="h-10 w-10 text-blue-300" />,
       color: 'blue',
@@ -69,7 +69,7 @@ const RoleplayHub: React.FC = () => {
       details: [
         "Mise en situation d'audition client",
         "Questions adaptées en fonction du niveau",
-        "Analyse détaillée de vos réponses avec feedback"
+        "Analyse de vos réponses avec feedback"
       ],
       comingSoon: false
     },

@@ -296,7 +296,7 @@ export default function AutomatiserCreer() {
           >
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 flex items-center justify-center font-['Rajdhani',_sans-serif]">
               <Wand2 className="h-10 w-10 mr-3 text-blue-400" />
-              AUTOMATISER / CRÉER
+              AUTOMATISER
             </h1>
             <p className="text-xl text-blue-200 max-w-3xl mx-auto font-['Exo_2',_sans-serif]">
               Créez rapidement des outils de cybersécurité adaptés à vos besoins spécifiques
