@@ -274,7 +274,7 @@ export default function AmoaRoleplay() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-blue-950/50 border border-blue-900/30 rounded-xl p-6 max-w-4xl mx-auto"
+            className="bg-blue-950/50 border border-blue-900/30 rounded-xl p-6 max-w-7xl mx-auto"
           >
             <h3 className="text-xl font-bold mb-4 flex items-center">
               <FileText className="mr-2 h-5 w-5" />
