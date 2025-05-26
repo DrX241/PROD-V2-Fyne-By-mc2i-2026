@@ -344,7 +344,7 @@ Génère un JSON avec exactement 10 questions variées et progressives. Format:
 
 Les questions doivent être techniques, réalistes et couvrir différents aspects de la catégorie choisie.`;
 
-        const response = await fetch('/api/openai/chat', {
+        const result = await apiRequest('/api/openai/chat', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -365,12 +365,6 @@ Les questions doivent être techniques, réalistes et couvrir différents aspect
         });
 
         clearInterval(progressInterval);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const result = await response.json();
         
         if (result.choices?.[0]?.message?.content) {
           const questionsData = JSON.parse(result.choices[0].message.content);
@@ -539,7 +533,7 @@ Fournis une analyse JSON avec:
 
 Sois objectif, constructif et professionnel dans ton analyse.`;
 
-      const response = await fetch('/api/openai/chat', {
+      const result = await apiRequest('/api/openai/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -558,12 +552,6 @@ Sois objectif, constructif et professionnel dans ton analyse.`;
           temperature: 0.3
         })
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const result = await response.json();
 
       if (result.choices?.[0]?.message?.content) {
         return JSON.parse(result.choices[0].message.content);
