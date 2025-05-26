@@ -9,7 +9,6 @@ import PageTitle from "@/components/utils/PageTitle";
 import { apiRequest } from "@/lib/queryClient";
 import DOMPurify from 'dompurify';
 import { useLocation } from 'wouter';
-import { DecisionProvider, useDecision } from "@/contexts/DecisionContext";
 
 // Fonction pour obtenir un message informatif contextuel basé sur l'index
 const getMessage = (index: number): string => {
@@ -133,14 +132,14 @@ function ExpertLearningPageContent() {
   const [, setLocation] = useLocation();
   
   // Accès au contexte de décision
-  const decision = useDecision();
+  // const decision = useDecision();
   
-  // Effet pour vérifier le statut de décision à l'initialisation et après l'envoi de messages
-  useEffect(() => {
-    if (userId) {
-      decision.checkDecisionStatus(userId);
-    }
-  }, [userId]);
+  // Supprimé: Effet pour vérifier le statut de décision
+  // useEffect(() => {
+  //   if (userId) {
+  //     decision.checkDecisionStatus(userId);
+  //   }
+  // }, [userId]);
   
   // Fonction pour générer des suggestions contextuelles basées sur le contenu de la conversation
   const getContextualSuggestions = () => {
@@ -1685,11 +1684,7 @@ function ExpertLearningPageContent() {
   );
 }
 
-// Wrapper avec le contexte de décision
+// Export direct du composant sans le contexte de décision
 export default function ExpertLearningPage() {
-  return (
-    <DecisionProvider>
-      <ExpertLearningPageContent />
-    </DecisionProvider>
-  );
+  return <ExpertLearningPageContent />;
 }
