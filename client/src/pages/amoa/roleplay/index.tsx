@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Users, MessageSquare, Award, Clock, CheckCircle2, AlertCircle, Timer, Shuffle, Target, Zap, Briefcase, FileText, Brain, BrainCircuit } from 'lucide-react';
+import { ArrowLeft, Users, MessageSquare, Award, Clock, CheckCircle2, AlertCircle, Timer, Shuffle, Target, Zap, Briefcase, FileText, Brain, BrainCircuit, Star, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -49,7 +49,7 @@ export default function AmoaRoleplay() {
           </motion.div>
 
           {/* Types de jeux de rôle */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 mx-auto max-w-4xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 mx-auto max-w-7xl">
             {/* Préparation d'audition */}
             <Card 
               className="bg-gradient-to-br from-blue-900/80 to-blue-950/90 border border-blue-800/30 backdrop-blur-sm hover:shadow-lg hover:border-blue-700/50 transition-all"
@@ -138,6 +138,134 @@ export default function AmoaRoleplay() {
               </CardContent>
             </Card>
 
+            {/* Expert/Spécialiste */}
+            <Card 
+              className="bg-gradient-to-br from-purple-900/80 to-purple-950/90 border border-purple-800/30 backdrop-blur-sm hover:shadow-lg hover:border-purple-700/50 transition-all"
+            >
+              <CardHeader>
+                <div className="flex items-center justify-center mb-4">
+                  <div className="p-3 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 shadow-md">
+                    <Star className="h-8 w-8 text-white" />
+                  </div>
+                </div>
+                <CardTitle className="text-center text-xl font-bold">Je suis Expert / Spécialiste</CardTitle>
+                <CardDescription className="text-center text-purple-300">
+                  Je veux m'exercer et monter en compétence dans mon domaine
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <ul className="mb-6 text-sm text-purple-200 flex flex-col gap-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-purple-400 flex-shrink-0" />
+                    <span>Orientation des streams et chantiers</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-purple-400 flex-shrink-0" />
+                    <span>Veille technologique et tendances</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-purple-400 flex-shrink-0" />
+                    <span>Support rendez-vous commerciaux</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-purple-400 flex-shrink-0" />
+                    <span>Formations et interventions écoles</span>
+                  </li>
+                </ul>
+                <Button 
+                  className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
+                  disabled
+                >
+                  Bientôt disponible
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Chef de projet */}
+            <Card 
+              className="bg-gradient-to-br from-green-900/80 to-green-950/90 border border-green-800/30 backdrop-blur-sm hover:shadow-lg hover:border-green-700/50 transition-all"
+            >
+              <CardHeader>
+                <div className="flex items-center justify-center mb-4">
+                  <div className="p-3 rounded-lg bg-gradient-to-r from-green-600 to-green-700 shadow-md">
+                    <Users className="h-8 w-8 text-white" />
+                  </div>
+                </div>
+                <CardTitle className="text-center text-xl font-bold">Je suis Chef de projet</CardTitle>
+                <CardDescription className="text-center text-green-300">
+                  Je développe mes compétences en gestion de projet
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <ul className="mb-6 text-sm text-green-200 flex flex-col gap-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" />
+                    <span>Pilotage d'équipes et de ressources</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" />
+                    <span>Gestion des risques et planification</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" />
+                    <span>Communication client et reporting</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-green-400 flex-shrink-0" />
+                    <span>Situations de crise et arbitrages</span>
+                  </li>
+                </ul>
+                <Button 
+                  className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
+                  disabled
+                >
+                  Bientôt disponible
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Offer Manager */}
+            <Card 
+              className="bg-gradient-to-br from-teal-900/80 to-teal-950/90 border border-teal-800/30 backdrop-blur-sm hover:shadow-lg hover:border-teal-700/50 transition-all"
+            >
+              <CardHeader>
+                <div className="flex items-center justify-center mb-4">
+                  <div className="p-3 rounded-lg bg-gradient-to-r from-teal-600 to-teal-700 shadow-md">
+                    <Crown className="h-8 w-8 text-white" />
+                  </div>
+                </div>
+                <CardTitle className="text-center text-xl font-bold">Je suis Offer Manager</CardTitle>
+                <CardDescription className="text-center text-teal-300">
+                  Je découvre les missions d'animateur de club
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <ul className="mb-6 text-sm text-teal-200 flex flex-col gap-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-teal-400 flex-shrink-0" />
+                    <span>Pilotage et animation du club</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-teal-400 flex-shrink-0" />
+                    <span>Onboarding des nouveaux arrivants</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-teal-400 flex-shrink-0" />
+                    <span>Réponses aux appels d'offres</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-teal-400 flex-shrink-0" />
+                    <span>Rendez-vous clients et écoles</span>
+                  </li>
+                </ul>
+                <Button 
+                  className="w-full bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white"
+                  disabled
+                >
+                  Bientôt disponible
+                </Button>
+              </CardContent>
+            </Card>
 
           </div>
 
