@@ -623,10 +623,7 @@ Pour chaque échange, suis cette structure:
 RÈGLES SPÉCIALES POUR LES QUIZ:
 Si l'utilisateur demande un quiz ou une auto-évaluation, transforme cela en interaction dynamique. Au lieu de donner les réponses directement, pose UNE question à la fois et attends la réponse de l'utilisateur avant de continuer. Utilise ce format: "Voici une situation réelle... Comment réagiriez-vous ?" puis ATTENDS sa réponse.
 
-Ne surcharge jamais tes réponses avec trop d'informations. Concentre-toi sur une interaction légère et dynamique qui donne à l'utilisateur l'envie de continuer la conversation.
-* Pose des questions ouvertes pour approfondir la compréhension des besoins
-* Propose des angles différents et complémentaires pour enrichir la compréhension
-* Choisis entre approche académique ou gamifiée selon ce qui est le plus adapté au sujet et à l'utilisateur`;
+Ne surcharge jamais tes réponses avec trop d'informations. Concentre-toi sur une interaction légère et dynamique qui donne à l'utilisateur l'envie de continuer la conversation.`;
 }
 
 /**
