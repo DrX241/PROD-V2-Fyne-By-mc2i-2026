@@ -121,25 +121,139 @@ export default function CyberTestTechnique() {
       },
       {
         id: 'web-q3',
-        type: 'text' as const,
-        question: 'Expliquez les différences entre XSS stocké et XSS réfléchi.',
-        correctAnswer: 'XSS stocké : le payload malveillant est enregistré sur le serveur et affiché à tous les utilisateurs. XSS réfléchi : le payload est dans l\'URL et n\'affecte que l\'utilisateur qui clique sur le lien malveillant.',
-        explanation: 'La distinction porte sur la persistance et la portée de l\'attaque.'
+        type: 'qcm' as const,
+        question: 'Quelle injection permet de manipuler directement la base de données?',
+        options: ['SQL Injection', 'XSS', 'LDAP Injection', 'Command Injection'],
+        correctAnswer: ['SQL Injection'],
+        explanation: 'L\'injection SQL permet de manipuler les requêtes vers la base de données.'
+      },
+      {
+        id: 'web-q4',
+        type: 'qcm' as const,
+        question: 'Quel en-tête HTTP aide à prévenir les attaques de clickjacking?',
+        options: ['X-Frame-Options', 'X-XSS-Protection', 'Content-Security-Policy', 'Tous les précédents'],
+        correctAnswer: ['X-Frame-Options'],
+        explanation: 'X-Frame-Options empêche l\'inclusion de la page dans une iframe.'
+      },
+      {
+        id: 'web-q5',
+        type: 'qcm' as const,
+        question: 'Quelle vulnérabilité permet l\'accès à des fichiers système?',
+        options: ['Directory Traversal', 'XSS', 'CSRF', 'Injection SQL'],
+        correctAnswer: ['Directory Traversal'],
+        explanation: 'Directory Traversal exploite des chemins relatifs pour accéder à des fichiers non autorisés.'
       }
-      // ... 7 autres questions web
     ],
     network: [
       {
         id: 'net-q1',
         type: 'qcm' as const,
-        question: 'Quel protocole est utilisé pour sécuriser les communications réseau au niveau transport?',
+        question: 'Quel protocole sécurise les communications au niveau transport?',
         options: ['TLS/SSL', 'IPSec', 'SSH', 'HTTPS'],
         correctAnswer: ['TLS/SSL'],
         explanation: 'TLS/SSL opère au niveau transport pour chiffrer les communications.'
+      },
+      {
+        id: 'net-q2',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'un IDS?',
+        options: ['Intrusion Detection System', 'Internet Data System', 'Internal Defense System', 'Integrated Data Security'],
+        correctAnswer: ['Intrusion Detection System'],
+        explanation: 'IDS détecte les tentatives d\'intrusion sur le réseau.'
+      },
+      {
+        id: 'net-q3',
+        type: 'qcm' as const,
+        question: 'Quel port utilise HTTPS par défaut?',
+        options: ['443', '80', '22', '21'],
+        correctAnswer: ['443'],
+        explanation: 'HTTPS utilise le port 443 pour les connexions sécurisées.'
+      },
+      {
+        id: 'net-q4',
+        type: 'qcm' as const,
+        question: 'Quelle attaque exploite les protocoles de routage?',
+        options: ['BGP Hijacking', 'ARP Spoofing', 'DNS Poisoning', 'Toutes les précédentes'],
+        correctAnswer: ['BGP Hijacking'],
+        explanation: 'BGP Hijacking détourne le trafic en annonçant de fausses routes.'
+      },
+      {
+        id: 'net-q5',
+        type: 'qcm' as const,
+        question: 'Que signifie DDoS?',
+        options: ['Distributed Denial of Service', 'Direct Data Override System', 'Dynamic DNS Operation Service', 'Data Destruction on Server'],
+        correctAnswer: ['Distributed Denial of Service'],
+        explanation: 'DDoS utilise plusieurs sources pour saturer une cible.'
       }
-      // ... 9 autres questions réseau
+    ],
+    system: [
+      {
+        id: 'sys-q1',
+        type: 'qcm' as const,
+        question: 'Quel principe de sécurité limite les privilèges au minimum nécessaire?',
+        options: ['Principe du moindre privilège', 'Défense en profondeur', 'Séparation des devoirs', 'Authentification forte'],
+        correctAnswer: ['Principe du moindre privilège'],
+        explanation: 'Ce principe limite les droits d\'accès au strict minimum nécessaire.'
+      },
+      {
+        id: 'sys-q2',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que le durcissement (hardening) système?',
+        options: ['Réduction de la surface d\'attaque', 'Augmentation des performances', 'Installation de logiciels', 'Sauvegarde des données'],
+        correctAnswer: ['Réduction de la surface d\'attaque'],
+        explanation: 'Le hardening consiste à réduire les vulnérabilités et services inutiles.'
+      }
+    ],
+    crypto: [
+      {
+        id: 'crypto-q1',
+        type: 'qcm' as const,
+        question: 'Quelle est la différence principale entre chiffrement symétrique et asymétrique?',
+        options: ['Nombre de clés utilisées', 'Vitesse de chiffrement', 'Taille des données', 'Algorithme utilisé'],
+        correctAnswer: ['Nombre de clés utilisées'],
+        explanation: 'Symétrique utilise une clé, asymétrique utilise une paire de clés publique/privée.'
+      }
+    ],
+    incident: [
+      {
+        id: 'inc-q1',
+        type: 'qcm' as const,
+        question: 'Quelle est la première étape de gestion d\'incident?',
+        options: ['Détection et analyse', 'Endiguement', 'Éradication', 'Récupération'],
+        correctAnswer: ['Détection et analyse'],
+        explanation: 'Il faut d\'abord détecter et analyser l\'incident avant d\'agir.'
+      }
+    ],
+    governance: [
+      {
+        id: 'gov-q1',
+        type: 'qcm' as const,
+        question: 'Que signifie ISO 27001?',
+        options: ['Norme de management de la sécurité', 'Protocole de chiffrement', 'Standard de réseau', 'Méthode d\'audit'],
+        correctAnswer: ['Norme de management de la sécurité'],
+        explanation: 'ISO 27001 est la norme internationale de management de la sécurité de l\'information.'
+      }
+    ],
+    cloud: [
+      {
+        id: 'cloud-q1',
+        type: 'qcm' as const,
+        question: 'Quel modèle de responsabilité partagée s\'applique au cloud?',
+        options: ['Fournisseur: infrastructure, Client: données', 'Client: tout', 'Fournisseur: tout', 'Aucun modèle'],
+        correctAnswer: ['Fournisseur: infrastructure, Client: données'],
+        explanation: 'Le modèle de responsabilité partagée répartit les responsabilités entre fournisseur et client.'
+      }
+    ],
+    iot: [
+      {
+        id: 'iot-q1',
+        type: 'qcm' as const,
+        question: 'Quel protocole est spécifique aux réseaux industriels?',
+        options: ['Modbus', 'HTTP', 'FTP', 'SMTP'],
+        correctAnswer: ['Modbus'],
+        explanation: 'Modbus est un protocole de communication industriel largement utilisé.'
+      }
     ]
-    // ... autres catégories
   };
   const [activeTab, setActiveTab] = useState<string>('standardTest');
 
