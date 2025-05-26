@@ -48,30 +48,7 @@ export default function DataIaRoleplay() {
             <p className="text-blue-200 mt-1">Développez vos compétences dans des scénarios réalistes adaptés à votre profil</p>
           </div>
           
-          <div className="flex items-center gap-2 mt-4 md:mt-0">
-            <Button 
-              variant="outline" 
-              size="sm"
-              className={`border-blue-500/30 text-blue-300 hover:bg-blue-900/20 ${highContrastMode ? 'bg-gray-800' : ''}`}
-              onClick={() => setHighContrastMode(!highContrastMode)}
-            >
-              {highContrastMode ? <FiSun className="mr-2 h-4 w-4" /> : <FiMoon className="mr-2 h-4 w-4" />}
-              {highContrastMode ? 'Mode standard' : 'Mode haut contraste'}
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="border-blue-500/30 text-blue-300 hover:bg-blue-900/20"
-              onClick={() => {
-                setCurrentTour('data-ia-roleplay');
-                startTutorial();
-              }}
-            >
-              <HelpCircle className="mr-2 h-4 w-4" />
-              Aide
-            </Button>
-          </div>
+
         </div>
 
         {/* Options de rôles */}
