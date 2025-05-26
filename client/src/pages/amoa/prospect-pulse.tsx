@@ -233,10 +233,17 @@ export default function ProspectPulse() {
   // Paramètres de la simulation
   const [settings, setSettings] = useState({
     globalTimeLimit: 5 * 60, // 5 minutes en secondes
-    responseTimeLimit: 180, // 3 minutes (augmenté de 20s à 180s)
+    responseTimeLimit: getRandomResponseTime(), // Entre 2 et 4 minutes
     surpriseFrequency: [10, 30], // entre 10 et 30 minutes
     selectedClientType: 'random'
   });
+
+  // Fonction pour générer un temps de réponse aléatoire entre 2 et 4 minutes
+  function getRandomResponseTime() {
+    const minTime = 2 * 60; // 2 minutes en secondes
+    const maxTime = 4 * 60; // 4 minutes en secondes
+    return Math.floor(Math.random() * (maxTime - minTime + 1)) + minTime;
+  }
   
   // Effets pour gérer les timers
   useEffect(() => {
@@ -388,7 +395,7 @@ export default function ProspectPulse() {
       
       // Initialiser les timers
       setGlobalTimeLeft(settings.globalTimeLimit);
-      setResponseTimeLeft(settings.responseTimeLimit);
+      setResponseTimeLeft(getRandomResponseTime()); // Nouveau temps aléatoire entre 2-4 min
       
       // Générer le premier message du client via l'API
       const initialClientMessage = await generateClientMessage(selectedClient, [], true);
@@ -495,8 +502,8 @@ export default function ProspectPulse() {
             // Compléter la session avec le feedback automatique
             setTimeout(() => completeSession(false), 2000);
           } else {
-            // Réinitialiser le timer de réponse pour la poursuite de la conversation
-            setResponseTimeLeft(settings.responseTimeLimit);
+            // Réinitialiser le timer de réponse avec un nouveau temps aléatoire entre 2-4 min
+            setResponseTimeLeft(getRandomResponseTime());
           }
           
           setIsFetchingResponse(false);
@@ -504,13 +511,13 @@ export default function ProspectPulse() {
       } else {
         setIsTyping(false);
         setIsFetchingResponse(false);
-        setResponseTimeLeft(settings.responseTimeLimit);
+        setResponseTimeLeft(getRandomResponseTime()); // Nouveau temps aléatoire entre 2-4 min
       }
     } catch (error) {
       console.error("Erreur lors de la génération de la réponse:", error);
       setIsTyping(false);
       setIsFetchingResponse(false);
-      setResponseTimeLeft(settings.responseTimeLimit);
+      setResponseTimeLeft(getRandomResponseTime()); // Nouveau temps aléatoire entre 2-4 min
       
       // Déplacer l'appel toast dans un setTimeout pour éviter l'erreur pendant le rendu
       setTimeout(() => {
@@ -704,7 +711,7 @@ export default function ProspectPulse() {
       };
       
       setMessages((prev) => [...prev, timeoutMessage]);
-      setResponseTimeLeft(settings.responseTimeLimit);
+      setResponseTimeLeft(getRandomResponseTime()); // Nouveau temps aléatoire entre 2-4 min
     }
   };
   
