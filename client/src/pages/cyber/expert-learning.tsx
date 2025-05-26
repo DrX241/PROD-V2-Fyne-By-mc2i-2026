@@ -976,8 +976,8 @@ function ExpertLearningPageContent() {
               </Card>
             ) : (
               <div className="flex flex-col w-full max-w-6xl mx-auto">
-                {/* Chat standard */}
-                {(
+                {/* Chat */}
+                {true && (
                   <div className="flex flex-col w-full">
                     {/* Barre de statut et de progression */}
                     <div className="bg-[#091525] border border-[#00b4d8]/30 border-b-0 rounded-t-md p-3 flex items-center justify-between">
@@ -1168,8 +1168,8 @@ function ExpertLearningPageContent() {
                       </Button>
                     )}
               
-                    {/* Zone de saisie de message - masquée en mode décision */}
-                    {!decision.isInDecisionMode && (
+                    {/* Zone de saisie de message */}
+                    {true && (
                       <div className="bg-[#121e2e] p-6 rounded-b-md border-x border-b border-[#00b4d8]/30 shadow-[0_0_20px_rgba(0,180,216,0.15)]">
                         {/* Suggestions de questions pour guider l'utilisateur */}
                         <div className="mb-4 px-1">
@@ -1219,10 +1219,10 @@ function ExpertLearningPageContent() {
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      onClick={() => setInputMessage("Propose-moi un scénario de décision")}
+                                      onClick={() => setInputMessage("Donne-moi des conseils pratiques de cybersécurité")}
                                       className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
                                     >
-                                      Propose-moi un scénario de décision
+                                      Conseils pratiques
                                     </Button>
                                   </>
                                 );
@@ -1300,10 +1300,10 @@ function ExpertLearningPageContent() {
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      onClick={() => setInputMessage("Propose-moi un scénario de décision")}
+                                      onClick={() => setInputMessage("Donne-moi une checklist de sécurité")}
                                       className="border-[#00b4d8]/30 bg-[#091525]/80 text-[#c3d9ee] hover:bg-[#112641] hover:text-[#00b4d8] text-xs py-1"
                                     >
-                                      Scénario de décision
+                                      Checklist de sécurité
                                     </Button>
                                   </>
                                 );
@@ -1384,8 +1384,8 @@ function ExpertLearningPageContent() {
                               
                               // Suggestions communes à tous les sujets
                               const commonSuggestions = [
-                                { text: "Scénario de décision", prompt: "Propose-moi un scénario de décision sur le sujet qu'on traite actuellement" },
-                                { text: "Quiz sur ce sujet", prompt: "Crée un quiz d'auto-évaluation sur le sujet qu'on traite actuellement" }
+                                { text: "Quiz sur ce sujet", prompt: "Crée un quiz d'auto-évaluation sur le sujet qu'on traite actuellement" },
+                                { text: "Exercice pratique", prompt: "Crée un exercice pratique sur ce sujet" }
                               ];
                               
                               // Sélectionner les suggestions spécifiques au sujet
