@@ -176,7 +176,10 @@ Les questions doivent être techniques, réalistes et couvrir différents aspect
 
         const response = await apiRequest('/api/openai/chat', {
           method: 'POST',
-          body: {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
             messages: [
               {
                 role: 'system',
@@ -188,7 +191,7 @@ Les questions doivent être techniques, réalistes et couvrir différents aspect
               }
             ],
             temperature: 0.7
-          }
+          })
         });
 
         clearInterval(progressInterval);
@@ -362,7 +365,10 @@ Sois objectif, constructif et professionnel dans ton analyse.`;
 
       const response = await apiRequest('/api/openai/chat', {
         method: 'POST',
-        body: {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           messages: [
             {
               role: 'system',
@@ -374,7 +380,7 @@ Sois objectif, constructif et professionnel dans ton analyse.`;
             }
           ],
           temperature: 0.3
-        }
+        })
       });
 
       if (response.choices?.[0]?.message?.content) {
