@@ -142,6 +142,46 @@ export default function CyberTestTechnique() {
         options: ['Directory Traversal', 'XSS', 'CSRF', 'Injection SQL'],
         correctAnswer: ['Directory Traversal'],
         explanation: 'Directory Traversal exploite des chemins relatifs pour accéder à des fichiers non autorisés.'
+      },
+      {
+        id: 'web-q6',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que HTTPS Strict Transport Security (HSTS)?',
+        options: ['Force l\'utilisation de HTTPS', 'Chiffre les cookies', 'Valide les certificats', 'Bloque les redirections'],
+        correctAnswer: ['Force l\'utilisation de HTTPS'],
+        explanation: 'HSTS force le navigateur à utiliser uniquement HTTPS pour communiquer avec le serveur.'
+      },
+      {
+        id: 'web-q7',
+        type: 'qcm' as const,
+        question: 'Quelle directive CSP empêche l\'exécution de JavaScript inline?',
+        options: ['script-src \'self\'', 'unsafe-inline', 'unsafe-eval', 'script-src \'none\''],
+        correctAnswer: ['script-src \'self\''],
+        explanation: 'CSP script-src \'self\' autorise uniquement les scripts du même domaine, bloquant l\'inline.'
+      },
+      {
+        id: 'web-q8',
+        type: 'qcm' as const,
+        question: 'Quelle attaque exploite la confiance d\'un utilisateur connecté?',
+        options: ['CSRF', 'XSS', 'SQL Injection', 'Brute Force'],
+        correctAnswer: ['CSRF'],
+        explanation: 'CSRF exploite la session active d\'un utilisateur pour effectuer des actions non autorisées.'
+      },
+      {
+        id: 'web-q9',
+        type: 'qcm' as const,
+        question: 'Quel mécanisme protège contre les attaques de session fixation?',
+        options: ['Régénération d\'ID de session', 'Validation des entrées', 'Chiffrement des cookies', 'Timeout de session'],
+        correctAnswer: ['Régénération d\'ID de session'],
+        explanation: 'Régénérer l\'ID de session après authentification empêche la fixation de session.'
+      },
+      {
+        id: 'web-q10',
+        type: 'qcm' as const,
+        question: 'Quelle vulnérabilité permet d\'exécuter des commandes système via une application web?',
+        options: ['Command Injection', 'SQL Injection', 'XSS', 'LDAP Injection'],
+        correctAnswer: ['Command Injection'],
+        explanation: 'L\'injection de commandes permet d\'exécuter des commandes système sur le serveur.'
       }
     ],
     network: [
@@ -184,6 +224,46 @@ export default function CyberTestTechnique() {
         options: ['Distributed Denial of Service', 'Direct Data Override System', 'Dynamic DNS Operation Service', 'Data Destruction on Server'],
         correctAnswer: ['Distributed Denial of Service'],
         explanation: 'DDoS utilise plusieurs sources pour saturer une cible.'
+      },
+      {
+        id: 'net-q6',
+        type: 'qcm' as const,
+        question: 'Quelle technique permet d\'usurper une adresse MAC?',
+        options: ['MAC Spoofing', 'ARP Poisoning', 'DNS Spoofing', 'IP Spoofing'],
+        correctAnswer: ['MAC Spoofing'],
+        explanation: 'Le MAC Spoofing consiste à modifier l\'adresse MAC de sa carte réseau.'
+      },
+      {
+        id: 'net-q7',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'un honeypot?',
+        options: ['Système leurre pour attirer les attaquants', 'Outil de chiffrement', 'Protocole de sécurité', 'Type de firewall'],
+        correctAnswer: ['Système leurre pour attirer les attaquants'],
+        explanation: 'Un honeypot simule des vulnérabilités pour détecter et analyser les attaques.'
+      },
+      {
+        id: 'net-q8',
+        type: 'qcm' as const,
+        question: 'Quelle est la différence entre IDS et IPS?',
+        options: ['IDS détecte, IPS bloque', 'IDS bloque, IPS détecte', 'Aucune différence', 'IDS = hardware, IPS = software'],
+        correctAnswer: ['IDS détecte, IPS bloque'],
+        explanation: 'IDS détecte les intrusions, IPS (Intrusion Prevention System) les bloque activement.'
+      },
+      {
+        id: 'net-q9',
+        type: 'qcm' as const,
+        question: 'Quel protocole utilise Wireshark pour capturer le trafic?',
+        options: ['Tous les protocoles réseau', 'Seulement HTTP', 'Seulement TCP', 'Seulement UDP'],
+        correctAnswer: ['Tous les protocoles réseau'],
+        explanation: 'Wireshark peut capturer et analyser le trafic de tous les protocoles réseau.'
+      },
+      {
+        id: 'net-q10',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que le DNS cache poisoning?',
+        options: ['Corruption du cache DNS avec de fausses entrées', 'Saturation du serveur DNS', 'Chiffrement des requêtes DNS', 'Redirection DNS légale'],
+        correctAnswer: ['Corruption du cache DNS avec de fausses entrées'],
+        explanation: 'Le DNS cache poisoning injecte de fausses entrées dans le cache DNS pour rediriger le trafic.'
       }
     ],
     system: [
@@ -202,6 +282,70 @@ export default function CyberTestTechnique() {
         options: ['Réduction de la surface d\'attaque', 'Augmentation des performances', 'Installation de logiciels', 'Sauvegarde des données'],
         correctAnswer: ['Réduction de la surface d\'attaque'],
         explanation: 'Le hardening consiste à réduire les vulnérabilités et services inutiles.'
+      },
+      {
+        id: 'sys-q3',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'un rootkit?',
+        options: ['Logiciel malveillant furtif', 'Outil d\'administration', 'Type de firewall', 'Protocole de sécurité'],
+        correctAnswer: ['Logiciel malveillant furtif'],
+        explanation: 'Un rootkit se cache dans le système pour maintenir un accès persistant non détecté.'
+      },
+      {
+        id: 'sys-q4',
+        type: 'qcm' as const,
+        question: 'Quelle commande Linux permet d\'analyser les connexions réseau actives?',
+        options: ['netstat', 'grep', 'chmod', 'crontab'],
+        correctAnswer: ['netstat'],
+        explanation: 'La commande netstat affiche les connexions réseau, tables de routage et statistiques.'
+      },
+      {
+        id: 'sys-q5',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que l\'authentification à deux facteurs (2FA)?',
+        options: ['Deux méthodes de vérification', 'Deux mots de passe', 'Deux utilisateurs', 'Deux serveurs'],
+        correctAnswer: ['Deux méthodes de vérification'],
+        explanation: 'Le 2FA combine deux facteurs différents (connaissance, possession, inhérence).'
+      },
+      {
+        id: 'sys-q6',
+        type: 'qcm' as const,
+        question: 'Quelle est la fonction principale d\'un EDR?',
+        options: ['Détection et réponse sur les endpoints', 'Chiffrement des données', 'Gestion des identités', 'Contrôle d\'accès réseau'],
+        correctAnswer: ['Détection et réponse sur les endpoints'],
+        explanation: 'EDR (Endpoint Detection and Response) surveille et protège les postes de travail.'
+      },
+      {
+        id: 'sys-q7',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'un privilege escalation?',
+        options: ['Élévation non autorisée de privilèges', 'Authentification normale', 'Chiffrement avancé', 'Sauvegarde système'],
+        correctAnswer: ['Élévation non autorisée de privilèges'],
+        explanation: 'L\'escalade de privilèges permet d\'obtenir des droits supérieurs non autorisés.'
+      },
+      {
+        id: 'sys-q8',
+        type: 'qcm' as const,
+        question: 'Quelle technique permet de masquer des fichiers dans un système Windows?',
+        options: ['Attribut caché', 'Chiffrement', 'Compression', 'Fragmentation'],
+        correctAnswer: ['Attribut caché'],
+        explanation: 'L\'attribut caché rend les fichiers invisibles dans l\'explorateur par défaut.'
+      },
+      {
+        id: 'sys-q9',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que la stéganographie?',
+        options: ['Dissimulation d\'information dans un autre support', 'Chiffrement fort', 'Authentification biométrique', 'Contrôle d\'intégrité'],
+        correctAnswer: ['Dissimulation d\'information dans un autre support'],
+        explanation: 'La stéganographie cache des données secrètes dans des fichiers apparemment innocents.'
+      },
+      {
+        id: 'sys-q10',
+        type: 'qcm' as const,
+        question: 'Quel outil permet l\'analyse forensique d\'un disque dur?',
+        options: ['Autopsy', 'Nmap', 'Wireshark', 'Metasploit'],
+        correctAnswer: ['Autopsy'],
+        explanation: 'Autopsy est une plateforme forensique pour analyser les disques et récupérer des preuves.'
       }
     ],
     crypto: [
@@ -212,6 +356,78 @@ export default function CyberTestTechnique() {
         options: ['Nombre de clés utilisées', 'Vitesse de chiffrement', 'Taille des données', 'Algorithme utilisé'],
         correctAnswer: ['Nombre de clés utilisées'],
         explanation: 'Symétrique utilise une clé, asymétrique utilise une paire de clés publique/privée.'
+      },
+      {
+        id: 'crypto-q2',
+        type: 'qcm' as const,
+        question: 'Quel algorithme de hachage est considéré comme sécurisé actuellement?',
+        options: ['SHA-256', 'MD5', 'SHA-1', 'CRC32'],
+        correctAnswer: ['SHA-256'],
+        explanation: 'SHA-256 fait partie de la famille SHA-2 et est actuellement considéré comme sécurisé.'
+      },
+      {
+        id: 'crypto-q3',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'un certificat numérique?',
+        options: ['Document électronique attestant l\'identité', 'Mot de passe chiffré', 'Clé de chiffrement', 'Signature manuscrite'],
+        correctAnswer: ['Document électronique attestant l\'identité'],
+        explanation: 'Un certificat numérique lie une clé publique à l\'identité de son propriétaire.'
+      },
+      {
+        id: 'crypto-q4',
+        type: 'qcm' as const,
+        question: 'Quel est l\'objectif principal du salage (salt) des mots de passe?',
+        options: ['Prévenir les attaques par rainbow table', 'Accélérer le hachage', 'Réduire la taille du hash', 'Simplifier la vérification'],
+        correctAnswer: ['Prévenir les attaques par rainbow table'],
+        explanation: 'Le salt rend chaque hash unique même pour des mots de passe identiques.'
+      },
+      {
+        id: 'crypto-q5',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que Perfect Forward Secrecy (PFS)?',
+        options: ['Protection des sessions passées si clé compromise', 'Chiffrement renforcé', 'Authentification continue', 'Sauvegarde automatique'],
+        correctAnswer: ['Protection des sessions passées si clé compromise'],
+        explanation: 'PFS garantit que la compromission d\'une clé ne compromet pas les sessions passées.'
+      },
+      {
+        id: 'crypto-q6',
+        type: 'qcm' as const,
+        question: 'Quel algorithme de chiffrement symétrique est le standard actuel?',
+        options: ['AES', 'DES', '3DES', 'RC4'],
+        correctAnswer: ['AES'],
+        explanation: 'AES (Advanced Encryption Standard) est le standard de chiffrement symétrique actuel.'
+      },
+      {
+        id: 'crypto-q7',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'une PKI?',
+        options: ['Infrastructure à clés publiques', 'Protocole de chiffrement', 'Type de certificat', 'Algorithme de hash'],
+        correctAnswer: ['Infrastructure à clés publiques'],
+        explanation: 'PKI (Public Key Infrastructure) gère les certificats et clés publiques.'
+      },
+      {
+        id: 'crypto-q8',
+        type: 'qcm' as const,
+        question: 'Quelle attaque vise à casser le chiffrement par force brute?',
+        options: ['Attaque exhaustive', 'Man-in-the-middle', 'Replay attack', 'Social engineering'],
+        correctAnswer: ['Attaque exhaustive'],
+        explanation: 'L\'attaque exhaustive teste toutes les clés possibles jusqu\'à trouver la bonne.'
+      },
+      {
+        id: 'crypto-q9',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que l\'entropie en cryptographie?',
+        options: ['Mesure de l\'imprévisibilité', 'Vitesse de chiffrement', 'Taille de la clé', 'Nombre d\'algorithmes'],
+        correctAnswer: ['Mesure de l\'imprévisibilité'],
+        explanation: 'L\'entropie mesure le caractère aléatoire et imprévisible d\'une donnée.'
+      },
+      {
+        id: 'crypto-q10',
+        type: 'qcm' as const,
+        question: 'Quel protocole utilise la cryptographie elliptique?',
+        options: ['ECDSA', 'RSA', 'DiffieHellman classique', 'DSA'],
+        correctAnswer: ['ECDSA'],
+        explanation: 'ECDSA (Elliptic Curve Digital Signature Algorithm) utilise les courbes elliptiques.'
       }
     ],
     incident: [
@@ -222,6 +438,78 @@ export default function CyberTestTechnique() {
         options: ['Détection et analyse', 'Endiguement', 'Éradication', 'Récupération'],
         correctAnswer: ['Détection et analyse'],
         explanation: 'Il faut d\'abord détecter et analyser l\'incident avant d\'agir.'
+      },
+      {
+        id: 'inc-q2',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'un playbook en cybersécurité?',
+        options: ['Procédure de réponse aux incidents', 'Outil de pentesting', 'Type de malware', 'Protocole réseau'],
+        correctAnswer: ['Procédure de réponse aux incidents'],
+        explanation: 'Un playbook définit les étapes à suivre pour répondre à un type d\'incident spécifique.'
+      },
+      {
+        id: 'inc-q3',
+        type: 'qcm' as const,
+        question: 'Quelle est la priorité lors d\'un incident de ransomware?',
+        options: ['Isoler les systèmes infectés', 'Payer la rançon', 'Redémarrer les serveurs', 'Contacter les médias'],
+        correctAnswer: ['Isoler les systèmes infectés'],
+        explanation: 'L\'isolation empêche la propagation du ransomware vers d\'autres systèmes.'
+      },
+      {
+        id: 'inc-q4',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'un IOC (Indicator of Compromise)?',
+        options: ['Indice de compromission', 'Outil de chiffrement', 'Type de certificat', 'Protocole de sécurité'],
+        correctAnswer: ['Indice de compromission'],
+        explanation: 'Un IOC est un artefact qui indique une intrusion ou activité malveillante.'
+      },
+      {
+        id: 'inc-q5',
+        type: 'qcm' as const,
+        question: 'Combien de temps maximum pour déclarer un incident RGPD?',
+        options: ['72 heures', '24 heures', '1 semaine', '1 mois'],
+        correctAnswer: ['72 heures'],
+        explanation: 'Le RGPD impose une notification aux autorités dans les 72 heures maximum.'
+      },
+      {
+        id: 'inc-q6',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que la chain of custody?',
+        options: ['Chaîne de possession des preuves', 'Méthode de chiffrement', 'Protocole réseau', 'Type d\'audit'],
+        correctAnswer: ['Chaîne de possession des preuves'],
+        explanation: 'La chaîne de custody documente qui a eu accès aux preuves numériques.'
+      },
+      {
+        id: 'inc-q7',
+        type: 'qcm' as const,
+        question: 'Quel outil aide à l\'analyse de malware?',
+        options: ['Sandbox', 'Firewall', 'Router', 'Switch'],
+        correctAnswer: ['Sandbox'],
+        explanation: 'Une sandbox permet d\'exécuter et analyser des malwares en environnement isolé.'
+      },
+      {
+        id: 'inc-q8',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'un CSIRT?',
+        options: ['Équipe de réponse aux incidents', 'Type de malware', 'Protocole de sécurité', 'Outil de pentest'],
+        correctAnswer: ['Équipe de réponse aux incidents'],
+        explanation: 'CSIRT (Computer Security Incident Response Team) gère les incidents de sécurité.'
+      },
+      {
+        id: 'inc-q9',
+        type: 'qcm' as const,
+        question: 'Quelle information est cruciale lors de la collecte de preuves?',
+        options: ['Horodatage précis', 'Nom de l\'utilisateur', 'Version du système', 'Adresse IP'],
+        correctAnswer: ['Horodatage précis'],
+        explanation: 'L\'horodatage permet d\'établir la chronologie des événements.'
+      },
+      {
+        id: 'inc-q10',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que la phase de lessons learned?',
+        options: ['Analyse post-incident pour amélioration', 'Formation initiale', 'Test de sécurité', 'Audit réglementaire'],
+        correctAnswer: ['Analyse post-incident pour amélioration'],
+        explanation: 'Cette phase identifie les améliorations à apporter aux processus de sécurité.'
       }
     ],
     governance: [
@@ -232,6 +520,78 @@ export default function CyberTestTechnique() {
         options: ['Norme de management de la sécurité', 'Protocole de chiffrement', 'Standard de réseau', 'Méthode d\'audit'],
         correctAnswer: ['Norme de management de la sécurité'],
         explanation: 'ISO 27001 est la norme internationale de management de la sécurité de l\'information.'
+      },
+      {
+        id: 'gov-q2',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que le RGPD?',
+        options: ['Règlement sur la protection des données', 'Protocole de sécurité', 'Type de chiffrement', 'Méthode d\'audit'],
+        correctAnswer: ['Règlement sur la protection des données'],
+        explanation: 'Le RGPD régit la protection des données personnelles en Europe.'
+      },
+      {
+        id: 'gov-q3',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'une analyse de risque?',
+        options: ['Évaluation des menaces et vulnérabilités', 'Test de pénétration', 'Audit de conformité', 'Formation sécurité'],
+        correctAnswer: ['Évaluation des menaces et vulnérabilités'],
+        explanation: 'L\'analyse de risque identifie et évalue les risques de sécurité.'
+      },
+      {
+        id: 'gov-q4',
+        type: 'qcm' as const,
+        question: 'Que signifie CIA en sécurité?',
+        options: ['Confidentialité, Intégrité, Disponibilité', 'Central Intelligence Agency', 'Computer Information Analysis', 'Cyber Investigation Agency'],
+        correctAnswer: ['Confidentialité, Intégrité, Disponibilité'],
+        explanation: 'CIA est la triade fondamentale de la sécurité informatique.'
+      },
+      {
+        id: 'gov-q5',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'un DPO?',
+        options: ['Délégué à la protection des données', 'Directeur des opérations', 'Département de sécurité', 'Outil de chiffrement'],
+        correctAnswer: ['Délégué à la protection des données'],
+        explanation: 'Le DPO supervise la conformité RGPD dans l\'organisation.'
+      },
+      {
+        id: 'gov-q6',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'un PCA?',
+        options: ['Plan de continuité d\'activité', 'Protocole de communication', 'Outil d\'analyse', 'Type de certificat'],
+        correctAnswer: ['Plan de continuité d\'activité'],
+        explanation: 'Le PCA assure la continuité des activités critiques en cas d\'incident.'
+      },
+      {
+        id: 'gov-q7',
+        type: 'qcm' as const,
+        question: 'Quelle est la fréquence recommandée pour les audits de sécurité?',
+        options: ['Annuelle minimum', 'Tous les 5 ans', 'Jamais', 'Quotidienne'],
+        correctAnswer: ['Annuelle minimum'],
+        explanation: 'Un audit annuel minimum permet de maintenir un niveau de sécurité adapté.'
+      },
+      {
+        id: 'gov-q8',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que le principe de need-to-know?',
+        options: ['Accès limité aux informations nécessaires', 'Partage libre d\'information', 'Chiffrement obligatoire', 'Audit permanent'],
+        correctAnswer: ['Accès limité aux informations nécessaires'],
+        explanation: 'Le need-to-know limite l\'accès aux seules informations nécessaires au travail.'
+      },
+      {
+        id: 'gov-q9',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'une politique de sécurité?',
+        options: ['Document définissant les règles de sécurité', 'Outil de chiffrement', 'Type de firewall', 'Protocole réseau'],
+        correctAnswer: ['Document définissant les règles de sécurité'],
+        explanation: 'La politique de sécurité établit les règles et responsabilités en matière de sécurité.'
+      },
+      {
+        id: 'gov-q10',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que la classification des données?',
+        options: ['Catégorisation selon la sensibilité', 'Compression des fichiers', 'Chiffrement automatique', 'Sauvegarde régulière'],
+        correctAnswer: ['Catégorisation selon la sensibilité'],
+        explanation: 'La classification organise les données selon leur niveau de sensibilité et protection requise.'
       }
     ],
     cloud: [
@@ -242,6 +602,78 @@ export default function CyberTestTechnique() {
         options: ['Fournisseur: infrastructure, Client: données', 'Client: tout', 'Fournisseur: tout', 'Aucun modèle'],
         correctAnswer: ['Fournisseur: infrastructure, Client: données'],
         explanation: 'Le modèle de responsabilité partagée répartit les responsabilités entre fournisseur et client.'
+      },
+      {
+        id: 'cloud-q2',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que l\'IaaS?',
+        options: ['Infrastructure as a Service', 'Information as a Service', 'Integration as a Service', 'Intelligence as a Service'],
+        correctAnswer: ['Infrastructure as a Service'],
+        explanation: 'IaaS fournit des ressources d\'infrastructure virtualisées via le cloud.'
+      },
+      {
+        id: 'cloud-q3',
+        type: 'qcm' as const,
+        question: 'Quel risque spécifique au multi-tenant cloud?',
+        options: ['Isolation insuffisante entre clients', 'Panne électrique', 'Mise à jour logicielle', 'Sauvegarde manuelle'],
+        correctAnswer: ['Isolation insuffisante entre clients'],
+        explanation: 'Le multi-tenant partage les ressources, risquant des fuites entre clients.'
+      },
+      {
+        id: 'cloud-q4',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que le CASB?',
+        options: ['Cloud Access Security Broker', 'Computer Advanced Security Base', 'Central Application Security Board', 'Cyber Attack Security Bureau'],
+        correctAnswer: ['Cloud Access Security Broker'],
+        explanation: 'CASB contrôle et sécurise l\'accès aux services cloud.'
+      },
+      {
+        id: 'cloud-q5',
+        type: 'qcm' as const,
+        question: 'Quelle caractéristique définit le cloud hybride?',
+        options: ['Combinaison public/privé', 'Uniquement public', 'Uniquement privé', 'Sans infrastructure'],
+        correctAnswer: ['Combinaison public/privé'],
+        explanation: 'Le cloud hybride combine infrastructures publiques et privées.'
+      },
+      {
+        id: 'cloud-q6',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que la compliance cloud?',
+        options: ['Conformité aux réglementations', 'Performance du réseau', 'Coût d\'utilisation', 'Temps de réponse'],
+        correctAnswer: ['Conformité aux réglementations'],
+        explanation: 'La compliance assure le respect des réglementations dans le cloud.'
+      },
+      {
+        id: 'cloud-q7',
+        type: 'qcm' as const,
+        question: 'Quel service gère les identités dans AWS?',
+        options: ['IAM', 'EC2', 'S3', 'RDS'],
+        correctAnswer: ['IAM'],
+        explanation: 'IAM (Identity and Access Management) gère les identités et accès AWS.'
+      },
+      {
+        id: 'cloud-q8',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que le vendor lock-in?',
+        options: ['Dépendance à un fournisseur', 'Chiffrement renforcé', 'Accès restreint', 'Sauvegarde automatique'],
+        correctAnswer: ['Dépendance à un fournisseur'],
+        explanation: 'Le vendor lock-in rend difficile la migration vers un autre fournisseur.'
+      },
+      {
+        id: 'cloud-q9',
+        type: 'qcm' as const,
+        question: 'Quel protocole sécurise les APIs REST?',
+        options: ['HTTPS avec OAuth', 'HTTP simple', 'FTP', 'Telnet'],
+        correctAnswer: ['HTTPS avec OAuth'],
+        explanation: 'HTTPS chiffre le transport, OAuth gère l\'authentification API.'
+      },
+      {
+        id: 'cloud-q10',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que la résilience cloud?',
+        options: ['Capacité à résister aux pannes', 'Vitesse de calcul', 'Coût d\'usage', 'Facilité d\'usage'],
+        correctAnswer: ['Capacité à résister aux pannes'],
+        explanation: 'La résilience maintient les services malgré les pannes et incidents.'
       }
     ],
     iot: [
@@ -252,6 +684,78 @@ export default function CyberTestTechnique() {
         options: ['Modbus', 'HTTP', 'FTP', 'SMTP'],
         correctAnswer: ['Modbus'],
         explanation: 'Modbus est un protocole de communication industriel largement utilisé.'
+      },
+      {
+        id: 'iot-q2',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que l\'OT (Operational Technology)?',
+        options: ['Systèmes contrôlant les processus physiques', 'Outils de bureautique', 'Ordinateurs personnels', 'Téléphones mobiles'],
+        correctAnswer: ['Systèmes contrôlant les processus physiques'],
+        explanation: 'L\'OT pilote les équipements industriels et processus de production.'
+      },
+      {
+        id: 'iot-q3',
+        type: 'qcm' as const,
+        question: 'Quel risque principal des objets IoT mal sécurisés?',
+        options: ['Botnet et attaques DDoS', 'Consommation électrique', 'Obsolescence rapide', 'Coût d\'achat'],
+        correctAnswer: ['Botnet et attaques DDoS'],
+        explanation: 'Les IoT compromis peuvent être utilisés pour des attaques DDoS massives.'
+      },
+      {
+        id: 'iot-q4',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que MQTT?',
+        options: ['Protocole de messaging IoT', 'Type de capteur', 'Standard de chiffrement', 'Méthode d\'authentification'],
+        correctAnswer: ['Protocole de messaging IoT'],
+        explanation: 'MQTT est un protocole léger pour la communication entre objets IoT.'
+      },
+      {
+        id: 'iot-q5',
+        type: 'qcm' as const,
+        question: 'Quelle vulnérabilité est commune aux caméras IP?',
+        options: ['Mots de passe par défaut', 'Surchauffe', 'Mauvaise qualité image', 'Consommation élevée'],
+        correctAnswer: ['Mots de passe par défaut'],
+        explanation: 'Beaucoup de caméras gardent leurs mots de passe d\'usine, facilitant les intrusions.'
+      },
+      {
+        id: 'iot-q6',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que l\'edge computing?',
+        options: ['Traitement local près des capteurs', 'Cloud computing', 'Stockage centralisé', 'Réseau social'],
+        correctAnswer: ['Traitement local près des capteurs'],
+        explanation: 'L\'edge computing traite les données localement pour réduire la latence.'
+      },
+      {
+        id: 'iot-q7',
+        type: 'qcm' as const,
+        question: 'Quel protocole sécurise les communications IoT?',
+        options: ['CoAP avec DTLS', 'HTTP simple', 'FTP', 'Telnet'],
+        correctAnswer: ['CoAP avec DTLS'],
+        explanation: 'CoAP avec DTLS fournit communication sécurisée adaptée aux contraintes IoT.'
+      },
+      {
+        id: 'iot-q8',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que l\'attestation de sécurité IoT?',
+        options: ['Vérification de l\'intégrité du dispositif', 'Garantie commerciale', 'Test de performance', 'Certification qualité'],
+        correctAnswer: ['Vérification de l\'intégrité du dispositif'],
+        explanation: 'L\'attestation vérifie que le dispositif IoT n\'a pas été compromis.'
+      },
+      {
+        id: 'iot-q9',
+        type: 'qcm' as const,
+        question: 'Quel défi pose la mise à jour des dispositifs IoT?',
+        options: ['Accès physique difficile', 'Coût élevé', 'Complexité technique', 'Formation utilisateur'],
+        correctAnswer: ['Accès physique difficile'],
+        explanation: 'Beaucoup d\'IoT sont déployés dans des lieux difficiles d\'accès pour maintenance.'
+      },
+      {
+        id: 'iot-q10',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que le firmware IoT?',
+        options: ['Logiciel embarqué dans le dispositif', 'Application mobile', 'Interface web', 'Base de données'],
+        correctAnswer: ['Logiciel embarqué dans le dispositif'],
+        explanation: 'Le firmware contrôle directement le matériel du dispositif IoT.'
       }
     ]
   };
@@ -317,7 +821,7 @@ export default function CyberTestTechnique() {
           return { questions: selected };
         }
 
-        // Fallback to Azure OpenAI if stored questions not available or explicitly requested
+        // Fallback to IA generation if stored questions not available or explicitly requested
         const categoryInfo = mockOptions.categories.find(c => c.id === data.category);
         const difficultyInfo = mockOptions.difficulties.find(d => d.id === data.difficulty);
         
@@ -719,7 +1223,7 @@ Sois objectif, constructif et professionnel dans ton analyse.`;
           <p className="text-xs text-blue-300 mt-1">
             {useStoredQuestions 
               ? 'Utilise notre banque de questions validées par des experts' 
-              : 'Génère des questions personnalisées avec Azure OpenAI'}
+              : 'Génère des questions personnalisées avec notre IA avancée'}
           </p>
         </div>
 
