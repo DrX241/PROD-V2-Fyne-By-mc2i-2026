@@ -33,6 +33,8 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation } from '@tanstack/react-query';
+import { useLocation } from 'wouter';
+import { apiRequest } from '@/lib/queryClient';
 
 // Types
 interface Category {
@@ -100,13 +102,19 @@ export default function CyberTestTechnique() {
   const [activeTab, setActiveTab] = useState<string>('standardTest');
 
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   // Mock options
   const mockOptions = {
     categories: [
-      { id: 'web', name: 'Sécurité Web', description: 'Sécurité des applications web' },
-      { id: 'network', name: 'Sécurité Réseau', description: 'Protection des infrastructures réseau' },
-      { id: 'system', name: 'Sécurité Système', description: 'Sécurisation des systèmes d\'exploitation' }
+      { id: 'web', name: 'Sécurité Web', description: 'Applications web, OWASP, injections' },
+      { id: 'network', name: 'Sécurité Réseau', description: 'Pare-feu, IDS/IPS, protocoles' },
+      { id: 'system', name: 'Sécurité Système', description: 'OS, permissions, durcissement' },
+      { id: 'crypto', name: 'Cryptographie', description: 'Chiffrement, PKI, signatures' },
+      { id: 'incident', name: 'Gestion d\'incidents', description: 'Réponse, forensique, continuité' },
+      { id: 'governance', name: 'Gouvernance & Conformité', description: 'ISO 27001, RGPD, audits' },
+      { id: 'cloud', name: 'Sécurité Cloud', description: 'AWS, Azure, conteneurs' },
+      { id: 'iot', name: 'IoT & OT', description: 'Objets connectés, SCADA, industrie' }
     ],
     difficulties: [
       { id: 'easy', name: 'Débutant', description: 'Concepts fondamentaux' },
@@ -124,12 +132,9 @@ export default function CyberTestTechnique() {
   const [isLoadingOptions, setIsLoadingOptions] = useState(false);
   const [options, setOptions] = useState(mockOptions);
 
-  // Simulated generate questions mutation
+  // Generate questions mutation with Azure OpenAI
   const generateQuestionsMutation = useMutation({
     mutationFn: async (data: any) => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
       // Update progress during generation
       const progressInterval = setInterval(() => {
         setGenerateProgress(prev => {
@@ -141,32 +146,63 @@ export default function CyberTestTechnique() {
           return newValue;
         });
       }, 300);
-      
-      // Mock questions
-      const mockQuestions = [
-        {
-          id: 'q1',
-          type: 'qcm' as const,
-          question: 'Quelle est la principale faiblesse exploitée par les attaques XSS?',
-          options: [
-            'Absence de validation des entrées utilisateur',
-            'Mauvaise configuration des pare-feu',
-            'Mots de passe faibles',
-            'Permissions système trop élevées'
-          ],
-          correctAnswer: ['Absence de validation des entrées utilisateur'],
-          explanation: 'Les attaques XSS exploitent l\'absence de validation ou d\'échappement des entrées utilisateur, permettant l\'injection de code malveillant.'
-        },
-        {
-          id: 'q2',
-          type: 'text' as const,
-          question: 'Expliquez comment fonctionne une attaque CSRF et comment s\'en protéger.',
-          correctAnswer: 'Une attaque CSRF force un utilisateur authentifié à exécuter des actions non désirées. Pour s\'en protéger, on utilise des tokens anti-CSRF, on vérifie l\'en-tête Referer, et on implémente SameSite pour les cookies.',
-          explanation: 'Les protections principales contre le CSRF incluent l\'utilisation de tokens uniques dans les formulaires et les requêtes AJAX, ainsi que la vérification de l\'origine de la requête.'
+
+      try {
+        const categoryInfo = mockOptions.categories.find(c => c.id === data.category);
+        const difficultyInfo = mockOptions.difficulties.find(d => d.id === data.difficulty);
+        
+        const prompt = `Génère exactement 10 questions de cybersécurité pour un test technique.
+        
+Paramètres:
+- Catégorie: ${categoryInfo?.name} (${categoryInfo?.description})
+- Niveau: ${difficultyInfo?.name} (${difficultyInfo?.description})
+- Type: ${data.exerciseType}
+
+Génère un JSON avec exactement 10 questions variées et progressives. Format:
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "${data.exerciseType}",
+      "question": "Question claire et précise",
+      ${data.exerciseType === 'qcm' ? '"options": ["Option 1", "Option 2", "Option 3", "Option 4"],' : ''}
+      "correctAnswer": ${data.exerciseType === 'qcm' ? '["Bonne réponse"]' : '"Réponse attendue détaillée"'},
+      "explanation": "Explication pédagogique de la réponse"
+    }
+  ]
+}
+
+Les questions doivent être techniques, réalistes et couvrir différents aspects de la catégorie choisie.`;
+
+        const response = await apiRequest('/api/openai/chat', {
+          method: 'POST',
+          body: {
+            messages: [
+              {
+                role: 'system',
+                content: 'Tu es un expert en cybersécurité qui crée des tests techniques de qualité professionnelle. Réponds uniquement en JSON valide.'
+              },
+              {
+                role: 'user',
+                content: prompt
+              }
+            ],
+            temperature: 0.7
+          }
+        });
+
+        clearInterval(progressInterval);
+        
+        if (response.choices?.[0]?.message?.content) {
+          const questionsData = JSON.parse(response.choices[0].message.content);
+          return questionsData;
+        } else {
+          throw new Error('Réponse invalide de l\'IA');
         }
-      ];
-      
-      return { questions: mockQuestions };
+      } catch (error) {
+        clearInterval(progressInterval);
+        throw error;
+      }
     },
     onSuccess: (data) => {
       setQuestions(data.questions);
@@ -269,25 +305,104 @@ export default function CyberTestTechnique() {
     );
   };
 
+  // Evaluate test with Azure OpenAI
+  const evaluateTestMutation = useMutation({
+    mutationFn: async () => {
+      const categoryInfo = mockOptions.categories.find(c => c.id === selectedCategory);
+      const difficultyInfo = mockOptions.difficulties.find(d => d.id === selectedDifficulty);
+      
+      const testData = {
+        category: categoryInfo?.name,
+        difficulty: difficultyInfo?.name,
+        questions: questions.map(q => ({
+          question: q.question,
+          correctAnswer: q.correctAnswer,
+          userResponse: responses.find(r => r.questionId === q.id)?.response || '',
+          type: q.type
+        }))
+      };
+
+      const prompt = `Analyse ce test technique de cybersécurité et fournis un feedback objectif et professionnel.
+
+Données du test:
+- Catégorie: ${testData.category}
+- Niveau déclaré: ${testData.difficulty}
+- Nombre de questions: ${testData.questions.length}
+
+Questions et réponses:
+${testData.questions.map((q, i) => `
+Question ${i+1}: ${q.question}
+Réponse attendue: ${q.correctAnswer}
+Réponse de l'utilisateur: ${q.userResponse}
+`).join('')}
+
+Fournis une analyse JSON avec:
+{
+  "score": nombre_points_obtenus,
+  "maxScore": ${testData.questions.length},
+  "percentage": pourcentage_global,
+  "feedback": "Analyse objective et constructive du profil",
+  "detailedAnalysis": {
+    "strengths": ["Point fort 1", "Point fort 2"],
+    "weaknesses": ["Point à améliorer 1", "Point à améliorer 2"],
+    "levelConsistency": "Analyse de la cohérence avec le niveau déclaré",
+    "recommendations": ["Recommandation 1", "Recommandation 2"],
+    "professionalProfile": "Évaluation du profil professionnel"
+  },
+  "detailedResults": [
+    {
+      "questionId": "q1",
+      "correct": true/false,
+      "feedback": "Explication de la correction"
+    }
+  ]
+}
+
+Sois objectif, constructif et professionnel dans ton analyse.`;
+
+      const response = await apiRequest('/api/openai/chat', {
+        method: 'POST',
+        body: {
+          messages: [
+            {
+              role: 'system',
+              content: 'Tu es un expert en cybersécurité qui évalue des tests techniques. Fournis des analyses objectives et constructives. Réponds uniquement en JSON valide.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0.3
+        }
+      });
+
+      if (response.choices?.[0]?.message?.content) {
+        return JSON.parse(response.choices[0].message.content);
+      } else {
+        throw new Error('Impossible d\'évaluer le test');
+      }
+    },
+    onSuccess: (results) => {
+      setEvaluationResults(results);
+      setStep('results');
+    },
+    onError: (error) => {
+      toast({
+        title: 'Erreur d\'évaluation',
+        description: 'Impossible d\'analyser vos résultats. Veuillez réessayer.',
+        variant: 'destructive',
+      });
+    }
+  });
+
   // Function to go to next question
   const nextQuestion = () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
     } else {
-      // Finish test and show results
-      const mockResults: EvaluationResult = {
-        score: Math.floor(Math.random() * questions.length) + 1,
-        maxScore: questions.length,
-        percentage: Math.floor(Math.random() * 40) + 60,
-        feedback: "Bon travail ! Vous avez démontré une bonne compréhension des concepts de cybersécurité.",
-        detailedResults: questions.map(q => ({
-          questionId: q.id,
-          correct: Math.random() > 0.3,
-          feedback: "Bonne réponse ! Vous maîtrisez ce concept."
-        }))
-      };
-      setEvaluationResults(mockResults);
-      setStep('results');
+      // Finish test and evaluate with AI
+      evaluateTestMutation.mutate();
     }
   };
 
@@ -624,12 +739,25 @@ export default function CyberTestTechnique() {
     );
   };
 
-  // Results view
+  // Results view with detailed AI feedback
   const renderResultsView = () => {
-    if (!evaluationResults) return null;
+    if (!evaluationResults) {
+      return (
+        <div className="text-center">
+          <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-6">
+            <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-400 mb-4" />
+            <p className="text-white">Analyse de vos résultats en cours...</p>
+            <p className="text-blue-200 text-sm mt-2">Notre IA évalue vos réponses pour vous fournir un feedback détaillé</p>
+          </div>
+        </div>
+      );
+    }
+
+    const detailedAnalysis = (evaluationResults as any).detailedAnalysis;
 
     return (
       <div className="space-y-6">
+        {/* Score global */}
         <div className="text-center">
           <h2 className="text-2xl font-bold text-white mb-4">Résultats du test</h2>
           <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-6 mb-6">
@@ -642,6 +770,66 @@ export default function CyberTestTechnique() {
             <p className="text-blue-200">{evaluationResults.feedback}</p>
           </div>
         </div>
+
+        {/* Analyse détaillée */}
+        {detailedAnalysis && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Points forts */}
+            <div className="bg-green-900/20 border border-green-700 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-green-300 mb-3">Points forts</h3>
+              <ul className="space-y-2">
+                {detailedAnalysis.strengths?.map((strength: string, index: number) => (
+                  <li key={index} className="text-green-100 text-sm flex items-start">
+                    <span className="text-green-400 mr-2">✓</span>
+                    {strength}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Points à améliorer */}
+            <div className="bg-amber-900/20 border border-amber-700 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-amber-300 mb-3">Points à améliorer</h3>
+              <ul className="space-y-2">
+                {detailedAnalysis.weaknesses?.map((weakness: string, index: number) => (
+                  <li key={index} className="text-amber-100 text-sm flex items-start">
+                    <span className="text-amber-400 mr-2">→</span>
+                    {weakness}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {/* Analyse du profil */}
+        {detailedAnalysis && (
+          <div className="space-y-4">
+            <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-blue-300 mb-3">Cohérence du profil</h3>
+              <p className="text-blue-200 text-sm">{detailedAnalysis.levelConsistency}</p>
+            </div>
+
+            <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-blue-300 mb-3">Profil professionnel</h3>
+              <p className="text-blue-200 text-sm">{detailedAnalysis.professionalProfile}</p>
+            </div>
+
+            {detailedAnalysis.recommendations && (
+              <div className="bg-indigo-900/20 border border-indigo-700 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-indigo-300 mb-3">Recommandations</h3>
+                <ul className="space-y-2">
+                  {detailedAnalysis.recommendations.map((rec: string, index: number) => (
+                    <li key={index} className="text-indigo-100 text-sm flex items-start">
+                      <span className="text-indigo-400 mr-2">💡</span>
+                      {rec}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="flex justify-center space-x-4">
           <Button
@@ -675,7 +863,7 @@ export default function CyberTestTechnique() {
           <Button 
             variant="outline" 
             className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30 hover:text-white mb-4"
-            onClick={() => window.location.href = '/cyber/roleplay'}
+            onClick={() => setLocation('/cyber/roleplay')}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour
