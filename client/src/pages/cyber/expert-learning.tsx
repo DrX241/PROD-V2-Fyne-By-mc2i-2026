@@ -10,7 +10,6 @@ import { apiRequest } from "@/lib/queryClient";
 import DOMPurify from 'dompurify';
 import { useLocation } from 'wouter';
 import { DecisionProvider, useDecision } from "@/contexts/DecisionContext";
-import CyberDecisionFlow from "@/components/cyber/CyberDecisionFlow";
 
 // Fonction pour obtenir un message informatif contextuel basé sur l'index
 const getMessage = (index: number): string => {
@@ -979,14 +978,21 @@ function ExpertLearningPageContent() {
               <div className="flex flex-col w-full max-w-6xl mx-auto">
                 {/* Mode décision ou chat standard */}
                 {decision.isInDecisionMode && decision.currentScenario ? (
-                  <CyberDecisionFlow 
-                    scenario={decision.currentScenario}
-                    onDecisionMade={handleDecisionMade}
-                    isLoading={decision.isLoading}
-                    currentNumber={decision.currentScenarioNumber}
-                    totalScenarios={decision.totalScenarios}
-                    summary={decision.summary}
-                  />
+                  <div className="bg-[#091525] border border-[#00b4d8]/30 rounded-lg p-6 mb-4">
+                    <h3 className="text-[#00b4d8] text-lg font-medium mb-4">Mode Scénario de Décision</h3>
+                    <div className="bg-[#112641] p-4 rounded-md border border-[#00b4d8]/20">
+                      <p className="text-[#c3d9ee] text-sm">
+                        Le mode scénario de décision est en cours de développement. 
+                        Cette fonctionnalité vous permettra bientôt de vous entraîner sur des cas pratiques complexes.
+                      </p>
+                      <Button
+                        onClick={() => decision.setIsInDecisionMode(false)}
+                        className="mt-4 bg-[#00b4d8] hover:bg-[#00b4d8]/80 text-[#091525]"
+                      >
+                        Retour au chat
+                      </Button>
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex flex-col w-full">
                     {/* Barre de statut et de progression */}
@@ -1626,9 +1632,14 @@ function ExpertLearningPageContent() {
                                     
                                     // Lancer directement le flux de décision
                                     // Cela permettra à l'utilisateur de voir immédiatement le scénario
-                                    setTimeout(() => {
-                                      if (userId) {
-                                        decision.startDecisionFlow(userId, "cybersécurité");
+                                    setTimeout(async () => {
+                                      try {
+                                        if (userId) {
+                                          await decision.startDecisionFlow(userId, "cybersécurité");
+                                        }
+                                      } catch (error) {
+                                        console.error("Erreur lors du démarrage du scénario:", error);
+                                        setIsLoading(false);
                                       }
                                     }, 100);
                                   }}
