@@ -815,7 +815,148 @@ export default function CyberTestTechnique() {
           setGenerateProgress(100);
           
           const categoryQuestions = storedQuestions[data.category as keyof typeof storedQuestions];
-          const shuffled = [...categoryQuestions].sort(() => 0.5 - Math.random());
+          
+          // Adapter les questions selon le type d'exercice sélectionné
+          let adaptedQuestions = categoryQuestions.map((q, index) => {
+            if (data.exerciseType === 'text') {
+              // Convertir en question ouverte
+              return {
+                ...q,
+                id: `${q.id}-text`,
+                type: 'text' as const,
+                options: undefined,
+                correctAnswer: typeof q.correctAnswer === 'string' ? q.correctAnswer : `Réponse détaillée attendue sur ${q.question.toLowerCase()}`,
+              };
+            } else if (data.exerciseType === 'code') {
+              // Exemples de code spécifiques par catégorie
+              const codeExamples: { [key: string]: string } = {
+                web: `// Code PHP vulnérable
+<?php
+$user_id = $_GET['id'];
+$query = "SELECT * FROM users WHERE id = " . $user_id;
+$result = mysqli_query($connection, $query);
+
+echo "<script>alert('Bienvenue " . $_POST['name'] . "');</script>";
+?>`,
+                network: `# Configuration firewall potentiellement problématique
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+iptables -A INPUT -j DROP
+
+# Configuration SSH
+PermitRootLogin yes
+PasswordAuthentication yes
+Port 22`,
+                system: `#!/bin/bash
+# Script d'administration système
+USER_INPUT=$1
+LOGFILE="/var/log/admin.log"
+
+# Traitement des logs
+eval "cat $LOGFILE | grep $USER_INPUT"
+
+# Gestion des permissions
+chmod 777 /tmp/uploads/
+chown -R www-data:www-data /var/www/`,
+                crypto: `// Implémentation cryptographique
+import hashlib
+import random
+
+def hash_password(password):
+    # Hachage simple
+    return hashlib.md5(password.encode()).hexdigest()
+
+def generate_token():
+    # Génération de token
+    return str(random.randint(1000, 9999))
+
+def encrypt_data(data, key):
+    # Chiffrement XOR simple
+    return ''.join(chr(ord(c) ^ ord(key[i % len(key)])) for i, c in enumerate(data))`,
+                incident: `// Code de gestion d'incident
+function logSecurityEvent(event) {
+    var timestamp = new Date().toISOString();
+    var logEntry = {
+        time: timestamp,
+        event: event,
+        user: getCurrentUser(),
+        ip: getClientIP()
+    };
+    
+    // Log sans validation
+    console.log(logEntry);
+    sendToSyslog(JSON.stringify(logEntry));
+}`,
+                governance: `# Politique de mot de passe en configuration
+password_policy:
+  min_length: 6
+  require_uppercase: false
+  require_numbers: false
+  max_age_days: 365
+  
+# Contrôles d'accès
+access_control:
+  admin_users: ["admin", "root", "administrator"]
+  default_permissions: "read-write"`,
+                cloud: `// Configuration AWS potentiellement risquée
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "*",
+      "Resource": "*"
+    }
+  ]
+}
+
+// Code d'accès S3
+AWS.config.update({
+    accessKeyId: 'AKIAIOSFODNN7EXAMPLE',
+    secretAccessKey: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+});`,
+                iot: `// Code embarqué IoT
+#include <WiFi.h>
+#include <WebServer.h>
+
+const char* ssid = "IoT_Device";
+const char* password = "123456";
+
+WebServer server(80);
+
+void handleRoot() {
+  String html = "<html><body>";
+  html += "<h1>Device Control</h1>";
+  html += "<form action='/control' method='GET'>";
+  html += "Command: <input type='text' name='cmd'>";
+  html += "</form></body></html>";
+  server.send(200, "text/html", html);
+}
+
+void handleControl() {
+  String cmd = server.arg("cmd");
+  system(cmd.c_str()); // Exécution directe
+  server.send(200, "text/plain", "Command executed");
+}`
+              };
+              
+              // Convertir en analyse de code
+              return {
+                ...q,
+                id: `${q.id}-code`,
+                type: 'code' as const,
+                code: codeExamples[data.category] || codeExamples.web,
+                options: undefined,
+                correctAnswer: `Analyser les vulnérabilités dans ce code et proposer des corrections`,
+              };
+            }
+            // Garder en QCM par défaut
+            return q;
+          });
+          
+          const shuffled = [...adaptedQuestions].sort(() => 0.5 - Math.random());
           const selected = shuffled.slice(0, 10);
           
           return { questions: selected };
