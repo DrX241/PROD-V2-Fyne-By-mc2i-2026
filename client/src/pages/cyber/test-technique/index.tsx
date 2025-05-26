@@ -86,7 +86,7 @@ export default function CyberTestTechnique() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('');
   const [selectedExerciseType, setSelectedExerciseType] = useState<string>('');
-  const [step, setStep] = useState<'select' | 'quiz' | 'results' | 'custom'>('select');
+  const [step, setStep] = useState<'select' | 'quiz' | 'results'>('select');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [responses, setResponses] = useState<QuizResponse[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -255,11 +255,50 @@ export default function CyberTestTechnique() {
   // Function to handle tab change
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    if (value === 'standardTest') {
-      setStep('select');
-    } else if (value === 'customTest') {
-      setStep('custom');
+    setStep('select');
+  };
+
+  // Function to handle response change
+  const handleResponseChange = (questionId: string, response: string | string[]) => {
+    setResponses(prev => 
+      prev.map(r => 
+        r.questionId === questionId 
+          ? { ...r, response }
+          : r
+      )
+    );
+  };
+
+  // Function to go to next question
+  const nextQuestion = () => {
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(prev => prev + 1);
+    } else {
+      // Finish test and show results
+      const mockResults: EvaluationResult = {
+        score: Math.floor(Math.random() * questions.length) + 1,
+        maxScore: questions.length,
+        percentage: Math.floor(Math.random() * 40) + 60,
+        feedback: "Bon travail ! Vous avez démontré une bonne compréhension des concepts de cybersécurité.",
+        detailedResults: questions.map(q => ({
+          questionId: q.id,
+          correct: Math.random() > 0.3,
+          feedback: "Bonne réponse ! Vous maîtrisez ce concept."
+        }))
+      };
+      setEvaluationResults(mockResults);
+      setStep('results');
     }
+  };
+
+  // Function to restart test
+  const restartTest = () => {
+    setStep('select');
+    setQuestions([]);
+    setResponses([]);
+    setCurrentQuestion(0);
+    setEvaluationResults(null);
+    setGenerateProgress(0);
   };
 
   // Function to render the user name field with "Bientôt disponible" label
@@ -491,6 +530,131 @@ export default function CyberTestTechnique() {
     </div>
   );
 
+  // Quiz view - Display questions
+  const renderQuizView = () => {
+    if (questions.length === 0) return null;
+
+    const currentQ = questions[currentQuestion];
+    const currentResponse = responses.find(r => r.questionId === currentQ.id);
+
+    return (
+      <div className="space-y-6">
+        {/* Progress indicator */}
+        <div className="mb-6">
+          <div className="flex justify-between text-sm text-blue-200 mb-2">
+            <span>Question {currentQuestion + 1} sur {questions.length}</span>
+            <span>{Math.round(((currentQuestion + 1) / questions.length) * 100)}%</span>
+          </div>
+          <Progress 
+            value={((currentQuestion + 1) / questions.length) * 100} 
+            className="h-2 bg-blue-950"
+            indicatorClassName="bg-gradient-to-r from-blue-500 to-indigo-500"
+          />
+        </div>
+
+        {/* Question */}
+        <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-white mb-4">{currentQ.question}</h3>
+          
+          {currentQ.type === 'qcm' && currentQ.options && (
+            <div className="space-y-3">
+              {currentQ.options.map((option, index) => (
+                <label key={index} className="flex items-center space-x-3 cursor-pointer text-white">
+                  <input
+                    type="radio"
+                    name={currentQ.id}
+                    checked={currentResponse?.response === option}
+                    onChange={() => handleResponseChange(currentQ.id, option)}
+                    className="form-radio h-4 w-4 text-blue-600"
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
+            </div>
+          )}
+
+          {currentQ.type === 'text' && (
+            <Textarea
+              value={currentResponse?.response as string || ''}
+              onChange={(e) => handleResponseChange(currentQ.id, e.target.value)}
+              placeholder="Saisissez votre réponse..."
+              className="min-h-[120px] bg-blue-900/50 border-blue-700 text-white placeholder:text-blue-400"
+            />
+          )}
+
+          {currentQ.type === 'code' && currentQ.code && (
+            <div className="space-y-4">
+              <div className="bg-gray-900 border border-gray-700 rounded p-4">
+                <pre className="text-green-400 text-sm overflow-x-auto">
+                  <code>{currentQ.code}</code>
+                </pre>
+              </div>
+              <Textarea
+                value={currentResponse?.response as string || ''}
+                onChange={(e) => handleResponseChange(currentQ.id, e.target.value)}
+                placeholder="Analysez le code et décrivez les vulnérabilités trouvées..."
+                className="min-h-[120px] bg-blue-900/50 border-blue-700 text-white placeholder:text-blue-400"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Navigation buttons */}
+        <div className="flex justify-between">
+          <Button
+            variant="outline"
+            onClick={() => currentQuestion > 0 && setCurrentQuestion(prev => prev - 1)}
+            disabled={currentQuestion === 0}
+            className="bg-blue-900/20 border-blue-700 text-white hover:bg-blue-800/30"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Précédent
+          </Button>
+          
+          <Button
+            onClick={nextQuestion}
+            disabled={!currentResponse?.response}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+          >
+            {currentQuestion === questions.length - 1 ? 'Terminer' : 'Suivant'}
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  // Results view
+  const renderResultsView = () => {
+    if (!evaluationResults) return null;
+
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-white mb-4">Résultats du test</h2>
+          <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-6 mb-6">
+            <div className="text-4xl font-bold text-blue-300 mb-2">
+              {evaluationResults.percentage}%
+            </div>
+            <div className="text-white mb-4">
+              {evaluationResults.score} / {evaluationResults.maxScore} points
+            </div>
+            <p className="text-blue-200">{evaluationResults.feedback}</p>
+          </div>
+        </div>
+
+        <div className="flex justify-center space-x-4">
+          <Button
+            onClick={restartTest}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+          >
+            Nouveau test
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-blue-950 to-slate-950">
       {/* Background grid pattern like other cyber pages */}
@@ -525,42 +689,72 @@ export default function CyberTestTechnique() {
           </p>
         </div>
 
-        <Card className="bg-gradient-to-b from-blue-950 to-slate-950 border-blue-800 text-white shadow-xl border">
-        <CardHeader>
-          <CardTitle className="text-2xl text-white">Créer un nouveau test</CardTitle>
-          <CardDescription className="text-blue-200">
-            Configurez votre test technique selon vos besoins ou générez un test personnalisé.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="standardTest" value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="grid grid-cols-2 mb-6 bg-blue-900/30 border border-blue-700">
-              <TabsTrigger 
-                value="standardTest" 
-                className="data-[state=active]:bg-blue-700 data-[state=active]:text-white text-blue-200"
-              >
-                <GraduationCap className="w-4 h-4 mr-2" />
-                Test Standard
-              </TabsTrigger>
-              <TabsTrigger 
-                value="customTest" 
-                className="data-[state=active]:bg-blue-700 data-[state=active]:text-white text-blue-200"
-              >
-                <Brain className="w-4 h-4 mr-2" />
-                Test Personnalisé
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="standardTest">
-              {renderSelectionView()}
-            </TabsContent>
-            
-            <TabsContent value="customTest">
-              {renderCustomTestView()}
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+        {step === 'select' && (
+          <Card className="bg-gradient-to-b from-blue-950 to-slate-950 border-blue-800 text-white shadow-xl border">
+            <CardHeader>
+              <CardTitle className="text-2xl text-white">Créer un nouveau test</CardTitle>
+              <CardDescription className="text-blue-200">
+                Configurez votre test technique selon vos besoins ou générez un test personnalisé.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="standardTest" value={activeTab} onValueChange={handleTabChange}>
+                <TabsList className="grid grid-cols-2 mb-6 bg-blue-900/30 border border-blue-700">
+                  <TabsTrigger 
+                    value="standardTest" 
+                    className="data-[state=active]:bg-blue-700 data-[state=active]:text-white text-blue-200"
+                  >
+                    <GraduationCap className="w-4 h-4 mr-2" />
+                    Test Standard
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="customTest" 
+                    className="data-[state=active]:bg-blue-700 data-[state=active]:text-white text-blue-200"
+                  >
+                    <Brain className="w-4 h-4 mr-2" />
+                    Test Personnalisé
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="standardTest">
+                  {renderSelectionView()}
+                </TabsContent>
+                
+                <TabsContent value="customTest">
+                  {renderCustomTestView()}
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        )}
+
+        {step === 'quiz' && (
+          <Card className="bg-gradient-to-b from-blue-950 to-slate-950 border-blue-800 text-white shadow-xl border">
+            <CardHeader>
+              <CardTitle className="text-2xl text-white">Test en cours</CardTitle>
+              <CardDescription className="text-blue-200">
+                Répondez aux questions pour évaluer vos compétences.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {renderQuizView()}
+            </CardContent>
+          </Card>
+        )}
+
+        {step === 'results' && (
+          <Card className="bg-gradient-to-b from-blue-950 to-slate-950 border-blue-800 text-white shadow-xl border">
+            <CardHeader>
+              <CardTitle className="text-2xl text-white">Test terminé</CardTitle>
+              <CardDescription className="text-blue-200">
+                Découvrez vos résultats et votre niveau de maîtrise.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {renderResultsView()}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
