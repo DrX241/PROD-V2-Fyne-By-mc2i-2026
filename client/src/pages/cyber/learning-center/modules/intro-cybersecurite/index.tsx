@@ -81,6 +81,141 @@ export default function IntroductionCybersecurite() {
     caseStudyAnalysis: "",
     caseStudyFeedback: ""
   });
+
+  // État pour naviguer entre les exemples de phishing
+  const [currentPhishingExample, setCurrentPhishingExample] = useState(0);
+
+  // Collection de 5 exemples de phishing variés
+  const phishingExamples = [
+    {
+      id: 1,
+      title: "E-mail bancaire suspect",
+      sender: "service-client@bankingsecure-alert.com",
+      recipient: "client@exemple.fr",
+      subject: "URGENT: Votre compte a été suspendu - Action immédiate requise",
+      body: `Cher(e) Client(e),
+
+Nous avons détecté une activité inhabituelle sur votre compte. Pour des raisons de sécurité, nous avons temporairement suspendu votre accès.
+
+Veuillez cliquer ici pour vérifier votre identité et réactiver votre compte immédiatement. Faute de quoi, votre compte sera définitivement fermé dans les 24 heures.
+
+ID de référence: REF-2025-05-25-78392
+
+Département de Sécurité
+Banque Nationale`,
+      correctFlags: ['sender', 'urgency', 'generic', 'link', 'vague'],
+      wrongFlags: ['spelling', 'attachment']
+    },
+    {
+      id: 2,
+      title: "Fausse notification de livraison",
+      sender: "noreply@delivery-express24.com",
+      recipient: "client@exemple.fr",
+      subject: "Votre colis ne peut pas être livré - Confirmez votre adresse",
+      body: `Bonjour,
+
+Votre colis avec le numéro de suivi DX7891234 ne peut pas être livré à votre adresse actuelle.
+
+Cliquez sur le lien ci-dessous pour mettre à jour vos informations de livraison dans les 48h, sinon votre colis sera retourné à l'expéditeur.
+
+👉 Confirmer mon adresse maintenant
+
+Service Client Express Delivery
+Note: Ne répondez pas à cet e-mail, cette boîte n'est pas surveillée.`,
+      correctFlags: ['sender', 'urgency', 'link', 'fake_tracking'],
+      wrongFlags: ['spelling', 'official_domain', 'attachment']
+    },
+    {
+      id: 3,
+      title: "Fausse alerte de sécurité Microsoft",
+      sender: "security-alerts@microsoft-protection.net",
+      recipient: "utilisateur@entreprise.fr",
+      subject: "Alerte de sécurité: Tentative de connexion suspecte détectée",
+      body: `Bonjour,
+
+Nous avons détecté une tentative de connexion suspecte sur votre compte Microsoft depuis une adresse IP inconnue (192.168.1.100 - Russie).
+
+Pour sécuriser votre compte immédiatement:
+• Cliquez ici pour vérifier votre identité
+• Changez votre mot de passe dans les 2 heures
+• Activez la vérification en deux étapes
+
+Si cette connexion n'était pas de vous, votre compte pourrait être compromis.
+
+Équipe de sécurité Microsoft`,
+      correctFlags: ['sender', 'urgency', 'fake_ip', 'generic'],
+      wrongFlags: ['spelling', 'official_domain', 'attachment']
+    },
+    {
+      id: 4,
+      title: "Offre promotionnelle suspecte Amazon",
+      sender: "promotions@amazon-deals-center.org",
+      recipient: "client@exemple.fr",
+      subject: "🎉 Félicitations! Vous avez gagné un iPhone 15 Pro - Réclamez maintenant",
+      body: `Chère/Cher gagnant(e),
+
+Félicitations! Vous avez été sélectionné(e) pour recevoir un iPhone 15 Pro GRATUIT dans le cadre de notre programme de fidélité.
+
+Pour récupérer votre prix:
+1. Cliquez sur le lien de validation ci-dessous
+2. Entrez vos informations personnelles
+3. Payez uniquement les frais de livraison (9,99€)
+
+⚠️ Attention: Cette offre expire dans 24 heures!
+
+RÉCLAMER MON IPHONE MAINTENANT
+
+Amazon Customer Service`,
+      correctFlags: ['sender', 'too_good', 'payment_request', 'urgency', 'generic'],
+      wrongFlags: ['spelling', 'official_domain']
+    },
+    {
+      id: 5,
+      title: "Fausse notification PayPal",
+      sender: "service@paypal-secure-center.com",
+      recipient: "utilisateur@exemple.fr",
+      subject: "Limitation de compte - Vérification requise",
+      body: `Cher utilisateur PayPal,
+
+Votre compte PayPal a été temporairement limité en raison d'une activité inhabituelle. Nous avons remarqué des tentatives de connexion depuis plusieurs pays différents.
+
+Pour lever cette limitation:
+- Connectez-vous à votre compte PayPal
+- Vérifiez vos informations bancaires
+- Confirmez votre identité avec une pièce d'identité
+
+Votre compte restera limité jusqu'à ce que ces étapes soient complétées.
+
+Centre de sécurité PayPal
+Copyright © 2025 PayPal. Tous droits réservés.`,
+      correctFlags: ['sender', 'account_limitation', 'vague', 'identity_request'],
+      wrongFlags: ['spelling', 'urgency', 'official_domain']
+    }
+  ];
+
+  // Type pour les clés des indices de phishing
+  type PhishingFlagKey = 'sender' | 'urgency' | 'generic' | 'link' | 'vague' | 'too_good' | 'payment_request' | 'fake_tracking' | 'fake_ip' | 'account_limitation' | 'identity_request' | 'spelling' | 'attachment' | 'official_domain';
+
+  // Définition des indices possibles avec vrais et faux
+  const phishingFlags: Record<PhishingFlagKey, { label: string; description: string; isCorrect: boolean }> = {
+    // Indices corrects (vraies caractéristiques de phishing)
+    sender: { label: "Adresse e-mail de l'expéditeur suspecte", description: "L'adresse n'est pas un domaine officiel", isCorrect: true },
+    urgency: { label: "Sentiment d'urgence créé artificiellement", description: "Expressions comme 'URGENT', 'immédiatement', 'dans les 24h'", isCorrect: true },
+    generic: { label: "Salutation générique", description: "Utilise 'Cher(e) Client(e)' au lieu du nom réel", isCorrect: true },
+    link: { label: "Liens suspects ou masqués", description: "Liens 'cliquer ici' sans URL visible", isCorrect: true },
+    vague: { label: "Informations vagues sur l'activité suspecte", description: "Aucun détail précis sur les problèmes mentionnés", isCorrect: true },
+    too_good: { label: "Offre trop belle pour être vraie", description: "Promesses de gains faciles ou cadeaux gratuits", isCorrect: true },
+    payment_request: { label: "Demande de paiement pour 'frais'", description: "Demande de frais de livraison ou de traitement", isCorrect: true },
+    fake_tracking: { label: "Numéro de suivi fictif", description: "Utilise des numéros de suivi qui semblent réels", isCorrect: true },
+    fake_ip: { label: "Adresse IP douteuse dans l'alerte", description: "Mentionne des IPs privées comme venant de l'étranger", isCorrect: true },
+    account_limitation: { label: "Fausse limitation de compte", description: "Prétend que le compte est suspendu ou limité", isCorrect: true },
+    identity_request: { label: "Demande de documents d'identité", description: "Demande de fournir des pièces d'identité par e-mail", isCorrect: true },
+    
+    // Pièges (caractéristiques qui peuvent sembler suspectes mais ne le sont pas ici)
+    spelling: { label: "Fautes d'orthographe importantes", description: "De nombreuses erreurs d'écriture dans le texte", isCorrect: false },
+    attachment: { label: "Pièce jointe suspecte", description: "Fichier en pièce jointe de type .exe ou .zip", isCorrect: false },
+    official_domain: { label: "Domaine officiel reconnu", description: "L'adresse e-mail utilise un domaine officiel", isCorrect: false }
+  };
   
   // États pour les cas d'études concrets récents
   const [selectedCaseStudy, setSelectedCaseStudy] = useState(0);
@@ -841,33 +976,62 @@ export default function IntroductionCybersecurite() {
                     </Badge>
                   </div>
                   
-                  <p className="text-sm text-blue-300 mb-3">
-                    Apprenez à identifier les e-mails de phishing. Analysez l'exemple ci-dessous et identifiez les indices suspects.
-                  </p>
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-sm text-blue-300">
+                      Apprenez à identifier les e-mails de phishing. Analysez l'exemple ci-dessous et identifiez les indices suspects.
+                    </p>
+                    
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const prev = currentPhishingExample > 0 ? currentPhishingExample - 1 : phishingExamples.length - 1;
+                          setCurrentPhishingExample(prev);
+                          setExerciseData({...exerciseData, phishingChecks: [], phishingFeedback: ""});
+                        }}
+                        className="text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
+                      >
+                        ←
+                      </Button>
+                      <span className="text-xs text-blue-300">
+                        {currentPhishingExample + 1}/{phishingExamples.length}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const next = currentPhishingExample < phishingExamples.length - 1 ? currentPhishingExample + 1 : 0;
+                          setCurrentPhishingExample(next);
+                          setExerciseData({...exerciseData, phishingChecks: [], phishingFeedback: ""});
+                        }}
+                        className="text-blue-300 border-blue-800/50 hover:bg-blue-800/30"
+                      >
+                        →
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium text-white mb-2">
+                      {phishingExamples[currentPhishingExample].title}
+                    </h4>
+                  </div>
                   
                   <div className="p-4 bg-white text-gray-800 rounded-md mb-4 border border-blue-700/50">
                     <div className="border-b border-gray-200 pb-2 mb-2">
                       <div className="flex justify-between">
                         <div>
-                          <div className="font-bold text-sm">De: service-client@bankingsecure-alert.com</div>
-                          <div className="text-sm">À: client@exemple.fr</div>
+                          <div className="font-bold text-sm">De: {phishingExamples[currentPhishingExample].sender}</div>
+                          <div className="text-sm">À: {phishingExamples[currentPhishingExample].recipient}</div>
                         </div>
                         <div className="text-xs text-gray-500">10:42 AM</div>
                       </div>
-                      <div className="font-bold text-sm mt-1">Objet: URGENT: Votre compte a été suspendu - Action immédiate requise</div>
+                      <div className="font-bold text-sm mt-1">Objet: {phishingExamples[currentPhishingExample].subject}</div>
                     </div>
                     
-                    <div className="text-sm space-y-2">
-                      <p>Cher(e) Client(e),</p>
-                      
-                      <p>Nous avons détecté une activité inhabituelle sur votre compte. Pour des raisons de sécurité, nous avons temporairement suspendu votre accès.</p>
-                      
-                      <p>Veuillez <span className="text-blue-600 underline">cliquer ici</span> pour vérifier votre identité et réactiver votre compte immédiatement. Faute de quoi, votre compte sera définitivement fermé dans les 24 heures.</p>
-                      
-                      <p>ID de référence: REF-2025-05-25-78392</p>
-                      
-                      <p className="font-bold">Département de Sécurité</p>
-                      <p>Banque Nationale</p>
+                    <div className="text-sm space-y-2 whitespace-pre-line">
+                      {phishingExamples[currentPhishingExample].body}
                     </div>
                   </div>
                   
@@ -876,168 +1040,96 @@ export default function IntroductionCybersecurite() {
                   </p>
                   
                   <div className="space-y-3 mb-4">
-                    <div className="flex items-start space-x-2">
-                      <Checkbox id="phishing1" 
-                        checked={exerciseData.phishingChecks?.includes('sender') || false}
-                        onCheckedChange={(checked) => {
-                          const current = exerciseData.phishingChecks || [];
-                          const updated = checked 
-                            ? [...current, 'sender'] 
-                            : current.filter(item => item !== 'sender');
-                          
-                          setExerciseData({
-                            ...exerciseData,
-                            phishingChecks: updated
-                          });
-                        }} 
-                      />
-                      <div className="grid gap-1.5">
-                        <Label htmlFor="phishing1" className="text-sm text-white">
-                          Adresse e-mail de l'expéditeur suspecte
-                        </Label>
-                        <p className="text-xs text-blue-300">
-                          L'adresse n'est pas un domaine officiel de banque
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-2">
-                      <Checkbox id="phishing2" 
-                        checked={exerciseData.phishingChecks?.includes('urgency') || false}
-                        onCheckedChange={(checked) => {
-                          const current = exerciseData.phishingChecks || [];
-                          const updated = checked 
-                            ? [...current, 'urgency'] 
-                            : current.filter(item => item !== 'urgency');
-                          
-                          setExerciseData({
-                            ...exerciseData,
-                            phishingChecks: updated
-                          });
-                        }} 
-                      />
-                      <div className="grid gap-1.5">
-                        <Label htmlFor="phishing2" className="text-sm text-white">
-                          Sentiment d'urgence créé artificiellement
-                        </Label>
-                        <p className="text-xs text-blue-300">
-                          "URGENT", "Action immédiate", "dans les 24 heures"
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-2">
-                      <Checkbox id="phishing3" 
-                        checked={exerciseData.phishingChecks?.includes('generic') || false}
-                        onCheckedChange={(checked) => {
-                          const current = exerciseData.phishingChecks || [];
-                          const updated = checked 
-                            ? [...current, 'generic'] 
-                            : current.filter(item => item !== 'generic');
-                          
-                          setExerciseData({
-                            ...exerciseData,
-                            phishingChecks: updated
-                          });
-                        }} 
-                      />
-                      <div className="grid gap-1.5">
-                        <Label htmlFor="phishing3" className="text-sm text-white">
-                          Salutation générique
-                        </Label>
-                        <p className="text-xs text-blue-300">
-                          "Cher(e) Client(e)" au lieu de votre nom réel
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-2">
-                      <Checkbox id="phishing4" 
-                        checked={exerciseData.phishingChecks?.includes('link') || false}
-                        onCheckedChange={(checked) => {
-                          const current = exerciseData.phishingChecks || [];
-                          const updated = checked 
-                            ? [...current, 'link'] 
-                            : current.filter(item => item !== 'link');
-                          
-                          setExerciseData({
-                            ...exerciseData,
-                            phishingChecks: updated
-                          });
-                        }} 
-                      />
-                      <div className="grid gap-1.5">
-                        <Label htmlFor="phishing4" className="text-sm text-white">
-                          Lien "cliquer ici" sans URL explicite
-                        </Label>
-                        <p className="text-xs text-blue-300">
-                          L'URL réelle est masquée derrière le texte
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-2">
-                      <Checkbox id="phishing5" 
-                        checked={exerciseData.phishingChecks?.includes('vague') || false}
-                        onCheckedChange={(checked) => {
-                          const current = exerciseData.phishingChecks || [];
-                          const updated = checked 
-                            ? [...current, 'vague'] 
-                            : current.filter(item => item !== 'vague');
-                          
-                          setExerciseData({
-                            ...exerciseData,
-                            phishingChecks: updated
-                          });
-                        }} 
-                      />
-                      <div className="grid gap-1.5">
-                        <Label htmlFor="phishing5" className="text-sm text-white">
-                          Informations vagues sur l'activité suspecte
-                        </Label>
-                        <p className="text-xs text-blue-300">
-                          Aucun détail précis sur l'activité anormale détectée
-                        </p>
-                      </div>
-                    </div>
+                    {/* Générer dynamiquement les options pour l'exemple actuel */}
+                    {(() => {
+                      const currentExample = phishingExamples[currentPhishingExample];
+                      // Mélanger les indices corrects et incorrects pour cet exemple
+                      const allOptions = [
+                        ...currentExample.correctFlags.map(flag => ({ flag, ...phishingFlags[flag as PhishingFlagKey] })),
+                        ...currentExample.wrongFlags.map(flag => ({ flag, ...phishingFlags[flag as PhishingFlagKey] }))
+                      ];
+                      
+                      return allOptions.map((option, index) => (
+                        <div key={`${currentPhishingExample}-${option.flag}`} className="flex items-start space-x-2">
+                          <Checkbox 
+                            id={`phishing-${option.flag}`}
+                            checked={exerciseData.phishingChecks?.includes(option.flag) || false}
+                            onCheckedChange={(checked) => {
+                              const current = exerciseData.phishingChecks || [];
+                              const updated = checked 
+                                ? [...current, option.flag] 
+                                : current.filter(item => item !== option.flag);
+                              
+                              setExerciseData({
+                                ...exerciseData,
+                                phishingChecks: updated
+                              });
+                            }} 
+                          />
+                          <div className="grid gap-1.5">
+                            <Label htmlFor={`phishing-${option.flag}`} className="text-sm text-white">
+                              {option.label}
+                            </Label>
+                            <p className="text-xs text-blue-300">
+                              {option.description}
+                            </p>
+                          </div>
+                        </div>
+                      ));
+                    })()}
                   </div>
                   
                   <Button
                     className="w-full bg-blue-600 hover:bg-blue-700"
                     onClick={() => {
                       const checks = exerciseData.phishingChecks || [];
-                      const correctAnswers = ['sender', 'urgency', 'generic', 'link', 'vague'];
-                      const score = correctAnswers.filter(a => checks.includes(a)).length;
+                      const currentExample = phishingExamples[currentPhishingExample];
+                      
+                      // Calculer le score basé sur les bonnes réponses et les erreurs
+                      const correctSelected = currentExample.correctFlags.filter(flag => checks.includes(flag)).length;
+                      const wrongSelected = currentExample.wrongFlags.filter(flag => checks.includes(flag)).length;
+                      const totalCorrect = currentExample.correctFlags.length;
+                      
+                      // Score = (bonnes réponses - mauvaises réponses) / total possible * 100
+                      const rawScore = Math.max(0, correctSelected - wrongSelected);
+                      const maxScore = totalCorrect;
+                      const scorePercentage = Math.round((rawScore / maxScore) * 100);
                       
                       let feedback = "";
-                      if (score === 5) {
-                        feedback = "Excellent ! Vous avez identifié tous les indices de phishing. Vous êtes bien préparé pour détecter ces attaques.";
+                      const exerciseKey = `phishing-exercise-${currentPhishingExample}`;
+                      
+                      if (scorePercentage >= 80 && wrongSelected === 0) {
+                        feedback = `Excellent ! Vous avez identifié ${correctSelected}/${totalCorrect} indices corrects sans tomber dans les pièges. Score: ${scorePercentage}%`;
                         
-                        // Ajouter des points si première réussite complète
-                        if (!completedInteractions.includes('phishing-exercise')) {
+                        // Ajouter des points si première réussite complète pour cet exemple
+                        if (!completedInteractions.includes(exerciseKey)) {
                           setUserPoints(prev => prev + 20);
-                          setCompletedInteractions(prev => [...prev, 'phishing-exercise']);
+                          setCompletedInteractions(prev => [...prev, exerciseKey]);
                           
                           toast({
                             title: "Exercice de phishing réussi !",
-                            description: "+20 points pour avoir identifié correctement tous les indices de phishing",
+                            description: `+20 points pour l'exemple "${currentExample.title}"`,
                           });
                         }
-                      } else if (score >= 3) {
-                        feedback = `Bon travail ! Vous avez identifié ${score} indices sur 5. Continuez à vous entraîner pour repérer tous les signes d'une tentative de phishing.`;
+                      } else if (scorePercentage >= 60) {
+                        feedback = `Bon travail ! Vous avez identifié ${correctSelected}/${totalCorrect} indices corrects mais avez sélectionné ${wrongSelected} faux indices. Score: ${scorePercentage}%`;
                         
                         // Ajouter moins de points pour une réussite partielle
-                        if (!completedInteractions.includes('phishing-exercise')) {
+                        if (!completedInteractions.includes(exerciseKey)) {
                           setUserPoints(prev => prev + 10);
-                          setCompletedInteractions(prev => [...prev, 'phishing-exercise']);
+                          setCompletedInteractions(prev => [...prev, exerciseKey]);
                           
                           toast({
-                            title: "Bonne détection !",
-                            description: `+10 points pour avoir identifié ${score} indices de phishing sur 5`,
+                            title: "Bonne analyse !",
+                            description: `+10 points pour l'exemple "${currentExample.title}"`,
                           });
                         }
                       } else {
-                        feedback = `Vous avez identifié ${score} indices sur 5. Revoyez les caractéristiques communes des e-mails de phishing pour améliorer votre capacité à les détecter.`;
+                        feedback = `Vous avez identifié ${correctSelected}/${totalCorrect} indices corrects et sélectionné ${wrongSelected} faux indices. Score: ${scorePercentage}%. Revoyez les caractéristiques des e-mails de phishing.`;
+                        
+                        if (wrongSelected > 0) {
+                          feedback += ` Attention aux pièges : certaines options peuvent sembler suspectes mais ne s'appliquent pas à cet exemple.`;
+                        }
                       }
                       
                       setExerciseData({
