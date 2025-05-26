@@ -47,7 +47,7 @@ export async function initCyberExpertSession(req: Request, res: Response) {
     // Message d'accueil plus interactif et guidé
     const welcomeMessage: ChatCompletionRequestMessage = {
       role: "assistant",
-      content: "👋 Bonjour et bienvenue dans votre session d'apprentissage personnalisée en cybersécurité ! 🔐\n\nJe suis CYBER EXPERT de mc2i, votre guide interactif dans ce domaine passionnant. Je vais vous accompagner pas à pas pour rendre cette expérience à la fois instructive et engageante.\n\n**Voici comment nous allons procéder :**\n\n1. Commençons par définir ce qui vous intéresse particulièrement en cybersécurité\n2. Ensemble, nous explorerons ce sujet à votre rythme et selon vos préférences\n3. Je vous proposerai des exercices pratiques pour tester vos connaissances\n4. Nous pourrons aussi simuler des scénarios de décision dans des situations réelles\n\n**Pour démarrer, dites-moi simplement :**\n• Quel aspect de la cybersécurité vous intéresse le plus ? (phishing, ransomware, protection des données...)\n• Votre niveau actuel de connaissance (débutant, intermédiaire, avancé)\n• Si vous préférez apprendre par des exemples concrets, des explications détaillées ou des mises en situation\n\nÀ tout moment, vous pouvez taper 'aide' pour voir les commandes disponibles ou 'exercice' pour passer à un mode plus pratique. Alors, par où souhaitez-vous commencer notre exploration ?"
+      content: "👋 Bonjour et bienvenue dans votre session d'apprentissage personnalisée en cybersécurité ! 🔐\n\nJe suis Cyber Expert de FYNE, votre guide interactif dans ce domaine passionnant. Je vais vous accompagner pas à pas pour rendre cette expérience à la fois instructive et engageante.\n\n**Voici comment nous allons procéder :**\n\n1. Commençons par définir ce qui vous intéresse particulièrement en cybersécurité\n2. Ensemble, nous explorerons ce sujet à votre rythme et selon vos préférences\n3. Je vous proposerai des exercices pratiques pour tester vos connaissances\n4. Nous pourrons aussi simuler des scénarios de décision dans des situations réelles\n\n**Pour démarrer, dites-moi simplement :**\n• Quel aspect de la cybersécurité vous intéresse le plus ? (phishing, ransomware, protection des données...)\n• Votre niveau actuel de connaissance (débutant, intermédiaire, avancé)\n• Si vous préférez apprendre par des exemples concrets, des explications détaillées ou des mises en situation\n\nÀ tout moment, vous pouvez taper 'aide' pour voir les commandes disponibles ou 'exercice' pour passer à un mode plus pratique. Alors, par où souhaitez-vous commencer notre exploration ?"
     };
     
     // Ajouter les messages à la session
@@ -592,7 +592,7 @@ async function generateLearningSequence(session: CyberExpertSession): Promise<st
  * Fournit le prompt système pour le chatbot expert en cybersécurité
  */
 function getCyberExpertSystemPrompt(): string {
-  return `Tu es CYBER EXPERT, un expert en cybersécurité représentant mc2i. Ta mission est de transmettre ton expertise à travers des interactions adaptées, personnalisées et engageantes.
+  return `Tu es CYBER EXPERT, un expert en cybersécurité représentant FYNE. Ta mission est de transmettre ton expertise à travers des interactions adaptées, personnalisées et engageantes.
 
 IDENTITÉ & APPROCHE:
 * Expert en cybersécurité compétent mais accessible

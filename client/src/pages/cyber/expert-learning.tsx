@@ -882,7 +882,7 @@ function ExpertLearningPageContent() {
                 </CardHeader>
                 <CardContent className="py-8 space-y-6 text-[#c3d9ee]">
                   <div className="font-mono text-base border-l-2 border-[#00b4d8]/50 pl-6 py-2">
-                    <p>Bienvenue sur le module <span className="text-[#00b4d8] font-semibold">APPRENDRE EN ÉCHANGEANT</span>.</p>
+                    <p>Bienvenue sur le module <span className="text-[#00b4d8] font-semibold">Apprentissage conversationnel de FYNE</span>.</p>
                     <p className="mt-2">Cette interface vous permet d'interagir avec un expert en cybersécurité pour explorer des concepts adaptés à votre niveau et à vos besoins spécifiques.</p>
                   </div>
                   
