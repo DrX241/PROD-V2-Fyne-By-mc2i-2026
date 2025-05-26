@@ -1334,40 +1334,94 @@ export default function ProspectPulse() {
                 </Button>
               </Link>
               <div>
-                <PageTitle title="PROSPECTPULSE" subtitle="Simulateur de prospection sous pression" />
-                <div className="flex gap-2 mt-1">
-                  <Badge className="bg-amber-700">Temps réel</Badge>
-                  <Badge className="bg-amber-700">Challenge</Badge>
-                  <Badge className="bg-amber-700">IA avancée</Badge>
-                </div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-400 to-red-400 bg-clip-text text-transparent">
+                  PROSPECTPULSE
+                </h1>
+                <p className="text-orange-300 text-sm">Simulateur de prospection sous pression</p>
               </div>
             </div>
-            
-            <div className="flex gap-2">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
+          </div>
+
+          {/* Description du module */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-10 max-w-4xl mx-auto"
+          >
+            <h2 className="text-2xl font-bold mb-3">Simulation commerciale en temps réel</h2>
+            <p className="text-orange-200 mb-4">
+              Testez vos réflexes commerciaux dans des situations imprévisibles. Recevez des demandes clients 
+              inattendues et apprenez à gérer la pression temporelle avec des réponses limitées dans le temps.
+              Développez votre agilité commerciale grâce à notre IA qui simule des profils clients variés.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Badge className="bg-amber-700 hover:bg-amber-600">Temps réel</Badge>
+              <Badge className="bg-amber-700 hover:bg-amber-600">Pression commerciale</Badge>
+              <Badge className="bg-amber-700 hover:bg-amber-600">Clients variés</Badge>
+              <Badge className="bg-amber-700 hover:bg-amber-600">Évaluation IA</Badge>
+            </div>
+          </motion.div>
+
+          {/* Zone principale */}
+          {activeSession ? (
+            renderActiveSession()
+          ) : (
+            <div className="max-w-4xl mx-auto">
+              <Card className="bg-gradient-to-br from-orange-900/80 to-red-950/90 border border-orange-800/30 backdrop-blur-sm hover:shadow-lg hover:border-orange-700/50 transition-all">
+                <CardHeader>
+                  <div className="flex items-center justify-center mb-4">
+                    <div className="p-3 rounded-lg bg-gradient-to-r from-amber-600 to-red-600 shadow-md">
+                      <Zap className="h-8 w-8 text-white" />
+                    </div>
+                  </div>
+                  <CardTitle className="text-center text-2xl font-bold">Prêt pour le défi ?</CardTitle>
+                  <CardDescription className="text-center text-orange-300">
+                    Exercez vos compétences de prospection dans des situations de stress réel
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <ul className="mb-8 text-sm text-orange-200 flex flex-col gap-3">
+                    <li className="flex items-center gap-2 justify-center">
+                      <AlertCircle className="h-4 w-4 text-orange-400 flex-shrink-0" />
+                      <span>Chat client imprévu en temps réel</span>
+                    </li>
+                    <li className="flex items-center gap-2 justify-center">
+                      <Timer className="h-4 w-4 text-orange-400 flex-shrink-0" />
+                      <span>Réponses limitées entre 2-4 minutes</span>
+                    </li>
+                    <li className="flex items-center gap-2 justify-center">
+                      <Shuffle className="h-4 w-4 text-orange-400 flex-shrink-0" />
+                      <span>Scénarios et profils clients variés</span>
+                    </li>
+                    <li className="flex items-center gap-2 justify-center">
+                      <Target className="h-4 w-4 text-orange-400 flex-shrink-0" />
+                      <span>Évaluation des compétences commerciales</span>
+                    </li>
+                  </ul>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Button 
-                      variant="outline" 
-                      size="icon"
-                      className="border-blue-800/50 text-white hover:bg-blue-800/40"
-                      onClick={() => setShowSettings(true)}
+                      className="bg-gradient-to-r from-amber-600 to-red-600 hover:from-amber-700 hover:to-red-700 text-white px-8 py-3"
+                      onClick={startNewSession}
+                      disabled={isLoading}
                     >
-                      <Settings className="h-4 w-4" />
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Préparation...
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="mr-2 h-4 w-4" />
+                          Commencer une simulation
+                        </>
+                      )}
                     </Button>
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-blue-950 text-white border-blue-800">
-                    <div className="font-medium">Paramètres du simulateur</div>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
+                    
                     <Button 
-                      variant="outline" 
-                      className={`border-amber-600/70 hover:bg-amber-900/30 ${
+                      variant="outline"
+                      className={`border-amber-600/70 hover:bg-amber-900/30 px-8 py-3 ${
                         isSurpriseMode ? 'bg-amber-900/30 text-amber-300' : 'text-white'
                       }`}
                       onClick={() => setIsSurpriseMode(!isSurpriseMode)}
@@ -1375,87 +1429,70 @@ export default function ProspectPulse() {
                       <Zap className={`mr-2 h-4 w-4 ${isSurpriseMode ? 'text-amber-400' : ''}`} />
                       {isSurpriseMode ? 'Mode Surprise Actif' : 'Activer le Mode Surprise'}
                     </Button>
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-amber-950 text-white border-amber-800">
-                    <div className="text-sm">Reçois des demandes clients aléatoires pendant ta navigation</div>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </div>
-          
-          {/* Zone principale */}
-          {activeSession ? (
-            renderActiveSession()
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Démarrer une session */}
-              <div className="lg:col-span-2">
-                <Card className="bg-gradient-to-br from-blue-900/80 to-blue-950/90 border border-blue-800/30 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle className="text-xl font-bold flex items-center gap-2">
-                      <BrainCircuit className="h-5 w-5 text-blue-400" />
-                      Simulateur de prospection client
-                    </CardTitle>
-                    <CardDescription className="text-blue-300">
-                      Exercez vos compétences de prospection dans des situations de stress réel
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="text-blue-200">
-                        Dans ce simulateur, vous incarnez un Senior Manager en situation de prospection client.
-                        Vous devrez réagir rapidement, identifier les besoins, gérer les objections et proposer des solutions.
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div className="bg-blue-950/50 border border-blue-900/30 rounded-lg p-4">
-                          <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
-                            <Timer className="h-4 w-4 text-blue-400" />
-                            Contraintes temporelles
-                          </h3>
-                          <ul className="space-y-1 text-sm text-blue-200">
-                            <li>• Sessions limitées à {Math.floor(settings.globalTimeLimit / 60)} minutes</li>
-                            <li>• {settings.responseTimeLimit} secondes maximum par réponse</li>
-                            <li>• L'inactivité entraîne l'impatience du client</li>
-                          </ul>
-                        </div>
-                        
-                        <div className="bg-blue-950/50 border border-blue-900/30 rounded-lg p-4">
-                          <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
-                            <User className="h-4 w-4 text-blue-400" />
-                            Profils clients variés
-                          </h3>
-                          <ul className="space-y-1 text-sm text-blue-200">
-                            <li>• Client pressé et direct</li>
-                            <li>• Client méfiant ou hostile</li>
-                            <li>• Client indécis ou technique</li>
-                            <li>• Scénarios générés dynamiquement</li>
-                          </ul>
-                        </div>
-                      </div>
-                      
-                      <div className="flex justify-center">
-                        <Button 
-                          className="bg-gradient-to-r from-amber-600 to-red-600 hover:from-amber-700 hover:to-red-700 text-white py-6 px-8 text-lg"
-                          onClick={startNewSession}
-                          disabled={isLoading}
-                        >
-                          {isLoading ? (
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                          ) : (
-                            <Zap className="mr-2 h-5 w-5" />
-                          )}
-                          Démarrer une simulation
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                  </div>
+                  
+                  <div className="mt-6 p-4 bg-orange-900/20 rounded-lg border border-orange-800/30">
+                    <p className="text-sm text-orange-300">
+                      <strong>Mode Surprise :</strong> Recevez des demandes clients aléatoires pendant votre navigation sur la plateforme. 
+                      Parfait pour tester vos réflexes commerciaux à tout moment !
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
               
-              {/* Statistiques et informations */}
-              <div>
+              {/* Section historique */}
+              {historySessions.length > 0 && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  className="mt-8"
+                >
+                  <Card className="bg-orange-950/50 border border-orange-900/30">
+                    <CardHeader>
+                      <CardTitle className="text-lg font-bold flex items-center gap-2">
+                        <BarChart className="h-5 w-5 text-orange-400" />
+                        Historique des sessions
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {historySessions.slice(0, 3).map((session, index) => (
+                          <div key={session.id} className="flex items-center justify-between p-3 bg-orange-900/20 rounded-lg border border-orange-800/30">
+                            <div className="flex items-center gap-3">
+                              <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                              <div>
+                                <div className="font-medium text-orange-200">
+                                  Session {session.clientProfile.type}
+                                </div>
+                                <div className="text-sm text-orange-400">
+                                  {session.startTime.toLocaleDateString('fr-FR')}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-medium text-orange-200">
+                                {session.score?.total || 0}/100
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* Dialogs et autres interfaces */}
+      {renderSurpriseAlert()}
+      {renderSessionResults()}
+      {renderSettingsDialog()}
+    </HomeLayout>
+  );
                 <Card className="bg-gradient-to-br from-blue-900/80 to-blue-950/90 border border-blue-800/30 backdrop-blur-sm mb-6">
                   <CardHeader>
                     <CardTitle className="text-lg font-bold flex items-center gap-2">
