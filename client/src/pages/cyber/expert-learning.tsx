@@ -1398,10 +1398,32 @@ function ExpertLearningPageContent() {
                                 ]
                               };
                               
+                              // Fonction pour convertir les clés techniques en noms français
+                              const getTopicDisplayName = (topicKey: string): string => {
+                                const topicNames: Record<string, string> = {
+                                  phishing: "le phishing",
+                                  ransomware: "les ransomwares", 
+                                  passwords: "la gestion des mots de passe",
+                                  network: "la sécurité réseau",
+                                  malware: "les malwares",
+                                  dataProtection: "la protection des données",
+                                  zeroTrust: "le modèle Zero Trust",
+                                  iot: "la sécurité IoT",
+                                  mobile: "la sécurité mobile",
+                                  cloud: "la sécurité cloud",
+                                  threat: "les menaces avancées",
+                                  governance: "la gouvernance de sécurité",
+                                  incidentResponse: "la réponse aux incidents"
+                                };
+                                return topicNames[topicKey] || topicKey;
+                              };
+                              
+                              const topicDisplayName = getTopicDisplayName(mainTopic);
+                              
                               // Suggestions communes à tous les sujets
                               const commonSuggestions = [
-                                { text: "Scénario de décision", prompt: "Propose-moi un scénario de décision sur " + mainTopic },
-                                { text: "Quiz sur ce sujet", prompt: "Crée un quiz d'auto-évaluation sur " + mainTopic }
+                                { text: "Scénario de décision", prompt: "Propose-moi un scénario de décision sur " + topicDisplayName },
+                                { text: "Quiz sur ce sujet", prompt: "Crée un quiz d'auto-évaluation sur " + topicDisplayName }
                               ];
                               
                               // Sélectionner les suggestions spécifiques au sujet
