@@ -182,6 +182,46 @@ export default function CyberTestTechnique() {
         options: ['Command Injection', 'SQL Injection', 'XSS', 'LDAP Injection'],
         correctAnswer: ['Command Injection'],
         explanation: 'L\'injection de commandes permet d\'exécuter des commandes système sur le serveur.'
+      },
+      {
+        id: 'web-q11',
+        type: 'qcm' as const,
+        question: 'Que signifie OWASP?',
+        options: ['Open Web Application Security Project', 'Online Web Access Security Protocol', 'Operational Web Application Safety Program', 'Open Worldwide Application Security Platform'],
+        correctAnswer: ['Open Web Application Security Project'],
+        explanation: 'OWASP est une organisation dédiée à la sécurité des applications web.'
+      },
+      {
+        id: 'web-q12',
+        type: 'qcm' as const,
+        question: 'Quel mécanisme protège contre l\'inclusion de fichiers locaux (LFI)?',
+        options: ['Validation des chemins', 'Chiffrement des fichiers', 'Compression automatique', 'Cache navigateur'],
+        correctAnswer: ['Validation des chemins'],
+        explanation: 'La validation stricte des chemins empêche l\'accès à des fichiers non autorisés.'
+      },
+      {
+        id: 'web-q13',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'une attaque LDAP Injection?',
+        options: ['Manipulation des requêtes LDAP', 'Injection dans la base de données', 'Attaque sur le serveur web', 'Compromission du DNS'],
+        correctAnswer: ['Manipulation des requêtes LDAP'],
+        explanation: 'L\'injection LDAP exploite les requêtes vers les annuaires LDAP.'
+      },
+      {
+        id: 'web-q14',
+        type: 'qcm' as const,
+        question: 'Quel en-tête HTTP empêche le sniffing de type MIME?',
+        options: ['X-Content-Type-Options', 'X-Frame-Options', 'X-XSS-Protection', 'Content-Security-Policy'],
+        correctAnswer: ['X-Content-Type-Options'],
+        explanation: 'X-Content-Type-Options: nosniff empêche le navigateur de deviner le type MIME.'
+      },
+      {
+        id: 'web-q15',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'un cookie sécurisé?',
+        options: ['Cookie transmis uniquement en HTTPS', 'Cookie chiffré', 'Cookie temporaire', 'Cookie de session'],
+        correctAnswer: ['Cookie transmis uniquement en HTTPS'],
+        explanation: 'L\'attribut Secure garantit que le cookie n\'est envoyé qu\'en HTTPS.'
       }
     ],
     network: [
@@ -264,6 +304,46 @@ export default function CyberTestTechnique() {
         options: ['Corruption du cache DNS avec de fausses entrées', 'Saturation du serveur DNS', 'Chiffrement des requêtes DNS', 'Redirection DNS légale'],
         correctAnswer: ['Corruption du cache DNS avec de fausses entrées'],
         explanation: 'Le DNS cache poisoning injecte de fausses entrées dans le cache DNS pour rediriger le trafic.'
+      },
+      {
+        id: 'net-q11',
+        type: 'qcm' as const,
+        question: 'Quel protocole VPN est considéré comme obsolète?',
+        options: ['PPTP', 'OpenVPN', 'IKEv2', 'WireGuard'],
+        correctAnswer: ['PPTP'],
+        explanation: 'PPTP utilise un chiffrement faible et présente des vulnérabilités connues.'
+      },
+      {
+        id: 'net-q12',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'un SIEM?',
+        options: ['Security Information and Event Management', 'System Integration Event Monitor', 'Security Incident Emergency Management', 'Server Infrastructure Event Monitoring'],
+        correctAnswer: ['Security Information and Event Management'],
+        explanation: 'Un SIEM collecte et analyse les événements de sécurité en temps réel.'
+      },
+      {
+        id: 'net-q13',
+        type: 'qcm' as const,
+        question: 'Quelle attaque exploite les faiblesses du protocole WPS?',
+        options: ['Attaque par force brute sur le PIN', 'Déchiffrement WPA2', 'Injection de paquets', 'Spoofing d\'adresse MAC'],
+        correctAnswer: ['Attaque par force brute sur le PIN'],
+        explanation: 'WPS utilise un PIN de 8 chiffres vulnérable aux attaques par force brute.'
+      },
+      {
+        id: 'net-q14',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que le port knocking?',
+        options: ['Séquence de connexions pour ouvrir un port', 'Scan de ports automatique', 'Fermeture forcée de connexions', 'Redirection de ports'],
+        correctAnswer: ['Séquence de connexions pour ouvrir un port'],
+        explanation: 'Le port knocking nécessite une séquence prédéfinie pour accéder à un service.'
+      },
+      {
+        id: 'net-q15',
+        type: 'qcm' as const,
+        question: 'Quel type d\'attaque peut être détecté par l\'analyse du TTL?',
+        options: ['IP Spoofing', 'DNS Spoofing', 'ARP Spoofing', 'MAC Spoofing'],
+        correctAnswer: ['IP Spoofing'],
+        explanation: 'Les différences de TTL peuvent révéler une usurpation d\'adresse IP.'
       }
     ],
     system: [
@@ -346,6 +426,46 @@ export default function CyberTestTechnique() {
         options: ['Autopsy', 'Nmap', 'Wireshark', 'Metasploit'],
         correctAnswer: ['Autopsy'],
         explanation: 'Autopsy est une plateforme forensique pour analyser les disques et récupérer des preuves.'
+      },
+      {
+        id: 'sys-q11',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce qu\'un RBAC?',
+        options: ['Role-Based Access Control', 'Resource-Based Access Control', 'Rule-Based Access Control', 'Remote-Based Access Control'],
+        correctAnswer: ['Role-Based Access Control'],
+        explanation: 'RBAC attribue les permissions en fonction des rôles assignés aux utilisateurs.'
+      },
+      {
+        id: 'sys-q12',
+        type: 'qcm' as const,
+        question: 'Quel fichier contient les mots de passe hashés sous Linux?',
+        options: ['/etc/shadow', '/etc/passwd', '/etc/hosts', '/etc/fstab'],
+        correctAnswer: ['/etc/shadow'],
+        explanation: 'Le fichier /etc/shadow stocke les mots de passe hashés avec accès restreint.'
+      },
+      {
+        id: 'sys-q13',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que l\'ASLR?',
+        options: ['Address Space Layout Randomization', 'Automatic System Log Rotation', 'Advanced Security Layer Reinforcement', 'Application Security Level Rating'],
+        correctAnswer: ['Address Space Layout Randomization'],
+        explanation: 'ASLR randomise la disposition mémoire pour compliquer les exploits.'
+      },
+      {
+        id: 'sys-q14',
+        type: 'qcm' as const,
+        question: 'Quel est le but d\'un chroot jail?',
+        options: ['Isoler un processus dans un système de fichiers restreint', 'Chiffrer les données', 'Accélérer les performances', 'Gérer les utilisateurs'],
+        correctAnswer: ['Isoler un processus dans un système de fichiers restreint'],
+        explanation: 'Un chroot jail limite l\'accès d\'un processus à une partie du système de fichiers.'
+      },
+      {
+        id: 'sys-q15',
+        type: 'qcm' as const,
+        question: 'Qu\'est-ce que SELinux?',
+        options: ['Security-Enhanced Linux', 'System Enhancement Linux', 'Secure Enterprise Linux', 'Standard Encryption Linux'],
+        correctAnswer: ['Security-Enhanced Linux'],
+        explanation: 'SELinux implémente un contrôle d\'accès obligatoire granulaire.'
       }
     ],
     crypto: [
@@ -966,28 +1086,77 @@ void handleControl() {
         const categoryInfo = mockOptions.categories.find(c => c.id === data.category);
         const difficultyInfo = mockOptions.difficulties.find(d => d.id === data.difficulty);
         
-        const prompt = `Génère exactement 10 questions de cybersécurité pour un test technique.
+        let prompt = '';
+        
+        if (data.exerciseType === 'qcm') {
+          prompt = `Génère exactement 10 questions QCM de cybersécurité pour un test technique.
         
 Paramètres:
 - Catégorie: ${categoryInfo?.name} (${categoryInfo?.description})
 - Niveau: ${difficultyInfo?.name} (${difficultyInfo?.description})
-- Type: ${data.exerciseType}
+- Type: Questions à choix multiples (QCM)
 
-Génère un JSON avec exactement 10 questions variées et progressives. Format:
+Génère un JSON avec exactement 10 questions QCM variées. Format:
 {
   "questions": [
     {
       "id": "q1",
-      "type": "${data.exerciseType}",
-      "question": "Question claire et précise",
-      ${data.exerciseType === 'qcm' ? '"options": ["Option 1", "Option 2", "Option 3", "Option 4"],' : ''}
-      "correctAnswer": ${data.exerciseType === 'qcm' ? '["Bonne réponse"]' : '"Réponse attendue détaillée"'},
-      "explanation": "Explication pédagogique de la réponse"
+      "type": "qcm",
+      "question": "Question technique précise",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctAnswer": ["Bonne réponse exacte"],
+      "explanation": "Explication technique détaillée"
     }
   ]
 }
 
-Les questions doivent être techniques, réalistes et couvrir différents aspects de la catégorie choisie.`;
+Chaque question doit avoir 4 options avec une seule bonne réponse.`;
+        } else if (data.exerciseType === 'text') {
+          prompt = `Génère exactement 10 questions ouvertes de cybersécurité pour un test technique.
+        
+Paramètres:
+- Catégorie: ${categoryInfo?.name} (${categoryInfo?.description})
+- Niveau: ${difficultyInfo?.name} (${difficultyInfo?.description})
+- Type: Questions ouvertes (texte libre)
+
+Génère un JSON avec exactement 10 questions ouvertes. Format:
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "text",
+      "question": "Question ouverte nécessitant une analyse détaillée",
+      "correctAnswer": "Réponse détaillée attendue avec éléments clés à mentionner",
+      "explanation": "Critères d'évaluation et points importants"
+    }
+  ]
+}
+
+Les questions doivent demander des explications, analyses ou descriptions détaillées.`;
+        } else {
+          prompt = `Génère exactement 10 exercices d'analyse de code vulnérable pour un test technique.
+        
+Paramètres:
+- Catégorie: ${categoryInfo?.name} (${categoryInfo?.description})
+- Niveau: ${difficultyInfo?.name} (${difficultyInfo?.description})
+- Type: Analyse de code
+
+Génère un JSON avec exactement 10 exercices de code. Format:
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "code",
+      "question": "Analysez ce code et identifiez les vulnérabilités",
+      "code": "Code source vulnérable réaliste et technique",
+      "correctAnswer": "Analyse détaillée des vulnérabilités et corrections proposées",
+      "explanation": "Explication technique des failles et bonnes pratiques"
+    }
+  ]
+}
+
+Le code doit être réaliste, contenir des vulnérabilités techniques et être spécifique à la catégorie.`;
+        }
 
         const result = await apiRequest('/api/openai/chat', {
           method: 'POST',
