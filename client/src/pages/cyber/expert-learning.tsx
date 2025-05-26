@@ -1384,8 +1384,8 @@ function ExpertLearningPageContent() {
                               
                               // Suggestions communes à tous les sujets
                               const commonSuggestions = [
-                                { text: "Scénario de décision", prompt: "Propose-moi un scénario de décision sur " + mainTopic },
-                                { text: "Quiz sur ce sujet", prompt: "Crée un quiz d'auto-évaluation sur " + mainTopic }
+                                { text: "Scénario de décision", prompt: "Propose-moi un scénario de décision sur le sujet qu'on traite actuellement" },
+                                { text: "Quiz sur ce sujet", prompt: "Crée un quiz d'auto-évaluation sur le sujet qu'on traite actuellement" }
                               ];
                               
                               // Sélectionner les suggestions spécifiques au sujet
