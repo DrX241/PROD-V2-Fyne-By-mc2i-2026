@@ -1422,7 +1422,7 @@ function ExpertLearningPageContent() {
                               
                               // Suggestions communes à tous les sujets
                               const commonSuggestions = [
-                                { text: "Quiz sur ce sujet", prompt: "Crée un quiz d'auto-évaluation sur " + topicDisplayName }
+                                { text: "Quiz sur ce sujet", prompt: "Crée un quiz d'auto-évaluation sur le sujet" }
                               ];
                               
                               // Sélectionner les suggestions spécifiques au sujet
