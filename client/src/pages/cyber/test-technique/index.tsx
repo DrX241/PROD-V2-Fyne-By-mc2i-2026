@@ -353,14 +353,17 @@ Les questions doivent être techniques, réalistes et couvrir différents aspect
             messages: [
               {
                 role: 'system',
-                content: 'Tu es un expert en cybersécurité qui crée des tests techniques de qualité professionnelle. Réponds uniquement en JSON valide.'
+                content: 'Tu es un expert en cybersécurité qui crée des tests techniques de qualité professionnelle. Réponds uniquement en JSON valide et bien formaté. IMPORTANT: Ta réponse doit être un JSON valide sans aucun texte additionnel, sans délimiteurs de code markdown ni préfixes.'
               },
               {
                 role: 'user',
                 content: prompt
               }
             ],
-            temperature: 0.7
+            temperature: 0.2,
+            top_p: 0.95,
+            max_tokens: 2000,
+            response_format: { type: "json_object" }
           })
         });
 
@@ -542,14 +545,17 @@ Sois objectif, constructif et professionnel dans ton analyse.`;
           messages: [
             {
               role: 'system',
-              content: 'Tu es un expert en cybersécurité qui évalue des tests techniques. Fournis des analyses objectives et constructives. Réponds uniquement en JSON valide.'
+              content: 'Tu es un expert en cybersécurité qui évalue des tests techniques. Fournis des analyses objectives et constructives. Réponds uniquement en JSON valide et bien formaté. IMPORTANT: Ta réponse doit être un JSON valide sans aucun texte additionnel, sans délimiteurs de code markdown ni préfixes.'
             },
             {
               role: 'user',
               content: prompt
             }
           ],
-          temperature: 0.3
+          temperature: 0.2,
+          top_p: 0.95,
+          max_tokens: 2000,
+          response_format: { type: "json_object" }
         })
       });
 
