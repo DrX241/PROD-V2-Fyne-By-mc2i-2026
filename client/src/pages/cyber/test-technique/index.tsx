@@ -98,6 +98,7 @@ export default function CyberTestTechnique() {
   const [customTestPrompt, setCustomTestPrompt] = useState('');
   const [customTestTechnical, setCustomTestTechnical] = useState(true);
   const [customTestLevel, setCustomTestLevel] = useState('medium');
+  const [customTestQuestionCount, setCustomTestQuestionCount] = useState('5');
   const [useStoredQuestions, setUseStoredQuestions] = useState(true);
 
   // Banque de questions pré-stockées pour éviter les appels API
@@ -1214,12 +1215,9 @@ Le code doit être réaliste, contenir des vulnérabilités techniques et être 
     }
   });
 
-  // Simulated create custom test mutation
+  // Create custom test mutation with Azure OpenAI
   const createCustomTestMutation = useMutation({
     mutationFn: async (data: any) => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 4000));
-      
       // Update progress during generation
       const progressInterval = setInterval(() => {
         setGenerateProgress(prev => {
@@ -1231,32 +1229,82 @@ Le code doit être réaliste, contenir des vulnérabilités techniques et être 
           return newValue;
         });
       }, 200);
-      
-      // Mock questions
-      const mockQuestions = [
-        {
-          id: 'custom1',
-          type: 'qcm' as const,
-          question: 'Dans le cadre de ' + data.prompt + ', quelle serait la meilleure approche?',
-          options: [
-            'Implémenter une authentification multifacteur',
-            'Renforcer la surveillance du réseau',
-            'Former les utilisateurs aux risques',
-            'Mettre à jour régulièrement les systèmes'
-          ],
-          correctAnswer: ['Former les utilisateurs aux risques'],
-          explanation: 'La formation des utilisateurs est essentielle pour réduire les risques liés à la sécurité.'
-        },
-        {
-          id: 'custom2',
-          type: 'text' as const,
-          question: 'Élaborez une stratégie de réponse à incident adaptée à ' + data.prompt,
-          correctAnswer: 'Une stratégie de réponse efficace comprend la détection, l\'endiguement, l\'éradication, et la récupération, avec une documentation complète et une analyse post-incident.',
-          explanation: 'Une réponse à incident bien structurée minimise les dommages et accélère le retour à la normale.'
+
+      try {
+        const questionTypes = ['qcm', 'text', 'code'];
+        const levelText = data.level === 'easy' ? 'débutant' : data.level === 'medium' ? 'intermédiaire' : 'avancé';
+        const technicalText = data.technical ? 'technique' : 'non technique';
+        
+        const prompt = `Génère exactement ${data.questionCount} questions de cybersécurité de niveau ${levelText} et caractère ${technicalText} sur le sujet suivant: "${data.prompt}".
+
+Crée ${data.questionCount} questions variées incluant des QCM, questions ouvertes et analyses de code.
+
+Format de réponse JSON obligatoire:
+{
+  "questions": [
+    {
+      "id": "custom1",
+      "type": "qcm",
+      "question": "Question QCM précise et contextuelle",
+      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+      "correctAnswer": ["Bonne réponse"],
+      "explanation": "Explication détaillée"
+    },
+    {
+      "id": "custom2", 
+      "type": "text",
+      "question": "Question ouverte détaillée",
+      "correctAnswer": "Réponse attendue complète",
+      "explanation": "Justification de la réponse"
+    },
+    {
+      "id": "custom3",
+      "type": "code",
+      "question": "Analysez ce code et identifiez les vulnérabilités",
+      "code": "Code source vulnérable réaliste",
+      "correctAnswer": "Analyse des vulnérabilités et corrections",
+      "explanation": "Explication technique des failles"
+    }
+  ]
+}
+
+Assure-toi de générer exactement ${data.questionCount} questions adaptées au contexte "${data.prompt}".`;
+
+        const result = await apiRequest('/api/openai/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messages: [
+              {
+                role: 'system',
+                content: 'Tu es un expert en cybersécurité qui crée des tests techniques de qualité professionnelle. Réponds uniquement en JSON valide et bien formaté. IMPORTANT: Ta réponse doit être un JSON valide sans aucun texte additionnel, sans délimiteurs de code markdown ni préfixes.'
+              },
+              {
+                role: 'user',
+                content: prompt
+              }
+            ],
+            temperature: 0.2,
+            top_p: 0.95,
+            max_tokens: 3000,
+            response_format: { type: "json_object" }
+          })
+        });
+
+        clearInterval(progressInterval);
+        
+        if (result.choices?.[0]?.message?.content) {
+          const questionsData = JSON.parse(result.choices[0].message.content);
+          return questionsData;
+        } else {
+          throw new Error('Réponse invalide de l\'IA');
         }
-      ];
-      
-      return { questions: mockQuestions };
+      } catch (error) {
+        clearInterval(progressInterval);
+        throw error;
+      }
     },
     onSuccess: (data) => {
       setQuestions(data.questions);
@@ -1636,12 +1684,28 @@ Sois objectif, constructif et professionnel dans ton analyse.`;
         </Select>
       </div>
 
+      <div>
+        <label className="block text-sm font-medium text-blue-200 mb-2">
+          Nombre de questions
+        </label>
+        <Select value={customTestQuestionCount} onValueChange={setCustomTestQuestionCount}>
+          <SelectTrigger className="w-full bg-blue-900/50 border-blue-700 text-white">
+            <SelectValue placeholder="Sélectionnez le nombre de questions" />
+          </SelectTrigger>
+          <SelectContent className="bg-blue-950 border-blue-800 text-white">
+            <SelectItem value="5" className="text-white hover:bg-blue-800">5 questions</SelectItem>
+            <SelectItem value="10" className="text-white hover:bg-blue-800">10 questions</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="pt-4">
         <Button 
           onClick={() => createCustomTestMutation.mutate({ 
             prompt: customTestPrompt,
             technical: customTestTechnical,
-            level: customTestLevel
+            level: customTestLevel,
+            questionCount: parseInt(customTestQuestionCount)
           })}
           disabled={!customTestPrompt || createCustomTestMutation.isPending}
           className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
