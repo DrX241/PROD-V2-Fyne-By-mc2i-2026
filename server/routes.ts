@@ -42,14 +42,6 @@ import { generateQuizQuestion, generateQuizHint, generateFullQuiz } from "./adap
 import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearningController";
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
-import { 
-  getLearningLevels, 
-  getUserLearningPreferences, 
-  updateUserLearningPreferences, 
-  generateAdaptedContent, 
-  refreshModuleContent, 
-  getPersonalizedRecommendations 
-} from "./cyberLearningLevelsController";
 import * as amoaExpertController from "./amoaExpertController";
 import { initCyberPulseSession, processCyberPulseMessage, generateCyberChallenge, checkInactivity, updateCyberPulsePreferences, updatePlayerScore } from "./cyberPulseGameController";
 import { terminateCyberPulseSession } from "./cyberPulseSessionManager";
@@ -644,14 +636,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/data-ia/generate-course', generateCourseContent);
   app.post('/api/data-ia/answer-question', answerQuestion);
   app.post('/api/data-ia/generate-quiz', generateDataIaQuiz);
-
-  // Routes pour le système de niveaux d'apprentissage cybersécurité
-  app.get('/api/cyber/learning/levels', getLearningLevels);
-  app.get('/api/cyber/learning/preferences/:userId/:moduleId', getUserLearningPreferences);
-  app.put('/api/cyber/learning/preferences/:userId/:moduleId', updateUserLearningPreferences);
-  app.post('/api/cyber/learning/content/:userId/:moduleId', generateAdaptedContent);
-  app.post('/api/cyber/learning/refresh/:userId/:moduleId', refreshModuleContent);
-  app.get('/api/cyber/learning/recommendations/:userId/:moduleId', getPersonalizedRecommendations);
   
   // Routes directes pour le simulateur de phishing (fallback en cas de problème d'importation)
   app.post('/api/cyber/tools/phishing-simulator', async (req: Request, res: Response) => {
