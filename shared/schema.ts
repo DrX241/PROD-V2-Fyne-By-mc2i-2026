@@ -307,5 +307,16 @@ export type AssistantConversation = typeof assistantConversations.$inferSelect;
 export type AssistantTemplate = typeof assistantTemplates.$inferSelect;
 export type CustomModule = typeof customModules.$inferSelect;
 
+// Table des sessions pour l'authentification
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;

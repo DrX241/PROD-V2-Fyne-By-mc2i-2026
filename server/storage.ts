@@ -11,6 +11,7 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   upsertUser(user: InsertUser): Promise<User>;
+  updateUserLastLogin(id: number): Promise<void>;
 }
 
 // Implémentation de la mémoire pour les tests et le développement
@@ -47,7 +48,7 @@ export class MemStorage implements IStorage {
     const user: User = { 
       id: userId,
       username: insertUser.username,
-      password: insertUser.password,
+      password: insertUser.password || null,
       email: insertUser.email || null,
       firstName: insertUser.firstName || null,
       lastName: insertUser.lastName || null,
@@ -79,6 +80,15 @@ export class MemStorage implements IStorage {
       return updatedUser;
     } else {
       return this.createUser({...userData, id: userId});
+    }
+  }
+
+  async updateUserLastLogin(id: number): Promise<void> {
+    const user = this.users.get(id);
+    if (user) {
+      user.lastLogin = new Date();
+      user.updatedAt = new Date();
+      this.users.set(id, user);
     }
   }
 }
@@ -143,6 +153,16 @@ export class DatabaseStorage implements IStorage {
     
     // Sinon, créer un nouvel utilisateur
     return this.createUser(userData);
+  }
+
+  async updateUserLastLogin(id: number): Promise<void> {
+    await db
+      .update(users)
+      .set({
+        lastLogin: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id));
   }
 }
 
