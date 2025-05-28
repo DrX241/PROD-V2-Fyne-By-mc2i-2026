@@ -59,6 +59,77 @@ export default function IntroductionCybersecurite() {
   const [userPoints, setUserPoints] = useState(0);
   const [completedInteractions, setCompletedInteractions] = useState<string[]>([]);
   
+  // États pour la génération de contenu IA en temps réel
+  const [aiGeneratedContent, setAiGeneratedContent] = useState<any>(null);
+  const [isGeneratingContent, setIsGeneratingContent] = useState(false);
+
+  // Fonction pour générer du contenu adapté au niveau avec GPT-4o
+  const generateLevelSpecificContent = async (topic: string, level: string) => {
+    setIsGeneratingContent(true);
+    try {
+      const response = await fetch('/api/openai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: [
+            {
+              role: 'system',
+              content: `Tu es un expert en cybersécurité. Génère du contenu éducatif adapté au niveau ${level} sur le sujet "${topic}". 
+              
+              Niveau débutant: explications simples, analogies du quotidien, exemples concrets et accessibles
+              Niveau intermédiaire: concepts techniques, cas pratiques, analyse plus poussée  
+              Niveau avancé: expertise technique, recherche de pointe, technologies émergentes
+              
+              Retourne uniquement du JSON avec cette structure:
+              {
+                "introduction": "texte d'introduction",
+                "principaux_points": ["point1", "point2", "point3"],
+                "exemples": [{"titre": "titre", "description": "description"}],
+                "conseil_pratique": "conseil actionnable"
+              }`
+            },
+            {
+              role: 'user',
+              content: `Génère du contenu sur "${topic}" pour le niveau ${level}`
+            }
+          ],
+          max_tokens: 1500,
+          temperature: 0.7
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la génération du contenu');
+      }
+
+      const data = await response.json();
+      try {
+        const content = JSON.parse(data.choices[0].message.content);
+        setAiGeneratedContent(content);
+      } catch (parseError) {
+        // Si le JSON n'est pas valide, on utilise le texte brut
+        setAiGeneratedContent({
+          introduction: data.choices[0].message.content,
+          principaux_points: [],
+          exemples: [],
+          conseil_pratique: ""
+        });
+      }
+    } catch (error) {
+      console.error('Erreur génération contenu:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer le contenu personnalisé",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingContent(false);
+    }
+  };
+  
   // État pour les mini-jeux disponibles
   const [selectedMiniGame, setSelectedMiniGame] = useState<string>("rssi");
   const miniGames = [
@@ -683,15 +754,17 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                   <Button
                     variant={currentLevel === 'debutant' ? 'default' : 'ghost'}
                     size="sm"
-                    onClick={() => {
+                    onClick={async () => {
                       console.log("Sélection niveau débutant");
                       setCurrentLevel('debutant');
                       setContentKey(prev => prev + 1);
+                      await generateLevelSpecificContent('cybersécurité fondamentaux', 'débutant');
                       toast({
                         title: "Niveau débutant sélectionné",
-                        description: "Contenu adapté aux concepts de base",
+                        description: "Contenu généré par IA adapté aux concepts de base",
                       });
                     }}
+                    disabled={isGeneratingContent}
                     className={`h-8 px-3 text-xs ${
                       currentLevel === 'debutant' 
                         ? 'bg-green-600 hover:bg-green-700 text-white' 
@@ -699,21 +772,23 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                     }`}
                   >
                     <div className="w-2 h-2 bg-green-400 rounded-full mr-1.5"></div>
-                    Débutant
+                    {isGeneratingContent && currentLevel === 'debutant' ? 'Génération...' : 'Débutant'}
                   </Button>
                   
                   <Button
                     variant={currentLevel === 'intermediaire' ? 'default' : 'ghost'}
                     size="sm"
-                    onClick={() => {
+                    onClick={async () => {
                       console.log("Sélection niveau intermédiaire");
                       setCurrentLevel('intermediaire');
                       setContentKey(prev => prev + 1);
+                      await generateLevelSpecificContent('cybersécurité fondamentaux', 'intermédiaire');
                       toast({
                         title: "Niveau intermédiaire sélectionné",
-                        description: "Contenu avec concepts approfondis",
+                        description: "Contenu généré par IA avec concepts approfondis",
                       });
                     }}
+                    disabled={isGeneratingContent}
                     className={`h-8 px-3 text-xs ${
                       currentLevel === 'intermediaire' 
                         ? 'bg-amber-600 hover:bg-amber-700 text-white' 
@@ -721,21 +796,23 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                     }`}
                   >
                     <div className="w-2 h-2 bg-amber-400 rounded-full mr-1.5"></div>
-                    Intermédiaire
+                    {isGeneratingContent && currentLevel === 'intermediaire' ? 'Génération...' : 'Intermédiaire'}
                   </Button>
                   
                   <Button
                     variant={currentLevel === 'avance' ? 'default' : 'ghost'}
                     size="sm"
-                    onClick={() => {
+                    onClick={async () => {
                       console.log("Sélection niveau avancé");
                       setCurrentLevel('avance');
                       setContentKey(prev => prev + 1);
+                      await generateLevelSpecificContent('cybersécurité fondamentaux', 'avancé');
                       toast({
                         title: "Niveau avancé sélectionné",
-                        description: "Contenu expert avec défis complexes",
+                        description: "Contenu généré par IA expert avec défis complexes",
                       });
                     }}
+                    disabled={isGeneratingContent}
                     className={`h-8 px-3 text-xs ${
                       currentLevel === 'avance' 
                         ? 'bg-red-600 hover:bg-red-700 text-white' 
@@ -743,7 +820,7 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                     }`}
                   >
                     <div className="w-2 h-2 bg-red-400 rounded-full mr-1.5"></div>
-                    Avancé
+                    {isGeneratingContent && currentLevel === 'avance' ? 'Génération...' : 'Avancé'}
                   </Button>
                 </div>
                 
@@ -753,18 +830,23 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                   size="sm"
                   onClick={async () => {
                     setIsRefreshing(true);
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    const levelTexts = {
+                      'debutant': 'débutant',
+                      'intermediaire': 'intermédiaire', 
+                      'avance': 'avancé'
+                    };
+                    await generateLevelSpecificContent('cybersécurité fondamentaux', levelTexts[currentLevel]);
                     setIsRefreshing(false);
                     toast({
                       title: "Formation actualisée !",
-                      description: `Contenu adapté au niveau ${currentLevel}`,
+                      description: `Nouveau contenu IA généré pour le niveau ${currentLevel}`,
                     });
                   }}
-                  disabled={isRefreshing}
+                  disabled={isRefreshing || isGeneratingContent}
                   className="border-blue-700/50 bg-blue-900/30 text-blue-200 hover:bg-blue-800/50 hover:text-white"
                 >
-                  <Sparkles className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-                  Actualiser
+                  <Sparkles className={`h-4 w-4 mr-2 ${(isRefreshing || isGeneratingContent) ? 'animate-spin' : ''}`} />
+                  {(isRefreshing || isGeneratingContent) ? 'Génération...' : 'Actualiser'}
                 </Button>
               </div>
               
@@ -856,13 +938,59 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                   </div>
                   
                   <div className="prose prose-invert max-w-none">
-                    <p className="text-blue-200">
-                      {getContentByLevel({
-                        debutant: "La cybersécurité, c'est comme protéger votre maison : vous verrouillez les portes, installez des alarmes et vérifiez qui entre. Dans le monde numérique, c'est pareil ! Nous protégeons nos ordinateurs, nos données et nos réseaux contre les personnes malveillantes qui veulent les voler ou les endommager.",
-                        intermediaire: "La cybersécurité est un domaine multidisciplinaire qui combine technologies, processus et politiques pour protéger les systèmes d'information. Elle englobe la protection des infrastructures critiques, la gestion des risques et la résilience organisationnelle face aux cybermenaces en constante évolution.",
-                        avance: "La cybersécurité moderne s'articule autour de paradigmes tels que Zero Trust, la threat intelligence, et l'adaptive security. Elle intègre l'IA/ML pour la détection comportementale, la forensic numérique avancée, et la cyber-résilience dans des architectures cloud-native et edge computing."
-                      })}
-                    </p>
+                    {/* Affichage du contenu généré par l'IA */}
+                    {aiGeneratedContent ? (
+                      <div className="bg-gradient-to-r from-blue-900/40 to-purple-900/40 p-4 rounded-lg border border-blue-700/50 mb-6">
+                        <div className="flex items-center mb-3">
+                          <BrainCircuit className="h-5 w-5 text-purple-400 mr-2" />
+                          <Badge className="bg-purple-600/70">
+                            <Sparkles className="h-3 w-3 mr-1" />
+                            Contenu IA Personnalisé
+                          </Badge>
+                        </div>
+                        <p className="text-blue-100 mb-4">{aiGeneratedContent.introduction}</p>
+                        
+                        {aiGeneratedContent.principaux_points && aiGeneratedContent.principaux_points.length > 0 && (
+                          <div className="mb-4">
+                            <h4 className="text-white font-medium mb-2">Points clés :</h4>
+                            <ul className="space-y-1">
+                              {aiGeneratedContent.principaux_points.map((point: string, index: number) => (
+                                <li key={index} className="text-blue-200 text-sm flex items-start">
+                                  <CheckCircle className="h-4 w-4 text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+                                  {point}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        
+                        {aiGeneratedContent.conseil_pratique && (
+                          <div className="bg-blue-800/30 p-3 rounded border border-blue-600/50">
+                            <div className="flex items-center mb-2">
+                              <Lightbulb className="h-4 w-4 text-yellow-400 mr-2" />
+                              <span className="text-white font-medium text-sm">Conseil pratique</span>
+                            </div>
+                            <p className="text-blue-200 text-sm">{aiGeneratedContent.conseil_pratique}</p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-blue-200">
+                        {isGeneratingContent ? (
+                          <span className="flex items-center">
+                            <Sparkles className="h-4 w-4 mr-2 animate-spin" />
+                            Génération de contenu personnalisé en cours...
+                          </span>
+                        ) : (
+                          getContentByLevel({
+                            debutant: "La cybersécurité, c'est comme protéger votre maison : vous verrouillez les portes, installez des alarmes et vérifiez qui entre. Dans le monde numérique, c'est pareil ! Nous protégeons nos ordinateurs, nos données et nos réseaux contre les personnes malveillantes qui veulent les voler ou les endommager.",
+                            intermediaire: "La cybersécurité est un domaine multidisciplinaire qui combine technologies, processus et politiques pour protéger les systèmes d'information. Elle englobe la protection des infrastructures critiques, la gestion des risques et la résilience organisationnelle face aux cybermenaces en constante évolution.",
+                            avance: "La cybersécurité moderne s'articule autour de paradigmes tels que Zero Trust, la threat intelligence, et l'adaptive security. Elle intègre l'IA/ML pour la détection comportementale, la forensic numérique avancée, et la cyber-résilience dans des architectures cloud-native et edge computing."
+                          })
+                        )}
+                      </p>
+                    )}
+                    
                     
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">Les trois piliers de la cybersécurité</h3>
                     
