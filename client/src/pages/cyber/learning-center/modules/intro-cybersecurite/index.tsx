@@ -29,6 +29,11 @@ export default function IntroductionCybersecurite() {
   const [activeTab, setActiveTab] = useState("principes");
   const [activeSubTab, setActiveSubTab] = useState("malware");
   const [showQuizResult, setShowQuizResult] = useState(false);
+  
+  // États pour le système de niveaux
+  const [currentLevel, setCurrentLevel] = useState<'debutant' | 'intermediaire' | 'avance'>('debutant');
+  const [showLevelSelector, setShowLevelSelector] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState({
     q1: "",
     q2: "",
@@ -593,6 +598,52 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
     return "";
   };
   
+  // Fonctions pour adapter le contenu selon le niveau
+  const getContentByLevel = (content: {
+    debutant: string | React.ReactNode;
+    intermediaire: string | React.ReactNode;
+    avance: string | React.ReactNode;
+  }) => {
+    return content[currentLevel];
+  };
+
+  const getLevelSpecificExamples = () => {
+    switch (currentLevel) {
+      case 'debutant':
+        return {
+          title: "Exemple simple",
+          description: "Concepts de base avec explications détaillées",
+          complexity: "Facile à comprendre"
+        };
+      case 'intermediaire':
+        return {
+          title: "Cas pratique",
+          description: "Scénarios réalistes avec analyse technique",
+          complexity: "Niveau entreprise"
+        };
+      case 'avance':
+        return {
+          title: "Défi expert",
+          description: "Analyses complexes et recherche de pointe",
+          complexity: "Expertise technique"
+        };
+    }
+  };
+
+  // Effet pour fermer le sélecteur de niveau si on clique ailleurs
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showLevelSelector) {
+        setShowLevelSelector(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showLevelSelector]);
+
   // Mise à jour automatique de la progression en fonction de l'onglet actif
   useEffect(() => {
     if (activeTab === "principes") setProgress(20);
@@ -623,10 +674,121 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
               <p className="text-blue-200 text-sm">Module fondamental - Durée estimée : 30 minutes</p>
             </div>
             
-            <div className="ml-auto flex items-center gap-2">
-              <span className="text-sm text-blue-200">{progress}% complété</span>
-              <Progress value={progress} className="w-24 bg-blue-950" />
+            <div className="ml-auto flex items-center gap-4">
+              {/* Sélecteur de niveau */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowLevelSelector(!showLevelSelector)}
+                  className="border-blue-700/50 bg-blue-900/30 text-blue-200 hover:bg-blue-800/50 hover:text-white relative"
+                >
+                  <GraduationCap className="h-4 w-4 mr-2" />
+                  Niveau: {currentLevel === 'debutant' ? 'Débutant' : currentLevel === 'intermediaire' ? 'Intermédiaire' : 'Avancé'}
+                </Button>
+                
+                {/* Bouton d'actualisation */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    setIsRefreshing(true);
+                    // Simuler l'actualisation
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    setIsRefreshing(false);
+                    toast({
+                      title: "Formation actualisée !",
+                      description: `Contenu adapté au niveau ${currentLevel}`,
+                    });
+                  }}
+                  disabled={isRefreshing}
+                  className="border-blue-700/50 bg-blue-900/30 text-blue-200 hover:bg-blue-800/50 hover:text-white"
+                >
+                  <Sparkles className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  Actualiser
+                </Button>
+              </div>
+              
+              {/* Progression */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-blue-200">{progress}% complété</span>
+                <Progress value={progress} className="w-24 bg-blue-950" />
+              </div>
             </div>
+            
+            {/* Menu déroulant de sélection de niveau */}
+            {showLevelSelector && (
+              <div className="absolute right-4 top-16 bg-blue-900/95 border border-blue-700/50 rounded-lg shadow-xl z-50 p-4 min-w-[280px]">
+                <h3 className="text-white font-medium mb-3">Choisir votre niveau</h3>
+                <div className="space-y-3">
+                  <div 
+                    className={`p-3 rounded-lg cursor-pointer border transition-colors ${
+                      currentLevel === 'debutant' 
+                        ? 'bg-blue-800/50 border-blue-600' 
+                        : 'bg-blue-950/50 border-blue-800/30 hover:bg-blue-800/30'
+                    }`}
+                    onClick={() => {
+                      setCurrentLevel('debutant');
+                      setShowLevelSelector(false);
+                      toast({
+                        title: "Niveau débutant sélectionné",
+                        description: "Contenu adapté aux concepts de base",
+                      });
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span className="text-white font-medium">Débutant</span>
+                    </div>
+                    <p className="text-blue-200 text-xs">Concepts de base, terminologie essentielle, exemples simples</p>
+                  </div>
+                  
+                  <div 
+                    className={`p-3 rounded-lg cursor-pointer border transition-colors ${
+                      currentLevel === 'intermediaire' 
+                        ? 'bg-blue-800/50 border-blue-600' 
+                        : 'bg-blue-950/50 border-blue-800/30 hover:bg-blue-800/30'
+                    }`}
+                    onClick={() => {
+                      setCurrentLevel('intermediaire');
+                      setShowLevelSelector(false);
+                      toast({
+                        title: "Niveau intermédiaire sélectionné",
+                        description: "Contenu avec concepts approfondis",
+                      });
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                      <span className="text-white font-medium">Intermédiaire</span>
+                    </div>
+                    <p className="text-blue-200 text-xs">Techniques avancées, cas pratiques, analyses détaillées</p>
+                  </div>
+                  
+                  <div 
+                    className={`p-3 rounded-lg cursor-pointer border transition-colors ${
+                      currentLevel === 'avance' 
+                        ? 'bg-blue-800/50 border-blue-600' 
+                        : 'bg-blue-950/50 border-blue-800/30 hover:bg-blue-800/30'
+                    }`}
+                    onClick={() => {
+                      setCurrentLevel('avance');
+                      setShowLevelSelector(false);
+                      toast({
+                        title: "Niveau avancé sélectionné",
+                        description: "Contenu expert avec défis complexes",
+                      });
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                      <span className="text-white font-medium">Avancé</span>
+                    </div>
+                    <p className="text-blue-200 text-xs">Expertise technique, défis complexes, recherche de pointe</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -693,11 +855,27 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                     Principes fondamentaux de la cybersécurité
                   </h2>
                   
+                  {/* Badge de niveau actuel */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <Badge className={`${
+                      currentLevel === 'debutant' ? 'bg-green-600/70' :
+                      currentLevel === 'intermediaire' ? 'bg-amber-600/70' : 'bg-red-600/70'
+                    }`}>
+                      <GraduationCap className="h-3 w-3 mr-1" />
+                      Niveau {currentLevel === 'debutant' ? 'Débutant' : currentLevel === 'intermediaire' ? 'Intermédiaire' : 'Avancé'}
+                    </Badge>
+                    <span className="text-xs text-blue-300">
+                      {getLevelSpecificExamples().complexity}
+                    </span>
+                  </div>
+                  
                   <div className="prose prose-invert max-w-none">
                     <p className="text-blue-200">
-                      La cybersécurité est l'ensemble des mesures, technologies et pratiques visant à protéger les systèmes informatiques, 
-                      les réseaux, et les données contre les accès non autorisés, les attaques et les dommages. Dans notre monde numérique 
-                      connecté, elle est devenue indispensable pour les entreprises, les gouvernements et les individus.
+                      {getContentByLevel({
+                        debutant: "La cybersécurité, c'est comme protéger votre maison : vous verrouillez les portes, installez des alarmes et vérifiez qui entre. Dans le monde numérique, c'est pareil ! Nous protégeons nos ordinateurs, nos données et nos réseaux contre les personnes malveillantes qui veulent les voler ou les endommager.",
+                        intermediaire: "La cybersécurité est un domaine multidisciplinaire qui combine technologies, processus et politiques pour protéger les systèmes d'information. Elle englobe la protection des infrastructures critiques, la gestion des risques et la résilience organisationnelle face aux cybermenaces en constante évolution.",
+                        avance: "La cybersécurité moderne s'articule autour de paradigmes tels que Zero Trust, la threat intelligence, et l'adaptive security. Elle intègre l'IA/ML pour la détection comportementale, la forensic numérique avancée, et la cyber-résilience dans des architectures cloud-native et edge computing."
+                      })}
                     </p>
                     
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">Les trois piliers de la cybersécurité</h3>
@@ -708,9 +886,21 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                           <Lock className="h-5 w-5 text-blue-300 mr-2" />
                           <h4 className="font-medium text-white">Confidentialité</h4>
                         </div>
-                        <p className="text-sm text-blue-200">Garantir que les informations ne sont accessibles qu'aux personnes autorisées.</p>
+                        <p className="text-sm text-blue-200">
+                          {getContentByLevel({
+                            debutant: "S'assurer que vos informations privées restent privées, comme garder un secret.",
+                            intermediaire: "Garantir que les informations ne sont accessibles qu'aux personnes autorisées selon les politiques d'accès.",
+                            avance: "Mise en œuvre de contrôles d'accès granulaires, chiffrement end-to-end et classification des données selon leur sensibilité."
+                          })}
+                        </p>
                         <div className="mt-3 pt-3 border-t border-blue-700/50">
-                          <p className="text-xs text-blue-300"><strong>Exemple concret :</strong> Le chiffrement des communications sensibles entre un client et sa banque, empêchant les tiers de lire les données échangées.</p>
+                          <p className="text-xs text-blue-300">
+                            <strong>Exemple {currentLevel} :</strong> {getContentByLevel({
+                              debutant: "Utiliser un mot de passe pour protéger votre téléphone.",
+                              intermediaire: "Le chiffrement HTTPS quand vous vous connectez à votre banque en ligne.",
+                              avance: "Implémentation de HSM (Hardware Security Modules) pour la gestion des clés cryptographiques dans un environnement multi-cloud."
+                            })}
+                          </p>
                         </div>
                       </div>
                       
@@ -719,9 +909,21 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                           <CheckCircle className="h-5 w-5 text-blue-300 mr-2" />
                           <h4 className="font-medium text-white">Intégrité</h4>
                         </div>
-                        <p className="text-sm text-blue-200">Assurer que les données restent exactes et complètes, sans modification non autorisée.</p>
+                        <p className="text-sm text-blue-200">
+                          {getContentByLevel({
+                            debutant: "S'assurer que vos données n'ont pas été modifiées par quelqu'un d'autre.",
+                            intermediaire: "Assurer que les données restent exactes et complètes, sans modification non autorisée.",
+                            avance: "Garantir la non-répudiation et la traçabilité des modifications via des mécanismes cryptographiques et de logging avancés."
+                          })}
+                        </p>
                         <div className="mt-3 pt-3 border-t border-blue-700/50">
-                          <p className="text-xs text-blue-300"><strong>Exemple concret :</strong> Les signatures numériques qui permettent de vérifier que des documents électroniques n'ont pas été altérés après leur signature.</p>
+                          <p className="text-xs text-blue-300">
+                            <strong>Exemple {currentLevel} :</strong> {getContentByLevel({
+                              debutant: "Vérifier qu'un fichier téléchargé n'a pas été corrompu.",
+                              intermediaire: "Les signatures numériques qui prouvent qu'un document n'a pas été modifié.",
+                              avance: "Blockchain et Merkle trees pour l'immutabilité des logs d'audit dans des systèmes distribués."
+                            })}
+                          </p>
                         </div>
                       </div>
                       
@@ -730,9 +932,21 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                           <Clock className="h-5 w-5 text-blue-300 mr-2" />
                           <h4 className="font-medium text-white">Disponibilité</h4>
                         </div>
-                        <p className="text-sm text-blue-200">Garantir l'accès aux informations et ressources pour les utilisateurs autorisés quand ils en ont besoin.</p>
+                        <p className="text-sm text-blue-200">
+                          {getContentByLevel({
+                            debutant: "S'assurer que vos systèmes fonctionnent quand vous en avez besoin.",
+                            intermediaire: "Garantir l'accès aux informations et ressources pour les utilisateurs autorisés quand ils en ont besoin.",
+                            avance: "Architectures résilientes avec redondance géographique, auto-healing et objectifs RTO/RPO stricts."
+                          })}
+                        </p>
                         <div className="mt-3 pt-3 border-t border-blue-700/50">
-                          <p className="text-xs text-blue-300"><strong>Exemple concret :</strong> Les architectures à haute disponibilité qui assurent que les services critiques restent accessibles même en cas de panne matérielle.</p>
+                          <p className="text-xs text-blue-300">
+                            <strong>Exemple {currentLevel} :</strong> {getContentByLevel({
+                              debutant: "Avoir une sauvegarde de vos photos importantes sur un autre appareil.",
+                              intermediaire: "Les serveurs de secours qui prennent le relais en cas de panne du serveur principal.",
+                              avance: "Architecture microservices avec circuit breakers, chaos engineering et déploiements blue-green pour la continuité de service."
+                            })}
+                          </p>
                         </div>
                       </div>
                     </div>
