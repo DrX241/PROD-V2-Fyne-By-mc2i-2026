@@ -52,9 +52,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
             <Shield className="h-12 w-12 text-blue-600" />
           </div>
           <CardTitle className="text-2xl font-bold">Accès sécurisé</CardTitle>
-          <CardDescription>
-            Plateforme de développement des compétences en cybersécurité
-          </CardDescription>
+          <CardDescription>Outil d’évaluation et de formation assisté par l’IA</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
