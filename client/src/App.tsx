@@ -46,7 +46,6 @@ import CrisisManagementPage from "./pages/cyber/crisis-management";
 import CrisisBriefing from "./pages/cyber/crisis-management/briefing";
 import PentestLab from "./pages/cyber/pentest-lab";
 import ProfilPro from "./pages/cyber/profil-pro";
-import AIArchitecturePage from "./pages/ai-architecture";
 
 // Import des modules de la Cyber Académie - importés dynamiquement avec lazy pour améliorer les performances
 const IntroductionCybersecurite = lazy(() => import("./pages/cyber/learning-center/modules/intro-cybersecurite/index"));
@@ -107,7 +106,6 @@ function App() {
                 <Route path="/cyber/crisis-management/briefing" component={CrisisBriefing} />
                 <Route path="/cyber/crisis-management" component={CrisisManagementPage} />
                 <Route path="/cyber/pentest-lab" component={PentestLab} />
-                <Route path="/ai-architecture" component={AIArchitecturePage} />
                 <Route path="/cyber/tools/assistant-cyber">
                   {(params) => (
                     <Suspense fallback={<div className="p-12 text-center">Chargement de l'assistant...</div>}>
