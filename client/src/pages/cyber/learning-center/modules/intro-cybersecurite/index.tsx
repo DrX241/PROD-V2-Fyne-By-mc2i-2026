@@ -677,16 +677,96 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
             
             <div className="ml-auto flex items-center gap-4">
               {/* Sélecteur de niveau */}
-              <div className="flex items-center gap-2">
+              <div className="relative flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setShowLevelSelector(!showLevelSelector)}
-                  className="border-blue-700/50 bg-blue-900/30 text-blue-200 hover:bg-blue-800/50 hover:text-white relative"
+                  className="border-blue-700/50 bg-blue-900/30 text-blue-200 hover:bg-blue-800/50 hover:text-white"
                 >
                   <GraduationCap className="h-4 w-4 mr-2" />
                   Niveau: {currentLevel === 'debutant' ? 'Débutant' : currentLevel === 'intermediaire' ? 'Intermédiaire' : 'Avancé'}
                 </Button>
+                
+                {/* Menu déroulant de sélection de niveau */}
+                {showLevelSelector && (
+                  <div className="absolute top-full right-0 mt-2 bg-blue-900/95 border border-blue-700/50 rounded-lg shadow-xl z-[9999] p-4 min-w-[280px]">
+                    <h3 className="text-white font-medium mb-3">Choisir votre niveau</h3>
+                    <div className="space-y-3">
+                      <div 
+                        className={`p-3 rounded-lg cursor-pointer border transition-colors ${
+                          currentLevel === 'debutant' 
+                            ? 'bg-blue-800/50 border-blue-600' 
+                            : 'bg-blue-950/50 border-blue-800/30 hover:bg-blue-800/30'
+                        }`}
+                        onClick={() => {
+                          console.log("Sélection niveau débutant");
+                          setCurrentLevel('debutant');
+                          setContentKey(prev => prev + 1);
+                          setShowLevelSelector(false);
+                          toast({
+                            title: "Niveau débutant sélectionné",
+                            description: "Contenu adapté aux concepts de base",
+                          });
+                        }}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                          <span className="text-white font-medium">Débutant</span>
+                        </div>
+                        <p className="text-blue-200 text-xs">Concepts de base, terminologie essentielle, exemples simples</p>
+                      </div>
+                      
+                      <div 
+                        className={`p-3 rounded-lg cursor-pointer border transition-colors ${
+                          currentLevel === 'intermediaire' 
+                            ? 'bg-blue-800/50 border-blue-600' 
+                            : 'bg-blue-950/50 border-blue-800/30 hover:bg-blue-800/30'
+                        }`}
+                        onClick={() => {
+                          console.log("Sélection niveau intermédiaire");
+                          setCurrentLevel('intermediaire');
+                          setContentKey(prev => prev + 1);
+                          setShowLevelSelector(false);
+                          toast({
+                            title: "Niveau intermédiaire sélectionné",
+                            description: "Contenu avec concepts approfondis",
+                          });
+                        }}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                          <span className="text-white font-medium">Intermédiaire</span>
+                        </div>
+                        <p className="text-blue-200 text-xs">Techniques avancées, cas pratiques, analyses détaillées</p>
+                      </div>
+                      
+                      <div 
+                        className={`p-3 rounded-lg cursor-pointer border transition-colors ${
+                          currentLevel === 'avance' 
+                            ? 'bg-blue-800/50 border-blue-600' 
+                            : 'bg-blue-950/50 border-blue-800/30 hover:bg-blue-800/30'
+                        }`}
+                        onClick={() => {
+                          console.log("Sélection niveau avancé");
+                          setCurrentLevel('avance');
+                          setContentKey(prev => prev + 1);
+                          setShowLevelSelector(false);
+                          toast({
+                            title: "Niveau avancé sélectionné",
+                            description: "Contenu expert avec défis complexes",
+                          });
+                        }}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                          <span className="text-white font-medium">Avancé</span>
+                        </div>
+                        <p className="text-blue-200 text-xs">Expertise technique, défis complexes, recherche de pointe</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 
                 {/* Bouton d'actualisation */}
                 <Button
@@ -694,7 +774,6 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                   size="sm"
                   onClick={async () => {
                     setIsRefreshing(true);
-                    // Simuler l'actualisation
                     await new Promise(resolve => setTimeout(resolve, 1000));
                     setIsRefreshing(false);
                     toast({
@@ -716,86 +795,6 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                 <Progress value={progress} className="w-24 bg-blue-950" />
               </div>
             </div>
-            
-            {/* Menu déroulant de sélection de niveau */}
-            {showLevelSelector && (
-              <div className="absolute right-4 top-16 bg-blue-900/95 border border-blue-700/50 rounded-lg shadow-xl z-50 p-4 min-w-[280px]">
-                <h3 className="text-white font-medium mb-3">Choisir votre niveau</h3>
-                <div className="space-y-3">
-                  <div 
-                    className={`p-3 rounded-lg cursor-pointer border transition-colors ${
-                      currentLevel === 'debutant' 
-                        ? 'bg-blue-800/50 border-blue-600' 
-                        : 'bg-blue-950/50 border-blue-800/30 hover:bg-blue-800/30'
-                    }`}
-                    onClick={() => {
-                      console.log("Sélection niveau débutant");
-                      setCurrentLevel('debutant');
-                      setContentKey(prev => prev + 1);
-                      setShowLevelSelector(false);
-                      toast({
-                        title: "Niveau débutant sélectionné",
-                        description: "Contenu adapté aux concepts de base",
-                      });
-                    }}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                      <span className="text-white font-medium">Débutant</span>
-                    </div>
-                    <p className="text-blue-200 text-xs">Concepts de base, terminologie essentielle, exemples simples</p>
-                  </div>
-                  
-                  <div 
-                    className={`p-3 rounded-lg cursor-pointer border transition-colors ${
-                      currentLevel === 'intermediaire' 
-                        ? 'bg-blue-800/50 border-blue-600' 
-                        : 'bg-blue-950/50 border-blue-800/30 hover:bg-blue-800/30'
-                    }`}
-                    onClick={() => {
-                      console.log("Sélection niveau intermédiaire");
-                      setCurrentLevel('intermediaire');
-                      setContentKey(prev => prev + 1);
-                      setShowLevelSelector(false);
-                      toast({
-                        title: "Niveau intermédiaire sélectionné",
-                        description: "Contenu avec concepts approfondis",
-                      });
-                    }}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                      <span className="text-white font-medium">Intermédiaire</span>
-                    </div>
-                    <p className="text-blue-200 text-xs">Techniques avancées, cas pratiques, analyses détaillées</p>
-                  </div>
-                  
-                  <div 
-                    className={`p-3 rounded-lg cursor-pointer border transition-colors ${
-                      currentLevel === 'avance' 
-                        ? 'bg-blue-800/50 border-blue-600' 
-                        : 'bg-blue-950/50 border-blue-800/30 hover:bg-blue-800/30'
-                    }`}
-                    onClick={() => {
-                      console.log("Sélection niveau avancé");
-                      setCurrentLevel('avance');
-                      setContentKey(prev => prev + 1);
-                      setShowLevelSelector(false);
-                      toast({
-                        title: "Niveau avancé sélectionné",
-                        description: "Contenu expert avec défis complexes",
-                      });
-                    }}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                      <span className="text-white font-medium">Avancé</span>
-                    </div>
-                    <p className="text-blue-200 text-xs">Expertise technique, défis complexes, recherche de pointe</p>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
