@@ -63,10 +63,46 @@ export default function IntroductionCybersecurite() {
   const [aiGeneratedContent, setAiGeneratedContent] = useState<any>(null);
   const [isGeneratingContent, setIsGeneratingContent] = useState(false);
 
-  // Fonction pour générer du contenu adapté au niveau avec GPT-4o
-  const generateLevelSpecificContent = async (topic: string, level: string) => {
+  // Effet pour régénérer le contenu quand l'onglet change
+  useEffect(() => {
+    const levelTexts = {
+      'debutant': 'débutant',
+      'intermediaire': 'intermédiaire', 
+      'avance': 'avancé'
+    };
+    
+    // Régénère le contenu pour le nouvel onglet
+    if (activeTab) {
+      generateLevelSpecificContent('cybersécurité fondamentaux', levelTexts[currentLevel], activeTab);
+    }
+  }, [activeTab]); // Se déclenche quand l'onglet change
+
+  // Fonction pour générer du contenu adapté au niveau avec GPT-4o pour tous les onglets
+  const generateLevelSpecificContent = async (topic: string, level: string, tabType?: string) => {
     setIsGeneratingContent(true);
     try {
+      let promptContext = '';
+      
+      switch(tabType) {
+        case 'menaces':
+          promptContext = `Concentre-toi sur les menaces cybersécurité actuelles et émergentes. `;
+          break;
+        case 'cas-concret':
+          promptContext = `Propose des cas concrets et des études de cas réels en cybersécurité. `;
+          break;
+        case 'glossaire':
+          promptContext = `Explique les termes techniques et le vocabulaire de la cybersécurité. `;
+          break;
+        case 'bonnes-pratiques':
+          promptContext = `Fournis des recommandations pratiques et des bonnes pratiques de sécurité. `;
+          break;
+        case 'quiz':
+          promptContext = `Prépare des questions d'évaluation et des éléments de quiz. `;
+          break;
+        default:
+          promptContext = `Couvre les principes fondamentaux de la cybersécurité. `;
+      }
+
       const response = await fetch('/api/openai/chat', {
         method: 'POST',
         headers: {
@@ -77,7 +113,7 @@ export default function IntroductionCybersecurite() {
           messages: [
             {
               role: 'system',
-              content: `Tu es un expert en cybersécurité. Génère du contenu éducatif adapté au niveau ${level} sur le sujet "${topic}". 
+              content: `Tu es un expert en cybersécurité. ${promptContext}Génère du contenu éducatif adapté au niveau ${level} sur le sujet "${topic}". 
               
               Niveau débutant: explications simples, analogies du quotidien, exemples concrets et accessibles
               Niveau intermédiaire: concepts techniques, cas pratiques, analyse plus poussée  
@@ -758,7 +794,7 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                       console.log("Sélection niveau débutant");
                       setCurrentLevel('debutant');
                       setContentKey(prev => prev + 1);
-                      await generateLevelSpecificContent('cybersécurité fondamentaux', 'débutant');
+                      await generateLevelSpecificContent('cybersécurité fondamentaux', 'débutant', activeTab);
                       toast({
                         title: "Niveau débutant sélectionné",
                         description: "Contenu généré par IA adapté aux concepts de base",
@@ -782,7 +818,7 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                       console.log("Sélection niveau intermédiaire");
                       setCurrentLevel('intermediaire');
                       setContentKey(prev => prev + 1);
-                      await generateLevelSpecificContent('cybersécurité fondamentaux', 'intermédiaire');
+                      await generateLevelSpecificContent('cybersécurité fondamentaux', 'intermédiaire', activeTab);
                       toast({
                         title: "Niveau intermédiaire sélectionné",
                         description: "Contenu généré par IA avec concepts approfondis",
@@ -806,7 +842,7 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                       console.log("Sélection niveau avancé");
                       setCurrentLevel('avance');
                       setContentKey(prev => prev + 1);
-                      await generateLevelSpecificContent('cybersécurité fondamentaux', 'avancé');
+                      await generateLevelSpecificContent('cybersécurité fondamentaux', 'avancé', activeTab);
                       toast({
                         title: "Niveau avancé sélectionné",
                         description: "Contenu généré par IA expert avec défis complexes",
@@ -835,7 +871,7 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                       'intermediaire': 'intermédiaire', 
                       'avance': 'avancé'
                     };
-                    await generateLevelSpecificContent('cybersécurité fondamentaux', levelTexts[currentLevel]);
+                    await generateLevelSpecificContent('cybersécurité fondamentaux', levelTexts[currentLevel], activeTab);
                     setIsRefreshing(false);
                     toast({
                       title: "Formation actualisée !",
@@ -1129,6 +1165,44 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                   </h2>
                   
                   <div className="prose prose-invert max-w-none">
+                    {/* Affichage du contenu IA pour l'onglet Menaces */}
+                    {activeTab === "menaces" && aiGeneratedContent && (
+                      <div className="bg-gradient-to-r from-amber-900/40 to-red-900/40 p-4 rounded-lg border border-amber-700/50 mb-6">
+                        <div className="flex items-center mb-3">
+                          <BrainCircuit className="h-5 w-5 text-purple-400 mr-2" />
+                          <Badge className="bg-amber-600/70">
+                            <Sparkles className="h-3 w-3 mr-1" />
+                            Menaces IA Personnalisées
+                          </Badge>
+                        </div>
+                        <p className="text-blue-100 mb-4">{aiGeneratedContent.introduction}</p>
+                        
+                        {aiGeneratedContent.principaux_points && aiGeneratedContent.principaux_points.length > 0 && (
+                          <div className="mb-4">
+                            <h4 className="text-white font-medium mb-2">Menaces prioritaires :</h4>
+                            <ul className="space-y-1">
+                              {aiGeneratedContent.principaux_points.map((point: string, index: number) => (
+                                <li key={index} className="text-blue-200 text-sm flex items-start">
+                                  <AlertTriangle className="h-4 w-4 text-amber-400 mr-2 mt-0.5 flex-shrink-0" />
+                                  {point}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        
+                        {aiGeneratedContent.conseil_pratique && (
+                          <div className="bg-amber-800/30 p-3 rounded border border-amber-600/50">
+                            <div className="flex items-center mb-2">
+                              <Shield className="h-4 w-4 text-green-400 mr-2" />
+                              <span className="text-white font-medium text-sm">Conseil de protection</span>
+                            </div>
+                            <p className="text-blue-200 text-sm">{aiGeneratedContent.conseil_pratique}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
                     <p className="text-blue-200">
                       Le paysage des menaces cybernétiques évolue constamment, avec des acteurs malveillants développant de nouvelles 
                       techniques d'attaque. Comprendre ces menaces est essentiel pour mettre en place des défenses efficaces.
