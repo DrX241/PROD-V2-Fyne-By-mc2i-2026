@@ -34,6 +34,7 @@ export default function IntroductionCybersecurite() {
   const [currentLevel, setCurrentLevel] = useState<'debutant' | 'intermediaire' | 'avance'>('debutant');
   const [showLevelSelector, setShowLevelSelector] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [contentKey, setContentKey] = useState(0); // Clé pour forcer le re-rendu
   const [quizAnswers, setQuizAnswers] = useState({
     q1: "",
     q2: "",
@@ -729,6 +730,7 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                     }`}
                     onClick={() => {
                       setCurrentLevel('debutant');
+                      setContentKey(prev => prev + 1);
                       setShowLevelSelector(false);
                       toast({
                         title: "Niveau débutant sélectionné",
@@ -751,6 +753,7 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                     }`}
                     onClick={() => {
                       setCurrentLevel('intermediaire');
+                      setContentKey(prev => prev + 1);
                       setShowLevelSelector(false);
                       toast({
                         title: "Niveau intermédiaire sélectionné",
@@ -773,6 +776,7 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                     }`}
                     onClick={() => {
                       setCurrentLevel('avance');
+                      setContentKey(prev => prev + 1);
                       setShowLevelSelector(false);
                       toast({
                         title: "Niveau avancé sélectionné",
@@ -840,6 +844,7 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
       {/* Contenu principal du module */}
       <div className="container mx-auto px-4 py-8">
         <motion.div 
+          key={contentKey}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
