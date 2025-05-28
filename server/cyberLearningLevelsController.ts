@@ -161,7 +161,7 @@ Niveau ciblé: ${levelInfo.name} (${levelInfo.description})
 Structurez votre réponse de manière claire et adaptée au niveau spécifié.`;
 
     // Générer le contenu avec Azure OpenAI
-    const response = await openAIService.generateCompletion([
+    const response = await openAIService.getChatCompletion([
       {
         role: "system",
         content: "Vous êtes un expert en cybersécurité spécialisé dans la pédagogie adaptative. Votre rôle est de créer du contenu éducatif parfaitement adapté au niveau de l'apprenant."
