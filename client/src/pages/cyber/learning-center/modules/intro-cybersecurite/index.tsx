@@ -729,6 +729,7 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                         : 'bg-blue-950/50 border-blue-800/30 hover:bg-blue-800/30'
                     }`}
                     onClick={() => {
+                      console.log("Sélection niveau débutant");
                       setCurrentLevel('debutant');
                       setContentKey(prev => prev + 1);
                       setShowLevelSelector(false);
@@ -752,6 +753,7 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                         : 'bg-blue-950/50 border-blue-800/30 hover:bg-blue-800/30'
                     }`}
                     onClick={() => {
+                      console.log("Sélection niveau intermédiaire");
                       setCurrentLevel('intermediaire');
                       setContentKey(prev => prev + 1);
                       setShowLevelSelector(false);
@@ -775,6 +777,7 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                         : 'bg-blue-950/50 border-blue-800/30 hover:bg-blue-800/30'
                     }`}
                     onClick={() => {
+                      console.log("Sélection niveau avancé");
                       setCurrentLevel('avance');
                       setContentKey(prev => prev + 1);
                       setShowLevelSelector(false);
