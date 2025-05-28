@@ -403,6 +403,7 @@ const AmoaInterviewSimulation: React.FC<{}> = () => {
         auditContextData = {
           contextType: 'custom',
           contextData: {
+            customAuditContext,
             description: customAuditContext
           }
         };
