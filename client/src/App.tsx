@@ -115,6 +115,13 @@ function App() {
                 </Route>
                 
                 {/* Routes pour les modules de la Cyber Académie - avec Suspense pour chargement différé */}
+                <Route path="/cyber/learning-center/intro-cybersecurite">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      <IntroductionCybersecurite />
+                    </Suspense>
+                  )}
+                </Route>
                 <Route path="/cyber/learning-center/modules/intro-cybersecurite">
                   {(params) => (
                     <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
