@@ -7,6 +7,8 @@ import React, { Suspense, lazy, startTransition, useEffect } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { TutorialProvider } from "./contexts/TutorialContext";
+import { AuthProvider, useAuth } from "./hooks/useAuth";
+import { LoginForm } from "./components/LoginForm";
 
 // Déclaration du type de la variable globale pour TypeScript
 declare global {
@@ -77,12 +79,24 @@ import InterviewSimulation from "./pages/amoa/interview-simulation";
 import ProspectPulse from "./pages/amoa/prospect-pulse";
 import AmoaExpertLearning from "./pages/amoa/expert-learning";
 
-function App() {
+function AppContent() {
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+        <div className="text-white text-xl">Chargement...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <LoginForm onLogin={() => window.location.reload()} />;
+  }
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <ChatProvider>
-          <TutorialProvider>
+    <ChatProvider>
+      <TutorialProvider>
             <div>
               <Switch>
                 {/* Routes publiques */}
@@ -391,6 +405,16 @@ function App() {
             </div>
           </TutorialProvider>
         </ChatProvider>
+  );
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
