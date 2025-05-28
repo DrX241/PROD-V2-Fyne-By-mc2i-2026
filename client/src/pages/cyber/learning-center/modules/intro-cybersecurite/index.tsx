@@ -14,7 +14,7 @@ import {
   ArrowLeft, Shield, Lock, Share2, Database, 
   Server, Cpu, Clock, Users, Code, FileCheck,
   ArrowRight, CheckCircle, AlertTriangle, 
-  ExternalLink, Trophy, Award, Lightbulb as LightbulbIcon,
+  ExternalLink, Trophy, Award, Lightbulb, LightbulbIcon,
   BrainCircuit, GraduationCap, Brain, Sparkles, 
   MessageCircle, Monitor, Zap, Target, Info,
   Flame, Star, Eye, BookOpen, Mail, LinkIcon,
@@ -967,7 +967,7 @@ Copyright © 2025 PayPal. Tous droits réservés.`,
                         {aiGeneratedContent.conseil_pratique && (
                           <div className="bg-blue-800/30 p-3 rounded border border-blue-600/50">
                             <div className="flex items-center mb-2">
-                              <Lightbulb className="h-4 w-4 text-yellow-400 mr-2" />
+                              <LightbulbIcon className="h-4 w-4 text-yellow-400 mr-2" />
                               <span className="text-white font-medium text-sm">Conseil pratique</span>
                             </div>
                             <p className="text-blue-200 text-sm">{aiGeneratedContent.conseil_pratique}</p>
