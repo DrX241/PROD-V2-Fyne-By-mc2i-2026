@@ -1456,7 +1456,7 @@ function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, 
       
     } else if (auditContext.contextType === 'custom' && auditContext.contextData) {
       // Pour un contexte entièrement personnalisé
-      customDescription = auditContext.contextData.description || "";
+      customDescription = auditContext.contextData.customAuditContext || auditContext.contextData.description || "";
       
       if (auditContext.contextData.organization) {
         organizationName = auditContext.contextData.organization;
@@ -1464,6 +1464,12 @@ function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, 
       
       if (auditContext.contextData.executive) {
         executiveName = auditContext.contextData.executive;
+      }
+      
+      // Si le contexte personnalisé contient suffisamment d'informations, l'utiliser pour remplacer le contexte généré
+      if (customDescription && customDescription.length > 50) {
+        projectDescription = "contexte défini par le client";
+        projectChallenge = "défis spécifiques mentionnés dans le contexte personnalisé";
       }
     }
   }
