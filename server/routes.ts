@@ -6,8 +6,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
-// Pas d'authentification dans cette version
-import { isAuthenticated, isAdmin } from "./authController";
+import session from "express-session";
+import connectPg from "connect-pg-simple";
+import { AuthController } from "./authController";
 import { openAIService } from "./services/openai";
 import attachmentRoutes from './routes/attachmentRoutes';
 import cyberForgeRoutes from './routes/cyberForgeRoutes';
@@ -476,7 +477,36 @@ function generateSynthesisHtml(
 // Les fonctions pour les pièces jointes sont déjà importées en haut du fichier
 
 export async function registerRoutes(app: Express): Promise<Server> {
-    // Aucune authentification dans cette version
+  // Configuration des sessions
+  const pgSession = connectPg(session);
+  app.use(session({
+    store: new pgSession({
+      conString: process.env.DATABASE_URL,
+      createTableIfMissing: true,
+    }),
+    secret: process.env.SESSION_SECRET || 'votre-secret-session-ultra-securise-changez-moi',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Mettre à true en production avec HTTPS
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 jours
+    }
+  }));
+
+  // Routes d'authentification
+  app.post('/api/auth/login', AuthController.login);
+  app.post('/api/auth/logout', AuthController.logout);
+  app.get('/api/auth/check', AuthController.checkAuth);
+
+  // Middleware pour protéger toutes les autres routes
+  app.use('/api', (req: Request, res: Response, next: any) => {
+    // Exclure les routes d'authentification
+    if (req.path.startsWith('/auth/')) {
+      return next();
+    }
+    return AuthController.requireAuth(req, res, next);
+  });
   
   // Routes pour l'IA de pentest et les défis dynamiques
   const { generateChallenge, analyzeSolution, getCustomHint } = await import("./controllers/pentestAIController").then(module => module.default);
