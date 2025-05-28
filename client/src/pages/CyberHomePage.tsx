@@ -310,9 +310,13 @@ const CyberHomePage: React.FC = () => {
               <div>
                 <h4 className="text-[#006a9e] font-bold mb-4 text-sm uppercase tracking-wider">Ressources</h4>
                 <ul className="space-y-2">
+                  <li>
+                    <Link href="/ai-architecture" className="text-[#006a9e] hover:text-[#0087cc] text-sm transition-colors duration-200">
+                      Comment fonctionne notre IA
+                    </Link>
+                  </li>
                   <li><span className="text-gray-400 cursor-not-allowed text-sm">Documentation</span></li>
                   <li><span className="text-gray-400 cursor-not-allowed text-sm">Tutoriels</span></li>
-                  <li><span className="text-gray-400 cursor-not-allowed text-sm">Blog</span></li>
                   <li><span className="text-gray-400 cursor-not-allowed text-sm">Support</span></li>
                 </ul>
               </div>
