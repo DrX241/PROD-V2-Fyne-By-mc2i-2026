@@ -362,6 +362,210 @@ WHERE nb_commandes > 5;
   }
 ];
 
+// Exemples prédéfinis de code VBA
+const vbaExamples: CodeExample[] = [
+  {
+    title: "Automatisation Excel de base",
+    description: "Exemple simple d'automatisation Excel avec VBA.",
+    code: `Sub AnalyseVentes()
+    ' Déclarer les variables
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim total As Double
+    Dim moyenne As Double
+    Dim i As Integer
+    
+    ' Définir la feuille de travail active
+    Set ws = ActiveSheet
+    
+    ' Trouver la dernière ligne avec des données
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    
+    ' Calculer le total des ventes (colonne B)
+    For i = 2 To lastRow
+        total = total + ws.Cells(i, 2).Value
+    Next i
+    
+    ' Calculer la moyenne
+    moyenne = total / (lastRow - 1)
+    
+    ' Afficher les résultats
+    ws.Cells(lastRow + 2, 1).Value = "Total:"
+    ws.Cells(lastRow + 2, 2).Value = total
+    ws.Cells(lastRow + 3, 1).Value = "Moyenne:"
+    ws.Cells(lastRow + 3, 2).Value = moyenne
+    
+    ' Formater les cellules
+    ws.Range("B" & (lastRow + 2) & ":B" & (lastRow + 3)).NumberFormat = "0.00"
+    ws.Range("A" & (lastRow + 2) & ":B" & (lastRow + 3)).Font.Bold = True
+    
+    MsgBox "Analyse terminée! Total: " & Format(total, "0.00") & ", Moyenne: " & Format(moyenne, "0.00")
+End Sub`,
+    language: 'vba',
+    level: 'débutant',
+    tags: ['excel', 'automation', 'calculs']
+  },
+  {
+    title: "Création de rapports automatisés",
+    description: "Automatisation de création de rapports avec mise en forme.",
+    code: `Sub CreerRapportVentes()
+    Dim wsData As Worksheet
+    Dim wsRapport As Worksheet
+    Dim lastRow As Long
+    Dim i As Integer
+    
+    ' Créer une nouvelle feuille pour le rapport
+    Set wsData = Sheets("Données")
+    Set wsRapport = Sheets.Add(After:=Sheets(Sheets.Count))
+    wsRapport.Name = "Rapport_" & Format(Date, "yyyy_mm_dd")
+    
+    ' En-têtes du rapport
+    With wsRapport
+        .Cells(1, 1).Value = "RAPPORT DE VENTES"
+        .Cells(1, 1).Font.Size = 16
+        .Cells(1, 1).Font.Bold = True
+        .Range("A1:D1").Merge
+        .Range("A1").HorizontalAlignment = xlCenter
+        
+        .Cells(3, 1).Value = "Produit"
+        .Cells(3, 2).Value = "Quantité"
+        .Cells(3, 3).Value = "Prix Unitaire"
+        .Cells(3, 4).Value = "Total"
+        .Range("A3:D3").Font.Bold = True
+        .Range("A3:D3").Interior.Color = RGB(200, 200, 200)
+    End With
+    
+    ' Copier et traiter les données
+    lastRow = wsData.Cells(wsData.Rows.Count, "A").End(xlUp).Row
+    For i = 2 To lastRow
+        wsRapport.Cells(i + 2, 1).Value = wsData.Cells(i, 1).Value
+        wsRapport.Cells(i + 2, 2).Value = wsData.Cells(i, 2).Value
+        wsRapport.Cells(i + 2, 3).Value = wsData.Cells(i, 3).Value
+        wsRapport.Cells(i + 2, 4).Formula = "=B" & (i + 2) & "*C" & (i + 2)
+    Next i
+    
+    ' Mise en forme finale
+    With wsRapport.Range("A3:D" & (lastRow + 1))
+        .Borders.LineStyle = xlContinuous
+        .VerticalAlignment = xlCenter
+    End With
+    
+    wsRapport.Columns("A:D").AutoFit
+    MsgBox "Rapport créé avec succès!"
+End Sub`,
+    language: 'vba',
+    level: 'intermédiaire',
+    tags: ['excel', 'rapports', 'mise-en-forme']
+  }
+];
+
+// Exemples prédéfinis de code DAX
+const daxExamples: CodeExample[] = [
+  {
+    title: "Mesures de base en DAX",
+    description: "Calculs fondamentaux avec DAX pour Power BI.",
+    code: `// Chiffre d'affaires total
+CA Total = SUM(Ventes[Montant])
+
+// Nombre de transactions
+Nb Transactions = COUNTROWS(Ventes)
+
+// Panier moyen
+Panier Moyen = DIVIDE([CA Total], [Nb Transactions], 0)
+
+// CA de l'année précédente
+CA Année Précédente = 
+CALCULATE(
+    [CA Total],
+    SAMEPERIODLASTYEAR(Calendrier[Date])
+)
+
+// Évolution vs année précédente
+Evolution YoY = 
+DIVIDE(
+    [CA Total] - [CA Année Précédente],
+    [CA Année Précédente],
+    0
+)
+
+// CA cumulé depuis le début de l'année
+CA YTD = 
+TOTALYTD(
+    [CA Total],
+    Calendrier[Date]
+)
+
+// Pourcentage du total
+% du Total = 
+DIVIDE(
+    [CA Total],
+    CALCULATE([CA Total], ALL(Produits)),
+    0
+)`,
+    language: 'dax',
+    level: 'débutant',
+    tags: ['power-bi', 'mesures', 'time-intelligence']
+  },
+  {
+    title: "Analyses temporelles avancées",
+    description: "Calculs DAX avancés avec intelligence temporelle.",
+    code: `// Moyenne mobile sur 3 mois
+Moyenne Mobile 3M = 
+VAR CurrentDate = MAX(Calendrier[Date])
+VAR StartDate = EOMONTH(CurrentDate, -3) + 1
+VAR EndDate = EOMONTH(CurrentDate, 0)
+RETURN
+CALCULATE(
+    AVERAGE(Ventes[Montant]),
+    DATESBETWEEN(Calendrier[Date], StartDate, EndDate)
+)
+
+// Top 10 des produits par CA
+Top 10 Produits = 
+VAR CurrentProduct = MAX(Produits[Nom])
+VAR ProductRank = 
+RANKX(
+    ALL(Produits[Nom]),
+    [CA Total],
+    ,
+    DESC
+)
+RETURN
+IF(ProductRank <= 10, [CA Total], BLANK())
+
+// Clients récurrents
+Clients Récurrents = 
+SUMX(
+    VALUES(Clients[ID]),
+    VAR NbCommandes = 
+    CALCULATE(
+        COUNTROWS(Ventes),
+        ALLEXCEPT(Ventes, Clients[ID])
+    )
+    RETURN
+    IF(NbCommandes > 1, 1, 0)
+)
+
+// Taux de croissance trimestriel
+Croissance Trimestrielle = 
+VAR CurrentQuarter = [CA Total]
+VAR PreviousQuarter = 
+CALCULATE(
+    [CA Total],
+    PREVIOUSQUARTER(Calendrier[Date])
+)
+RETURN
+DIVIDE(
+    CurrentQuarter - PreviousQuarter,
+    PreviousQuarter,
+    0
+)`,
+    language: 'dax',
+    level: 'avancé',
+    tags: ['power-bi', 'time-intelligence', 'analytics', 'kpi']
+  }
+];
+
 const IALabTrainer: React.FC = () => {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
@@ -397,9 +601,23 @@ const IALabTrainer: React.FC = () => {
   
   // Effet pour charger un exemple par défaut au chargement
   useEffect(() => {
-    const defaultExample = selectedLanguage === 'python' 
-      ? pythonExamples[2]  // Exemple débutant pour Python
-      : sqlExamples[0];    // Exemple débutant pour SQL
+    let defaultExample;
+    switch(selectedLanguage) {
+      case 'python':
+        defaultExample = pythonExamples[2];
+        break;
+      case 'sql':
+        defaultExample = sqlExamples[0];
+        break;
+      case 'vba':
+        defaultExample = vbaExamples[0];
+        break;
+      case 'dax':
+        defaultExample = daxExamples[0];
+        break;
+      default:
+        defaultExample = pythonExamples[2];
+    }
       
     setCode(defaultExample.code);
     setCodeTitle(defaultExample.title);
@@ -412,14 +630,28 @@ const IALabTrainer: React.FC = () => {
   }, [expandEditor]);
   
   // Fonction pour changer de langage
-  const handleLanguageChange = (language: 'python' | 'sql') => {
+  const handleLanguageChange = (language: 'python' | 'sql' | 'vba' | 'dax') => {
     if (language === selectedLanguage) return;
     
     // Demander confirmation si le code a été modifié et n'est pas undefined
     if (code && code.trim() !== '') {
-      const defaultCode = selectedLanguage === 'python' 
-        ? pythonExamples[2].code 
-        : sqlExamples[0].code;
+      let defaultCode;
+      switch(selectedLanguage) {
+        case 'python':
+          defaultCode = pythonExamples[2].code;
+          break;
+        case 'sql':
+          defaultCode = sqlExamples[0].code;
+          break;
+        case 'vba':
+          defaultCode = vbaExamples[0].code;
+          break;
+        case 'dax':
+          defaultCode = daxExamples[0].code;
+          break;
+        default:
+          defaultCode = pythonExamples[2].code;
+      }
       
       if (code !== defaultCode) {
         const confirm = window.confirm(
@@ -432,9 +664,23 @@ const IALabTrainer: React.FC = () => {
     setSelectedLanguage(language);
     
     // Charger un exemple par défaut pour le nouveau langage
-    const defaultExample = language === 'python' 
-      ? pythonExamples[2] 
-      : sqlExamples[0];
+    let defaultExample;
+    switch(language) {
+      case 'python':
+        defaultExample = pythonExamples[2];
+        break;
+      case 'sql':
+        defaultExample = sqlExamples[0];
+        break;
+      case 'vba':
+        defaultExample = vbaExamples[0];
+        break;
+      case 'dax':
+        defaultExample = daxExamples[0];
+        break;
+      default:
+        defaultExample = pythonExamples[2];
+    }
       
     setCode(defaultExample.code);
     setCodeTitle(defaultExample.title);
@@ -868,7 +1114,7 @@ const IALabTrainer: React.FC = () => {
                         </Label>
                         <Select
                           value={targetLanguage}
-                          onValueChange={(value) => setTargetLanguage(value as 'python' | 'sql')}
+                          onValueChange={(value) => setTargetLanguage(value as 'python' | 'sql' | 'vba' | 'dax')}
                         >
                           <SelectTrigger className="bg-black/30 border-purple-500/30 text-gray-200">
                             <SelectValue placeholder="Choisir la langue" />
@@ -876,6 +1122,8 @@ const IALabTrainer: React.FC = () => {
                           <SelectContent className="bg-gray-900 border-purple-500/30">
                             <SelectItem value="python">Python</SelectItem>
                             <SelectItem value="sql">SQL</SelectItem>
+                            <SelectItem value="vba">VBA</SelectItem>
+                            <SelectItem value="dax">DAX</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -1119,11 +1367,19 @@ const IALabTrainer: React.FC = () => {
                 <div className="space-y-4">
                   <h3 className="text-white font-semibold flex items-center">
                     <BookOpen className="mr-2 h-5 w-5 text-cyan-400" />
-                    Exemples de code {selectedLanguage === 'python' ? 'Python' : 'SQL'}
+                    Exemples de code {selectedLanguage === 'python' ? 'Python' : selectedLanguage === 'sql' ? 'SQL' : selectedLanguage === 'vba' ? 'VBA' : 'DAX'}
                   </h3>
                   
                   <div className="space-y-3">
-                    {(selectedLanguage === 'python' ? pythonExamples : sqlExamples).map((example, idx) => (
+                    {(() => {
+                      switch(selectedLanguage) {
+                        case 'python': return pythonExamples;
+                        case 'sql': return sqlExamples;
+                        case 'vba': return vbaExamples;
+                        case 'dax': return daxExamples;
+                        default: return pythonExamples;
+                      }
+                    })().map((example, idx) => (
                       <div 
                         key={idx}
                         className="border border-blue-500/20 bg-blue-900/20 rounded-md p-3 hover:bg-blue-800/30 cursor-pointer transition-colors"
