@@ -25,24 +25,7 @@ const DataTopNavigation: React.FC = () => {
           </Button>
         </div>
         
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <Label htmlFor="high-contrast" className="text-xs text-gray-400">Mode contraste</Label>
-            <Switch 
-              id="high-contrast" 
-              checked={themeMode === 'dark'}
-              onCheckedChange={(checked) => setThemeMode(checked ? 'dark' : 'futuristic')}
-            />
-          </div>
-          
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="hover:bg-blue-900/20 text-gray-400"
-          >
-            <IoSettings />
-          </Button>
-        </div>
+
       </div>
     </header>
   );
