@@ -17,7 +17,8 @@ import {
   ChevronRight,
   Power,
   Check,
-  ArrowRight
+  ArrowRight,
+  ShoppingCart
 } from 'lucide-react';
 import mcLogoPath from "@assets/mc2i.png";
 import fyneCharacterPath from "../assets/fyne-character.png";
@@ -139,6 +140,16 @@ const CyberHomePage: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-5">
+              <Link href="/marketplace">
+                <motion.button
+                  className="px-4 py-2 bg-gradient-to-r from-[#006a9e] to-[#0085c7] hover:from-[#0085c7] hover:to-[#006a9e] text-white rounded-md text-sm font-semibold shadow-md transition-all duration-300 flex items-center"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  Marketplace
+                </motion.button>
+              </Link>
               <div className="flex items-center gap-2">
                 {/* L'indicateur a été supprimé à la demande de l'utilisateur */}
               </div>

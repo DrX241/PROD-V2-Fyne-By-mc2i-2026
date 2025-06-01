@@ -278,6 +278,13 @@ function AppContent() {
                 </Route>
                 
                 <Route path="/data-ia" component={DataIaModeSelection} />
+                <Route path="/marketplace">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement de la marketplace...</div>}>
+                      {React.createElement(lazy(() => import("./pages/marketplace")))}
+                    </Suspense>
+                  )}
+                </Route>
                 <Route path="/amoa-mode-selection-new">
                   {() => (
                     <AmoaModeSelectionNew />
