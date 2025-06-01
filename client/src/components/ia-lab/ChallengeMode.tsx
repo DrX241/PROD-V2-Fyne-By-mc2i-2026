@@ -67,7 +67,7 @@ interface Evaluation {
 
 // Composant principal de mode défi
 const ChallengeMode: React.FC<{
-  language: 'python' | 'sql' | 'vba' | 'dax';
+  language: 'python' | 'sql';
   editorValue: string;
   setEditorValue: (value: string) => void;
   executeCode: () => void;
@@ -377,13 +377,13 @@ const ChallengeMode: React.FC<{
                 Mode Défi IA
               </CardTitle>
               <CardDescription className="text-gray-400 mt-1">
-                Résolvez des problèmes générés par l'IA et perfectionnez vos compétences en {language === 'python' ? 'Python' : language === 'sql' ? 'SQL' : language === 'vba' ? 'VBA' : 'DAX'}
+                Résolvez des problèmes générés par l'IA et perfectionnez vos compétences en {language === 'python' ? 'Python' : 'SQL'}
               </CardDescription>
             </div>
             
             <div className="flex gap-2">
               <Badge variant="outline" className="bg-blue-900/50 border-blue-700/30">
-                {language === 'python' ? 'Python' : language === 'sql' ? 'SQL' : language === 'vba' ? 'VBA' : 'DAX'}
+                {language === 'python' ? 'Python' : 'SQL'}
               </Badge>
             </div>
           </div>
