@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,7 +25,6 @@ interface MarketplaceItem {
   title: string;
   description: string;
   category: string;
-  price: number;
   rating: number;
   reviews: number;
   author: string;
@@ -35,12 +35,12 @@ interface MarketplaceItem {
 }
 
 const marketplaceItems: MarketplaceItem[] = [
+  // Cybersécurité
   {
     id: '1',
     title: 'Formation CISSP Complète',
     description: 'Programme complet de préparation à la certification CISSP avec labs pratiques',
     category: 'Cybersécurité',
-    price: 299,
     rating: 4.8,
     reviews: 124,
     author: 'Expert Cyber',
@@ -53,8 +53,7 @@ const marketplaceItems: MarketplaceItem[] = [
     id: '2',
     title: 'Kit d\'Audit de Sécurité',
     description: 'Collection d\'outils automatisés pour auditer la sécurité d\'une infrastructure',
-    category: 'Outils',
-    price: 149,
+    category: 'Cybersécurité',
     rating: 4.6,
     reviews: 89,
     author: 'SecurityTools Pro',
@@ -65,10 +64,36 @@ const marketplaceItems: MarketplaceItem[] = [
   },
   {
     id: '3',
+    title: 'Certification Éthique Hacker',
+    description: 'Parcours CEH complet avec labs de pentest et certification officielle',
+    category: 'Cybersécurité',
+    rating: 4.8,
+    reviews: 198,
+    author: 'EthicalHack Pro',
+    tags: ['CEH', 'Pentest', 'Éthique'],
+    level: 'Expert',
+    type: 'certification',
+    featured: true
+  },
+  {
+    id: '4',
+    title: 'Simulation Crise Ransomware',
+    description: 'Scénario immersif de gestion de crise cyber avec équipe virtuelle',
+    category: 'Cybersécurité',
+    rating: 4.7,
+    reviews: 67,
+    author: 'CyberSim',
+    tags: ['Ransomware', 'Crise', 'Simulation'],
+    level: 'Intermédiaire',
+    type: 'scenario',
+    featured: false
+  },
+  // Data & IA
+  {
+    id: '5',
     title: 'Machine Learning pour Data Scientists',
     description: 'Cours avancé ML avec projets pratiques et datasets réels',
     category: 'Data & IA',
-    price: 199,
     rating: 4.9,
     reviews: 256,
     author: 'AI Academy',
@@ -78,25 +103,10 @@ const marketplaceItems: MarketplaceItem[] = [
     featured: true
   },
   {
-    id: '4',
-    title: 'Simulation Crise Ransomware',
-    description: 'Scénario immersif de gestion de crise cyber avec équipe virtuelle',
-    category: 'Scénarios',
-    price: 79,
-    rating: 4.7,
-    reviews: 67,
-    author: 'CyberSim',
-    tags: ['Ransomware', 'Crise', 'Simulation'],
-    level: 'Intermédiaire',
-    type: 'scenario',
-    featured: false
-  },
-  {
-    id: '5',
+    id: '6',
     title: 'Générateur de Code IA',
     description: 'Outil d\'IA pour générer du code sécurisé en multiple langages',
-    category: 'Outils',
-    price: 89,
+    category: 'Data & IA',
     rating: 4.5,
     reviews: 134,
     author: 'CodeGen AI',
@@ -106,27 +116,162 @@ const marketplaceItems: MarketplaceItem[] = [
     featured: false
   },
   {
-    id: '6',
-    title: 'Certification Éthique Hacker',
-    description: 'Parcours CEH complet avec labs de pentest et certification officielle',
-    category: 'Cybersécurité',
-    price: 399,
+    id: '7',
+    title: 'Analytics Avancés avec Python',
+    description: 'Maîtrisez l\'analyse de données avec pandas, numpy et matplotlib',
+    category: 'Data & IA',
+    rating: 4.7,
+    reviews: 189,
+    author: 'DataPro',
+    tags: ['Python', 'Analytics', 'Visualisation'],
+    level: 'Intermédiaire',
+    type: 'module',
+    featured: false
+  },
+  // Comptabilité
+  {
+    id: '8',
+    title: 'Comptabilité Générale Expert',
+    description: 'Formation complète en comptabilité générale et analytique',
+    category: 'Comptabilité',
+    rating: 4.6,
+    reviews: 145,
+    author: 'ComptaExpert',
+    tags: ['Comptabilité', 'Gestion', 'Finance'],
+    level: 'Avancé',
+    type: 'module',
+    featured: false
+  },
+  {
+    id: '9',
+    title: 'Outils de Clôture Comptable',
+    description: 'Automatisation des processus de clôture mensuelle et annuelle',
+    category: 'Comptabilité',
+    rating: 4.4,
+    reviews: 98,
+    author: 'FinanceTools',
+    tags: ['Clôture', 'Automatisation', 'Reporting'],
+    level: 'Intermédiaire',
+    type: 'outil',
+    featured: false
+  },
+  {
+    id: '10',
+    title: 'Certification Comptable',
+    description: 'Préparation à la certification comptable professionnelle',
+    category: 'Comptabilité',
     rating: 4.8,
-    reviews: 198,
-    author: 'EthicalHack Pro',
-    tags: ['CEH', 'Pentest', 'Éthique'],
+    reviews: 167,
+    author: 'CertifCompta',
+    tags: ['Certification', 'Comptabilité', 'Professionnel'],
     level: 'Expert',
     type: 'certification',
     featured: true
+  },
+  // Paie
+  {
+    id: '11',
+    title: 'Gestion de Paie Complète',
+    description: 'Formation complète sur la gestion de paie et les charges sociales',
+    category: 'Paie',
+    rating: 4.7,
+    reviews: 203,
+    author: 'PaieExpert',
+    tags: ['Paie', 'Social', 'Charges'],
+    level: 'Avancé',
+    type: 'module',
+    featured: true
+  },
+  {
+    id: '12',
+    title: 'Calculateur de Paie Automatisé',
+    description: 'Outil automatisé pour le calcul des bulletins de paie',
+    category: 'Paie',
+    rating: 4.5,
+    reviews: 176,
+    author: 'PayrollTech',
+    tags: ['Automatisation', 'Calcul', 'Bulletin'],
+    level: 'Intermédiaire',
+    type: 'outil',
+    featured: false
+  },
+  {
+    id: '13',
+    title: 'Simulation Audit Social',
+    description: 'Scénario d\'audit social avec contrôle URSSAF',
+    category: 'Paie',
+    rating: 4.6,
+    reviews: 123,
+    author: 'SocialAudit',
+    tags: ['Audit', 'URSSAF', 'Contrôle'],
+    level: 'Avancé',
+    type: 'scenario',
+    featured: false
+  },
+  // AMOA/Projet
+  {
+    id: '14',
+    title: 'Maîtrise d\'Ouvrage Digitale',
+    description: 'Techniques modernes de maîtrise d\'ouvrage pour projets digitaux',
+    category: 'AMOA',
+    rating: 4.8,
+    reviews: 234,
+    author: 'DigitalMOA',
+    tags: ['AMOA', 'Digital', 'Projet'],
+    level: 'Avancé',
+    type: 'module',
+    featured: true
+  },
+  {
+    id: '15',
+    title: 'Kit Outils MOA',
+    description: 'Boîte à outils complète pour le maître d\'ouvrage',
+    category: 'AMOA',
+    rating: 4.4,
+    reviews: 156,
+    author: 'MOATools',
+    tags: ['Outils', 'Template', 'Méthode'],
+    level: 'Intermédiaire',
+    type: 'outil',
+    featured: false
+  },
+  // Management
+  {
+    id: '16',
+    title: 'Leadership Digital',
+    description: 'Développez vos compétences de leadership à l\'ère numérique',
+    category: 'Management',
+    rating: 4.9,
+    reviews: 278,
+    author: 'LeadershipPro',
+    tags: ['Leadership', 'Digital', 'Management'],
+    level: 'Expert',
+    type: 'module',
+    featured: true
+  },
+  {
+    id: '17',
+    title: 'Gestion d\'Équipe Hybride',
+    description: 'Techniques de management pour équipes hybrides et distantes',
+    category: 'Management',
+    rating: 4.6,
+    reviews: 187,
+    author: 'HybridManager',
+    tags: ['Hybride', 'Remote', 'Équipe'],
+    level: 'Avancé',
+    type: 'module',
+    featured: false
   }
 ];
 
-const categories = ['Tous', 'Cybersécurité', 'Data & IA', 'Outils', 'Scénarios', 'Certifications'];
+const categories = ['Tous', 'Cybersécurité', 'Data & IA', 'Comptabilité', 'Paie', 'AMOA', 'Management', 'Certifications'];
 
 export default function Marketplace() {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Tous');
   const [sortBy, setSortBy] = useState('featured');
+  const [cartItems, setCartItems] = useState<string[]>([]);
 
   const filteredItems = marketplaceItems.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -140,10 +285,6 @@ export default function Marketplace() {
 
   const sortedItems = [...filteredItems].sort((a, b) => {
     switch (sortBy) {
-      case 'price-low':
-        return a.price - b.price;
-      case 'price-high':
-        return b.price - a.price;
       case 'rating':
         return b.rating - a.rating;
       case 'popular':
@@ -152,6 +293,24 @@ export default function Marketplace() {
         return b.featured ? 1 : -1;
     }
   });
+
+  const addToCart = (itemId: string) => {
+    if (!cartItems.includes(itemId)) {
+      setCartItems([...cartItems, itemId]);
+      const item = marketplaceItems.find(i => i.id === itemId);
+      toast({
+        title: "Ajouté au panier",
+        description: `${item?.title} a été ajouté à votre panier`,
+        variant: "default",
+      });
+    } else {
+      toast({
+        title: "Déjà dans le panier",
+        description: "Cet élément est déjà dans votre panier",
+        variant: "destructive",
+      });
+    }
+  };
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -188,7 +347,7 @@ export default function Marketplace() {
               </Link>
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                  Cyber Marketplace
+                  FYNE MARKETPLACE
                 </h1>
                 <p className="text-gray-400 mt-1">
                   Modules, outils et ressources pour votre montée en compétences
@@ -203,7 +362,7 @@ export default function Marketplace() {
               </Button>
               <Button variant="outline" className="border-blue-500/30 text-blue-400 hover:bg-blue-900/20">
                 <ShoppingCart className="mr-2 h-4 w-4" />
-                Panier (0)
+                Panier ({cartItems.length})
               </Button>
             </div>
           </div>
@@ -229,8 +388,6 @@ export default function Marketplace() {
                 <option value="featured">Mis en avant</option>
                 <option value="rating">Mieux notés</option>
                 <option value="popular">Plus populaires</option>
-                <option value="price-low">Prix croissant</option>
-                <option value="price-high">Prix décroissant</option>
               </select>
             </div>
           </div>
@@ -323,7 +480,9 @@ export default function Marketplace() {
                             </div>
                             <span className="text-gray-400 text-sm">({item.reviews})</span>
                           </div>
-                          <span className="text-xl font-bold text-blue-400">{item.price}€</span>
+                          <Badge variant="outline" className="text-orange-400 border-orange-400">
+                            Bientôt disponible
+                          </Badge>
                         </div>
                         
                         <div className="flex flex-wrap gap-1 mb-4">
