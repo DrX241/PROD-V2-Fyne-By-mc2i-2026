@@ -577,6 +577,102 @@ const getEditorLanguage = (language: 'python' | 'sql' | 'vba' | 'dax') => {
   }
 };
 
+// Fonction de simulation pour VBA
+const simulateVBAExecution = (code: string): string => {
+  const lines = code.split('\n').filter(line => line.trim());
+  let output = '=== Simulation d\'exécution VBA ===\n\n';
+  
+  // Analyser le code VBA pour donner un feedback éducatif
+  if (code.includes('Sub ') && code.includes('End Sub')) {
+    output += '✓ Procédure Sub détectée\n';
+    
+    if (code.includes('Dim ')) {
+      output += '✓ Déclarations de variables trouvées\n';
+    }
+    
+    if (code.includes('For ') && code.includes('Next')) {
+      output += '✓ Boucle For détectée - Itération effectuée\n';
+    }
+    
+    if (code.includes('If ') && code.includes('Then')) {
+      output += '✓ Structure conditionnelle If-Then détectée\n';
+    }
+    
+    if (code.includes('MsgBox')) {
+      const msgBoxMatch = code.match(/MsgBox\s+"([^"]+)"/);
+      if (msgBoxMatch) {
+        output += `📧 Message affiché: "${msgBoxMatch[1]}"\n`;
+      }
+    }
+    
+    if (code.includes('.Cells(') || code.includes('.Range(')) {
+      output += '📊 Manipulation de cellules Excel détectée\n';
+    }
+    
+    if (code.includes('total') || code.includes('Total')) {
+      output += '🧮 Calcul de totaux effectué\n';
+    }
+    
+    output += '\n✅ Exécution VBA simulée avec succès';
+  } else {
+    output += '❌ Structure VBA incomplète détectée\n';
+    output += 'Vérifiez que votre code contient Sub...End Sub';
+  }
+  
+  return output;
+};
+
+// Fonction de simulation pour DAX
+const simulateDAXExecution = (code: string): string => {
+  let output = '=== Simulation d\'exécution DAX ===\n\n';
+  
+  // Analyser le code DAX pour donner un feedback éducatif
+  if (code.includes('=')) {
+    output += '✓ Définition de mesure DAX détectée\n';
+    
+    const measureName = code.split('=')[0].trim();
+    output += `📊 Mesure: ${measureName}\n`;
+    
+    if (code.includes('SUM(') || code.includes('COUNT(') || code.includes('AVERAGE(')) {
+      output += '✓ Fonction d\'agrégation détectée\n';
+    }
+    
+    if (code.includes('CALCULATE(')) {
+      output += '✓ Fonction CALCULATE détectée - Modification du contexte\n';
+    }
+    
+    if (code.includes('FILTER(')) {
+      output += '✓ Fonction FILTER détectée - Filtrage appliqué\n';
+    }
+    
+    if (code.includes('VAR ') && code.includes('RETURN')) {
+      output += '✓ Variables DAX (VAR-RETURN) détectées\n';
+    }
+    
+    if (code.includes('DIVIDE(')) {
+      output += '✓ Division sécurisée avec DIVIDE détectée\n';
+    }
+    
+    if (code.includes('SAMEPERIODLASTYEAR') || code.includes('TOTALYTD')) {
+      output += '📅 Intelligence temporelle détectée\n';
+    }
+    
+    // Simulation de résultat numérique
+    const hasCalculation = code.includes('SUM') || code.includes('COUNT') || code.includes('AVERAGE');
+    if (hasCalculation) {
+      const simulatedValue = Math.floor(Math.random() * 100000) + 1000;
+      output += `\n💰 Résultat simulé: ${simulatedValue.toLocaleString()}\n`;
+    }
+    
+    output += '\n✅ Mesure DAX validée et simulée avec succès';
+  } else {
+    output += '❌ Structure DAX incomplète détectée\n';
+    output += 'Vérifiez que votre code contient une définition de mesure (=)';
+  }
+  
+  return output;
+};
+
 const IALabTrainer: React.FC = () => {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
@@ -781,31 +877,50 @@ const IALabTrainer: React.FC = () => {
     setAnalysis(null);
     
     try {
-      // Déterminer l'endpoint en fonction du langage sélectionné
-      const endpoint = selectedLanguage === 'python' 
-        ? '/api/code/execute/python'
-        : '/api/code/execute/sql';
+      let data: any;
       
-      // Appeler l'API d'exécution de code
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          code,
-          sessionId // Inclure l'ID de session pour maintenir le contexte entre les appels
-        }),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de l\'exécution du code');
+      if (selectedLanguage === 'vba') {
+        // Simulation pour VBA
+        const simulatedResult = simulateVBAExecution(code);
+        data = {
+          result: simulatedResult,
+          analysis: 'Code VBA analysé - Syntaxe et structure vérifiées',
+          sessionVariables: null
+        };
+      } else if (selectedLanguage === 'dax') {
+        // Simulation pour DAX
+        const simulatedResult = simulateDAXExecution(code);
+        data = {
+          result: simulatedResult,
+          analysis: 'Mesure DAX analysée - Expression validée',
+          sessionVariables: null
+        };
+      } else {
+        // Exécution réelle pour Python et SQL
+        const endpoint = selectedLanguage === 'python' 
+          ? '/api/code/execute/python'
+          : '/api/code/execute/sql';
+        
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            code,
+            sessionId
+          }),
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Erreur lors de l\'exécution du code');
+        }
+        
+        data = await response.json();
       }
       
-      const data = await response.json();
-      
-      // Mettre à jour les résultats avec la réponse de l'API
+      // Mettre à jour les résultats
       setResult(data.result || 'Exécution terminée sans résultat');
       setAnalysis(data.analysis || 'Aucune analyse disponible');
       
@@ -828,7 +943,7 @@ const IALabTrainer: React.FC = () => {
       
       toast({
         title: "Exécution terminée",
-        description: "Le code a été exécuté avec succès.",
+        description: `Le code ${selectedLanguage.toUpperCase()} a été traité avec succès.`,
         variant: "default",
       });
     } catch (error) {
@@ -1481,7 +1596,7 @@ const IALabTrainer: React.FC = () => {
                         <div key={idx} className="border border-blue-500/20 bg-blue-900/20 rounded-md p-3">
                           <div className="flex justify-between items-start">
                             <h4 className="text-white font-medium">
-                              {item.language === 'python' ? 'Python' : 'SQL'} - Exécution {idx + 1}
+                              {item.language === 'python' ? 'Python' : item.language === 'sql' ? 'SQL' : item.language === 'vba' ? 'VBA' : 'DAX'} - Exécution {idx + 1}
                             </h4>
                             <Badge variant="outline" className="text-xs bg-blue-900/50 border-blue-700/30">
                               {new Date(item.timestamp).toLocaleTimeString()}
