@@ -25,12 +25,10 @@ interface MarketplaceItem {
   title: string;
   description: string;
   category: string;
-  rating: number;
-  reviews: number;
   author: string;
   tags: string[];
   level: 'Débutant' | 'Intermédiaire' | 'Avancé' | 'Expert';
-  type: 'module' | 'outil' | 'scenario' | 'certification';
+  type: 'module' | 'outil';
   featured: boolean;
 }
 
@@ -38,25 +36,21 @@ const marketplaceItems: MarketplaceItem[] = [
   // Cybersécurité - 3 modules
   {
     id: '1',
-    title: 'Formation CISSP Complète',
-    description: 'Programme complet de préparation à la certification CISSP avec labs pratiques',
+    title: 'I AM CYBER - Sécurité Avancée',
+    description: 'Programme complet de formation en cybersécurité avec simulations pratiques',
     category: 'Cybersécurité',
-    rating: 4.8,
-    reviews: 124,
-    author: 'Expert Cyber',
-    tags: ['CISSP', 'Certification', 'Sécurité'],
+    author: 'FYNE Academy',
+    tags: ['Sécurité', 'SOC', 'Incident'],
     level: 'Avancé',
     type: 'module',
     featured: true
   },
   {
     id: '2',
-    title: 'SOC Analyst Expert',
-    description: 'Formation complète pour devenir analyste SOC avec outils de détection avancés',
+    title: 'I AM CYBER - SOC Analyst',
+    description: 'Formation complète pour devenir analyste SOC avec outils de détection',
     category: 'Cybersécurité',
-    rating: 4.7,
-    reviews: 198,
-    author: 'SOC Academy',
+    author: 'FYNE Academy',
     tags: ['SOC', 'SIEM', 'Détection'],
     level: 'Avancé',
     type: 'module',
@@ -64,13 +58,11 @@ const marketplaceItems: MarketplaceItem[] = [
   },
   {
     id: '3',
-    title: 'Pentest & Red Team',
-    description: 'Techniques avancées de test d\'intrusion et d\'exercices Red Team',
+    title: 'I AM CYBER - Pentest Expert',
+    description: 'Techniques avancées de test d\'intrusion et d\'audit de sécurité',
     category: 'Cybersécurité',
-    rating: 4.9,
-    reviews: 156,
-    author: 'RedTeam Pro',
-    tags: ['Pentest', 'Red Team', 'Exploitation'],
+    author: 'FYNE Academy',
+    tags: ['Pentest', 'Audit', 'Vulnérabilités'],
     level: 'Expert',
     type: 'module',
     featured: true
@@ -79,25 +71,21 @@ const marketplaceItems: MarketplaceItem[] = [
   // Data & IA - 3 modules
   {
     id: '4',
-    title: 'Machine Learning Avancé',
-    description: 'Cours avancé ML avec projets pratiques et datasets réels',
+    title: 'I AM DATA - Machine Learning',
+    description: 'Formation ML avancée avec projets pratiques et cas d\'usage réels',
     category: 'Data & IA',
-    rating: 4.9,
-    reviews: 256,
-    author: 'AI Academy',
-    tags: ['ML', 'Python', 'Deep Learning'],
+    author: 'FYNE Academy',
+    tags: ['ML', 'Python', 'Data Science'],
     level: 'Avancé',
     type: 'module',
     featured: true
   },
   {
     id: '5',
-    title: 'Data Engineering Expert',
+    title: 'I AM DATA - Engineering',
     description: 'Architecture et pipelines de données pour l\'entreprise moderne',
     category: 'Data & IA',
-    rating: 4.8,
-    reviews: 189,
-    author: 'DataPro',
+    author: 'FYNE Academy',
     tags: ['Pipeline', 'ETL', 'Architecture'],
     level: 'Expert',
     type: 'module',
@@ -105,13 +93,11 @@ const marketplaceItems: MarketplaceItem[] = [
   },
   {
     id: '6',
-    title: 'IA Générative & LLM',
+    title: 'I AM IA - Générative & LLM',
     description: 'Maîtrisez les modèles de langage et l\'IA générative pour l\'entreprise',
     category: 'Data & IA',
-    rating: 4.7,
-    reviews: 234,
-    author: 'GenAI Expert',
-    tags: ['LLM', 'ChatGPT', 'Prompt Engineering'],
+    author: 'FYNE Academy',
+    tags: ['LLM', 'IA Générative', 'Prompt Engineering'],
     level: 'Avancé',
     type: 'module',
     featured: true
@@ -120,12 +106,10 @@ const marketplaceItems: MarketplaceItem[] = [
   // AMOA - 3 modules
   {
     id: '7',
-    title: 'Maîtrise d\'Ouvrage Digitale',
+    title: 'I AM AMOA - Maîtrise d\'Ouvrage',
     description: 'Techniques modernes de maîtrise d\'ouvrage pour projets digitaux',
     category: 'AMOA',
-    rating: 4.8,
-    reviews: 234,
-    author: 'DigitalMOA',
+    author: 'FYNE Academy',
     tags: ['AMOA', 'Digital', 'Transformation'],
     level: 'Avancé',
     type: 'module',
@@ -133,12 +117,10 @@ const marketplaceItems: MarketplaceItem[] = [
   },
   {
     id: '8',
-    title: 'Product Owner Certifié',
-    description: 'Formation Product Owner avec certification et cas pratiques réels',
+    title: 'I AM AMOA - Product Owner',
+    description: 'Formation Product Owner avec méthodes Agile et cas pratiques',
     category: 'AMOA',
-    rating: 4.9,
-    reviews: 312,
-    author: 'Agile Masters',
+    author: 'FYNE Academy',
     tags: ['Product Owner', 'Scrum', 'Agile'],
     level: 'Intermédiaire',
     type: 'module',
@@ -146,12 +128,10 @@ const marketplaceItems: MarketplaceItem[] = [
   },
   {
     id: '9',
-    title: 'Business Analyst Expert',
+    title: 'I AM AMOA - Business Analyst',
     description: 'Analyse fonctionnelle et expression des besoins métier',
     category: 'AMOA',
-    rating: 4.6,
-    reviews: 178,
-    author: 'BA Institute',
+    author: 'FYNE Academy',
     tags: ['Business Analysis', 'UML', 'Cahier des charges'],
     level: 'Avancé',
     type: 'module',
@@ -161,25 +141,21 @@ const marketplaceItems: MarketplaceItem[] = [
   // Agilité - 3 modules
   {
     id: '10',
-    title: 'Scrum Master Certifié',
-    description: 'Formation complète Scrum Master avec certification PSM',
+    title: 'I AM AGILE - Scrum Master',
+    description: 'Formation complète Scrum Master avec techniques d\'animation',
     category: 'Agilité',
-    rating: 4.8,
-    reviews: 289,
-    author: 'Scrum Alliance',
-    tags: ['Scrum Master', 'PSM', 'Animation'],
+    author: 'FYNE Academy',
+    tags: ['Scrum Master', 'Animation', 'Facilitation'],
     level: 'Intermédiaire',
     type: 'module',
     featured: true
   },
   {
     id: '11',
-    title: 'SAFe Program Manager',
+    title: 'I AM AGILE - SAFe Program',
     description: 'Pilotage de programmes Agile à l\'échelle avec SAFe',
     category: 'Agilité',
-    rating: 4.7,
-    reviews: 167,
-    author: 'SAFe Institute',
+    author: 'FYNE Academy',
     tags: ['SAFe', 'Programme', 'Scaling'],
     level: 'Expert',
     type: 'module',
@@ -187,13 +163,11 @@ const marketplaceItems: MarketplaceItem[] = [
   },
   {
     id: '12',
-    title: 'DevOps & CI/CD',
+    title: 'I AM AGILE - DevOps',
     description: 'Intégration et déploiement continus avec approche DevOps',
     category: 'Agilité',
-    rating: 4.9,
-    reviews: 245,
-    author: 'DevOps Academy',
-    tags: ['DevOps', 'CI/CD', 'Docker'],
+    author: 'FYNE Academy',
+    tags: ['DevOps', 'CI/CD', 'Automatisation'],
     level: 'Avancé',
     type: 'module',
     featured: true
@@ -202,68 +176,58 @@ const marketplaceItems: MarketplaceItem[] = [
   // Outils clés en main
   {
     id: '13',
-    title: 'Plateforme de Veille Technologique',
-    description: 'Outil IA pour surveiller les tendances tech et cyber en temps réel',
+    title: 'Créateur de Chatbots IA',
+    description: 'Plateforme no-code pour créer des chatbots personnalisés avec IA',
     category: 'Outils',
-    rating: 4.6,
-    reviews: 134,
-    author: 'VeilleTech',
-    tags: ['Veille', 'IA', 'Monitoring'],
+    author: 'FYNE Tools',
+    tags: ['Chatbot', 'IA', 'No-code'],
     level: 'Débutant',
     type: 'outil',
     featured: false
   },
   {
     id: '14',
-    title: 'Générateur de Réponses AO',
-    description: 'Assistant IA pour générer des réponses aux appels d\'offres personnalisées',
+    title: 'Générateur de Jeux de Test',
+    description: 'Automatisation de la création de jeux de données pour les tests',
     category: 'Outils',
-    rating: 4.8,
-    reviews: 98,
-    author: 'BidGenius',
-    tags: ['Appel d\'offres', 'IA', 'Rédaction'],
+    author: 'FYNE Tools',
+    tags: ['Tests', 'Automatisation', 'Données'],
     level: 'Intermédiaire',
     type: 'outil',
     featured: true
   },
   {
     id: '15',
-    title: 'Audit de Vulnérabilités Automatisé',
-    description: 'Scanner de sécurité complet avec reporting automatique',
+    title: 'Assistant Politiques de Sécurité',
+    description: 'Générateur de politiques de sécurité adaptées par type d\'organisation',
     category: 'Outils',
-    rating: 4.7,
-    reviews: 156,
-    author: 'SecureScan',
-    tags: ['Audit', 'Vulnérabilités', 'Automatisation'],
+    author: 'FYNE Tools',
+    tags: ['Sécurité', 'Politique', 'Compliance'],
     level: 'Intermédiaire',
     type: 'outil',
     featured: false
   },
   {
     id: '16',
-    title: 'Dashboard Analytics Temps Réel',
-    description: 'Tableaux de bord personnalisables avec connexions multi-sources',
+    title: 'Générateur de Réponses AO',
+    description: 'Assistant IA pour rédiger des réponses aux appels d\'offres',
     category: 'Outils',
-    rating: 4.5,
-    reviews: 123,
-    author: 'DataViz Pro',
-    tags: ['Dashboard', 'Analytics', 'Visualisation'],
-    level: 'Débutant',
+    author: 'FYNE Tools',
+    tags: ['Appel d\'offres', 'Rédaction', 'IA'],
+    level: 'Intermédiaire',
     type: 'outil',
-    featured: false
+    featured: true
   },
   {
     id: '17',
-    title: 'Assistant IA Project Management',
-    description: 'IA pour planification automatique et suivi de projets Agile',
+    title: 'Plateforme de Veille Automatisée',
+    description: 'Surveillance des tendances technologiques et réglementaires',
     category: 'Outils',
-    rating: 4.9,
-    reviews: 201,
-    author: 'ProjectAI',
-    tags: ['Project Management', 'IA', 'Planification'],
-    level: 'Avancé',
+    author: 'FYNE Tools',
+    tags: ['Veille', 'Tendances', 'Automatisation'],
+    level: 'Débutant',
     type: 'outil',
-    featured: true
+    featured: false
   }
 ];
 
@@ -288,10 +252,8 @@ export default function Marketplace() {
 
   const sortedItems = [...filteredItems].sort((a, b) => {
     switch (sortBy) {
-      case 'rating':
-        return b.rating - a.rating;
-      case 'popular':
-        return b.reviews - a.reviews;
+      case 'featured':
+        return b.featured ? 1 : -1;
       default:
         return b.featured ? 1 : -1;
     }
@@ -389,8 +351,6 @@ export default function Marketplace() {
                 onChange={(e) => setSortBy(e.target.value)}
               >
                 <option value="featured">Mis en avant</option>
-                <option value="rating">Mieux notés</option>
-                <option value="popular">Plus populaires</option>
               </select>
             </div>
           </div>
@@ -469,23 +429,8 @@ export default function Marketplace() {
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center space-x-2">
-                            <div className="flex items-center">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`h-4 w-4 ${
-                                    i < Math.floor(item.rating) ? 'text-yellow-400 fill-current' : 'text-gray-600'
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-gray-400 text-sm">({item.reviews})</span>
-                          </div>
-                          <Badge variant="outline" className="text-orange-400 border-orange-400">
-                            Bientôt disponible
-                          </Badge>
+                        <div className="mb-3">
+                          <span className="text-gray-400 text-sm">par {item.author}</span>
                         </div>
                         
                         <div className="flex flex-wrap gap-1 mb-4">
@@ -499,12 +444,10 @@ export default function Marketplace() {
                         <div className="flex space-x-2">
                           <Button 
                             size="sm" 
-                            className="flex-1 bg-blue-600 hover:bg-blue-700"
-                            onClick={() => addToCart(item.id)}
-                            disabled={cartItems.includes(item.id)}
+                            className="flex-1 bg-orange-600 hover:bg-orange-700"
+                            disabled={true}
                           >
-                            <ShoppingCart className="mr-2 h-4 w-4" />
-                            {cartItems.includes(item.id) ? 'Dans le panier' : 'Ajouter'}
+                            Bientôt disponible
                           </Button>
                           <Button variant="outline" size="sm" className="border-blue-500/30 text-blue-400">
                             <Eye className="h-4 w-4" />
@@ -547,23 +490,8 @@ export default function Marketplace() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-2">
-                          <div className="flex items-center">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4 w-4 ${
-                                  i < Math.floor(item.rating) ? 'text-yellow-400 fill-current' : 'text-gray-600'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-gray-400 text-sm">({item.reviews})</span>
-                        </div>
-                        <Badge variant="outline" className="text-orange-400 border-orange-400">
-                          Bientôt disponible
-                        </Badge>
+                      <div className="mb-3">
+                        <span className="text-gray-400 text-sm">par {item.author}</span>
                       </div>
                       
                       <div className="flex flex-wrap gap-1 mb-4">
@@ -577,12 +505,10 @@ export default function Marketplace() {
                       <div className="flex space-x-2">
                         <Button 
                           size="sm" 
-                          className="flex-1 bg-blue-600 hover:bg-blue-700"
-                          onClick={() => addToCart(item.id)}
-                          disabled={cartItems.includes(item.id)}
+                          className="flex-1 bg-orange-600 hover:bg-orange-700"
+                          disabled={true}
                         >
-                          <ShoppingCart className="mr-2 h-4 w-4" />
-                          {cartItems.includes(item.id) ? 'Dans le panier' : 'Ajouter'}
+                          Bientôt disponible
                         </Button>
                         <Button variant="outline" size="sm" className="border-blue-500/30 text-blue-400">
                           <Eye className="h-4 w-4" />
