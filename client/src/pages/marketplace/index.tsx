@@ -35,7 +35,7 @@ interface MarketplaceItem {
 }
 
 const marketplaceItems: MarketplaceItem[] = [
-  // Cybersécurité
+  // Cybersécurité - 3 modules
   {
     id: '1',
     title: 'Formation CISSP Complète',
@@ -51,220 +51,223 @@ const marketplaceItems: MarketplaceItem[] = [
   },
   {
     id: '2',
-    title: 'Kit d\'Audit de Sécurité',
-    description: 'Collection d\'outils automatisés pour auditer la sécurité d\'une infrastructure',
+    title: 'SOC Analyst Expert',
+    description: 'Formation complète pour devenir analyste SOC avec outils de détection avancés',
     category: 'Cybersécurité',
-    rating: 4.6,
-    reviews: 89,
-    author: 'SecurityTools Pro',
-    tags: ['Audit', 'Automatisation', 'Pentest'],
-    level: 'Intermédiaire',
-    type: 'outil',
+    rating: 4.7,
+    reviews: 198,
+    author: 'SOC Academy',
+    tags: ['SOC', 'SIEM', 'Détection'],
+    level: 'Avancé',
+    type: 'module',
     featured: false
   },
   {
     id: '3',
-    title: 'Certification Éthique Hacker',
-    description: 'Parcours CEH complet avec labs de pentest et certification officielle',
+    title: 'Pentest & Red Team',
+    description: 'Techniques avancées de test d\'intrusion et d\'exercices Red Team',
     category: 'Cybersécurité',
-    rating: 4.8,
-    reviews: 198,
-    author: 'EthicalHack Pro',
-    tags: ['CEH', 'Pentest', 'Éthique'],
+    rating: 4.9,
+    reviews: 156,
+    author: 'RedTeam Pro',
+    tags: ['Pentest', 'Red Team', 'Exploitation'],
     level: 'Expert',
-    type: 'certification',
+    type: 'module',
     featured: true
   },
+  
+  // Data & IA - 3 modules
   {
     id: '4',
-    title: 'Simulation Crise Ransomware',
-    description: 'Scénario immersif de gestion de crise cyber avec équipe virtuelle',
-    category: 'Cybersécurité',
-    rating: 4.7,
-    reviews: 67,
-    author: 'CyberSim',
-    tags: ['Ransomware', 'Crise', 'Simulation'],
-    level: 'Intermédiaire',
-    type: 'scenario',
-    featured: false
-  },
-  // Data & IA
-  {
-    id: '5',
-    title: 'Machine Learning pour Data Scientists',
+    title: 'Machine Learning Avancé',
     description: 'Cours avancé ML avec projets pratiques et datasets réels',
     category: 'Data & IA',
     rating: 4.9,
     reviews: 256,
     author: 'AI Academy',
-    tags: ['ML', 'Python', 'Data Science'],
+    tags: ['ML', 'Python', 'Deep Learning'],
     level: 'Avancé',
     type: 'module',
     featured: true
+  },
+  {
+    id: '5',
+    title: 'Data Engineering Expert',
+    description: 'Architecture et pipelines de données pour l\'entreprise moderne',
+    category: 'Data & IA',
+    rating: 4.8,
+    reviews: 189,
+    author: 'DataPro',
+    tags: ['Pipeline', 'ETL', 'Architecture'],
+    level: 'Expert',
+    type: 'module',
+    featured: false
   },
   {
     id: '6',
-    title: 'Générateur de Code IA',
-    description: 'Outil d\'IA pour générer du code sécurisé en multiple langages',
+    title: 'IA Générative & LLM',
+    description: 'Maîtrisez les modèles de langage et l\'IA générative pour l\'entreprise',
     category: 'Data & IA',
-    rating: 4.5,
-    reviews: 134,
-    author: 'CodeGen AI',
-    tags: ['IA', 'Code', 'Automatisation'],
-    level: 'Débutant',
-    type: 'outil',
-    featured: false
+    rating: 4.7,
+    reviews: 234,
+    author: 'GenAI Expert',
+    tags: ['LLM', 'ChatGPT', 'Prompt Engineering'],
+    level: 'Avancé',
+    type: 'module',
+    featured: true
   },
+  
+  // AMOA - 3 modules
   {
     id: '7',
-    title: 'Analytics Avancés avec Python',
-    description: 'Maîtrisez l\'analyse de données avec pandas, numpy et matplotlib',
-    category: 'Data & IA',
-    rating: 4.7,
-    reviews: 189,
-    author: 'DataPro',
-    tags: ['Python', 'Analytics', 'Visualisation'],
-    level: 'Intermédiaire',
-    type: 'module',
-    featured: false
-  },
-  // Comptabilité
-  {
-    id: '8',
-    title: 'Comptabilité Générale Expert',
-    description: 'Formation complète en comptabilité générale et analytique',
-    category: 'Comptabilité',
-    rating: 4.6,
-    reviews: 145,
-    author: 'ComptaExpert',
-    tags: ['Comptabilité', 'Gestion', 'Finance'],
-    level: 'Avancé',
-    type: 'module',
-    featured: false
-  },
-  {
-    id: '9',
-    title: 'Outils de Clôture Comptable',
-    description: 'Automatisation des processus de clôture mensuelle et annuelle',
-    category: 'Comptabilité',
-    rating: 4.4,
-    reviews: 98,
-    author: 'FinanceTools',
-    tags: ['Clôture', 'Automatisation', 'Reporting'],
-    level: 'Intermédiaire',
-    type: 'outil',
-    featured: false
-  },
-  {
-    id: '10',
-    title: 'Certification Comptable',
-    description: 'Préparation à la certification comptable professionnelle',
-    category: 'Comptabilité',
-    rating: 4.8,
-    reviews: 167,
-    author: 'CertifCompta',
-    tags: ['Certification', 'Comptabilité', 'Professionnel'],
-    level: 'Expert',
-    type: 'certification',
-    featured: true
-  },
-  // Paie
-  {
-    id: '11',
-    title: 'Gestion de Paie Complète',
-    description: 'Formation complète sur la gestion de paie et les charges sociales',
-    category: 'Paie',
-    rating: 4.7,
-    reviews: 203,
-    author: 'PaieExpert',
-    tags: ['Paie', 'Social', 'Charges'],
-    level: 'Avancé',
-    type: 'module',
-    featured: true
-  },
-  {
-    id: '12',
-    title: 'Calculateur de Paie Automatisé',
-    description: 'Outil automatisé pour le calcul des bulletins de paie',
-    category: 'Paie',
-    rating: 4.5,
-    reviews: 176,
-    author: 'PayrollTech',
-    tags: ['Automatisation', 'Calcul', 'Bulletin'],
-    level: 'Intermédiaire',
-    type: 'outil',
-    featured: false
-  },
-  {
-    id: '13',
-    title: 'Simulation Audit Social',
-    description: 'Scénario d\'audit social avec contrôle URSSAF',
-    category: 'Paie',
-    rating: 4.6,
-    reviews: 123,
-    author: 'SocialAudit',
-    tags: ['Audit', 'URSSAF', 'Contrôle'],
-    level: 'Avancé',
-    type: 'scenario',
-    featured: false
-  },
-  // AMOA/Projet
-  {
-    id: '14',
     title: 'Maîtrise d\'Ouvrage Digitale',
     description: 'Techniques modernes de maîtrise d\'ouvrage pour projets digitaux',
     category: 'AMOA',
     rating: 4.8,
     reviews: 234,
     author: 'DigitalMOA',
-    tags: ['AMOA', 'Digital', 'Projet'],
+    tags: ['AMOA', 'Digital', 'Transformation'],
     level: 'Avancé',
     type: 'module',
+    featured: true
+  },
+  {
+    id: '8',
+    title: 'Product Owner Certifié',
+    description: 'Formation Product Owner avec certification et cas pratiques réels',
+    category: 'AMOA',
+    rating: 4.9,
+    reviews: 312,
+    author: 'Agile Masters',
+    tags: ['Product Owner', 'Scrum', 'Agile'],
+    level: 'Intermédiaire',
+    type: 'module',
+    featured: false
+  },
+  {
+    id: '9',
+    title: 'Business Analyst Expert',
+    description: 'Analyse fonctionnelle et expression des besoins métier',
+    category: 'AMOA',
+    rating: 4.6,
+    reviews: 178,
+    author: 'BA Institute',
+    tags: ['Business Analysis', 'UML', 'Cahier des charges'],
+    level: 'Avancé',
+    type: 'module',
+    featured: false
+  },
+  
+  // Agilité - 3 modules
+  {
+    id: '10',
+    title: 'Scrum Master Certifié',
+    description: 'Formation complète Scrum Master avec certification PSM',
+    category: 'Agilité',
+    rating: 4.8,
+    reviews: 289,
+    author: 'Scrum Alliance',
+    tags: ['Scrum Master', 'PSM', 'Animation'],
+    level: 'Intermédiaire',
+    type: 'module',
+    featured: true
+  },
+  {
+    id: '11',
+    title: 'SAFe Program Manager',
+    description: 'Pilotage de programmes Agile à l\'échelle avec SAFe',
+    category: 'Agilité',
+    rating: 4.7,
+    reviews: 167,
+    author: 'SAFe Institute',
+    tags: ['SAFe', 'Programme', 'Scaling'],
+    level: 'Expert',
+    type: 'module',
+    featured: false
+  },
+  {
+    id: '12',
+    title: 'DevOps & CI/CD',
+    description: 'Intégration et déploiement continus avec approche DevOps',
+    category: 'Agilité',
+    rating: 4.9,
+    reviews: 245,
+    author: 'DevOps Academy',
+    tags: ['DevOps', 'CI/CD', 'Docker'],
+    level: 'Avancé',
+    type: 'module',
+    featured: true
+  },
+  
+  // Outils clés en main
+  {
+    id: '13',
+    title: 'Plateforme de Veille Technologique',
+    description: 'Outil IA pour surveiller les tendances tech et cyber en temps réel',
+    category: 'Outils',
+    rating: 4.6,
+    reviews: 134,
+    author: 'VeilleTech',
+    tags: ['Veille', 'IA', 'Monitoring'],
+    level: 'Débutant',
+    type: 'outil',
+    featured: false
+  },
+  {
+    id: '14',
+    title: 'Générateur de Réponses AO',
+    description: 'Assistant IA pour générer des réponses aux appels d\'offres personnalisées',
+    category: 'Outils',
+    rating: 4.8,
+    reviews: 98,
+    author: 'BidGenius',
+    tags: ['Appel d\'offres', 'IA', 'Rédaction'],
+    level: 'Intermédiaire',
+    type: 'outil',
     featured: true
   },
   {
     id: '15',
-    title: 'Kit Outils MOA',
-    description: 'Boîte à outils complète pour le maître d\'ouvrage',
-    category: 'AMOA',
-    rating: 4.4,
+    title: 'Audit de Vulnérabilités Automatisé',
+    description: 'Scanner de sécurité complet avec reporting automatique',
+    category: 'Outils',
+    rating: 4.7,
     reviews: 156,
-    author: 'MOATools',
-    tags: ['Outils', 'Template', 'Méthode'],
+    author: 'SecureScan',
+    tags: ['Audit', 'Vulnérabilités', 'Automatisation'],
     level: 'Intermédiaire',
     type: 'outil',
     featured: false
   },
-  // Management
   {
     id: '16',
-    title: 'Leadership Digital',
-    description: 'Développez vos compétences de leadership à l\'ère numérique',
-    category: 'Management',
-    rating: 4.9,
-    reviews: 278,
-    author: 'LeadershipPro',
-    tags: ['Leadership', 'Digital', 'Management'],
-    level: 'Expert',
-    type: 'module',
-    featured: true
+    title: 'Dashboard Analytics Temps Réel',
+    description: 'Tableaux de bord personnalisables avec connexions multi-sources',
+    category: 'Outils',
+    rating: 4.5,
+    reviews: 123,
+    author: 'DataViz Pro',
+    tags: ['Dashboard', 'Analytics', 'Visualisation'],
+    level: 'Débutant',
+    type: 'outil',
+    featured: false
   },
   {
     id: '17',
-    title: 'Gestion d\'Équipe Hybride',
-    description: 'Techniques de management pour équipes hybrides et distantes',
-    category: 'Management',
-    rating: 4.6,
-    reviews: 187,
-    author: 'HybridManager',
-    tags: ['Hybride', 'Remote', 'Équipe'],
+    title: 'Assistant IA Project Management',
+    description: 'IA pour planification automatique et suivi de projets Agile',
+    category: 'Outils',
+    rating: 4.9,
+    reviews: 201,
+    author: 'ProjectAI',
+    tags: ['Project Management', 'IA', 'Planification'],
     level: 'Avancé',
-    type: 'module',
-    featured: false
+    type: 'outil',
+    featured: true
   }
 ];
 
-const categories = ['Tous', 'Cybersécurité', 'Data & IA', 'Comptabilité', 'Paie', 'AMOA', 'Management', 'Certifications'];
+const categories = ['Tous', 'Cybersécurité', 'Data & IA', 'AMOA', 'Agilité', 'Outils'];
 
 export default function Marketplace() {
   const { toast } = useToast();
