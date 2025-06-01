@@ -763,17 +763,6 @@ const IALabTrainer: React.FC = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={clearEditor}
-                    className="border-blue-500/30 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
-                    disabled={isProcessing}
-                  >
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Effacer
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
                     onClick={() => setShowTranslator(!showTranslator)}
                     className="border-purple-500/30 text-purple-400 hover:text-purple-300 hover:bg-purple-900/20"
                     disabled={isProcessing}
@@ -783,24 +772,37 @@ const IALabTrainer: React.FC = () => {
                   </Button>
                 </div>
                 
-                <Button
-                  onClick={executeCode}
-                  disabled={isProcessing}
-                  size="sm"
-                  className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Exécution...
-                    </>
-                  ) : (
-                    <>
-                      <PlayCircle className="mr-2 h-4 w-4" />
-                      Exécuter
-                    </>
-                  )}
-                </Button>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={clearEditor}
+                    className="border-blue-500/30 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
+                    disabled={isProcessing}
+                  >
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Effacer
+                  </Button>
+                  
+                  <Button
+                    onClick={executeCode}
+                    disabled={isProcessing}
+                    size="sm"
+                    className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Exécution...
+                      </>
+                    ) : (
+                      <>
+                        <PlayCircle className="mr-2 h-4 w-4" />
+                        Exécuter
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             
@@ -825,6 +827,15 @@ const IALabTrainer: React.FC = () => {
                   </div>
                   
                   <div className="space-y-3">
+                    <div className="text-gray-300 text-sm mb-3 p-3 bg-purple-900/10 border border-purple-500/30 rounded-md">
+                      <strong className="text-purple-300">Comment utiliser IA Translator :</strong>
+                      <ol className="list-decimal list-inside mt-2 space-y-1">
+                        <li>Écrivez votre demande en langage naturel dans le champ ci-dessous</li>
+                        <li>Choisissez le langage cible (Python ou SQL)</li>
+                        <li>Cliquez sur le bouton "Traduire" pour générer le code</li>
+                      </ol>
+                    </div>
+                    
                     <Textarea
                       placeholder="Décrivez en langage naturel ce que vous voulez accomplir, et l'IA le traduira en code..."
                       className="bg-black/30 border-purple-500/30 text-gray-200 h-24"
