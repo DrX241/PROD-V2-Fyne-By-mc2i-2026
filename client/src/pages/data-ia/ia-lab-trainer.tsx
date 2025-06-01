@@ -566,6 +566,17 @@ DIVIDE(
   }
 ];
 
+// Fonction pour mapper les langages à Monaco Editor
+const getEditorLanguage = (language: 'python' | 'sql' | 'vba' | 'dax') => {
+  switch(language) {
+    case 'python': return 'python';
+    case 'sql': return 'sql';
+    case 'vba': return 'vba';
+    case 'dax': return 'dax';
+    default: return 'python';
+  }
+};
+
 const IALabTrainer: React.FC = () => {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
@@ -991,7 +1002,7 @@ const IALabTrainer: React.FC = () => {
                 <div>
                   <CardTitle className="text-white flex items-center">
                     <Terminal className="mr-2 h-5 w-5 text-cyan-400" />
-                    Éditeur {selectedLanguage === 'python' ? 'Python' : 'SQL'}
+                    Éditeur {selectedLanguage === 'python' ? 'Python' : selectedLanguage === 'sql' ? 'SQL' : selectedLanguage === 'vba' ? 'VBA' : 'DAX'}
                   </CardTitle>
                   <CardDescription className="text-gray-400">
                     {codeTitle ? codeTitle : "Éditer et exécuter votre code"}
@@ -1170,10 +1181,47 @@ const IALabTrainer: React.FC = () => {
               <div style={{ height: editorHeight }} className="border-b border-blue-500/20">
                 <Editor
                   height={editorHeight}
-                  language={selectedLanguage}
+                  language={getEditorLanguage(selectedLanguage)}
                   value={code}
                   onChange={(value) => setCode(value || '')}
                   theme="vs-dark"
+                  beforeMount={(monaco) => {
+                    // Configuration personnalisée pour VBA
+                    if (!monaco.languages.getLanguages().find(lang => lang.id === 'vba')) {
+                      monaco.languages.register({ id: 'vba' });
+                      monaco.languages.setMonarchTokensProvider('vba', {
+                        tokenizer: {
+                          root: [
+                            [/\b(?:Sub|Function|End|If|Then|Else|ElseIf|For|Next|Do|Loop|While|Wend|Dim|As|Set|Public|Private|Static|Const|Option|Explicit|ByVal|ByRef|Exit|Return|Call|With|Select|Case|To|Step)\b/i, 'keyword'],
+                            [/\b(?:String|Integer|Long|Double|Boolean|Date|Variant|Object|Worksheet|Workbook|Range|Cell|Collection)\b/i, 'type'],
+                            [/'.*$/, 'comment'],
+                            [/".*?"/, 'string'],
+                            [/\b\d+(\.\d+)?\b/, 'number'],
+                            [/[a-zA-Z_]\w*/, 'identifier'],
+                          ]
+                        }
+                      });
+                    }
+                    
+                    // Configuration personnalisée pour DAX
+                    if (!monaco.languages.getLanguages().find(lang => lang.id === 'dax')) {
+                      monaco.languages.register({ id: 'dax' });
+                      monaco.languages.setMonarchTokensProvider('dax', {
+                        tokenizer: {
+                          root: [
+                            [/\b(?:CALCULATE|SUM|COUNT|AVERAGE|MAX|MIN|DIVIDE|IF|SWITCH|BLANK|VALUES|ALL|FILTER|RELATED|DATEADD|DATEDIFF|YEAR|MONTH|DAY|TODAY|NOW|VAR|RETURN|SUMX|COUNTX|AVERAGEX|MAXX|MINX|RANKX|TOPN|CONCATENATE|LEFT|RIGHT|MID|LEN|FIND|SUBSTITUTE|UPPER|LOWER|TRIM|FORMAT|VALUE|DATEVALUE|TIMEVALUE|WEEKDAY|WEEKNUM|EOMONTH|EDATE|NETWORKDAYS|WORKDAY|HOUR|MINUTE|SECOND|TIME|DATE|DATETIME|CURRENCY|PERCENT|DECIMAL|INTEGER|BOOLEAN|TEXT|TRUE|FALSE|EARLIER|EARLIEST|HASONEVALUE|HASONEFILTER|ISCROSSFILTERED|ISFILTERED|SELECTEDVALUE|ALLEXCEPT|ALLSELECTED|KEEPFILTERS|REMOVEFILTERS|CROSSFILTER|USERELATIONSHIP|TREATAS|GENERATE|GENERATEALL|ADDCOLUMNS|SELECTCOLUMNS|SUMMARIZE|GROUPBY|CURRENTGROUP|ROLLUP|ROLLUPGROUP|ROLLUPADDISSUBTOTAL|DISTINCT|UNION|INTERSECT|EXCEPT|NATURALINNERJOIN|NATURALLEFTOUTERJOIN|CROSSJOIN|DATATABLE|ROW|CALENDAR|CALENDARAUTO|PARALLELPERIOD|DATESINPERIOD|DATESBETWEEN|DATESQTD|DATESYTD|DATESMTD|FIRSTDATE|LASTDATE|FIRSTNONBLANK|LASTNONBLANK|STARTOFMONTH|ENDOFMONTH|STARTOFQUARTER|ENDOFQUARTER|STARTOFYEAR|ENDOFYEAR|SAMEPERIODLASTYEAR|PREVIOUSDAY|PREVIOUSMONTH|PREVIOUSQUARTER|PREVIOUSYEAR|NEXTDAY|NEXTMONTH|NEXTQUARTER|NEXTYEAR|TOTALMTD|TOTALQTD|TOTALYTD|OPENINGBALANCEMONTH|OPENINGBALANCEQUARTER|OPENINGBALANCEYEAR|CLOSINGBALANCEMONTH|CLOSINGBALANCEQUARTER|CLOSINGBALANCEYEAR)\b/i, 'keyword'],
+                            [/\/\/.*$/, 'comment'],
+                            [/\/\*[\s\S]*?\*\//, 'comment'],
+                            [/".*?"/, 'string'],
+                            [/'.*?'/, 'string'],
+                            [/\[[^\]]+\]/, 'variable'],
+                            [/\b\d+(\.\d+)?\b/, 'number'],
+                            [/[a-zA-Z_]\w*/, 'identifier'],
+                          ]
+                        }
+                      });
+                    }
+                  }}
                   options={{
                     minimap: { enabled: false },
                     scrollBeyondLastLine: false,
@@ -1182,9 +1230,18 @@ const IALabTrainer: React.FC = () => {
                     autoIndent: 'full',
                     formatOnPaste: true,
                     formatOnType: true,
-                    tabSize: 2,
+                    tabSize: selectedLanguage === 'python' ? 4 : 2,
                     automaticLayout: true,
                     lineNumbers: 'on',
+                    suggest: {
+                      showKeywords: true,
+                      showSnippets: true,
+                    },
+                    quickSuggestions: {
+                      other: true,
+                      comments: false,
+                      strings: false
+                    }
                   }}
                   loading={<div className="flex justify-center py-20"><Loader2 className="animate-spin h-6 w-6 text-blue-400" /></div>}
                 />
