@@ -494,9 +494,14 @@ export default function Marketplace() {
                         </div>
 
                         <div className="flex space-x-2">
-                          <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
+                          <Button 
+                            size="sm" 
+                            className="flex-1 bg-blue-600 hover:bg-blue-700"
+                            onClick={() => addToCart(item.id)}
+                            disabled={cartItems.includes(item.id)}
+                          >
                             <ShoppingCart className="mr-2 h-4 w-4" />
-                            Ajouter
+                            {cartItems.includes(item.id) ? 'Dans le panier' : 'Ajouter'}
                           </Button>
                           <Button variant="outline" size="sm" className="border-blue-500/30 text-blue-400">
                             <Eye className="h-4 w-4" />
@@ -553,7 +558,9 @@ export default function Marketplace() {
                           </div>
                           <span className="text-gray-400 text-sm">({item.reviews})</span>
                         </div>
-                        <span className="text-xl font-bold text-blue-400">{item.price}€</span>
+                        <Badge variant="outline" className="text-orange-400 border-orange-400">
+                          Bientôt disponible
+                        </Badge>
                       </div>
                       
                       <div className="flex flex-wrap gap-1 mb-4">
@@ -565,9 +572,14 @@ export default function Marketplace() {
                       </div>
 
                       <div className="flex space-x-2">
-                        <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
+                        <Button 
+                          size="sm" 
+                          className="flex-1 bg-blue-600 hover:bg-blue-700"
+                          onClick={() => addToCart(item.id)}
+                          disabled={cartItems.includes(item.id)}
+                        >
                           <ShoppingCart className="mr-2 h-4 w-4" />
-                          Ajouter
+                          {cartItems.includes(item.id) ? 'Dans le panier' : 'Ajouter'}
                         </Button>
                         <Button variant="outline" size="sm" className="border-blue-500/30 text-blue-400">
                           <Eye className="h-4 w-4" />
