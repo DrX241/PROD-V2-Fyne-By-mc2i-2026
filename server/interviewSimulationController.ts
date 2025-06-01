@@ -573,7 +573,8 @@ export async function analyzeInterviewNotes(req: Request, res: Response) {
       profileType,
       experienceLevel,
       sectorFocus,
-      evaluationResult
+      evaluationResult,
+      auditContext
     } = req.body;
 
     if (!notes || !profileType || !experienceLevel) {
@@ -1456,7 +1457,9 @@ function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, 
       
     } else if (auditContext.contextType === 'custom' && auditContext.contextData) {
       // Pour un contexte entièrement personnalisé
-      customDescription = auditContext.contextData.customAuditContext || auditContext.contextData.description || "";
+      customDescription = auditContext.contextData.description || "";
+      
+      console.log("Contexte personnalisé reçu:", customDescription);
       
       if (auditContext.contextData.organization) {
         organizationName = auditContext.contextData.organization;
@@ -1467,9 +1470,9 @@ function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, 
       }
       
       // Si le contexte personnalisé contient suffisamment d'informations, l'utiliser pour remplacer le contexte généré
-      if (customDescription && customDescription.length > 50) {
-        projectDescription = "contexte défini par le client";
-        projectChallenge = "défis spécifiques mentionnés dans le contexte personnalisé";
+      if (customDescription && customDescription.length > 10) {
+        projectDescription = "projet spécifique selon le contexte personnalisé";
+        projectChallenge = "défis décrits dans le contexte personnalisé";
       }
     }
   }
