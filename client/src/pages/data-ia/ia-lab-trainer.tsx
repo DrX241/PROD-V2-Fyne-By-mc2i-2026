@@ -738,16 +738,6 @@ const IALabTrainer: React.FC = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setShowExamples(!showExamples)}
-                    className="border-blue-500/30 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
-                  >
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    Exemples
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
                     onClick={() => setExpandEditor(!expandEditor)}
                     className="border-blue-500/30 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
                   >
