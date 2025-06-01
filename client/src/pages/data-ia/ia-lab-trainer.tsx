@@ -567,118 +567,22 @@ DIVIDE(
 ];
 
 // Fonction pour mapper les langages à Monaco Editor
-const getEditorLanguage = (language: 'python' | 'sql' | 'vba' | 'dax') => {
+const getEditorLanguage = (language: 'python' | 'sql') => {
   switch(language) {
     case 'python': return 'python';
     case 'sql': return 'sql';
-    case 'vba': return 'vba';
-    case 'dax': return 'dax';
     default: return 'python';
   }
 };
 
-// Fonction de simulation pour VBA
-const simulateVBAExecution = (code: string): string => {
-  const lines = code.split('\n').filter(line => line.trim());
-  let output = '=== Simulation d\'exécution VBA ===\n\n';
-  
-  // Analyser le code VBA pour donner un feedback éducatif
-  if (code.includes('Sub ') && code.includes('End Sub')) {
-    output += '✓ Procédure Sub détectée\n';
-    
-    if (code.includes('Dim ')) {
-      output += '✓ Déclarations de variables trouvées\n';
-    }
-    
-    if (code.includes('For ') && code.includes('Next')) {
-      output += '✓ Boucle For détectée - Itération effectuée\n';
-    }
-    
-    if (code.includes('If ') && code.includes('Then')) {
-      output += '✓ Structure conditionnelle If-Then détectée\n';
-    }
-    
-    if (code.includes('MsgBox')) {
-      const msgBoxMatch = code.match(/MsgBox\s+"([^"]+)"/);
-      if (msgBoxMatch) {
-        output += `📧 Message affiché: "${msgBoxMatch[1]}"\n`;
-      }
-    }
-    
-    if (code.includes('.Cells(') || code.includes('.Range(')) {
-      output += '📊 Manipulation de cellules Excel détectée\n';
-    }
-    
-    if (code.includes('total') || code.includes('Total')) {
-      output += '🧮 Calcul de totaux effectué\n';
-    }
-    
-    output += '\n✅ Exécution VBA simulée avec succès';
-  } else {
-    output += '❌ Structure VBA incomplète détectée\n';
-    output += 'Vérifiez que votre code contient Sub...End Sub';
-  }
-  
-  return output;
-};
 
-// Fonction de simulation pour DAX
-const simulateDAXExecution = (code: string): string => {
-  let output = '=== Simulation d\'exécution DAX ===\n\n';
-  
-  // Analyser le code DAX pour donner un feedback éducatif
-  if (code.includes('=')) {
-    output += '✓ Définition de mesure DAX détectée\n';
-    
-    const measureName = code.split('=')[0].trim();
-    output += `📊 Mesure: ${measureName}\n`;
-    
-    if (code.includes('SUM(') || code.includes('COUNT(') || code.includes('AVERAGE(')) {
-      output += '✓ Fonction d\'agrégation détectée\n';
-    }
-    
-    if (code.includes('CALCULATE(')) {
-      output += '✓ Fonction CALCULATE détectée - Modification du contexte\n';
-    }
-    
-    if (code.includes('FILTER(')) {
-      output += '✓ Fonction FILTER détectée - Filtrage appliqué\n';
-    }
-    
-    if (code.includes('VAR ') && code.includes('RETURN')) {
-      output += '✓ Variables DAX (VAR-RETURN) détectées\n';
-    }
-    
-    if (code.includes('DIVIDE(')) {
-      output += '✓ Division sécurisée avec DIVIDE détectée\n';
-    }
-    
-    if (code.includes('SAMEPERIODLASTYEAR') || code.includes('TOTALYTD')) {
-      output += '📅 Intelligence temporelle détectée\n';
-    }
-    
-    // Simulation de résultat numérique
-    const hasCalculation = code.includes('SUM') || code.includes('COUNT') || code.includes('AVERAGE');
-    if (hasCalculation) {
-      const simulatedValue = Math.floor(Math.random() * 100000) + 1000;
-      output += `\n💰 Résultat simulé: ${simulatedValue.toLocaleString()}\n`;
-    }
-    
-    output += '\n✅ Mesure DAX validée et simulée avec succès';
-  } else {
-    output += '❌ Structure DAX incomplète détectée\n';
-    output += 'Vérifiez que votre code contient une définition de mesure (=)';
-  }
-  
-  return output;
-};
 
 const IALabTrainer: React.FC = () => {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   
   // État pour le code et l'éditeur
-  const [selectedLanguage, setSelectedLanguage] = useState<'python' | 'sql' | 'vba' | 'dax'>('python');
+  const [selectedLanguage, setSelectedLanguage] = useState<'python' | 'sql'>('python');
   const [code, setCode] = useState('');
   const [editorHeight, setEditorHeight] = useState('500px');
   const [expandEditor, setExpandEditor] = useState(false);
@@ -688,7 +592,7 @@ const IALabTrainer: React.FC = () => {
   // État pour le composant de traduction IA
   const [showTranslator, setShowTranslator] = useState(false);
   const [naturalText, setNaturalText] = useState('');
-  const [targetLanguage, setTargetLanguage] = useState<'python' | 'sql' | 'vba' | 'dax'>('python');
+  const [targetLanguage, setTargetLanguage] = useState<'python' | 'sql'>('python');
   
   // États pour les résultats
   const [result, setResult] = useState<string>('');
@@ -1087,24 +991,7 @@ const IALabTrainer: React.FC = () => {
                 <Database className="mr-2 h-4 w-4" />
                 SQL
               </button>
-              <button
-                className={`flex items-center rounded px-3 py-1.5 ${
-                  selectedLanguage === 'vba' ? 'bg-blue-800 text-white' : 'text-blue-300'
-                }`}
-                onClick={() => handleLanguageChange('vba')}
-              >
-                <Settings2 className="mr-2 h-4 w-4" />
-                VBA
-              </button>
-              <button
-                className={`flex items-center rounded px-3 py-1.5 ${
-                  selectedLanguage === 'dax' ? 'bg-blue-800 text-white' : 'text-blue-300'
-                }`}
-                onClick={() => handleLanguageChange('dax')}
-              >
-                <Sparkles className="mr-2 h-4 w-4" />
-                DAX
-              </button>
+
             </div>
           </div>
         </div>
