@@ -771,7 +771,16 @@ const IALabTrainer: React.FC = () => {
                     Effacer
                   </Button>
                   
-
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowTranslator(!showTranslator)}
+                    className="border-purple-500/30 text-purple-400 hover:text-purple-300 hover:bg-purple-900/20"
+                    disabled={isProcessing}
+                  >
+                    <Brain className="mr-2 h-4 w-4" />
+                    IA Translator
+                  </Button>
                 </div>
                 
                 <Button
