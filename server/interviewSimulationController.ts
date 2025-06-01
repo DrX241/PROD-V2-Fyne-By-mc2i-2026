@@ -1327,7 +1327,7 @@ QUESTIONS TECHNIQUES EXIGEANTES À UTILISER (adapte au profil):
 Commence par une brève présentation de l'entreprise puis pose immédiatement une première question technique ciblée et exigeante.`;
 }
 
-function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, sectorFocus: string, auditContext?: AuditContextData): string {
+function generateAmoaSystemPrompt(profileType: string, experienceLevel: string, auditContext?: AuditContextData): string {
   // Création de contextes d'entreprise variés pour le secteur spécifié
   const sectorCompanies = {
     "Banque/Finance": [
