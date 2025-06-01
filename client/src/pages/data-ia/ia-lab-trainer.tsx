@@ -58,7 +58,7 @@ import DataTopNavigation from '@/components/DataTopNavigation';
 // Types
 interface CodeExecution {
   code: string;
-  language: 'python' | 'sql';
+  language: 'python' | 'sql' | 'vba' | 'dax';
   result: string;
   analysis: string | null;
   timestamp: number;
@@ -69,7 +69,7 @@ interface CodeExample {
   title: string;
   description: string;
   code: string;
-  language: 'python' | 'sql';
+  language: 'python' | 'sql' | 'vba' | 'dax';
   level: 'débutant' | 'intermédiaire' | 'avancé';
   tags: string[];
 }
@@ -367,7 +367,7 @@ const IALabTrainer: React.FC = () => {
   const { toast } = useToast();
   
   // État pour le code et l'éditeur
-  const [selectedLanguage, setSelectedLanguage] = useState<'python' | 'sql'>('python');
+  const [selectedLanguage, setSelectedLanguage] = useState<'python' | 'sql' | 'vba' | 'dax'>('python');
   const [code, setCode] = useState('');
   const [editorHeight, setEditorHeight] = useState('500px');
   const [expandEditor, setExpandEditor] = useState(false);
@@ -377,7 +377,7 @@ const IALabTrainer: React.FC = () => {
   // État pour le composant de traduction IA
   const [showTranslator, setShowTranslator] = useState(false);
   const [naturalText, setNaturalText] = useState('');
-  const [targetLanguage, setTargetLanguage] = useState<'python' | 'sql'>('python');
+  const [targetLanguage, setTargetLanguage] = useState<'python' | 'sql' | 'vba' | 'dax'>('python');
   
   // États pour les résultats
   const [result, setResult] = useState<string>('');
@@ -444,7 +444,7 @@ const IALabTrainer: React.FC = () => {
   };
   
   // Fonction pour traduire du langage naturel en code avec l'IA
-  const translateToCode = async (text: string, language: 'python' | 'sql' = targetLanguage) => {
+  const translateToCode = async (text: string, language: 'python' | 'sql' | 'vba' | 'dax' = targetLanguage) => {
     if (!text.trim()) {
       return;
     }
@@ -698,7 +698,7 @@ const IALabTrainer: React.FC = () => {
           <div className="flex space-x-3">
             <div className="flex items-center rounded-lg border border-blue-500/30 bg-blue-900/20 px-1">
               <button
-                className={`flex items-center rounded px-4 py-1.5 ${
+                className={`flex items-center rounded px-3 py-1.5 ${
                   selectedLanguage === 'python' ? 'bg-blue-800 text-white' : 'text-blue-300'
                 }`}
                 onClick={() => handleLanguageChange('python')}
@@ -707,13 +707,31 @@ const IALabTrainer: React.FC = () => {
                 Python
               </button>
               <button
-                className={`flex items-center rounded px-4 py-1.5 ${
+                className={`flex items-center rounded px-3 py-1.5 ${
                   selectedLanguage === 'sql' ? 'bg-blue-800 text-white' : 'text-blue-300'
                 }`}
                 onClick={() => handleLanguageChange('sql')}
               >
                 <Database className="mr-2 h-4 w-4" />
                 SQL
+              </button>
+              <button
+                className={`flex items-center rounded px-3 py-1.5 ${
+                  selectedLanguage === 'vba' ? 'bg-blue-800 text-white' : 'text-blue-300'
+                }`}
+                onClick={() => handleLanguageChange('vba')}
+              >
+                <Settings2 className="mr-2 h-4 w-4" />
+                VBA
+              </button>
+              <button
+                className={`flex items-center rounded px-3 py-1.5 ${
+                  selectedLanguage === 'dax' ? 'bg-blue-800 text-white' : 'text-blue-300'
+                }`}
+                onClick={() => handleLanguageChange('dax')}
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
+                DAX
               </button>
             </div>
           </div>
