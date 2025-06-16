@@ -485,7 +485,7 @@ export default function IAmIA() {
                   </div>
                   <div className="flex items-center gap-1">
                     <BookOpen className="h-4 w-4" />
-                    {personalizedProgram.modules.length} modules
+                    {personalizedProgram.modules ? personalizedProgram.modules.length : 0} modules
                   </div>
                 </div>
               </CardHeader>
@@ -493,7 +493,7 @@ export default function IAmIA() {
                 <div className="mb-6">
                   <h4 className="font-semibold mb-2">Recommandations personnalisées :</h4>
                   <ul className="space-y-1">
-                    {personalizedProgram.personalizedRecommendations.map((rec, index) => (
+                    {personalizedProgram.personalizedRecommendations && personalizedProgram.personalizedRecommendations.map((rec, index) => (
                       <li key={index} className="flex items-start gap-2 text-sm">
                         <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                         {rec}
@@ -503,7 +503,7 @@ export default function IAmIA() {
                 </div>
 
                 <div className="grid gap-4">
-                  {personalizedProgram.modules.map((module, index) => (
+                  {personalizedProgram.modules && personalizedProgram.modules.map((module, index) => (
                     <Card key={module.id} className="border-l-4 border-l-blue-500">
                       <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
@@ -522,7 +522,7 @@ export default function IAmIA() {
                           </div>
                           <div className="flex items-center gap-1">
                             <Target className="h-4 w-4" />
-                            {module.exercises.length} exercices
+                            {module.exercises ? module.exercises.length : 0} exercices
                           </div>
                         </div>
                       </CardHeader>
@@ -531,7 +531,7 @@ export default function IAmIA() {
                           <div>
                             <h5 className="font-medium text-sm mb-1">Apprentissages clés :</h5>
                             <div className="flex flex-wrap gap-1">
-                              {module.keyLearnings.map((learning, idx) => (
+                              {module.keyLearnings && module.keyLearnings.map((learning, idx) => (
                                 <Badge key={idx} variant="outline" className="text-xs">
                                   {learning}
                                 </Badge>
