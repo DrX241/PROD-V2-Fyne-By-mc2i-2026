@@ -422,6 +422,52 @@ Commence par saluer l'apprenant par son prénom et présente la session.`;
       });
     }
   }
+
+  async handleSessionMessage(req: Request, res: Response) {
+    try {
+      const { sessionId } = req.params;
+      const { message, userProfile } = req.body;
+
+      console.log(`💬 Message reçu pour session ${sessionId}: ${message}`);
+
+      const contextPrompt = `Tu es un formateur IA expert qui accompagne ${userProfile?.firstName || 'l\'utilisateur'} 
+dans son apprentissage de l'IA générative.
+
+Contexte utilisateur:
+- Apprenant: ${userProfile?.firstName}, ${userProfile?.currentRole} chez ${userProfile?.company}
+- Secteur: ${userProfile?.activityDomain}
+- Niveau: ${userProfile?.aiGenerativeLevel}
+
+L'utilisateur vient de dire: "${message}"
+
+Réponds de manière pédagogique, personnalisée et interactive. Pose des questions pour approfondir sa compréhension, 
+donne des exemples concrets liés à son secteur d'activité, et propose des exercices pratiques adaptés à son niveau.
+
+Ton style : Formateur expert, bienveillant, pratique et encourageant.`;
+
+      const response = await openAIService.getChatCompletion([
+        { role: 'system', content: contextPrompt },
+        { role: 'user', content: message }
+      ]);
+
+      const currentProgress = Math.min(100, Math.floor(Math.random() * 15) + 5);
+
+      res.json({
+        success: true,
+        response: response,
+        progress: currentProgress,
+        sessionId: sessionId,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error('❌ Erreur traitement message session:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur lors du traitement de votre message'
+      });
+    }
+  }
 }
 
 export default new IAPersonalizedTrainingController();

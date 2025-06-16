@@ -80,7 +80,7 @@ import ProspectPulse from "./pages/amoa/prospect-pulse";
 import AmoaExpertLearning from "./pages/amoa/expert-learning";
 
 // Import des pages IA
-import IAHomePage from "./pages/ia/index";
+import IAmIA from "./pages/ia/IAmIA";
 
 function AppContent() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -103,7 +103,7 @@ function AppContent() {
             <div>
               <Switch>
                 {/* Routes publiques */}
-                <Route path="/" component={CyberHomePage} />
+                <Route path="/" component={IAmIA} />
                 <Route path="/home-classic" component={Home} />
                 <Route path="/modules" component={ModulesPage} />
                 <Route path="/fyne-about" component={FyneAbout} />
@@ -281,7 +281,7 @@ function AppContent() {
                 </Route>
                 
                 <Route path="/data-ia" component={DataIaModeSelection} />
-                <Route path="/ia" component={IAHomePage} />
+                <Route path="/ia" component={IAmIA} />
                 <Route path="/ia/evaluation-profil">
                   {(params) => (
                     <Suspense fallback={<div className="p-12 text-center">Chargement de l'évaluation...</div>}>
