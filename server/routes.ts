@@ -5325,6 +5325,10 @@ Analyse cette justification selon les critères spécifiés et retourne ton éva
   app.get('/api/ia/training/:programId/module/:moduleId', iaPersonalizedTrainingController.getTrainingModule.bind(iaPersonalizedTrainingController));
   app.post('/api/ia/training/:programId/module/:moduleId/start-session', iaPersonalizedTrainingController.startLearningSession.bind(iaPersonalizedTrainingController));
   app.post('/api/ia/training/session/:sessionId/message', iaPersonalizedTrainingController.handleSessionMessage.bind(iaPersonalizedTrainingController));
+  
+  // Routes pour le playground IA
+  app.post('/api/ia/playground/start', startPlayground);
+  app.post('/api/ia/playground/message', sendPlaygroundMessage);
 
   return createServer(app);
 }

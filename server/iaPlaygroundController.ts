@@ -201,12 +201,9 @@ Tu es l'assistant IA personnel de ${profile.firstName}. Réponds de manière per
     const response = await openAIService.getChatCompletion([
       { role: 'system', content: systemPrompt },
       { role: 'user', content: message }
-    ], {
-      temperature: 0.7,
-      max_tokens: 800
-    });
+    ]);
 
-    return response.choices[0].message.content || 'Je n\'ai pas pu traiter votre demande. Pouvez-vous reformuler ?';
+    return response || 'Je n\'ai pas pu traiter votre demande. Pouvez-vous reformuler ?';
     
   } catch (error) {
     console.error('Erreur génération réponse IA:', error);

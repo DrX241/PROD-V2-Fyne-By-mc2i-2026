@@ -80,7 +80,7 @@ import ProspectPulse from "./pages/amoa/prospect-pulse";
 import AmoaExpertLearning from "./pages/amoa/expert-learning";
 
 // Import des pages IA
-import IAmIA from "./pages/ia/IAmIA";
+import IAmIAPlayground from "./pages/ia/IAmIAPlayground";
 
 function AppContent() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -281,7 +281,7 @@ function AppContent() {
                 </Route>
                 
                 <Route path="/data-ia" component={DataIaModeSelection} />
-                <Route path="/ia" component={IAmIA} />
+                <Route path="/ia" component={IAmIAPlayground} />
                 <Route path="/ia/evaluation-profil">
                   {(params) => (
                     <Suspense fallback={<div className="p-12 text-center">Chargement de l'évaluation...</div>}>
