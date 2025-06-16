@@ -79,6 +79,9 @@ import InterviewSimulation from "./pages/amoa/interview-simulation";
 import ProspectPulse from "./pages/amoa/prospect-pulse";
 import AmoaExpertLearning from "./pages/amoa/expert-learning";
 
+// Import des pages IA
+import IAHomePage from "./pages/ia/index";
+
 function AppContent() {
   const { isAuthenticated, isLoading, user } = useAuth();
 
@@ -278,6 +281,7 @@ function AppContent() {
                 </Route>
                 
                 <Route path="/data-ia" component={DataIaModeSelection} />
+                <Route path="/ia" component={IAHomePage} />
                 <Route path="/marketplace">
                   {(params) => (
                     <Suspense fallback={<div className="p-12 text-center">Chargement de la marketplace...</div>}>

@@ -98,6 +98,16 @@ const CyberHomePage: React.FC = () => {
       route: '/data-ia'
     },
     {
+      id: 'ia',
+      title: 'I AM IA',
+      description: 'Formation personnalisée en Intelligence Artificielle adaptée à votre profil',
+      icon: <Brain className="w-5 h-5 text-blue-500" />,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-100',
+      accentColor: 'border-blue-500',
+      route: '/ia'
+    },
+    {
       id: 'mc2i',
       title: 'I AM mc2i',
       description: 'Développez vos compétences en assistance à maîtrise d\'ouvrage',
