@@ -4,33 +4,33 @@ import { useLocation } from 'wouter';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 import { 
   Brain, 
   User, 
   Briefcase, 
   Target, 
-  Code, 
-  BarChart3,
   ArrowRight,
   CheckCircle,
-  AlertCircle,
   Lightbulb,
   Zap,
   Clock,
-  TrendingUp
+  Building,
+  BookOpen
 } from 'lucide-react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { 
   Form, 
   FormControl, 
   FormField, 
   FormItem, 
   FormLabel, 
-  FormMessage 
+  FormMessage,
+  FormDescription
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,32 +40,17 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import HomeLayout from '@/components/layout/HomeLayout';
 
-// Schéma de validation pour l'évaluation de profil
+// Schéma de validation simplifié et focalisé
 const profileEvaluationSchema = z.object({
-  // Informations personnelles
-  name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-  currentRole: z.string().min(2, "Le rôle actuel est requis"),
-  experience: z.string().min(1, "L'expérience est requise"),
-  company: z.string().optional(),
-  
-  // Niveau actuel en IA
-  aiExperience: z.string().min(1, "Veuillez sélectionner votre niveau"),
-  programmingLevel: z.string().min(1, "Veuillez sélectionner votre niveau"),
-  mathLevel: z.string().min(1, "Veuillez sélectionner votre niveau"),
-  
-  // Objectifs
-  learningGoals: z.array(z.string()).min(1, "Sélectionnez au moins un objectif"),
+  firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
+  company: z.string().min(2, "Le nom de l'entreprise est requis"),
+  activityDomain: z.string().min(1, "Veuillez sélectionner votre domaine d'activité"),
+  currentRole: z.string().min(2, "Votre rôle actuel est requis"),
+  aiGenerativeLevel: z.string().min(1, "Veuillez sélectionner votre niveau en IA générative"),
+  learningObjectives: z.array(z.string()).min(1, "Sélectionnez au moins un objectif d'apprentissage"),
+  specificNeeds: z.string().min(10, "Décrivez vos besoins spécifiques (minimum 10 caractères)"),
   timeAvailable: z.string().min(1, "Veuillez indiquer votre disponibilité"),
-  
-  // Préférences d'apprentissage
-  learningStyle: z.string().min(1, "Veuillez sélectionner votre style"),
-  preferredFormat: z.array(z.string()).min(1, "Sélectionnez au moins un format"),
-  
-  // Domaines d'intérêt
-  interestAreas: z.array(z.string()).min(1, "Sélectionnez au moins un domaine"),
-  
-  // Motivations
-  motivation: z.string().min(10, "Décrivez vos motivations (min 10 caractères)")
+  learningStyle: z.string().min(1, "Veuillez sélectionner votre style d'apprentissage préféré")
 });
 
 type ProfileEvaluationForm = z.infer<typeof profileEvaluationSchema>;
@@ -74,246 +59,148 @@ const ProfileEvaluation = () => {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
-  interface RecommendationsType {
-    level: string;
-    primaryPath: string;
-    estimatedDuration: number;
-    recommendedModules: string[];
-    learningPlan: Array<{
-      week: number;
-      focus: string;
-      activities: string[];
-    }>;
-    strengths: string[];
-    areasToFocus: string[];
-  }
-
-  const [recommendations, setRecommendations] = useState<RecommendationsType | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [personalizedProgram, setPersonalizedProgram] = useState<any>(null);
 
   const form = useForm<ProfileEvaluationForm>({
     resolver: zodResolver(profileEvaluationSchema),
     defaultValues: {
-      name: '',
-      currentRole: '',
-      experience: '',
+      firstName: '',
       company: '',
-      aiExperience: '',
-      programmingLevel: '',
-      mathLevel: '',
-      learningGoals: [],
+      activityDomain: '',
+      currentRole: '',
+      aiGenerativeLevel: '',
+      learningObjectives: [],
+      specificNeeds: '',
       timeAvailable: '',
-      learningStyle: '',
-      preferredFormat: [],
-      interestAreas: [],
-      motivation: ''
+      learningStyle: ''
     }
   });
 
   const steps = [
-    { title: "Profil personnel", icon: <User className="w-5 h-5" /> },
-    { title: "Niveau actuel", icon: <BarChart3 className="w-5 h-5" /> },
-    { title: "Objectifs", icon: <Target className="w-5 h-5" /> },
-    { title: "Préférences", icon: <Lightbulb className="w-5 h-5" /> },
-    { title: "Résultats", icon: <CheckCircle className="w-5 h-5" /> }
+    { title: "Votre profil", icon: <User className="w-5 h-5" /> },
+    { title: "Niveau IA Générative", icon: <Brain className="w-5 h-5" /> },
+    { title: "Objectifs d'apprentissage", icon: <Target className="w-5 h-5" /> },
+    { title: "Programme personnalisé", icon: <CheckCircle className="w-5 h-5" /> }
   ];
 
-  const experienceLevels = [
-    { value: "0-2", label: "0-2 ans" },
-    { value: "2-5", label: "2-5 ans" },
-    { value: "5-10", label: "5-10 ans" },
-    { value: "10+", label: "10+ ans" }
+  const activityDomains = [
+    "Finance & Banque",
+    "Santé & Pharmaceutique", 
+    "Industrie & Manufacturing",
+    "Commerce & Retail",
+    "Technologie & IT",
+    "Éducation & Formation",
+    "Marketing & Communication",
+    "Ressources Humaines",
+    "Juridique & Compliance",
+    "Consulting & Services",
+    "Transport & Logistique",
+    "Énergie & Environnement",
+    "Immobilier & Construction",
+    "Agriculture & Agroalimentaire",
+    "Médias & Divertissement",
+    "Secteur Public",
+    "Autre"
   ];
 
-  const aiExperienceLevels = [
-    { value: "none", label: "Aucune expérience" },
-    { value: "basic", label: "Notions de base" },
-    { value: "intermediate", label: "Intermédiaire" },
-    { value: "advanced", label: "Avancé" },
-    { value: "expert", label: "Expert" }
+  const aiGenerativeLevels = [
+    { 
+      value: "debutant", 
+      label: "Débutant", 
+      description: "Je découvre l'IA générative (ChatGPT, Claude, etc.)" 
+    },
+    { 
+      value: "utilisateur", 
+      label: "Utilisateur occasionnel", 
+      description: "J'utilise parfois des outils IA pour des tâches simples" 
+    },
+    { 
+      value: "regulier", 
+      label: "Utilisateur régulier", 
+      description: "J'utilise régulièrement l'IA générative dans mon travail" 
+    },
+    { 
+      value: "avance", 
+      label: "Utilisateur avancé", 
+      description: "Je maîtrise le prompt engineering et l'usage stratégique" 
+    },
+    { 
+      value: "expert", 
+      label: "Expert", 
+      description: "Je développe ou déploie des solutions IA générative" 
+    }
   ];
 
-  const learningGoalsOptions = [
-    "Comprendre les fondamentaux de l'IA",
-    "Développer des applications ML",
-    "Analyser des données avec l'IA",
-    "Créer des chatbots intelligents",
-    "Implémenter de la vision par ordinateur",
-    "Piloter des projets IA",
-    "Optimiser les processus métier",
-    "Se reconvertir en IA"
+  const learningObjectivesOptions = [
+    "Maîtriser l'art du prompt engineering",
+    "Intégrer l'IA générative dans mes processus métier",
+    "Automatiser des tâches répétitives avec l'IA",
+    "Créer du contenu (texte, images, vidéos) avec l'IA",
+    "Développer des chatbots et assistants IA",
+    "Analyser et traiter des données avec l'IA",
+    "Former mes équipes à l'IA générative",
+    "Développer une stratégie IA pour mon entreprise",
+    "Créer des applications basées sur l'IA générative",
+    "Comprendre les enjeux éthiques et juridiques de l'IA"
+  ];
+
+  const timeAvailableOptions = [
+    { value: "1-2h", label: "1-2 heures par semaine" },
+    { value: "3-5h", label: "3-5 heures par semaine" },
+    { value: "6-10h", label: "6-10 heures par semaine" },
+    { value: "10h+", label: "Plus de 10 heures par semaine" }
   ];
 
   const learningStyles = [
-    { value: "visual", label: "Visuel (schémas, graphiques)" },
-    { value: "hands-on", label: "Pratique (exercices, projets)" },
-    { value: "theoretical", label: "Théorique (concepts, formules)" },
-    { value: "mixed", label: "Mixte" }
+    { 
+      value: "pratique", 
+      label: "Apprentissage pratique", 
+      description: "Apprendre en faisant, avec des exercices concrets" 
+    },
+    { 
+      value: "theorique", 
+      label: "Apprentissage théorique", 
+      description: "Comprendre d'abord les concepts avant la pratique" 
+    },
+    { 
+      value: "mixte", 
+      label: "Approche mixte", 
+      description: "Combiner théorie et pratique de façon équilibrée" 
+    },
+    { 
+      value: "cas-usage", 
+      label: "Cas d'usage sectoriels", 
+      description: "Apprendre via des exemples de votre domaine d'activité" 
+    }
   ];
 
-  const formatOptions = [
-    "Modules interactifs",
-    "Vidéos explicatives",
-    "Exercices pratiques",
-    "Projets guidés",
-    "Quiz adaptatifs",
-    "Sessions live",
-    "Documentation",
-    "Cas d'usage réels"
-  ];
-
-  const interestAreasOptions = [
-    "Machine Learning",
-    "Deep Learning",
-    "Natural Language Processing",
-    "Computer Vision",
-    "Data Science",
-    "MLOps",
-    "IA Éthique",
-    "IA Business",
-    "Robotique",
-    "IA Générative"
-  ];
-
-  const analyzeProfile = async (data: ProfileEvaluationForm) => {
-    setIsAnalyzing(true);
-    
-    try {
-      // Simulation d'analyse IA personnalisée
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // Générer des recommandations basées sur le profil
-      const profileAnalysis = {
-        level: data.aiExperience,
-        primaryPath: data.learningGoals[0],
-        estimatedDuration: calculateDuration(data),
-        recommendedModules: getRecommendedModules(data),
-        learningPlan: generateLearningPlan(data),
-        strengths: identifyStrengths(data),
-        areasToFocus: identifyFocusAreas(data)
-      };
-
-      setRecommendations(profileAnalysis);
-      setCurrentStep(4);
-      
-      toast({
-        title: "Analyse terminée",
-        description: "Votre profil IA personnalisé a été généré avec succès.",
+  // Mutation pour envoyer les données au backend
+  const generateProgramMutation = useMutation({
+    mutationFn: async (data: ProfileEvaluationForm) => {
+      return await apiRequest('/api/ia/generate-personalized-program', {
+        method: 'POST',
+        body: data
       });
-    } catch (error) {
+    },
+    onSuccess: (data) => {
+      setPersonalizedProgram(data);
+      setCurrentStep(3);
+      toast({
+        title: "Programme généré",
+        description: `Programme personnalisé créé pour ${form.getValues('firstName')}`,
+      });
+    },
+    onError: (error) => {
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Impossible d'analyser le profil. Veuillez réessayer.",
-      });
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const calculateDuration = (data: ProfileEvaluationForm) => {
-    const baseHours = data.aiExperience === 'none' ? 40 : 
-                     data.aiExperience === 'basic' ? 30 : 
-                     data.aiExperience === 'intermediate' ? 20 : 15;
-    
-    const goalMultiplier = data.learningGoals.length * 0.3;
-    return Math.round(baseHours + goalMultiplier);
-  };
-
-  const getRecommendedModules = (data: ProfileEvaluationForm) => {
-    const modules = [];
-    
-    if (data.aiExperience === 'none' || data.aiExperience === 'basic') {
-      modules.push('ia-fundamentals');
-    }
-    
-    if (data.learningGoals.includes('Développer des applications ML')) {
-      modules.push('ml-practical');
-    }
-    
-    if (data.learningGoals.includes('Analyser des données avec l\'IA')) {
-      modules.push('data-science');
-    }
-    
-    if (data.interestAreas.includes('Natural Language Processing')) {
-      modules.push('nlp-processing');
-    }
-    
-    if (data.interestAreas.includes('Computer Vision')) {
-      modules.push('computer-vision');
-    }
-    
-    if (data.learningGoals.includes('Piloter des projets IA')) {
-      modules.push('ai-business');
-    }
-    
-    return modules;
-  };
-
-  const generateLearningPlan = (data: ProfileEvaluationForm) => {
-    const plan = [];
-    const timePerWeek = data.timeAvailable === 'low' ? 2 : 
-                       data.timeAvailable === 'medium' ? 5 : 10;
-    
-    if (data.aiExperience === 'none') {
-      plan.push({
-        week: 1,
-        focus: "Fondamentaux de l'IA",
-        activities: ["Concepts de base", "Types d'IA", "Applications pratiques"]
+        description: "Impossible de générer votre programme personnalisé. Veuillez réessayer.",
       });
     }
-    
-    plan.push({
-      week: plan.length + 1,
-      focus: "Application pratique",
-      activities: ["Premier projet", "Outils essentiels", "Exercices guidés"]
-    });
-    
-    return plan;
-  };
-
-  const identifyStrengths = (data: ProfileEvaluationForm) => {
-    const strengths = [];
-    
-    if (data.programmingLevel === 'advanced' || data.programmingLevel === 'expert') {
-      strengths.push("Solides compétences en programmation");
-    }
-    
-    if (data.mathLevel === 'advanced' || data.mathLevel === 'expert') {
-      strengths.push("Bases mathématiques solides");
-    }
-    
-    if (data.experience === '10+') {
-      strengths.push("Expérience professionnelle étendue");
-    }
-    
-    if (data.learningStyle === 'hands-on') {
-      strengths.push("Approche pratique favorisant l'apprentissage rapide");
-    }
-    
-    return strengths;
-  };
-
-  const identifyFocusAreas = (data: ProfileEvaluationForm) => {
-    const areas = [];
-    
-    if (data.aiExperience === 'none') {
-      areas.push("Concepts fondamentaux de l'IA");
-    }
-    
-    if (data.programmingLevel === 'none' || data.programmingLevel === 'basic') {
-      areas.push("Renforcement des compétences en programmation");
-    }
-    
-    if (data.mathLevel === 'none' || data.mathLevel === 'basic') {
-      areas.push("Révision des bases mathématiques");
-    }
-    
-    return areas;
-  };
+  });
 
   const onSubmit = (data: ProfileEvaluationForm) => {
-    analyzeProfile(data);
+    generateProgramMutation.mutate(data);
   };
 
   const nextStep = () => {
@@ -337,10 +224,10 @@ const ProfileEvaluation = () => {
             <Brain className="w-12 h-12 text-blue-400 mr-3" />
             <div>
               <h1 className="text-4xl font-bold text-white mb-2">
-                Évaluation de Profil IA
+                Créons votre programme IA personnalisé
               </h1>
               <p className="text-lg text-blue-200">
-                Personnalisez votre parcours d'apprentissage
+                Une formation adaptée à votre profil et vos objectifs professionnels
               </p>
             </div>
           </div>
@@ -375,17 +262,16 @@ const ProfileEvaluation = () => {
 
         {/* Form Content */}
         <div className="max-w-4xl mx-auto">
-          {currentStep < 4 ? (
+          {currentStep < 3 ? (
             <Card className="bg-blue-800/50 border-blue-700">
               <CardHeader>
                 <CardTitle className="text-white text-2xl">
                   {steps[currentStep].title}
                 </CardTitle>
                 <CardDescription className="text-blue-200">
-                  {currentStep === 0 && "Parlez-nous de vous et de votre parcours professionnel"}
-                  {currentStep === 1 && "Évaluez votre niveau actuel dans les domaines clés"}
-                  {currentStep === 2 && "Définissez vos objectifs d'apprentissage"}
-                  {currentStep === 3 && "Indiquez vos préférences d'apprentissage"}
+                  {currentStep === 0 && "Parlez-nous de vous et de votre contexte professionnel"}
+                  {currentStep === 1 && "Évaluez votre niveau actuel en IA générative"}
+                  {currentStep === 2 && "Définissez vos objectifs d'apprentissage spécifiques"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -397,17 +283,60 @@ const ProfileEvaluation = () => {
                       <div className="space-y-4">
                         <FormField
                           control={form.control}
-                          name="name"
+                          name="firstName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-white">Nom complet</FormLabel>
+                              <FormLabel className="text-white">Prénom</FormLabel>
                               <FormControl>
                                 <Input 
-                                  placeholder="Votre nom"
+                                  placeholder="Votre prénom"
                                   className="bg-blue-900 border-blue-600 text-white"
                                   {...field}
                                 />
                               </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="company"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Entreprise</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Nom de votre entreprise"
+                                  className="bg-blue-900 border-blue-600 text-white"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="activityDomain"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Domaine d'activité</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger className="bg-blue-900 border-blue-600 text-white">
+                                    <SelectValue placeholder="Sélectionnez votre secteur" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="bg-blue-800 border-blue-700 text-white">
+                                  {activityDomains.map((domain) => (
+                                    <SelectItem key={domain} value={domain}>
+                                      {domain}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -421,50 +350,7 @@ const ProfileEvaluation = () => {
                               <FormLabel className="text-white">Poste actuel</FormLabel>
                               <FormControl>
                                 <Input 
-                                  placeholder="ex: Développeur, Analyste, Manager..."
-                                  className="bg-blue-900 border-blue-600 text-white"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="experience"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-white">Années d'expérience professionnelle</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger className="bg-blue-900 border-blue-600 text-white">
-                                    <SelectValue placeholder="Sélectionnez votre expérience" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="bg-blue-800 border-blue-700 text-white">
-                                  {experienceLevels.map((level) => (
-                                    <SelectItem key={level.value} value={level.value}>
-                                      {level.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="company"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-white">Entreprise (optionnel)</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  placeholder="Nom de votre entreprise"
+                                  placeholder="ex: Directeur Marketing, Consultant, Développeur..."
                                   className="bg-blue-900 border-blue-600 text-white"
                                   {...field}
                                 />
@@ -476,84 +362,46 @@ const ProfileEvaluation = () => {
                       </div>
                     )}
 
-                    {/* Étape 1: Niveau actuel */}
+                    {/* Étape 1: Niveau IA générative */}
                     {currentStep === 1 && (
                       <div className="space-y-6">
                         <FormField
                           control={form.control}
-                          name="aiExperience"
+                          name="aiGenerativeLevel"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-white">Expérience en Intelligence Artificielle</FormLabel>
+                              <FormLabel className="text-white text-lg">
+                                Quel est votre niveau actuel en IA générative ?
+                              </FormLabel>
+                              <FormDescription className="text-blue-200">
+                                Soyez honnête, cela nous aide à adapter le contenu à votre niveau
+                              </FormDescription>
                               <FormControl>
                                 <RadioGroup
                                   onValueChange={field.onChange}
                                   defaultValue={field.value}
-                                  className="space-y-2"
+                                  className="space-y-4"
                                 >
-                                  {aiExperienceLevels.map((level) => (
-                                    <div key={level.value} className="flex items-center space-x-2">
-                                      <RadioGroupItem value={level.value} id={level.value} />
-                                      <label
-                                        htmlFor={level.value}
-                                        className="text-blue-200 cursor-pointer"
-                                      >
-                                        {level.label}
-                                      </label>
+                                  {aiGenerativeLevels.map((level) => (
+                                    <div key={level.value} className="p-4 border border-blue-600 rounded-lg hover:bg-blue-700/30">
+                                      <div className="flex items-center space-x-3">
+                                        <RadioGroupItem value={level.value} id={level.value} />
+                                        <div className="flex-1">
+                                          <label
+                                            htmlFor={level.value}
+                                            className="text-blue-100 font-medium cursor-pointer block"
+                                          >
+                                            {level.label}
+                                          </label>
+                                          <p className="text-blue-300 text-sm mt-1">
+                                            {level.description}
+                                          </p>
+                                        </div>
+                                      </div>
                                     </div>
                                   ))}
                                 </RadioGroup>
                               </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="programmingLevel"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-white">Niveau en programmation</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger className="bg-blue-900 border-blue-600 text-white">
-                                    <SelectValue placeholder="Sélectionnez votre niveau" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="bg-blue-800 border-blue-700 text-white">
-                                  {aiExperienceLevels.map((level) => (
-                                    <SelectItem key={level.value} value={level.value}>
-                                      {level.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="mathLevel"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-white">Niveau en mathématiques/statistiques</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger className="bg-blue-900 border-blue-600 text-white">
-                                    <SelectValue placeholder="Sélectionnez votre niveau" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="bg-blue-800 border-blue-700 text-white">
-                                  {aiExperienceLevels.map((level) => (
-                                    <SelectItem key={level.value} value={level.value}>
-                                      {level.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -566,31 +414,36 @@ const ProfileEvaluation = () => {
                       <div className="space-y-6">
                         <FormField
                           control={form.control}
-                          name="learningGoals"
+                          name="learningObjectives"
                           render={() => (
                             <FormItem>
-                              <FormLabel className="text-white">Objectifs d'apprentissage (sélectionnez plusieurs)</FormLabel>
-                              <div className="space-y-2">
-                                {learningGoalsOptions.map((goal) => (
+                              <FormLabel className="text-white text-lg">
+                                Que souhaitez-vous apprendre ? (sélectionnez plusieurs options)
+                              </FormLabel>
+                              <FormDescription className="text-blue-200">
+                                Choisissez les compétences que vous voulez développer en priorité
+                              </FormDescription>
+                              <div className="grid grid-cols-1 gap-3">
+                                {learningObjectivesOptions.map((objective) => (
                                   <FormField
-                                    key={goal}
+                                    key={objective}
                                     control={form.control}
-                                    name="learningGoals"
+                                    name="learningObjectives"
                                     render={({ field }) => (
-                                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-3 border border-blue-600 rounded-lg hover:bg-blue-700/30">
                                         <FormControl>
                                           <Checkbox
-                                            checked={field.value?.includes(goal)}
+                                            checked={field.value?.includes(objective)}
                                             onCheckedChange={(checked) => {
                                               const updatedValue = checked
-                                                ? [...(field.value || []), goal]
-                                                : field.value?.filter((value) => value !== goal) || [];
+                                                ? [...(field.value || []), objective]
+                                                : field.value?.filter((value) => value !== objective) || [];
                                               field.onChange(updatedValue);
                                             }}
                                           />
                                         </FormControl>
-                                        <FormLabel className="text-blue-200 font-normal cursor-pointer">
-                                          {goal}
+                                        <FormLabel className="text-blue-200 font-normal cursor-pointer flex-1">
+                                          {objective}
                                         </FormLabel>
                                       </FormItem>
                                     )}
@@ -604,161 +457,16 @@ const ProfileEvaluation = () => {
                         
                         <FormField
                           control={form.control}
-                          name="timeAvailable"
+                          name="specificNeeds"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-white">Temps disponible par semaine</FormLabel>
-                              <FormControl>
-                                <RadioGroup
-                                  onValueChange={field.onChange}
-                                  defaultValue={field.value}
-                                  className="space-y-2"
-                                >
-                                  <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="low" id="low" />
-                                    <label htmlFor="low" className="text-blue-200 cursor-pointer">
-                                      1-2 heures (apprentissage lent)
-                                    </label>
-                                  </div>
-                                  <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="medium" id="medium" />
-                                    <label htmlFor="medium" className="text-blue-200 cursor-pointer">
-                                      3-5 heures (rythme modéré)
-                                    </label>
-                                  </div>
-                                  <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="high" id="high" />
-                                    <label htmlFor="high" className="text-blue-200 cursor-pointer">
-                                      6+ heures (apprentissage intensif)
-                                    </label>
-                                  </div>
-                                </RadioGroup>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    )}
-
-                    {/* Étape 3: Préférences */}
-                    {currentStep === 3 && (
-                      <div className="space-y-6">
-                        <FormField
-                          control={form.control}
-                          name="learningStyle"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-white">Style d'apprentissage préféré</FormLabel>
-                              <FormControl>
-                                <RadioGroup
-                                  onValueChange={field.onChange}
-                                  defaultValue={field.value}
-                                  className="space-y-2"
-                                >
-                                  {learningStyles.map((style) => (
-                                    <div key={style.value} className="flex items-center space-x-2">
-                                      <RadioGroupItem value={style.value} id={style.value} />
-                                      <label
-                                        htmlFor={style.value}
-                                        className="text-blue-200 cursor-pointer"
-                                      >
-                                        {style.label}
-                                      </label>
-                                    </div>
-                                  ))}
-                                </RadioGroup>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="preferredFormat"
-                          render={() => (
-                            <FormItem>
-                              <FormLabel className="text-white">Formats de contenu préférés</FormLabel>
-                              <div className="grid grid-cols-2 gap-2">
-                                {formatOptions.map((format) => (
-                                  <FormField
-                                    key={format}
-                                    control={form.control}
-                                    name="preferredFormat"
-                                    render={({ field }) => (
-                                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                        <FormControl>
-                                          <Checkbox
-                                            checked={field.value?.includes(format)}
-                                            onCheckedChange={(checked) => {
-                                              const updatedValue = checked
-                                                ? [...(field.value || []), format]
-                                                : field.value?.filter((value) => value !== format) || [];
-                                              field.onChange(updatedValue);
-                                            }}
-                                          />
-                                        </FormControl>
-                                        <FormLabel className="text-blue-200 font-normal text-sm cursor-pointer">
-                                          {format}
-                                        </FormLabel>
-                                      </FormItem>
-                                    )}
-                                  />
-                                ))}
-                              </div>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="interestAreas"
-                          render={() => (
-                            <FormItem>
-                              <FormLabel className="text-white">Domaines d'intérêt en IA</FormLabel>
-                              <div className="grid grid-cols-2 gap-2">
-                                {interestAreasOptions.map((area) => (
-                                  <FormField
-                                    key={area}
-                                    control={form.control}
-                                    name="interestAreas"
-                                    render={({ field }) => (
-                                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                        <FormControl>
-                                          <Checkbox
-                                            checked={field.value?.includes(area)}
-                                            onCheckedChange={(checked) => {
-                                              const updatedValue = checked
-                                                ? [...(field.value || []), area]
-                                                : field.value?.filter((value) => value !== area) || [];
-                                              field.onChange(updatedValue);
-                                            }}
-                                          />
-                                        </FormControl>
-                                        <FormLabel className="text-blue-200 font-normal text-sm cursor-pointer">
-                                          {area}
-                                        </FormLabel>
-                                      </FormItem>
-                                    )}
-                                  />
-                                ))}
-                              </div>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="motivation"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-white">Motivations et contexte</FormLabel>
+                              <FormLabel className="text-white">Besoins spécifiques</FormLabel>
+                              <FormDescription className="text-blue-200">
+                                Décrivez votre contexte, vos défis actuels, ce que vous aimeriez accomplir...
+                              </FormDescription>
                               <FormControl>
                                 <Textarea
-                                  placeholder="Décrivez vos motivations pour apprendre l'IA, votre contexte professionnel, vos projets..."
+                                  placeholder="Ex: Je souhaite automatiser la création de contenus marketing pour mon équipe, améliorer nos processus de recrutement avec l'IA..."
                                   className="min-h-[120px] bg-blue-900 border-blue-600 text-white"
                                   {...field}
                                 />
@@ -767,6 +475,58 @@ const ProfileEvaluation = () => {
                             </FormItem>
                           )}
                         />
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="timeAvailable"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-white">Temps disponible</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger className="bg-blue-900 border-blue-600 text-white">
+                                      <SelectValue placeholder="Choisissez votre disponibilité" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent className="bg-blue-800 border-blue-700 text-white">
+                                    {timeAvailableOptions.map((option) => (
+                                      <SelectItem key={option.value} value={option.value}>
+                                        {option.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="learningStyle"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-white">Style d'apprentissage</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger className="bg-blue-900 border-blue-600 text-white">
+                                      <SelectValue placeholder="Comment préférez-vous apprendre ?" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent className="bg-blue-800 border-blue-700 text-white">
+                                    {learningStyles.map((style) => (
+                                      <SelectItem key={style.value} value={style.value}>
+                                        {style.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                       </div>
                     )}
 
@@ -782,7 +542,7 @@ const ProfileEvaluation = () => {
                         Précédent
                       </Button>
                       
-                      {currentStep < 3 ? (
+                      {currentStep < 2 ? (
                         <Button
                           type="button"
                           onClick={nextStep}
@@ -794,18 +554,18 @@ const ProfileEvaluation = () => {
                       ) : (
                         <Button
                           type="submit"
-                          disabled={isAnalyzing}
+                          disabled={generateProgramMutation.isPending}
                           className="bg-green-600 hover:bg-green-700"
                         >
-                          {isAnalyzing ? (
+                          {generateProgramMutation.isPending ? (
                             <>
                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                              Analyse en cours...
+                              Génération en cours...
                             </>
                           ) : (
                             <>
                               <Zap className="mr-2 h-4 w-4" />
-                              Générer mon profil IA
+                              Créer mon programme IA
                             </>
                           )}
                         </Button>
@@ -816,83 +576,80 @@ const ProfileEvaluation = () => {
               </CardContent>
             </Card>
           ) : (
-            // Résultats de l'évaluation
-            recommendations && (
+            // Affichage du programme personnalisé
+            personalizedProgram && (
               <div className="space-y-6">
                 <Card className="bg-green-800/50 border-green-700">
                   <CardHeader>
                     <CardTitle className="text-white text-2xl flex items-center">
                       <CheckCircle className="w-6 h-6 mr-3 text-green-400" />
-                      Votre Profil IA Personnalisé
+                      Votre Programme IA Personnalisé
                     </CardTitle>
                     <CardDescription className="text-green-200">
-                      Recommandations basées sur votre évaluation
+                      Programme créé spécialement pour {personalizedProgram.userProfile?.firstName} de {personalizedProgram.userProfile?.company}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-4">
                         <div className="p-4 bg-blue-700 rounded-lg">
-                          <h3 className="text-lg font-semibold text-white mb-2">Niveau estimé</h3>
-                          <Badge variant="outline" className="text-blue-300 border-blue-500">
-                            {recommendations.level === 'none' ? 'Débutant' :
-                             recommendations.level === 'basic' ? 'Débutant+' :
-                             recommendations.level === 'intermediate' ? 'Intermédiaire' :
-                             recommendations.level === 'advanced' ? 'Avancé' : 'Expert'}
-                          </Badge>
+                          <h3 className="text-lg font-semibold text-white mb-2">Parcours recommandé</h3>
+                          <p className="text-blue-200">{personalizedProgram.recommendedPath}</p>
                         </div>
                         
                         <div className="p-4 bg-purple-700 rounded-lg">
                           <h3 className="text-lg font-semibold text-white mb-2">Durée estimée</h3>
                           <div className="flex items-center text-purple-200">
                             <Clock className="w-4 h-4 mr-2" />
-                            {recommendations.estimatedDuration} heures de formation
-                          </div>
-                        </div>
-                        
-                        <div className="p-4 bg-orange-700 rounded-lg">
-                          <h3 className="text-lg font-semibold text-white mb-2">Parcours recommandé</h3>
-                          <div className="flex items-center text-orange-200">
-                            <Target className="w-4 h-4 mr-2" />
-                            {recommendations.primaryPath}
+                            {personalizedProgram.estimatedDuration}
                           </div>
                         </div>
                       </div>
                       
                       <div className="space-y-4">
-                        <div className="p-4 bg-green-700 rounded-lg">
-                          <h3 className="text-lg font-semibold text-white mb-2">Points forts identifiés</h3>
-                          <ul className="space-y-1">
-                            {recommendations.strengths.map((strength: string, index: number) => (
-                              <li key={index} className="flex items-center text-green-200 text-sm">
-                                <CheckCircle className="w-3 h-3 mr-2" />
-                                {strength}
-                              </li>
-                            ))}
-                          </ul>
+                        <div className="p-4 bg-orange-700 rounded-lg">
+                          <h3 className="text-lg font-semibold text-white mb-2">Modules personnalisés</h3>
+                          <div className="text-orange-200 text-sm">
+                            {personalizedProgram.customModules?.length || 0} modules adaptés à votre profil
+                          </div>
                         </div>
                         
-                        <div className="p-4 bg-yellow-700 rounded-lg">
-                          <h3 className="text-lg font-semibold text-white mb-2">Axes de développement</h3>
-                          <ul className="space-y-1">
-                            {recommendations.areasToFocus.map((area: string, index: number) => (
-                              <li key={index} className="flex items-center text-yellow-200 text-sm">
-                                <AlertCircle className="w-3 h-3 mr-2" />
-                                {area}
-                              </li>
-                            ))}
-                          </ul>
+                        <div className="p-4 bg-pink-700 rounded-lg">
+                          <h3 className="text-lg font-semibold text-white mb-2">Cas d'usage sectoriels</h3>
+                          <div className="text-pink-200 text-sm">
+                            Exemples spécifiques au secteur {personalizedProgram.userProfile?.activityDomain}
+                          </div>
                         </div>
                       </div>
                     </div>
+                    
+                    {personalizedProgram.modules && personalizedProgram.modules.length > 0 && (
+                      <div className="mt-6 pt-6 border-t border-blue-700">
+                        <h3 className="text-lg font-semibold text-white mb-4">Modules de votre programme</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {personalizedProgram.modules.map((module: any, index: number) => (
+                            <div key={index} className="p-4 bg-blue-600/30 rounded-lg border border-blue-500">
+                              <h4 className="font-medium text-white mb-2">{module.title}</h4>
+                              <p className="text-blue-200 text-sm mb-2">{module.description}</p>
+                              <div className="flex items-center justify-between">
+                                <Badge variant="outline" className="text-blue-300 border-blue-500">
+                                  {module.duration}
+                                </Badge>
+                                <span className="text-blue-300 text-xs">{module.difficulty}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     
                     <div className="mt-6 pt-6 border-t border-blue-700">
                       <div className="flex flex-col sm:flex-row gap-4">
                         <Button 
                           className="flex-1 bg-blue-600 hover:bg-blue-700"
-                          onClick={() => setLocation('/ia')}
+                          onClick={() => setLocation('/ia/training/' + personalizedProgram.programId)}
                         >
-                          <ArrowRight className="w-4 h-4 mr-2" />
+                          <BookOpen className="w-4 h-4 mr-2" />
                           Commencer ma formation
                         </Button>
                         <Button 
@@ -900,11 +657,11 @@ const ProfileEvaluation = () => {
                           className="flex-1 border-blue-500 text-blue-300 hover:bg-blue-600"
                           onClick={() => {
                             setCurrentStep(0);
-                            setRecommendations(null);
+                            setPersonalizedProgram(null);
                             form.reset();
                           }}
                         >
-                          Refaire l'évaluation
+                          Créer un nouveau programme
                         </Button>
                       </div>
                     </div>
