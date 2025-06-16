@@ -477,8 +477,8 @@ export default function IAmIA() {
                   <Trophy className="h-6 w-6 text-yellow-600" />
                   {personalizedProgram.title}
                 </CardTitle>
-                <CardDescription>{personalizedProgram.description}</CardDescription>
-                <div className="flex items-center gap-4 text-sm text-gray-600">
+                <CardDescription className="text-gray-300">{personalizedProgram.description}</CardDescription>
+                <div className="flex items-center gap-4 text-sm text-gray-300">
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
                     {personalizedProgram.estimatedDuration}
