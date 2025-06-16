@@ -103,7 +103,7 @@ function AppContent() {
             <div>
               <Switch>
                 {/* Routes publiques */}
-                <Route path="/" component={IAmIA} />
+                <Route path="/" component={CyberHomePage} />
                 <Route path="/home-classic" component={Home} />
                 <Route path="/modules" component={ModulesPage} />
                 <Route path="/fyne-about" component={FyneAbout} />

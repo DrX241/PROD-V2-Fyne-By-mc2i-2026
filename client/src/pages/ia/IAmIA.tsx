@@ -247,7 +247,7 @@ export default function IAmIA() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -259,17 +259,17 @@ export default function IAmIA() {
               I AM IA
             </h1>
           </div>
-          <p className="text-xl text-gray-600 mb-2">
+          <p className="text-xl text-gray-300 mb-2">
             Formation personnalisée à l'Intelligence Artificielle Générative
           </p>
-          <p className="text-gray-500">
+          <p className="text-gray-400">
             Développez vos compétences IA avec un programme 100% adapté à votre profil
           </p>
         </div>
 
         {/* Progress Indicator */}
         <div className="mb-8">
-          <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
+          <div className="flex items-center justify-between text-sm text-gray-300 mb-2">
             <span>Étape {currentStep} sur 4</span>
             <span>{Math.round((currentStep / 4) * 100)}% terminé</span>
           </div>
@@ -278,13 +278,13 @@ export default function IAmIA() {
 
         {/* Step 1: Évaluation de profil */}
         {currentStep === 1 && (
-          <Card className="shadow-xl border-0 bg-white/80 backdrop-blur">
+          <Card className="shadow-xl border-0 bg-slate-800/90 backdrop-blur text-white">
             <CardHeader className="text-center">
               <CardTitle className="flex items-center justify-center gap-2">
                 <User className="h-6 w-6 text-blue-600" />
                 Évaluation de votre profil
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-gray-300">
                 Aidez-nous à créer votre programme de formation personnalisé
               </CardDescription>
             </CardHeader>
@@ -450,7 +450,7 @@ export default function IAmIA() {
 
         {/* Step 2: Génération en cours */}
         {currentStep === 2 && (
-          <Card className="shadow-xl border-0 bg-white/80 backdrop-blur">
+          <Card className="shadow-xl border-0 bg-slate-800/90 backdrop-blur text-white">
             <CardContent className="py-12 text-center">
               <div className="flex flex-col items-center space-y-6">
                 <div className="relative">
@@ -459,7 +459,7 @@ export default function IAmIA() {
                 </div>
                 <div className="space-y-2">
                   <h3 className="text-xl font-semibold">Génération de votre programme personnalisé</h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-300">
                     Notre IA analyse votre profil pour créer un parcours adapté à vos besoins...
                   </p>
                 </div>
@@ -471,7 +471,7 @@ export default function IAmIA() {
         {/* Step 3: Programme généré */}
         {currentStep === 3 && personalizedProgram && (
           <div className="space-y-6">
-            <Card className="shadow-xl border-0 bg-white/80 backdrop-blur">
+            <Card className="shadow-xl border-0 bg-slate-800/90 backdrop-blur text-white">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Trophy className="h-6 w-6 text-yellow-600" />
