@@ -282,6 +282,13 @@ function AppContent() {
                 
                 <Route path="/data-ia" component={DataIaModeSelection} />
                 <Route path="/ia" component={IAHomePage} />
+                <Route path="/ia/evaluation-profil">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement de l'évaluation...</div>}>
+                      {React.createElement(lazy(() => import("./pages/ia/evaluation-profil")))}
+                    </Suspense>
+                  )}
+                </Route>
                 <Route path="/marketplace">
                   {(params) => (
                     <Suspense fallback={<div className="p-12 text-center">Chargement de la marketplace...</div>}>
