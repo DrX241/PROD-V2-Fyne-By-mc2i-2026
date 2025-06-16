@@ -179,7 +179,10 @@ const ProfileEvaluation = () => {
     mutationFn: async (data: ProfileEvaluationForm) => {
       return await apiRequest('/api/ia/generate-personalized-program', {
         method: 'POST',
-        body: data
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
     },
     onSuccess: (data) => {

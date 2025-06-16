@@ -93,8 +93,10 @@ class IAPersonalizedTrainingController {
   // Valide les données du profil utilisateur
   private validateUserProfile(profile: UserProfile): boolean {
     const required = ['firstName', 'company', 'activityDomain', 'currentRole', 'aiGenerativeLevel'];
-    return required.every(field => profile[field] && profile[field].trim().length > 0) &&
-           profile.learningObjectives && profile.learningObjectives.length > 0;
+    return required.every(field => {
+      const value = profile[field as keyof UserProfile];
+      return typeof value === 'string' && value.trim().length > 0;
+    }) && profile.learningObjectives && profile.learningObjectives.length > 0;
   }
 
   // Crée le programme personnalisé en utilisant l'IA
@@ -158,21 +160,17 @@ Réponds UNIQUEMENT en JSON valide avec cette structure exacte:
 }`;
 
     try {
-      const response = await this.azureOpenAI.createChatCompletion([
+      const response = await openAIService.getChatCompletion([
         { role: 'system', content: systemPrompt },
         { 
           role: 'user', 
           content: `Crée maintenant un programme de formation IA générative personnalisé pour ${userProfile.firstName}, ${userProfile.currentRole} chez ${userProfile.company} dans le secteur ${userProfile.activityDomain}.` 
         }
-      ], {
-        model: 'gpt-4o',
-        temperature: 0.7,
-        max_tokens: 4000
-      });
+      ]);
 
       let programData;
       try {
-        programData = JSON.parse(response.content);
+        programData = JSON.parse(response);
       } catch (parseError) {
         console.error('❌ Erreur parsing JSON:', parseError);
         // Fallback: créer un programme de base
@@ -400,19 +398,15 @@ Pose des questions, donne des exercices concrets, et adapte-toi au niveau et au 
 
 Commence par saluer l'apprenant par son prénom et présente la session.`;
 
-      const response = await this.azureOpenAI.createChatCompletion([
+      const response = await openAIService.getChatCompletion([
         { role: 'system', content: sessionPrompt },
         { role: 'user', content: 'Commence la session d\'apprentissage.' }
-      ], {
-        model: 'gpt-4o',
-        temperature: 0.8,
-        max_tokens: 1000
-      });
+      ]);
 
       res.json({
         success: true,
         sessionId: `session-${Date.now()}`,
-        welcomeMessage: response.content,
+        welcomeMessage: response,
         sessionContext: {
           programId,
           moduleId,

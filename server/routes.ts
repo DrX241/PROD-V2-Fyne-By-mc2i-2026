@@ -5319,7 +5319,10 @@ Analyse cette justification selon les critères spécifiés et retourne ton éva
     }
   });
 
-  // Additional route handlers can be added here
+  // Routes pour le module IA personnalisé
+  app.post('/api/ia/generate-personalized-program', iaPersonalizedTrainingController.generatePersonalizedProgram.bind(iaPersonalizedTrainingController));
+  app.get('/api/ia/training/:programId/module/:moduleId', iaPersonalizedTrainingController.getTrainingModule.bind(iaPersonalizedTrainingController));
+  app.post('/api/ia/training/:programId/module/:moduleId/start-session', iaPersonalizedTrainingController.startLearningSession.bind(iaPersonalizedTrainingController));
 
   return createServer(app);
 }
