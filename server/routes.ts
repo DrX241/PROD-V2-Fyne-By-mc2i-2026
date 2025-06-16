@@ -45,6 +45,7 @@ import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpert
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
 import * as amoaExpertController from "./amoaExpertController";
 import iaPersonalizedTrainingController from "./iaPersonalizedTrainingController";
+import { startPlayground, sendPlaygroundMessage } from './iaPlaygroundController';
 import { initCyberPulseSession, processCyberPulseMessage, generateCyberChallenge, checkInactivity, updateCyberPulsePreferences, updatePlayerScore } from "./cyberPulseGameController";
 import { terminateCyberPulseSession } from "./cyberPulseSessionManager";
 import { startImposteurSimulation, processImposteurMessage, completeImposteurSimulation } from "./imposteurSimulationController";
