@@ -44,8 +44,6 @@ import { initMcaiLearningSession, processMcaiLearningMessage } from "./mcaiLearn
 import { initCyberExpertSession, processCyberExpertMessage, terminateCyberExpertSession } from "./cyberExpertController";
 import { startDecisionFlow, submitDecision, checkDecisionStatus } from "./cyberExpertDecisions";
 import * as amoaExpertController from "./amoaExpertController";
-import iaPersonalizedTrainingController from "./iaPersonalizedTrainingController";
-import { startPlayground, sendPlaygroundMessage } from './iaPlaygroundController';
 import { initCyberPulseSession, processCyberPulseMessage, generateCyberChallenge, checkInactivity, updateCyberPulsePreferences, updatePlayerScore } from "./cyberPulseGameController";
 import { terminateCyberPulseSession } from "./cyberPulseSessionManager";
 import { startImposteurSimulation, processImposteurMessage, completeImposteurSimulation } from "./imposteurSimulationController";
@@ -5320,15 +5318,7 @@ Analyse cette justification selon les critères spécifiés et retourne ton éva
     }
   });
 
-  // Routes pour le module IA personnalisé
-  app.post('/api/ia/generate-personalized-program', iaPersonalizedTrainingController.generatePersonalizedProgram.bind(iaPersonalizedTrainingController));
-  app.get('/api/ia/training/:programId/module/:moduleId', iaPersonalizedTrainingController.getTrainingModule.bind(iaPersonalizedTrainingController));
-  app.post('/api/ia/training/:programId/module/:moduleId/start-session', iaPersonalizedTrainingController.startLearningSession.bind(iaPersonalizedTrainingController));
-  app.post('/api/ia/training/session/:sessionId/message', iaPersonalizedTrainingController.handleSessionMessage.bind(iaPersonalizedTrainingController));
-  
-  // Routes pour le playground IA
-  app.post('/api/ia/playground/start', startPlayground);
-  app.post('/api/ia/playground/message', sendPlaygroundMessage);
+  // Additional route handlers can be added here
 
   return createServer(app);
 }
