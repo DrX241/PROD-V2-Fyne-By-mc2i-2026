@@ -18,7 +18,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
   position = 'fixed-bottom-right' 
 }) => {
   const [status, setStatus] = useState<'connected' | 'disconnected' | 'checking' | 'reconnecting'>('checking');
-  const [currentModel, setCurrentModel] = useState<string>('gpt-4o');
+  const [currentModel, setCurrentModel] = useState<string>('Claude 3.5 Sonnet');
   const [apiKeyType, setApiKeyType] = useState<'primary' | 'secondary'>('primary');
   const [lastCheck, setLastCheck] = useState<number>(0);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -46,8 +46,8 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
         // ou si l'utilisateur vient de changer le mode manuellement
         if (!isToggling) {
           // Déterminer le type de clé API en fonction du modèle
-          // Si le modèle est 'gpt-4o-mini', nous sommes en mode économique
-          const keyType = (model === 'gpt-4o-mini') ? 'secondary' : 'primary';
+          // Si le modèle contient 'Haiku' ou 'mini', nous sommes en mode économique
+          const keyType = (model.includes('Haiku') || model.includes('mini')) ? 'secondary' : 'primary';
           setApiKeyType(keyType);
         }
 
@@ -56,7 +56,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
         console.log('État mis à jour :', {
           status: data.connectionStatus,
           model,
-          keyType: !isToggling ? (model === 'gpt-4o-mini' ? 'secondary' : 'primary') : 'inchangé',
+          keyType: !isToggling ? ((model.includes('Haiku') || model.includes('mini')) ? 'secondary' : 'primary') : 'inchangé',
           lastCheck: data.lastCheck
         });
       } else {
@@ -106,9 +106,9 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
 
         // Mettre à jour les autres informations
         setLastCheck(data.lastCheck || Date.now());
-        const modelName = data.currentModel || 'gpt-4o-mini';
+        const modelName = data.currentModel || 'Claude 3 Haiku';
         setCurrentModel(modelName);
-        const keyType = (modelName === 'gpt-4o-mini') ? 'secondary' : 'primary';
+        const keyType = (modelName.includes('Haiku') || modelName.includes('mini')) ? 'secondary' : 'primary';
         setApiKeyType(keyType);
 
         console.log('Tentative de reconnexion:', data);
@@ -147,7 +147,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
       setApiKeyType(newKeyType);
       
       // Mettre à jour le modèle de façon préemptive pour éviter le clignotement
-      setCurrentModel(newKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini');
+      setCurrentModel(newKeyType === 'primary' ? 'Claude 3.5 Sonnet' : 'Claude 3 Haiku');
 
       // Puis faire la demande au serveur
       const response = await fetch('/api/cyber/switch-api-key', {
@@ -175,7 +175,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
 
         console.log('Changement de modèle réussi:', {
           newKeyType,
-          modelName: data.modelName || (newKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini'),
+          modelName: data.modelName || (newKeyType === 'primary' ? 'Claude 3.5 Sonnet' : 'Claude 3 Haiku'),
           data
         });
 
@@ -184,7 +184,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
       } else {
         // En cas d'erreur, revenir à l'état précédent
         setApiKeyType(apiKeyType);
-        setCurrentModel(apiKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini');
+        setCurrentModel(apiKeyType === 'primary' ? 'Claude 3.5 Sonnet' : 'Claude 3 Haiku');
         toast({
           title: "Échec du changement de mode",
           description: "Impossible de changer le mode de l'API. Veuillez réessayer.",
@@ -192,10 +192,10 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
         });
       }
     } catch (error) {
-      console.error('Erreur lors du changement de modèle OpenAI:', error);
+      console.error('Erreur lors du changement de modèle:', error);
       // En cas d'erreur, revenir à l'état précédent
       setApiKeyType(apiKeyType);
-      setCurrentModel(apiKeyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini');
+      setCurrentModel(apiKeyType === 'primary' ? 'Claude 3.5 Sonnet' : 'Claude 3 Haiku');
       toast({
         title: "Erreur de communication",
         description: "Une erreur est survenue lors du changement de mode.",
@@ -223,7 +223,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
   const economyMode = apiKeyType === 'secondary';
 
   // Label du modèle en cours d'utilisation
-  const modelLabel = currentModel === 'gpt-4o' ? 'GPT-4o' : 'GPT-4o-mini';
+  const modelLabel = currentModel;
 
   // Styles selon la position
   let positionStyles = '';
@@ -352,8 +352,8 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
               <p>{economyMode ? 'Désactiver' : 'Activer'} le mode économie</p>
               <p className="text-xs">
                 {economyMode ? 
-                  'Mode ÉCO activé (utilise GPT-4o-mini pour réduire la consommation)' : 
-                  'Mode standard activé (utilise GPT-4o pour des performances optimales)'}
+                  'Mode ÉCO activé (utilise Claude 3 Haiku pour réduire la consommation)' : 
+                  'Mode standard activé (utilise Claude 3.5 Sonnet pour des performances optimales)'}
               </p>
             </TooltipContent>
           </Tooltip>

@@ -3345,7 +3345,7 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
   // API pour évaluer les décisions prises dans le module Cyber Defense
   app.post("/api/cyber-defense/evaluate-decision", evaluateDecision);
   
-  // API route pour basculer entre les clés API (GPT-4o et GPT-4o-mini)
+  // API route pour basculer entre les clés API (Claude 3.5 Sonnet et Claude 3 Haiku)
   app.post('/api/cyber/switch-api-key', (req: Request, res: Response) => {
     try {
       const { keyType } = req.body;
@@ -3361,7 +3361,7 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
       openAIService.switchApiKey(keyType);
       
       // Récupérer le nom du modèle en fonction du type de clé
-      const modelName = keyType === 'primary' ? 'gpt-4o' : 'gpt-4o-mini';
+      const modelName = keyType === 'primary' ? 'Claude 3.5 Sonnet' : 'Claude 3 Haiku';
       console.log(`Switched API key to ${keyType} (${modelName})`);
       
       res.json({

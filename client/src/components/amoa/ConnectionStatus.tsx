@@ -17,7 +17,7 @@ export default function ConnectionStatus() {
   const [status, setStatus] = useState<'connected' | 'disconnected' | 'reconnecting' | 'checking'>('checking');
   const [lastCheck, setLastCheck] = useState<string | null>(null);
   const [currentKey, setCurrentKey] = useState<ApiKeyType>('primary');
-  const [modelName, setModelName] = useState<string>('GPT-4o');
+  const [modelName, setModelName] = useState<string>('Claude 3.5 Sonnet');
   const [switchingKey, setSwitchingKey] = useState<boolean>(false);
   
   const checkStatus = async () => {
@@ -43,11 +43,11 @@ export default function ConnectionStatus() {
       } else {
         // Si on reçoit un objet de configuration complet au lieu d'une chaîne, 
         // déterminer le type en fonction du nom du modèle
-        setCurrentKey(data.modelName === 'gpt-4o' ? 'primary' : 'secondary');
+        setCurrentKey((data.modelName && (data.modelName.includes('Haiku') || data.modelName.includes('mini'))) ? 'secondary' : 'primary');
       }
       
       // Mettre à jour le nom du modèle en fonction des données ou du type de clé
-      setModelName(data.modelName || (data.currentApiKey === 'primary' ? 'GPT-4o' : 'GPT-4o-mini'));
+      setModelName(data.modelName || (data.currentApiKey === 'primary' ? 'Claude 3.5 Sonnet' : 'Claude 3 Haiku'));
     } catch (error) {
       console.error('Error checking connection status:', error);
       // En cas d'erreur, indiquer déconnecté
@@ -93,7 +93,7 @@ export default function ConnectionStatus() {
       if (data && data.modelName) {
         setModelName(data.modelName);
       } else {
-        setModelName(newKeyType === 'primary' ? 'GPT-4o' : 'GPT-4o-mini');
+        setModelName(newKeyType === 'primary' ? 'Claude 3.5 Sonnet' : 'Claude 3 Haiku');
       }
       
       // Vérifier l'état de la connexion après le changement
