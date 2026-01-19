@@ -206,21 +206,25 @@ class BedrockService {
     messages: ChatCompletionRequestMessage[],
     temperatureOrUseSecondary?: number | boolean,
     maxTokensOrTemperature?: number,
-    maxTokens?: number,
+    maxTokensOrOptions?: number | { responseFormat?: string },
     options?: { responseFormat?: string }
   ): Promise<string> {
     let useSecondaryKey: boolean = false;
     let temperature: number = 0.7;
     let actualMaxTokens: number = 2000;
-    let responseFormat: string | undefined = options?.responseFormat;
+    let responseFormat: string | undefined;
 
     if (typeof temperatureOrUseSecondary === 'boolean') {
       useSecondaryKey = temperatureOrUseSecondary;
       temperature = typeof maxTokensOrTemperature === 'number' ? maxTokensOrTemperature : 0.7;
-      actualMaxTokens = typeof maxTokens === 'number' ? maxTokens : 2000;
+      actualMaxTokens = typeof maxTokensOrOptions === 'number' ? maxTokensOrOptions : 2000;
+      responseFormat = options?.responseFormat;
     } else {
       temperature = typeof temperatureOrUseSecondary === 'number' ? temperatureOrUseSecondary : 0.7;
       actualMaxTokens = typeof maxTokensOrTemperature === 'number' ? maxTokensOrTemperature : 2000;
+      if (typeof maxTokensOrOptions === 'object') {
+        responseFormat = maxTokensOrOptions?.responseFormat;
+      }
     }
 
     if (useSecondaryKey) {
