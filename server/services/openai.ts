@@ -300,7 +300,7 @@ class OpenAIService {
     messages: ChatCompletionRequestMessage[],
     temperatureOrUseSecondary?: number | boolean,
     maxTokensOrTemperature?: number,
-    maxTokens?: number,
+    maxTokensOrOptions?: number | { responseFormat?: string },
     options?: { responseFormat?: string }
   ): Promise<string> {
     // Déterminer les paramètres en fonction de la signature utilisée
@@ -313,11 +313,17 @@ class OpenAIService {
       // Si le second paramètre est un booléen, c'est useSecondaryKey
       useSecondaryKey = temperatureOrUseSecondary;
       temperature = typeof maxTokensOrTemperature === 'number' ? maxTokensOrTemperature : 0.7;
-      actualMaxTokens = typeof maxTokens === 'number' ? maxTokens : 2000;
+      actualMaxTokens = typeof maxTokensOrOptions === 'number' ? maxTokensOrOptions : 2000;
+      if (options?.responseFormat) {
+        responseFormat = options.responseFormat;
+      }
     } else {
       // Sinon c'est la température
       temperature = typeof temperatureOrUseSecondary === 'number' ? temperatureOrUseSecondary : 0.7;
       actualMaxTokens = typeof maxTokensOrTemperature === 'number' ? maxTokensOrTemperature : 2000;
+      if (typeof maxTokensOrOptions === 'object' && maxTokensOrOptions?.responseFormat) {
+        responseFormat = maxTokensOrOptions.responseFormat;
+      }
     }
 
     // Si useSecondaryKey est vrai, on force l'utilisation du modèle secondaire
@@ -339,7 +345,7 @@ class OpenAIService {
       console.log(`Making API request to: ${url} with ${config.modelName}`);
 
       // Afficher plus de détails sur les paramètres de la requête (sans la clé API)
-      console.log(`Request parameters: temperature=${temperature}, max_tokens=${maxTokens}`);
+      console.log(`Request parameters: temperature=${temperature}, max_tokens=${actualMaxTokens}`);
       console.log(`Nombre de messages: ${messages.length}, Premier role: ${messages[0]?.role}`);
 
       // Formater la requête pour l'API avec le modèle requis par Azure OpenAI
