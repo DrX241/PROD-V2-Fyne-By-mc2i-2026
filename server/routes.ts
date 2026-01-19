@@ -5188,7 +5188,51 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
           jsonStr = jsonMatch[0];
         }
         
-        const result = JSON.parse(jsonStr);
+        // Fonction pour nettoyer et parser le JSON avec gestion des caractères spéciaux
+        const parseJsonSafely = (str: string) => {
+          // Remplacer les retours à la ligne dans les valeurs de chaînes par \n échappés
+          // On traite le JSON caractère par caractère pour ne modifier que l'intérieur des chaînes
+          let inString = false;
+          let escaped = false;
+          let result = '';
+          
+          for (let i = 0; i < str.length; i++) {
+            const char = str[i];
+            
+            if (escaped) {
+              result += char;
+              escaped = false;
+              continue;
+            }
+            
+            if (char === '\\') {
+              escaped = true;
+              result += char;
+              continue;
+            }
+            
+            if (char === '"') {
+              inString = !inString;
+              result += char;
+              continue;
+            }
+            
+            if (inString && char === '\n') {
+              result += '\\n';
+              continue;
+            }
+            
+            if (inString && char === '\r') {
+              continue; // Ignorer les retours chariot
+            }
+            
+            result += char;
+          }
+          
+          return JSON.parse(result);
+        };
+        
+        const result = parseJsonSafely(jsonStr);
         
         if (!result.code) {
           throw new Error("Le format de la réponse est invalide");
