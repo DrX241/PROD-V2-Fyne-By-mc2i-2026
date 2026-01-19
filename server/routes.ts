@@ -5167,7 +5167,7 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
       // Structurer la demande pour obtenir une réponse JSON
       const completion = await openAIService.getChatCompletion(
         [
-          { role: "system", content: systemPrompt + "\nRéponds avec un JSON contenant le code généré et une explication: { \"code\": \"le code généré\", \"explanation\": \"explication du code\" }" },
+          { role: "system", content: systemPrompt + "\n\nIMPORTANT: Tu dois répondre UNIQUEMENT avec un objet JSON valide, sans texte avant ou après. Le format exact est:\n{\"code\": \"le code généré ici\", \"explanation\": \"explication du code ici\"}\n\nNe commence pas ta réponse par 'Voici' ou tout autre texte. Réponds directement avec le JSON." },
           { role: "user", content: userPrompt }
         ], 
         0.3,  // temperature
@@ -5181,7 +5181,14 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
 
       // Extraire le code et l'explication
       try {
-        const result = JSON.parse(completion);
+        // Essayer d'extraire le JSON de la réponse (Claude peut ajouter du texte avant/après)
+        let jsonStr = completion;
+        const jsonMatch = completion.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          jsonStr = jsonMatch[0];
+        }
+        
+        const result = JSON.parse(jsonStr);
         
         if (!result.code) {
           throw new Error("Le format de la réponse est invalide");
@@ -5193,6 +5200,7 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
         });
       } catch (error) {
         console.error("Erreur lors du traitement de la réponse IA:", error);
+        console.error("Réponse brute:", completion);
         throw new Error("Erreur lors du traitement de la réponse IA");
       }
     } catch (error) {
