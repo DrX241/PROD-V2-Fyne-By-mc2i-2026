@@ -8,8 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { AuthController } from "./authController";
-import { openAIService } from "./services/openai";
-import { geminiService } from "./services/gemini";
+import { openAIService, geminiService } from "./services/gemini";
 import attachmentRoutes from './routes/attachmentRoutes';
 import cyberForgeRoutes from './routes/cyberForgeRoutes';
 import cyberToolsRoutes from './routes/cyberToolsRoutes';
@@ -3367,7 +3366,7 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
       openAIService.switchApiKey(keyType);
       
       // Récupérer le nom du modèle en fonction du type de clé
-      const modelName = keyType === 'primary' ? 'Claude 3.5 Sonnet' : 'Claude 3 Haiku';
+      const modelName = 'Gemini FYNE';
       console.log(`Switched API key to ${keyType} (${modelName})`);
       
       res.json({

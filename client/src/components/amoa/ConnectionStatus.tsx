@@ -17,7 +17,7 @@ export default function ConnectionStatus() {
   const [status, setStatus] = useState<'connected' | 'disconnected' | 'reconnecting' | 'checking'>('checking');
   const [lastCheck, setLastCheck] = useState<string | null>(null);
   const [currentKey, setCurrentKey] = useState<ApiKeyType>('primary');
-  const [modelName, setModelName] = useState<string>('Claude 3.5 Sonnet');
+  const [modelName, setModelName] = useState<string>('Gemini FYNE');
   const [switchingKey, setSwitchingKey] = useState<boolean>(false);
   
   const checkStatus = async () => {
@@ -47,7 +47,7 @@ export default function ConnectionStatus() {
       }
       
       // Mettre à jour le nom du modèle en fonction des données ou du type de clé
-      setModelName(data.modelName || (data.currentApiKey === 'primary' ? 'Claude 3.5 Sonnet' : 'Claude 3 Haiku'));
+      setModelName(data.modelName || 'Gemini FYNE');
     } catch (error) {
       console.error('Error checking connection status:', error);
       // En cas d'erreur, indiquer déconnecté
@@ -93,7 +93,7 @@ export default function ConnectionStatus() {
       if (data && data.modelName) {
         setModelName(data.modelName);
       } else {
-        setModelName(newKeyType === 'primary' ? 'Claude 3.5 Sonnet' : 'Claude 3 Haiku');
+        setModelName('Gemini FYNE');
       }
       
       // Vérifier l'état de la connexion après le changement

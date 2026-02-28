@@ -31,29 +31,22 @@ Le schéma inclut des types énumérés pour la personnalité des assistants, le
 Le système d'authentification est basé sur username/password avec hachage bcrypt. Les sessions utilisateur sont gérées côté serveur avec persistance en base de données. L'accès aux fonctionnalités est contrôlé par le statut d'authentification de l'utilisateur.
 
 ### AI Integration Architecture
-L'application utilise deux services IA principaux :
+L'application utilise un seul service IA :
 
-1. **Amazon Bedrock (Claude)** - Service principal via `server/services/bedrock.ts`
-   - Modèle principal : Claude 3.5 Sonnet (anthropic.claude-3-5-sonnet-20241022-v2:0)
-   - Modèle secondaire : Claude 3 Haiku (anthropic.claude-3-haiku-20240307-v1:0)
-   - Région AWS : eu-west-3
-   - Exporté comme `openAIService` pour compatibilité avec le code existant
-
-2. **Google Gemini FYNE** - Service complémentaire via `server/services/gemini.ts`
-   - Modèle : gemini-flash-latest
+**Google Gemini FYNE** - Service principal et unique via `server/services/gemini.ts`
+   - Modèle : gemini-2.5-flash
    - API : Google Generative Language API v1beta
-   - Endpoint : `/api/gemini/status` pour vérifier la connexion
+   - Endpoints : `/api/openai/status` et `/api/gemini/status` pour vérifier la connexion
+   - Exporté comme `openAIService` et `geminiService` pour compatibilité avec tous les contrôleurs existants
 
-Le service Bedrock est exporté comme `openAIService` depuis `server/services/openai.ts` pour maintenir la compatibilité avec tous les contrôleurs existants. Les prompts sont contextualisés selon le rôle de l'utilisateur, le domaine d'expertise sélectionné, et l'étape du scénario en cours.
+Le service Gemini implémente la même interface que l'ancien service Bedrock (`getChatCompletion`, `getChatCompletionWithCache`, `getChatCompletionSecondary`, `switchApiKey`, `getCurrentModelName`, `forceReconnect`, `generateSystemPrompt`, etc.) ce qui permet à tous les contrôleurs de fonctionner sans modification.
 
-**Note importante** : Les réponses JSON de Claude nécessitent un parsing robuste via `parseJsonSafely()` car Claude peut ajouter du texte avant le JSON et inclure des retours à la ligne non-échappés dans les chaînes.
+**Note importante** : Les réponses JSON de Gemini nécessitent un parsing robuste via `parseJsonSafely()` car Gemini peut ajouter du texte avant le JSON et inclure des retours à la ligne non-échappés dans les chaînes.
 
 ## External Dependencies
 
 ### AI Services
-- **Amazon Bedrock** : Service principal pour les interactions IA (Claude 3.5 Sonnet / Claude 3 Haiku)
-- **Google Gemini FYNE** : Service complémentaire via l'API Google Generative Language
-- **@aws-sdk/client-bedrock-runtime** : SDK pour Amazon Bedrock
+- **Google Gemini FYNE** : Service principal et unique via l'API Google Generative Language (gemini-2.5-flash)
 
 ### Database and ORM
 - **@neondatabase/serverless**: Driver PostgreSQL optimisé pour les environnements serverless

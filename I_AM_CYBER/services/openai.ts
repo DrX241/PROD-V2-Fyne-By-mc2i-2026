@@ -1,2 +1,2 @@
-export { openAIService } from '../../server/services/bedrock';
-export type { ApiKeyType } from '../../server/services/bedrock';
+export { openAIService } from '../../server/services/gemini';
+export type { ApiKeyType } from '../../server/services/gemini';

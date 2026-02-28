@@ -18,7 +18,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
   position = 'fixed-bottom-right' 
 }) => {
   const [status, setStatus] = useState<'connected' | 'disconnected' | 'checking' | 'reconnecting'>('checking');
-  const [currentModel, setCurrentModel] = useState<string>('Claude 3.5 Sonnet');
+  const [currentModel, setCurrentModel] = useState<string>('Gemini FYNE');
   const [apiKeyType, setApiKeyType] = useState<'primary' | 'secondary'>('primary');
   const [lastCheck, setLastCheck] = useState<number>(0);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -106,7 +106,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
 
         // Mettre à jour les autres informations
         setLastCheck(data.lastCheck || Date.now());
-        const modelName = data.currentModel || 'Claude 3 Haiku';
+        const modelName = data.currentModel || 'Gemini FYNE';
         setCurrentModel(modelName);
         const keyType = (modelName.includes('Haiku') || modelName.includes('mini')) ? 'secondary' : 'primary';
         setApiKeyType(keyType);
@@ -147,7 +147,7 @@ const OpenAIStatusIndicator: React.FC<OpenAIStatusProps> = ({
       setApiKeyType(newKeyType);
       
       // Mettre à jour le modèle de façon préemptive pour éviter le clignotement
-      setCurrentModel(newKeyType === 'primary' ? 'Claude 3.5 Sonnet' : 'Claude 3 Haiku');
+      setCurrentModel('Gemini FYNE');
 
       // Puis faire la demande au serveur
       const response = await fetch('/api/cyber/switch-api-key', {

@@ -852,5 +852,4 @@ Tu es ${name}, ${description}. Tu es spécialisé dans le domaine: ${domain}.
   }
 }
 
-export { openAIService } from './bedrock';
-export { geminiService } from './gemini';
+export { openAIService, geminiService } from './gemini';
