@@ -1,18 +1,19 @@
 import { Request, Response } from 'express';
-import OpenAI from 'openai';
+import { openAIService } from './services/openai';
 
-// Configuration Azure OpenAI
-const endpoint = process.env.AZURE_OPENAI_ENDPOINT || '';
-const apiKey = process.env.AZURE_OPENAI_KEY || '';
-const deploymentName = process.env.AZURE_OPENAI_DEPLOYMENT || '';
-
-// Initialisation du client OpenAI
-const openai = new OpenAI({
-  apiKey: apiKey,
-  baseURL: `${endpoint}/openai/deployments/${deploymentName}`,
-  defaultQuery: { 'api-version': '2024-12-01-preview' },
-  defaultHeaders: { 'api-key': apiKey }
-});
+const openai = {
+  chat: {
+    completions: {
+      create: async (params: any) => {
+        const messages = params.messages || [];
+        const temperature = params.temperature || 0.7;
+        const maxTokens = params.max_tokens || 2000;
+        const content = await openAIService.getChatCompletion(messages, temperature, maxTokens);
+        return { choices: [{ message: { content } }] };
+      }
+    }
+  }
+};
 
 /**
  * Interface pour les niveaux d'CYBERASCENSION

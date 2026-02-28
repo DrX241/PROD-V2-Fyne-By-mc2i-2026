@@ -852,9 +852,5 @@ Tu es ${name}, ${description}. Tu es spécialisé dans le domaine: ${domain}.
   }
 }
 
-// Migration vers Amazon Bedrock - Exporter le service Bedrock comme openAIService
-// pour maintenir la compatibilité avec le code existant
 export { openAIService } from './bedrock';
-
-// Garder une instance Azure disponible si besoin de fallback
-export const azureOpenAIService = new OpenAIService();
+export { geminiService } from './gemini';

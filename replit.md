@@ -4,7 +4,7 @@
 
 FYNE est une plateforme SaaS de formation immersive en cybersécurité développée par mc2i. La plateforme propose une approche innovante d'apprentissage par le biais de scénarios interactifs alimentés par l'intelligence artificielle. Elle comprend plusieurs modules spécialisés incluant "I AM CYBER", une expérience chatbot immersive, ainsi que des jeux sérieux et des simulations de crise.
 
-L'architecture technique repose sur une stack moderne avec React/TypeScript pour le frontend, Express.js pour le backend, et PostgreSQL comme base de données. L'intégration d'Azure OpenAI permet de créer des expériences d'apprentissage personnalisées et des interactions avec des PNJ (personnages non-joueurs) pilotés par IA.
+L'architecture technique repose sur une stack moderne avec React/TypeScript pour le frontend, Express.js pour le backend, et PostgreSQL comme base de données. L'intégration avec Amazon Bedrock (Claude) et Google Gemini FYNE permet de créer des expériences d'apprentissage personnalisées et des interactions avec des PNJ (personnages non-joueurs) pilotés par IA.
 
 ## User Preferences
 
@@ -31,16 +31,29 @@ Le schéma inclut des types énumérés pour la personnalité des assistants, le
 Le système d'authentification est basé sur username/password avec hachage bcrypt. Les sessions utilisateur sont gérées côté serveur avec persistance en base de données. L'accès aux fonctionnalités est contrôlé par le statut d'authentification de l'utilisateur.
 
 ### AI Integration Architecture
-L'intégration avec Azure OpenAI est centralisée dans un service dédié qui gère les appels API, la gestion des prompts, et la personnalisation des réponses selon le contexte utilisateur. Le système supporte différents modèles (GPT-4o, GPT-4o-mini) et inclut une gestion d'erreur robuste avec fallback.
+L'application utilise deux services IA principaux :
 
-Les prompts sont contextualisés selon le rôle de l'utilisateur, le domaine d'expertise sélectionné, et l'étape du scénario en cours. Un système de personnalités d'assistant permet de créer des expériences d'interaction variées.
+1. **Amazon Bedrock (Claude)** - Service principal via `server/services/bedrock.ts`
+   - Modèle principal : Claude 3.5 Sonnet (anthropic.claude-3-5-sonnet-20241022-v2:0)
+   - Modèle secondaire : Claude 3 Haiku (anthropic.claude-3-haiku-20240307-v1:0)
+   - Région AWS : eu-west-3
+   - Exporté comme `openAIService` pour compatibilité avec le code existant
+
+2. **Google Gemini FYNE** - Service complémentaire via `server/services/gemini.ts`
+   - Modèle : gemini-flash-latest
+   - API : Google Generative Language API v1beta
+   - Endpoint : `/api/gemini/status` pour vérifier la connexion
+
+Le service Bedrock est exporté comme `openAIService` depuis `server/services/openai.ts` pour maintenir la compatibilité avec tous les contrôleurs existants. Les prompts sont contextualisés selon le rôle de l'utilisateur, le domaine d'expertise sélectionné, et l'étape du scénario en cours.
+
+**Note importante** : Les réponses JSON de Claude nécessitent un parsing robuste via `parseJsonSafely()` car Claude peut ajouter du texte avant le JSON et inclure des retours à la ligne non-échappés dans les chaînes.
 
 ## External Dependencies
 
 ### AI Services
-- **Azure OpenAI Service**: Fournit les capacités d'intelligence artificielle pour les interactions chatbot, la génération de scénarios, et l'évaluation des réponses utilisateur
-- **@azure/openai**: SDK officiel pour l'intégration avec Azure OpenAI
-- **@anthropic-ai/sdk**: SDK pour intégrations alternatives avec Anthropic Claude
+- **Amazon Bedrock** : Service principal pour les interactions IA (Claude 3.5 Sonnet / Claude 3 Haiku)
+- **Google Gemini FYNE** : Service complémentaire via l'API Google Generative Language
+- **@aws-sdk/client-bedrock-runtime** : SDK pour Amazon Bedrock
 
 ### Database and ORM
 - **@neondatabase/serverless**: Driver PostgreSQL optimisé pour les environnements serverless
@@ -60,3 +73,13 @@ Les prompts sont contextualisés selon le rôle de l'utilisateur, le domaine d'e
 ### Monitoring and Development
 - **@replit/vite-plugin-cartographer**: Plugin de développement pour l'environnement Replit
 - **@replit/vite-plugin-runtime-error-modal**: Gestion des erreurs en mode développement
+
+## Environment Variables
+
+### Required Secrets
+- `AWS_ACCESS_KEY_ID` - Clé d'accès AWS pour Bedrock
+- `AWS_SECRET_ACCESS_KEY` - Clé secrète AWS pour Bedrock
+- `AWS_REGION` - Région AWS (eu-west-3)
+- `GEMINI_API_KEY` - Clé API Google Gemini FYNE
+- `SESSION_SECRET` - Secret pour les sessions Express
+- `DATABASE_URL` - URL de connexion PostgreSQL

@@ -1,17 +1,22 @@
 import { Request, Response } from 'express';
-import OpenAI from 'openai';
+import { openAIService } from './services/openai';
 import { rateLimiterService } from './services/rateLimiterService';
 import { simpleCacheService } from './services/simpleCacheService';
 import { codeSandboxService } from './services/codeSandboxService';
 
-// Initialisation du client OpenAI avec Azure
-// Le newest OpenAI model est "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({
-  apiKey: process.env.AZURE_OPENAI_KEY,
-  baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}`,
-  defaultQuery: { 'api-version': '2023-12-01-preview' },
-  defaultHeaders: { 'api-key': process.env.AZURE_OPENAI_KEY }
-});
+const openai = {
+  chat: {
+    completions: {
+      create: async (params: any) => {
+        const messages = params.messages || [];
+        const temperature = params.temperature || 0.7;
+        const maxTokens = params.max_tokens || 2000;
+        const content = await openAIService.getChatCompletion(messages, temperature, maxTokens);
+        return { choices: [{ message: { content } }] };
+      }
+    }
+  }
+};
 
 // Types pour la requête
 interface CodeGenerationRequest {

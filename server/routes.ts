@@ -5,11 +5,11 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
-import OpenAI from 'openai';
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { AuthController } from "./authController";
 import { openAIService } from "./services/openai";
+import { geminiService } from "./services/gemini";
 import attachmentRoutes from './routes/attachmentRoutes';
 import cyberForgeRoutes from './routes/cyberForgeRoutes';
 import cyberToolsRoutes from './routes/cyberToolsRoutes';
@@ -1194,7 +1194,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Les informations de contexte et d'introduction sont maintenant intégrées directement dans les messages
       // et ne nécessitent plus la génération de documents séparés
       
-      // Generate email content with Azure OpenAI
+      // Generate email content with AI
       const emailSystemPrompt = await openAIService.generateSystemPrompt({
         difficultyLevel: config?.difficultyLevel || "Intermédiaire",
         responseStyle: config?.responseStyle || "Professionnel"
@@ -2418,7 +2418,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         respondingContact = availableContacts[0];
       }
       
-      // Generate response with Azure OpenAI
+      // Generate response with AI
       const basePrompt = await openAIService.generateSystemPrompt({
         difficultyLevel: config?.difficultyLevel || "Intermédiaire",
         responseStyle: config?.responseStyle || "Professionnel"
@@ -2997,7 +2997,6 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
 
   // Route de listage des documents supprimée car nous n'utilisons plus de pièces jointes
 
-  // API routes pour vérifier le statut de la connexion à Azure OpenAI
   app.get('/api/openai/status', async (req: Request, res: Response) => {
     try {
       const isConnected = await openAIService.checkConnection();
@@ -3009,6 +3008,20 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
       });
     } catch (error) {
       console.error('Error checking API status:', error);
+    }
+  });
+
+  app.get('/api/gemini/status', async (req: Request, res: Response) => {
+    try {
+      const isConnected = await geminiService.checkConnection();
+      res.json({
+        connectionStatus: geminiService.getConnectionStatus(),
+        model: geminiService.getModelName(),
+        lastCheck: geminiService.getLastConnectionCheck() || Date.now()
+      });
+    } catch (error) {
+      console.error('Error checking Gemini status:', error);
+      res.status(500).json({ connectionStatus: 'disconnected', error: 'Erreur lors de la vérification' });
     }
   });
   
@@ -3084,10 +3097,9 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         { role: "user", content: message }
       ];
       
-      console.log("Envoi du prompt pour NPC interaction à Azure OpenAI...");
+      console.log("Envoi du prompt pour NPC interaction...");
       
-      // Utiliser le service OpenAI (préférence pour GPT-4o-mini qui est plus rapide)
-      openAIService.switchApiKey('secondary'); // Utiliser GPT-4o-mini
+      openAIService.switchApiKey('secondary');
       const response = await openAIService.getChatCompletion(messages, 0.7, 150);
       
       // Renvoyer la réponse
@@ -3104,26 +3116,20 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
     }
   });
   
-  // Endpoint pour forcer la reconnexion à Azure OpenAI
-  
-  // Route pour chat direct avec l'API OpenAI (utilisée par Escape the Breach)
   app.post('/api/openai/chat', async (req: Request, res: Response) => {
     try {
-      const { messages, model = 'gpt-4o-mini', temperature = 0.7, max_tokens = 500 } = req.body;
+      const { messages, model, temperature = 0.7, max_tokens = 500 } = req.body;
       
-      console.log("Making API request to Azure OpenAI for Escape the Breach...");
+      console.log("Making API request for Escape the Breach...");
       
-      // Vérifier si OpenAIService est disponible
       if (!openAIService) {
         return res.status(500).json({ 
-          error: "Le service OpenAI n'est pas disponible actuellement." 
+          error: "Le service IA n'est pas disponible actuellement." 
         });
       }
       
-      // Faire la requête à l'API
       const response = await openAIService.getChatCompletion(
         messages as any, 
-        model !== 'gpt-4o', // useSecondaryKey
         temperature, 
         max_tokens
       );
@@ -3143,14 +3149,14 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
         ]
       });
     } catch (error: any) {
-      console.error("Erreur lors de l'appel à l'API OpenAI:", error);
+      console.error("Erreur lors de l'appel à l'API IA:", error);
       return res.status(500).json({ error: error.message || "Une erreur est survenue lors de la communication avec l'API" });
     }
   });
 
   app.post('/api/openai/reconnect', async (req: Request, res: Response) => {
     try {
-      console.log('Reconnexion forcée à Azure OpenAI demandée');
+      console.log('Reconnexion forcée demandée');
       const reconnectResult = await openAIService.forceReconnect();
       
       res.json({
@@ -3179,7 +3185,7 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
       res.json({
         status: isConnected ? 'connected' : 'disconnected',
         lastCheck: openAIService.getLastConnectionCheck(),
-        apiEndpoint: process.env.AZURE_OPENAI_ENDPOINT ? 'configured' : 'default',
+        apiEndpoint: 'configured',
         currentApiKey: openAIService.getCurrentConfig(),
         modelName: openAIService.getCurrentModelName(),
         time: new Date().toISOString()
@@ -3378,21 +3384,6 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
     }
   });
 
-  // Initialisation du client OpenAI pour le chat immersif avec Azure OpenAI
-  
-  const azureApiKey = "1Ue0sQ11eK6J7iLNvSM9HgXOiIqg2a697PTB33PmM9IIDDsA3d4kJQQJ99BBACfhMk5XJ3w3AAAAACOGuvaK";
-  const azureEndpoint = "https://eddy-02-2025-azureaiservices017852658000.openai.azure.com/";
-  const azureDeploymentId = "Eddy-deploy-20-02-2025-gpt-4o"; // Utilisation du modèle principal
-  const azureApiVersion = "2024-12-01-preview";
-  
-  const openai = new OpenAI({
-    apiKey: azureApiKey,
-    baseURL: `${azureEndpoint}openai/deployments/${azureDeploymentId}`,
-    defaultQuery: { "api-version": azureApiVersion },
-    defaultHeaders: { "api-key": azureApiKey },
-  });
-  
-  // API route pour le chat immersif
   app.post('/api/cyber/simple-chat', async (req: Request, res: Response) => {
     try {
       const { message, config } = req.body;
@@ -3401,10 +3392,8 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         return res.status(400).json({ message: 'Message requis pour le chat' });
       }
       
-      // Construire un prompt système basé sur la configuration
       let systemPrompt = "Tu es un assistant spécialisé en cybersécurité qui aide les utilisateurs à comprendre et à se protéger contre les menaces informatiques.";
       
-      // Ajuster le prompt selon le niveau de difficulté
       if (config?.difficultyLevel === 'Débutant') {
         systemPrompt += " Tu utilises un langage simple et accessible, en évitant le jargon technique. Tu expliques les concepts de cybersécurité de manière basique pour les débutants.";
       } else if (config?.difficultyLevel === 'Expert') {
@@ -3413,7 +3402,6 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
         systemPrompt += " Tu adaptes ton langage pour un public ayant des connaissances intermédiaires en informatique, en expliquant les termes techniques lorsque nécessaire.";
       }
       
-      // Ajuster le prompt selon le style de réponse
       if (config?.responseStyle === 'Détaillé et pédagogique') {
         systemPrompt += " Tes réponses sont détaillées et pédagogiques, avec des explications complètes et des exemples concrets pour illustrer les concepts.";
       } else if (config?.responseStyle === 'Concis et direct') {
@@ -3424,34 +3412,23 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
       
       systemPrompt += " Tu réponds toujours en français.";
       
-      // Appel à l'API Azure OpenAI
-      const completion = await openai.chat.completions.create({
-        messages: [
+      const response = await openAIService.getChatCompletion(
+        [
           { role: "system", content: systemPrompt },
           { role: "user", content: message }
         ],
-        temperature: config?.temperature || 0.7,
-        max_tokens: config?.maxTokens || 800,
-        model: "gpt-3.5-turbo",
-      });
+        config?.temperature || 0.7,
+        config?.maxTokens || 800
+      );
       
-      // Envoi de la réponse au client
       res.json({ 
-        response: completion.choices[0].message.content,
-        usage: completion.usage
+        response: response,
+        usage: null
       });
       
     } catch (error: any) {
-      console.error('Erreur lors de la communication avec Azure OpenAI:', error);
-      
-      // Gestion des erreurs spécifiques d'OpenAI
-      if (error.status === 401) {
-        res.status(401).json({ error: 'Erreur d\'authentification API Azure. Vérifiez votre clé API.' });
-      } else if (error.status === 429) {
-        res.status(429).json({ error: 'Limite de requêtes atteinte. Veuillez réessayer plus tard.' });
-      } else {
-        res.status(500).json({ error: 'Erreur lors de la génération de la réponse' });
-      }
+      console.error('Erreur lors du chat simple:', error);
+      res.status(500).json({ error: 'Erreur lors de la génération de la réponse' });
     }
   });
 
@@ -4978,7 +4955,7 @@ Ta réponse doit refléter la complexité des choix en cybersécurité sans êtr
       // Vérifier si OpenAI est configuré
       if (!openAIService) {
         return res.status(500).json({ 
-          error: "Le service Azure OpenAI n'est pas disponible actuellement." 
+          error: "Le service IA n'est pas disponible actuellement." 
         });
       }
       
