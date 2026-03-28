@@ -5346,6 +5346,121 @@ Analyse cette justification selon les critères spécifiés et retourne ton éva
     }
   });
 
+  // ── Monsieur Tout le Monde – Scénario IA ──────────────────────────────────
+  app.post('/api/cyber/mtm-scenario', async (req, res) => {
+    const { scenarioIndex = 0 } = req.body as { scenarioIndex: number };
+
+    const categories = [
+      'phishing-email-banque',
+      'sms-arnaque-colis',
+      'vishing-technicien',
+      'reutilisation-mot-de-passe',
+      'wifi-public-cafe',
+      'popup-mise-a-jour',
+      'oversharing-reseaux-sociaux',
+      'piece-jointe-malware',
+      'usurpation-ami-whatsapp',
+      'phishing-netflix'
+    ];
+    const category = categories[scenarioIndex % categories.length];
+
+    const prompt = `Tu es un expert en cybersécurité qui crée des scénarios de formation immersive pour le grand public français (non-experts).
+
+Génère un scénario de formation cybersécurité sur la thématique: "${category}"
+
+Le scénario doit être:
+- Très réaliste et ancré dans la vie quotidienne en France
+- En français, ton accessible et engageant
+- Avec des détails crédibles (noms de banques françaises, opérateurs télécom français, etc.)
+- Le contenu visual doit être LONG et DÉTAILLÉ (un vrai email ou SMS complet)
+
+Retourne UNIQUEMENT un objet JSON valide, rien d'autre:
+{
+  "category": "${category}",
+  "title": "Titre court accrocheur du scénario (max 6 mots)",
+  "context": "Phrase courte pour mettre en situation l'utilisateur (ex: Vous venez de recevoir...)",
+  "visual": {
+    "type": "email",
+    "from": "Expéditeur réaliste",
+    "fromEmail": "adresse@domaine-suspect.com",
+    "subject": "Objet de l'email",
+    "body": "Contenu complet et réaliste du message (3-4 paragraphes, inclure des détails crédibles)",
+    "hasClickableLink": true,
+    "linkLabel": "Texte visible du lien (ex: Cliquez ici pour confirmer)",
+    "linkUrl": "https://url-malveillante-realiste.com/secure/confirm"
+  },
+  "choices": [
+    {
+      "label": "Je clique immédiatement sur le lien",
+      "isCorrect": false,
+      "feedback": "Mauvaise idée ! Conséquence concrète et dramatique de cette action.",
+      "points": -5
+    },
+    {
+      "label": "Je vérifie l'expéditeur et contacte directement l'organisme",
+      "isCorrect": true,
+      "feedback": "Excellent réflexe ! Explication de pourquoi c'est la bonne action.",
+      "points": 10
+    },
+    {
+      "label": "Je transfère l'email à un ami pour avoir son avis",
+      "isCorrect": false,
+      "feedback": "Pas idéal. Explication de pourquoi.",
+      "points": -5
+    }
+  ],
+  "reflexe": "LE réflexe clé en 1 phrase courte et mémorable",
+  "clickConsequence": "Ce qui se passe si on clique sur le lien malveillant (dramatique, concret)",
+  "redFlags": ["Indice suspect 1", "Indice suspect 2", "Indice suspect 3"]
+}
+
+IMPORTANT: adapte le champ "visual.type" à la thématique:
+- Pour phishing email: "email"
+- Pour SMS arnaque: "sms"  
+- Pour appel téléphonique: "phone-call"
+- Pour popup navigateur: "browser-popup"
+- Pour post réseaux sociaux: "social-post"`;
+
+    try {
+      const response = await openAIService.getChatCompletion(
+        [{ role: 'user', content: prompt }],
+        { maxTokens: 1200 }
+      );
+
+      const parseJsonSafely = (str: string) => {
+        try {
+          return JSON.parse(str);
+        } catch {
+          const match = str.match(/\{[\s\S]*\}/);
+          if (match) {
+            try {
+              const cleaned = match[0]
+                .replace(/[\x00-\x1F\x7F]/g, (c) => {
+                  if (c === '\n') return '\\n';
+                  if (c === '\r') return '\\r';
+                  if (c === '\t') return '\\t';
+                  return '';
+                });
+              return JSON.parse(cleaned);
+            } catch {
+              return null;
+            }
+          }
+          return null;
+        }
+      };
+
+      const scenario = parseJsonSafely(response);
+      if (!scenario) {
+        return res.status(500).json({ success: false, error: 'Invalid JSON from AI' });
+      }
+      res.json({ success: true, scenario });
+    } catch (error) {
+      console.error('MTM scenario error:', error);
+      res.status(500).json({ success: false, error: 'Failed to generate scenario' });
+    }
+  });
+
   // Additional route handlers can be added here
 
   return createServer(app);
