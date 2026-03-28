@@ -36,7 +36,7 @@ const RoleplayHub: React.FC = () => {
   const scenarios = [
     {
       id: 'recruiter',
-      title: "Je suis Recruteur Cyber",
+      title: "Je suis Membre du Service de Formation",
       description: "Je souhaite évaluer les compétences cybersécurité de mes collaborateurs",
       link: '/cyber/test-technique',
       icon: <Users className="h-10 w-10 text-indigo-300" />,
@@ -55,8 +55,8 @@ const RoleplayHub: React.FC = () => {
     },
     {
       id: 'interview-test',
-      title: "Je prépare un Entretien Cyber",
-      description: "Je me prépare aux entretiens techniques en cybersécurité",
+      title: "Je suis un Professionnel Confirmé",
+      description: "Je souhaite me perfectionner en cybersécurité",
       link: '/cyber/interview-test',
       icon: <Briefcase className="h-10 w-10 text-blue-300" />,
       color: 'blue',
@@ -93,7 +93,7 @@ const RoleplayHub: React.FC = () => {
     },
     {
       id: 'debutant-cyber',
-      title: "Je découvre la Cybersécurité",
+      title: "Je suis Monsieur Tout le Monde",
       description: "Je veux apprendre à me protéger des risques numériques au quotidien",
       link: '/cyber/learning-center/modules/debutant-cyber',
       icon: <Shield className="h-10 w-10 text-amber-300" />,
