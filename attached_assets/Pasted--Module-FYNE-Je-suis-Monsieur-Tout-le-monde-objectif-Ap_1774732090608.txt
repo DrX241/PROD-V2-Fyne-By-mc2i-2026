@@ -1,0 +1,140 @@
+🧠 Module FYNE – “Je suis Monsieur Tout le monde”
+🎯 objectif
+
+Apprendre à quelqu’un de non technique à :
+
+éviter les arnaques
+protéger ses comptes
+sécuriser ses appareils
+adopter les bons réflexes
+🧩 structure du module (simple et efficace)
+
+👉 4 blocs seulement (pas plus)
+
+1. 🔓 reconnaître les dangers
+4
+contenu
+email frauduleux (phishing)
+sms frauduleux
+faux sites web
+appels suspects
+exercice
+
+👉 tu montres :
+
+3 emails → “lequel est dangereux ?”
+
+réflexe clé
+
+👉 “si c’est urgent + demande info perso = danger”
+
+2. 🔐 sécuriser ses comptes
+4
+contenu
+mot de passe fort
+ne jamais réutiliser
+double authentification (2FA)
+exercice
+
+👉 “ton mot de passe est-il sécurisé ?”
+
+score automatique
+proposition d’amélioration
+réflexe clé
+
+👉 “un compte = un mot de passe”
+
+3. 📱 protéger ses appareils
+4
+contenu
+mises à jour
+antivirus
+wifi public
+verrouillage écran
+exercice
+
+👉 checklist interactive :
+
+“as-tu activé ça ? oui/non”
+réflexe clé
+
+👉 “mettre à jour = se protéger”
+
+4. 🧠 adopter les bons réflexes
+4
+contenu
+ne pas cliquer trop vite
+vérifier les sources
+protéger ses données personnelles
+exercice
+
+👉 mise en situation :
+
+“tu reçois ce message → que fais-tu ?”
+
+réflexe clé
+
+👉 “prendre 10 secondes avant d’agir”
+
+🎮 mécanique FYNE (là tu fais la différence)
+
+👉 chaque bloc =
+
+1. situation réelle
+
+(ex : “tu reçois un sms de ta banque”)
+
+2. choix utilisateur
+je clique
+j’ignore
+je vérifie
+3. conséquence
+
+👉 “tu t’es fait hacker” / “bien joué”
+
+4. explication simple
+📊 scoring simple
++10 → bon réflexe
+-5 → erreur
+badge final :
+🟥 vulnérable
+🟧 prudent
+🟩 sécurisé
+🔥 idées différenciantes (très fortes)
+1. mode “vie réelle”
+
+👉 simulation sur 5 jours :
+
+jour 1 : email
+jour 2 : wifi public
+jour 3 : téléchargement
+etc
+2. score de risque personnel
+
+👉 à la fin :
+
+“tu es à 65% de risque”
+avec recommandations personnalisées
+3. checklist automatique
+
+👉 export :
+
+“ce que tu dois faire maintenant”
+🧱 ce que tu dois construire concrètement
+
+👉 version MVP :
+
+4 modules
+3 scénarios par module
+scoring simple
+feedback immédiat
+⚠️ erreur à éviter
+
+❌ trop de texte
+❌ jargon technique
+❌ cours théorique
+
+👉 ton utilisateur :
+
+il s’en fout de comprendre le chiffrement
+il veut savoir quoi faire demain matin
