@@ -104,11 +104,11 @@ const RoleplayHub: React.FC = () => {
       buttonHover: 'hover:from-amber-600 hover:to-amber-500',
       textColor: 'text-amber-300',
       details: [
-        "Contenu adapté aux débutants",
-        "Exercices pratiques pour sécuriser vos appareils",
-        "Apprentissage des bons réflexes"
+        "4 modules immersifs avec scénarios réels",
+        "Choix interactifs et feedback immédiat",
+        "Score de risque personnel + badge final"
       ],
-      comingSoon: true
+      comingSoon: false
     },
     {
       id: 'comex-member',
