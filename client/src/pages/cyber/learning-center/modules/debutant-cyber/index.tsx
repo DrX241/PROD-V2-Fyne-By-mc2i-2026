@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -43,6 +43,7 @@ interface Scenario {
 type Phase =
   | 'intro'
   | 'loading'
+  | 'error'
   | 'scenario'
   | 'trap-clicked'
   | 'answered'
@@ -233,7 +234,7 @@ export default function MonsieurToutLeMonde() {
 
   const currentScenario = scenarios[currentIndex];
 
-  const fetchScenario = useCallback(async (index: number) => {
+  const fetchScenario = useCallback(async (index: number): Promise<Scenario | null> => {
     setLoadingNext(true);
     try {
       const resp = await fetch('/api/cyber/mtm-scenario', {
@@ -248,9 +249,12 @@ export default function MonsieurToutLeMonde() {
           next[index] = data.scenario;
           return next;
         });
+        return data.scenario;
       }
+      return null;
     } catch (e) {
       console.error('Failed to load scenario', e);
+      return null;
     } finally {
       setLoadingNext(false);
     }
@@ -258,8 +262,12 @@ export default function MonsieurToutLeMonde() {
 
   const startModule = async () => {
     setPhase('loading');
-    await fetchScenario(0);
-    setPhase('scenario');
+    const scenario = await fetchScenario(0);
+    if (scenario) {
+      setPhase('scenario');
+    } else {
+      setPhase('error');
+    }
   };
 
   const handleLinkClick = () => {
@@ -300,13 +308,20 @@ export default function MonsieurToutLeMonde() {
     setTrapClicked(false);
     setShowRedFlags(false);
     setCurrentIndex(next);
+
     if (!scenarios[next]) {
       setPhase('loading');
-      await fetchScenario(next);
+      const loaded = await fetchScenario(next);
+      if (loaded) {
+        setPhase('scenario');
+      } else {
+        setPhase('error');
+      }
+    } else {
+      setPhase('scenario');
     }
-    setPhase('scenario');
 
-    // Préchargement du suivant
+    // Préchargement du suivant en arrière-plan
     if (next + 1 < TOTAL && !scenarios[next + 1]) {
       fetchScenario(next + 1);
     }
@@ -462,6 +477,40 @@ export default function MonsieurToutLeMonde() {
               <Loader2 size={36} className="animate-spin mb-4" style={{ color: MC2I_BLUE }} />
               <p className="text-gray-600 font-medium">Génération du scénario en cours...</p>
               <p className="text-xs text-gray-400 mt-2">L'IA prépare une situation réaliste pour vous</p>
+            </motion.div>
+          )}
+
+          {/* ── ERREUR ───────────────────────────────────────────────────────── */}
+          {phase === 'error' && (
+            <motion.div
+              key="error"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="min-h-screen flex flex-col items-center justify-center px-8"
+            >
+              <div className="max-w-md w-full text-center">
+                <div className="w-16 h-16 flex items-center justify-center mx-auto mb-6" style={{ background: `${MC2I_PINK}15` }}>
+                  <AlertTriangle size={28} style={{ color: MC2I_PINK }} />
+                </div>
+                <h2 className="text-2xl font-black mb-3 text-gray-900">Scénario indisponible</h2>
+                <p className="text-gray-600 mb-8">L'IA n'a pas pu générer le scénario. Vérifiez votre connexion et réessayez.</p>
+                <div className="flex gap-4 justify-center">
+                  <button
+                    onClick={startModule}
+                    className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold text-sm"
+                    style={{ background: MC2I_BLUE }}
+                  >
+                    <RefreshCw size={15} /> Réessayer
+                  </button>
+                  <button
+                    onClick={() => setLocation('/cyber/roleplay')}
+                    className="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 font-bold text-sm text-gray-700"
+                  >
+                    Retour
+                  </button>
+                </div>
+              </div>
             </motion.div>
           )}
 

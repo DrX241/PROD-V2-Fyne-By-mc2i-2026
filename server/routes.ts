@@ -5347,6 +5347,19 @@ Analyse cette justification selon les critères spécifiés et retourne ton éva
   });
 
   // ── Monsieur Tout le Monde – Scénario IA ──────────────────────────────────
+  const MTM_FALLBACKS = [
+    { category: 'phishing-email-banque', title: 'Alerte sécurité Crédit Agricole', context: 'Vous venez de recevoir cet email urgent de votre banque.', visual: { type: 'email', from: 'Crédit Agricole Sécurité', fromEmail: 'securite@credit-agricole-alerte.com', subject: 'Action requise : votre compte est suspendu', body: 'Cher(e) client(e),\n\nNous avons détecté une activité suspecte sur votre compte bancaire. Pour votre sécurité, nous avons temporairement suspendu votre accès.\n\nVeuillez confirmer votre identité dans les 24 heures pour éviter la clôture définitive de votre compte.\n\nCordialement,\nLe Service Sécurité Crédit Agricole', hasClickableLink: true, linkLabel: 'Confirmer mon identité maintenant', linkUrl: 'https://credit-agricole-secure-verify.account-confirm.net/login' }, choices: [{ label: 'Je clique sur le lien pour vérifier mon compte', isCorrect: false, feedback: 'Vous venez de donner vos identifiants bancaires à des criminels. Vos économies sont en danger.', points: -5 }, { label: 'Je me connecte directement sur le site officiel de ma banque', isCorrect: true, feedback: 'Parfait ! Toujours taper l\'URL officielle de votre banque dans le navigateur.', points: 10 }, { label: 'Je rappelle le numéro indiqué dans l\'email', isCorrect: false, feedback: 'Dangereux ! Le numéro dans l\'email appartient aussi aux fraudeurs.', points: -5 }], reflexe: 'Ne jamais cliquer sur un lien dans un email bancaire — allez directement sur le site.', clickConsequence: 'En cliquant, vous accédez à une copie parfaite du site de votre banque. Vos identifiants sont volés.', redFlags: ['L\'adresse email n\'est pas celle de Crédit Agricole', 'Urgence artificielle (24 heures)', 'Le vrai domaine est credit-agricole.fr, pas "account-confirm.net"'] },
+    { category: 'sms-arnaque-colis', title: 'Votre colis attend', context: 'Vous recevez ce SMS alors que vous attendez un colis.', visual: { type: 'sms', from: 'La Poste 📦', body: 'Votre colis REF-FR2847291 n\'a pas pu être livré. Des frais de 1,89€ sont requis pour la re-livraison. Payez ici : https://laposte-relivraison-fr.com/pay', hasClickableLink: true, linkLabel: 'https://laposte-relivraison-fr.com/pay', linkUrl: 'https://laposte-relivraison-fr.com/pay' }, choices: [{ label: 'Je paie les 1,89€ pour récupérer mon colis', isCorrect: false, feedback: 'Vos coordonnées bancaires sont maintenant dans les mains de fraudeurs.', points: -5 }, { label: 'Je contacte La Poste via laposte.fr pour vérifier', isCorrect: true, feedback: 'Excellent ! La vraie La Poste n\'envoie pas de demandes de paiement par SMS.', points: 10 }, { label: 'J\'ignore le SMS mais ne signale rien', isCorrect: false, feedback: 'Mieux que de cliquer, mais signalez le 33700 pour protéger les autres.', points: -5 }], reflexe: 'La Poste ne demande jamais de paiement par SMS. Signaler au 33700.', clickConsequence: 'Vos coordonnées bancaires sont subtilisées via une fausse page de paiement.', redFlags: ['Le domaine n\'est pas laposte.fr', 'La Poste ne réclame pas de frais par SMS', 'Montant faible pour ne pas éveiller les soupçons'] },
+    { category: 'vishing-technicien', title: 'Microsoft vous appelle', context: 'Vous recevez un appel d\'un technicien Microsoft.', visual: { type: 'phone-call', from: '+33 1 87 65 43 21', body: 'Bonjour, je suis Thomas Martin du support Microsoft. Nos systèmes ont détecté un virus critique sur votre ordinateur. Votre PC envoie des données à des hackers en ce moment même. Je dois accéder à distance à votre machine pour le supprimer immédiatement. Pouvez-vous télécharger TeamViewer et me donner le code d\'accès ?', hasClickableLink: false }, choices: [{ label: 'Je télécharge TeamViewer et donne le code', isCorrect: false, feedback: 'Le faux technicien a maintenant le contrôle total de votre ordinateur.', points: -5 }, { label: 'Je raccroche et appelle le support officiel Microsoft', isCorrect: true, feedback: 'Parfait ! Microsoft ne contacte jamais les utilisateurs par téléphone sans demande préalable.', points: 10 }, { label: 'Je leur donne accès mais surveille ce qu\'ils font', isCorrect: false, feedback: 'Même en surveillant, ils peuvent installer des malwares invisibles en quelques secondes.', points: -5 }], reflexe: 'Microsoft ne vous appelle jamais spontanément — raccrochez immédiatement.', clickConsequence: 'L\'escroc prend le contrôle de votre PC et vole vos données bancaires et mots de passe.', redFlags: ['Microsoft ne vous appelle jamais sans demande préalable', 'Urgence inventée pour créer la panique', 'Demande d\'accès à distance = signal d\'alarme maximum'] },
+    { category: 'reutilisation-mot-de-passe', title: 'Vos comptes piratés', context: 'Vous utilisez le même mot de passe sur plusieurs sites.', visual: { type: 'browser-popup', subject: 'Alerte : votre mot de passe a été compromis', body: 'Un site de vente en ligne que vous utilisez vient d\'être hacké. 2,1 millions d\'identifiants ont été volés. Si vous utilisez le même mot de passe ailleurs (email, banque, réseaux sociaux), tous vos comptes sont en danger.', hasClickableLink: false }, choices: [{ label: 'Je change juste le mot de passe sur ce site', isCorrect: false, feedback: 'Insuffisant : les hackers testent déjà votre mot de passe sur votre email et votre banque.', points: -5 }, { label: 'Je change le mot de passe sur TOUS les sites où je l\'utilise', isCorrect: true, feedback: 'Exactement ! Et utilisez un gestionnaire de mots de passe pour ne plus réutiliser les mêmes.', points: 10 }, { label: 'J\'attends de voir si quelque chose se passe', isCorrect: false, feedback: 'En quelques heures, les hackers peuvent vider vos comptes. N\'attendez pas.', points: -5 }], reflexe: 'Un mot de passe unique par site, géré avec un gestionnaire de mots de passe.', clickConsequence: 'En testant votre email, les hackers accèdent à votre banque via "mot de passe oublié".', redFlags: ['Vous réutilisez le même mot de passe', 'Le site n\'oblige pas à changer le mot de passe', 'Vous n\'avez pas la double authentification activée'] },
+    { category: 'wifi-public-cafe', title: 'WiFi gratuit dans le café', context: 'Vous vous connectez au WiFi gratuit d\'un café pour travailler.', visual: { type: 'browser-popup', subject: 'Choisissez votre réseau WiFi', body: 'Réseaux disponibles :\n✅ CaféDelice_Free (signal fort)\n✅ CaféDelice_Guests (signal fort)\n⚠️ Free_WiFi_Public (signal moyen)\n\nVous vous connectez à "CaféDelice_Free" et commencez à consulter vos emails professionnels et votre compte bancaire.', hasClickableLink: false }, choices: [{ label: 'Je travaille normalement, c\'est un WiFi de confiance', isCorrect: false, feedback: 'Sans savoir lequel est le vrai réseau du café, vous risquez une attaque "man-in-the-middle".', points: -5 }, { label: 'J\'utilise mon VPN avant de consulter mes données sensibles', isCorrect: true, feedback: 'Parfait ! Un VPN chiffre votre trafic même sur un réseau non sécurisé.', points: 10 }, { label: 'Je consulte uniquement les sites en HTTPS', isCorrect: false, feedback: 'Bien, mais insuffisant sur un WiFi piraté. Le VPN est la vraie protection.', points: -5 }], reflexe: 'VPN obligatoire sur tout WiFi public — jamais de données sensibles sans protection.', clickConsequence: 'Sur un faux réseau WiFi, tout votre trafic est intercepté par l\'attaquant.', redFlags: ['Plusieurs réseaux avec des noms similaires', 'Aucune authentification requise', 'Consulter sa banque sur WiFi public est très risqué'] },
+    { category: 'popup-mise-a-jour', title: 'Votre ordinateur est en danger', context: 'Une popup s\'ouvre pendant votre navigation.', visual: { type: 'browser-popup', subject: '⚠️ ALERTE SÉCURITÉ WINDOWS - Action immédiate requise', body: 'Votre ordinateur est infecté par 3 virus critiques !\n\nVos fichiers personnels sont en train d\'être chiffrés.\nVotre caméra est peut-être activée à votre insu.\n\nAppellez le support Windows au 0800 000 999 (gratuit) ou téléchargez la mise à jour de sécurité immédiatement.', hasClickableLink: true, linkLabel: 'Télécharger la mise à jour de sécurité', linkUrl: 'https://windows-security-update-critical.com/setup.exe' }, choices: [{ label: 'Je télécharge la mise à jour indiquée', isCorrect: false, feedback: 'Vous venez de télécharger un ransomware qui va chiffrer tous vos fichiers.', points: -5 }, { label: 'Je ferme la popup et scanne mon PC avec mon antivirus', isCorrect: true, feedback: 'Excellent ! Les mises à jour Windows ne passent jamais par des popups de navigateur.', points: 10 }, { label: 'J\'appelle le numéro affiché', isCorrect: false, feedback: 'C\'est un numéro surtaxé qui vous facturera des centaines d\'euros.', points: -5 }], reflexe: 'Les vraies alertes Windows ne s\'affichent jamais dans le navigateur — fermez tout.', clickConsequence: 'Le fichier téléchargé chiffre tous vos documents et exige une rançon en bitcoin.', redFlags: ['Windows n\'alerte jamais via le navigateur', 'Urgence et panique intentionnelles', 'L\'URL n\'est pas microsoft.com'] },
+    { category: 'oversharing-reseaux-sociaux', title: 'Vacances à Barcelone !', context: 'Vous publiez sur Instagram pendant vos vacances.', visual: { type: 'social-post', from: 'Vous (profil public)', body: '🌞 Parfait début de vacances à Barcelone ! 2 semaines de rêve qui commencent ! Notre appartement est trop beau (📍 Rue de la Paix, Paris — on rentre le 15 août). Qui est jaloux ? 😄 #Barcelone #Vacances2024 #ParisiensenVacances', hasClickableLink: false }, choices: [{ label: 'Je laisse le post tel quel, je fais confiance à mes followers', isCorrect: false, feedback: 'Votre adresse et vos dates d\'absence = invitation pour les cambrioleurs. 40% des cambriolages sont liés aux réseaux sociaux.', points: -5 }, { label: 'Je supprime l\'adresse et les dates, et je passe en privé', isCorrect: true, feedback: 'Parfait ! Partagez vos vacances APRÈS être rentré, sans localisation précise.', points: 10 }, { label: 'Je supprime juste l\'adresse mais garde les dates', isCorrect: false, feedback: 'Les dates d\'absence restent dangereuses même sans adresse.', points: -5 }], reflexe: 'Ne jamais publier son adresse ou ses dates d\'absence — attendez d\'être rentré.', clickConsequence: 'Un cambrioleur repère votre adresse et vos dates d\'absence sur votre post public.', redFlags: ['Profil public accessible à tous', 'Adresse complète exposée', 'Dates d\'absence précises affichées'] },
+    { category: 'piece-jointe-malware', title: 'Facture de votre fournisseur', context: 'Vous recevez cet email avec une pièce jointe de votre fournisseur.', visual: { type: 'email', from: 'EDF Facturation', fromEmail: 'facturation@edf-client-factures.com', subject: 'Votre facture d\'électricité du mois de janvier', body: 'Bonjour,\n\nVeuillez trouver ci-joint votre facture d\'électricité du mois de janvier.\n\nMontant : 187,43€ (prélèvement sous 5 jours)\n\nSi vous avez des questions, contactez notre service client.\n\nCordialement,\nEDF Facturation', hasClickableLink: true, linkLabel: '📎 Facture_EDF_Janvier_2024.pdf.exe', linkUrl: '' }, choices: [{ label: 'J\'ouvre la pièce jointe pour vérifier le montant', isCorrect: false, feedback: 'Le fichier .exe a installé un malware qui chiffre tous vos fichiers.', points: -5 }, { label: 'Je me connecte sur edf.fr pour consulter ma vraie facture', isCorrect: true, feedback: 'Parfait ! Consultez toujours vos factures depuis l\'espace client officiel.', points: 10 }, { label: 'J\'envoie la facture à mon collègue pour qu\'il vérifie', isCorrect: false, feedback: 'Vous propagez le malware à votre collègue. Ne jamais transférer un fichier suspect.', points: -5 }], reflexe: 'Une extension .exe ou .zip dans une facture = malware. Vérifiez sur le site officiel.', clickConsequence: 'Ransomware installé — vos 50 000 fichiers sont chiffrés et une rançon de 500€ est demandée.', redFlags: ['Extension .pdf.exe (pas un vrai PDF)', 'Adresse email pas celle d\'EDF', 'EDF n\'envoie pas de fichiers .exe'] },
+    { category: 'usurpation-ami-whatsapp', title: 'Ton ami a besoin d\'aide', context: 'Vous recevez ce message WhatsApp d\'un ami.', visual: { type: 'sms', from: 'Lucas 🤝', body: 'Salut ! C\'est moi Lucas, je t\'écris depuis un autre numéro car mon tel est cassé. J\'ai une urgence, je suis bloqué à l\'étranger et j\'ai besoin de 300€ en virement urgent. Je te rembourse lundi je te promets. Tu peux m\'aider ?', hasClickableLink: false }, choices: [{ label: 'J\'envoie les 300€, c\'est mon ami en galère', isCorrect: false, feedback: 'C\'était un escroc. Le vrai Lucas n\'était pas au courant. Vous perdez 300€.', points: -5 }, { label: 'J\'appelle Lucas sur son vieux numéro pour vérifier', isCorrect: true, feedback: 'Excellent ! Vérifiez toujours par un autre canal avant tout transfert d\'argent.', points: 10 }, { label: 'Je demande plus de détails avant d\'envoyer', isCorrect: false, feedback: 'L\'escroc peut inventer des détails convaincants. Appelez directement.', points: -5 }], reflexe: 'Toujours appeler la personne sur son vrai numéro avant d\'envoyer de l\'argent.', clickConsequence: 'Vous virez 300€ sur un compte pirate. L\'argent est irrécupérable.', redFlags: ['Numéro inconnu', 'Urgence et demande d\'argent', 'Demande de discrétion inhabituelle'] },
+    { category: 'phishing-netflix', title: 'Votre abonnement Netflix expiré', context: 'Vous recevez cet email alors que vous avez Netflix.', visual: { type: 'email', from: 'Netflix Support', fromEmail: 'billing@netflix-account-verify.com', subject: 'Votre abonnement Netflix a été suspendu', body: 'Bonjour,\n\nNous n\'avons pas pu effectuer le prélèvement de votre abonnement Netflix.\n\nPour éviter la perte de votre historique et de vos listes, mettez à jour votre moyen de paiement dans les 24 heures.\n\nL\'équipe Netflix', hasClickableLink: true, linkLabel: 'Mettre à jour mon paiement', linkUrl: 'https://netflix-billing-update.secure-pay.net/fr/update' }, choices: [{ label: 'Je mets à jour mes infos bancaires via le lien', isCorrect: false, feedback: 'Vos données bancaires sont volées via une fausse page Netflix parfaitement copiée.', points: -5 }, { label: 'Je me connecte directement sur netflix.com pour vérifier', isCorrect: true, feedback: 'Parfait ! Netflix n\'envoie jamais de liens de paiement dans ses emails.', points: 10 }, { label: 'Je change mon mot de passe Netflix par précaution', isCorrect: false, feedback: 'Bien pensé mais insuffisant : vos données bancaires ne sont pas protégées.', points: -5 }], reflexe: 'Jamais de CB via un lien email — ouvrez toujours le site directement dans votre navigateur.', clickConsequence: 'Vos coordonnées bancaires sont vendues sur le dark web dans l\'heure.', redFlags: ['L\'email vient de "netflix-account-verify.com" pas netflix.com', 'Netflix ne demande jamais de CB par email', 'Urgence de 24 heures artificielle'] }
+  ];
+
   app.post('/api/cyber/mtm-scenario', async (req, res) => {
     const { scenarioIndex = 0 } = req.body as { scenarioIndex: number };
 
@@ -5364,62 +5377,18 @@ Analyse cette justification selon les critères spécifiés et retourne ton éva
     ];
     const category = categories[scenarioIndex % categories.length];
 
-    const prompt = `Tu es un expert en cybersécurité qui crée des scénarios de formation immersive pour le grand public français (non-experts).
+    const prompt = `Tu es un expert en cybersécurité. Génère un scénario de formation pour le grand public français sur: "${category}".
 
-Génère un scénario de formation cybersécurité sur la thématique: "${category}"
+RÈGLES ABSOLUES pour le JSON:
+- Ne jamais mettre de retours à la ligne réels dans les valeurs de chaîne - utilise \\n à la place
+- Toutes les guillemets dans les valeurs doivent être échappées avec \\
+- Retourne UNIQUEMENT le JSON, sans texte avant ou après, sans balises markdown
 
-Le scénario doit être:
-- Très réaliste et ancré dans la vie quotidienne en France
-- En français, ton accessible et engageant
-- Avec des détails crédibles (noms de banques françaises, opérateurs télécom français, etc.)
-- Le contenu visual doit être LONG et DÉTAILLÉ (un vrai email ou SMS complet)
+Format requis (une seule ligne par champ, pas de saut de ligne):
+{"category":"${category}","title":"Titre court (max 5 mots)","context":"Vous venez de recevoir... (1 phrase)","visual":{"type":"email","from":"Nom expéditeur","fromEmail":"adresse@domaine-suspect.com","subject":"Objet email","body":"Paragraphe 1 du message. \\n\\n Paragraphe 2. \\n\\n Paragraphe 3 avec détails crédibles français.","hasClickableLink":true,"linkLabel":"Cliquez ici pour confirmer","linkUrl":"https://secure-banque-fr.verify-account.com/confirm"},"choices":[{"label":"Je clique sur le lien sans vérifier","isCorrect":false,"feedback":"Vous venez de tomber dans le piège. Vos données bancaires sont compromises.","points":-5},{"label":"Je contacte directement ma banque via son site officiel","isCorrect":true,"feedback":"Excellent réflexe ! Toujours vérifier via les canaux officiels.","points":10},{"label":"Je transfère l'email à un ami","isCorrect":false,"feedback":"Risqué car vous exposez d'autres personnes au phishing.","points":-5}],"reflexe":"Vérifiez toujours l'URL avant de cliquer.","clickConsequence":"Vos identifiants bancaires sont volés en quelques secondes.","redFlags":["Domaine suspect","Urgence artificielle","Erreurs de formatage"]}
 
-Retourne UNIQUEMENT un objet JSON valide, rien d'autre:
-{
-  "category": "${category}",
-  "title": "Titre court accrocheur du scénario (max 6 mots)",
-  "context": "Phrase courte pour mettre en situation l'utilisateur (ex: Vous venez de recevoir...)",
-  "visual": {
-    "type": "email",
-    "from": "Expéditeur réaliste",
-    "fromEmail": "adresse@domaine-suspect.com",
-    "subject": "Objet de l'email",
-    "body": "Contenu complet et réaliste du message (3-4 paragraphes, inclure des détails crédibles)",
-    "hasClickableLink": true,
-    "linkLabel": "Texte visible du lien (ex: Cliquez ici pour confirmer)",
-    "linkUrl": "https://url-malveillante-realiste.com/secure/confirm"
-  },
-  "choices": [
-    {
-      "label": "Je clique immédiatement sur le lien",
-      "isCorrect": false,
-      "feedback": "Mauvaise idée ! Conséquence concrète et dramatique de cette action.",
-      "points": -5
-    },
-    {
-      "label": "Je vérifie l'expéditeur et contacte directement l'organisme",
-      "isCorrect": true,
-      "feedback": "Excellent réflexe ! Explication de pourquoi c'est la bonne action.",
-      "points": 10
-    },
-    {
-      "label": "Je transfère l'email à un ami pour avoir son avis",
-      "isCorrect": false,
-      "feedback": "Pas idéal. Explication de pourquoi.",
-      "points": -5
-    }
-  ],
-  "reflexe": "LE réflexe clé en 1 phrase courte et mémorable",
-  "clickConsequence": "Ce qui se passe si on clique sur le lien malveillant (dramatique, concret)",
-  "redFlags": ["Indice suspect 1", "Indice suspect 2", "Indice suspect 3"]
-}
-
-IMPORTANT: adapte le champ "visual.type" à la thématique:
-- Pour phishing email: "email"
-- Pour SMS arnaque: "sms"  
-- Pour appel téléphonique: "phone-call"
-- Pour popup navigateur: "browser-popup"
-- Pour post réseaux sociaux: "social-post"`;
+Adapte le contenu au thème "${category}" avec des détails réalistes français (noms de banques, opérateurs, services réels).
+Pour "visual.type" utilise: email, sms, phone-call, browser-popup, ou social-post selon le thème.`;
 
     try {
       const response = await openAIService.getChatCompletion(
@@ -5427,37 +5396,53 @@ IMPORTANT: adapte le champ "visual.type" à la thématique:
         { maxTokens: 1200 }
       );
 
+      console.log('[MTM] Raw Gemini response (first 500 chars):', response.substring(0, 500));
+
       const parseJsonSafely = (str: string) => {
-        try {
-          return JSON.parse(str);
-        } catch {
-          const match = str.match(/\{[\s\S]*\}/);
-          if (match) {
-            try {
-              const cleaned = match[0]
-                .replace(/[\x00-\x1F\x7F]/g, (c) => {
-                  if (c === '\n') return '\\n';
-                  if (c === '\r') return '\\r';
-                  if (c === '\t') return '\\t';
-                  return '';
-                });
-              return JSON.parse(cleaned);
-            } catch {
-              return null;
-            }
-          }
-          return null;
+        // 1. Essai direct
+        try { return JSON.parse(str); } catch {}
+        // 2. Retirer les blocs markdown ```json ... ```
+        const mdMatch = str.match(/```(?:json)?\s*([\s\S]*?)```/i);
+        if (mdMatch) {
+          const candidate = mdMatch[1].trim();
+          try { return JSON.parse(candidate); } catch {}
         }
+        // 3. Extraire le premier objet JSON brut
+        const objMatch = str.match(/\{[\s\S]*\}/);
+        if (objMatch) {
+          let raw = objMatch[0];
+          // Tentative directe
+          try { return JSON.parse(raw); } catch {}
+          // Nettoyer les sauts de ligne non-échappés à l'intérieur des strings
+          // On remplace les \n réels qui ne sont pas précédés de \ par \\n
+          let cleaned = '';
+          let inString = false;
+          let escape = false;
+          for (let i = 0; i < raw.length; i++) {
+            const c = raw[i];
+            if (escape) { cleaned += c; escape = false; continue; }
+            if (c === '\\') { escape = true; cleaned += c; continue; }
+            if (c === '"') { inString = !inString; cleaned += c; continue; }
+            if (inString && (c === '\n' || c === '\r')) { cleaned += '\\n'; continue; }
+            if (inString && c === '\t') { cleaned += '\\t'; continue; }
+            cleaned += c;
+          }
+          try { return JSON.parse(cleaned); } catch {}
+        }
+        return null;
       };
 
       const scenario = parseJsonSafely(response);
       if (!scenario) {
-        return res.status(500).json({ success: false, error: 'Invalid JSON from AI' });
+        console.error('[MTM] Failed to parse JSON. Using fallback scenario.');
+        const fallback = MTM_FALLBACKS[scenarioIndex % MTM_FALLBACKS.length];
+        return res.json({ success: true, scenario: fallback, source: 'fallback' });
       }
       res.json({ success: true, scenario });
     } catch (error) {
       console.error('MTM scenario error:', error);
-      res.status(500).json({ success: false, error: 'Failed to generate scenario' });
+      const fallback = MTM_FALLBACKS[scenarioIndex % MTM_FALLBACKS.length];
+      res.json({ success: true, scenario: fallback, source: 'fallback' });
     }
   });
 
