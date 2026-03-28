@@ -1,1504 +1,944 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from "wouter";
+import React, { useState } from 'react';
+import { useLocation } from 'wouter';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, CheckCircle2, BookOpen, Shield, AlertTriangle, Lock, Eye, User, Smartphone, Laptop, Wifi, Lightbulb, HardDrive, Bot, Mail, Search, Loader2, Bomb, InfoIcon, BrainCircuit } from "lucide-react";
-import { motion } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
-import PageTitle from "@/components/utils/PageTitle";
-import { useOpenAI } from "@/hooks/useOpenAI";
+import {
+  ArrowLeft, ArrowRight, Shield, AlertTriangle, Lock, Smartphone,
+  Brain, CheckCircle, XCircle, Star, Trophy, RefreshCw, ChevronRight,
+  Mail, Phone, Globe, Wifi, Key, Eye, Download, Share2, Bell, Clock
+} from "lucide-react";
 
+// ──────────────────────────────────────────────
+// TYPES
+// ──────────────────────────────────────────────
+type Choice = {
+  id: string;
+  label: string;
+  isCorrect: boolean;
+  feedback: string;
+  pointsDelta: number;
+};
+
+type Scenario = {
+  id: string;
+  title: string;
+  situation: string;
+  visual: React.ReactNode;
+  choices: Choice[];
+  reflexe: string;
+};
+
+type Block = {
+  id: string;
+  number: number;
+  title: string;
+  emoji: string;
+  color: string;
+  borderColor: string;
+  bgGradient: string;
+  icon: React.ReactNode;
+  scenarios: Scenario[];
+};
+
+type ScreenMode =
+  | { type: 'hub' }
+  | { type: 'scenario'; blockId: string; scenarioIndex: number }
+  | { type: 'consequence'; blockId: string; scenarioIndex: number; choiceId: string }
+  | { type: 'block-result'; blockId: string }
+  | { type: 'final-result' };
+
+// ──────────────────────────────────────────────
+// DATA
+// ──────────────────────────────────────────────
+const BLOCKS: Block[] = [
+  {
+    id: 'dangers',
+    number: 1,
+    title: 'Reconnaître les dangers',
+    emoji: '🔓',
+    color: 'text-red-400',
+    borderColor: 'border-red-500/40',
+    bgGradient: 'from-red-950/60 to-slate-900',
+    icon: <AlertTriangle className="h-8 w-8 text-red-400" />,
+    scenarios: [
+      {
+        id: 'phishing-email',
+        title: 'L\'email de ta banque',
+        situation: 'Tu reçois cet email ce matin :\n\n📧 De : securite-clients@credi-agriicole.fr\nObjet : ⚠️ URGENT – Votre compte sera bloqué dans 24h\n\n"Cher client, une activité suspecte a été détectée sur votre compte. Pour éviter le blocage immédiat, veuillez confirmer vos identifiants en cliquant ci-dessous."\n\n→ [Confirmer mon compte maintenant]',
+        visual: <Mail className="h-16 w-16 text-red-300 opacity-80" />,
+        choices: [
+          {
+            id: 'click',
+            label: '🖱️ Je clique sur le lien pour vérifier',
+            isCorrect: false,
+            feedback: 'Tu t\'es fait avoir ! L\'adresse "@credi-agriicole.fr" est fausse (deux "i" dans agricole). Les banques ne demandent JAMAIS vos identifiants par email. En cliquant, tu aurais transmis ton mot de passe à des hackers.',
+            pointsDelta: -5
+          },
+          {
+            id: 'ignore',
+            label: '🗑️ Je supprime sans cliquer',
+            isCorrect: true,
+            feedback: 'Bien joué ! Tu as eu le bon réflexe. Quand un email crée de l\'urgence et demande des infos perso, c\'est presque toujours une arnaque. On appelle ça le phishing.',
+            pointsDelta: 10
+          },
+          {
+            id: 'verify',
+            label: '📞 J\'appelle ma banque pour vérifier',
+            isCorrect: true,
+            feedback: 'Excellent ! Vérifier directement auprès de ta banque est la meilleure réaction. Tu n\'as jamais cliqué sur le lien suspect et tu as confirmé auprès de la source officielle.',
+            pointsDelta: 10
+          }
+        ],
+        reflexe: '⚡ Si c\'est urgent + demande d\'infos perso = DANGER. Vérifie toujours via le site officiel ou en appelant.'
+      },
+      {
+        id: 'sms-colis',
+        title: 'Le SMS du colis',
+        situation: 'Tu reçois ce SMS sur ton téléphone :\n\n📱 "Votre colis N°FR8472 est en attente de livraison. Des frais de douane de 2,99€ sont requis. Payez maintenant ici : bit.ly/colisexpress24"\n\nTu attendais effectivement une commande Amazon...',
+        visual: <Phone className="h-16 w-16 text-orange-300 opacity-80" />,
+        choices: [
+          {
+            id: 'pay',
+            label: '💳 Je paie les 2,99€ pour récupérer mon colis',
+            isCorrect: false,
+            feedback: 'Attention ! Ce SMS est une arnaque. Le lien "bit.ly" masque un faux site qui va voler ton numéro de carte bancaire. 2,99€ semble peu, mais les hackers récupèrent tes données pour des achats bien plus importants.',
+            pointsDelta: -5
+          },
+          {
+            id: 'check-amazon',
+            label: '📦 Je vérifie directement sur l\'app Amazon',
+            isCorrect: true,
+            feedback: 'Parfait ! Toujours vérifier l\'état de ta commande directement sur le site officiel, jamais via un lien reçu par SMS. Amazon ne demande jamais de paiement supplémentaire par SMS.',
+            pointsDelta: 10
+          },
+          {
+            id: 'ignore-sms',
+            label: '🚫 Je ne fais rien et supprime le SMS',
+            isCorrect: true,
+            feedback: 'Bon réflexe ! Les vrais services de livraison ne demandent pas d\'argent par SMS via des liens raccourcis. Si tu attendais un colis, vérifie sur l\'app officielle.',
+            pointsDelta: 10
+          }
+        ],
+        reflexe: '⚡ Jamais de paiement via un lien dans un SMS. Toujours aller directement sur le site officiel.'
+      },
+      {
+        id: 'appel-microsoft',
+        title: 'L\'appel du technicien',
+        situation: 'Ton téléphone sonne. Un homme avec un accent étranger :\n\n📞 "Bonjour, je vous appelle de la part de Microsoft. Nos serveurs ont détecté un virus grave sur votre ordinateur. Si vous ne nous donnez pas l\'accès maintenant, vos données seront perdues définitivement. Je dois vous guider pour l\'installer de suite."',
+        visual: <Globe className="h-16 w-16 text-yellow-300 opacity-80" />,
+        choices: [
+          {
+            id: 'give-access',
+            label: '💻 Je lui donne l\'accès à distance pour qu\'il répare',
+            isCorrect: false,
+            feedback: 'Très dangereux ! Microsoft ne vous appelle JAMAIS de manière non sollicitée. En donnant l\'accès, le "technicien" aurait installé un vrai virus, volé vos mots de passe et potentiellement demandé de l\'argent.',
+            pointsDelta: -5
+          },
+          {
+            id: 'hang-up',
+            label: '📵 Je raccroche immédiatement',
+            isCorrect: true,
+            feedback: 'Parfait ! C\'est une arnaque connue appelée "vishing" (phishing vocal). Microsoft, Apple, Google ne vous appellent JAMAIS à froid pour des problèmes informatiques.',
+            pointsDelta: 10
+          },
+          {
+            id: 'ask-callback',
+            label: '🔁 Je demande un numéro de rappel officiel',
+            isCorrect: false,
+            feedback: 'Prudent, mais risqué. Le faux technicien vous donnera un faux numéro officiel. La seule bonne action est de raccrocher directement. Si vous avez un doute, appelez le support officiel depuis le site web de Microsoft.',
+            pointsDelta: -5
+          }
+        ],
+        reflexe: '⚡ Microsoft, Apple ou votre banque ne vous appellent JAMAIS à l\'improviste. Raccrochez sans hésiter.'
+      }
+    ]
+  },
+  {
+    id: 'comptes',
+    number: 2,
+    title: 'Sécuriser ses comptes',
+    emoji: '🔐',
+    color: 'text-blue-400',
+    borderColor: 'border-blue-500/40',
+    bgGradient: 'from-blue-950/60 to-slate-900',
+    icon: <Lock className="h-8 w-8 text-blue-400" />,
+    scenarios: [
+      {
+        id: 'meme-mdp',
+        title: 'Le même mot de passe partout',
+        situation: 'Tu utilises "Soleil2024!" comme mot de passe pour : Gmail, Facebook, Amazon et ta banque.\n\nTu reçois cette notification :\n\n🚨 "Alerte sécurité : vos données ont été compromises lors d\'une fuite chez LinkedIn. Votre email et mot de passe sont peut-être exposés."',
+        visual: <Key className="h-16 w-16 text-blue-300 opacity-80" />,
+        choices: [
+          {
+            id: 'nothing',
+            label: '😌 Ce n\'est que LinkedIn, mes autres comptes sont séparés',
+            isCorrect: false,
+            feedback: 'FAUX ! Tu utilises le même mot de passe. Les hackers vont tester immédiatement "Soleil2024!" sur Gmail, Facebook, Amazon et ta banque. C\'est ce qu\'on appelle le "credential stuffing".',
+            pointsDelta: -5
+          },
+          {
+            id: 'change-all',
+            label: '🔑 Je change immédiatement tous mes mots de passe',
+            isCorrect: true,
+            feedback: 'Excellent réflexe ! Et pour ne plus jamais avoir ce problème, utilise un mot de passe unique et différent pour chaque compte. Un gestionnaire de mots de passe comme Bitwarden peut t\'aider.',
+            pointsDelta: 10
+          },
+          {
+            id: 'change-bank',
+            label: '🏦 Je change seulement le mot de passe de ma banque',
+            isCorrect: false,
+            feedback: 'Bonne intuition mais insuffisant. Tous tes comptes qui utilisent le même mot de passe sont en danger. Change-les tous, en commençant par Gmail (qui donne accès à la récupération des autres comptes).',
+            pointsDelta: -5
+          }
+        ],
+        reflexe: '⚡ Un compte = un mot de passe unique. Utilise un gestionnaire de mots de passe.'
+      },
+      {
+        id: '2fa',
+        title: 'La double authentification',
+        situation: 'Tu veux activer la double authentification (2FA) sur ton compte Google.\n\nGoogle te propose 3 options :\n• Recevoir un SMS avec un code\n• Utiliser une app d\'authentification (Google Authenticator)\n• Utiliser une clé physique USB\n\nQuelle option choisis-tu ?',
+        visual: <Smartphone className="h-16 w-16 text-green-300 opacity-80" />,
+        choices: [
+          {
+            id: 'no-2fa',
+            label: '❌ Je ne l\'active pas, c\'est trop compliqué',
+            isCorrect: false,
+            feedback: 'Erreur ! La 2FA protège ton compte même si ton mot de passe est volé. Sans elle, un hacker avec ton mot de passe a accès direct à tout. L\'activer prend 2 minutes.',
+            pointsDelta: -5
+          },
+          {
+            id: 'sms-2fa',
+            label: '📱 SMS avec un code',
+            isCorrect: true,
+            feedback: 'C\'est bien mieux que rien ! Le SMS est le minimum recommandé. Sache que l\'app d\'authentification est encore plus sécurisée car les SMS peuvent être interceptés (attaque SIM swap).',
+            pointsDelta: 7
+          },
+          {
+            id: 'app-2fa',
+            label: '🔐 App d\'authentification',
+            isCorrect: true,
+            feedback: 'Excellent choix ! L\'app d\'authentification (Authy, Google Authenticator) génère des codes temporaires sur ton téléphone, sans passer par le réseau mobile. C\'est le meilleur compromis sécurité/praticité.',
+            pointsDelta: 10
+          }
+        ],
+        reflexe: '⚡ Active toujours la double authentification. C\'est ton filet de sécurité si ton mot de passe est volé.'
+      },
+      {
+        id: 'ami-pc',
+        title: 'L\'ordinateur d\'un ami',
+        situation: 'Tu es chez un ami et tu dois vite consulter ton compte en ligne pour vérifier un virement important.\n\nTon ami te propose son ordinateur.',
+        visual: <Eye className="h-16 w-16 text-purple-300 opacity-80" />,
+        choices: [
+          {
+            id: 'login-normal',
+            label: '💻 Je me connecte normalement et laisse le navigateur mémoriser le mot de passe',
+            isCorrect: false,
+            feedback: 'Dangereux ! Ton mot de passe est maintenant enregistré sur l\'ordinateur de quelqu\'un d\'autre. Et si le PC de ton ami est infecté ? Utilise toujours la navigation privée ET déconnecte-toi après.',
+            pointsDelta: -5
+          },
+          {
+            id: 'private-mode',
+            label: '🕵️ Je me connecte en navigation privée et me déconnecte après',
+            isCorrect: true,
+            feedback: 'Parfait ! La navigation privée ne sauvegarde pas de mot de passe, d\'historique ni de cookies. Et te déconnecter manuellement assure qu\'aucune session n\'est laissée ouverte.',
+            pointsDelta: 10
+          },
+          {
+            id: 'wait',
+            label: '⏳ J\'attends de rentrer chez moi pour le faire sur mon propre PC',
+            isCorrect: true,
+            feedback: 'Très sage ! Si ce n\'est pas urgent, attendre d\'être sur son propre appareil est toujours la meilleure option pour les opérations sensibles.',
+            pointsDelta: 10
+          }
+        ],
+        reflexe: '⚡ Sur un ordinateur qui n\'est pas le tien : navigation privée + déconnexion obligatoire.'
+      }
+    ]
+  },
+  {
+    id: 'appareils',
+    number: 3,
+    title: 'Protéger ses appareils',
+    emoji: '📱',
+    color: 'text-green-400',
+    borderColor: 'border-green-500/40',
+    bgGradient: 'from-green-950/60 to-slate-900',
+    icon: <Smartphone className="h-8 w-8 text-green-400" />,
+    scenarios: [
+      {
+        id: 'mise-a-jour',
+        title: 'La notification de mise à jour',
+        situation: 'Une notification apparaît sur ton écran :\n\n🔔 "iOS 17.3 disponible – Cette mise à jour contient des correctifs de sécurité importants."\n\nTu es en train de regarder une vidéo. La mise à jour prend 15 minutes.',
+        visual: <Download className="h-16 w-16 text-green-300 opacity-80" />,
+        choices: [
+          {
+            id: 'postpone-forever',
+            label: '⏸️ Je clique "Ignorer" et je le ferai... un jour',
+            isCorrect: false,
+            feedback: 'Mauvais réflexe ! Chaque jour sans mise à jour, ton appareil reste vulnérable aux failles connues. Les hackers exploitent justement les appareils non mis à jour. C\'est l\'une des façons les plus faciles de se faire pirater.',
+            pointsDelta: -5
+          },
+          {
+            id: 'update-now',
+            label: '✅ Je mets à jour maintenant',
+            isCorrect: true,
+            feedback: 'Parfait ! Les mises à jour corrigent des failles de sécurité découvertes. Chaque correction est une porte fermée aux hackers. Active les mises à jour automatiques pour ne jamais oublier.',
+            pointsDelta: 10
+          },
+          {
+            id: 'schedule',
+            label: '🌙 Je programme la mise à jour pour la nuit',
+            isCorrect: true,
+            feedback: 'Très bien ! Programmer la mise à jour pendant ton sommeil est une excellente pratique. Tu n\'es pas interrompu et ton appareil est à jour au réveil.',
+            pointsDelta: 10
+          }
+        ],
+        reflexe: '⚡ Mettre à jour = se protéger. Active les mises à jour automatiques sur tous tes appareils.'
+      },
+      {
+        id: 'wifi-public',
+        title: 'Le WiFi du café',
+        situation: 'Tu es dans un café et tu vois ce réseau WiFi disponible :\n📶 "CafeWifi_Gratuit"\n\nTu veux vérifier ton compte bancaire et envoyer des documents de travail confidentiels.',
+        visual: <Wifi className="h-16 w-16 text-yellow-300 opacity-80" />,
+        choices: [
+          {
+            id: 'connect-all',
+            label: '📲 Je me connecte et je fais tout ce que je voulais faire',
+            isCorrect: false,
+            feedback: 'Risqué ! Sur un WiFi public non sécurisé, n\'importe qui peut potentiellement intercepter tes données. Évite surtout les opérations bancaires et l\'envoi de documents confidentiels.',
+            pointsDelta: -5
+          },
+          {
+            id: 'use-4g',
+            label: '📡 J\'utilise mes données mobiles 4G à la place',
+            isCorrect: true,
+            feedback: 'Excellent choix ! Ton réseau mobile 4G/5G est chiffré par défaut et bien plus sécurisé qu\'un WiFi public. Pour les opérations sensibles, préfère toujours tes données mobiles.',
+            pointsDelta: 10
+          },
+          {
+            id: 'connect-light',
+            label: '🌐 Je me connecte mais je ne fais que naviguer sur des sites normaux',
+            isCorrect: true,
+            feedback: 'Acceptable pour la navigation basique. Assure-toi que les sites affichent "https://" (cadenas vert). Évite tout de même de vous connecter à des comptes sensibles sur WiFi public.',
+            pointsDelta: 7
+          }
+        ],
+        reflexe: '⚡ WiFi public = zone dangereuse. Utilise tes données mobiles pour tout ce qui est sensible.'
+      },
+      {
+        id: 'piece-jointe',
+        title: 'La pièce jointe mystérieuse',
+        situation: 'Tu reçois un email d\'une adresse inconnue :\n\n📧 De : facturation@service-compte.net\nObjet : Votre facture du mois\n\n"Veuillez trouver ci-joint votre facture. En cas de non-paiement sous 48h, votre compte sera suspendu."\n\n📎 Facture_Aout.pdf.exe (2.3 MB)',
+        visual: <AlertTriangle className="h-16 w-16 text-red-300 opacity-80" />,
+        choices: [
+          {
+            id: 'open',
+            label: '📂 J\'ouvre le fichier pour voir de quelle facture il s\'agit',
+            isCorrect: false,
+            feedback: '🚨 CATASTROPHE ! ".pdf.exe" est un programme déguisé en PDF. En l\'ouvrant, tu aurais installé un ransomware qui chiffre tous tes fichiers et demande une rançon. Ne jamais ouvrir un ".exe" reçu par email.',
+            pointsDelta: -5
+          },
+          {
+            id: 'delete',
+            label: '🗑️ Je supprime sans ouvrir',
+            isCorrect: true,
+            feedback: 'Parfait ! ".pdf.exe" est un signal d\'alarme évident. Un vrai PDF se termine par ".pdf", jamais par ".exe". Tu as évité une infection par ransomware.',
+            pointsDelta: 10
+          },
+          {
+            id: 'scan-first',
+            label: '🛡️ Je le scanne avec mon antivirus avant d\'ouvrir',
+            isCorrect: true,
+            feedback: 'Bonne réaction, mais le plus sûr reste de ne pas l\'ouvrir du tout quand tu ne connais pas l\'expéditeur. Les antivirus ne détectent pas 100% des menaces.',
+            pointsDelta: 7
+          }
+        ],
+        reflexe: '⚡ Une pièce jointe ".exe" dans un email = virus garanti. Supprime sans ouvrir.'
+      }
+    ]
+  },
+  {
+    id: 'reflexes',
+    number: 4,
+    title: 'Les bons réflexes',
+    emoji: '🧠',
+    color: 'text-purple-400',
+    borderColor: 'border-purple-500/40',
+    bgGradient: 'from-purple-950/60 to-slate-900',
+    icon: <Brain className="h-8 w-8 text-purple-400" />,
+    scenarios: [
+      {
+        id: 'ami-urgent',
+        title: 'L\'ami en détresse',
+        situation: 'Tu reçois ce message WhatsApp de ton ami Marc :\n\n💬 "Salut, c\'est super urgent. Je suis coincé à l\'étranger, j\'ai perdu mon portefeuille. J\'ai besoin que tu m\'envoies 300€ via Western Union. Je te rembourse dès que je rentre. Tu peux le faire maintenant ?"\n\nTu n\'étais pas au courant qu\'il voyageait...',
+        visual: <Bell className="h-16 w-16 text-orange-300 opacity-80" />,
+        choices: [
+          {
+            id: 'send-money',
+            label: '💸 Je lui envoie l\'argent, c\'est mon ami',
+            isCorrect: false,
+            feedback: 'Arnaque ! Le compte WhatsApp de Marc a probablement été piraté. Les hackers envoient ce genre de message à tous ses contacts. Contacte Marc par téléphone pour vérifier avant toute action.',
+            pointsDelta: -5
+          },
+          {
+            id: 'call-marc',
+            label: '📞 Je l\'appelle directement sur son numéro pour vérifier',
+            isCorrect: true,
+            feedback: 'Excellent ! Appeler directement confirme en quelques secondes si c\'est vrai ou une arnaque. C\'est le réflexe parfait face à toute demande urgente d\'argent.',
+            pointsDelta: 10
+          },
+          {
+            id: 'ask-proof',
+            label: '🤔 Je lui pose une question que seul lui peut répondre',
+            isCorrect: true,
+            feedback: 'Très bonne stratégie ! Poser une question personnelle (nom de son animal, souvenir partagé) démasque les imposteurs. Si c\'est un hacker, il ne pourra pas répondre correctement.',
+            pointsDelta: 10
+          }
+        ],
+        reflexe: '⚡ Toujours vérifier via un autre canal avant d\'envoyer de l\'argent, même à un "ami".'
+      },
+      {
+        id: 'popup-gagnant',
+        title: 'Tu as gagné !',
+        situation: 'En naviguant sur internet, une fenêtre pop-up s\'affiche soudainement :\n\n🎉 "FÉLICITATIONS ! Vous êtes le visiteur N°1 000 000 !\nVous avez gagné un iPhone 15 Pro !\nCliquez vite, il ne reste que 2 minutes !"\n\n⏱️ Un compteur de 1:47 tourne...',
+        visual: <Trophy className="h-16 w-16 text-yellow-300 opacity-80" />,
+        choices: [
+          {
+            id: 'click-claim',
+            label: '🎁 Je clique pour réclamer mon prix',
+            isCorrect: false,
+            feedback: 'Piège classique ! Cette pop-up va te demander des informations personnelles ou installer un logiciel malveillant. Le compteur crée une fausse urgence. Tu n\'as rien gagné.',
+            pointsDelta: -5
+          },
+          {
+            id: 'close-popup',
+            label: '❌ Je ferme la fenêtre sans cliquer',
+            isCorrect: true,
+            feedback: 'Parfait ! Ces pop-ups sont toujours des arnaques. Ferme la fenêtre via le "X" ou Ctrl+W, jamais en cliquant sur des boutons à l\'intérieur.',
+            pointsDelta: 10
+          },
+          {
+            id: 'share-with-friends',
+            label: '📤 Je partage avec mes amis pour qu\'ils puissent aussi gagner',
+            isCorrect: false,
+            feedback: 'Attention ! En partageant, tu propages l\'arnaque à tes proches. Ferme simplement la page et signale-la si possible.',
+            pointsDelta: -5
+          }
+        ],
+        reflexe: '⚡ Sur internet, personne ne t\'offre un iPhone gratuitement. Un compteur = manipulation.'
+      },
+      {
+        id: 'photo-reseaux',
+        title: 'La photo de vacances',
+        situation: 'Tu es en vacances et tu veux poster cette photo sur Instagram :\n📸 Tu poses devant ta maison avec en fond la plaque d\'immatriculation de ta voiture, ton adresse visible sur la boîte aux lettres, et le message : "Parties pour 2 semaines ! 🌴✈️"\n\nTu as 800 followers dont 400 personnes que tu ne connais pas vraiment.',
+        visual: <Share2 className="h-16 w-16 text-pink-300 opacity-80" />,
+        choices: [
+          {
+            id: 'post-public',
+            label: '📸 Je poste en public, j\'aime partager mes voyages',
+            isCorrect: false,
+            feedback: 'Risqué ! Tu viens d\'annoncer à 800 personnes (dont des inconnus) que ta maison est vide pendant 2 semaines avec ton adresse visible. C\'est une invitation au cambriolage.',
+            pointsDelta: -5
+          },
+          {
+            id: 'post-after',
+            label: '✅ Je poste la photo après être rentré chez moi',
+            isCorrect: true,
+            feedback: 'Excellent réflexe ! Partager ses vacances après le retour évite d\'annoncer une maison vide. Tu gardes le souvenir sans le risque.',
+            pointsDelta: 10
+          },
+          {
+            id: 'post-friends-only',
+            label: '👥 Je poste uniquement pour mes amis proches',
+            isCorrect: true,
+            feedback: 'Bien ! Limiter la visibilité à tes vrais amis réduit le risque. Mais pense aussi à flouter la plaque de voiture et l\'adresse sur la boîte aux lettres.',
+            pointsDelta: 10
+          }
+        ],
+        reflexe: '⚡ Prends 10 secondes avant de publier. Demande-toi : qui peut voir ça et qu\'est-ce que ça révèle ?'
+      }
+    ]
+  }
+];
+
+// ──────────────────────────────────────────────
+// HELPERS
+// ──────────────────────────────────────────────
+const getBadge = (score: number, maxScore: number) => {
+  const pct = (score / maxScore) * 100;
+  if (pct >= 80) return { label: 'Sécurisé', emoji: '🟩', color: 'text-green-400 border-green-500', bg: 'bg-green-950/40', desc: 'Excellent ! Vous avez les bons réflexes pour vous protéger en ligne.' };
+  if (pct >= 50) return { label: 'Prudent', emoji: '🟧', color: 'text-orange-400 border-orange-500', bg: 'bg-orange-950/40', desc: 'Pas mal ! Quelques angles morts restent à travailler.' };
+  return { label: 'Vulnérable', emoji: '🟥', color: 'text-red-400 border-red-500', bg: 'bg-red-950/40', desc: 'Des lacunes importantes à combler. Retentez les modules !' };
+};
+
+const MAX_SCORE = BLOCKS.length * 3 * 10;
+
+// ──────────────────────────────────────────────
+// MAIN COMPONENT
+// ──────────────────────────────────────────────
 export default function DebutantCyber() {
-  // États pour le module
-  const [progress, setProgress] = useState(0);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
-  const [emailAnalysisInProgress, setEmailAnalysisInProgress] = useState(false);
-  const [emailAnalysisResult, setEmailAnalysisResult] = useState<{
-    isPhishing: boolean;
-    confidence: number;
-    reasons: string[];
-    techniques: string[];
-    riskLevel: 'high' | 'medium' | 'low';
-  } | null>(null);
-  const [playgroundState, setPlaygroundState] = useState({
-    passwordStrength: 0,
-    passwordCrackTime: '',
-    crackMethod: '',
-    securityChecks: {
-      updates: false,
-      antivirus: false,
-      password: false,
-      backup: false
-    }
-  });
-  const [simulatedHacker, setSimulatedHacker] = useState({
-    active: false,
-    progress: 0,
-    technique: '',
-    targetedSystem: '',
-    messageLog: [] as string[]
-  });
-  const [iaFeedback, setIaFeedback] = useState('');
-  const [iaThinking, setIaThinking] = useState(false);
-  const [passwordInput, setPasswordInput] = useState('');
-  const [customEmailInput, setCustomEmailInput] = useState('');
-  const [phishingScenario, setPhishingScenario] = useState<string | null>(null);
-  
-  // Utilisation du hook OpenAI
-  const { sendChatMessage, connectionStatus } = useOpenAI();
-  
-  const { toast } = useToast();
-  
-  // Simuler la progression lorsque la page est chargée
-  React.useEffect(() => {
-    updateProgress();
-  }, [currentStep, quizAnswers, playgroundState]);
-  
-  // Mettre à jour la progression
-  const updateProgress = () => {
-    // Calculer la progression basée sur l'étape actuelle et les interactions
-    let newProgress = Math.min(Math.floor((currentStep / 5) * 100), 100);
-    
-    // Ajouter des points pour les réponses au quiz
-    const quizAnswersCount = Object.keys(quizAnswers).length;
-    if (quizAnswersCount > 0 && currentStep >= 3) {
-      newProgress += 5;
-    }
-    
-    // Ajouter des points pour les actions dans le playground
-    const securityChecksCompleted = Object.values(playgroundState.securityChecks).filter(v => v).length;
-    if (securityChecksCompleted > 0 && currentStep >= 4) {
-      newProgress += securityChecksCompleted * 5;
-    }
-    
-    // Limiter à 100%
-    newProgress = Math.min(newProgress, 100);
-    
-    setProgress(newProgress);
+  const [, setLocation] = useLocation();
+  const [screen, setScreen] = useState<ScreenMode>({ type: 'hub' });
+  const [score, setScore] = useState(0);
+  const [completedBlocks, setCompletedBlocks] = useState<Set<string>>(new Set());
+  const [scenarioResults, setScenarioResults] = useState<Record<string, 'correct' | 'wrong'>>({});
+  const [selectedChoice, setSelectedChoice] = useState<Choice | null>(null);
+  const [showConsequence, setShowConsequence] = useState(false);
+
+  const getBlock = (id: string) => BLOCKS.find(b => b.id === id)!;
+
+  const handleChoiceSelected = (blockId: string, scenarioIndex: number, choice: Choice) => {
+    setSelectedChoice(choice);
+    setScore(s => Math.max(0, s + choice.pointsDelta));
+    setScenarioResults(prev => ({
+      ...prev,
+      [`${blockId}-${scenarioIndex}`]: choice.isCorrect ? 'correct' : 'wrong'
+    }));
+    setShowConsequence(true);
   };
-  
-  // Gérer les choix dans le quiz
-  const handleQuizAnswer = (questionId, answer) => {
-    setQuizAnswers({
-      ...quizAnswers,
-      [questionId]: answer
-    });
-    
-    toast({
-      title: "Réponse enregistrée",
-      description: "Votre réponse a été prise en compte.",
-    });
-  };
-  
-  // Gérer les actions dans le playground
-  const toggleSecurityCheck = (check) => {
-    setPlaygroundState({
-      ...playgroundState,
-      securityChecks: {
-        ...playgroundState.securityChecks,
-        [check]: !playgroundState.securityChecks[check]
-      }
-    });
-    
-    toast({
-      title: "Action effectuée",
-      description: `Vous avez ${!playgroundState.securityChecks[check] ? 'activé' : 'désactivé'} cette mesure de sécurité.`,
-    });
-  };
-  
-  // Générer un scénario de phishing avec l'IA
-  const generatePhishingScenario = async () => {
-    if (connectionStatus !== 'connected') {
-      toast({
-        title: "Service IA non disponible",
-        description: "La connexion à l'IA n'est pas établie. Réessayez plus tard.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setIaThinking(true);
-    try {
-      const messages = [
-        {
-          role: "system",
-          content: "Vous êtes un expert en cybersécurité qui crée des scénarios de phishing éducatifs pour aider les utilisateurs à reconnaître les tentatives de phishing. Générez un exemple réaliste d'email de phishing en français, qui utilise des techniques courantes."
-        },
-        {
-          role: "user",
-          content: "Créez un exemple d'email de phishing qui pourrait sembler venir d'une banque. Incluez des indices subtils qui permettraient à un utilisateur attentif de reconnaître qu'il s'agit d'une tentative de phishing."
-        }
-      ];
-      
-      const response = await sendChatMessage(messages, 0.7, 500);
-      if (response && response.choices && response.choices[0]) {
-        setPhishingScenario(response.choices[0].message.content);
-      }
-    } catch (error) {
-      console.error("Erreur lors de la génération du scénario:", error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de générer un scénario pour le moment. Réessayez plus tard.",
-        variant: "destructive"
-      });
-    } finally {
-      setIaThinking(false);
+
+  const handleNextScenario = (blockId: string, scenarioIndex: number) => {
+    const block = getBlock(blockId);
+    setShowConsequence(false);
+    setSelectedChoice(null);
+    if (scenarioIndex + 1 < block.scenarios.length) {
+      setScreen({ type: 'scenario', blockId, scenarioIndex: scenarioIndex + 1 });
+    } else {
+      setCompletedBlocks(prev => new Set([...prev, blockId]));
+      setScreen({ type: 'block-result', blockId });
     }
   };
 
-  // Analyser un email de phishing avec l'IA
-  const analyzeEmail = async (emailContent: string) => {
-    setEmailAnalysisInProgress(true);
-    setIaFeedback('');
-    
-    if (connectionStatus !== 'connected') {
-      // Analyse sans IA si le service n'est pas disponible
-      setTimeout(() => {
-        const hasUrgentLanguage = emailContent.toLowerCase().includes('urgent') || 
-                                 emailContent.toLowerCase().includes('immédiatement');
-        const hasUnusualSender = emailContent.includes('@gmaill.com') || 
-                                emailContent.includes('bank-secure');
-        const asksForPersonalInfo = emailContent.toLowerCase().includes('mot de passe') || 
-                                   emailContent.toLowerCase().includes('numéro de carte');
-        
-        const reasons = [];
-        const techniques = [];
-        let confidence = 0;
-        
-        if (hasUrgentLanguage) {
-          reasons.push("Langage urgent créant un sentiment de pression");
-          techniques.push("Manipulation psychologique");
-          confidence += 30;
-        }
-        
-        if (hasUnusualSender) {
-          reasons.push("Adresse d'expéditeur suspecte");
-          techniques.push("Usurpation d'identité");
-          confidence += 40;
-        }
-        
-        if (asksForPersonalInfo) {
-          reasons.push("Demande d'informations sensibles");
-          techniques.push("Vol d'identité");
-          confidence += 40;
-        }
-        
-        confidence = Math.min(confidence, 100);
-        const isPhishing = confidence >= 60;
-        let riskLevel: 'high' | 'medium' | 'low' = 'low';
-        if (confidence >= 80) riskLevel = 'high';
-        else if (confidence >= 40) riskLevel = 'medium';
-        
-        setEmailAnalysisResult({
-          isPhishing,
-          confidence,
-          reasons,
-          techniques,
-          riskLevel
-        });
-        
-        setIaFeedback(isPhishing 
-          ? "J'ai détecté plusieurs signaux d'alerte dans cet email. Il s'agit probablement d'une tentative de phishing."
-          : "Cet email présente peu d'indicateurs de phishing, mais restez vigilant.");
-        
-        setEmailAnalysisInProgress(false);
-        
-        toast({
-          title: "Analyse terminée (mode hors-ligne)",
-          description: isPhishing ? "Attention! Cet email semble être une tentative de phishing." : "L'email semble légitime, mais restez vigilant.",
-          variant: isPhishing ? "destructive" : "default"
-        });
-      }, 1500);
-      return;
-    }
-    
-    try {
-      const messages = [
-        {
-          role: "system",
-          content: `Vous êtes un expert en cybersécurité spécialisé dans la détection des tentatives de phishing. 
-          Analysez l'email fourni et déterminez s'il s'agit d'une tentative de phishing ou d'un email légitime.
-          Identifiez les signaux d'alerte spécifiques, évaluez le niveau de risque (faible, moyen, élevé) 
-          et expliquez les techniques utilisées par l'attaquant si c'est du phishing.
-          Ne commentez que le contenu de l'email, pas la structure JSON de votre réponse.
-          Répondez sous format JSON uniquement avec cette structure:
-          {
-            "isPhishing": true/false,
-            "confidence": [pourcentage de 0 à 100],
-            "reasons": ["raison 1", "raison 2", ...],
-            "techniques": ["technique 1", "technique 2", ...],
-            "riskLevel": "low"/"medium"/"high",
-            "explanation": "Explication détaillée mais concise"
-          }`
-        },
-        {
-          role: "user",
-          content: emailContent
-        }
-      ];
-      
-      const response = await sendChatMessage(messages, 0.7, 800);
-      if (response && response.choices && response.choices[0]) {
-        try {
-          const jsonResponse = JSON.parse(response.choices[0].message.content);
-          const { isPhishing, confidence, reasons, techniques, riskLevel, explanation } = jsonResponse;
-          
-          setEmailAnalysisResult({
-            isPhishing,
-            confidence,
-            reasons,
-            techniques,
-            riskLevel
-          });
-          
-          setIaFeedback(explanation || (isPhishing 
-            ? "Cet email présente plusieurs caractéristiques typiques d'une tentative de phishing."
-            : "Cet email semble légitime, mais restez toujours vigilant.")
-          );
-          
-          toast({
-            title: "Analyse terminée",
-            description: isPhishing 
-              ? `Attention! Risque ${riskLevel === 'high' ? 'élevé' : riskLevel === 'medium' ? 'moyen' : 'faible'} de phishing détecté.` 
-              : "L'email semble légitime, mais restez vigilant.",
-            variant: isPhishing ? "destructive" : "default"
-          });
-        } catch (parseError) {
-          console.error("Erreur lors du parsing de la réponse:", parseError);
-          setIaFeedback(response.choices[0].message.content);
-          setEmailAnalysisResult({
-            isPhishing: true,
-            confidence: 70,
-            reasons: ["Format de réponse incorrect"],
-            techniques: ["Analyse manuelle requise"],
-            riskLevel: 'medium'
-          });
-        }
-      }
-    } catch (error) {
-      console.error("Erreur lors de l'analyse de l'email:", error);
-      setEmailAnalysisResult({
-        isPhishing: false,
-        confidence: 0,
-        reasons: ["Erreur lors de l'analyse"],
-        techniques: [],
-        riskLevel: 'low'
-      });
-      setIaFeedback("Une erreur s'est produite lors de l'analyse. Veuillez réessayer.");
-      
-      toast({
-        title: "Erreur d'analyse",
-        description: "Impossible d'analyser l'email pour le moment. Réessayez plus tard.",
-        variant: "destructive"
-      });
-    } finally {
-      setEmailAnalysisInProgress(false);
-    }
-  };
-  
-  // Évaluer la force du mot de passe avec analyse IA
-  const evaluatePassword = async (password: string) => {
-    if (!password || password.trim() === '') {
-      toast({
-        title: "Mot de passe vide",
-        description: "Veuillez entrer un mot de passe pour l'analyser.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setIaThinking(true);
-    
-    // Analyse de base si l'IA n'est pas disponible
-    if (connectionStatus !== 'connected') {
-      let strength = 0;
-      
-      // Critères de base
-      if (password.length >= 8) strength += 10;
-      if (password.length >= 12) strength += 10;
-      if (password.length >= 16) strength += 5;
-      
-      if (password.match(/[A-Z]/)) strength += 15;
-      if (password.match(/[0-9]/)) strength += 15;
-      if (password.match(/[^A-Za-z0-9]/)) strength += 20;
-      
-      // Critères avancés
-      if (password.match(/[A-Z].*[A-Z]/)) strength += 5; // Au moins 2 majuscules
-      if (password.match(/[0-9].*[0-9]/)) strength += 5; // Au moins 2 chiffres
-      if (password.match(/[^A-Za-z0-9].*[^A-Za-z0-9]/)) strength += 5; // Au moins 2 caractères spéciaux
-      
-      // Pénalités pour les motifs communs
-      if (password.toLowerCase().includes('123')) strength -= 10;
-      if (password.toLowerCase().includes('password')) strength -= 20;
-      if (password.toLowerCase().includes('azerty')) strength -= 15;
-      if (password.toLowerCase().includes('qwerty')) strength -= 15;
-      
-      // Limiter la force entre 0 et 100
-      strength = Math.max(0, Math.min(100, strength));
-      
-      // Estimer le temps de craquage (simulation)
-      let crackTime = '';
-      let crackMethod = '';
-      
-      if (strength < 20) {
-        crackTime = 'Instantané à quelques secondes';
-        crackMethod = 'Attaque par dictionnaire simple';
-      } else if (strength < 40) {
-        crackTime = 'Quelques minutes à quelques heures';
-        crackMethod = 'Attaque par dictionnaire avancée';
-      } else if (strength < 60) {
-        crackTime = 'Quelques jours à quelques semaines';
-        crackMethod = 'Attaque par force brute ciblée';
-      } else if (strength < 80) {
-        crackTime = 'Quelques mois à quelques années';
-        crackMethod = 'Force brute avec règles personnalisées';
-      } else {
-        crackTime = 'Des dizaines à des centaines d\'années';
-        crackMethod = 'Force brute avec supercalculateur';
-      }
-      
-      // Mise à jour de l'état
-      setPlaygroundState({
-        ...playgroundState,
-        passwordStrength: strength,
-        passwordCrackTime: crackTime,
-        crackMethod: crackMethod,
-        securityChecks: {
-          ...playgroundState.securityChecks,
-          password: strength >= 70
-        }
-      });
-      
-      // Feedback de base
-      const feedback = strength >= 70 
-        ? "Excellent! Votre mot de passe est robuste et résisterait à la plupart des attaques."
-        : strength >= 40 
-          ? "Ce mot de passe offre une protection moyenne. Essayez de le renforcer davantage."
-          : "Ce mot de passe est faible et facilement piratable. Je vous recommande de le changer.";
-          
-      setIaFeedback(feedback);
-      setIaThinking(false);
-      return;
-    }
-    
-    try {
-      const messages = [
-        {
-          role: "system",
-          content: `Vous êtes un expert en sécurité informatique spécialisé dans l'analyse de mots de passe.
-          Evaluez la force du mot de passe fourni et déterminez sa résistance face aux différentes techniques de piratage.
-          Analysez sa longueur, complexité, présence dans des dictionnaires communs, et vulnérabilités potentielles.
-          Estimez le temps approximatif qu'il faudrait pour le craquer et par quelle méthode.
-          Répondez en JSON uniquement avec cette structure:
-          {
-            "strength": [score de 0 à 100],
-            "crackTime": "estimation du temps de craquage",
-            "crackMethod": "méthode la plus efficace pour le craquer",
-            "vulnerabilities": ["vulnérabilité 1", "vulnérabilité 2", ...],
-            "recommendations": ["recommandation 1", "recommandation 2", ...],
-            "feedback": "analyse détaillée mais concise"
-          }`
-        },
-        {
-          role: "user",
-          content: `Analysez ce mot de passe: ${password}`
-        }
-      ];
-      
-      const response = await sendChatMessage(messages, 0.7, 800);
-      if (response && response.choices && response.choices[0]) {
-        try {
-          const jsonResponse = JSON.parse(response.choices[0].message.content);
-          const { strength, crackTime, crackMethod, vulnerabilities, recommendations, feedback } = jsonResponse;
-          
-          // Mise à jour de l'état
-          setPlaygroundState({
-            ...playgroundState,
-            passwordStrength: strength,
-            passwordCrackTime: crackTime,
-            crackMethod: crackMethod,
-            securityChecks: {
-              ...playgroundState.securityChecks,
-              password: strength >= 70
-            }
-          });
-          
-          // Feedback détaillé de l'IA
-          setIaFeedback(feedback || (strength >= 70 
-            ? "Excellent! Votre mot de passe est robuste et résisterait à la plupart des attaques."
-            : strength >= 40 
-              ? "Ce mot de passe offre une protection moyenne. Essayez de le renforcer davantage."
-              : "Ce mot de passe est faible et facilement piratable. Je vous recommande de le changer.")
-          );
-          
-          // Notification
-          toast({
-            title: strength >= 70 ? "Mot de passe fort" : strength >= 40 ? "Mot de passe moyen" : "Mot de passe faible",
-            description: `Pourrait être cracké en: ${crackTime}`,
-            variant: strength >= 70 ? "default" : strength >= 40 ? "default" : "destructive"
-          });
-        } catch (parseError) {
-          console.error("Erreur lors du parsing de la réponse:", parseError);
-          setIaFeedback(response.choices[0].message.content);
-          
-          // Valeurs par défaut
-          setPlaygroundState({
-            ...playgroundState,
-            passwordStrength: 50,
-            passwordCrackTime: "Impossible à déterminer avec précision",
-            crackMethod: "Analyse non concluante",
-            securityChecks: {
-              ...playgroundState.securityChecks,
-              password: false
-            }
-          });
-        }
-      }
-    } catch (error) {
-      console.error("Erreur lors de l'analyse du mot de passe:", error);
-      
-      // Feedback en cas d'erreur
-      setIaFeedback("Une erreur s'est produite lors de l'analyse. Veuillez réessayer.");
-      
-      toast({
-        title: "Erreur d'analyse",
-        description: "Impossible d'analyser le mot de passe pour le moment. Réessayez plus tard.",
-        variant: "destructive"
-      });
-    } finally {
-      setIaThinking(false);
-    }
-  };
-  
-  // Simuler une attaque en temps réel
-  const simulateAttack = (targetSystem: string) => {
-    if (simulatedHacker.active) return;
-    
-    const techniques = {
-      'wifi': 'Sniffing de réseau WiFi non sécurisé',
-      'password': 'Attaque par force brute sur le mot de passe',
-      'phishing': 'Hameçonnage et ingénierie sociale',
-      'malware': 'Infection par logiciel malveillant'
-    };
-    
-    const technique = techniques[targetSystem as keyof typeof techniques] || 'Technique inconnue';
-    
-    setSimulatedHacker({
-      active: true,
-      progress: 0,
-      technique,
-      targetedSystem: targetSystem,
-      messageLog: [`Début de l'attaque sur ${targetSystem}...`]
-    });
-    
-    const hackerMessages = {
-      'wifi': [
-        "Recherche des réseaux WiFi à proximité...",
-        "Réseau non sécurisé détecté!",
-        "Interception du trafic en cours...",
-        "Capture des cookies de session...",
-        "Collecte des identifiants non chiffrés...",
-        "Données sensibles interceptées!"
-      ],
-      'password': [
-        "Tentative d'accès au compte...",
-        "Échec de connexion, essai avec une liste de mots de passe courants...",
-        "Mot de passe faible détecté, craquage en cours...",
-        "25% du mot de passe découvert...",
-        "50% du mot de passe découvert...",
-        "Mot de passe complet découvert: 'azerty123'!"
-      ],
-      'phishing': [
-        "Création d'un email imitant votre banque...",
-        "Email envoyé avec un lien vers un site frauduleux...",
-        "L'utilisateur a cliqué sur le lien malveillant!",
-        "Page de connexion falsifiée affichée...",
-        "L'utilisateur a saisi ses identifiants...",
-        "Identifiants bancaires compromis!"
-      ],
-      'malware': [
-        "Préparation d'une pièce jointe malveillante...",
-        "Document infecté envoyé à l'utilisateur...",
-        "L'utilisateur a ouvert la pièce jointe!",
-        "Installation du logiciel malveillant en cours...",
-        "Prise de contrôle de l'appareil...",
-        "Accès complet au système obtenu!"
-      ]
-    };
-    
-    let step = 0;
-    const interval = setInterval(() => {
-      if (step < hackerMessages[targetSystem as keyof typeof hackerMessages].length) {
-        const progress = Math.min(100, Math.round((step + 1) * 100 / hackerMessages[targetSystem as keyof typeof hackerMessages].length));
-        
-        setSimulatedHacker(prev => ({
-          ...prev,
-          progress,
-          messageLog: [...prev.messageLog, hackerMessages[targetSystem as keyof typeof hackerMessages][step]]
-        }));
-        
-        step++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 2000);
-  };
-  
-  return (
-    <div className="min-h-screen bg-[#0a1429]">
-      <PageTitle title="Débuter en Cybersécurité | Centre de formation" />
-      
-      {/* En-tête avec navigation et titre */}
-      <div className="border-b border-amber-800/60">
-        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-          <Link href="/cyber/learning-center">
-            <Button variant="ghost" className="text-amber-300 hover:bg-amber-900/30 hover:text-amber-200">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Retour
-            </Button>
-          </Link>
-          <h1 className="text-xl text-white font-medium">Premiers pas en cybersécurité</h1>
+  const completedCount = completedBlocks.size;
+  const overallProgress = (completedCount / BLOCKS.length) * 100;
+
+  // ── HUB SCREEN ──
+  if (screen.type === 'hub') {
+    const allDone = completedCount === BLOCKS.length;
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white">
+        {/* Header */}
+        <div className="border-b border-slate-700/50 bg-slate-900/80 sticky top-0 z-10">
+          <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+            <button onClick={() => setLocation('/cyber/roleplay')} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+              <ArrowLeft className="h-4 w-4" />
+              <span className="text-sm">Retour</span>
+            </button>
+            <div className="flex items-center gap-3">
+              <Star className="h-5 w-5 text-yellow-400" />
+              <span className="font-bold text-yellow-400 text-lg">{score} pts</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-5xl mx-auto px-4 py-10">
+          {/* Hero */}
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-full px-4 py-1.5 text-sm mb-6">
+              <Shield className="h-4 w-4" />
+              Cybersécurité pour tous
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              🧑‍💻 Je suis Monsieur<br />
+              <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Tout le Monde</span>
+            </h1>
+            <p className="text-slate-300 text-lg max-w-2xl mx-auto">
+              4 modules immersifs pour apprendre à vous protéger en ligne. Des situations réelles, des choix, des conséquences.
+            </p>
+          </motion.div>
+
+          {/* Progress global */}
+          {completedCount > 0 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 mb-8">
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-slate-300">Progression globale</span>
+                <span className="text-amber-400 font-bold">{completedCount}/{BLOCKS.length} modules</span>
+              </div>
+              <Progress value={overallProgress} className="h-2 bg-slate-700" />
+              {allDone && (
+                <button
+                  onClick={() => setScreen({ type: 'final-result' })}
+                  className="mt-4 w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-lg py-3 font-bold flex items-center justify-center gap-2 transition-all"
+                >
+                  <Trophy className="h-5 w-5" />
+                  Voir mon résultat final
+                </button>
+              )}
+            </motion.div>
+          )}
+
+          {/* Blocks grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {BLOCKS.map((block, i) => {
+              const done = completedBlocks.has(block.id);
+              return (
+                <motion.div
+                  key={block.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  className={`bg-gradient-to-br ${block.bgGradient} border-2 ${block.borderColor} rounded-2xl p-6 cursor-pointer relative overflow-hidden`}
+                  onClick={() => setScreen({ type: 'scenario', blockId: block.id, scenarioIndex: 0 })}
+                >
+                  {done && (
+                    <div className="absolute top-4 right-4">
+                      <CheckCircle className="h-6 w-6 text-green-400" />
+                    </div>
+                  )}
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="p-3 rounded-xl bg-slate-900/50">
+                      {block.icon}
+                    </div>
+                    <div>
+                      <div className="text-xs text-slate-400 mb-1">Module {block.number}</div>
+                      <h3 className={`text-xl font-bold ${block.color}`}>{block.emoji} {block.title}</h3>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 mb-4">
+                    {block.scenarios.map((_, si) => {
+                      const result = scenarioResults[`${block.id}-${si}`];
+                      return (
+                        <div key={si} className={`h-2 flex-1 rounded-full ${result === 'correct' ? 'bg-green-500' : result === 'wrong' ? 'bg-red-500' : 'bg-slate-700'}`} />
+                      );
+                    })}
+                  </div>
+                  <p className="text-slate-400 text-sm mb-4">{block.scenarios.length} scénarios réels · Choix interactifs · Feedback immédiat</p>
+                  <div className={`flex items-center gap-2 font-semibold ${block.color}`}>
+                    {done ? 'Rejouer' : 'Commencer'}
+                    <ChevronRight className="h-4 w-4" />
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Score recap */}
+          {score > 0 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 text-center">
+              <div className="inline-flex items-center gap-3 bg-slate-800 border border-slate-600 rounded-full px-6 py-3">
+                <Star className="h-5 w-5 text-yellow-400" />
+                <span className="text-white font-bold">{score} points</span>
+                <span className="text-slate-400">sur {MAX_SCORE} possibles</span>
+              </div>
+            </motion.div>
+          )}
         </div>
       </div>
-      
-      {/* Contenu principal du module */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Navigation des étapes */}
-          <div className="lg:col-span-1">
-            <div className="bg-amber-950/40 border border-amber-800/40 rounded-lg p-4 sticky top-4">
-              <h3 className="text-amber-400 font-semibold mb-4">Votre parcours</h3>
-              
-              <div className="space-y-2">
-                <button 
-                  onClick={() => setCurrentStep(1)}
-                  className={`w-full flex items-center p-3 rounded-md transition-colors ${
-                    currentStep === 1 
-                      ? 'bg-amber-800/60 text-white' 
-                      : 'text-amber-300 hover:bg-amber-900/40'
-                  }`}
-                >
-                  <div className={`w-6 h-6 rounded-full mr-3 flex items-center justify-center ${
-                    progress >= 20 ? 'bg-amber-600' : 'bg-amber-950 border border-amber-700'
-                  }`}>
-                    {progress >= 20 ? <CheckCircle2 className="h-4 w-4 text-amber-100" /> : <span className="text-amber-400">1</span>}
+    );
+  }
+
+  // ── SCENARIO SCREEN ──
+  if (screen.type === 'scenario') {
+    const { blockId, scenarioIndex } = screen;
+    const block = getBlock(blockId);
+    const scenario = block.scenarios[scenarioIndex];
+    const totalScenarios = block.scenarios.length;
+
+    return (
+      <div className={`min-h-screen bg-gradient-to-b ${block.bgGradient} text-white`}>
+        {/* Header */}
+        <div className="border-b border-slate-700/50 bg-slate-900/60 sticky top-0 z-10 backdrop-blur-sm">
+          <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+            <button onClick={() => { setScreen({ type: 'hub' }); setShowConsequence(false); setSelectedChoice(null); }} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+              <ArrowLeft className="h-4 w-4" />
+              Hub
+            </button>
+            <div className="flex items-center gap-4">
+              <span className={`text-sm font-semibold ${block.color}`}>{block.emoji} {block.title}</span>
+              <div className="flex items-center gap-1.5">
+                {block.scenarios.map((_, i) => (
+                  <div key={i} className={`h-2 w-6 rounded-full transition-all ${i < scenarioIndex ? 'bg-green-500' : i === scenarioIndex ? 'bg-white' : 'bg-slate-600'}`} />
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 text-yellow-400">
+              <Star className="h-4 w-4" />
+              <span className="font-bold text-sm">{score}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-3xl mx-auto px-4 py-8">
+          <AnimatePresence mode="wait">
+            {!showConsequence ? (
+              <motion.div key={`scenario-${scenarioIndex}`} initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}>
+                {/* Situation card */}
+                <div className="bg-slate-900/70 border border-slate-700 rounded-2xl p-6 mb-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 rounded-lg bg-slate-800">
+                      {scenario.visual}
+                    </div>
+                    <div>
+                      <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">Situation réelle · {scenarioIndex + 1}/{totalScenarios}</div>
+                      <h2 className="text-xl font-bold text-white">{scenario.title}</h2>
+                    </div>
                   </div>
-                  <span>Introduction</span>
-                </button>
-                
-                <button 
-                  onClick={() => setCurrentStep(2)}
-                  className={`w-full flex items-center p-3 rounded-md transition-colors ${
-                    currentStep === 2 
-                      ? 'bg-amber-800/60 text-white' 
-                      : 'text-amber-300 hover:bg-amber-900/40'
-                  }`}
-                >
-                  <div className={`w-6 h-6 rounded-full mr-3 flex items-center justify-center ${
-                    progress >= 40 ? 'bg-amber-600' : 'bg-amber-950 border border-amber-700'
-                  }`}>
-                    {progress >= 40 ? <CheckCircle2 className="h-4 w-4 text-amber-100" /> : <span className="text-amber-400">2</span>}
+                  <div className="bg-slate-800/80 border border-slate-600 rounded-xl p-4">
+                    <pre className="text-slate-200 text-sm leading-relaxed whitespace-pre-wrap font-sans">{scenario.situation}</pre>
                   </div>
-                  <span>Les risques quotidiens</span>
-                </button>
-                
-                <button 
-                  onClick={() => setCurrentStep(3)}
-                  className={`w-full flex items-center p-3 rounded-md transition-colors ${
-                    currentStep === 3 
-                      ? 'bg-amber-800/60 text-white' 
-                      : 'text-amber-300 hover:bg-amber-900/40'
-                  }`}
-                >
-                  <div className={`w-6 h-6 rounded-full mr-3 flex items-center justify-center ${
-                    progress >= 60 ? 'bg-amber-600' : 'bg-amber-950 border border-amber-700'
-                  }`}>
-                    {progress >= 60 ? <CheckCircle2 className="h-4 w-4 text-amber-100" /> : <span className="text-amber-400">3</span>}
+                </div>
+
+                {/* Choices */}
+                <div className="mb-4">
+                  <p className="text-slate-400 text-sm mb-3 flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Que faites-vous ?
+                  </p>
+                  <div className="space-y-3">
+                    {scenario.choices.map(choice => (
+                      <motion.button
+                        key={choice.id}
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.99 }}
+                        onClick={() => handleChoiceSelected(blockId, scenarioIndex, choice)}
+                        className="w-full text-left bg-slate-800/60 hover:bg-slate-700/60 border border-slate-600 hover:border-slate-400 text-white rounded-xl p-4 transition-all"
+                      >
+                        {choice.label}
+                      </motion.button>
+                    ))}
                   </div>
-                  <span>Quiz interactif</span>
-                </button>
-                
-                <button 
-                  onClick={() => setCurrentStep(4)}
-                  className={`w-full flex items-center p-3 rounded-md transition-colors ${
-                    currentStep === 4 
-                      ? 'bg-amber-800/60 text-white' 
-                      : 'text-amber-300 hover:bg-amber-900/40'
-                  }`}
-                >
-                  <div className={`w-6 h-6 rounded-full mr-3 flex items-center justify-center ${
-                    progress >= 80 ? 'bg-amber-600' : 'bg-amber-950 border border-amber-700'
-                  }`}>
-                    {progress >= 80 ? <CheckCircle2 className="h-4 w-4 text-amber-100" /> : <span className="text-amber-400">4</span>}
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div key={`consequence-${scenarioIndex}`} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+                {/* Result banner */}
+                <div className={`rounded-2xl p-6 mb-6 border-2 ${selectedChoice?.isCorrect ? 'bg-green-950/60 border-green-500/50' : 'bg-red-950/60 border-red-500/50'}`}>
+                  <div className="flex items-center gap-3 mb-4">
+                    {selectedChoice?.isCorrect
+                      ? <CheckCircle className="h-8 w-8 text-green-400" />
+                      : <XCircle className="h-8 w-8 text-red-400" />
+                    }
+                    <div>
+                      <h3 className={`text-xl font-bold ${selectedChoice?.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+                        {selectedChoice?.isCorrect ? '✅ Bien joué !' : '❌ Erreur !'}
+                      </h3>
+                      <span className={`text-sm font-semibold ${selectedChoice?.isCorrect ? 'text-green-300' : 'text-red-300'}`}>
+                        {selectedChoice?.pointsDelta && selectedChoice.pointsDelta > 0 ? `+${selectedChoice.pointsDelta}` : selectedChoice?.pointsDelta} points
+                      </span>
+                    </div>
                   </div>
-                  <span>Playground sécurité</span>
-                </button>
-                
-                <button 
-                  onClick={() => setCurrentStep(5)}
-                  className={`w-full flex items-center p-3 rounded-md transition-colors ${
-                    currentStep === 5 
-                      ? 'bg-amber-800/60 text-white' 
-                      : 'text-amber-300 hover:bg-amber-900/40'
-                  }`}
+                  <p className="text-white/90 leading-relaxed">{selectedChoice?.feedback}</p>
+                </div>
+
+                {/* Reflexe clé */}
+                <div className="bg-amber-950/40 border border-amber-600/40 rounded-xl p-4 mb-6">
+                  <p className="text-amber-300 font-semibold text-sm">{scenario.reflexe}</p>
+                </div>
+
+                {/* Next button */}
+                <button
+                  onClick={() => handleNextScenario(blockId, scenarioIndex)}
+                  className="w-full bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 border border-slate-500 text-white rounded-xl py-4 font-semibold flex items-center justify-center gap-2 transition-all"
                 >
-                  <div className={`w-6 h-6 rounded-full mr-3 flex items-center justify-center ${
-                    progress >= 100 ? 'bg-amber-600' : 'bg-amber-950 border border-amber-700'
-                  }`}>
-                    {progress >= 100 ? <CheckCircle2 className="h-4 w-4 text-amber-100" /> : <span className="text-amber-400">5</span>}
-                  </div>
-                  <span>Conclusion et certificat</span>
+                  {scenarioIndex + 1 < block.scenarios.length ? (
+                    <>Scénario suivant <ArrowRight className="h-5 w-5" /></>
+                  ) : (
+                    <>Voir le résultat du module <Trophy className="h-5 w-5" /></>
+                  )}
                 </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    );
+  }
+
+  // ── BLOCK RESULT ──
+  if (screen.type === 'block-result') {
+    const { blockId } = screen;
+    const block = getBlock(blockId);
+    const blockScores = block.scenarios.map((_, i) => scenarioResults[`${blockId}-${i}`]);
+    const correctCount = blockScores.filter(r => r === 'correct').length;
+    const blockIndex = BLOCKS.findIndex(b => b.id === blockId);
+    const nextBlock = BLOCKS[blockIndex + 1];
+
+    return (
+      <div className={`min-h-screen bg-gradient-to-b ${block.bgGradient} text-white flex flex-col items-center justify-center px-4`}>
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-lg w-full">
+          <div className="text-center mb-8">
+            <div className="text-6xl mb-4">{block.emoji}</div>
+            <h2 className={`text-2xl font-bold ${block.color} mb-2`}>{block.title}</h2>
+            <p className="text-slate-300">Module terminé !</p>
+          </div>
+
+          {/* Score bloc */}
+          <div className="bg-slate-900/70 border border-slate-700 rounded-2xl p-6 mb-6">
+            <div className="flex justify-around text-center">
+              <div>
+                <div className="text-3xl font-bold text-green-400">{correctCount}</div>
+                <div className="text-slate-400 text-sm">Bons réflexes</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-red-400">{block.scenarios.length - correctCount}</div>
+                <div className="text-slate-400 text-sm">Erreurs</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-yellow-400">{score}</div>
+                <div className="text-slate-400 text-sm">Points total</div>
               </div>
             </div>
           </div>
-          
-          {/* Section principale de contenu */}
-          <div className="lg:col-span-3 space-y-8">
-            {/* Étape 1: Introduction */}
-            {currentStep === 1 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="space-y-6"
-              >
-                <Card className="bg-amber-950/40 border-amber-800/40 shadow-xl">
-                  <CardContent className="p-6">
-                    <div className="flex justify-center mb-6">
-                      <div className="p-4 rounded-full bg-gradient-to-r from-amber-600 to-amber-500 h-20 w-20 flex items-center justify-center">
-                        <Shield className="h-10 w-10 text-white" />
-                      </div>
-                    </div>
-                    
-                    <h2 className="text-2xl font-bold text-white mb-4 text-center">Bienvenue dans votre module "Premiers pas en cybersécurité"</h2>
-                    
-                    <p className="text-amber-200 text-center mb-6">
-                      Ce module est conçu pour les personnes qui découvrent la cybersécurité. 
-                      Vous apprendrez les bases essentielles pour vous protéger et comprendre les risques en ligne.
-                    </p>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                      <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-700/50 text-center">
-                        <div className="flex justify-center mb-3">
-                          <Eye className="h-8 w-8 text-amber-400" />
-                        </div>
-                        <h4 className="font-medium text-white mb-2">Sensibilisation</h4>
-                        <p className="text-sm text-amber-200">Identifier les risques numériques du quotidien</p>
-                      </div>
-                      
-                      <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-700/50 text-center">
-                        <div className="flex justify-center mb-3">
-                          <Shield className="h-8 w-8 text-amber-400" />
-                        </div>
-                        <h4 className="font-medium text-white mb-2">Protection</h4>
-                        <p className="text-sm text-amber-200">Apprendre les gestes essentiels pour se protéger</p>
-                      </div>
-                      
-                      <div className="bg-amber-900/20 p-4 rounded-lg border border-amber-700/50 text-center">
-                        <div className="flex justify-center mb-3">
-                          <Lightbulb className="h-8 w-8 text-amber-400" />
-                        </div>
-                        <h4 className="font-medium text-white mb-2">Pratique</h4>
-                        <p className="text-sm text-amber-200">Mettre en œuvre des bonnes pratiques simples et efficaces</p>
-                      </div>
-                    </div>
-                    
-                    <Alert className="bg-blue-950/50 border-blue-800/60 mb-6">
-                      <Lightbulb className="h-4 w-4 text-blue-400" />
-                      <AlertTitle className="text-blue-400">Le saviez-vous ?</AlertTitle>
-                      <AlertDescription className="text-blue-200">
-                        Plus de 80% des incidents de cybersécurité pourraient être évités en appliquant simplement les bonnes pratiques de base.
-                      </AlertDescription>
-                    </Alert>
-                    
-                    <div className="flex justify-center">
-                      <Button 
-                        className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white px-6 py-6"
-                        onClick={() => setCurrentStep(2)}
-                      >
-                        Commencer l'apprentissage
-                        <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-            
-            {/* Étape 2: Les risques quotidiens */}
-            {currentStep === 2 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="space-y-6"
-              >
-                <Card className="bg-amber-950/40 border-amber-800/40 shadow-xl">
-                  <CardContent className="p-6">
-                    <h2 className="text-2xl font-bold text-white mb-4">Les risques numériques du quotidien</h2>
-                    
-                    <p className="text-amber-200 mb-6">
-                      Dans votre vie quotidienne, vous êtes exposé à différentes menaces numériques. Voici les principales que vous devez connaître et savoir identifier.
-                    </p>
-                    
-                    <Tabs defaultValue="phishing" className="w-full">
-                      <TabsList className="grid grid-cols-3 mb-6">
-                        <TabsTrigger value="phishing" className="data-[state=active]:bg-amber-700">Phishing</TabsTrigger>
-                        <TabsTrigger value="passwords" className="data-[state=active]:bg-amber-700">Mots de passe</TabsTrigger>
-                        <TabsTrigger value="devices" className="data-[state=active]:bg-amber-700">Appareils</TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="phishing">
-                        <div className="space-y-4">
-                          <div className="bg-amber-900/20 p-5 rounded-lg border border-amber-700/50">
-                            <h3 className="text-xl font-medium text-white mb-3">Le phishing (hameçonnage)</h3>
-                            <p className="text-amber-200 mb-4">
-                              Le phishing est une technique de fraude où l'attaquant se fait passer pour une entité de confiance (banque, service public, site web populaire) 
-                              pour vous inciter à divulguer des informations personnelles.
-                            </p>
-                            
-                            <div className="bg-amber-950/50 p-4 rounded-lg mb-4">
-                              <h4 className="font-medium text-white mb-2">Comment reconnaître un email de phishing ?</h4>
-                              <ul className="space-y-2 text-amber-200">
-                                <li className="flex items-start">
-                                  <AlertTriangle className="h-5 w-5 text-amber-400 mr-2 flex-shrink-0 mt-0.5" />
-                                  <span>Fautes d'orthographe et de grammaire</span>
-                                </li>
-                                <li className="flex items-start">
-                                  <AlertTriangle className="h-5 w-5 text-amber-400 mr-2 flex-shrink-0 mt-0.5" />
-                                  <span>Adresse d'expéditeur suspecte</span>
-                                </li>
-                                <li className="flex items-start">
-                                  <AlertTriangle className="h-5 w-5 text-amber-400 mr-2 flex-shrink-0 mt-0.5" />
-                                  <span>Demande urgente d'informations personnelles</span>
-                                </li>
-                                <li className="flex items-start">
-                                  <AlertTriangle className="h-5 w-5 text-amber-400 mr-2 flex-shrink-0 mt-0.5" />
-                                  <span>Liens dont l'URL est différente de celle affichée</span>
-                                </li>
-                              </ul>
-                            </div>
-                            
-                            <Alert className="bg-red-950/50 border-red-800/60">
-                              <AlertTriangle className="h-4 w-4 text-red-400" />
-                              <AlertTitle className="text-red-400">Que faire en cas de doute ?</AlertTitle>
-                              <AlertDescription className="text-red-200">
-                                Ne cliquez jamais sur les liens suspects. Contactez directement l'organisation concernée via ses canaux officiels (numéro de téléphone sur leur site web officiel).
-                              </AlertDescription>
-                            </Alert>
-                          </div>
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="passwords">
-                        <div className="space-y-4">
-                          <div className="bg-amber-900/20 p-5 rounded-lg border border-amber-700/50">
-                            <h3 className="text-xl font-medium text-white mb-3">La sécurité des mots de passe</h3>
-                            <p className="text-amber-200 mb-4">
-                              Les mots de passe faibles ou réutilisés sont l'une des principales vulnérabilités exploitées par les cybercriminels.
-                            </p>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                              <div className="bg-red-950/40 p-4 rounded-lg border border-red-800/30">
-                                <h4 className="font-medium text-white mb-2 flex items-center">
-                                  <AlertTriangle className="h-4 w-4 text-red-500 mr-2" />
-                                  Pratiques à éviter
-                                </h4>
-                                <ul className="space-y-2 text-amber-200 pl-6 list-disc">
-                                  <li>Utiliser le même mot de passe partout</li>
-                                  <li>Choisir des mots de passe trop simples (123456, password, etc.)</li>
-                                  <li>Inclure des informations personnelles (date de naissance, nom)</li>
-                                  <li>Noter vos mots de passe sur un papier visible</li>
-                                </ul>
-                              </div>
-                              
-                              <div className="bg-green-950/40 p-4 rounded-lg border border-green-800/30">
-                                <h4 className="font-medium text-white mb-2 flex items-center">
-                                  <CheckCircle2 className="h-4 w-4 text-green-500 mr-2" />
-                                  Bonnes pratiques
-                                </h4>
-                                <ul className="space-y-2 text-amber-200 pl-6 list-disc">
-                                  <li>Utiliser un gestionnaire de mots de passe</li>
-                                  <li>Créer des mots de passe longs et complexes</li>
-                                  <li>Activer l'authentification à deux facteurs (2FA)</li>
-                                  <li>Changer régulièrement vos mots de passe importants</li>
-                                </ul>
-                              </div>
-                            </div>
-                            
-                            <Alert className="bg-blue-950/50 border-blue-800/60">
-                              <Lightbulb className="h-4 w-4 text-blue-400" />
-                              <AlertTitle className="text-blue-400">Conseil pratique</AlertTitle>
-                              <AlertDescription className="text-blue-200">
-                                Une phrase de passe (succession de plusieurs mots avec ponctuation) est souvent plus sécurisée et plus facile à retenir qu'un mot de passe court et complexe.
-                              </AlertDescription>
-                            </Alert>
-                          </div>
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="devices">
-                        <div className="space-y-4">
-                          <div className="bg-amber-900/20 p-5 rounded-lg border border-amber-700/50">
-                            <h3 className="text-xl font-medium text-white mb-3">Sécuriser vos appareils</h3>
-                            <p className="text-amber-200 mb-4">
-                              Vos appareils (ordinateur, smartphone, tablette) contiennent une grande quantité d'informations personnelles qu'il est essentiel de protéger.
-                            </p>
-                            
-                            <div className="grid grid-cols-1 gap-4 mb-4">
-                              <div className="flex bg-amber-950/50 p-4 rounded-lg">
-                                <Smartphone className="h-10 w-10 text-amber-400 mr-4 flex-shrink-0" />
-                                <div>
-                                  <h4 className="font-medium text-white mb-2">Smartphones et tablettes</h4>
-                                  <ul className="space-y-1 text-amber-200">
-                                    <li>• Verrouillez votre appareil avec un code PIN, empreinte ou reconnaissance faciale</li>
-                                    <li>• N'installez que des applications de sources officielles (App Store, Google Play)</li>
-                                    <li>• Vérifiez les permissions demandées par les applications</li>
-                                    <li>• Activez le chiffrement de votre appareil</li>
-                                  </ul>
-                                </div>
-                              </div>
-                              
-                              <div className="flex bg-amber-950/50 p-4 rounded-lg">
-                                <Laptop className="h-10 w-10 text-amber-400 mr-4 flex-shrink-0" />
-                                <div>
-                                  <h4 className="font-medium text-white mb-2">Ordinateurs</h4>
-                                  <ul className="space-y-1 text-amber-200">
-                                    <li>• Maintenez votre système d'exploitation et vos logiciels à jour</li>
-                                    <li>• Utilisez un antivirus/anti-malware et gardez-le à jour</li>
-                                    <li>• Activez le pare-feu de votre système</li>
-                                    <li>• Réalisez des sauvegardes régulières de vos données importantes</li>
-                                  </ul>
-                                </div>
-                              </div>
-                              
-                              <div className="flex bg-amber-950/50 p-4 rounded-lg">
-                                <Wifi className="h-10 w-10 text-amber-400 mr-4 flex-shrink-0" />
-                                <div>
-                                  <h4 className="font-medium text-white mb-2">Réseau et connexions</h4>
-                                  <ul className="space-y-1 text-amber-200">
-                                    <li>• Sécurisez votre réseau Wi-Fi domestique avec un mot de passe fort</li>
-                                    <li>• Méfiez-vous des réseaux Wi-Fi publics (utilisez un VPN si nécessaire)</li>
-                                    <li>• Désactivez le Bluetooth et le Wi-Fi lorsque vous ne les utilisez pas</li>
-                                    <li>• Visitez uniquement des sites web sécurisés (https://)</li>
-                                  </ul>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-                    
-                    <div className="flex justify-between mt-6">
-                      <Button 
-                        variant="outline" 
-                        className="border-amber-600 text-amber-400 hover:bg-amber-900/30"
-                        onClick={() => setCurrentStep(1)}
-                      >
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Précédent
-                      </Button>
-                      
-                      <Button 
-                        className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white"
-                        onClick={() => setCurrentStep(3)}
-                      >
-                        Suivant
-                        <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-            
-            {/* Étape 3: Quiz interactif avec l'IA */}
-            {currentStep === 3 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="space-y-6"
-              >
-                <Card className="bg-amber-950/40 border-amber-800/40 shadow-xl">
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-2xl font-bold text-white">Entraînement pratique avec l'IA</h2>
-                      <Badge className="bg-blue-600 hover:bg-blue-700 text-white">IA intégrée</Badge>
-                    </div>
-                    
-                    <p className="text-amber-200 mb-6">
-                      Mettez-vous en situation avec des scénarios interactifs pour tester vos compétences en cybersécurité.
-                      L'IA analysera vos réponses et vous fournira un feedback personnalisé.
-                    </p>
-                    
-                    <div className="space-y-8">
-                      {/* Question 1 */}
-                      <div className="bg-amber-900/20 p-5 rounded-lg border border-amber-700/50">
-                        <h3 className="text-lg font-medium text-white mb-3">Question 1: Le phishing, c'est...</h3>
-                        
-                        <div className="space-y-3">
-                          <button 
-                            onClick={() => handleQuizAnswer('q1', 'a')}
-                            className={`w-full text-left p-3 rounded-md transition-colors ${
-                              quizAnswers.q1 === 'a' 
-                                ? 'bg-amber-700 text-white' 
-                                : 'bg-amber-950/50 text-amber-200 hover:bg-amber-900/30'
-                            }`}
-                          >
-                            a) Une technique de pêche sportive en ligne
-                          </button>
-                          
-                          <button 
-                            onClick={() => handleQuizAnswer('q1', 'b')}
-                            className={`w-full text-left p-3 rounded-md transition-colors ${
-                              quizAnswers.q1 === 'b' 
-                                ? 'bg-green-700 text-white' 
-                                : 'bg-amber-950/50 text-amber-200 hover:bg-amber-900/30'
-                            }`}
-                          >
-                            b) Une technique pour vous inciter à divulguer des informations personnelles
-                          </button>
-                          
-                          <button 
-                            onClick={() => handleQuizAnswer('q1', 'c')}
-                            className={`w-full text-left p-3 rounded-md transition-colors ${
-                              quizAnswers.q1 === 'c' 
-                                ? 'bg-amber-700 text-white' 
-                                : 'bg-amber-950/50 text-amber-200 hover:bg-amber-900/30'
-                            }`}
-                          >
-                            c) Un logiciel antivirus
-                          </button>
-                        </div>
-                        
-                        {quizAnswers.q1 === 'b' && (
-                          <Alert className="bg-green-900/30 border-green-700 mt-4">
-                            <CheckCircle2 className="h-4 w-4 text-green-400" />
-                            <AlertTitle className="text-green-400">Bonne réponse!</AlertTitle>
-                            <AlertDescription className="text-green-200">
-                              Le phishing est effectivement une technique où les cybercriminels se font passer pour des entités de confiance pour vous inciter à partager des informations personnelles.
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                        
-                        {(quizAnswers.q1 === 'a' || quizAnswers.q1 === 'c') && (
-                          <Alert className="bg-red-900/30 border-red-700 mt-4">
-                            <AlertTriangle className="h-4 w-4 text-red-400" />
-                            <AlertTitle className="text-red-400">Pas tout à fait...</AlertTitle>
-                            <AlertDescription className="text-red-200">
-                              Le phishing est une technique frauduleuse où les cybercriminels se font passer pour des entités de confiance afin de vous inciter à partager des informations personnelles.
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                      </div>
-                      
-                      {/* Question 2 */}
-                      <div className="bg-amber-900/20 p-5 rounded-lg border border-amber-700/50">
-                        <h3 className="text-lg font-medium text-white mb-3">Question 2: Lequel de ces mots de passe est le plus sécurisé?</h3>
-                        
-                        <div className="space-y-3">
-                          <button 
-                            onClick={() => handleQuizAnswer('q2', 'a')}
-                            className={`w-full text-left p-3 rounded-md transition-colors ${
-                              quizAnswers.q2 === 'a' 
-                                ? 'bg-amber-700 text-white' 
-                                : 'bg-amber-950/50 text-amber-200 hover:bg-amber-900/30'
-                            }`}
-                          >
-                            a) password123
-                          </button>
-                          
-                          <button 
-                            onClick={() => handleQuizAnswer('q2', 'b')}
-                            className={`w-full text-left p-3 rounded-md transition-colors ${
-                              quizAnswers.q2 === 'b' 
-                                ? 'bg-amber-700 text-white' 
-                                : 'bg-amber-950/50 text-amber-200 hover:bg-amber-900/30'
-                            }`}
-                          >
-                            b) VotrePrenom1990
-                          </button>
-                          
-                          <button 
-                            onClick={() => handleQuizAnswer('q2', 'c')}
-                            className={`w-full text-left p-3 rounded-md transition-colors ${
-                              quizAnswers.q2 === 'c' 
-                                ? 'bg-green-700 text-white' 
-                                : 'bg-amber-950/50 text-amber-200 hover:bg-amber-900/30'
-                            }`}
-                          >
-                            c) Tr0isi3m3*Ch@t!Bizarre
-                          </button>
-                        </div>
-                        
-                        {quizAnswers.q2 === 'c' && (
-                          <Alert className="bg-green-900/30 border-green-700 mt-4">
-                            <CheckCircle2 className="h-4 w-4 text-green-400" />
-                            <AlertTitle className="text-green-400">Bonne réponse!</AlertTitle>
-                            <AlertDescription className="text-green-200">
-                              Ce mot de passe est le plus sécurisé car il est long, contient des majuscules, des chiffres, des caractères spéciaux et n'est pas basé sur des informations personnelles faciles à deviner.
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                        
-                        {(quizAnswers.q2 === 'a' || quizAnswers.q2 === 'b') && (
-                          <Alert className="bg-red-900/30 border-red-700 mt-4">
-                            <AlertTriangle className="h-4 w-4 text-red-400" />
-                            <AlertTitle className="text-red-400">Pas tout à fait...</AlertTitle>
-                            <AlertDescription className="text-red-200">
-                              Les mots de passe trop courts, trop simples ou qui contiennent des informations personnelles (comme votre prénom) sont facilement devinables ou vulnérables aux attaques par force brute.
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                      </div>
-                      
-                      {/* Question 3 */}
-                      <div className="bg-amber-900/20 p-5 rounded-lg border border-amber-700/50">
-                        <h3 className="text-lg font-medium text-white mb-3">Question 3: Quelle est la meilleure pratique pour sécuriser vos appareils?</h3>
-                        
-                        <div className="space-y-3">
-                          <button 
-                            onClick={() => handleQuizAnswer('q3', 'a')}
-                            className={`w-full text-left p-3 rounded-md transition-colors ${
-                              quizAnswers.q3 === 'a' 
-                                ? 'bg-amber-700 text-white' 
-                                : 'bg-amber-950/50 text-amber-200 hover:bg-amber-900/30'
-                            }`}
-                          >
-                            a) Ne jamais mettre à jour les logiciels car les mises à jour peuvent contenir des bugs
-                          </button>
-                          
-                          <button 
-                            onClick={() => handleQuizAnswer('q3', 'b')}
-                            className={`w-full text-left p-3 rounded-md transition-colors ${
-                              quizAnswers.q3 === 'b' 
-                                ? 'bg-green-700 text-white' 
-                                : 'bg-amber-950/50 text-amber-200 hover:bg-amber-900/30'
-                            }`}
-                          >
-                            b) Maintenir vos systèmes à jour et utiliser un antivirus
-                          </button>
-                          
-                          <button 
-                            onClick={() => handleQuizAnswer('q3', 'c')}
-                            className={`w-full text-left p-3 rounded-md transition-colors ${
-                              quizAnswers.q3 === 'c' 
-                                ? 'bg-amber-700 text-white' 
-                                : 'bg-amber-950/50 text-amber-200 hover:bg-amber-900/30'
-                            }`}
-                          >
-                            c) Partager vos mots de passe avec vos amis pour qu'ils puissent vous aider en cas de problème
-                          </button>
-                        </div>
-                        
-                        {quizAnswers.q3 === 'b' && (
-                          <Alert className="bg-green-900/30 border-green-700 mt-4">
-                            <CheckCircle2 className="h-4 w-4 text-green-400" />
-                            <AlertTitle className="text-green-400">Bonne réponse!</AlertTitle>
-                            <AlertDescription className="text-green-200">
-                              Maintenir vos systèmes et logiciels à jour est essentiel car les mises à jour contiennent souvent des correctifs de sécurité. Un antivirus à jour est également une protection importante.
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                        
-                        {(quizAnswers.q3 === 'a' || quizAnswers.q3 === 'c') && (
-                          <Alert className="bg-red-900/30 border-red-700 mt-4">
-                            <AlertTriangle className="h-4 w-4 text-red-400" />
-                            <AlertTitle className="text-red-400">Pas tout à fait...</AlertTitle>
-                            <AlertDescription className="text-red-200">
-                              Les mises à jour sont cruciales car elles corrigent des failles de sécurité. Et vos mots de passe doivent rester strictement confidentiels, même avec vos proches.
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-between mt-6">
-                      <Button 
-                        variant="outline" 
-                        className="border-amber-600 text-amber-400 hover:bg-amber-900/30"
-                        onClick={() => setCurrentStep(2)}
-                      >
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Précédent
-                      </Button>
-                      
-                      <Button 
-                        className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white"
-                        onClick={() => setCurrentStep(4)}
-                        disabled={Object.keys(quizAnswers).length < 3}
-                      >
-                        Suivant
-                        <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-            
-            {/* Étape 4: Playground sécurité */}
-            {currentStep === 4 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="space-y-6"
-              >
-                <Card className="bg-amber-950/40 border-amber-800/40 shadow-xl">
-                  <CardContent className="p-6">
-                    <h2 className="text-2xl font-bold text-white mb-4">Playground: Sécurisez vos systèmes</h2>
-                    
-                    <p className="text-amber-200 mb-6">
-                      Mettez en pratique les concepts appris en sécurisant un système virtuel. Activez les bonnes mesures de sécurité pour protéger les données.
-                    </p>
-                    
-                    <div className="bg-blue-950/30 border border-blue-800/40 rounded-lg p-5 mb-6">
-                      <div className="flex items-center mb-4">
-                        <Laptop className="h-6 w-6 text-blue-400 mr-3" />
-                        <h3 className="text-xl font-medium text-white">Simulation d'ordinateur</h3>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        {/* Mesures de sécurité */}
-                        <div>
-                          <h4 className="text-blue-300 font-medium mb-3">Mesures de sécurité</h4>
-                          
-                          <div className="space-y-3">
-                            <div 
-                              className={`p-3 rounded-lg flex items-center justify-between cursor-pointer transition-colors ${
-                                playgroundState.securityChecks.updates 
-                                  ? 'bg-green-900/30 border border-green-700/50' 
-                                  : 'bg-blue-900/30 border border-blue-700/50 hover:bg-blue-900/50'
-                              }`}
-                              onClick={() => toggleSecurityCheck('updates')}
-                            >
-                              <div className="flex items-center">
-                                <div className={`w-5 h-5 rounded flex items-center justify-center mr-3 ${
-                                  playgroundState.securityChecks.updates 
-                                    ? 'bg-green-500' 
-                                    : 'border border-blue-400'
-                                }`}>
-                                  {playgroundState.securityChecks.updates && (
-                                    <CheckCircle2 className="h-4 w-4 text-white" />
-                                  )}
-                                </div>
-                                <span className="text-white">Mises à jour automatiques</span>
-                              </div>
-                              
-                              <Badge className={playgroundState.securityChecks.updates ? 'bg-green-700' : 'bg-blue-700'}>
-                                {playgroundState.securityChecks.updates ? 'Activé' : 'Désactivé'}
-                              </Badge>
-                            </div>
-                            
-                            <div 
-                              className={`p-3 rounded-lg flex items-center justify-between cursor-pointer transition-colors ${
-                                playgroundState.securityChecks.antivirus 
-                                  ? 'bg-green-900/30 border border-green-700/50' 
-                                  : 'bg-blue-900/30 border border-blue-700/50 hover:bg-blue-900/50'
-                              }`}
-                              onClick={() => toggleSecurityCheck('antivirus')}
-                            >
-                              <div className="flex items-center">
-                                <div className={`w-5 h-5 rounded flex items-center justify-center mr-3 ${
-                                  playgroundState.securityChecks.antivirus 
-                                    ? 'bg-green-500' 
-                                    : 'border border-blue-400'
-                                }`}>
-                                  {playgroundState.securityChecks.antivirus && (
-                                    <CheckCircle2 className="h-4 w-4 text-white" />
-                                  )}
-                                </div>
-                                <span className="text-white">Antivirus</span>
-                              </div>
-                              
-                              <Badge className={playgroundState.securityChecks.antivirus ? 'bg-green-700' : 'bg-blue-700'}>
-                                {playgroundState.securityChecks.antivirus ? 'Activé' : 'Désactivé'}
-                              </Badge>
-                            </div>
-                            
-                            <div 
-                              className={`p-3 rounded-lg flex items-center justify-between cursor-pointer transition-colors ${
-                                playgroundState.securityChecks.backup 
-                                  ? 'bg-green-900/30 border border-green-700/50' 
-                                  : 'bg-blue-900/30 border border-blue-700/50 hover:bg-blue-900/50'
-                              }`}
-                              onClick={() => toggleSecurityCheck('backup')}
-                            >
-                              <div className="flex items-center">
-                                <div className={`w-5 h-5 rounded flex items-center justify-center mr-3 ${
-                                  playgroundState.securityChecks.backup 
-                                    ? 'bg-green-500' 
-                                    : 'border border-blue-400'
-                                }`}>
-                                  {playgroundState.securityChecks.backup && (
-                                    <CheckCircle2 className="h-4 w-4 text-white" />
-                                  )}
-                                </div>
-                                <span className="text-white">Sauvegarde automatique</span>
-                              </div>
-                              
-                              <Badge className={playgroundState.securityChecks.backup ? 'bg-green-700' : 'bg-blue-700'}>
-                                {playgroundState.securityChecks.backup ? 'Activé' : 'Désactivé'}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Testeur de mot de passe */}
-                        <div>
-                          <h4 className="text-blue-300 font-medium mb-3">Vérificateur de mot de passe</h4>
-                          
-                          <div className="bg-blue-900/30 border border-blue-700/50 rounded-lg p-4">
-                            <div className="mb-3">
-                              <p className="text-sm text-blue-200 mb-2">Entrez un mot de passe pour tester sa sécurité :</p>
-                              <Input 
-                                type="password" 
-                                className="bg-blue-950 border-blue-700 text-white"
-                                placeholder="Votre mot de passe" 
-                                onChange={(e) => evaluatePassword(e.target.value)}
-                              />
-                            </div>
-                            
-                            <div className="mb-3">
-                              <div className="flex justify-between text-xs mb-1">
-                                <span className="text-blue-300">Force du mot de passe</span>
-                                <span className={`
-                                  ${playgroundState.passwordStrength < 25 ? 'text-red-400' : 
-                                    playgroundState.passwordStrength < 50 ? 'text-amber-400' : 
-                                    playgroundState.passwordStrength < 75 ? 'text-yellow-400' : 'text-green-400'}
-                                `}>
-                                  {playgroundState.passwordStrength < 25 ? 'Très faible' : 
-                                    playgroundState.passwordStrength < 50 ? 'Faible' : 
-                                    playgroundState.passwordStrength < 75 ? 'Moyen' : 'Fort'}
-                                </span>
-                              </div>
-                              <div className="w-full h-2 bg-blue-950 rounded-full overflow-hidden">
-                                <div 
-                                  className={`h-full ${
-                                    playgroundState.passwordStrength < 25 ? 'bg-red-600' : 
-                                    playgroundState.passwordStrength < 50 ? 'bg-amber-600' : 
-                                    playgroundState.passwordStrength < 75 ? 'bg-yellow-600' : 'bg-green-600'
-                                  }`} 
-                                  style={{ width: `${playgroundState.passwordStrength}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                            
-                            {playgroundState.passwordStrength > 0 && (
-                              <div className="text-sm">
-                                <p className="text-blue-200 mb-2">Recommandations :</p>
-                                <ul className="space-y-1">
-                                  {playgroundState.passwordStrength < 25 && (
-                                    <li className="text-red-400">• Votre mot de passe est trop faible et facilement piratable</li>
-                                  )}
-                                  {playgroundState.passwordStrength >= 75 && (
-                                    <li className="text-green-400">• Excellent ! Votre mot de passe est sécurisé</li>
-                                  )}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-amber-900/20 p-5 rounded-lg border border-amber-700/50 mb-6">
-                      <h3 className="text-lg font-medium text-white mb-3">État de sécurité du système</h3>
-                      
-                      <div className="mb-4">
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="text-amber-300">Niveau de sécurité global</span>
-                          <span className="text-amber-300">
-                            {Object.values(playgroundState.securityChecks).filter(v => v).length * 25}%
-                          </span>
-                        </div>
-                        <div className="w-full h-2 bg-amber-950 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-amber-600 to-amber-500" 
-                            style={{ width: `${Object.values(playgroundState.securityChecks).filter(v => v).length * 25}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        {Object.values(playgroundState.securityChecks).filter(v => v).length === 0 && (
-                          <Alert className="bg-red-900/30 border-red-700/60">
-                            <AlertTriangle className="h-4 w-4 text-red-400" />
-                            <AlertTitle className="text-red-400">Système vulnérable</AlertTitle>
-                            <AlertDescription className="text-red-200">
-                              Votre système est extrêmement vulnérable aux attaques. Activez des mesures de sécurité pour le protéger.
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                        
-                        {Object.values(playgroundState.securityChecks).filter(v => v).length >= 1 && 
-                         Object.values(playgroundState.securityChecks).filter(v => v).length < 4 && (
-                          <Alert className="bg-amber-900/30 border-amber-700/60">
-                            <AlertTriangle className="h-4 w-4 text-amber-400" />
-                            <AlertTitle className="text-amber-400">Protection partielle</AlertTitle>
-                            <AlertDescription className="text-amber-200">
-                              Votre système a quelques protections, mais reste vulnérable. Continuez à améliorer sa sécurité.
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                        
-                        {Object.values(playgroundState.securityChecks).filter(v => v).length === 4 && (
-                          <Alert className="bg-green-900/30 border-green-700/60">
-                            <CheckCircle2 className="h-4 w-4 text-green-400" />
-                            <AlertTitle className="text-green-400">Système sécurisé</AlertTitle>
-                            <AlertDescription className="text-green-200">
-                              Félicitations ! Votre système est maintenant bien protégé contre les menaces courantes.
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-between mt-6">
-                      <Button 
-                        variant="outline" 
-                        className="border-amber-600 text-amber-400 hover:bg-amber-900/30"
-                        onClick={() => setCurrentStep(3)}
-                      >
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Précédent
-                      </Button>
-                      
-                      <Button 
-                        className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white"
-                        onClick={() => setCurrentStep(5)}
-                        disabled={Object.values(playgroundState.securityChecks).filter(v => v).length < 2}
-                      >
-                        Suivant
-                        <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-            
-            {/* Étape 5: Conclusion et certificat */}
-            {currentStep === 5 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="space-y-6"
-              >
-                <Card className="bg-amber-950/40 border-amber-800/40 shadow-xl">
-                  <CardContent className="p-6">
-                    <div className="flex justify-center mb-6">
-                      <div className="p-4 rounded-full bg-gradient-to-r from-amber-600 to-amber-500 h-20 w-20 flex items-center justify-center">
-                        <CheckCircle2 className="h-10 w-10 text-white" />
-                      </div>
-                    </div>
-                    
-                    <h2 className="text-2xl font-bold text-white mb-4 text-center">Félicitations !</h2>
-                    
-                    <p className="text-amber-200 text-center mb-6">
-                      Vous avez terminé le module "Premiers pas en cybersécurité" et acquis les connaissances fondamentales pour vous protéger en ligne.
-                    </p>
-                    
-                    <div className="bg-gradient-to-r from-amber-700/20 to-amber-600/20 border border-amber-700/50 rounded-lg p-6 mb-6">
-                      <h3 className="text-xl font-semibold text-white mb-4 text-center">Ce que vous avez appris</h3>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-amber-900/30 p-4 rounded-lg text-center">
-                          <div className="flex justify-center mb-3">
-                            <Eye className="h-8 w-8 text-amber-400" />
-                          </div>
-                          <h4 className="font-medium text-white mb-2">Identifier les menaces</h4>
-                          <p className="text-sm text-amber-200">Reconnaître le phishing et les risques numériques quotidiens</p>
-                        </div>
-                        
-                        <div className="bg-amber-900/30 p-4 rounded-lg text-center">
-                          <div className="flex justify-center mb-3">
-                            <Lock className="h-8 w-8 text-amber-400" />
-                          </div>
-                          <h4 className="font-medium text-white mb-2">Créer des défenses</h4>
-                          <p className="text-sm text-amber-200">Mettre en place des mots de passe forts et sécuriser vos appareils</p>
-                        </div>
-                        
-                        <div className="bg-amber-900/30 p-4 rounded-lg text-center">
-                          <div className="flex justify-center mb-3">
-                            <Shield className="h-8 w-8 text-amber-400" />
-                          </div>
-                          <h4 className="font-medium text-white mb-2">Protéger vos données</h4>
-                          <p className="text-sm text-amber-200">Appliquer les bonnes pratiques pour préserver votre vie privée</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-blue-950/30 border border-blue-800/40 rounded-lg p-6 mb-6">
-                      <h3 className="text-xl font-semibold text-blue-300 mb-4">Et maintenant ?</h3>
-                      
-                      <div className="space-y-4">
-                        <div className="flex">
-                          <div className="mr-4 p-2 bg-blue-900/50 rounded-full h-10 w-10 flex items-center justify-center">
-                            <BookOpen className="h-5 w-5 text-blue-400" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-white">Continuez votre formation</h4>
-                            <p className="text-blue-200 text-sm">Découvrez nos modules intermédiaires pour approfondir vos connaissances</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex">
-                          <div className="mr-4 p-2 bg-blue-900/50 rounded-full h-10 w-10 flex items-center justify-center">
-                            <HardDrive className="h-5 w-5 text-blue-400" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-white">Sécurisez vos appareils</h4>
-                            <p className="text-blue-200 text-sm">Appliquez les principes appris pour protéger tous vos appareils personnels</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex">
-                          <div className="mr-4 p-2 bg-blue-900/50 rounded-full h-10 w-10 flex items-center justify-center">
-                            <User className="h-5 w-5 text-blue-400" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-white">Partagez vos connaissances</h4>
-                            <p className="text-blue-200 text-sm">Sensibilisez vos proches aux bonnes pratiques de cybersécurité</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-center">
-                      <Button 
-                        className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white px-6 py-6"
-                        onClick={() => {
-                          setProgress(100);
-                          toast({
-                            title: "Félicitations !",
-                            description: "Module terminé et certificat généré avec succès.",
-                          });
-                        }}
-                      >
-                        <CheckCircle2 className="mr-2 h-5 w-5" />
-                        Terminer et obtenir mon certificat
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
+
+          {/* Résultats par scénario */}
+          <div className="space-y-2 mb-6">
+            {block.scenarios.map((s, i) => (
+              <div key={i} className={`flex items-center gap-3 p-3 rounded-lg ${scenarioResults[`${blockId}-${i}`] === 'correct' ? 'bg-green-950/40 border border-green-800/50' : 'bg-red-950/40 border border-red-800/50'}`}>
+                {scenarioResults[`${blockId}-${i}`] === 'correct'
+                  ? <CheckCircle className="h-5 w-5 text-green-400 shrink-0" />
+                  : <XCircle className="h-5 w-5 text-red-400 shrink-0" />
+                }
+                <span className="text-sm text-slate-200">{s.title}</span>
+              </div>
+            ))}
           </div>
-        </div>
+
+          {/* Actions */}
+          <div className="space-y-3">
+            {nextBlock ? (
+              <button
+                onClick={() => setScreen({ type: 'scenario', blockId: nextBlock.id, scenarioIndex: 0 })}
+                className={`w-full bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 border border-slate-500 text-white rounded-xl py-4 font-semibold flex items-center justify-center gap-2 transition-all`}
+              >
+                Module suivant : {nextBlock.emoji} {nextBlock.title}
+                <ArrowRight className="h-5 w-5" />
+              </button>
+            ) : (
+              <button
+                onClick={() => setScreen({ type: 'final-result' })}
+                className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl py-4 font-bold flex items-center justify-center gap-2"
+              >
+                <Trophy className="h-5 w-5" />
+                Voir mon bilan final
+              </button>
+            )}
+            <button
+              onClick={() => setScreen({ type: 'hub' })}
+              className="w-full bg-transparent border border-slate-600 hover:border-slate-400 text-slate-300 hover:text-white rounded-xl py-3 font-medium transition-all"
+            >
+              Retour au hub
+            </button>
+          </div>
+        </motion.div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  // ── FINAL RESULT ──
+  if (screen.type === 'final-result') {
+    const badge = getBadge(score, MAX_SCORE);
+    const pct = Math.round((score / MAX_SCORE) * 100);
+    const risqueScore = Math.max(0, 100 - pct);
+
+    // Recommandations personnalisées
+    const failedScenarios = Object.entries(scenarioResults)
+      .filter(([, r]) => r === 'wrong')
+      .map(([key]) => {
+        const [blockId, si] = key.split('-');
+        const block = getBlock(blockId);
+        return block?.scenarios[parseInt(si)]?.title;
+      }).filter(Boolean);
+
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 text-white flex flex-col items-center justify-center px-4 py-12">
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl w-full">
+          {/* Badge */}
+          <div className="text-center mb-10">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', delay: 0.2 }}
+              className="text-7xl mb-4"
+            >
+              {badge.emoji}
+            </motion.div>
+            <h1 className="text-4xl font-bold mb-2">Bilan Personnel</h1>
+            <div className={`inline-block border-2 rounded-full px-6 py-2 text-xl font-bold ${badge.color} ${badge.bg} mt-2`}>
+              {badge.label}
+            </div>
+          </div>
+
+          {/* Score & Risque */}
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-5 text-center">
+              <div className="text-4xl font-bold text-yellow-400 mb-1">{score}</div>
+              <div className="text-slate-400 text-sm">Points sur {MAX_SCORE}</div>
+              <Progress value={pct} className="mt-3 h-2 bg-slate-700" />
+            </div>
+            <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-5 text-center">
+              <div className={`text-4xl font-bold mb-1 ${risqueScore > 50 ? 'text-red-400' : risqueScore > 25 ? 'text-orange-400' : 'text-green-400'}`}>
+                {risqueScore}%
+              </div>
+              <div className="text-slate-400 text-sm">Niveau de risque personnel</div>
+              <Progress value={risqueScore} className="mt-3 h-2 bg-slate-700" />
+            </div>
+          </div>
+
+          {/* Message badge */}
+          <div className={`${badge.bg} border ${badge.color.split(' ')[1] || 'border-slate-500'} rounded-xl p-4 mb-8`}>
+            <p className={`${badge.color.split(' ')[0]} font-semibold`}>{badge.desc}</p>
+          </div>
+
+          {/* Recommandations si erreurs */}
+          {failedScenarios.length > 0 && (
+            <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 mb-8">
+              <h3 className="text-white font-bold mb-3 flex items-center gap-2">
+                <Brain className="h-5 w-5 text-purple-400" />
+                Ce que vous devez pratiquer
+              </h3>
+              <ul className="space-y-2">
+                {failedScenarios.map((s, i) => (
+                  <li key={i} className="flex items-center gap-2 text-slate-300 text-sm">
+                    <ChevronRight className="h-4 w-4 text-orange-400 shrink-0" />
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Checklist export */}
+          <div className="bg-amber-950/40 border border-amber-600/30 rounded-xl p-5 mb-8">
+            <h3 className="text-amber-300 font-bold mb-3">📋 Ce que vous devez faire dès maintenant</h3>
+            <ul className="space-y-2 text-sm text-amber-200">
+              <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" /> Activer la double authentification sur Gmail et votre banque</li>
+              <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" /> Utiliser un mot de passe différent pour chaque compte important</li>
+              <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" /> Activer les mises à jour automatiques sur votre téléphone et PC</li>
+              <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" /> Ne jamais cliquer sur un lien reçu par SMS ou email inattendu</li>
+              <li className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" /> Vérifier l'adresse email de l'expéditeur avant de répondre</li>
+            </ul>
+          </div>
+
+          {/* Actions */}
+          <div className="space-y-3">
+            <button
+              onClick={() => {
+                setScore(0);
+                setCompletedBlocks(new Set());
+                setScenarioResults({});
+                setSelectedChoice(null);
+                setShowConsequence(false);
+                setScreen({ type: 'hub' });
+              }}
+              className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl py-4 font-bold flex items-center justify-center gap-2"
+            >
+              <RefreshCw className="h-5 w-5" />
+              Recommencer pour améliorer mon score
+            </button>
+            <button
+              onClick={() => setLocation('/cyber/roleplay')}
+              className="w-full bg-transparent border border-slate-600 hover:border-slate-400 text-slate-300 hover:text-white rounded-xl py-3 font-medium transition-all"
+            >
+              Retour aux rôles
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return null;
 }
