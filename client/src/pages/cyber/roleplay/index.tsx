@@ -9,8 +9,7 @@ import {
   Shield, 
   AlertTriangle,
   BrainCircuit,
-  Clock,
-  Bot
+  Clock
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -37,8 +36,8 @@ const RoleplayHub: React.FC = () => {
   const scenarios = [
     {
       id: 'recruiter',
-      title: "Je suis Recruteur",
-      description: "Je souhaite évaluer les compétences d'un candidat en cyber",
+      title: "Recruteur Cyber",
+      description: "Évaluez les compétences cybersécurité de vos candidats",
       link: '/cyber/test-technique',
       icon: <Users className="h-10 w-10 text-indigo-300" />,
       color: 'indigo',
@@ -50,14 +49,14 @@ const RoleplayHub: React.FC = () => {
       details: [
         "Évaluation des compétences techniques",
         "Tests standardisés pour profils cybersécurité",
-        "Simulation d'entretien"
+        "Rapports détaillés sur les résultats"
       ],
       comingSoon: false
     },
     {
       id: 'interview-test',
-      title: "Je suis un professionnel",
-      description: "Je prépare une audition en cyber auprès d'un client",
+      title: "Entraînement Entretien Cyber",
+      description: "Préparez-vous aux entretiens techniques en cybersécurité",
       link: '/cyber/interview-test',
       icon: <Briefcase className="h-10 w-10 text-blue-300" />,
       color: 'blue',
@@ -67,16 +66,16 @@ const RoleplayHub: React.FC = () => {
       buttonHover: 'hover:from-blue-600 hover:to-blue-500',
       textColor: 'text-blue-300',
       details: [
-        "Mise en situation d'audition client",
+        "Simulation d'entretien technique réaliste",
         "Questions adaptées en fonction du niveau",
-        "Analyse de vos réponses avec feedback"
+        "Analyse de vos réponses avec feedback personnalisé"
       ],
       comingSoon: false
     },
     {
       id: 'pentest-lab',
-      title: 'Je suis un expert technique',
-      description: "J'exploite des vulnérabilités web dans un lab sécurisé",
+      title: 'Expert Pentest',
+      description: "Exploitez des vulnérabilités web dans un lab sécurisé",
       link: '/cyber/pentest-lab',
       icon: <Terminal className="h-10 w-10 text-purple-300" />,
       color: 'purple',
@@ -93,28 +92,9 @@ const RoleplayHub: React.FC = () => {
       comingSoon: false
     },
     {
-      id: 'ai-assistant-creator',
-      title: "Je suis Créateur d'IA",
-      description: "Je développe un assistant cyber personnalisé",
-      link: '/cyber/tools/assistant-cyber',
-      icon: <Bot className="h-10 w-10 text-cyan-300" />,
-      color: 'cyan',
-      gradient: 'from-cyan-900/70 to-cyan-700/30',
-      border: 'border-cyan-500/30',
-      buttonGradient: 'from-cyan-700 to-cyan-600',
-      buttonHover: 'hover:from-cyan-600 hover:to-cyan-500',
-      textColor: 'text-cyan-300',
-      details: [
-        "Création d'un assistant IA personnalisé en cyber",
-        "Définition de ses domaines d'expertise",
-        "Partage et utilisation collaborative de l'assistant"
-      ],
-      comingSoon: false
-    },
-    {
       id: 'debutant-cyber',
-      title: "Je suis Monsieur tout le monde",
-      description: "Je veux apprendre à me protéger des risques cyber",
+      title: "Sensibilisation Cyber",
+      description: "Apprenez à vous protéger des risques numériques au quotidien",
       link: '/cyber/learning-center/modules/debutant-cyber',
       icon: <Shield className="h-10 w-10 text-amber-300" />,
       color: 'amber',
@@ -132,8 +112,8 @@ const RoleplayHub: React.FC = () => {
     },
     {
       id: 'comex-member',
-      title: "Je suis Membre du COMEX",
-      description: "Je veux comprendre les enjeux stratégiques de cybersécurité",
+      title: "Formation Dirigeants & COMEX",
+      description: "Comprenez les enjeux stratégiques de cybersécurité pour votre organisation",
       link: '/cyber/comex-training',
       icon: <BrainCircuit className="h-10 w-10 text-emerald-300" />,
       color: 'emerald',
@@ -151,8 +131,8 @@ const RoleplayHub: React.FC = () => {
     },
     {
       id: 'crisis-management',
-      title: 'Je suis RSSI',
-      description: "Je gère une crise majeure de cybersécurité",
+      title: 'Gestion de Crise RSSI',
+      description: "Gérez une crise majeure de cybersécurité en temps réel",
       link: '/cyber/crisis-management',
       icon: <AlertTriangle className="h-10 w-10 text-rose-300" />,
       color: 'rose',

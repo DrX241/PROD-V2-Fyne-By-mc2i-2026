@@ -5,7 +5,8 @@ import {
   HelpCircle, 
   ArrowRight,
   ArrowLeft,
-  Code
+  Code,
+  Bot
 } from 'lucide-react';
 import { BsFileEarmarkCode, BsBarChartFill, BsServer, BsCpu, BsDisplay } from 'react-icons/bs';
 import { FiSun, FiMoon } from 'react-icons/fi';
@@ -203,7 +204,57 @@ export default function DataIaRoleplay() {
             </Card>
           </motion.div>
 
-          {/* Option 4: Je suis Data Analyst - Bientôt disponible */}
+          {/* Option 4: Créateur d'Assistant IA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <Card className="h-full bg-gradient-to-br from-cyan-900/40 to-cyan-950 border-cyan-700 hover:border-cyan-500 hover:shadow-lg transition-all duration-300">
+              <CardHeader>
+                <div className="flex justify-center mb-4">
+                  <div className="p-4 rounded-full bg-cyan-800/70">
+                    <Bot className="h-10 w-10 text-cyan-200" />
+                  </div>
+                </div>
+                <CardTitle className="text-2xl text-center mb-2">Créateur d'Assistant IA</CardTitle>
+                <CardDescription className="text-cyan-300 text-center text-lg">
+                  Concevez un assistant IA personnalisé
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="mb-6 text-cyan-200">
+                  Créez et configurez un assistant intelligent adapté à vos besoins, définissez ses domaines d'expertise et partagez-le avec votre équipe.
+                </p>
+                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
+                  <li className="flex items-center text-cyan-200">
+                    <div className="h-2 w-2 rounded-full bg-cyan-400 mr-2"></div>
+                    Création d'un assistant IA sur mesure
+                  </li>
+                  <li className="flex items-center text-cyan-200">
+                    <div className="h-2 w-2 rounded-full bg-cyan-400 mr-2"></div>
+                    Définition des domaines d'expertise
+                  </li>
+                  <li className="flex items-center text-cyan-200">
+                    <div className="h-2 w-2 rounded-full bg-cyan-400 mr-2"></div>
+                    Partage et utilisation collaborative
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <Button 
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-5"
+                  onClick={() => setLocation('/cyber/tools/assistant-cyber')}
+                >
+                  Créer un assistant
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
+            </Card>
+          </motion.div>
+
+          {/* Option 5: Je suis Data Analyst - Bientôt disponible */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
