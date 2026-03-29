@@ -19,11 +19,41 @@ const DARK = '#061019';
 
 type Level = 'debutant' | 'intermediaire' | 'maitrise';
 
+interface AssessmentOption {
+  label: string;
+  sublabel?: string;
+  score: number;
+  icon?: string;
+}
+
+interface AssessmentVisual {
+  type: 'email' | 'sms';
+  from?: string;
+  fromEmail?: string;
+  subject?: string;
+  body: string;
+  linkUrl?: string;
+  hasLink?: boolean;
+  hasPJ?: boolean;
+  pjLabel?: string;
+}
+
 interface AssessmentQuestion {
   id: string;
   question: string;
   context?: string;
-  options: { label: string; sublabel?: string; score: number }[];
+  type?: 'standard' | 'interactive';
+  visual?: AssessmentVisual;
+  options: AssessmentOption[];
+}
+
+function shuffleAndPick<T>(arr: T[], n: number): T[] {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(0, n);
 }
 
 interface ScenarioVisual {
@@ -58,9 +88,9 @@ interface Scenario {
 type Phase = 'intro' | 'assessment' | 'level-reveal' | 'loading' | 'error' | 'scenario' | 'trap-clicked' | 'answered' | 'reflexe' | 'final';
 
 // ─── QUESTIONS D'ÉVALUATION ────────────────────────────────────────────────────
-const ASSESSMENT: AssessmentQuestion[] = [
+const ASSESSMENT_BANK: AssessmentQuestion[] = [
   {
-    id: 'q1',
+    id: 'q-bnp',
     question: 'Il est 8h47. Vous ouvrez vos emails et voyez ça : "URGENT — Votre compte BNP Paribas a été compromis. Connexion depuis Budapest détectée. Cliquez pour sécuriser votre compte dans les 2h."',
     context: '📧 L\'email affiche le logo BNP, une mise en page soignée, et semble légitime',
     options: [
@@ -70,7 +100,7 @@ const ASSESSMENT: AssessmentQuestion[] = [
     ],
   },
   {
-    id: 'q2',
+    id: 'q-colissimo',
     question: 'SMS reçu : "Votre colis Colissimo REF-748291 est bloqué en douane. Frais de dédouanement : 2,49€. Réglez ici : colissimo-delivery.fr/pay"',
     context: '📱 Vous attendez effectivement un colis cette semaine',
     options: [
@@ -80,17 +110,17 @@ const ASSESSMENT: AssessmentQuestion[] = [
     ],
   },
   {
-    id: 'q3',
-    question: 'Téléphone : "Bonjour, je suis Thomas du service informatique de votre entreprise. On a détecté une intrusion sur votre poste. Pour sécuriser votre session, j\'ai besoin de votre mot de passe Windows."',
+    id: 'q-faux-it',
+    question: 'Téléphone : "Bonjour, je suis Thomas du service informatique. On a détecté une intrusion sur votre poste. Pour sécuriser votre session, j\'ai besoin de votre mot de passe Windows."',
     context: '📞 Numéro interne reconnu, voix professionnelle, il connaît votre prénom et votre service',
     options: [
       { label: 'Je lui donne mon mot de passe, il semble légitime', sublabel: 'Il a même le bon numéro interne', score: 0 },
       { label: 'Je lui demande de me rappeler dans 10 min après vérification', sublabel: 'Le temps d\'appeler le helpdesk directement', score: 1 },
-      { label: 'Je refuse et appelle le helpdesk sur le numéro officiel', sublabel: 'Aucun IT légitime ne demande un mot de passe par téléphone', score: 2 },
+      { label: 'Je refuse et appelle le helpdesk sur le numéro officiel', sublabel: 'Aucun IT légitime ne demande un mot de passe', score: 2 },
     ],
   },
   {
-    id: 'q4',
+    id: 'q-mdp',
     question: 'Votre mot de passe habituel, c\'est lequel de ces profils ?',
     context: '🔑 Vos comptes : Gmail, banque, Instagram, Amazon, LinkedIn...',
     options: [
@@ -100,7 +130,7 @@ const ASSESSMENT: AssessmentQuestion[] = [
     ],
   },
   {
-    id: 'q5',
+    id: 'q-2fa',
     question: 'La double authentification (2FA), pour vous c\'est...',
     context: '🔒 Sécuriser l\'accès à vos comptes',
     options: [
@@ -110,7 +140,7 @@ const ASSESSMENT: AssessmentQuestion[] = [
     ],
   },
   {
-    id: 'q5',
+    id: 'q-url',
     question: 'Parmi ces trois URLs, laquelle est la vraie page de connexion du Crédit Agricole ?',
     context: '🌐 Regardez bien l\'adresse complète de chaque lien',
     options: [
@@ -120,8 +150,8 @@ const ASSESSMENT: AssessmentQuestion[] = [
     ],
   },
   {
-    id: 'q6',
-    question: 'Vos vacances commencent demain. Un message WhatsApp d\'un numéro inconnu : "Salut c\'est moi Clara ! J\'ai cassé mon tel, c\'est un nouveau numéro. Je suis bloquée à l\'aéroport de Lyon, j\'ai besoin de 300€ urgent, virement IBAN ci-dessous."',
+    id: 'q-clara',
+    question: 'Vos vacances commencent demain. WhatsApp d\'un numéro inconnu : "Salut c\'est moi Clara ! J\'ai cassé mon tel, c\'est un nouveau numéro. Je suis bloquée à l\'aéroport de Lyon, j\'ai besoin de 300€ urgent."',
     context: '📲 Vous avez bien une amie prénommée Clara',
     options: [
       { label: 'Je vire les 300€ immédiatement, Clara a besoin de moi', sublabel: 'C\'est une amie, je ne peux pas la laisser tomber', score: 0 },
@@ -129,7 +159,175 @@ const ASSESSMENT: AssessmentQuestion[] = [
       { label: 'J\'appelle Clara sur son ancien numéro pour vérifier', sublabel: 'Si son téléphone est "cassé", quelqu\'un d\'autre peut décrocher', score: 2 },
     ],
   },
+  {
+    id: 'q-wifi',
+    question: 'Vous êtes à l\'aéroport. Votre connexion 4G est mauvaise. Vous voyez un réseau WiFi nommé "AirportFreeWifi" ouvert (sans mot de passe). Vous devez consulter vos emails pros.',
+    context: '📶 Votre vol est dans 1h et vous avez des dossiers urgents à traiter',
+    options: [
+      { label: 'Je me connecte — c\'est l\'aéroport, c\'est forcément sécurisé', sublabel: 'Les aéroports ont des infrastructures modernes', score: 0 },
+      { label: 'Je me connecte mais uniquement sur des sites en HTTPS', sublabel: 'Le cadenas garantit la sécurité de la connexion', score: 1 },
+      { label: 'Je garde mon 4G ou utilise mon VPN si je dois me connecter', sublabel: 'Un WiFi public ouvert peut être un hotspot frauduleux', score: 2 },
+    ],
+  },
+  {
+    id: 'q-antivirus',
+    question: 'En naviguant sur un site, une popup apparaît : "⚠️ ALERTE SÉCURITÉ — Votre ordinateur est infecté par 3 virus ! Téléchargez AntiVirus Pro maintenant pour protéger vos données."',
+    context: '💻 La fenêtre s\'est ouverte automatiquement et fait clignoter des alertes rouges',
+    options: [
+      { label: 'Je télécharge le logiciel — c\'est une alerte système officielle', sublabel: 'Mieux vaut prévenir que guérir', score: 0 },
+      { label: 'Je ferme l\'onglet et lance une analyse avec mon vrai antivirus', sublabel: 'Mon antivirus installé est plus fiable', score: 1 },
+      { label: 'Je ferme directement — c\'est du scareware, pas une alerte réelle', sublabel: 'Les vrais antivirus ne s\'affichent pas dans le navigateur', score: 2 },
+    ],
+  },
+  {
+    id: 'q-linkedin',
+    question: 'Un inconnu vous envoie une demande de connexion LinkedIn avec ce message : "Bonjour, je travaille chez un grand cabinet de conseil. Nous recrutons des profils comme le vôtre. Envoyez-moi votre CV complet + date de naissance + RIB pour le dossier."',
+    context: '💼 Son profil a 500+ relations et semble professionnel',
+    options: [
+      { label: 'J\'envoie tout — c\'est une opportunité à saisir', sublabel: 'Son profil semble authentique', score: 0 },
+      { label: 'J\'envoie mon CV mais pas le RIB ni la date de naissance', sublabel: 'Certaines infos sont trop sensibles', score: 1 },
+      { label: 'Je ne réponds pas — aucun recruteur légitime ne demande un RIB dès le premier contact', sublabel: 'Je vérifie le profil de l\'entreprise via le site officiel', score: 2 },
+    ],
+  },
+  {
+    id: 'q-concurrent-compte',
+    question: 'Vous recevez un email vous informant que votre adresse email a été retrouvée dans une fuite de données. L\'email propose de "vérifier votre exposition" en cliquant sur un lien.',
+    context: '🔓 L\'email cite des sites que vous avez réellement utilisés',
+    options: [
+      { label: 'Je clique — c\'est urgent de savoir si mes mots de passe sont exposés', sublabel: 'Je veux savoir tout de suite', score: 0 },
+      { label: 'Je vais directement sur haveibeenpwned.com sans passer par le lien', sublabel: 'C\'est le service officiel de vérification des fuites', score: 2 },
+      { label: 'J\'ignore — ce genre d\'email est toujours faux', sublabel: 'Les vraies fuites ne génèrent pas d\'emails', score: 1 },
+    ],
+  },
+  {
+    id: 'q-concours',
+    question: 'Sur Facebook : "🎉 FÉLICITATIONS ! Vous avez été tiré au sort parmi nos abonnés ! Vous gagnez un iPhone 15 Pro. Cliquez pour réclamer votre prix avant ce soir minuit !"',
+    context: '📘 Le post a 4 800 likes et vient d\'une page avec 50 000 abonnés',
+    options: [
+      { label: 'Je clique — j\'ai peut-être vraiment gagné !', sublabel: 'Tant de personnes ne peuvent pas se tromper', score: 0 },
+      { label: 'Je vérifie d\'abord si la page est certifiée et si je me souviens d\'avoir participé', sublabel: 'Les concours légitimes nécessitent une participation préalable', score: 1 },
+      { label: 'J\'ignore — c\'est un arnaque classique aux faux concours', sublabel: 'On ne gagne pas à des jeux auxquels on n\'a pas participé', score: 2 },
+    ],
+  },
+  {
+    id: 'q-incognito',
+    question: 'Vous utilisez une application bancaire depuis votre téléphone en mode navigation privée (incognito). Vous pensez que...',
+    context: '🕵️ Votre connexion est-elle vraiment privée ?',
+    options: [
+      { label: 'Incognito me protège totalement — personne ne peut voir mes connexions', sublabel: 'Ni mon opérateur, ni ma banque, ni les pirates', score: 0 },
+      { label: 'Incognito empêche juste que mon historique soit sauvegardé sur l\'appareil', sublabel: 'Le reste du trafic reste visible pour l\'opérateur et les serveurs', score: 2 },
+      { label: 'Incognito cache mon identité sur internet — ma banque ne sait pas que c\'est moi', sublabel: 'C\'est comme naviguer avec un masque', score: 0 },
+    ],
+  },
+  {
+    id: 'q-maj',
+    question: 'Windows vous demande une mise à jour depuis 3 semaines. Vous ignorez les notifications car ça prend du temps et vous ne voulez pas perdre votre travail en cours.',
+    context: '💻 La mise à jour concerne une faille de sécurité critique (CVE-2024-XXXX)',
+    options: [
+      { label: 'Je reporte indéfiniment — les mises à jour cassent parfois les choses', sublabel: 'Et je n\'ai pas eu de problème jusqu\'ici', score: 0 },
+      { label: 'Je mets à jour seulement si c\'est une mise à jour "critique" notifiée', sublabel: 'Je fais le tri selon l\'urgence', score: 1 },
+      { label: 'Je programme la mise à jour pour la nuit — les failles non corrigées sont la première porte d\'entrée des attaques', sublabel: 'WannaCry a exploité une faille disponible 2 mois avant l\'attaque', score: 2 },
+    ],
+  },
+  {
+    id: 'q-backup',
+    question: 'Vos photos de famille (mariage, enfants) ne sont stockées que sur votre téléphone. Il n\'y a pas de sauvegarde ailleurs. Que faites-vous ?',
+    context: '📸 15 ans de souvenirs, ~30 000 photos, aucune copie',
+    options: [
+      { label: 'Rien — mon téléphone est récent et fiable', sublabel: 'Les téléphones neufs ne tombent pas en panne', score: 0 },
+      { label: 'Je les envoie par email à moi-même de temps en temps', sublabel: 'C\'est une sauvegarde suffisante', score: 1 },
+      { label: 'Je mets en place une sauvegarde automatique (cloud + disque dur)', sublabel: 'Règle 3-2-1 : 3 copies, 2 supports différents, 1 hors site', score: 2 },
+    ],
+  },
+  {
+    id: 'q-partage-ecran',
+    question: '"Technicien Orange" vous appelle : "Votre box est piratée. Pour la réparer à distance, j\'ai besoin que vous installiez TeamViewer et que vous me donniez le code d\'accès affiché."',
+    context: '📞 Il connaît votre adresse et votre numéro de client Orange',
+    options: [
+      { label: 'J\'installe TeamViewer et lui donne le code — il est technicien certifié Orange', sublabel: 'Il a prouvé qu\'il connaît mon dossier', score: 0 },
+      { label: 'Je racccroche et appelle le 3900 (numéro officiel Orange)', sublabel: 'Un vrai technicien peut être dépêché via le service client', score: 2 },
+      { label: 'J\'installe mais je surveille l\'écran — si je vois quelque chose d\'anormal je coupe', sublabel: 'Je reste vigilant pendant l\'intervention', score: 1 },
+    ],
+  },
+  {
+    id: 'q-pj-exe',
+    type: 'interactive',
+    question: 'Que faites-vous face à cet email ?',
+    context: '📧 Lisez bien l\'expéditeur, l\'objet et la pièce jointe avant d\'agir',
+    visual: {
+      type: 'email',
+      from: 'Service Comptabilité',
+      fromEmail: 'facturation@orange-compte.fr',
+      subject: 'Facture impayée N°2024-08471 — Action requise sous 48h',
+      body: 'Bonjour,\n\nNous n\'avons pas reçu le règlement de la facture N°2024-08471 d\'un montant de 127,50€.\n\nVeuillez trouver ci-joint la facture détaillée au format exécutable.\n\nSans règlement sous 48h, votre ligne sera suspendue.\n\nService Facturation Orange',
+      hasPJ: true,
+      pjLabel: 'Facture_N2024-08471.exe',
+    },
+    options: [
+      { label: '📎 Ouvrir la pièce jointe', sublabel: 'Pour voir le détail de la facture', score: 0 },
+      { label: '🚩 Signaler comme phishing', sublabel: 'Et ne pas ouvrir la pièce jointe', score: 2 },
+      { label: '🗑️ Supprimer sans ouvrir', sublabel: 'Je paierai via le site Orange directement', score: 1 },
+    ],
+  },
+  {
+    id: 'q-email-apple',
+    type: 'interactive',
+    question: 'Que faites-vous face à cet email reçu ce matin ?',
+    context: '📧 Prenez le temps d\'examiner l\'expéditeur et le contenu',
+    visual: {
+      type: 'email',
+      from: 'Apple Support',
+      fromEmail: 'noreply@apple-id-secure.com',
+      subject: 'Votre identifiant Apple ID a été temporairement verrouillé',
+      body: 'Cher client Apple,\n\nNous avons détecté une tentative d\'accès non autorisée sur votre compte Apple ID depuis un iPhone 16 Pro (Bucarest, Roumanie).\n\nPour protéger votre compte, nous avons temporairement verrouillé votre accès.\n\nCliquez sur le bouton ci-dessous pour vérifier votre identité et restaurer l\'accès dans les 24h.',
+      hasLink: true,
+      linkUrl: 'https://apple-id-secure.com/restore',
+    },
+    options: [
+      { label: '🔗 Cliquer sur "Restaurer mon accès"', sublabel: 'Pour récupérer mon compte rapidement', score: 0 },
+      { label: '🚩 Signaler comme phishing', sublabel: 'L\'adresse expéditeur n\'est pas celle d\'Apple', score: 2 },
+      { label: '🌐 Aller sur appleid.apple.com directement', sublabel: 'Sans passer par le lien de l\'email', score: 2 },
+    ],
+  },
+  {
+    id: 'q-sms-antai',
+    type: 'interactive',
+    question: 'Vous recevez ce SMS. Que faites-vous ?',
+    context: '📱 Vous avez un véhicule et conduisez régulièrement en ville',
+    visual: {
+      type: 'sms',
+      from: 'ANTAI-Officiel',
+      body: 'ANTAI : Amende non réglée réf. 7291-FR. Montant dû : 47€. Sans règlement avant demain, des frais de 135€ s\'ajouteront. Payez maintenant : antai-paiement-fr.com/reg',
+    },
+    options: [
+      { label: '💳 Payer les 47€ via le lien', sublabel: 'Pour éviter les 135€ supplémentaires', score: 0 },
+      { label: '📵 Signaler au 33700', sublabel: 'C\'est le numéro officiel pour signaler les SMS frauduleux', score: 2 },
+      { label: '🌐 Vérifier sur amendes.gouv.fr', sublabel: 'Le seul site officiel pour consulter ses amendes', score: 2 },
+    ],
+  },
+  {
+    id: 'q-email-amazon',
+    type: 'interactive',
+    question: 'Cet email est-il légitime ? Quelle est votre action ?',
+    context: '📧 Vous commandez régulièrement sur Amazon',
+    visual: {
+      type: 'email',
+      from: 'Amazon.fr',
+      fromEmail: 'confirmation@amazon-expeditions.com',
+      subject: 'Votre commande #406-8291847 a bien été expédiée !',
+      body: 'Bonjour,\n\nVotre commande a été expédiée ! Vous pouvez suivre votre livraison en cliquant sur le lien ci-dessous.\n\nCommande : #406-8291847\nDate d\'expédition : Aujourd\'hui\nLivreur : DHL\nLivraison estimée : 2-3 jours ouvrés\n\nSuivre mon colis →',
+      hasLink: true,
+      linkUrl: 'https://amazon-expeditions.com/track/406-8291847',
+    },
+    options: [
+      { label: '📦 Cliquer sur "Suivre mon colis"', sublabel: 'Pour voir où en est ma livraison', score: 0 },
+      { label: '🚩 Signaler comme phishing', sublabel: 'L\'email vient de amazon-expeditions.com, pas d\'amazon.fr', score: 2 },
+      { label: '🌐 Aller sur amazon.fr pour vérifier mes commandes', sublabel: 'Sans passer par le lien de l\'email', score: 2 },
+    ],
+  },
 ];
+
+const ASSESSMENT_COUNT = 5;
 
 const TOTAL_SCENARIOS = 10;
 const MAX_SCORE = TOTAL_SCENARIOS * 10;
@@ -421,6 +619,185 @@ function getBadge(score: number) {
   if (pct >= 70) return { label: 'Sécurisé', color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' };
   if (pct >= 40) return { label: 'Prudent', color: '#d97706', bg: '#fffbeb', border: '#fde68a' };
   return { label: 'Vulnérable', color: '#dc2626', bg: '#fef2f2', border: '#fecaca' };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SANDBOX EMAIL INTERACTIF — ÉVALUATION (avec boutons d'action directs)
+// ─────────────────────────────────────────────────────────────────────────────
+function AssessmentEmailSandbox({ visual, onAction }: { visual: AssessmentVisual; onAction: (score: number, idx: number) => void }) {
+  const [showHeaders, setShowHeaders] = useState(false);
+  const [clicked, setClicked] = useState<number | null>(null);
+  const isDangerousDomain = visual.fromEmail && !visual.fromEmail.includes('@apple.com') && !visual.fromEmail.includes('@amazon.fr') && !visual.fromEmail.includes('@orange.fr');
+  const initials = (visual.from || 'X').charAt(0).toUpperCase();
+
+  const actions = [
+    { label: '🔗 Ouvrir le lien', sublabel: 'Accéder au site mentionné dans l\'email', score: 0 },
+    { label: '📎 Ouvrir la pièce jointe', sublabel: 'Consulter le document joint', score: 0 },
+    { label: '🚩 Signaler comme phishing', sublabel: 'Marquer comme tentative d\'hameçonnage', score: 2 },
+    { label: '🗑️ Supprimer sans ouvrir', sublabel: 'Supprimer l\'email sans interagir', score: 1 },
+    { label: '🌐 Vérifier sur le site officiel', sublabel: 'Aller directement sur le site sans le lien', score: 2 },
+  ];
+
+  const shownActions = visual.hasLink && !visual.hasPJ
+    ? [actions[0], actions[2], actions[4]]
+    : visual.hasPJ
+    ? [actions[1], actions[2], actions[3]]
+    : [actions[2], actions[3], actions[4]];
+
+  const handleClick = (score: number, idx: number) => {
+    if (clicked !== null) return;
+    setClicked(idx);
+    setTimeout(() => onAction(score, idx), 300);
+  };
+
+  return (
+    <div className="flex flex-col bg-white border border-gray-200 overflow-hidden" style={{ fontFamily: 'Google Sans, Arial, sans-serif', maxHeight: 420 }}>
+      <div className="flex items-center gap-2 px-3 py-2 border-b" style={{ background: '#f6f8fc' }}>
+        <Mail size={13} className="text-gray-500" />
+        <span className="text-xs font-medium text-gray-700">Boîte de réception</span>
+      </div>
+      <div className="px-5 pt-4 pb-2">
+        <h3 className="text-lg font-normal text-gray-900">{visual.subject || '(sans objet)'}</h3>
+      </div>
+      <div className="px-5 pb-3 flex items-start gap-3">
+        <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+          style={{ background: isDangerousDomain ? '#dc2626' : '#6b7280' }}>{initials}</div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-medium text-gray-900 text-sm">{visual.from}</span>
+            <button onClick={() => setShowHeaders(!showHeaders)}
+              className="text-xs text-gray-500 hover:text-gray-800 flex items-center gap-0.5">
+              <span className="font-mono text-xs">&lt;{visual.fromEmail}&gt;</span>
+              <ChevronDown size={10} className={`transition-transform ${showHeaders ? 'rotate-180' : ''}`} />
+            </button>
+          </div>
+          <div className="text-xs text-gray-400 mt-0.5">À : moi · Aujourd'hui, {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
+        </div>
+        {isDangerousDomain && <span className="text-xs font-bold text-red-600 flex-shrink-0 mt-1">⚠ Domaine suspect</span>}
+      </div>
+      <AnimatePresence>
+        {showHeaders && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden mx-5 mb-2">
+            <div className="bg-gray-50 border border-gray-200 p-2 text-xs font-mono space-y-1">
+              <div><span className="text-gray-500">From: </span><span className="text-red-600">{visual.fromEmail}</span></div>
+              <div><span className="text-gray-500">Authentication: </span><span className="text-red-600">DKIM=fail SPF=fail</span></div>
+              <div className="text-red-600 font-sans font-bold mt-1">⚠️ Domaine non officiel — cet email n'est PAS envoyé par le vrai service</div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <div className="px-5 pb-2 flex-1 overflow-y-auto">
+        <div className="text-sm text-gray-800 leading-relaxed whitespace-pre-line">{visual.body}</div>
+        {visual.hasPJ && (
+          <div className="mt-3 flex items-center gap-2 px-3 py-2 border border-orange-300 bg-orange-50">
+            <Paperclip size={14} className="text-orange-500 flex-shrink-0" />
+            <div>
+              <div className="text-sm font-medium text-orange-800">{visual.pjLabel}</div>
+              <div className="text-xs text-orange-600">⚠️ Fichier exécutable (.exe) — dangereux</div>
+            </div>
+          </div>
+        )}
+        {visual.hasLink && visual.linkUrl && (
+          <div className="mt-3 px-3 py-2 border border-gray-200 bg-gray-50">
+            <div className="text-xs text-gray-500 font-mono">{visual.linkUrl}</div>
+          </div>
+        )}
+      </div>
+      <div className="border-t border-gray-200 px-4 py-3 bg-gray-50">
+        <div className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Que faites-vous ?</div>
+        <div className="flex flex-col gap-2">
+          {shownActions.map((action, idx) => (
+            <motion.button
+              key={idx}
+              onClick={() => handleClick(action.score, idx)}
+              disabled={clicked !== null}
+              whileHover={clicked === null ? { x: 3 } : {}}
+              className="w-full text-left px-3 py-2.5 border text-sm font-medium transition-all flex items-center gap-3"
+              style={{
+                borderColor: clicked === idx ? (action.score >= 2 ? '#16a34a' : action.score === 1 ? '#d97706' : '#dc2626') : '#e5e7eb',
+                background: clicked === idx ? (action.score >= 2 ? '#f0fdf4' : action.score === 1 ? '#fffbeb' : '#fef2f2') : 'white',
+                opacity: clicked !== null && clicked !== idx ? 0.5 : 1,
+              }}>
+              <span className="text-base">{action.label.split(' ')[0]}</span>
+              <div>
+                <div className="font-semibold text-gray-900">{action.label.split(' ').slice(1).join(' ')}</div>
+                <div className="text-xs text-gray-500">{action.sublabel}</div>
+              </div>
+            </motion.button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SANDBOX SMS INTERACTIF — ÉVALUATION
+// ─────────────────────────────────────────────────────────────────────────────
+function AssessmentSmsSandbox({ visual, onAction }: { visual: AssessmentVisual; onAction: (score: number, idx: number) => void }) {
+  const [clicked, setClicked] = useState<number | null>(null);
+
+  const shownActions = [
+    { label: '💳 Payer via le lien', sublabel: 'Accéder au lien de paiement', score: 0 },
+    { label: '📵 Signaler au 33700', sublabel: 'Numéro officiel de signalement des SMS frauduleux', score: 2 },
+    { label: '🌐 Vérifier sur le site officiel', sublabel: 'Sans passer par le lien du SMS', score: 2 },
+    { label: '↩️ Répondre au SMS', sublabel: 'Pour demander plus d\'informations', score: 0 },
+    { label: '🗑️ Supprimer et ignorer', sublabel: 'Sans interagir avec le message', score: 1 },
+  ];
+
+  const visibleActions = [shownActions[0], shownActions[1], shownActions[2]];
+
+  const handleClick = (score: number, idx: number) => {
+    if (clicked !== null) return;
+    setClicked(idx);
+    setTimeout(() => onAction(score, idx), 300);
+  };
+
+  return (
+    <div className="flex flex-col bg-white border border-gray-200 overflow-hidden" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif', maxHeight: 420 }}>
+      <div style={{ background: '#f2f2f7' }} className="px-4 pt-3 pb-2 border-b border-gray-200 flex items-center gap-3">
+        <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+          style={{ background: '#8e8e93' }}>{(visual.from || '?').charAt(0)}</div>
+        <div>
+          <div className="text-sm font-semibold text-gray-900">{visual.from || 'Inconnu'}</div>
+          <div className="text-xs text-gray-500">Message · Aujourd'hui</div>
+        </div>
+      </div>
+      <div className="px-4 py-4 bg-white min-h-28">
+        <div className="flex justify-start">
+          <div className="max-w-xs px-3.5 py-2.5 text-sm leading-relaxed text-gray-900"
+            style={{ background: '#e5e5ea', borderRadius: '18px 18px 18px 4px' }}>
+            {visual.body}
+          </div>
+        </div>
+      </div>
+      <div className="border-t border-gray-200 px-4 py-3 bg-gray-50">
+        <div className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Que faites-vous ?</div>
+        <div className="flex flex-col gap-2">
+          {visibleActions.map((action, idx) => (
+            <motion.button
+              key={idx}
+              onClick={() => handleClick(action.score, idx)}
+              disabled={clicked !== null}
+              whileHover={clicked === null ? { x: 3 } : {}}
+              className="w-full text-left px-3 py-2.5 border text-sm font-medium transition-all flex items-center gap-3"
+              style={{
+                borderColor: clicked === idx ? (action.score >= 2 ? '#16a34a' : action.score === 1 ? '#d97706' : '#dc2626') : '#e5e7eb',
+                background: clicked === idx ? (action.score >= 2 ? '#f0fdf4' : action.score === 1 ? '#fffbeb' : '#fef2f2') : 'white',
+                opacity: clicked !== null && clicked !== idx ? 0.5 : 1,
+              }}>
+              <span className="text-base">{action.label.split(' ')[0]}</span>
+              <div>
+                <div className="font-semibold text-gray-900">{action.label.split(' ').slice(1).join(' ')}</div>
+                <div className="text-xs text-gray-500">{action.sublabel}</div>
+              </div>
+            </motion.button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1166,6 +1543,7 @@ export default function MonsieurToutLeMonde() {
 
   const [assessmentIndex, setAssessmentIndex] = useState(0);
   const [assessmentAnswers, setAssessmentAnswers] = useState<number[]>([]);
+  const [assessmentQuestions, setAssessmentQuestions] = useState<AssessmentQuestion[]>(() => shuffleAndPick(ASSESSMENT_BANK, ASSESSMENT_COUNT));
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [level, setLevel] = useState<Level>('debutant');
   const [phase, setPhase] = useState<Phase>('intro');
@@ -1188,7 +1566,7 @@ export default function MonsieurToutLeMonde() {
       const newAnswers = [...assessmentAnswers, optionScore];
       setAssessmentAnswers(newAnswers);
       setSelectedOption(null);
-      if (assessmentIndex + 1 < ASSESSMENT.length) {
+      if (assessmentIndex + 1 < assessmentQuestions.length) {
         setAssessmentIndex(assessmentIndex + 1);
       } else {
         const detectedLevel = computeLevel(newAnswers);
@@ -1265,10 +1643,12 @@ export default function MonsieurToutLeMonde() {
     setPhase('intro');
     setAssessmentIndex(0);
     setAssessmentAnswers([]);
+    setAssessmentQuestions(shuffleAndPick(ASSESSMENT_BANK, ASSESSMENT_COUNT));
     setSelectedOption(null);
     setLevel('debutant');
     setCurrentIndex(0);
     setScenarios(Array(TOTAL_SCENARIOS).fill(null));
+    setUsedBankIndices([]);
     setScore(0);
     setWrongCount(0);
     setSelectedChoice(null);
@@ -1377,49 +1757,68 @@ export default function MonsieurToutLeMonde() {
           )}
 
           {/* ═══ ÉVALUATION ══════════════════════════════════════════════════ */}
-          {phase === 'assessment' && (
-            <motion.div key={`assess-${assessmentIndex}`} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
-              className="min-h-screen flex flex-col">
-              <div className="border-b border-gray-100 px-8 py-4 flex items-center gap-4">
-                <span className="text-xs text-gray-400 font-medium">Évaluation</span>
-                <div className="flex-1 flex items-center gap-1.5">
-                  {ASSESSMENT.map((_, i) => (
-                    <div key={i} className="h-1.5 flex-1 transition-all duration-300"
-                      style={{ background: i < assessmentIndex ? BLUE : i === assessmentIndex ? `${BLUE}50` : '#e5e7eb' }} />
-                  ))}
-                </div>
-                <span className="text-xs font-bold" style={{ color: BLUE }}>{assessmentIndex + 1} / {ASSESSMENT.length}</span>
-              </div>
-              <div className="flex-1 flex flex-col justify-center px-8 lg:px-16 py-12">
-                <div className="max-w-2xl">
-                  {ASSESSMENT[assessmentIndex].context && (
-                    <div className="text-sm text-gray-500 mb-4 px-4 py-2 border-l-2" style={{ borderColor: BLUE }}>
-                      {ASSESSMENT[assessmentIndex].context}
-                    </div>
-                  )}
-                  <h2 className="text-2xl lg:text-3xl font-black text-gray-900 mb-8 leading-tight">
-                    {ASSESSMENT[assessmentIndex].question}
-                  </h2>
-                  <div className="space-y-3">
-                    {ASSESSMENT[assessmentIndex].options.map((opt, i) => (
-                      <motion.button key={i} onClick={() => handleOptionSelect(opt.score, i)} whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
-                        className="w-full text-left border px-5 py-4 transition-all flex items-start gap-4"
-                        style={{ borderColor: selectedOption === i ? BLUE : '#e5e7eb', background: selectedOption === i ? `${BLUE}08` : 'white' }}>
-                        <span className="w-7 h-7 flex-shrink-0 flex items-center justify-center text-xs font-bold border transition-colors"
-                          style={{ borderColor: selectedOption === i ? BLUE : '#d1d5db', color: selectedOption === i ? BLUE : '#6b7280' }}>
-                          {String.fromCharCode(65 + i)}
-                        </span>
-                        <div>
-                          <div className="font-semibold text-gray-900 text-sm">{opt.label}</div>
-                          {opt.sublabel && <div className="text-xs text-gray-500 mt-0.5">{opt.sublabel}</div>}
-                        </div>
-                      </motion.button>
+          {phase === 'assessment' && (() => {
+            const currentQ = assessmentQuestions[assessmentIndex];
+            const isInteractive = currentQ?.type === 'interactive';
+            return (
+              <motion.div key={`assess-${assessmentIndex}`} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
+                className="min-h-screen flex flex-col">
+                <div className="border-b border-gray-100 px-8 py-4 flex items-center gap-4">
+                  <span className="text-xs text-gray-400 font-medium">Évaluation</span>
+                  <div className="flex-1 flex items-center gap-1.5">
+                    {assessmentQuestions.map((_, i) => (
+                      <div key={i} className="h-1.5 flex-1 transition-all duration-300"
+                        style={{ background: i < assessmentIndex ? BLUE : i === assessmentIndex ? `${BLUE}50` : '#e5e7eb' }} />
                     ))}
                   </div>
+                  <span className="text-xs font-bold" style={{ color: BLUE }}>{assessmentIndex + 1} / {assessmentQuestions.length}</span>
                 </div>
-              </div>
-            </motion.div>
-          )}
+                <div className={`flex-1 flex flex-col ${isInteractive ? '' : 'justify-center'} px-6 lg:px-12 py-8`}>
+                  <div className={`${isInteractive ? 'max-w-2xl mx-auto w-full' : 'max-w-2xl'}`}>
+                    {currentQ?.context && (
+                      <div className="text-sm text-gray-500 mb-4 px-4 py-2 border-l-2" style={{ borderColor: BLUE }}>
+                        {currentQ.context}
+                      </div>
+                    )}
+                    <h2 className={`font-black text-gray-900 leading-tight ${isInteractive ? 'text-xl lg:text-2xl mb-5' : 'text-2xl lg:text-3xl mb-8'}`}>
+                      {currentQ?.question}
+                    </h2>
+
+                    {isInteractive && currentQ?.visual ? (
+                      currentQ.visual.type === 'email' ? (
+                        <AssessmentEmailSandbox
+                          visual={currentQ.visual}
+                          onAction={(score, idx) => handleOptionSelect(score, idx)}
+                        />
+                      ) : (
+                        <AssessmentSmsSandbox
+                          visual={currentQ.visual}
+                          onAction={(score, idx) => handleOptionSelect(score, idx)}
+                        />
+                      )
+                    ) : (
+                      <div className="space-y-3">
+                        {currentQ?.options.map((opt, i) => (
+                          <motion.button key={i} onClick={() => handleOptionSelect(opt.score, i)} whileHover={{ x: 4 }} whileTap={{ scale: 0.98 }}
+                            className="w-full text-left border px-5 py-4 transition-all flex items-start gap-4"
+                            style={{ borderColor: selectedOption === i ? BLUE : '#e5e7eb', background: selectedOption === i ? `${BLUE}08` : 'white' }}>
+                            <span className="w-7 h-7 flex-shrink-0 flex items-center justify-center text-xs font-bold border transition-colors"
+                              style={{ borderColor: selectedOption === i ? BLUE : '#d1d5db', color: selectedOption === i ? BLUE : '#6b7280' }}>
+                              {String.fromCharCode(65 + i)}
+                            </span>
+                            <div>
+                              <div className="font-semibold text-gray-900 text-sm">{opt.label}</div>
+                              {opt.sublabel && <div className="text-xs text-gray-500 mt-0.5">{opt.sublabel}</div>}
+                            </div>
+                          </motion.button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })()}
 
           {/* ═══ NIVEAU RÉVÉLÉ ════════════════════════════════════════════════ */}
           {phase === 'level-reveal' && (
