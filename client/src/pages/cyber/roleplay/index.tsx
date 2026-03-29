@@ -68,13 +68,13 @@ const RoleplayHub: React.FC = () => {
       details: [
         "Simulation d'entretien technique réaliste",
         "Questions adaptées en fonction du niveau",
-        "Analyse de vos réponses avec feedback personnalisé"
+        "Analyse de vos réponses avec feedback"
       ],
       comingSoon: false
     },
     {
       id: 'pentest-lab',
-      title: 'Je suis Expert Pentest',
+      title: 'Je suis Expert en Pentest',
       description: "J'exploite des vulnérabilités web dans un lab sécurisé",
       link: '/cyber/pentest-lab',
       icon: <Terminal className="h-10 w-10 text-purple-300" />,
