@@ -57,8 +57,11 @@ function shuffleAndPick<T>(arr: T[], n: number): T[] {
   return copy.slice(0, n);
 }
 
+interface SpreadsheetCell { value: string; bold?: boolean; bg?: string; color?: string; align?: 'left' | 'center' | 'right'; }
+interface DashboardMetric { label: string; value: string; delta?: string; deltaUp?: boolean; color?: string; }
+
 interface ScenarioVisual {
-  type: 'email' | 'sms' | 'phone-call' | 'browser-popup' | 'social-post' | 'chat-ai';
+  type: 'email' | 'sms' | 'phone-call' | 'browser-popup' | 'social-post' | 'chat-ai' | 'spreadsheet' | 'dashboard';
   from?: string;
   fromEmail?: string;
   subject?: string;
@@ -67,6 +70,12 @@ interface ScenarioVisual {
   linkLabel?: string;
   linkUrl?: string;
   prompt?: string;
+  sheetName?: string;
+  headers?: string[];
+  rows?: SpreadsheetCell[][];
+  metrics?: DashboardMetric[];
+  chartTitle?: string;
+  chartBars?: { label: string; value: number; color?: string }[];
 }
 
 interface ScenarioChoice {
@@ -307,6 +316,76 @@ const ASSESSMENT_BANK: AssessmentQuestion[] = [
       { label: 'Expliquer que l\'outil est utilisé mais sans dévoiler les critères (secret commercial)', sublabel: 'Le secret commercial protège les algorithmes de recrutement', score: 1 },
     ],
   },
+  {
+    id: 'q-dashboard-axe',
+    question: 'Votre manager vous montre un graphique Power BI avec la courbe de ventes du mois. La courbe monte de façon spectaculaire. Avant de vous réjouir, que vérifiez-vous en premier ?',
+    context: '📊 La courbe semble montrer +150% de croissance sur 4 semaines',
+    options: [
+      { label: 'Je félicite l\'équipe commerciale — les chiffres ne mentent pas', sublabel: 'La courbe est très clairement ascendante', score: 0 },
+      { label: 'Je vérifie si l\'axe Y commence à 0 ou à une valeur arbitraire', sublabel: 'Un axe tronqué amplifie visuellement des variations mineures', score: 2 },
+      { label: 'Je vérifie si le graphique est filtré sur les meilleurs vendeurs', sublabel: 'Les filtres peuvent cacher des performances globales moins bonnes', score: 1 },
+    ],
+  },
+  {
+    id: 'q-excel-erreur',
+    question: 'Vous venez de finir un rapport Excel avec les ventes de 12 mois. La formule SOMME de la dernière colonne "Total" affiche 2 847 293€. Votre collègue dit que le total devrait être environ 3,2 millions. Que faites-vous ?',
+    context: '📋 Le rapport de 200 lignes doit être envoyé au CODIR dans 30 minutes',
+    options: [
+      { label: 'J\'envoie le rapport — la formule SOMME ne peut pas se tromper', sublabel: 'Excel calcule correctement les formules', score: 0 },
+      { label: 'Je vérifie la plage de la formule SOMME — elle peut exclure des lignes silencieusement', sublabel: 'Un copier-coller peut déplacer la plage et exclure des lignes', score: 2 },
+      { label: 'Je refais la SOMME à la main sur 5 lignes pour vérifier le calcul unitaire', sublabel: 'Si les calculs unitaires sont corrects, la SOMME l\'est aussi', score: 1 },
+    ],
+  },
+  {
+    id: 'q-correlation-causalite',
+    question: 'Votre analyse montre une forte corrélation (r=0,87) entre le nombre de cafés bus par jour par vos commerciaux et leur chiffre d\'affaires. Votre DG veut installer des machines à café dans toutes les agences. Quelle est votre analyse ?',
+    context: '☕ La corrélation est statistiquement significative sur 200 commerciaux',
+    options: [
+      { label: 'Excellente idée — la corrélation est forte et statistiquement prouvée', sublabel: 'r=0,87 c\'est une corrélation très élevée', score: 0 },
+      { label: 'La corrélation ne prouve pas la causalité — les commerciaux les plus actifs boivent peut-être plus de café', sublabel: 'Il faut identifier la vraie cause (l\'activité, pas le café)', score: 2 },
+      { label: 'Il faut d\'abord tester sur une agence pilote pour confirmer', sublabel: 'Un test A/B suffira à valider le lien café → performance', score: 1 },
+    ],
+  },
+  {
+    id: 'q-data-qualite-csv',
+    question: 'Vous importez un fichier CSV de 10 000 clients dans votre outil CRM. Après import, votre CRM affiche 11 347 clients. Quelle est votre première hypothèse ?',
+    context: '🗃️ Le fichier CSV a été exporté depuis votre ancien système',
+    options: [
+      { label: 'Le CRM a créé de nouveaux clients pendant l\'import — c\'est normal', sublabel: 'Le CRM peut enrichir automatiquement les données', score: 0 },
+      { label: 'Il y a des doublons dans le fichier CSV ou des enregistrements fragmentés', sublabel: 'Un client avec 2 adresses emails peut créer 2 entrées distinctes', score: 2 },
+      { label: 'Le fichier CSV était corrompu — relancer l\'import suffira', sublabel: 'Un import propre donnera le bon résultat', score: 1 },
+    ],
+  },
+  {
+    id: 'q-ml-accuracy',
+    question: 'Votre équipe a développé un modèle IA qui détecte les fraudes bancaires avec 98,5% d\'accuracy. Faut-il le déployer en production ?',
+    context: '🤖 Le modèle a été testé sur 1 million de transactions — 98,5% d\'accuracy',
+    options: [
+      { label: 'Oui — 98,5% c\'est excellent, on peut passer en production', sublabel: 'L\'accuracy est la métrique standard d\'évaluation', score: 0 },
+      { label: 'À vérifier : si seulement 1,5% des transactions sont des fraudes, 98,5% s\'obtient en prédisant "jamais de fraude"', sublabel: 'Sur des données déséquilibrées, l\'accuracy est une métrique trompeuse', score: 2 },
+      { label: 'Tester d\'abord sur un deuxième jeu de données pour confirmer les résultats', sublabel: 'La validation croisée confirme que le modèle généralise bien', score: 1 },
+    ],
+  },
+  {
+    id: 'q-bi-kpi-definition',
+    question: 'Votre dashboard Power BI affiche un "Taux de satisfaction client" de 87%. Votre concurrent communique 91%. Avant de vous inquiéter, que devez-vous vérifier ?',
+    context: '📈 Les deux chiffres viennent de rapports annuels 2024',
+    options: [
+      { label: 'Analyser pourquoi vos clients sont moins satisfaits — 4 points c\'est significatif', sublabel: 'Les chiffres sont comparables car c\'est le même KPI', score: 0 },
+      { label: 'Vérifier comment chacun définit et calcule ce "taux de satisfaction" avant toute comparaison', sublabel: 'NPS, CSAT, CES sont 3 méthodes différentes qui donnent des scores incomparables', score: 2 },
+      { label: 'Augmenter le nombre d\'enquêtes pour avoir une meilleure représentativité', sublabel: 'Plus d\'échantillon améliore la précision statistique', score: 1 },
+    ],
+  },
+  {
+    id: 'q-google-analytics-rgpd',
+    question: 'Votre site web utilise Google Analytics 4 pour suivre vos visiteurs. Votre DPO vous dit que vous avez un problème RGPD. Lequel ?',
+    context: '🌐 Le site a 50 000 visiteurs/mois — aucune configuration RGPD spécifique n\'a été faite',
+    options: [
+      { label: 'Aucun — Google Analytics est un service Google, donc conforme RGPD automatiquement', sublabel: 'Google est certifié et respecte le RGPD', score: 0 },
+      { label: 'Les données des visiteurs sont transférées aux USA sans consentement explicite — illégal en Europe', sublabel: 'La CNIL a statué en 2022 que GA sans consentement viole le RGPD (transfert hors UE)', score: 2 },
+      { label: 'Il faut ajouter un cookie banner — ça suffit à se conformer au RGPD', sublabel: 'Le cookie banner informe, mais le transfert des données reste problématique', score: 1 },
+    ],
+  },
 ];
 
 const ASSESSMENT_COUNT = 5;
@@ -488,10 +567,112 @@ const IA_ENRICHMENT: Record<string, IAEnrichment> = {
       'Une amende de 30 millions d\'euros ou 6% du CA mondial pour les violations les plus graves de l\'EU AI Act',
     ],
   },
+  bi: {
+    resumeCle: 'Un dashboard BI raconte une histoire — qui peut être vraie ou trompeuse. Lire une visualisation de données nécessite de comprendre les choix de représentation.',
+    bonnesPratiques: [
+      'Vérifier l\'axe Y d\'un graphique : s\'il ne commence pas à 0, les variations sont visuellement amplifiées',
+      'Questionner la définition exacte de chaque KPI — "CA" peut exclure les retours, les remises ou la TVA',
+      'Vérifier la période affichée : une croissance "mensuelle" flatte plus qu\'une comparaison annuelle',
+      'Distinguer données brutes et données filtrées : "top 10 clients" masque la performance globale',
+    ],
+    faitsHistoriques: [
+      'Power BI est utilisé par plus de 250 000 organisations dans le monde — Microsoft, 2024',
+      'Gartner classe Tableau, Power BI et Looker comme leaders du Magic Quadrant BI depuis 5 ans',
+      '90% des erreurs de décision basées sur des dashboards viennent de mauvaises définitions de KPI (McKinsey)',
+      'Le "data storytelling" est classé parmi les 5 compétences les plus recherchées en analytics (LinkedIn 2024)',
+    ],
+  },
+  data_viz: {
+    resumeCle: 'Une visualisation peut à la fois informer et manipuler. Identifier les biais visuels est une compétence clé pour tout professionnel data.',
+    bonnesPratiques: [
+      'Toujours vérifier l\'échelle des axes avant d\'interpréter une tendance',
+      'Méfiez-vous des camemberts avec trop de segments — ils cachent plus qu\'ils ne révèlent',
+      'Un graphique sans source ni date est une opinion déguisée en fait',
+      'La taille d\'une bulle dans un bubble chart doit représenter une valeur numérique précise, pas une impression',
+    ],
+    faitsHistoriques: [
+      'Edward Tufte, père de la visualisation moderne, a défini le concept de "chartjunk" en 1983',
+      'Fox News a diffusé en 2012 un graphique avec un axe Y tronqué rendant une augmentation de 8,6% à 9% visible comme un doublement',
+      'La visualisation Florence Nightingale de 1858 a convaincu la reine Victoria de réformer l\'hygiène des hôpitaux militaires',
+      'Le New York Times a développé des formations internes en data literacy pour ses 1 700 journalistes',
+    ],
+  },
+  analytics: {
+    resumeCle: 'L\'analyse de données est puissante mais dangereuse sans rigueur : corrélation ≠ causalité, moyenne ≠ représentativité, n petit ≠ conclusion fiable.',
+    bonnesPratiques: [
+      'Corrélation ≠ causalité : deux variables corrélées n\'ont pas forcément de lien de cause à effet',
+      'Vérifier la taille de l\'échantillon avant de tirer des conclusions générales',
+      'La moyenne est sensible aux valeurs extrêmes (outliers) — préférer la médiane pour les données asymétriques',
+      'Toujours afficher l\'intervalle de confiance avec un résultat statistique',
+    ],
+    faitsHistoriques: [
+      '"La corrélation entre la consommation de glace et les noyades" — exemple classique de corrélation fallacieuse (cause commune : l\'été)',
+      'Le statisticien Edward Simpson a démontré en 1951 que des tendances peuvent s\'inverser selon le niveau d\'agrégation des données (paradoxe de Simpson)',
+      'Amazon a analysé que la corrélation entre clics et achats était 3x plus prédictive que les enquêtes de satisfaction',
+      'Une étude de Google (2009) sur la grippe via les recherches a surestimé l\'épidémie de 2x — piège du Big Data',
+    ],
+  },
+  excel: {
+    resumeCle: 'Excel est l\'outil data le plus utilisé en entreprise — et la source numéro 1 d\'erreurs dans les rapports. Maîtriser ses pièges est essentiel.',
+    bonnesPratiques: [
+      'Toujours utiliser des tables structurées (Ctrl+T) pour que les formules s\'étendent automatiquement',
+      'VLOOKUP cherche la première correspondance — vérifiez les doublons dans votre colonne de référence',
+      'Un glisser-copier de formule peut silencieusement décaler les plages — vérifiez toujours avec F2',
+      'Les formats de date varient selon les locales — un fichier CSV peut avoir des dates inversées (MM/DD vs DD/MM)',
+    ],
+    faitsHistoriques: [
+      'En 2012, JP Morgan Chase a perdu 6 milliards de dollars suite à une erreur dans un fichier Excel (affaire "London Whale")',
+      'L\'économiste Reinhart-Rogoff a soutenu des politiques d\'austérité mondiales avec un tableur Excel contenant une erreur de plage de cellules (2013)',
+      'Une étude de l\'Université d\'Hawaii montre que 88% des feuilles de calcul contiennent des erreurs',
+      'Excel a été utilisé par le NHS britannique pour tracker le COVID-19 — une limite de 65 536 lignes a causé la perte de 16 000 cas en 2020',
+    ],
+  },
+  ml_pratique: {
+    resumeCle: 'Un modèle de ML avec une bonne accuracy en test peut échouer en production. Comprendre les métriques d\'évaluation est essentiel avant tout déploiement.',
+    bonnesPratiques: [
+      'L\'accuracy seule est trompeuse sur des données déséquilibrées — préférer precision/recall/F1',
+      'Le surapprentissage (overfitting) se détecte par l\'écart entre les performances train et test',
+      'Vérifier que les données d\'entraînement et de test sont indépendantes — aucune fuite de données (data leakage)',
+      'Un modèle en production doit être monitoré : ses performances se dégradent avec le temps (model drift)',
+    ],
+    faitsHistoriques: [
+      'Google Photos a classifié des personnes noires comme des gorilles en 2015 — erreur d\'entraînement sur données déséquilibrées',
+      'Un modèle de prédiction de sepsis déployé dans 100 hôpitaux américains montrait 70% d\'accuracy en test mais échouait massivement en prod (2021)',
+      'L\'overfitting en ML a contribué à la sur-confiance dans les modèles de risque des subprimes avant 2008',
+      'Netflix a payé 1M$ pour un algorithme de recommandation améliorant leur RMSE de 10% — mais n\'a jamais déployé le modèle gagnant (trop complexe)',
+    ],
+  },
+  data_qualite: {
+    resumeCle: 'La qualité des données conditionne la qualité de toute analyse. "Garbage in, garbage out" : des données incorrectes produisent des conclusions fausses.',
+    bonnesPratiques: [
+      'Toujours profiler les données avant d\'analyser : valeurs manquantes, doublons, valeurs aberrantes',
+      'Les valeurs nulles et les zéros ne signifient pas la même chose — vérifier la sémantique des champs',
+      'Documenter l\'origine, la fraîcheur et le mode de collecte de chaque source de données',
+      'Un enregistrement dupliqué dans une base CRM peut doubler un CA ou fausser un taux de conversion',
+    ],
+    faitsHistoriques: [
+      'Le Mars Climate Orbiter de la NASA a été perdu en 1999 à cause d\'une confusion entre unités métriques et impériales dans les données',
+      'Une étude IBM estime que la mauvaise qualité des données coûte à l\'économie américaine 3 100 milliards de dollars par an',
+      'Gartner estime que 60% des initiatives data d\'entreprise échouent à cause de problèmes de qualité des données',
+      'Une banque française a découvert en 2022 que 23% de ses clients étaient en double dans son CRM — biaisant tous ses scores de fidélité',
+    ],
+  },
 };
 
 function getEnrichment(category: string): IAEnrichment {
-  const key = Object.keys(IA_ENRICHMENT).find(k => category.toLowerCase().includes(k));
+  const c = category.toLowerCase();
+  const keyMap: Record<string, string> = {
+    'bi': 'bi', 'dashboard': 'bi', 'power bi': 'bi', 'tableau': 'bi', 'looker': 'bi', 'kpi': 'bi',
+    'data_viz': 'data_viz', 'viz': 'data_viz', 'graphique': 'data_viz', 'visualisation': 'data_viz', 'chart': 'data_viz',
+    'analytics': 'analytics', 'analyse': 'analytics', 'corrélation': 'analytics', 'statistique': 'analytics',
+    'excel': 'excel', 'tableur': 'excel', 'formule': 'excel', 'spreadsheet': 'excel',
+    'ml': 'ml_pratique', 'machine learning': 'ml_pratique', 'modèle': 'ml_pratique', 'accuracy': 'ml_pratique', 'overfitting': 'ml_pratique',
+    'data_qualite': 'data_qualite', 'qualité': 'data_qualite', 'dirty': 'data_qualite', 'doublon': 'data_qualite',
+  };
+  for (const [substr, key] of Object.entries(keyMap)) {
+    if (c.includes(substr)) return IA_ENRICHMENT[key];
+  }
+  const key = Object.keys(IA_ENRICHMENT).find(k => c.includes(k));
   return key ? IA_ENRICHMENT[key] : {
     resumeCle: 'L\'IA est un outil puissant qui nécessite vigilance, esprit critique et connaissance de ses limites.',
     bonnesPratiques: [
@@ -1030,6 +1211,103 @@ const MTM_BANK: Record<Level, Scenario[]> = {
       reflexe: 'Les services de traduction cloud traitent vos documents. Pour les documents RH (données personnelles), une validation RGPD et un DPA sont obligatoires.',
       redFlags: ['Offre gratuite sans politique RGPD visible', 'Service cloud traitant des données personnelles', 'Aucune mention de localisation des données (serveurs en Europe ?)'],
     },
+    {
+      category: 'excel',
+      title: 'Le tableau Excel qui gonfle les ventes',
+      context: 'Votre manager vous partage un fichier Excel de suivi des ventes Q1 à valider avant le CODIR.',
+      visual: {
+        type: 'spreadsheet',
+        sheetName: 'Ventes Q1 2025',
+        body: 'Vérifiez le tableau avant de valider les chiffres pour le CODIR.',
+        headers: ['Commercial', 'Jan', 'Fév', 'Mar', 'TOTAL'],
+        rows: [
+          [{ value: 'Alice Morin' }, { value: '42 500€' }, { value: '38 200€' }, { value: '51 000€' }, { value: '131 700€', bold: true }],
+          [{ value: 'Ben Saïd' }, { value: '31 000€' }, { value: '29 500€' }, { value: '33 200€' }, { value: '93 700€', bold: true }],
+          [{ value: 'Claire Dubois' }, { value: '55 000€' }, { value: '48 700€' }, { value: '62 300€' }, { value: '166 000€', bold: true }],
+          [{ value: 'David Chen' }, { value: '28 400€' }, { value: '31 100€' }, { value: '26 900€' }, { value: '86 400€', bold: true }],
+          [{ value: 'TOTAL', bold: true }, { value: '156 900€', bold: true }, { value: '147 500€', bold: true }, { value: '173 400€', bold: true }, { value: '477 800€', bold: true, bg: '#fef3c7', color: '#d97706' }],
+        ],
+      },
+      choices: [
+        { label: 'Je valide les chiffres — la ligne TOTAL est clairement calculée', isCorrect: false, points: -10, feedback: 'Erreur ! 156 900 + 147 500 + 173 400 = 477 800€. Mais la somme des TOTAUX individuels (131 700 + 93 700 + 166 000 + 86 400) donne 477 800€ aussi. Cependant, 42 500 + 31 000 + 55 000 + 28 400 = 156 900. Toujours vérifier les formules avec F2 ou en recalculant manuellement.' },
+        { label: 'Je vérifie les formules avec F2 sur chaque cellule TOTAL avant de valider', isCorrect: true, points: 10, feedback: 'Excellent réflexe ! Appuyer sur F2 révèle la plage réelle d\'une formule. Une plage décalée (ex: =SOMME(B2:B4) au lieu de B2:B5) peut silencieusement exclure une ligne. Toujours vérifier avant un CODIR.' },
+        { label: 'Je vérifie uniquement le TOTAL général en bas à droite', isCorrect: false, points: -5, feedback: 'Vérifier uniquement le total final ne suffit pas — une erreur dans une sous-somme peut se compenser avec une autre erreur. Il faut vérifier chaque formule individuellement.' },
+      ],
+      reflexe: 'Dans Excel, une formule SOMME peut silencieusement exclure des lignes si la plage a été copiée. Toujours vérifier avec F2 avant de partager un rapport financier.',
+      redFlags: ['Cellule TOTAL sans vérification de la plage de formule', 'Fichier Excel partagé par plusieurs personnes (risque de modification)'],
+    },
+    {
+      category: 'bi',
+      title: 'Le dashboard trompeur',
+      context: 'Votre direction vous présente le nouveau dashboard Power BI de performance commerciale.',
+      visual: {
+        type: 'dashboard',
+        body: 'Tableau de bord — Performance commerciale Q1 2025',
+        metrics: [
+          { label: 'Chiffre d\'affaires', value: '+47%', delta: 'vs sem. dernière', deltaUp: true, color: '#16a34a' },
+          { label: 'Nouveaux clients', value: '12', delta: 'ce mois', deltaUp: true, color: BLUE },
+          { label: 'Taux de conversion', value: '3,2%', delta: '-0,1pt', deltaUp: false, color: '#d97706' },
+          { label: 'Panier moyen', value: '1 847€', delta: '+12%', deltaUp: true, color: '#16a34a' },
+        ],
+        chartTitle: 'CA Hebdomadaire (€)',
+        chartBars: [
+          { label: 'Sem 8', value: 38000 },
+          { label: 'Sem 9', value: 41000 },
+          { label: 'Sem 10', value: 43000 },
+          { label: 'Sem 11', value: 55800, color: '#16a34a' },
+        ],
+      },
+      choices: [
+        { label: 'Excellent résultat ! +47% de CA, on est en forte croissance', isCorrect: false, points: -10, feedback: 'Attention ! "+47% vs sem. dernière" est une comparaison sur une période très courte. Une semaine atypique (salon pro, fin de trimestre) peut créer une base de comparaison artificiellement basse. Vérifiez toujours la période et la base de comparaison.' },
+        { label: 'Je demande la période de comparaison exacte et si la semaine de référence était normale', isCorrect: true, points: 10, feedback: 'Excellent réflexe ! "+47% vs sem. dernière" peut cacher que la semaine précédente était anormalement basse (vacances, panne SI). Comparer sur N-1 (même période l\'an dernier) est toujours plus fiable.' },
+        { label: 'Je partage ce dashboard avec toute l\'équipe pour motiver', isCorrect: false, points: -5, feedback: 'Partager des chiffres sans avoir vérifié leur base de comparaison peut créer de faux espoirs. Si la semaine de référence était atypique, les 47% reflètent un retour à la normale, pas une vraie croissance.' },
+      ],
+      reflexe: 'Un KPI "vs période précédente" sans contexte peut être trompeur. Vérifiez toujours la fenêtre temporelle, la base de comparaison et si des événements exceptionnels biaiseraient le résultat.',
+      redFlags: ['Comparaison sur période très courte (semaine vs semaine)', 'Chiffre très élevé (+47%) sans contexte explicatif', 'Pas de comparaison N-1 (même période l\'an passé)'],
+    },
+    {
+      category: 'data_viz',
+      title: 'Le graphique qui impressionne',
+      context: 'Un consultant vous présente un graphique en réunion pour justifier un investissement de 500 000€.',
+      visual: {
+        type: 'dashboard',
+        body: 'Étude de marché — Croissance du secteur IA en France',
+        metrics: [
+          { label: 'Croissance projetée', value: '+340%', delta: 'sur 5 ans', deltaUp: true, color: '#16a34a' },
+          { label: 'Taille marché 2024', value: '2,1 Md€', delta: 'Base', color: BLUE },
+          { label: 'Taille marché 2029', value: '9,2 Md€', delta: 'Projection', deltaUp: true, color: '#16a34a' },
+        ],
+        chartTitle: 'Croissance du marché IA (axe Y : 8,8 Md€ → 9,2 Md€)',
+        chartBars: [
+          { label: '2028', value: 88 },
+          { label: '2029', value: 92, color: '#16a34a' },
+        ],
+      },
+      choices: [
+        { label: 'Impressionnant ! La croissance est massive — investissement justifié', isCorrect: false, points: -10, feedback: 'Le consultant présente deux visuels contradictoires : +340% en chiffres absolus, mais un graphique avec un axe Y tronqué (8,8Md → 9,2Md) qui visuellement quadruple la barre. Ce graphique amplifie une progression de 4,5% pour qu\'elle semble faire ×4.' },
+        { label: 'Je demande à voir le graphique avec un axe Y commençant à 0', isCorrect: true, points: 10, feedback: 'Réflexe parfait ! Un axe Y tronqué peut transformer une croissance de 4-5% en une barre qui visuellement double ou triple. La règle d\'or : l\'axe Y d\'un graphique à barres doit toujours commencer à 0.' },
+        { label: 'Je demande la source de ces projections', isCorrect: false, points: -5, feedback: 'Vérifier les sources est important, mais le problème visuel immédiat est l\'axe Y tronqué qui déforme la réalité. Les deux vérifications sont nécessaires, mais l\'axe tronqué est le signe d\'alarme le plus critique.' },
+      ],
+      reflexe: 'Un axe Y tronqué est l\'une des techniques de manipulation de données les plus courantes. Exigez toujours un axe commençant à 0 pour les graphiques en barres.',
+      redFlags: ['Axe Y qui ne commence pas à 0', 'Graphique et chiffres qui racontent deux histoires différentes', 'Consultant qui insiste sur le visuel plutôt que les données brutes'],
+    },
+    {
+      category: 'analytics',
+      title: 'La corrélation trompeuse',
+      context: 'Votre équipe marketing présente ses résultats en réunion stratégique.',
+      visual: {
+        type: 'chat-ai', from: 'PowerPoint — Slide 8',
+        prompt: '[Résultats de l\'analyse marketing Q1 2025]',
+        body: '📊 DÉCOUVERTE CLÉ — Analyse Q1 2025\n\nNous avons identifié une corrélation forte entre :\n• Les jours de pluie (météo nationale)\n• Les achats sur notre plateforme e-commerce\n\nCorrélation : r = 0,83 (statistiquement significative, p < 0,01)\n\nRECOMMANDATION : Lancer nos campagnes publicitaires les jours de mauvais temps pour maximiser le ROI.\n\nBudget supplémentaire demandé : 200 000€',
+      },
+      choices: [
+        { label: 'Je valide le budget — la corrélation est forte et significative', isCorrect: false, points: -10, feedback: 'La corrélation est réelle, mais la recommandation est incomplète. Les jours de pluie peuvent simplement coïncider avec des jours de semaine ou des périodes où les gens sont plus enclins à faire des achats en ligne pour d\'autres raisons. Corrélation ≠ causalité.' },
+        { label: 'Je questionne le mécanisme causal : pourquoi la pluie ferait-elle acheter ?', isCorrect: true, points: 10, feedback: 'Excellente question ! Une corrélation sans mécanisme causal plausible est suspecte. Les achats en ligne peuvent augmenter les jours de pluie parce que les gens restent chez eux, et non à cause de la pluie elle-même — ce qui change complètement la recommandation.' },
+        { label: 'Je demande d\'augmenter la taille de l\'échantillon pour confirmer', isCorrect: false, points: -5, feedback: 'Plus de données confirmeraient la corrélation, mais pas la causalité. Le problème n\'est pas la solidité statistique mais l\'interprétation — corrélation ≠ causalité.' },
+      ],
+      reflexe: 'Une corrélation même forte ne prouve pas la causalité. Avant d\'investir sur une corrélation, identifiez le mécanisme causal et testez-le (A/B test).',
+      redFlags: ['Recommandation d\'investissement basée uniquement sur une corrélation', 'Aucun test A/B proposé pour valider le lien causal', 'Mécanisme causal implicite non explicitement démontré'],
+    },
   ],
 
   // ────────────────── INTERMÉDIAIRE ─────────────────────────────────────────
@@ -1396,6 +1674,101 @@ const MTM_BANK: Record<Level, Scenario[]> = {
       reflexe: 'Les analyses IA sur vos concurrents peuvent contenir des faits inventés. Citer de fausses informations dans une offre commerciale est de la concurrence déloyale.',
       redFlags: ['Nombre d\'incidents précis sans source vérifiable', 'Chiffres de performance ("500 utilisateurs") sans documentation', 'Analyse présentée comme factuelle sans mention d\'incertitude'],
     },
+    {
+      category: 'bi',
+      title: 'Le KPI qui cache la réalité',
+      context: 'Votre responsable BI vous montre le rapport mensuel. Le KPI phare "Taux d\'activation" est en forte hausse.',
+      visual: {
+        type: 'dashboard',
+        body: 'Rapport mensuel — Produit SaaS — Février 2025',
+        metrics: [
+          { label: 'Taux d\'activation', value: '78%', delta: '+23 pts vs jan', deltaUp: true, color: '#16a34a' },
+          { label: 'Utilisateurs actifs', value: '1 248', delta: '+8%', deltaUp: true, color: BLUE },
+          { label: 'MRR', value: '84 200€', delta: '+2%', deltaUp: true, color: '#16a34a' },
+          { label: 'Churn rate', value: '8,4%', delta: '+3,1 pts', deltaUp: false, color: '#dc2626' },
+        ],
+        chartTitle: 'Taux d\'activation mensuel (%)',
+        chartBars: [
+          { label: 'Oct', value: 51 },
+          { label: 'Nov', value: 52 },
+          { label: 'Déc', value: 55 },
+          { label: 'Jan', value: 55 },
+          { label: 'Fév', value: 78, color: '#16a34a' },
+        ],
+      },
+      choices: [
+        { label: 'Excellent mois ! Le taux d\'activation est au plus haut', isCorrect: false, points: -10, feedback: 'Le dashboard cache le vrai problème : le churn rate a bondi à 8,4% (+3,1 pts). Une hausse du taux d\'activation combinée à une hausse du churn peut indiquer une redéfinition du KPI ou un problème de rétention masqué par de nouvelles acquisitions.' },
+        { label: 'Je creuse pourquoi l\'activation monte en même temps que le churn — c\'est contradictoire', isCorrect: true, points: 10, feedback: 'Analyse pertinente ! Activation en hausse + churn en hausse peut indiquer : 1) redéfinition du seuil d\'activation (gonflage de KPI), 2) bonne acquisition mais mauvaise rétention, 3) segment de nouveaux clients moins qualifié. Ces signaux contradictoires méritent investigation.' },
+        { label: 'Je focus sur le churn — c\'est le seul problème visible', isCorrect: false, points: -5, feedback: 'Le churn est un problème, mais l\'analyse pertinente est de comprendre pourquoi activation et churn montent simultanément — c\'est cela qui donne les vraies pistes d\'action.' },
+      ],
+      reflexe: 'Un dashboard BI peut cacher des signaux contradictoires. Des KPIs positifs et négatifs simultanés méritent une investigation des définitions et des causes sous-jacentes.',
+      redFlags: ['KPI positif mis en avant sans contexte des KPIs liés', 'Churn en hausse significative minimisé dans l\'affichage', 'Variation anormalement élevée sur un mois (23 pts) sans explication'],
+    },
+    {
+      category: 'excel',
+      title: 'Le VLOOKUP qui ment',
+      context: 'Vous consolidez les données de ventes de deux équipes dans un seul fichier Excel.',
+      visual: {
+        type: 'spreadsheet',
+        sheetName: 'Consolidation Ventes',
+        body: 'La formule VLOOKUP associe chaque commercial à sa région. Vérifiez les résultats avant de diffuser.',
+        headers: ['Commercial', 'CA (€)', 'Région (VLOOKUP)', 'Alerte'],
+        rows: [
+          [{ value: 'Alice Morin' }, { value: '131 700' }, { value: 'Paris', color: '#16a34a' }, { value: '✓' }],
+          [{ value: 'Ben Saïd' }, { value: '93 700' }, { value: 'Lyon', color: '#16a34a' }, { value: '✓' }],
+          [{ value: 'Claire Martin' }, { value: '166 000' }, { value: 'Paris', color: '#16a34a' }, { value: '✓' }],
+          [{ value: 'Christophe Dupont' }, { value: '86 400' }, { value: 'Paris', color: '#d97706', bold: true }, { value: '⚠ Doublon ?', color: '#d97706', bold: true }],
+          [{ value: 'David Chen' }, { value: '47 200' }, { value: '#N/A', color: '#dc2626', bold: true }, { value: '❌ Absent liste', color: '#dc2626', bold: true }],
+        ],
+      },
+      choices: [
+        { label: 'Je publie le rapport — les erreurs #N/A et les alertes sont visibles, chacun verra', isCorrect: false, points: -10, feedback: 'Publier un rapport avec des #N/A et des alertes non résolues est une erreur grave. Le #N/A sur David Chen signifie que ses ventes (47 200€) ne sont rattachées à aucune région — ces données seront exclues des analyses régionales.' },
+        { label: 'Je résous les #N/A et vérifie les doublons avant publication', isCorrect: true, points: 10, feedback: 'Exact ! Le #N/A indique que "David Chen" n\'est pas dans la table de référence des commerciaux (peut-être un nom différent, un espace en trop, une majuscule manquante). Ce type d\'erreur exclut silencieusement des données de vos analyses.' },
+        { label: 'Je supprime les lignes avec #N/A pour ne pas perturber les calculs', isCorrect: false, points: -10, feedback: 'Supprimer les lignes en erreur est la pire solution — vous perdez les données de David Chen (47 200€ de CA). Il faut corriger la cause : le nom ne correspond pas à la table de référence.' },
+      ],
+      reflexe: 'VLOOKUP cherche une correspondance exacte par défaut. Un espace, une majuscule ou une faute de frappe dans la clé de jointure crée un #N/A silencieux qui exclut des données de vos analyses.',
+      redFlags: ['#N/A non résolu dans un rapport consolidé', 'Doublons potentiels dans la colonne de référence', 'Données exclues des totaux sans alerte explicite'],
+    },
+    {
+      category: 'ml_pratique',
+      title: 'Le modèle trop parfait',
+      context: 'Votre équipe data science vous présente un modèle de prédiction des ventes avec des résultats impressionnants.',
+      visual: {
+        type: 'chat-ai', from: 'Data Science Report',
+        prompt: '[Rapport d\'évaluation — Modèle prédiction CA mensuel]',
+        body: 'RÉSULTATS DU MODÈLE — RandomForest Regressor\n\nPerformance d\'entraînement :\n• R² train : 0,998 (quasi-parfait)\n• RMSE train : 1 240€\n\nPerformance de test :\n• R² test : 0,71\n• RMSE test : 47 800€\n\nDonnées utilisées : Jan 2023 → Déc 2024 (24 mois)\nValidation : Split 80/20 (train/test)\n\nRecommandation : Modèle prêt pour la production',
+      },
+      choices: [
+        { label: 'Excellent ! R²=0,998 en entraînement — le modèle est très précis', isCorrect: false, points: -10, feedback: 'R²=0,998 en train et 0,71 en test est un signal classique d\'overfitting (surapprentissage). Le modèle a mémorisé les données d\'entraînement au lieu d\'apprendre des patterns généralisables. En production, ses erreurs pourraient être bien supérieures aux 47 800€ du test.' },
+        { label: 'Je signale l\'overfitting : l\'écart train/test (0,998 vs 0,71) est trop important', isCorrect: true, points: 10, feedback: 'Exactement ! Un écart aussi important entre R² train et test indique de l\'overfitting. Il faut régulariser le modèle (max_depth, min_samples_leaf), utiliser de la validation croisée, et réévaluer sur un jeu de données out-of-time.' },
+        { label: 'Je demande un deuxième modèle pour comparer les performances', isCorrect: false, points: -5, feedback: 'Comparer un autre modèle peut aider, mais le problème fondamental d\'overfitting doit d\'abord être résolu. Un deuxième modèle overfitté n\'apportera pas de valeur.' },
+      ],
+      reflexe: 'Un R² quasi-parfait en entraînement avec un R² médiocre en test = overfitting. Le modèle a appris les données par cœur au lieu d\'identifier des patterns généralisables.',
+      redFlags: ['Écart énorme entre performances train et test (0,998 vs 0,71)', 'RMSE test 38x supérieur au RMSE train', '"Prêt pour la production" malgré des signaux d\'overfitting clairs'],
+    },
+    {
+      category: 'analytics',
+      title: 'Le paradoxe de Simpson en pratique',
+      context: 'Votre équipe analyse l\'efficacité de deux médicaments dans une étude clinique.',
+      visual: {
+        type: 'spreadsheet',
+        sheetName: 'Étude Clinique — Résultats',
+        body: 'Analyse des taux de guérison par groupe et par traitement.',
+        headers: ['Groupe', 'Traitement A', 'Traitement B'],
+        rows: [
+          [{ value: 'Patients légers (n=700)', bold: true }, { value: '81% (567/700)', color: '#16a34a' }, { value: '87% (234/270)', color: '#16a34a' }],
+          [{ value: 'Patients graves (n=300)', bold: true }, { value: '73% (55/75)', color: '#d97706' }, { value: '69% (192/275)', color: '#d97706' }],
+          [{ value: 'TOTAL COMBINÉ', bold: true, bg: '#fef3c7' }, { value: '78,9% (622/775)', bold: true, color: '#16a34a' }, { value: '73,5% (426/580)', bold: true, color: '#d97706', bg: '#fef2f2' }],
+        ],
+      },
+      choices: [
+        { label: 'Le traitement A est meilleur — 78,9% vs 73,5% sur le total', isCorrect: false, points: -10, feedback: 'C\'est le paradoxe de Simpson ! Le traitement B est meilleur dans CHAQUE sous-groupe (87% > 81% pour les légers ; 69% > 73%... Attendez — ici le B perd sur les graves aussi). Mais le total global avantage A. Cela arrive quand les groupes ne sont pas équilibrés entre les traitements.' },
+        { label: 'Je refuse de conclure sans analyser la composition des groupes entre les deux traitements', isCorrect: true, points: 10, feedback: 'Excellent ! Le traitement B a été donné davantage aux patients graves (275/300 vs 75/300). Cette variable confusionnelle fausse la comparaison globale. Il faut standardiser les groupes ou utiliser une régression multivariée.' },
+        { label: 'Je recommande B car il gagne dans les deux sous-groupes', isCorrect: false, points: -5, feedback: 'Regardez à nouveau : B gagne pour les légers (87% > 81%) mais perd pour les graves (69% < 73%). Il n\'y a pas de "gagnant systématique" dans les sous-groupes ici — c\'est précisément ce qui rend ce cas complexe.' },
+      ],
+      reflexe: 'Le paradoxe de Simpson : une tendance peut s\'inverser quand on agrège des données de groupes de tailles différentes. Toujours vérifier la composition des groupes avant de conclure.',
+      redFlags: ['Conclusions basées uniquement sur les totaux agrégés', 'Groupes de tailles très différentes dans les deux branches', 'Aucune analyse de la variable de répartition des traitements'],
+    },
   ],
 
   // ────────────────── MAÎTRISE ──────────────────────────────────────────────
@@ -1744,6 +2117,94 @@ const MTM_BANK: Record<Level, Scenario[]> = {
       ],
       reflexe: 'Les données synthétiques ne sont pas automatiquement "hors RGPD". L\'entraînement du générateur sur données réelles reste un traitement, et la mémorisation par le modèle est un risque documenté.',
       redFlags: ['"Pas de RGPD" affirmé sans analyse complète — simplification excessive', 'Risque de mémorisation reconnu mais présenté comme mineur', 'Pas de test de membership inference attack prévu'],
+    },
+    {
+      category: 'ml_pratique',
+      title: 'Le data leakage invisible',
+      context: 'Votre équipe MLOps prépare un modèle de scoring de crédit pour la production. Les résultats sont excellents.',
+      visual: {
+        type: 'chat-ai', from: 'MLflow — Rapport d\'expérimentation',
+        prompt: '[Résultats expérimentation — CreditScore MLv2 — Feature engineering validé]',
+        body: 'EXPÉRIMENTATION MLv2 — Résultats\n\nFeatures utilisées (Top 5) :\n1. Ratio dette/revenu : importance 0,34\n2. Ancienneté compte : importance 0,21\n3. Statut_final_credit_precedent : importance 0,18 ⚠\n4. Historique remboursement 12 mois : importance 0,15\n5. Code postal : importance 0,12\n\nAUC Test : 0,94 (excellent)\nAUC Train : 0,96\n\nRecommandation : Déployer en production',
+      },
+      choices: [
+        { label: 'AUC 0,94 est excellent — on peut déployer', isCorrect: false, points: -10, feedback: '"Statut_final_credit_precedent" est une feature qui contient le résultat final du crédit précédent — c\'est du data leakage. En production, ce statut "final" n\'existe pas encore au moment de la décision. Le modèle a appris à tricher en utilisant une information future.' },
+        { label: 'Je bloque le déploiement : "statut_final" est une variable cible déguisée — data leakage', isCorrect: true, points: 10, feedback: 'Exactement ! Le "statut_final" contient l\'issue du crédit — c\'est précisément ce qu\'on cherche à prédire. L\'utiliser comme feature crée un data leakage qui donne une AUC artificiellement haute mais un modèle inutilisable en production.' },
+        { label: 'Je remplace la feature par "statut_credit_precedent_a_12_mois" plus neutre', isCorrect: false, points: -5, feedback: 'Renommer n\'est pas suffisant. Il faut comprendre et supprimer toute feature qui contient de l\'information future (post-décision). Une review approfondie de toutes les features est nécessaire avant redéploiement.' },
+      ],
+      reflexe: 'Le data leakage (fuite de données futures dans les features) est l\'une des causes les plus fréquentes de modèles ML performants en test mais défaillants en production.',
+      redFlags: ['Feature avec "final" ou "résultat" dans un modèle de prédiction', 'AUC très élevé inexpliqué (>0,92) sur des données réelles', 'Importance très élevée d\'une feature sans explication métier'],
+    },
+    {
+      category: 'data_qualite',
+      title: 'Le pipeline de données silencieux',
+      context: 'Vous êtes Data Engineer. Le dashboard de ventes produit par votre pipeline ETL est utilisé quotidiennement par 50 managers.',
+      visual: {
+        type: 'dashboard',
+        body: 'Monitoring Pipeline ETL — Ventes Retail — Aujourd\'hui 09:00',
+        metrics: [
+          { label: 'Dernier run', value: '08:47', delta: 'Il y a 13 min', color: BLUE },
+          { label: 'Lignes traitées', value: '847 203', delta: '-23% vs hier', deltaUp: false, color: '#d97706' },
+          { label: 'Erreurs parsage', value: '2 341', delta: '+1 840% 🚨', deltaUp: false, color: '#dc2626' },
+          { label: 'Tables alimentées', value: '14/17', delta: '3 tables KO', deltaUp: false, color: '#dc2626' },
+        ],
+        chartTitle: 'Lignes ingérées par heure (k)',
+        chartBars: [
+          { label: '00h', value: 42 },
+          { label: '02h', value: 39 },
+          { label: '04h', value: 41 },
+          { label: '06h', value: 38 },
+          { label: '08h', value: 11, color: '#dc2626' },
+        ],
+      },
+      choices: [
+        { label: 'Le pipeline a tourné — les managers peuvent utiliser leurs dashboards', isCorrect: false, points: -10, feedback: '2 341 erreurs de parsage, 3 tables KO, -23% de lignes traitées : les dashboards contiennent des données partielles ou incorrectes. Les managers prennent des décisions sur des données erronées sans le savoir. C\'est une situation de "silently wrong data" — la pire pour une organisation.' },
+        { label: 'Je bloque les dashboards et alerte les managers jusqu\'à résolution et validation', isCorrect: true, points: 10, feedback: 'Décision correcte ! Des données partiellement chargées et massivement erronées sont plus dangereuses que pas de données du tout — car personne ne sait que les chiffres sont faux. Bloquer et alerter est la réponse professionnelle responsable.' },
+        { label: 'Je relance le pipeline et attends de voir si les erreurs se résolvent', isCorrect: false, points: -5, feedback: 'Relancer sans comprendre la cause peut propager les données corrompues. Et pendant ce temps, les dashboards restent consultés avec des données erronées. Bloquer les dashboards doit être la première action.' },
+      ],
+      reflexe: 'Des données silencieusement erronées sont pires que l\'absence de données. Un pipeline data avec erreurs massives doit déclencher un blocage des dashboards et une alerte immédiate.',
+      redFlags: ['+1840% d\'erreurs de parsage sans alerte automatique', '3 tables KO non détectées par les utilisateurs', '-23% de lignes traitées sans monitoring actif'],
+    },
+    {
+      category: 'analytics',
+      title: 'Le p-hacking en pratique',
+      context: 'Votre équipe analytics teste 20 variantes de landing page pour optimiser les conversions.',
+      visual: {
+        type: 'chat-ai', from: 'Analytics Report — A/B Testing',
+        prompt: '[Résultats complets des 20 variantes testées — Landing Page Campaign Q1]',
+        body: 'RÉSULTATS A/B TESTING — 20 variantes testées\n\nVariantes avec p < 0,05 (statistiquement significatives) :\n• Variante 7 (bouton vert) : +8,3% conversion — p=0,031 ✓\n• Variante 14 (titre reformulé) : +6,1% conversion — p=0,044 ✓\n\nRecommandation : Déployer la variante 7 (+8,3% de conversion)\n\nNote : 18 autres variantes n\'ont pas atteint la significativité statistique.',
+      },
+      choices: [
+        { label: 'Je déploie la variante 7 — elle est statistiquement significative', isCorrect: false, points: -10, feedback: 'C\'est du p-hacking (fishing for significance). Tester 20 variantes avec un seuil p<0,05 donne mécaniquement ~1 faux positif (5% × 20 = 1). La variante 7 peut être un faux positif. Il faut corriger le seuil (correction de Bonferroni : p < 0,05/20 = 0,0025) ou retester la variante gagnante sur un nouveau jeu de données.' },
+        { label: 'Je signale le problème de tests multiples et demande une validation indépendante', isCorrect: true, points: 10, feedback: 'Correct ! Tester 20 hypothèses avec p<0,05 génère statistiquement 1 faux positif attendu. Vous devez soit appliquer la correction de Bonferroni (p<0,0025), soit valider la variante 7 sur un nouveau test dédié avec une seule hypothèse.' },
+        { label: 'Je déploie les 2 variantes significatives pour maximiser les gains', isCorrect: false, points: -10, feedback: 'Déployer les deux sans correction du problème de tests multiples double le risque. Les deux peuvent être des faux positifs. La correction des tests multiples est une obligation statistique avant toute décision.' },
+      ],
+      reflexe: 'Tester N hypothèses avec p<0,05 donne mécaniquement ~N×5% de faux positifs. Correction de Bonferroni ou validation sur holdout obligatoire pour les tests multiples.',
+      redFlags: ['Nombreuses variantes testées avec un seul seuil p<0,05', '"Statistiquement significatif" sans correction pour tests multiples', 'Aucun holdout set indépendant pour valider le gagnant'],
+    },
+    {
+      category: 'bi',
+      title: 'Le catalogue de données manquant',
+      context: 'Vous êtes Head of Data. Un analyste junior produit un rapport stratégique qui sera présenté au Board.',
+      visual: {
+        type: 'spreadsheet',
+        sheetName: 'Rapport Board — Métriques Clés 2024',
+        body: 'L\'analyste a consolidé des données de 4 sources différentes sans documentation.',
+        headers: ['Métrique', 'Valeur 2024', 'Source', 'Problème identifié'],
+        rows: [
+          [{ value: 'Chiffre d\'affaires', bold: true }, { value: '47,3 M€' }, { value: 'ERP SAP' }, { value: 'HT ou TTC ?', color: '#d97706', bold: true }],
+          [{ value: 'Clients actifs', bold: true }, { value: '12 847' }, { value: 'CRM Salesforce' }, { value: 'Définition "actif" = ?', color: '#d97706', bold: true }],
+          [{ value: 'NPS Score', bold: true }, { value: '42' }, { value: 'SurveyMonkey' }, { value: 'Périmètre enquête ?', color: '#dc2626', bold: true }],
+          [{ value: 'Coût acquisition', bold: true }, { value: '284€' }, { value: 'Tableau + GA4' }, { value: 'Modèle attribution ?', color: '#dc2626', bold: true }],
+        ],
+      },
+      choices: [
+        { label: 'Je valide le rapport — les données viennent de sources officielles', isCorrect: false, points: -10, feedback: 'Sans catalogue de données, chaque métrique peut cacher une définition différente de ce qu\'utilisent les autres équipes. Un "CA de 47,3M€" présenté au Board sans préciser HT/TTC peut créer de sérieuses confusions lors des échanges avec la direction financière.' },
+        { label: 'Je bloque le rapport et exige une documentation des définitions avant la présentation Board', isCorrect: true, points: 10, feedback: 'Correct ! Un rapport Board sans définitions précises est un risque de crédibilité. "Clients actifs" sans définition, "NPS" sans périmètre d\'enquête, "Coût acquisition" sans modèle d\'attribution — chacun peut être contesté en réunion avec des chiffres différents.' },
+        { label: 'Je présente le rapport en mentionnant oralement les incertitudes', isCorrect: false, points: -5, feedback: 'Les commentaires oraux ne suffisent pas pour un rapport Board — ils ne sont pas tracés, et les chiffres sans définition seront repris dans d\'autres documents. Un catalogue de données écrit est la seule solution pérenne.' },
+      ],
+      reflexe: 'Sans catalogue de données et définitions standardisées, les mêmes termes peuvent cacher des réalités différentes entre équipes. C\'est la source principale d\'incohérences dans les rapports stratégiques.',
+      redFlags: ['Métriques sans définition précise dans un rapport stratégique', '4 sources différentes sans règles de réconciliation documentées', 'Aucune gouvernance data (ownership, fraîcheur, périmètre)'],
     },
   ],
 };
@@ -2209,6 +2670,133 @@ function SocialPostVisual({ visual, onLinkClick }: { visual: ScenarioVisual; onL
   );
 }
 
+function SpreadsheetVisual({ visual }: { visual: ScenarioVisual }) {
+  const [activeCell, setActiveCell] = useState<string | null>(null);
+  const headers = visual.headers || [];
+  const rows = visual.rows || [];
+  const cols = ['A', 'B', 'C', 'D', 'E', 'F'];
+  return (
+    <div className="flex flex-col h-full bg-white border border-gray-300 overflow-hidden" style={{ fontFamily: 'Calibri, Arial, sans-serif' }}>
+      <div className="flex items-center gap-2 px-3 py-1.5 border-b border-gray-300" style={{ background: '#217346' }}>
+        <Database size={13} className="text-white" />
+        <span className="text-xs font-bold text-white">Microsoft Excel</span>
+        <span className="ml-auto text-xs text-green-200 font-medium">{visual.sheetName || 'Feuille1'}</span>
+      </div>
+      <div className="flex items-center gap-2 px-2 py-1 border-b border-gray-200 bg-gray-50">
+        <div className="w-16 px-2 py-0.5 border border-gray-300 text-xs text-center text-gray-600 font-mono">
+          {activeCell || 'A1'}
+        </div>
+        <div className="flex-1 px-2 py-0.5 border border-gray-300 text-xs text-gray-700 font-mono bg-white">
+          {activeCell ? `=${activeCell}` : 'fx'}
+        </div>
+      </div>
+      {visual.body && (
+        <div className="px-3 py-1.5 border-b border-gray-100 bg-blue-50 text-xs text-blue-700 flex items-center gap-1.5">
+          <Info size={11} />
+          {visual.body}
+        </div>
+      )}
+      <div className="overflow-auto flex-1">
+        <table className="w-full border-collapse text-xs" style={{ minWidth: '100%' }}>
+          <thead>
+            <tr>
+              <th className="w-8 border-r border-b border-gray-300 bg-gray-100 text-gray-500 font-normal text-center py-1" style={{ minWidth: 32 }}></th>
+              {headers.map((h, i) => (
+                <th key={i} className="border-r border-b border-gray-300 bg-gray-100 text-gray-700 font-semibold px-2 py-1 text-center whitespace-nowrap"
+                  style={{ minWidth: 90 }}>
+                  <div className="text-gray-400 text-xs font-normal mb-0.5">{cols[i]}</div>
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, ri) => (
+              <tr key={ri} className="hover:bg-blue-50">
+                <td className="border-r border-b border-gray-200 bg-gray-100 text-gray-500 text-center py-1 font-normal" style={{ minWidth: 32 }}>{ri + 2}</td>
+                {row.map((cell, ci) => (
+                  <td key={ci} onClick={() => setActiveCell(`${cols[ci]}${ri + 2}`)}
+                    className="border-r border-b border-gray-200 px-2 py-1 cursor-pointer whitespace-nowrap"
+                    style={{
+                      background: cell.bg || (activeCell === `${cols[ci]}${ri + 2}` ? '#bdd7ee' : 'white'),
+                      color: cell.color || '#1f1f1f',
+                      fontWeight: cell.bold ? 700 : 400,
+                      textAlign: cell.align || 'right',
+                      outline: activeCell === `${cols[ci]}${ri + 2}` ? '2px solid #217346' : 'none',
+                    }}>
+                    {cell.value}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="flex items-center px-2 py-1 border-t border-gray-300 bg-gray-100 gap-2">
+        <div className="px-3 py-0.5 text-xs font-medium border-t-2 cursor-pointer text-white bg-green-700" style={{ borderColor: '#217346' }}>
+          {visual.sheetName || 'Feuil1'}
+        </div>
+        <span className="text-xs text-gray-500">+</span>
+        <span className="ml-auto text-xs text-gray-500">Zoom : 100%</span>
+      </div>
+    </div>
+  );
+}
+
+function DashboardVisual({ visual }: { visual: ScenarioVisual }) {
+  const metrics = visual.metrics || [];
+  const bars = visual.chartBars || [];
+  const maxVal = bars.length > 0 ? Math.max(...bars.map(b => b.value)) : 1;
+  return (
+    <div className="flex flex-col h-full bg-gray-50 overflow-hidden" style={{ fontFamily: 'Segoe UI, Arial, sans-serif' }}>
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-200 bg-white">
+        <BarChart2 size={16} style={{ color: '#c1392b' }} />
+        <span className="text-sm font-bold text-gray-800">Power BI</span>
+        <div className="ml-2 px-2 py-0.5 text-xs bg-yellow-100 text-yellow-800 font-medium border border-yellow-300">Rapport</div>
+        <span className="ml-auto text-xs text-gray-500">{visual.body}</span>
+      </div>
+      <div className="p-3 grid grid-cols-2 gap-2.5 overflow-y-auto flex-1">
+        {metrics.map((m, i) => (
+          <div key={i} className="bg-white border border-gray-200 px-3 py-2.5 shadow-sm">
+            <div className="text-xs text-gray-500 mb-0.5 font-medium uppercase tracking-wide truncate">{m.label}</div>
+            <div className="text-2xl font-black" style={{ color: m.color || DARK }}>{m.value}</div>
+            {m.delta && (
+              <div className="flex items-center gap-1 mt-0.5">
+                <span className="text-xs font-semibold" style={{ color: m.deltaUp ? '#16a34a' : '#dc2626' }}>
+                  {m.deltaUp ? '▲' : '▼'} {m.delta}
+                </span>
+              </div>
+            )}
+          </div>
+        ))}
+        {bars.length > 0 && (
+          <div className="col-span-2 bg-white border border-gray-200 px-3 py-3 shadow-sm">
+            <div className="text-xs font-bold text-gray-700 mb-3 uppercase tracking-wide">{visual.chartTitle || 'Évolution'}</div>
+            <div className="flex items-end gap-2 h-24">
+              {bars.map((bar, i) => {
+                const heightPct = (bar.value / maxVal) * 100;
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                    <div className="text-xs text-gray-600 font-medium">{bar.value.toLocaleString()}</div>
+                    <div className="w-full transition-all duration-500"
+                      style={{ height: `${heightPct}%`, minHeight: 4, background: bar.color || BLUE, maxHeight: 64 }} />
+                    <div className="text-xs text-gray-500 whitespace-nowrap">{bar.label}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="px-4 py-1.5 border-t border-gray-200 bg-white flex items-center gap-2">
+        <div className="w-2 h-2 rounded-full bg-green-500" />
+        <span className="text-xs text-gray-500">Mis à jour : Aujourd'hui {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
+        <span className="ml-auto text-xs text-gray-400">Actualiser</span>
+      </div>
+    </div>
+  );
+}
+
 // ─── COMPOSANT PRINCIPAL ──────────────────────────────────────────────────────
 export default function MTMDataIA() {
   const [, setLocation] = useLocation();
@@ -2324,6 +2912,8 @@ export default function MTMDataIA() {
     if (t === 'phone-call') return <PhoneCallVisual visual={s.visual} />;
     if (t === 'browser-popup') return <BrowserPopupVisual visual={s.visual} onLinkClick={handleLinkClick} />;
     if (t === 'social-post') return <SocialPostVisual visual={s.visual} onLinkClick={handleLinkClick} />;
+    if (t === 'spreadsheet') return <SpreadsheetVisual visual={s.visual} />;
+    if (t === 'dashboard') return <DashboardVisual visual={s.visual} />;
     return <EmailVisual visual={s.visual} onLinkClick={handleLinkClick} />;
   };
 
@@ -2376,14 +2966,14 @@ export default function MTMDataIA() {
                   </h1>
                   <div className="w-16 h-1 mb-7" style={{ background: PINK }} />
                   <p className="text-lg text-gray-600 leading-relaxed mb-8">
-                    5 questions pour détecter votre niveau, puis 10 scénarios <strong>100% interactifs</strong> : conversations IA, emails d'outils suspects, deepfakes, données sensibles...
+                    5 questions pour détecter votre niveau, puis 10 scénarios <strong>100% interactifs</strong> : IA générative, tableaux Excel, dashboards BI, analyses de données, ML...
                   </p>
                   <div className="grid grid-cols-2 gap-3 mb-10">
                     {[
-                      { icon: <Bot size={16} />, label: 'Conversations IA', sub: 'ChatGPT, Claude, Gemini' },
-                      { icon: <Mail size={16} />, label: 'Emails suspects', sub: 'Outils IA frauduleux' },
-                      { icon: <Phone size={16} />, label: 'Deepfakes vocaux', sub: 'Imitation de collègues' },
-                      { icon: <Lock size={16} />, label: 'Données sensibles', sub: 'RGPD et IA' },
+                      { icon: <Bot size={16} />, label: 'IA générative', sub: 'ChatGPT, Claude, Gemini' },
+                      { icon: <BarChart2 size={16} />, label: 'Dashboards BI', sub: 'Power BI, Tableau, KPIs' },
+                      { icon: <Database size={16} />, label: 'Data & Excel', sub: 'Formules, qualité, erreurs' },
+                      { icon: <Brain size={16} />, label: 'Analytics & ML', sub: 'Corrélation, biais, modèles' },
                     ].map((item, i) => (
                       <div key={i} className="border border-gray-100 p-3 bg-gray-50 flex items-start gap-2">
                         <div className="mt-0.5 flex-shrink-0" style={{ color: BLUE }}>{item.icon}</div>

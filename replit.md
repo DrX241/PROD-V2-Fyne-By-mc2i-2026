@@ -2,7 +2,7 @@
 
 ## Overview
 
-FYNE est une plateforme SaaS de formation immersive en cybersécurité développée par mc2i. La plateforme propose une approche innovante d'apprentissage par le biais de scénarios interactifs alimentés par l'intelligence artificielle. Elle comprend plusieurs modules spécialisés incluant "I AM CYBER", une expérience chatbot immersive, ainsi que des jeux sérieux et des simulations de crise.
+FYNE est une plateforme SaaS de formation immersive en cybersécurité et culture data développée par mc2i. La plateforme propose une approche innovante d'apprentissage par le biais de scénarios interactifs alimentés par l'intelligence artificielle. Elle comprend plusieurs modules spécialisés incluant "I AM CYBER", une expérience chatbot immersive, ainsi que des jeux sérieux, des simulations de crise, et des modules d'acculturation Data & IA (IA générative, BI, Data Analytics, Excel, ML).
 
 L'architecture technique repose sur une stack moderne avec React/TypeScript pour le frontend, Express.js pour le backend, et PostgreSQL comme base de données. L'intégration avec Amazon Bedrock (Claude) et Google Gemini FYNE permet de créer des expériences d'apprentissage personnalisées et des interactions avec des PNJ (personnages non-joueurs) pilotés par IA.
 
