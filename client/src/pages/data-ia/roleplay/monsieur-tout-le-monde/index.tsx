@@ -2062,7 +2062,7 @@ export default function MTMDataIA() {
                         <button onClick={() => setShowRedFlags(!showRedFlags)}
                           className="text-xs flex items-center gap-1 font-medium hover:opacity-70"
                           style={{ color: showRedFlags ? PINK : '#9ca3af' }}>
-                          <Eye size={11} />{showRedFlags ? 'Masquer indices' : 'Indices 💡'}
+                          <Info size={11} />{showRedFlags ? 'Masquer indices' : 'Indices 💡'}
                         </button>
                       )}
                     </div>
@@ -2163,7 +2163,7 @@ export default function MTMDataIA() {
                 <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-0 min-h-0">
                   <div className="flex flex-col border-r border-gray-200 min-h-0">
                     <div className="px-4 py-2 border-b border-gray-100 flex items-center gap-2 flex-shrink-0" style={{ background: '#f0f9ff' }}>
-                      <Shield size={12} style={{ color: BLUE }} />
+                      <Target size={12} style={{ color: BLUE }} />
                       <span className="text-xs font-bold uppercase tracking-wider" style={{ color: BLUE }}>Les bons réflexes</span>
                     </div>
                     <div className="flex-1 px-4 py-3 space-y-2 overflow-y-auto">
@@ -2191,7 +2191,7 @@ export default function MTMDataIA() {
                   </div>
                   <div className="flex flex-col min-h-0">
                     <div className="px-4 py-2 border-b border-gray-100 flex items-center gap-2 flex-shrink-0" style={{ background: '#fff1f2' }}>
-                      <Flag size={12} style={{ color: PINK }} />
+                      <AlertOctagon size={12} style={{ color: PINK }} />
                       <span className="text-xs font-bold uppercase tracking-wider" style={{ color: PINK }}>Signaux d'alerte</span>
                     </div>
                     <div className="flex-1 px-4 py-3 space-y-2 overflow-y-auto">
