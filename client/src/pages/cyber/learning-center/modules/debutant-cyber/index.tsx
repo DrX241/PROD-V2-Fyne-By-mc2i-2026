@@ -17,7 +17,7 @@ const BLUE = '#006a9e';
 const PINK = '#dd0061';
 const DARK = '#061019';
 
-type Level = 'debutant' | 'intermediaire' | 'expert';
+type Level = 'debutant' | 'intermediaire' | 'maitrise';
 
 interface AssessmentQuestion {
   id: string;
@@ -57,40 +57,50 @@ interface Scenario {
 
 type Phase = 'intro' | 'assessment' | 'level-reveal' | 'loading' | 'error' | 'scenario' | 'trap-clicked' | 'answered' | 'reflexe' | 'final';
 
-// ─── QUESTIONS ────────────────────────────────────────────────────────────────
+// ─── QUESTIONS D'ÉVALUATION ────────────────────────────────────────────────────
 const ASSESSMENT: AssessmentQuestion[] = [
   {
     id: 'q1',
-    question: 'Vous recevez un email urgent de votre banque vous demandant de cliquer sur un lien pour "débloquer votre compte". Que faites-vous ?',
-    context: '📧 Un email avec votre logo de banque vient d\'arriver',
+    question: 'Il est 8h47. Vous ouvrez vos emails et voyez ça : "URGENT — Votre compte BNP Paribas a été compromis. Connexion depuis Budapest détectée. Cliquez pour sécuriser votre compte dans les 2h."',
+    context: '📧 L\'email affiche le logo BNP, une mise en page soignée, et semble légitime',
     options: [
-      { label: 'Je clique sur le lien, c\'est urgent', sublabel: 'Il faut vite régler ça', score: 0 },
-      { label: 'Je vérifie l\'adresse email de l\'expéditeur', sublabel: 'Avant de faire quoi que ce soit', score: 1 },
-      { label: 'Je vais directement sur le site de ma banque', sublabel: 'Sans jamais cliquer sur le lien', score: 2 },
+      { label: 'Je clique immédiatement sur le bouton sécuriser', sublabel: 'C\'est urgent et ça semble officiel', score: 0 },
+      { label: 'Je survole le lien pour voir l\'URL réelle avant de cliquer', sublabel: 'Vérification rapide de l\'adresse destination', score: 1 },
+      { label: 'Je ferme l\'email et vais sur bnpparibas.fr directement', sublabel: 'Jamais via un lien reçu par email', score: 2 },
     ],
   },
   {
     id: 'q2',
-    question: 'Combien de mots de passe différents utilisez-vous au quotidien ?',
-    context: '🔑 Vos comptes : email, banque, réseaux sociaux, shopping...',
+    question: 'SMS reçu : "Votre colis Colissimo REF-748291 est bloqué en douane. Frais de dédouanement : 2,49€. Réglez ici : colissimo-delivery.fr/pay"',
+    context: '📱 Vous attendez effectivement un colis cette semaine',
     options: [
-      { label: '1 ou 2 mots de passe', sublabel: 'C\'est plus simple à retenir', score: 0 },
-      { label: 'Quelques mots de passe différents', sublabel: 'Selon l\'importance du compte', score: 1 },
-      { label: 'Un mot de passe unique par site', sublabel: 'Géré par un gestionnaire de mots de passe', score: 2 },
+      { label: 'Je paie les 2,49€, c\'est une somme dérisoire', sublabel: 'Et mon colis sera débloqué', score: 0 },
+      { label: 'Je vérifie sur laposte.fr avec mon numéro de suivi', sublabel: 'Sans passer par le lien du SMS', score: 2 },
+      { label: 'Je réponds au SMS pour demander confirmation', sublabel: 'Avant de payer quoi que ce soit', score: 1 },
     ],
   },
   {
     id: 'q3',
-    question: 'Un inconnu vous appelle, se présente comme du "support informatique" et demande votre mot de passe.',
-    context: '📞 Numéro inconnu, voix professionnelle, il connaît votre nom',
+    question: 'Téléphone : "Bonjour, je suis Thomas du service informatique de votre entreprise. On a détecté une intrusion sur votre poste. Pour sécuriser votre session, j\'ai besoin de votre mot de passe Windows."',
+    context: '📞 Numéro interne reconnu, voix professionnelle, il connaît votre prénom et votre service',
     options: [
-      { label: 'Je lui donne mon mot de passe', sublabel: 'Il semble officiel et sérieux', score: 0 },
-      { label: 'Je lui demande de me rappeler via le numéro officiel', sublabel: 'Pour vérifier son identité', score: 1 },
-      { label: 'Je raccroche et signale l\'incident', sublabel: 'Aucun IT légitime ne demande un mot de passe', score: 2 },
+      { label: 'Je lui donne mon mot de passe, il semble légitime', sublabel: 'Il a même le bon numéro interne', score: 0 },
+      { label: 'Je lui demande de me rappeler dans 10 min après vérification', sublabel: 'Le temps d\'appeler le helpdesk directement', score: 1 },
+      { label: 'Je refuse et appelle le helpdesk sur le numéro officiel', sublabel: 'Aucun IT légitime ne demande un mot de passe par téléphone', score: 2 },
     ],
   },
   {
     id: 'q4',
+    question: 'Votre mot de passe habituel, c\'est lequel de ces profils ?',
+    context: '🔑 Vos comptes : Gmail, banque, Instagram, Amazon, LinkedIn...',
+    options: [
+      { label: 'Le même partout, avec le nom de mon chien et une date', sublabel: 'Exemple : "Filou2018!" — facile à retenir', score: 0 },
+      { label: 'Différents mais construits sur le même modèle', sublabel: 'Exemple : "Netflix2024!", "Gmail2024!"', score: 1 },
+      { label: 'Aléatoires et uniques, stockés dans un gestionnaire', sublabel: 'Bitwarden, 1Password, ou équivalent', score: 2 },
+    ],
+  },
+  {
+    id: 'q5',
     question: 'La double authentification (2FA), pour vous c\'est...',
     context: '🔒 Sécuriser l\'accès à vos comptes',
     options: [
@@ -101,12 +111,22 @@ const ASSESSMENT: AssessmentQuestion[] = [
   },
   {
     id: 'q5',
-    question: 'Parmi ces URLs, laquelle vous semble suspecte ?',
-    context: '🌐 Regardez attentivement chaque adresse',
+    question: 'Parmi ces trois URLs, laquelle est la vraie page de connexion du Crédit Agricole ?',
+    context: '🌐 Regardez bien l\'adresse complète de chaque lien',
     options: [
-      { label: 'Elles me semblent toutes pareilles', sublabel: 'Je ne sais pas les distinguer', score: 0 },
-      { label: 'credit-agricole.fr.secure-login.com est suspect', sublabel: 'Le vrai domaine n\'est pas au bon endroit', score: 1 },
-      { label: 'Je repère tous les sous-domaines trompeurs', sublabel: 'Homographes, caractères similaires, HTTPS trompeur...', score: 2 },
+      { label: 'credit-agricole.fr.secure-login.com/client', sublabel: 'Connexion sécurisée au Crédit Agricole', score: 0 },
+      { label: 'secure.credit-agricole.fr/login', sublabel: 'Portail de connexion sécurisé', score: 2 },
+      { label: 'credit-agr1cole.fr/espace-client', sublabel: 'Espace client Crédit Agricole', score: 1 },
+    ],
+  },
+  {
+    id: 'q6',
+    question: 'Vos vacances commencent demain. Un message WhatsApp d\'un numéro inconnu : "Salut c\'est moi Clara ! J\'ai cassé mon tel, c\'est un nouveau numéro. Je suis bloquée à l\'aéroport de Lyon, j\'ai besoin de 300€ urgent, virement IBAN ci-dessous."',
+    context: '📲 Vous avez bien une amie prénommée Clara',
+    options: [
+      { label: 'Je vire les 300€ immédiatement, Clara a besoin de moi', sublabel: 'C\'est une amie, je ne peux pas la laisser tomber', score: 0 },
+      { label: 'Je demande à Clara de me prouver son identité par message', sublabel: 'Avant de faire quoi que ce soit', score: 1 },
+      { label: 'J\'appelle Clara sur son ancien numéro pour vérifier', sublabel: 'Si son téléphone est "cassé", quelqu\'un d\'autre peut décrocher', score: 2 },
     ],
   },
 ];
@@ -116,16 +136,285 @@ const MAX_SCORE = TOTAL_SCENARIOS * 10;
 
 function computeLevel(answers: number[]): Level {
   const total = answers.reduce((a, b) => a + b, 0);
-  if (total <= 3) return 'debutant';
-  if (total <= 7) return 'intermediaire';
-  return 'expert';
+  if (total <= 4) return 'debutant';
+  if (total <= 8) return 'intermediaire';
+  return 'maitrise';
 }
 
 const LEVEL_META: Record<Level, { label: string; desc: string; color: string; bg: string; icon: React.ReactNode }> = {
-  debutant: { label: 'Débutant', desc: 'Vous avez les bases. Les scénarios vont vous apprendre les arnaques les plus courantes.', color: '#16a34a', bg: '#f0fdf4', icon: <Shield size={24} /> },
-  intermediaire: { label: 'Intermédiaire', desc: 'Vous avez quelques réflexes. Les scénarios vont tester votre vigilance face à des attaques plus subtiles.', color: '#d97706', bg: '#fffbeb', icon: <Target size={24} /> },
-  expert: { label: 'Expert', desc: 'Vous maîtrisez les bases. Les scénarios vont confronter vos connaissances aux attaques les plus sophistiquées.', color: BLUE, bg: '#eff6ff', icon: <Zap size={24} /> },
+  debutant: { label: 'Débutant', desc: 'Vous découvrez le sujet. Les scénarios vont vous exposer aux arnaques les plus fréquentes du quotidien.', color: '#16a34a', bg: '#f0fdf4', icon: <Shield size={24} /> },
+  intermediaire: { label: 'Intermédiaire', desc: 'Vous avez quelques bons réflexes. Les scénarios vont tester votre vigilance face à des attaques plus subtiles.', color: '#d97706', bg: '#fffbeb', icon: <Target size={24} /> },
+  maitrise: { label: 'Bonne maîtrise des bases', desc: 'Vos fondamentaux sont solides. Les scénarios vont confronter vos connaissances aux attaques les plus sophistiquées.', color: BLUE, bg: '#eff6ff', icon: <Zap size={24} /> },
 };
+
+// ─── ENRICHISSEMENT PAR CATÉGORIE (faits réels + bonnes pratiques) ─────────────
+interface CyberEnrichment {
+  bonnesPratiques: string[];
+  faitsHistoriques: string[];
+  resumeCle: string;
+}
+
+const CYBER_ENRICHMENT: Record<string, CyberEnrichment> = {
+  'phishing': {
+    resumeCle: 'Le phishing représente la première cause de compromission de comptes dans le monde.',
+    bonnesPratiques: [
+      'Ne jamais cliquer sur un lien dans un email — saisir l\'URL officiellement',
+      'Vérifier le domaine de l\'expéditeur (pas juste le nom affiché)',
+      'Activer la double authentification sur tous vos comptes importants',
+      'Sur mobile, appuyer longuement sur le lien pour voir l\'URL avant d\'ouvrir',
+    ],
+    faitsHistoriques: [
+      '91 % des cyberattaques débutent par un email de phishing (Verizon DBIR 2024)',
+      '3,4 milliards d\'emails de phishing sont envoyés chaque jour dans le monde',
+      'En France, le phishing représente 80 % des signalements sur signal-spam.fr',
+      'Le coût moyen d\'une attaque de phishing réussie : 4,91 M€ pour une entreprise (IBM 2023)',
+    ],
+  },
+  'sms': {
+    resumeCle: 'Le smishing (phishing par SMS) a explosé depuis 2020 : +300 % en 3 ans en France.',
+    bonnesPratiques: [
+      'Les organismes officiels (impôts, banques) ne demandent jamais de paiement par SMS',
+      'Vérifier les livraisons uniquement sur le site officiel du transporteur',
+      'Signaler les SMS frauduleux au 33700 (gratuit)',
+      'Ne jamais rappeler un numéro reçu dans un SMS suspect',
+    ],
+    faitsHistoriques: [
+      'En 2023, Signal-spam a traité plus de 130 000 signalements de smishing en France',
+      'L\'arnaque au colis (faux Chronopost/La Poste) est la 1ère arnaque SMS en France',
+      'Le taux de clic sur un lien malveillant est 8× plus élevé sur SMS que par email',
+      'En 2022, des fausses alertes Ameli par SMS ont escroqué 600 000 Français',
+    ],
+  },
+  'vishing': {
+    resumeCle: 'Le vishing (phishing vocal) exploite la confiance instinctive que nous accordons à une voix humaine.',
+    bonnesPratiques: [
+      'Aucun service informatique légitime ne demande votre mot de passe par téléphone',
+      'Raccrocher et rappeler via le numéro officiel de l\'entreprise',
+      'Ne jamais donner accès à votre ordinateur à quelqu\'un qui appelle spontanément',
+      'Vérifier le numéro affiché (le spoofing permet d\'afficher n\'importe quel numéro)',
+    ],
+    faitsHistoriques: [
+      'Microsoft a reçu 7 000 plaintes pour faux support technique en 2023 rien qu\'en France',
+      'Les arnaques au faux support coûtent en moyenne 1 200€ par victime',
+      'Le spoofing téléphonique permet d\'afficher le numéro de votre banque — aucun numéro ne certifie l\'identité',
+      'En 2021, des hackers ont volé 4,2 M$ à une entreprise via un deepfake vocal du PDG',
+    ],
+  },
+  'popup': {
+    resumeCle: 'Les fausses alertes navigateur exploitent la panique pour faire installer des malwares.',
+    bonnesPratiques: [
+      'Windows n\'alerte jamais via le navigateur — fermer immédiatement la fenêtre',
+      'Ne jamais appeler le numéro affiché dans une popup d\'alerte (numéro surtaxé)',
+      'Forcer la fermeture du navigateur avec Alt+F4 ou le gestionnaire de tâches',
+      'Scanner son PC avec un antivirus officiel après ce type d\'incident',
+    ],
+    faitsHistoriques: [
+      'L\'arnaque au faux support (scareware) génère 1,5 milliard $ de revenus par an à l\'échelle mondiale',
+      'Les personnes âgées représentent 60 % des victimes du faux support technique',
+      'En France, 15 000 plaintes pour faux support informatique ont été déposées en 2022',
+      'Un appel à ces numéros coûte entre 1,50€ et 4€ la minute',
+    ],
+  },
+  'wifi': {
+    resumeCle: 'Un réseau WiFi public peut être contrôlé par n\'importe qui — VPN obligatoire.',
+    bonnesPratiques: [
+      'Utiliser un VPN sur tout réseau public ou inconnu',
+      'Désactiver la connexion WiFi automatique sur votre téléphone',
+      'Utiliser la connexion 4G/5G plutôt que le WiFi public pour les opérations sensibles',
+      'Vérifier le nom exact du réseau officiel auprès du personnel de l\'établissement',
+    ],
+    faitsHistoriques: [
+      'Une attaque "Evil Twin" (faux hotspot) peut se mettre en place en moins de 5 minutes',
+      '25 % des internautes se connectent à des réseaux WiFi publics pour faire leurs achats en ligne',
+      'En 2023, des pirates ont volé des données bancaires via un faux WiFi dans un aéroport australien',
+      'Le coût moyen d\'une intrusion par WiFi non sécurisé : 7 000€ de préjudice par victime',
+    ],
+  },
+  'malware': {
+    resumeCle: 'Les pièces jointes malveillantes restent le vecteur n°1 d\'infection des entreprises.',
+    bonnesPratiques: [
+      'Ne jamais ouvrir une pièce jointe .exe, .zip, .iso ou .macro d\'un expéditeur inconnu',
+      'Vérifier l\'extension réelle du fichier (facture.pdf.exe est un exécutable, pas un PDF)',
+      'Les vraies factures s\'affichent dans votre espace client, pas en pièce jointe',
+      'Signaler à votre service informatique tout email suspect avant de l\'ouvrir',
+    ],
+    faitsHistoriques: [
+      '71 % des malwares sont distribués par email (ENISA Threat Landscape 2023)',
+      'En 2023, une macro Excel malveillante a paralysé 40 hôpitaux en France (cyberattaque Corentin Celton)',
+      'Le ransomware coûte en moyenne 4,54 M€ aux entreprises françaises (IBM 2023)',
+      'L\'attaque NotPetya (2017) a coûté 10 milliards $ au niveau mondial, propagée par une mise à jour corrompue',
+    ],
+  },
+  'arnaque': {
+    resumeCle: 'Si c\'est trop beau pour être vrai, c\'est une arnaque — sans exception.',
+    bonnesPratiques: [
+      'On ne peut pas gagner une loterie à laquelle on n\'a pas participé',
+      'Les marques ne font jamais cadeau de produits par email ou SMS',
+      'Les "frais de livraison" sont souvent un prétexte pour enregistrer votre CB',
+      'Signaler sur signalconso.gouv.fr pour protéger les autres',
+    ],
+    faitsHistoriques: [
+      '31 millions de Français ont été victimes d\'une arnaque en ligne en 2023 (DGCCRF)',
+      'L\'arnaque aux faux cadeaux génère 300 M€ de pertes par an en France',
+      'Les abonnements cachés piégent 4 millions de Français chaque année',
+      'L\'arnaque "frais de livraison 2€" cache en réalité un abonnement à 49,90€/mois',
+    ],
+  },
+  'ami': {
+    resumeCle: 'L\'arnaque au faux proche exploite votre générosité — toujours vérifier par un appel direct.',
+    bonnesPratiques: [
+      'Appeler la personne sur son ancien numéro avant tout virement',
+      'Poser une question personnelle dont seul un proche connaît la réponse',
+      'Ne jamais virer de l\'argent en urgence sans vérification vocale',
+      'Les virements effectués sont quasi-impossibles à récupérer — agir avec prudence',
+    ],
+    faitsHistoriques: [
+      'L\'arnaque au faux proche a généré 17 M€ de pertes en France en 2022',
+      'Les + de 60 ans représentent 55 % des victimes d\'arnaques au faux proche',
+      'La durée moyenne entre le premier contact et le virement : 47 minutes',
+      'Avec le deepfake vocal, les escrocs imitent maintenant la voix du proche avec 30 secondes d\'échantillon',
+    ],
+  },
+  'social': {
+    resumeCle: 'Les réseaux sociaux sont le terrain de chasse favori des escrocs — vigilance permanente.',
+    bonnesPratiques: [
+      'Vérifier le nombre de followers et la date de création d\'une page avant d\'interagir',
+      'Les vrais concours de marques ne redirigent jamais vers des sites externes',
+      'Paramétrer son profil en privé pour les publications personnelles',
+      'Ne jamais partager son adresse ou ses dates d\'absence publiquement',
+    ],
+    faitsHistoriques: [
+      'Facebook est le réseau le plus utilisé pour la fraude en France (CNIL 2023)',
+      '4,9 milliards € de pertes dues aux arnaques sur les réseaux sociaux en 2023 (FTC)',
+      'En 2022, des arnaques aux faux concours Samsung et Apple ont touché 2 M de Français',
+      'Le "pig butchering" (arnaque romantique longue durée) coûte en moyenne 28 000€ par victime',
+    ],
+  },
+  'credential': {
+    resumeCle: 'La réutilisation de mot de passe expose tous vos comptes dès qu\'un seul site est compromis.',
+    bonnesPratiques: [
+      'Utiliser un mot de passe unique pour chaque service (gestionnaire recommandé)',
+      'Activer la double authentification partout, surtout email et banque',
+      'Vérifier si ses données ont fuité sur haveibeenpwned.com',
+      'Changer immédiatement ses mots de passe après une fuite de données',
+    ],
+    faitsHistoriques: [
+      '81 % des violations de données impliquent des mots de passe faibles ou réutilisés (Verizon 2023)',
+      'La base de données RockYou2024 contient 10 milliards de mots de passe fuités',
+      '60 % des internautes français utilisent le même mot de passe pour plusieurs services (CNIL 2022)',
+      'Une attaque par "credential stuffing" teste jusqu\'à 1 million de combinaisons par heure',
+    ],
+  },
+  'deepfake': {
+    resumeCle: 'Les deepfakes audio et vidéo deviennent quasi-indétectables — les procédures humaines sont la seule défense.',
+    bonnesPratiques: [
+      'Établir un mot de passe verbal de confirmation avec ses proches et collègues',
+      'Pour tout virement important, exiger une confirmation par un 2e canal (email + téléphone)',
+      'Être vigilant aux micro-coupures ou artefacts vocaux lors d\'un appel',
+      'Contacter directement la direction ou les RH en cas de demande de virement inhabituelle',
+    ],
+    faitsHistoriques: [
+      'En 2024, une banque hongkongaise a perdu 25,6 M$ à cause d\'un deepfake vidéo d\'un CFO',
+      'Le nombre de deepfakes malveillants a augmenté de 3000 % entre 2019 et 2023',
+      'En France, 3 entreprises ont subi des fraudes au président par deepfake vocal en 2023',
+      'Des outils gratuits permettent de cloner une voix avec 10 secondes d\'audio source',
+    ],
+  },
+  'ceo-fraud': {
+    resumeCle: 'La fraude au président cible les collaborateurs ayant accès aux virements — toujours confirmer par téléphone.',
+    bonnesPratiques: [
+      'Toute demande de virement hors procédure doit être vérifiée par un appel au dirigeant sur son numéro habituel',
+      'Mettre en place une procédure de double validation pour les virements inhabituels',
+      'Ne jamais traiter en urgence une demande de confidentialité absolue',
+      'Former régulièrement les équipes comptables aux scénarios de fraude',
+    ],
+    faitsHistoriques: [
+      'La fraude au président coûte 2,3 milliards € par an aux entreprises françaises (Euler Hermes)',
+      'En 2023, une PME française a perdu 1,2 M€ suite à un email du "PDG" demandant un virement urgent',
+      'Le taux de réussite de cette arnaque est de 27 % quand elle cible un employé non formé',
+      'Le FBI estime que cette fraude a généré 50 milliards $ de pertes mondiales depuis 2013',
+    ],
+  },
+  'usb': {
+    resumeCle: 'Une clé USB trouvée est un piège classique — 60 % des gens la branchent quand même.',
+    bonnesPratiques: [
+      'Ne jamais brancher une clé USB trouvée, même dans un parking d\'entreprise',
+      'Remettre tout support de stockage trouvé au service informatique sans le connecter',
+      'Les clés "BadUSB" se font passer pour un clavier et injectent des commandes automatiquement',
+      'Désactiver l\'exécution automatique (Autorun) sur les postes de travail',
+    ],
+    faitsHistoriques: [
+      'Dans une étude de l\'université d\'Illinois, 98 % des clés USB piégées ont été branchées',
+      'Le ver Stuxnet (2010) s\'est propagé dans les centrifugeuses iraniennes via une clé USB',
+      'En 2022, le FBI a alerté sur une campagne où des clés USB malveillantes étaient envoyées par courrier postal aux entreprises',
+      'Le temps moyen entre le branchement d\'une clé piégée et l\'infection complète : 8 secondes',
+    ],
+  },
+  'ransomware': {
+    resumeCle: 'Le ransomware chiffre vos données en quelques minutes — la prévention est la seule vraie défense.',
+    bonnesPratiques: [
+      'Sauvegarder ses données selon la règle 3-2-1 : 3 copies, 2 supports différents, 1 hors site',
+      'Maintenir ses logiciels à jour pour corriger les vulnérabilités exploitées',
+      'Ne jamais payer la rançon : ça finance les criminels et ne garantit pas la récupération',
+      'Signaler immédiatement à l\'ANSSI en cas d\'incident',
+    ],
+    faitsHistoriques: [
+      'La France est le 4e pays le plus touché par les ransomwares en Europe (ANSSI 2023)',
+      'L\'hôpital de Corbeil-Essonnes a mis 18 mois à se remettre d\'une cyberattaque en 2022',
+      'Le coût moyen d\'une attaque ransomware pour une PME française : 1,3 M€',
+      'En 2023, LockBit 3.0 a mis en faillite 3 entreprises françaises en chiffrant leurs données',
+    ],
+  },
+  'supply-chain': {
+    resumeCle: 'Les attaques via la chaîne d\'approvisionnement logicielle contaminent des milliers d\'entreprises en une seule attaque.',
+    bonnesPratiques: [
+      'Vérifier les mises à jour de logiciels tiers avant de les déployer',
+      'Maintenir un inventaire des logiciels utilisés et leurs éditeurs',
+      'Appliquer le principe du moindre privilège aux logiciels tiers',
+      'S\'abonner aux alertes de sécurité de l\'ANSSI et CERT-FR',
+    ],
+    faitsHistoriques: [
+      'L\'attaque SolarWinds (2020) a compromis 18 000 organisations dont des agences US gouvernementales',
+      'L\'incident XZ Utils (2024) a failli introduire une backdoor dans des millions de systèmes Linux',
+      'En 2021, Kaseya VSA a permis de déployer un ransomware sur 1 500 entreprises simultanément',
+      'Les attaques supply chain ont augmenté de 742 % entre 2019 et 2022 (Sonatype)',
+    ],
+  },
+  'oversharing': {
+    resumeCle: 'Chaque information publiée en ligne peut être utilisée contre vous — ou votre domicile.',
+    bonnesPratiques: [
+      'Passer ses profils en mode privé sur tous les réseaux sociaux',
+      'Ne jamais publier son adresse précise, même partiellement',
+      'Partager les photos de vacances à son retour, pas en temps réel',
+      'Vérifier régulièrement qui a accès à ses publications',
+    ],
+    faitsHistoriques: [
+      'En France, 30 % des cambriolages surviennent pendant des vacances annoncées sur les réseaux',
+      'Le CNIL a reçu 1 200 plaintes liées à la géolocalisation non consentie en 2023',
+      'Des assureurs refusent des indemnisations quand des publications montrent une absence',
+      '73 % des recruteurs consultent les réseaux sociaux d\'un candidat avant entretien',
+    ],
+  },
+};
+
+function getEnrichment(category: string): CyberEnrichment {
+  const key = Object.keys(CYBER_ENRICHMENT).find(k => category.toLowerCase().includes(k));
+  return key ? CYBER_ENRICHMENT[key] : {
+    resumeCle: 'Les cybermenaces évoluent constamment — la formation est votre meilleure protection.',
+    bonnesPratiques: [
+      'Maintenir ses logiciels à jour régulièrement',
+      'Activer la double authentification sur les comptes importants',
+      'Faire des sauvegardes régulières de ses données',
+      'Signaler tout incident à son équipe informatique ou sur cybermalveillance.gouv.fr',
+    ],
+    faitsHistoriques: [
+      '385 000 signalements cyber ont été traités par cybermalveillance.gouv.fr en 2023',
+      'La France a investi 1 milliard € dans la cybersécurité dans le cadre du plan France 2030',
+      '90 % des incidents cyber impliquent une erreur humaine (IBM Security 2023)',
+      'Le marché mondial de la cybersécurité atteindra 262 milliards $ en 2025',
+    ],
+  };
+}
 
 function getBadge(score: number) {
   const pct = (score / MAX_SCORE) * 100;
@@ -883,6 +1172,7 @@ export default function MonsieurToutLeMonde() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scenarios, setScenarios] = useState<(Scenario | null)[]>(Array(TOTAL_SCENARIOS).fill(null));
   const [loadingNext, setLoadingNext] = useState(false);
+  const [usedBankIndices, setUsedBankIndices] = useState<number[]>([]);
   const [score, setScore] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<ScenarioChoice | null>(null);
@@ -908,18 +1198,25 @@ export default function MonsieurToutLeMonde() {
     }, 350);
   };
 
+  const usedBankIndicesRef = useRef<number[]>([]);
+  usedBankIndicesRef.current = usedBankIndices;
+
   const fetchScenario = useCallback(async (index: number, lvl: Level): Promise<Scenario | null> => {
     setLoadingNext(true);
     try {
       const resp = await fetch('/api/cyber/mtm-scenario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scenarioIndex: index, level: lvl }),
+        body: JSON.stringify({ scenarioIndex: index, level: lvl, usedIndices: usedBankIndicesRef.current }),
       });
       const data = await resp.json();
       if (data.success && data.scenario) {
-        setScenarios(prev => { const n = [...prev]; n[index] = data.scenario; return n; });
-        return data.scenario;
+        const scenario = data.scenario;
+        if (scenario._bankIndex !== undefined) {
+          setUsedBankIndices(prev => prev.includes(scenario._bankIndex) ? prev : [...prev, scenario._bankIndex]);
+        }
+        setScenarios(prev => { const n = [...prev]; n[index] = scenario; return n; });
+        return scenario;
       }
       return null;
     } catch { return null; }
@@ -1249,57 +1546,142 @@ export default function MonsieurToutLeMonde() {
           )}
 
           {/* ═══ PIÈGE CLIQUÉ ════════════════════════════════════════════════ */}
-          {phase === 'trap-clicked' && currentScenario && (
-            <motion.div key="trap" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="min-h-screen flex flex-col items-center justify-center px-8">
-              <div className="max-w-lg w-full">
-                <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }}>
-                  <div className="border-l-4 border-red-500 bg-red-50 px-6 py-7 mb-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <XCircle size={26} className="text-red-500 flex-shrink-0" />
-                      <div className="text-xl font-black text-red-700">Vous avez cliqué !</div>
+          {phase === 'trap-clicked' && currentScenario && (() => {
+            const enrich = getEnrichment(currentScenario.category);
+            return (
+              <motion.div key="trap" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="min-h-screen overflow-y-auto pb-16">
+                <div className="max-w-2xl mx-auto px-6 pt-10">
+                  <motion.div initial={{ scale: 0.97, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+                    {/* Verdict */}
+                    <div className="border-l-4 border-red-500 bg-red-50 px-6 py-6 mb-6">
+                      <div className="flex items-center gap-3 mb-2">
+                        <XCircle size={26} className="text-red-500 flex-shrink-0" />
+                        <div className="text-xl font-black text-red-700">Vous avez cliqué !</div>
+                        <span className="ml-auto text-sm font-bold text-red-600">−5 points</span>
+                      </div>
+                      <div className="text-red-700 text-sm leading-relaxed">
+                        {currentScenario.clickConsequence || 'Ce lien aurait conduit à une page malveillante.'}
+                      </div>
                     </div>
-                    <div className="text-red-700 text-sm leading-relaxed mb-3">
-                      {currentScenario.clickConsequence || 'Ce lien aurait conduit à une page malveillante.'}
+
+                    {/* Résumé clé */}
+                    <div className="border-l-4 pl-5 py-2 mb-6" style={{ borderColor: BLUE }}>
+                      <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: BLUE }}>Ce qu'il faut retenir</div>
+                      <p className="text-base font-bold text-gray-900">{enrich.resumeCle}</p>
                     </div>
-                    <div className="text-red-600 text-sm font-bold">−5 points</div>
+
+                    {/* Bonnes pratiques */}
+                    <div className="mb-6 border border-gray-200 bg-white">
+                      <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-2" style={{ background: '#f0f9ff' }}>
+                        <Shield size={14} style={{ color: BLUE }} />
+                        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: BLUE }}>Bonnes pratiques</span>
+                      </div>
+                      <div className="px-5 py-4 space-y-2">
+                        {enrich.bonnesPratiques.map((p, i) => (
+                          <div key={i} className="flex items-start gap-2">
+                            <CheckCircle size={13} className="text-green-500 flex-shrink-0 mt-0.5" />
+                            <span className="text-sm text-gray-700">{p}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Faits historiques */}
+                    <div className="mb-8 border border-gray-200 bg-white">
+                      <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-2" style={{ background: '#fff7ed' }}>
+                        <AlertTriangle size={14} style={{ color: '#d97706' }} />
+                        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#d97706' }}>Le savez-vous ? Faits réels</span>
+                      </div>
+                      <div className="px-5 py-4 space-y-2">
+                        {enrich.faitsHistoriques.map((f, i) => (
+                          <div key={i} className="flex items-start gap-2">
+                            <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white mt-0.5" style={{ background: '#d97706' }}>{i + 1}</div>
+                            <span className="text-sm text-gray-700">{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <button onClick={() => setPhase('reflexe')} className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold text-sm" style={{ background: BLUE }}>
+                      Voir le réflexe clé <ChevronRight size={15} />
+                    </button>
+                  </motion.div>
+                </div>
+              </motion.div>
+            );
+          })()}
+
+          {/* ═══ RÉPONSE ═════════════════════════════════════════════════════ */}
+          {phase === 'answered' && currentScenario && selectedChoice && (() => {
+            const enrich = getEnrichment(currentScenario.category);
+            return (
+              <motion.div key="answered" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="min-h-screen overflow-y-auto pb-16">
+                <div className="max-w-2xl mx-auto px-6 pt-10">
+                  {/* Verdict */}
+                  <div className={`border-l-4 px-6 py-6 mb-6 ${selectedChoice.isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
+                    <div className="flex items-center gap-3 mb-2">
+                      {selectedChoice.isCorrect
+                        ? <CheckCircle size={26} className="text-green-600 flex-shrink-0" />
+                        : <XCircle size={26} className="text-red-500 flex-shrink-0" />}
+                      <div className={`text-xl font-black ${selectedChoice.isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                        {selectedChoice.isCorrect ? 'Excellent réflexe !' : 'Pas le bon choix'}
+                      </div>
+                      <span className={`ml-auto text-sm font-bold ${selectedChoice.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                        {selectedChoice.points > 0 ? '+' : ''}{selectedChoice.points} pts
+                      </span>
+                    </div>
+                    <div className={`text-sm leading-relaxed ${selectedChoice.isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                      {selectedChoice.feedback}
+                    </div>
                   </div>
-                  <p className="text-gray-500 text-sm mb-6">C'est en cliquant dans une simulation qu'on apprend vraiment. Voyons le bon réflexe.</p>
+
+                  {/* Résumé clé */}
+                  <div className="border-l-4 pl-5 py-2 mb-6" style={{ borderColor: BLUE }}>
+                    <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: BLUE }}>Ce qu'il faut retenir</div>
+                    <p className="text-base font-bold text-gray-900">{enrich.resumeCle}</p>
+                  </div>
+
+                  {/* Bonnes pratiques */}
+                  <div className="mb-6 border border-gray-200 bg-white">
+                    <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-2" style={{ background: '#f0f9ff' }}>
+                      <Shield size={14} style={{ color: BLUE }} />
+                      <span className="text-xs font-bold uppercase tracking-wider" style={{ color: BLUE }}>Bonnes pratiques</span>
+                    </div>
+                    <div className="px-5 py-4 space-y-2">
+                      {enrich.bonnesPratiques.map((p, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <CheckCircle size={13} className="text-green-500 flex-shrink-0 mt-0.5" />
+                          <span className="text-sm text-gray-700">{p}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Faits historiques */}
+                  <div className="mb-8 border border-gray-200 bg-white">
+                    <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-2" style={{ background: '#fff7ed' }}>
+                      <AlertTriangle size={14} style={{ color: '#d97706' }} />
+                      <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#d97706' }}>Le savez-vous ? Faits réels</span>
+                    </div>
+                    <div className="px-5 py-4 space-y-2">
+                      {enrich.faitsHistoriques.map((f, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white mt-0.5" style={{ background: '#d97706' }}>{i + 1}</div>
+                          <span className="text-sm text-gray-700">{f}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                   <button onClick={() => setPhase('reflexe')} className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold text-sm" style={{ background: BLUE }}>
                     Voir le réflexe clé <ChevronRight size={15} />
                   </button>
-                </motion.div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* ═══ RÉPONSE ═════════════════════════════════════════════════════ */}
-          {phase === 'answered' && currentScenario && selectedChoice && (
-            <motion.div key="answered" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="min-h-screen flex flex-col items-center justify-center px-8">
-              <div className="max-w-lg w-full">
-                <div className={`border-l-4 px-6 py-7 mb-6 ${selectedChoice.isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
-                  <div className="flex items-center gap-3 mb-3">
-                    {selectedChoice.isCorrect
-                      ? <CheckCircle size={26} className="text-green-600 flex-shrink-0" />
-                      : <XCircle size={26} className="text-red-500 flex-shrink-0" />}
-                    <div className={`text-xl font-black ${selectedChoice.isCorrect ? 'text-green-700' : 'text-red-700'}`}>
-                      {selectedChoice.isCorrect ? 'Excellent réflexe !' : 'Pas le bon choix'}
-                    </div>
-                  </div>
-                  <div className={`text-sm leading-relaxed mb-3 ${selectedChoice.isCorrect ? 'text-green-700' : 'text-red-700'}`}>
-                    {selectedChoice.feedback}
-                  </div>
-                  <div className={`text-sm font-bold ${selectedChoice.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
-                    {selectedChoice.points > 0 ? '+' : ''}{selectedChoice.points} points
-                  </div>
                 </div>
-                <button onClick={() => setPhase('reflexe')} className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold text-sm" style={{ background: BLUE }}>
-                  Voir le réflexe clé <ChevronRight size={15} />
-                </button>
-              </div>
-            </motion.div>
-          )}
+              </motion.div>
+            );
+          })()}
 
           {/* ═══ RÉFLEXE CLÉ ═════════════════════════════════════════════════ */}
           {phase === 'reflexe' && currentScenario && (
