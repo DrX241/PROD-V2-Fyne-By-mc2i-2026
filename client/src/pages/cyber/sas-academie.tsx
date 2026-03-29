@@ -65,9 +65,6 @@ export default function SasCyberAcademie() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <p className="mb-6 text-blue-200">
-                  Posez des questions, explorez des concepts et approfondissez à votre guise les sujets cybersécurité qui vous intéressent dans une conversation fluide avec un assistant IA spécialisé.
-                </p>
                 <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
                   <li className="flex items-center text-blue-200">
                     <div className="h-2 w-2 rounded-full bg-blue-400 mr-2"></div>
