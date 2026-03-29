@@ -1748,26 +1748,6 @@ const MTM_BANK: Record<Level, Scenario[]> = {
   ],
 };
 
-// ─── ENRICHISSEMENT LOOKUP ────────────────────────────────────────────────────
-function getEnrichment(category: string): IAEnrichment {
-  const key = Object.keys(IA_ENRICHMENT).find(k => category.toLowerCase().includes(k));
-  return key ? IA_ENRICHMENT[key] : {
-    resumeCle: 'L\'IA est un outil puissant qui nécessite vigilance, esprit critique et connaissance de ses limites.',
-    bonnesPratiques: [
-      'Vérifier les informations importantes sur des sources primaires',
-      'Ne jamais envoyer de données confidentielles à une IA non validée',
-      'Garder l\'humain dans la boucle pour les décisions importantes',
-      'Former régulièrement les équipes aux bonnes pratiques IA',
-    ],
-    faitsHistoriques: [
-      '72% des entreprises françaises ont adopté au moins un outil IA en 2024',
-      'Le marché mondial de l\'IA atteindra 1 800 milliards $ d\'ici 2030 (Gartner)',
-      '90% des incidents IA impliquent une erreur humaine dans l\'usage ou la configuration',
-      'L\'EU AI Act crée le premier cadre légal mondial contraignant pour l\'IA',
-    ],
-  };
-}
-
 // ─── PICK LOCAL SCENARIO ──────────────────────────────────────────────────────
 function pickFromBank(lvl: Level, usedIndices: number[]): { scenario: Scenario; idx: number } | null {
   const bank = MTM_BANK[lvl];
