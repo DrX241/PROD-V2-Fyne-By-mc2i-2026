@@ -31,18 +31,16 @@ export default function DataIaRoleplay() {
         <title>DATA & IA ROLE PLAY | Simulations immersives</title>
       </Helmet>
       
-      {/* Bouton retour */}
-      <div className="absolute top-4 left-4 z-20">
-        <Link href="/data-ia">
-          <Button variant="outline" size="sm" className="bg-black/50 border-blue-800 text-blue-400 hover:bg-black/70 hover:text-blue-300 hover:border-blue-500 transition-colors">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Retour
-          </Button>
-        </Link>
-      </div>
-
       {/* En-tête grand titre */}
-      <div className="mb-12 text-center mt-10 relative z-10 px-6">
+      <div className="mb-12 text-center pt-10 relative z-10 px-6">
+        <div className="flex justify-start mb-6 px-6">
+          <Link href="/data-ia">
+            <Button variant="outline" size="sm" className="bg-black/50 border-blue-800 text-blue-400 hover:bg-black/70 hover:text-blue-300 hover:border-blue-500 transition-colors">
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Retour
+            </Button>
+          </Link>
+        </div>
         <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-cyan-400 mb-4">
           DATA &amp; IA ROLE PLAY
         </h1>
@@ -81,9 +79,6 @@ export default function DataIaRoleplay() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <p className="mb-6 text-blue-200">
-                  12 situations réelles pour comprendre la data, éviter ses pièges, l'interpréter correctement et prendre de bonnes décisions. Sans jargon.
-                </p>
                 <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
                   <li className="flex items-center text-blue-200">
                     <div className="h-2 w-2 rounded-full mr-2" style={{ background: '#006a9e' }}></div>
@@ -132,9 +127,6 @@ export default function DataIaRoleplay() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <p className="mb-6 text-indigo-200">
-                  Analysez du code Python et SQL pour résoudre des problèmes d'analyse de données complexes et testez vos connaissances techniques.
-                </p>
                 <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
                   <li className="flex items-center text-indigo-200">
                     <div className="h-2 w-2 rounded-full bg-indigo-400 mr-2"></div>
@@ -182,9 +174,6 @@ export default function DataIaRoleplay() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <p className="mb-6 text-blue-200">
-                  Développez et testez des algorithmes dans un environnement interactif avec assistance IA pour améliorer vos compétences pratiques.
-                </p>
                 <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
                   <li className="flex items-center text-blue-200">
                     <div className="h-2 w-2 rounded-full bg-blue-400 mr-2"></div>
@@ -232,9 +221,6 @@ export default function DataIaRoleplay() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <p className="mb-6 text-purple-200">
-                  Créez des modèles d'intelligence artificielle avancés et déployez-les dans des applications réelles.
-                </p>
                 <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
                   <li className="flex items-center text-purple-200">
                     <div className="h-2 w-2 rounded-full bg-purple-400 mr-2"></div>
@@ -282,9 +268,6 @@ export default function DataIaRoleplay() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <p className="mb-6 text-cyan-200">
-                  Créez et configurez un assistant intelligent adapté à vos besoins, définissez ses domaines d'expertise et partagez-le avec votre équipe.
-                </p>
                 <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
                   <li className="flex items-center text-cyan-200">
                     <div className="h-2 w-2 rounded-full bg-cyan-400 mr-2"></div>
@@ -332,9 +315,6 @@ export default function DataIaRoleplay() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <p className="mb-6 text-green-200">
-                  Transformez des données brutes en insights pertinents grâce à des outils d'analyse et de visualisation.
-                </p>
                 <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
                   <li className="flex items-center text-green-200">
                     <div className="h-2 w-2 rounded-full bg-green-400 mr-2"></div>
@@ -430,9 +410,6 @@ export default function DataIaRoleplay() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <p className="mb-6 text-rose-200">
-                  Pilotez la stratégie data et assurez la qualité, la conformité et la valorisation du patrimoine de données.
-                </p>
                 <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
                   <li className="flex items-center text-rose-200">
                     <div className="h-2 w-2 rounded-full bg-rose-400 mr-2"></div>
@@ -479,9 +456,6 @@ export default function DataIaRoleplay() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <p className="mb-6 text-cyan-200">
-                  Développez des applications intelligentes en intégrant des APIs et services d'IA dans des solutions concrètes.
-                </p>
                 <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
                   <li className="flex items-center text-cyan-200">
                     <div className="h-2 w-2 rounded-full bg-cyan-400 mr-2"></div>
