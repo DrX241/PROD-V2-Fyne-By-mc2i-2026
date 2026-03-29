@@ -1827,9 +1827,6 @@ export default function MonsieurToutLeMonde() {
               <div className="max-w-lg w-full text-center">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                   <div className="text-xs font-bold uppercase tracking-widest mb-6" style={{ color: BLUE }}>Évaluation terminée</div>
-                  <div className="w-20 h-20 flex items-center justify-center mx-auto mb-6" style={{ background: levelMeta.bg, color: levelMeta.color }}>
-                    {levelMeta.icon}
-                  </div>
                   <h2 className="text-4xl font-black mb-3" style={{ color: DARK }}>Niveau</h2>
                   <h1 className="text-6xl font-black mb-6" style={{ color: levelMeta.color }}>{levelMeta.label}</h1>
                   <div className="w-16 h-1 mx-auto mb-6" style={{ background: levelMeta.color }} />
@@ -1949,63 +1946,65 @@ export default function MonsieurToutLeMonde() {
             const enrich = getEnrichment(currentScenario.category);
             return (
               <motion.div key="trap" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="min-h-screen overflow-y-auto pb-16">
-                <div className="max-w-2xl mx-auto px-6 pt-10">
-                  <motion.div initial={{ scale: 0.97, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-                    {/* Verdict */}
-                    <div className="border-l-4 border-red-500 bg-red-50 px-6 py-6 mb-6">
-                      <div className="flex items-center gap-3 mb-2">
-                        <XCircle size={26} className="text-red-500 flex-shrink-0" />
-                        <div className="text-xl font-black text-red-700">Vous avez cliqué !</div>
-                        <span className="ml-auto text-sm font-bold text-red-600">−5 points</span>
-                      </div>
-                      <div className="text-red-700 text-sm leading-relaxed">
-                        {currentScenario.clickConsequence || 'Ce lien aurait conduit à une page malveillante.'}
-                      </div>
-                    </div>
+                className="h-screen flex flex-col" style={{ background: '#fafafa' }}>
+                {/* Verdict bande top */}
+                <div className="border-l-4 border-red-500 bg-red-50 px-6 py-4 flex items-center gap-3 flex-shrink-0">
+                  <XCircle size={22} className="text-red-500 flex-shrink-0" />
+                  <div>
+                    <div className="text-base font-black text-red-700">Vous avez cliqué sur le piège</div>
+                    <div className="text-xs text-red-600 leading-snug mt-0.5">{currentScenario.clickConsequence || 'Ce lien aurait conduit à une page malveillante.'}</div>
+                  </div>
+                  <span className="ml-auto text-sm font-bold text-red-600 flex-shrink-0">−5 pts</span>
+                </div>
 
-                    {/* Résumé clé */}
-                    <div className="border-l-4 pl-5 py-2 mb-6" style={{ borderColor: BLUE }}>
-                      <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: BLUE }}>Ce qu'il faut retenir</div>
-                      <p className="text-base font-bold text-gray-900">{enrich.resumeCle}</p>
+                {/* Contenu en grille plein écran */}
+                <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-0">
+                  {/* Colonne gauche */}
+                  <div className="flex flex-col border-r border-gray-200 min-h-0">
+                    {/* À retenir */}
+                    <div className="px-6 py-4 border-b border-gray-200 flex-shrink-0" style={{ background: `${BLUE}08` }}>
+                      <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: BLUE }}>À retenir</div>
+                      <p className="text-sm font-bold text-gray-900 leading-snug">{enrich.resumeCle}</p>
                     </div>
-
                     {/* Bonnes pratiques */}
-                    <div className="mb-6 border border-gray-200 bg-white">
-                      <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-2" style={{ background: '#f0f9ff' }}>
-                        <Shield size={14} style={{ color: BLUE }} />
-                        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: BLUE }}>Bonnes pratiques</span>
+                    <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+                      <div className="px-5 py-2.5 border-b border-gray-100 flex items-center gap-2 flex-shrink-0" style={{ background: '#f0f9ff' }}>
+                        <Shield size={13} style={{ color: BLUE }} />
+                        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: BLUE }}>Les bons réflexes</span>
                       </div>
-                      <div className="px-5 py-4 space-y-2">
+                      <div className="flex-1 px-5 py-3 space-y-2 overflow-y-auto">
                         {enrich.bonnesPratiques.map((p, i) => (
                           <div key={i} className="flex items-start gap-2">
-                            <CheckCircle size={13} className="text-green-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-sm text-gray-700">{p}</span>
+                            <CheckCircle size={12} className="text-green-500 flex-shrink-0 mt-0.5" />
+                            <span className="text-xs text-gray-700 leading-snug">{p}</span>
                           </div>
                         ))}
                       </div>
                     </div>
+                  </div>
 
-                    {/* Faits historiques */}
-                    <div className="mb-8 border border-gray-200 bg-white">
-                      <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-2" style={{ background: '#fff7ed' }}>
-                        <AlertTriangle size={14} style={{ color: '#d97706' }} />
-                        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#d97706' }}>Le savez-vous ? Faits réels</span>
-                      </div>
-                      <div className="px-5 py-4 space-y-2">
-                        {enrich.faitsHistoriques.map((f, i) => (
-                          <div key={i} className="flex items-start gap-2">
-                            <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white mt-0.5" style={{ background: '#d97706' }}>{i + 1}</div>
-                            <span className="text-sm text-gray-700">{f}</span>
-                          </div>
-                        ))}
-                      </div>
+                  {/* Colonne droite — Le saviez-vous ? */}
+                  <div className="flex flex-col min-h-0">
+                    <div className="px-5 py-2.5 border-b border-gray-100 flex items-center gap-2 flex-shrink-0" style={{ background: '#fff7ed' }}>
+                      <AlertTriangle size={13} style={{ color: '#d97706' }} />
+                      <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#d97706' }}>Le saviez-vous ?</span>
                     </div>
+                    <div className="flex-1 px-5 py-3 space-y-3 overflow-y-auto">
+                      {enrich.faitsHistoriques.map((f, i) => (
+                        <div key={i} className="flex items-start gap-2.5">
+                          <div className="w-5 h-5 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white" style={{ background: '#d97706' }}>{i + 1}</div>
+                          <span className="text-xs text-gray-700 leading-snug">{f}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
 
-                    <button onClick={() => setPhase('reflexe')} className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold text-sm" style={{ background: BLUE }}>
-                      Voir le réflexe clé <ChevronRight size={15} />
-                    </button>
-                  </motion.div>
+                {/* Bouton bas */}
+                <div className="border-t border-gray-200 px-6 py-3 flex-shrink-0 bg-white">
+                  <button onClick={() => setPhase('reflexe')} className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold text-sm" style={{ background: BLUE }}>
+                    Voir le réflexe clé <ChevronRight size={15} />
+                  </button>
                 </div>
               </motion.div>
             );
@@ -2014,66 +2013,73 @@ export default function MonsieurToutLeMonde() {
           {/* ═══ RÉPONSE ═════════════════════════════════════════════════════ */}
           {phase === 'answered' && currentScenario && selectedChoice && (() => {
             const enrich = getEnrichment(currentScenario.category);
+            const correct = selectedChoice.isCorrect;
             return (
               <motion.div key="answered" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="min-h-screen overflow-y-auto pb-16">
-                <div className="max-w-2xl mx-auto px-6 pt-10">
-                  {/* Verdict */}
-                  <div className={`border-l-4 px-6 py-6 mb-6 ${selectedChoice.isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
-                    <div className="flex items-center gap-3 mb-2">
-                      {selectedChoice.isCorrect
-                        ? <CheckCircle size={26} className="text-green-600 flex-shrink-0" />
-                        : <XCircle size={26} className="text-red-500 flex-shrink-0" />}
-                      <div className={`text-xl font-black ${selectedChoice.isCorrect ? 'text-green-700' : 'text-red-700'}`}>
-                        {selectedChoice.isCorrect ? 'Excellent réflexe !' : 'Pas le bon choix'}
-                      </div>
-                      <span className={`ml-auto text-sm font-bold ${selectedChoice.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
-                        {selectedChoice.points > 0 ? '+' : ''}{selectedChoice.points} pts
-                      </span>
+                className="h-screen flex flex-col" style={{ background: '#fafafa' }}>
+                {/* Verdict bande top */}
+                <div className={`border-l-4 px-6 py-4 flex items-center gap-3 flex-shrink-0 ${correct ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
+                  {correct
+                    ? <CheckCircle size={22} className="text-green-600 flex-shrink-0" />
+                    : <XCircle size={22} className="text-red-500 flex-shrink-0" />}
+                  <div>
+                    <div className={`text-base font-black ${correct ? 'text-green-700' : 'text-red-700'}`}>
+                      {correct ? 'Bon réflexe' : 'Ce n\'était pas le bon choix'}
                     </div>
-                    <div className={`text-sm leading-relaxed ${selectedChoice.isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                    <div className={`text-xs leading-snug mt-0.5 ${correct ? 'text-green-600' : 'text-red-600'}`}>
                       {selectedChoice.feedback}
                     </div>
                   </div>
+                  <span className={`ml-auto text-sm font-bold flex-shrink-0 ${correct ? 'text-green-600' : 'text-red-600'}`}>
+                    {selectedChoice.points > 0 ? '+' : ''}{selectedChoice.points} pts
+                  </span>
+                </div>
 
-                  {/* Résumé clé */}
-                  <div className="border-l-4 pl-5 py-2 mb-6" style={{ borderColor: BLUE }}>
-                    <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: BLUE }}>Ce qu'il faut retenir</div>
-                    <p className="text-base font-bold text-gray-900">{enrich.resumeCle}</p>
+                {/* Contenu en grille plein écran */}
+                <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-0">
+                  {/* Colonne gauche */}
+                  <div className="flex flex-col border-r border-gray-200 min-h-0">
+                    {/* À retenir */}
+                    <div className="px-6 py-4 border-b border-gray-200 flex-shrink-0" style={{ background: `${BLUE}08` }}>
+                      <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: BLUE }}>À retenir</div>
+                      <p className="text-sm font-bold text-gray-900 leading-snug">{enrich.resumeCle}</p>
+                    </div>
+                    {/* Les bons réflexes */}
+                    <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+                      <div className="px-5 py-2.5 border-b border-gray-100 flex items-center gap-2 flex-shrink-0" style={{ background: '#f0f9ff' }}>
+                        <Shield size={13} style={{ color: BLUE }} />
+                        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: BLUE }}>Les bons réflexes</span>
+                      </div>
+                      <div className="flex-1 px-5 py-3 space-y-2 overflow-y-auto">
+                        {enrich.bonnesPratiques.map((p, i) => (
+                          <div key={i} className="flex items-start gap-2">
+                            <CheckCircle size={12} className="text-green-500 flex-shrink-0 mt-0.5" />
+                            <span className="text-xs text-gray-700 leading-snug">{p}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Bonnes pratiques */}
-                  <div className="mb-6 border border-gray-200 bg-white">
-                    <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-2" style={{ background: '#f0f9ff' }}>
-                      <Shield size={14} style={{ color: BLUE }} />
-                      <span className="text-xs font-bold uppercase tracking-wider" style={{ color: BLUE }}>Bonnes pratiques</span>
+                  {/* Colonne droite — Le saviez-vous ? */}
+                  <div className="flex flex-col min-h-0">
+                    <div className="px-5 py-2.5 border-b border-gray-100 flex items-center gap-2 flex-shrink-0" style={{ background: '#fff7ed' }}>
+                      <AlertTriangle size={13} style={{ color: '#d97706' }} />
+                      <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#d97706' }}>Le saviez-vous ?</span>
                     </div>
-                    <div className="px-5 py-4 space-y-2">
-                      {enrich.bonnesPratiques.map((p, i) => (
-                        <div key={i} className="flex items-start gap-2">
-                          <CheckCircle size={13} className="text-green-500 flex-shrink-0 mt-0.5" />
-                          <span className="text-sm text-gray-700">{p}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Faits historiques */}
-                  <div className="mb-8 border border-gray-200 bg-white">
-                    <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-2" style={{ background: '#fff7ed' }}>
-                      <AlertTriangle size={14} style={{ color: '#d97706' }} />
-                      <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#d97706' }}>Le savez-vous ? Faits réels</span>
-                    </div>
-                    <div className="px-5 py-4 space-y-2">
+                    <div className="flex-1 px-5 py-3 space-y-3 overflow-y-auto">
                       {enrich.faitsHistoriques.map((f, i) => (
-                        <div key={i} className="flex items-start gap-2">
-                          <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white mt-0.5" style={{ background: '#d97706' }}>{i + 1}</div>
-                          <span className="text-sm text-gray-700">{f}</span>
+                        <div key={i} className="flex items-start gap-2.5">
+                          <div className="w-5 h-5 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white" style={{ background: '#d97706' }}>{i + 1}</div>
+                          <span className="text-xs text-gray-700 leading-snug">{f}</span>
                         </div>
                       ))}
                     </div>
                   </div>
+                </div>
 
+                {/* Bouton bas */}
+                <div className="border-t border-gray-200 px-6 py-3 flex-shrink-0 bg-white">
                   <button onClick={() => setPhase('reflexe')} className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold text-sm" style={{ background: BLUE }}>
                     Voir le réflexe clé <ChevronRight size={15} />
                   </button>
