@@ -74,8 +74,8 @@ const RoleplayHub: React.FC = () => {
     },
     {
       id: 'pentest-lab',
-      title: "Je suis Expert en pentest",
-      description: "J'exploite des vulnérabilités web dans un lab sécurisé",
+      title: 'Je suis Expert en pentest',
+      description: "Je voudrais exploiter plusieurs types de vulnérabilités dans un espace lab sécurisé",
       link: '/cyber/pentest-lab',
       icon: <Terminal className="h-10 w-10 text-purple-300" />,
       color: 'purple',
@@ -113,7 +113,7 @@ const RoleplayHub: React.FC = () => {
     {
       id: 'comex-member',
       title: "Je suis Membre du COMEX",
-      description: "Je veux comprendre les enjeux stratégiques de cybersécurité pour mon organisation",
+      description: "Je veux comprendre les enjeux stratégiques de cybersécurité",
       link: '/cyber/comex-training',
       icon: <BrainCircuit className="h-10 w-10 text-emerald-300" />,
       color: 'emerald',

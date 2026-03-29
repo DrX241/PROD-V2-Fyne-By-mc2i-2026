@@ -75,7 +75,7 @@ export default function DataIaRoleplay() {
                 </div>
                 <CardTitle className="text-2xl text-center mb-2">Je suis Monsieur Tout le Monde</CardTitle>
                 <CardDescription className="text-center text-lg" style={{ color: '#60c0f0' }}>
-                  J'apprends à lire et utiliser la data sans me planter
+                  J'apprends à lire et utiliser la data
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
@@ -86,7 +86,7 @@ export default function DataIaRoleplay() {
                   </li>
                   <li className="flex items-center text-blue-200">
                     <div className="h-2 w-2 rounded-full mr-2" style={{ background: '#006a9e' }}></div>
-                    Score de maturité Data · Feedback immédiat
+                    Score de maturité Data · Feedback
                   </li>
                   <li className="flex items-center text-blue-200">
                     <div className="h-2 w-2 rounded-full mr-2" style={{ background: '#006a9e' }}></div>
@@ -264,7 +264,7 @@ export default function DataIaRoleplay() {
                 </div>
                 <CardTitle className="text-2xl text-center mb-2">Créateur d'Assistant IA</CardTitle>
                 <CardDescription className="text-cyan-300 text-center text-lg">
-                  Concevez un assistant IA personnalisé
+                  Concevez un assistant IA
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
@@ -361,9 +361,6 @@ export default function DataIaRoleplay() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <p className="mb-6 text-amber-200">
-                  Concevez des architectures robustes pour collecter, transformer et stocker des données à grande échelle.
-                </p>
                 <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
                   <li className="flex items-center text-amber-200">
                     <div className="h-2 w-2 rounded-full bg-amber-400 mr-2"></div>
