@@ -74,7 +74,7 @@ const RoleplayHub: React.FC = () => {
     },
     {
       id: 'pentest-lab',
-      title: 'Je suis Expert en Pentest',
+      title: "Je suis Expert en pentest",
       description: "J'exploite des vulnérabilités web dans un lab sécurisé",
       link: '/cyber/pentest-lab',
       icon: <Terminal className="h-10 w-10 text-purple-300" />,
