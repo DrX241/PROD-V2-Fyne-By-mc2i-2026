@@ -77,25 +77,25 @@ export default function DataIaRoleplay() {
                 </div>
                 <CardTitle className="text-2xl text-center mb-2">Je suis Monsieur Tout le Monde</CardTitle>
                 <CardDescription className="text-center text-lg" style={{ color: '#60c0f0' }}>
-                  J'apprends à utiliser l'IA sans me planter
+                  J'apprends à lire et utiliser la data sans me planter
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
                 <p className="mb-6 text-blue-200">
-                  12 situations réelles pour comprendre l'IA, éviter ses pièges, l'utiliser efficacement et protéger ses données. Sans jargon.
+                  12 situations réelles pour comprendre la data, éviter ses pièges, l'interpréter correctement et prendre de bonnes décisions. Sans jargon.
                 </p>
                 <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
                   <li className="flex items-center text-blue-200">
                     <div className="h-2 w-2 rounded-full mr-2" style={{ background: '#006a9e' }}></div>
-                    4 modules · 12 situations interactives
+                    4 domaines · 12 situations interactives
                   </li>
                   <li className="flex items-center text-blue-200">
                     <div className="h-2 w-2 rounded-full mr-2" style={{ background: '#006a9e' }}></div>
-                    Score de maturité IA · Feedback immédiat
+                    Score de maturité Data · Feedback immédiat
                   </li>
                   <li className="flex items-center text-blue-200">
                     <div className="h-2 w-2 rounded-full mr-2" style={{ background: '#006a9e' }}></div>
-                    Badge final : Naïf · Prudent · Intelligent
+                    Badge final : Novice · Praticien · Expert
                   </li>
                 </ul>
               </CardContent>

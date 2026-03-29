@@ -594,9 +594,9 @@ function getEnrichment(category: string): IAEnrichment {
 
 function getBadge(score: number) {
   const pct = (score / MAX_SCORE) * 100;
-  if (pct >= 70) return { label: 'Utilisateur Éclairé', color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' };
-  if (pct >= 40) return { label: 'Utilisateur Prudent', color: '#d97706', bg: '#fffbeb', border: '#fde68a' };
-  return { label: 'Utilisateur Naïf', color: '#dc2626', bg: '#fef2f2', border: '#fecaca' };
+  if (pct >= 70) return { label: 'Data Expert', color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' };
+  if (pct >= 40) return { label: 'Data Praticien', color: '#d97706', bg: '#fffbeb', border: '#fde68a' };
+  return { label: 'Data Novice', color: '#dc2626', bg: '#fef2f2', border: '#fecaca' };
 }
 
 
@@ -1904,16 +1904,19 @@ export default function MTMDataIA() {
               <div className="flex-1 flex flex-col justify-center px-8 lg:px-16 py-16">
                 <div className="max-w-xl">
                   <div className="text-xs font-bold uppercase tracking-widest mb-5 px-3 py-1 inline-block" style={{ background: `${BLUE}12`, color: BLUE }}>
-                    Formation Data & IA · Grand Public
+                    Formation Data & BI · Grand Public
                   </div>
                   <h1 className="text-5xl lg:text-6xl font-black tracking-tight mb-4 leading-none">
                     <span style={{ color: PINK }}>Je suis</span><br />
                     <span style={{ color: DARK }}>Monsieur</span><br />
                     <span style={{ color: BLUE }}>Tout le Monde</span>
                   </h1>
+                  <p className="text-base font-semibold mb-5" style={{ color: DARK }}>
+                    J'apprends à lire et utiliser la data sans me planter
+                  </p>
                   <div className="w-16 h-1 mb-7" style={{ background: PINK }} />
                   <p className="text-lg text-gray-600 leading-relaxed mb-8">
-                    5 questions pour détecter votre niveau, puis 10 scénarios <strong>100% interactifs</strong> : tableaux Excel, dashboards Power BI, camemberts trompeurs, analyses statistiques, ML...
+                    12 situations réelles pour comprendre la data, éviter ses pièges, l'interpréter correctement et prendre de bonnes décisions. <strong>Sans jargon.</strong>
                   </p>
                   <div className="grid grid-cols-2 gap-3 mb-10">
                     {[
@@ -2096,7 +2099,7 @@ export default function MTMDataIA() {
               <div className="w-full lg:w-80 flex flex-col border-l border-gray-100">
                 <div className="px-6 py-4 border-b border-gray-100">
                   <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Situation</div>
-                  <p className="text-sm text-gray-700 leading-relaxed">{currentScenario.visual.prompt || currentScenario.context}</p>
+                  <p className="text-sm text-gray-700 leading-relaxed">{currentScenario.context}</p>
                 </div>
                 <div className="flex-1 px-6 py-4 overflow-y-auto">
                   <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Que faites-vous ?</div>
@@ -2249,12 +2252,12 @@ export default function MTMDataIA() {
                     <div>
                       <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Ce que ça signifie</div>
                       <div className="p-4 border border-gray-200 bg-white mb-4">
-                        {badge.label === 'Utilisateur Éclairé' && <p className="text-sm text-gray-700">Vous maîtrisez les fondamentaux : vous vérifiez les informations, protégez vos données et gardez l'humain dans la boucle.</p>}
-                        {badge.label === 'Utilisateur Prudent' && <p className="text-sm text-gray-700">Vous avez de bons instincts mais quelques angles morts — notamment sur la protection des données et les biais algorithmiques.</p>}
-                        {badge.label === 'Utilisateur Naïf' && <p className="text-sm text-gray-700">Quelques réflexes simples transformeront complètement votre relation à l'IA. La formation est la meilleure protection.</p>}
+                        {badge.label === 'Data Expert' && <p className="text-sm text-gray-700">Vous maîtrisez les fondamentaux : vous détectez les graphiques trompeurs, questionnez la qualité des données et distinguez corrélation et causalité.</p>}
+                        {badge.label === 'Data Praticien' && <p className="text-sm text-gray-700">Vous avez de bons réflexes mais quelques angles morts — notamment sur les biais statistiques et l'interprétation des dashboards BI.</p>}
+                        {badge.label === 'Data Novice' && <p className="text-sm text-gray-700">Quelques réflexes simples transformeront complètement votre lecture des données. La formation est le meilleur premier pas.</p>}
                       </div>
                       <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Les 3 règles d'or</div>
-                      {['Vérifiez toujours les faits importants sur des sources primaires', 'N\'envoyez jamais de données sensibles à une IA non validée', 'Gardez l\'humain dans la boucle pour les décisions à fort impact'].map((r, i) => (
+                      {['Questionnez toujours la source et la fraîcheur des données avant de les analyser', 'Distinguez corrélation et causalité — un lien statistique ne prouve pas une cause', 'Regardez la distribution complète, pas seulement la moyenne — les outliers comptent'].map((r, i) => (
                         <div key={i} className="flex items-start gap-2 mb-2">
                           <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white mt-0.5" style={{ background: BLUE }}>{i + 1}</div>
                           <span className="text-xs text-gray-700 leading-snug">{r}</span>
