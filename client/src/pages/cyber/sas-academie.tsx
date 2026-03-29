@@ -38,10 +38,6 @@ export default function SasCyberAcademie() {
               Notre académie vous propose un apprentissage adapté à vos besoins et votre rythme.
             </p>
             <div className="h-1 w-40 bg-gradient-to-r from-cyan-400 to-blue-500 mx-auto my-4"></div>
-            <p className="text-blue-100 mt-4">
-              Nous vous proposons deux approches complémentaires pour développer vos compétences. 
-              Choisissez celle qui vous convient le mieux ou alternez entre les deux !
-            </p>
           </div>
           <div>
             <h2 className="text-2xl font-bold">Choisissez votre mode d'apprentissage</h2>
