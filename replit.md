@@ -2,7 +2,21 @@
 
 ## Overview
 
-FYNE est une plateforme SaaS de formation immersive en cybersécurité et culture data développée par mc2i. La plateforme propose une approche innovante d'apprentissage par le biais de scénarios interactifs alimentés par l'intelligence artificielle. Elle comprend plusieurs modules spécialisés incluant "I AM CYBER", une expérience chatbot immersive, ainsi que des jeux sérieux, des simulations de crise, et des modules d'acculturation Data & IA (IA générative, BI, Data Analytics, Excel, ML).
+FYNE est une plateforme SaaS de formation immersive en cybersécurité et culture data développée par mc2i. La plateforme propose une approche innovante d'apprentissage par le biais de scénarios interactifs alimentés par l'intelligence artificielle. Elle comprend plusieurs modules spécialisés incluant "I AM CYBER", une expérience chatbot immersive, ainsi que des jeux sérieux, des simulations de crise, et des modules d'acculturation Data & IA.
+
+### Module "Monsieur Tout le Monde" — Data & BI (refocalisé)
+Le module `client/src/pages/data-ia/roleplay/monsieur-tout-le-monde/index.tsx` a été entièrement refocalisé sur **Data, BI, Data Sciences, Data Analytics** uniquement. Il couvre :
+- **Excel & TCD** : formules SOMME, RECHERCHEV, tableaux croisés dynamiques, formats texte vs nombre, dates
+- **Data Viz** : camemberts (max 5 catégories), axes Y tronqués, graphiques 3D trompeurs, types de graphiques adaptés
+- **Dashboards BI** : Power BI filtres, KPIs sans définition, granularité, KPIs contradictoires
+- **Qualité des données** : doublons CRM, valeurs manquantes, outliers, normalisation dates
+- **Analytics** : corrélation ≠ causalité, biais de sélection, tests A/B (peek problem), paradoxe de Simpson
+- **Statistiques** : moyenne vs médiane, intervalles de confiance, p-hacking, biais du survivant
+- **ML pratique** : overfitting, accuracy paradox, model drift, data leakage, encodage catégoriel
+- **Gouvernance** : data catalog, data owner, Single Source of Truth, KPIs sans définition
+
+Visuels disponibles : `spreadsheet`, `dashboard`, `pie-chart`, `histogram` (zéro contenu cyber ou IA générative).
+Banque : 36 scénarios (12 par niveau : Découverte / Praticien / Expert) + 28 questions d'évaluation.
 
 L'architecture technique repose sur une stack moderne avec React/TypeScript pour le frontend, Express.js pour le backend, et PostgreSQL comme base de données. L'intégration avec Amazon Bedrock (Claude) et Google Gemini FYNE permet de créer des expériences d'apprentissage personnalisées et des interactions avec des PNJ (personnages non-joueurs) pilotés par IA.
 
