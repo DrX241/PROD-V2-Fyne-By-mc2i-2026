@@ -1,0 +1,160 @@
+🧠 Module FYNE – “Je suis Monsieur Tout le monde (Data & IA)”
+🎯 objectif
+
+Permettre à quelqu’un de :
+
+comprendre ce que fait vraiment l’IA
+savoir quand lui faire confiance (ou pas)
+utiliser l’IA dans son quotidien sans faire n’importe quoi
+
+👉 toujours sans jargon
+
+🧩 structure du module
+
+👉 4 blocs (comme cyber → cohérence FYNE)
+
+1. 🤖 comprendre ce qu’est vraiment l’IA
+4
+contenu
+IA = outil qui prédit / génère
+pas “intelligente” → elle calcule
+elle se trompe parfois
+exercice
+
+👉 situation :
+
+“ChatGPT te donne une réponse sûre à 100%”
+
+choix :
+
+je fais confiance direct
+je vérifie
+je doute
+réflexe clé
+
+👉 “l’IA peut se tromper”
+
+2. ⚠️ éviter les pièges de l’IA
+4
+contenu
+hallucinations (réponses fausses)
+biais
+deepfake
+infos inventées
+exercice
+
+👉 tu montres :
+
+2 réponses IA → laquelle est fiable ?
+
+réflexe clé
+
+👉 “toujours vérifier une info importante”
+
+3. 🛠️ utiliser l’IA dans son quotidien
+4
+contenu
+écrire un mail
+résumer un texte
+organiser un voyage
+générer des idées
+exercice
+
+👉 mini prompt :
+
+“écris un message simple pour…”
+
+amélioration :
+👉 “rends-le plus clair / plus court”
+réflexe clé
+
+👉 “bien formuler = meilleur résultat”
+
+4. 🔒 protéger ses données avec l’IA
+4
+contenu
+ne pas partager :
+infos perso
+données pro
+mots de passe
+attention aux outils gratuits
+exercice
+
+👉 situation :
+
+“tu colles un contrat confidentiel dans un chatbot”
+
+choix :
+
+ok
+pas ok
+dépend
+réflexe clé
+
+👉 “tout ce que tu envoies peut être stocké”
+
+🎮 mécanique FYNE (adaptée IA)
+
+👉 même logique que cyber (important pour cohérence produit)
+
+1. situation réelle
+
+“tu dois envoyer un mail pro rapidement”
+
+2. choix
+j’utilise l’IA sans relire
+j’utilise + je vérifie
+je n’utilise pas
+3. conséquence
+
+👉 crédibilité / erreur / gain de temps
+
+4. explication
+📊 scoring
+usage intelligent de l’IA → +10
+usage naïf → -5
+usage risqué (données sensibles) → -10
+🔥 idées différenciantes (très puissantes)
+1. “niveau de maturité IA”
+
+👉 à la fin :
+
+🟥 dépendant naïf
+🟧 utilisateur prudent
+🟩 utilisateur intelligent
+2. simulateur “IA vs humain”
+
+👉 tu montres :
+
+réponse IA
+réponse humaine
+
+👉 l’utilisateur doit choisir
+
+3. coach de prompt (ultra fort)
+
+👉 l’utilisateur écrit :
+
+“écris un mail”
+
+👉 FYNE répond :
+
+“trop vague → précise : ton, contexte, objectif”
+
+🧱 MVP concret
+
+👉 fais simple :
+
+4 modules
+2–3 situations chacun
+scoring
+feedback immédiat
+⚠️ erreur à éviter
+
+❌ expliquer le machine learning
+❌ parler d’algorithmes
+❌ faire un cours
+
+👉 ton angle :
+
+“comment j’utilise l’IA demain matin sans me planter”

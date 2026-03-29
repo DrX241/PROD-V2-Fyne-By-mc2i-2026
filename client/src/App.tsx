@@ -346,6 +346,13 @@ function AppContent() {
                     </Suspense>
                   )}
                 </Route>
+                <Route path="/data-ia/roleplay/monsieur-tout-le-monde">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      {React.createElement(lazy(() => import("./pages/data-ia/roleplay/monsieur-tout-le-monde")))}
+                    </Suspense>
+                  )}
+                </Route>
                 <Route path="/data-ia/data-ia-academy">
                   {(params) => (
                     <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>

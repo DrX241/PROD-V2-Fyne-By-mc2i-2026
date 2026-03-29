@@ -6,7 +6,8 @@ import {
   ArrowRight,
   ArrowLeft,
   Code,
-  Bot
+  Bot,
+  Users
 } from 'lucide-react';
 import { BsFileEarmarkCode, BsBarChartFill, BsServer, BsCpu, BsDisplay } from 'react-icons/bs';
 import { FiSun, FiMoon } from 'react-icons/fi';
@@ -17,7 +18,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useTutorial } from '@/contexts/TutorialContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import PageTitle from '@/components/utils/PageTitle';
 
 export default function DataIaRoleplay() {
   const [, setLocation] = useLocation();
@@ -31,29 +31,87 @@ export default function DataIaRoleplay() {
         <title>DATA & IA ROLE PLAY | Simulations immersives</title>
       </Helmet>
       
-      {/* En-tête */}
+      {/* Bouton retour */}
+      <div className="absolute top-4 left-4 z-20">
+        <Link href="/data-ia">
+          <Button variant="outline" size="sm" className="bg-black/50 border-blue-800 text-blue-400 hover:bg-black/70 hover:text-blue-300 hover:border-blue-500 transition-colors">
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Retour
+          </Button>
+        </Link>
+      </div>
+
+      {/* En-tête grand titre */}
+      <div className="mb-12 text-center mt-10 relative z-10 px-6">
+        <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-cyan-400 mb-4">
+          DATA &amp; IA ROLE PLAY
+        </h1>
+        <p className="text-gray-300 max-w-3xl mx-auto text-lg">
+          Immergez-vous dans des simulations réalistes pour développer vos compétences Data &amp; IA à travers des scénarios interactifs.
+        </p>
+      </div>
+
       <div className="p-6 container mx-auto">
-        <div className="flex items-center mb-2">
-          <Link href="/data-ia">
-            <Button variant="ghost" className="text-white mr-4">
-              <ArrowLeft className="mr-2 h-5 w-5" />
-              Retour
-            </Button>
-          </Link>
-          <PageTitle title="DATA & IA ROLE PLAY" />
-        </div>
-        
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10">
           <div>
-            <h1 className="text-3xl font-bold">Choisissez votre rôle</h1>
+            <h2 className="text-2xl font-bold">Choisissez votre rôle</h2>
             <p className="text-blue-200 mt-1">Développez vos compétences dans des scénarios réalistes adaptés à votre profil</p>
           </div>
-          
-
         </div>
 
         {/* Options de rôles */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mt-8">
+          {/* Option 0: Je suis Monsieur Tout le Monde */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <Card className="h-full bg-gradient-to-br from-[#004a70]/60 to-[#001a2e] border-[#006a9e]/60 hover:border-[#006a9e] hover:shadow-lg transition-all duration-300">
+              <CardHeader>
+                <div className="flex justify-center mb-4">
+                  <div className="p-4 rounded-full" style={{ background: 'rgba(0,106,158,0.3)' }}>
+                    <Users className="h-10 w-10" style={{ color: '#60c0f0' }} />
+                  </div>
+                </div>
+                <CardTitle className="text-2xl text-center mb-2">Je suis Monsieur Tout le Monde</CardTitle>
+                <CardDescription className="text-center text-lg" style={{ color: '#60c0f0' }}>
+                  J'apprends à utiliser l'IA sans me planter
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="mb-6 text-blue-200">
+                  12 situations réelles pour comprendre l'IA, éviter ses pièges, l'utiliser efficacement et protéger ses données. Sans jargon.
+                </p>
+                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
+                  <li className="flex items-center text-blue-200">
+                    <div className="h-2 w-2 rounded-full mr-2" style={{ background: '#006a9e' }}></div>
+                    4 modules · 12 situations interactives
+                  </li>
+                  <li className="flex items-center text-blue-200">
+                    <div className="h-2 w-2 rounded-full mr-2" style={{ background: '#006a9e' }}></div>
+                    Score de maturité IA · Feedback immédiat
+                  </li>
+                  <li className="flex items-center text-blue-200">
+                    <div className="h-2 w-2 rounded-full mr-2" style={{ background: '#006a9e' }}></div>
+                    Badge final : Naïf · Prudent · Intelligent
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <Button
+                  className="text-white px-6 py-5 hover:opacity-90"
+                  style={{ background: '#006a9e' }}
+                  onClick={() => setLocation('/data-ia/roleplay/monsieur-tout-le-monde')}
+                >
+                  Commencer le module
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
+            </Card>
+          </motion.div>
+
           {/* Option 1: Je suis Consultant Data & IA */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
