@@ -1941,209 +1941,123 @@ export default function MonsieurToutLeMonde() {
             </motion.div>
           )}
 
-          {/* ═══ PIÈGE CLIQUÉ ════════════════════════════════════════════════ */}
-          {phase === 'trap-clicked' && currentScenario && (() => {
+          {/* ═══ FEEDBACK UNIFIÉ (réponse + pédagogie + suivant) ═════════════ */}
+          {(phase === 'answered' || phase === 'trap-clicked' || phase === 'reflexe') && currentScenario && (() => {
             const enrich = getEnrichment(currentScenario.category);
+            const isTrap = phase === 'trap-clicked';
+            const correct = !isTrap && selectedChoice?.isCorrect;
+            const verdictTitle = isTrap
+              ? 'Vous avez cliqué sur le piège'
+              : correct ? 'Bon réflexe' : 'Ce n\'était pas le bon choix';
+            const verdictSub = isTrap
+              ? (currentScenario.clickConsequence || 'Ce lien aurait conduit à une page malveillante.')
+              : (selectedChoice?.feedback ?? '');
+            const pts = isTrap ? -5 : (selectedChoice?.points ?? 0);
+            const borderColor = (isTrap || !correct) ? 'border-red-500' : 'border-green-500';
+            const bgColor = (isTrap || !correct) ? 'bg-red-50' : 'bg-green-50';
+            const textColor = (isTrap || !correct) ? 'text-red-700' : 'text-green-700';
+            const subColor = (isTrap || !correct) ? 'text-red-600' : 'text-green-600';
+            const ptsColor = (isTrap || !correct) ? 'text-red-600' : 'text-green-600';
+            const Icon = (isTrap || !correct) ? XCircle : CheckCircle;
+            const iconClass = (isTrap || !correct) ? 'text-red-500' : 'text-green-600';
+
             return (
-              <motion.div key="trap" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              <motion.div key="feedback" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 className="h-screen flex flex-col" style={{ background: '#fafafa' }}>
-                {/* Verdict bande top */}
-                <div className="border-l-4 border-red-500 bg-red-50 px-6 py-4 flex items-center gap-3 flex-shrink-0">
-                  <XCircle size={22} className="text-red-500 flex-shrink-0" />
-                  <div>
-                    <div className="text-base font-black text-red-700">Vous avez cliqué sur le piège</div>
-                    <div className="text-xs text-red-600 leading-snug mt-0.5">{currentScenario.clickConsequence || 'Ce lien aurait conduit à une page malveillante.'}</div>
-                  </div>
-                  <span className="ml-auto text-sm font-bold text-red-600 flex-shrink-0">−5 pts</span>
-                </div>
 
-                {/* Contenu en grille plein écran */}
-                <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-0">
-                  {/* Colonne gauche */}
-                  <div className="flex flex-col border-r border-gray-200 min-h-0">
-                    {/* À retenir */}
-                    <div className="px-6 py-4 border-b border-gray-200 flex-shrink-0" style={{ background: `${BLUE}08` }}>
-                      <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: BLUE }}>À retenir</div>
-                      <p className="text-sm font-bold text-gray-900 leading-snug">{enrich.resumeCle}</p>
-                    </div>
-                    {/* Bonnes pratiques */}
-                    <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-                      <div className="px-5 py-2.5 border-b border-gray-100 flex items-center gap-2 flex-shrink-0" style={{ background: '#f0f9ff' }}>
-                        <Shield size={13} style={{ color: BLUE }} />
-                        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: BLUE }}>Les bons réflexes</span>
-                      </div>
-                      <div className="flex-1 px-5 py-3 space-y-2 overflow-y-auto">
-                        {enrich.bonnesPratiques.map((p, i) => (
-                          <div key={i} className="flex items-start gap-2">
-                            <CheckCircle size={12} className="text-green-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-xs text-gray-700 leading-snug">{p}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                {/* ── BANDEAU VERDICT + BOUTON SUIVANT ── */}
+                <div className={`border-l-4 ${borderColor} ${bgColor} px-5 py-3 flex items-center gap-3 flex-shrink-0`}>
+                  <Icon size={20} className={`${iconClass} flex-shrink-0`} />
+                  <div className="flex-1 min-w-0">
+                    <div className={`text-sm font-black ${textColor}`}>{verdictTitle}</div>
+                    <div className={`text-xs leading-snug ${subColor} truncate`}>{verdictSub}</div>
                   </div>
-
-                  {/* Colonne droite — Le saviez-vous ? */}
-                  <div className="flex flex-col min-h-0">
-                    <div className="px-5 py-2.5 border-b border-gray-100 flex items-center gap-2 flex-shrink-0" style={{ background: '#fff7ed' }}>
-                      <AlertTriangle size={13} style={{ color: '#d97706' }} />
-                      <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#d97706' }}>Le saviez-vous ?</span>
-                    </div>
-                    <div className="flex-1 px-5 py-3 space-y-3 overflow-y-auto">
-                      {enrich.faitsHistoriques.map((f, i) => (
-                        <div key={i} className="flex items-start gap-2.5">
-                          <div className="w-5 h-5 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white" style={{ background: '#d97706' }}>{i + 1}</div>
-                          <span className="text-xs text-gray-700 leading-snug">{f}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bouton bas */}
-                <div className="border-t border-gray-200 px-6 py-3 flex-shrink-0 bg-white">
-                  <button onClick={() => setPhase('reflexe')} className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold text-sm" style={{ background: BLUE }}>
-                    Voir le réflexe clé <ChevronRight size={15} />
-                  </button>
-                </div>
-              </motion.div>
-            );
-          })()}
-
-          {/* ═══ RÉPONSE ═════════════════════════════════════════════════════ */}
-          {phase === 'answered' && currentScenario && selectedChoice && (() => {
-            const enrich = getEnrichment(currentScenario.category);
-            const correct = selectedChoice.isCorrect;
-            return (
-              <motion.div key="answered" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="h-screen flex flex-col" style={{ background: '#fafafa' }}>
-                {/* Verdict bande top */}
-                <div className={`border-l-4 px-6 py-4 flex items-center gap-3 flex-shrink-0 ${correct ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
-                  {correct
-                    ? <CheckCircle size={22} className="text-green-600 flex-shrink-0" />
-                    : <XCircle size={22} className="text-red-500 flex-shrink-0" />}
-                  <div>
-                    <div className={`text-base font-black ${correct ? 'text-green-700' : 'text-red-700'}`}>
-                      {correct ? 'Bon réflexe' : 'Ce n\'était pas le bon choix'}
-                    </div>
-                    <div className={`text-xs leading-snug mt-0.5 ${correct ? 'text-green-600' : 'text-red-600'}`}>
-                      {selectedChoice.feedback}
-                    </div>
-                  </div>
-                  <span className={`ml-auto text-sm font-bold flex-shrink-0 ${correct ? 'text-green-600' : 'text-red-600'}`}>
-                    {selectedChoice.points > 0 ? '+' : ''}{selectedChoice.points} pts
+                  <span className={`text-sm font-bold flex-shrink-0 mr-4 ${ptsColor}`}>
+                    {pts > 0 ? '+' : ''}{pts} pts
                   </span>
+                  <button
+                    onClick={handleNextScenario}
+                    disabled={loadingNext}
+                    className="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 text-white font-bold text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
+                    style={{ background: BLUE }}>
+                    {loadingNext
+                      ? <><Loader2 size={14} className="animate-spin" />Chargement…</>
+                      : currentIndex + 1 >= TOTAL_SCENARIOS
+                        ? <><Trophy size={14} />Voir mon bilan</>
+                        : <>Scénario suivant <ArrowRight size={14} /></>}
+                  </button>
                 </div>
 
-                {/* Contenu en grille plein écran */}
-                <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-0">
-                  {/* Colonne gauche */}
-                  <div className="flex flex-col border-r border-gray-200 min-h-0">
-                    {/* À retenir */}
-                    <div className="px-6 py-4 border-b border-gray-200 flex-shrink-0" style={{ background: `${BLUE}08` }}>
-                      <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: BLUE }}>À retenir</div>
-                      <p className="text-sm font-bold text-gray-900 leading-snug">{enrich.resumeCle}</p>
+                {/* ── SECTION "À RETENIR" + RÉFLEXE ── */}
+                <div className="px-5 py-3 border-b border-gray-200 flex-shrink-0" style={{ background: `${BLUE}06` }}>
+                  <div className="flex items-start gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-bold uppercase tracking-wider mb-0.5" style={{ color: BLUE }}>À retenir</div>
+                      <p className="text-xs font-semibold text-gray-600 leading-snug">{enrich.resumeCle}</p>
                     </div>
-                    {/* Les bons réflexes */}
-                    <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-                      <div className="px-5 py-2.5 border-b border-gray-100 flex items-center gap-2 flex-shrink-0" style={{ background: '#f0f9ff' }}>
-                        <Shield size={13} style={{ color: BLUE }} />
-                        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: BLUE }}>Les bons réflexes</span>
-                      </div>
-                      <div className="flex-1 px-5 py-3 space-y-2 overflow-y-auto">
-                        {enrich.bonnesPratiques.map((p, i) => (
-                          <div key={i} className="flex items-start gap-2">
-                            <CheckCircle size={12} className="text-green-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-xs text-gray-700 leading-snug">{p}</span>
-                          </div>
-                        ))}
-                      </div>
+                    <div className="flex-1 min-w-0 border-l border-gray-200 pl-4">
+                      <div className="text-xs font-bold uppercase tracking-wider mb-0.5" style={{ color: BLUE }}>Ce scénario</div>
+                      <p className="text-xs font-bold text-gray-900 leading-snug">{currentScenario.reflexe}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── GRILLE PRINCIPALE ── */}
+                <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-0 min-h-0">
+
+                  {/* Les bons réflexes */}
+                  <div className="flex flex-col border-r border-gray-200 min-h-0">
+                    <div className="px-4 py-2 border-b border-gray-100 flex items-center gap-2 flex-shrink-0" style={{ background: '#f0f9ff' }}>
+                      <Shield size={12} style={{ color: BLUE }} />
+                      <span className="text-xs font-bold uppercase tracking-wider" style={{ color: BLUE }}>Les bons réflexes</span>
+                    </div>
+                    <div className="flex-1 px-4 py-3 space-y-2 overflow-y-auto">
+                      {enrich.bonnesPratiques.map((p, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <CheckCircle size={11} className="text-green-500 flex-shrink-0 mt-0.5" />
+                          <span className="text-xs text-gray-700 leading-snug">{p}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
-                  {/* Colonne droite — Le saviez-vous ? */}
-                  <div className="flex flex-col min-h-0">
-                    <div className="px-5 py-2.5 border-b border-gray-100 flex items-center gap-2 flex-shrink-0" style={{ background: '#fff7ed' }}>
-                      <AlertTriangle size={13} style={{ color: '#d97706' }} />
+                  {/* Le saviez-vous ? */}
+                  <div className="flex flex-col border-r border-gray-200 min-h-0">
+                    <div className="px-4 py-2 border-b border-gray-100 flex items-center gap-2 flex-shrink-0" style={{ background: '#fff7ed' }}>
+                      <AlertTriangle size={12} style={{ color: '#d97706' }} />
                       <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#d97706' }}>Le saviez-vous ?</span>
                     </div>
-                    <div className="flex-1 px-5 py-3 space-y-3 overflow-y-auto">
+                    <div className="flex-1 px-4 py-3 space-y-3 overflow-y-auto">
                       {enrich.faitsHistoriques.map((f, i) => (
-                        <div key={i} className="flex items-start gap-2.5">
-                          <div className="w-5 h-5 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white" style={{ background: '#d97706' }}>{i + 1}</div>
+                        <div key={i} className="flex items-start gap-2">
+                          <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white" style={{ background: '#d97706' }}>{i + 1}</div>
                           <span className="text-xs text-gray-700 leading-snug">{f}</span>
                         </div>
                       ))}
                     </div>
                   </div>
-                </div>
 
-                {/* Bouton bas */}
-                <div className="border-t border-gray-200 px-6 py-3 flex-shrink-0 bg-white">
-                  <button onClick={() => setPhase('reflexe')} className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold text-sm" style={{ background: BLUE }}>
-                    Voir le réflexe clé <ChevronRight size={15} />
-                  </button>
+                  {/* Signaux d'alerte */}
+                  <div className="flex flex-col min-h-0">
+                    <div className="px-4 py-2 border-b border-gray-100 flex items-center gap-2 flex-shrink-0" style={{ background: '#fff1f2' }}>
+                      <Flag size={12} style={{ color: PINK }} />
+                      <span className="text-xs font-bold uppercase tracking-wider" style={{ color: PINK }}>Signaux d'alerte</span>
+                    </div>
+                    <div className="flex-1 px-4 py-3 space-y-2 overflow-y-auto">
+                      {currentScenario.redFlags?.map((f, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <AlertTriangle size={11} className="flex-shrink-0 mt-0.5" style={{ color: PINK }} />
+                          <span className="text-xs text-gray-700 leading-snug">{f}</span>
+                        </div>
+                      )) ?? (
+                        <span className="text-xs text-gray-400 italic">Aucun signal spécifique pour ce scénario</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             );
           })()}
-
-          {/* ═══ RÉFLEXE CLÉ ═════════════════════════════════════════════════ */}
-          {phase === 'reflexe' && currentScenario && (
-            <motion.div key="reflexe" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}
-              className="min-h-screen flex flex-col lg:flex-row">
-              <div className="flex-1 flex flex-col justify-center px-8 lg:px-14 py-14">
-                <div className="max-w-xl">
-                  <div className="text-xs font-bold uppercase tracking-widest mb-5 px-2 py-1 inline-block text-white" style={{ background: BLUE }}>
-                    Réflexe clé
-                  </div>
-                  <h2 className="text-3xl font-black tracking-tight mb-6 leading-tight">{currentScenario.title}</h2>
-                  <div className="border-l-4 pl-5 py-1 mb-7" style={{ borderColor: BLUE }}>
-                    <p className="text-xl font-bold text-gray-900 leading-snug">{currentScenario.reflexe}</p>
-                  </div>
-                  {currentScenario.redFlags && (
-                    <div className="mb-8">
-                      <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Signaux d'alerte à retenir</div>
-                      <ul className="space-y-2">
-                        {currentScenario.redFlags.map((f, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                            <AlertTriangle size={13} className="mt-0.5 flex-shrink-0" style={{ color: PINK }} />{f}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  <button onClick={handleNextScenario} disabled={loadingNext}
-                    className="inline-flex items-center gap-2 px-7 py-3.5 text-white font-bold hover:opacity-90 disabled:opacity-50 transition-opacity"
-                    style={{ background: BLUE }}>
-                    {loadingNext ? <><Loader2 size={15} className="animate-spin" />Chargement...</> :
-                     currentIndex + 1 >= TOTAL_SCENARIOS ? <><Trophy size={15} />Voir mon bilan</> :
-                     <>Scénario suivant <ArrowRight size={15} /></>}
-                  </button>
-                </div>
-              </div>
-              <div className="w-full lg:w-64 border-t lg:border-t-0 lg:border-l border-gray-100 flex flex-col" style={{ background: '#fafafa' }}>
-                <div className="px-6 py-5 border-b border-gray-100">
-                  <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">Score</div>
-                  <div className="text-4xl font-black" style={{ color: score >= 0 ? BLUE : PINK }}>{score > 0 ? '+' : ''}{score}</div>
-                  <div className="text-xs text-gray-400">/ {MAX_SCORE} pts</div>
-                </div>
-                <div className="px-6 py-5">
-                  <div className="text-xs text-gray-400 uppercase tracking-wider mb-3">Progression</div>
-                  <div className="space-y-1.5">
-                    {Array.from({ length: TOTAL_SCENARIOS }, (_, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: i < currentIndex ? '#16a34a' : i === currentIndex ? BLUE : '#e5e7eb' }} />
-                        <div className="text-xs text-gray-500">Scénario {i + 1}</div>
-                        {i < currentIndex && <CheckCircle size={9} className="text-green-500 ml-auto" />}
-                        {i === currentIndex && <Star size={9} className="ml-auto" style={{ color: BLUE }} />}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
 
           {/* ═══ BILAN FINAL ══════════════════════════════════════════════════ */}
           {phase === 'final' && (
