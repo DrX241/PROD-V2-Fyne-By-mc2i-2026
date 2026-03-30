@@ -256,7 +256,7 @@ const CyberHomePage: React.FC = () => {
                     ${module.id === 'data' ? 'border-t-8 border-t-purple-500' : ''}
                     ${module.id === 'mc2i' ? 'border-t-8 border-t-emerald-500' : ''}
                     ${module.id === 'generator' ? 'border-t-8 border-t-rose-500' : ''}
-                    ${module.id === 'si-champion' ? 'border-t-8 border-t-amber-500' : ''}`
+                    ${module.id === 'si-champion' ? 'border-t-8 border-t-cyan-500' : ''}`
                   }
                   onMouseEnter={() => setHoveredModule(module.id)}
                   onMouseLeave={() => setHoveredModule(null)}
