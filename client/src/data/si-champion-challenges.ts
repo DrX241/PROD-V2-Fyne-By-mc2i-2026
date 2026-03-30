@@ -33,7 +33,7 @@ ventes = [12500.50, 9800.00, 14200.75, 11000.00, 16500.25, 13000.00, 10500.00]
 # TODO : calcule la moyenne et affiche-la arrondie à 2 décimales
 `,
     language: 'python',
-    expectedOutput: '12500.07',
+    expectedOutput: '12500.21',
     hints: [
       'Utilise la fonction sum() pour additionner les ventes',
       'Divise par len(ventes) pour obtenir la moyenne',
@@ -436,7 +436,7 @@ for row in conn.execute(query):
     print('|'.join(str(v) for v in row))
 `,
     language: 'python',
-    expectedOutput: 'Nord|36800.0|3\nEst|20700.0|2\nSud|26800.0|3\nOuest|14500.0|2',
+    expectedOutput: 'Nord|36800.0|3\nSud|26800.0|3\nEst|20700.0|2\nOuest|14500.0|2',
     hints: [
       'GROUP BY regroupe les lignes par valeur de colonne',
       'SUM() calcule la somme, COUNT(*) compte les lignes',
@@ -612,7 +612,7 @@ for row in conn.execute(query):
     print('|'.join(str(v) for v in row))
 `,
     language: 'python',
-    expectedOutput: 'Frank|Est|55000.0\nAlice|Nord|45000.0\nClaire|Sud|52000.0\nHugo|Ouest|39000.0',
+    expectedOutput: 'Frank|Est|55000.0\nAlice|Nord|45000.0\nHugo|Ouest|39000.0\nClaire|Sud|52000.0',
     hints: [
       'Une sous-requête est un SELECT dans le FROM ou le WHERE',
       'Commence par calculer le MAX par région dans la sous-requête',
@@ -703,7 +703,7 @@ for row in conn.execute(query):
     print('|'.join(str(v) for v in row))
 `,
     language: 'python',
-    expectedOutput: 'Claire|6|700.0\nAlice|6|603.33\nEva|6|516.67',
+    expectedOutput: 'Alice|6|770.0\nClaire|6|700.0\nEva|6|516.67',
     hints: [
       'Un CTE (Common Table Expression) commence par WITH nom AS (...)',
       'Calcule d\'abord les stats par client dans le CTE',
@@ -1017,22 +1017,22 @@ commandes = [
     context: 'Le directeur veut un mini-dashboard avec 4 KPIs issus des données de vente : total, panier moyen, meilleur produit, taux de conversion.',
     instructions: 'Affiche les 4 KPIs, chacun sur une ligne :\n`CA Total: X€\nPanier moyen: X€\nMeilleur produit: X\nTaux conversion: X%`',
     starterCode: `transactions = [
-    {"produit": "Laptop", "montant": 899, "converti": True},
-    {"produit": "Souris", "montant": 29, "converti": True},
-    {"produit": "Laptop", "montant": 899, "converti": False},
-    {"produit": "Clavier", "montant": 89, "converti": True},
-    {"produit": "Écran", "montant": 349, "converti": True},
-    {"produit": "Souris", "montant": 29, "converti": False},
-    {"produit": "Laptop", "montant": 899, "converti": True},
-    {"produit": "Écran", "montant": 349, "converti": True},
-    {"produit": "Souris", "montant": 29, "converti": True},
-    {"produit": "Clavier", "montant": 89, "converti": False},
+    {"produit": "Laptop", "montant": 800, "converti": True},
+    {"produit": "Laptop", "montant": 800, "converti": True},
+    {"produit": "Laptop", "montant": 800, "converti": True},
+    {"produit": "Licence ERP", "montant": 400, "converti": True},
+    {"produit": "Formation", "montant": 200, "converti": True},
+    {"produit": "Écran Pro", "montant": 600, "converti": True},
+    {"produit": "Laptop", "montant": 800, "converti": False},
+    {"produit": "Licence ERP", "montant": 400, "converti": False},
+    {"produit": "Formation", "montant": 200, "converti": False},
+    {"produit": "Écran Pro", "montant": 600, "converti": False},
 ]
 
 # TODO : calcule et affiche les 4 KPIs
 `,
     language: 'python',
-    expectedOutput: 'CA Total: 3660€\nPanier moyen: 366.0€\nMeilleur produit: Laptop\nTaux conversion: 70.0%',
+    expectedOutput: 'CA Total: 3600€\nPanier moyen: 600.0€\nMeilleur produit: Laptop\nTaux conversion: 60.0%',
     hints: [
       'CA Total = somme des montants des transactions converties',
       'Panier moyen = CA Total / nb transactions converties',
@@ -1070,7 +1070,9 @@ def parse_date(s):
 
 def parse_montant(s):
     # TODO : normalise le montant en float
-    # Astuce : "1.250,50" -> supprimer les points, remplacer virgule par point -> 1250.50
+    # Cas 1 : "1.250,50" → virgule ET point → point=milliers, virgule=décimal → enlever points puis virgule→point
+    # Cas 2 : "750,25" → seulement virgule → virgule=décimal → virgule→point
+    # Cas 3 : "899.99" → seulement point → déjà format standard → float() direct
     pass
 
 # TODO : traite, déduplique, et affiche les lignes normalisées
@@ -1080,7 +1082,7 @@ def parse_montant(s):
     hints: [
       'Pour parse_date : essaie strptime avec plusieurs formats dans un try/except',
       'Formats à tester : ["%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y"]',
-      'Pour parse_montant : d\'abord supprimer les points de milliers (replace(".", "")), puis remplacer la virgule par un point (replace(",", "."))',
+      'Pour parse_montant : 3 cas → si virgule ET point → "1.250,50" (supprimer les points de milliers, virgule→point) ; si seulement virgule → "750,25" (virgule→point) ; sinon déjà format standard',
       'Pour dédupliquer : utilise un set() ou vérifie si (date, montant) est déjà vu',
     ],
     points: 400,
