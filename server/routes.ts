@@ -5530,6 +5530,100 @@ Niveau ${levelDesc}. Contexte français réaliste. Pour visual.type utilise: ema
   // STUDIO DE FORMATION — Routes IA & Documents
   // =========================================================
 
+  /**
+   * parseTrainingJson — Parseur JSON robuste pour les réponses Gemini/IA.
+   * Gère : markdown code blocks, retours à la ligne non-échappés, texte parasite.
+   * Retourne le training extrait ou null.
+   */
+  const parseTrainingJson = (text: string): Record<string, any> | null => {
+    const attempts: string[] = [];
+
+    // 1. Nettoyer les blocs markdown ```json...``` ou ```...```
+    let cleaned = text
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/```\s*$/i, '')
+      .trim();
+    attempts.push(cleaned);
+    attempts.push(text.trim());
+
+    // 2. Extraire le premier objet JSON complet avec regex greedy
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) attempts.push(jsonMatch[0]);
+
+    // 3. Si dans un code block, extraire le contenu entre ``` ```
+    const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    if (codeBlockMatch) attempts.push(codeBlockMatch[1].trim());
+
+    for (const candidate of attempts) {
+      // Tentative directe
+      try {
+        const parsed = JSON.parse(candidate);
+        if (parsed && typeof parsed === 'object') return parsed;
+      } catch {}
+
+      // Nettoyer les retours à la ligne non-échappés dans les valeurs de string
+      try {
+        const fixed = candidate
+          .replace(/:\s*"((?:[^"\\]|\\.)*)"/gs, (_m: string, val: string) => {
+            const escaped = val.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
+            return `: "${escaped}"`;
+          });
+        const parsed = JSON.parse(fixed);
+        if (parsed && typeof parsed === 'object') return parsed;
+      } catch {}
+
+      // Remplacer tous les retours à la ligne bruts dans les chaînes
+      try {
+        const fixed2 = candidate.replace(/[\n\r]+(?=[^"]*(?:"[^"]*"[^"]*)*"[^"]*$)/g, ' ');
+        const parsed = JSON.parse(fixed2);
+        if (parsed && typeof parsed === 'object') return parsed;
+      } catch {}
+    }
+
+    return null;
+  };
+
+  /**
+   * buildTrainingFallback — Construit une formation de secours si le parsing échoue.
+   * Assure que le frontend reçoit TOUJOURS une structure valide.
+   */
+  const buildTrainingFallback = (topic: string): Record<string, any> => ({
+    title: `Formation : ${topic.slice(0, 50)}`,
+    tagline: 'Formation générée par l\'IA FYNE',
+    objectives: [
+      'Comprendre les concepts fondamentaux du sujet',
+      'Appliquer les bonnes pratiques dans son contexte professionnel',
+      'Identifier et éviter les erreurs courantes',
+    ],
+    modules: [
+      { title: 'Introduction et contexte', duration: '10 min', type: 'Mise en situation' },
+      { title: 'Concepts clés', duration: '15 min', type: 'Contenu interactif' },
+      { title: 'Mise en pratique', duration: '12 min', type: 'Scénario pratique' },
+      { title: 'Évaluation', duration: '8 min', type: 'QCM final' },
+    ],
+    scenario: {
+      situation: `Vous êtes confronté(e) à une situation professionnelle liée à : ${topic}. Que faites-vous ?`,
+      choices: [
+        { text: 'Ignorer la situation et continuer', correct: false, feedback: 'Cette approche peut mener à des problèmes importants.' },
+        { text: 'Analyser la situation et appliquer les bonnes pratiques', correct: true, feedback: 'Excellent réflexe ! C\'est la bonne approche.' },
+        { text: 'Déléguer sans analyser', correct: false, feedback: 'Il est important de comprendre la situation avant de déléguer.' },
+      ],
+    },
+    qcm: [
+      {
+        question: `Quelle est la meilleure pratique concernant : ${topic} ?`,
+        options: [
+          { text: 'Ignorer le sujet', correct: false },
+          { text: 'Appliquer les bonnes pratiques reconnues', correct: true },
+          { text: 'Improviser selon les situations', correct: false },
+          { text: 'Attendre des instructions', correct: false },
+        ],
+        explanation: 'Les bonnes pratiques sont essentielles pour éviter les erreurs et maximiser l\'efficacité.',
+      },
+    ],
+    gamification: { points: 500, badge: '🏆', levels: ['Novice', 'Intermédiaire', 'Expert'] },
+  });
+
   // POST /api/studio/generate-from-prompt
   app.post("/api/studio/generate-from-prompt", async (req: Request, res: Response) => {
     try {
@@ -5611,25 +5705,17 @@ Génère une formation structurée et interactive. Réponds UNIQUEMENT avec ce J
 
       const response = await openAIService.getChatCompletion([
         { role: 'user', content: prompt }
-      ], { maxTokens: 2000, temperature: 0.7 });
+      ], 0.6, 4000);
 
-      const parseJsonSafely = (text: string) => {
-        try {
-          const match = text.match(/\{[\s\S]*\}/);
-          if (match) return JSON.parse(match[0]);
-        } catch {}
-        try { return JSON.parse(text); } catch {}
-        return null;
-      };
-
-      const training = parseJsonSafely(response);
+      let training = parseTrainingJson(response);
       if (!training) {
-        return res.status(500).json({ error: 'Impossible de parser la réponse de l\'IA' });
+        console.warn('[Studio IA] Parsing JSON échoué, utilisation du fallback. Réponse brute:', response.slice(0, 500));
+        training = buildTrainingFallback(pitch.slice(0, 80));
       }
       res.json({ training });
     } catch (error) {
       console.error('[Studio IA] Erreur génération:', error);
-      res.status(500).json({ error: 'Erreur lors de la génération' });
+      res.status(500).json({ error: 'Erreur lors de la génération de la formation. Réessayez.' });
     }
   });
 
@@ -5735,25 +5821,17 @@ Réponds UNIQUEMENT avec ce JSON (aucun texte avant ou après) :
 
       const response = await openAIService.getChatCompletion([
         { role: 'user', content: prompt }
-      ], { maxTokens: 2000, temperature: 0.7 });
+      ], 0.6, 4000);
 
-      const parseJsonSafely = (text: string) => {
-        try {
-          const match = text.match(/\{[\s\S]*\}/);
-          if (match) return JSON.parse(match[0]);
-        } catch {}
-        try { return JSON.parse(text); } catch {}
-        return null;
-      };
-
-      const training = parseJsonSafely(response);
+      let training = parseTrainingJson(response);
       if (!training) {
-        return res.status(500).json({ error: 'Impossible de parser la réponse de l\'IA' });
+        console.warn('[Studio Documents] Parsing JSON échoué, utilisation du fallback. Réponse brute:', response.slice(0, 500));
+        training = buildTrainingFallback(title || filesSummary.slice(0, 80));
       }
       res.json({ training });
     } catch (error) {
       console.error('[Studio Documents] Erreur génération:', error);
-      res.status(500).json({ error: 'Erreur lors de la génération' });
+      res.status(500).json({ error: 'Erreur lors de la génération de la formation. Réessayez.' });
     }
   });
 
@@ -5925,20 +6003,12 @@ Réponds UNIQUEMENT avec ce JSON (aucun texte avant ou après) :
 
       const aiResponse = await openAIService.getChatCompletion([
         { role: 'user', content: prompt }
-      ], { maxTokens: 2000, temperature: 0.7 });
+      ], 0.6, 4000);
 
-      const parseJsonSafely = (text: string) => {
-        try {
-          const match = text.match(/\{[\s\S]*\}/);
-          if (match) return JSON.parse(match[0]);
-        } catch {}
-        try { return JSON.parse(text); } catch {}
-        return null;
-      };
-
-      const training = parseJsonSafely(aiResponse);
+      let training = parseTrainingJson(aiResponse);
       if (!training) {
-        return res.status(500).json({ error: 'Impossible de parser la réponse de l\'IA' });
+        console.warn('[Studio URL] Parsing JSON échoué, utilisation du fallback. Réponse brute:', aiResponse.slice(0, 500));
+        training = buildTrainingFallback(title || siteName);
       }
 
       res.json({
@@ -5949,9 +6019,14 @@ Réponds UNIQUEMENT avec ce JSON (aucun texte avant ou après) :
           siteName: siteName.slice(0, 60),
         }
       });
-    } catch (error) {
-      console.error('[Studio URL] Erreur:', error);
-      res.status(500).json({ error: 'Erreur lors du crawl ou de la génération' });
+    } catch (error: any) {
+      console.error('[Studio URL] Erreur:', error?.message || error);
+      const msg = error?.message?.includes('ECONNREFUSED') || error?.message?.includes('ENOTFOUND')
+        ? 'Site inaccessible — vérifiez que l\'URL est correcte et que le site est en ligne.'
+        : error?.message?.includes('timeout')
+        ? 'Le site met trop de temps à répondre. Réessayez avec moins de pages.'
+        : 'Erreur lors du crawl ou de la génération. Réessayez.';
+      res.status(500).json({ error: msg });
     }
   });
 
