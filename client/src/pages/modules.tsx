@@ -116,10 +116,10 @@ export default function ModulesPage() {
       description: "Créez votre propre parcours d'apprentissage personnalisé adapté à vos besoins spécifiques avec notre technologie IA générative.",
       icon: <Plus className="w-12 h-12 text-white" />,
       iconBg: "bg-rose-600",
-      color: "border-rose-200", // Supprimé les effets de survol
-      link: "/custom",
+      color: "border-rose-200 hover:shadow-xl hover:scale-105 hover:border-rose-300",
+      link: "/playground/module-generator",
       bgGradient: "bg-gradient-to-br from-rose-50 to-rose-100",
-      comingSoon: true // Marqué comme "à venir"
+      comingSoon: false
     }
   ];
 
