@@ -32,6 +32,8 @@ import CyberAgentNewPage from "./pages/cyber/cyber-agent-new";
 import DataIaModeSelection from "./pages/data-ia-mode-selection";
 import AmoaModeSelectionNew from "./pages/amoa-mode-selection-new";
 import ModuleGenerator from "./pages/playground/module-generator";
+import StudioIA from "./pages/playground/studio-ia";
+import StudioDocuments from "./pages/playground/studio-documents";
 // Import des pages de la nouvelle interface cyber V3
 import CyberV3 from "./pages/cyber-v3";
 // Import de la page à propos de FYNE
@@ -413,6 +415,8 @@ function AppContent() {
                 <Route path="/amoa/prospect-pulse" component={ProspectPulse} />
                 <Route path="/amoa/expert-learning" component={AmoaExpertLearning} />
                 <Route path="/playground/module-generator" component={ModuleGenerator} />
+                <Route path="/playground/studio-ia" component={StudioIA} />
+                <Route path="/playground/studio-documents" component={StudioDocuments} />
                 
                 {/* Route par défaut (404) */}
                 <Route component={NotFound} />
