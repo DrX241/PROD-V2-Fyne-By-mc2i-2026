@@ -1098,7 +1098,7 @@ export const TRACKS = [
     description: 'Manipulation de données, algorithmes, automatisation',
     color: '#3776AB',
     bgLight: '#EBF5FF',
-    icon: '🐍',
+    icon: '',
     count: CHALLENGES.filter(c => c.track === 'python').length,
   },
   {
@@ -1107,7 +1107,7 @@ export const TRACKS = [
     description: 'Requêtes, jointures, agrégations, analytique',
     color: '#DD6B20',
     bgLight: '#FFF5EB',
-    icon: '🗃',
+    icon: '',
     count: CHALLENGES.filter(c => c.track === 'sql').length,
   },
   {
@@ -1116,7 +1116,7 @@ export const TRACKS = [
     description: 'Front-end, asynchrone, manipulation de tableaux',
     color: '#F7DF1E',
     bgLight: '#FEFCE8',
-    icon: '⚡',
+    icon: '',
     count: CHALLENGES.filter(c => c.track === 'javascript').length,
   },
   {
@@ -1125,7 +1125,7 @@ export const TRACKS = [
     description: 'KPIs, tableaux croisés, nettoyage, formules',
     color: '#217346',
     bgLight: '#F0FDF4',
-    icon: '📊',
+    icon: '',
     count: CHALLENGES.filter(c => c.track === 'data').length,
   },
 ];

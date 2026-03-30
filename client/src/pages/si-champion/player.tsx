@@ -155,7 +155,7 @@ export default function ChallengePlayer({ params }: { params: { id: string } }) 
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          <div className="text-4xl mb-4">🔍</div>
+          <div className="mb-4 flex justify-center"><BookOpen size={40} className="text-gray-300" /></div>
           <h2 className="text-xl font-black mb-2" style={{ color: DARK }}>Défi introuvable</h2>
           <Link href="/si-champion/challenges">
             <button className="px-6 py-2 text-white font-bold" style={{ background: BLUE }}>
@@ -245,7 +245,7 @@ export default function ChallengePlayer({ params }: { params: { id: string } }) 
           >
             <div className="flex items-center gap-2">
               <CheckCircle2 size={18} />
-              🎉 Défi réussi ! +{challenge.points} points gagnés
+              Défi réussi ! +{challenge.points} points gagnés
             </div>
             {next && (
               <button
@@ -482,7 +482,7 @@ export default function ChallengePlayer({ params }: { params: { id: string } }) 
                     onClick={() => setShowHints(false)}
                     className="text-yellow-400 hover:text-yellow-700 text-xs"
                   >
-                    ✕
+                    ×
                   </button>
                 </div>
                 <p className="text-sm text-yellow-800 leading-relaxed mb-3">

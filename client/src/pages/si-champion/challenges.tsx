@@ -130,7 +130,7 @@ export default function ChallengesPage() {
                   ? { borderColor: track.color, background: track.color, color: 'white' }
                   : { borderColor: '#e5e7eb', color: '#6b7280' }}
               >
-                {track.icon} {track.label}
+                {track.label}
               </button>
             ))}
           </div>
@@ -197,7 +197,6 @@ export default function ChallengesPage() {
 
                   {/* Track badge */}
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-lg">{track.icon}</span>
                     <span className="text-xs font-bold px-2 py-0.5" style={{ background: track.bgLight, color: track.color }}>
                       {track.label}
                     </span>

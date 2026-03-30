@@ -127,9 +127,9 @@ export default function SiChampionHub() {
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 flex items-center justify-center text-2xl border border-gray-200"
-                        style={{ background: track.bgLight }}>
-                        {track.icon}
+                      <div className="w-12 h-12 flex items-center justify-center border border-gray-200"
+                        style={{ background: track.bgLight, color: track.color }}>
+                        {trackIcons[track.id]}
                       </div>
                       <div>
                         <div className="font-black text-lg" style={{ color: DARK }}>{track.label}</div>
