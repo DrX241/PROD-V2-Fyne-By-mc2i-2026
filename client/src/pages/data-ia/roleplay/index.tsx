@@ -332,16 +332,17 @@ export default function DataIaRoleplay() {
               </CardContent>
               <CardFooter className="flex justify-center">
                 <Button 
-                  className="bg-green-600/60 hover:bg-green-700/60 text-white px-6 py-5"
-                  disabled
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-5"
+                  onClick={() => setLocation('/data-ia/roleplay/data-analyst')}
                 >
-                  Bientôt disponible
+                  Accéder au module
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
             </Card>
           </motion.div>
 
-          {/* Option 5: Je suis Data Engineer - Bientôt disponible */}
+          {/* Option 5: Je suis Data Engineer */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -378,16 +379,17 @@ export default function DataIaRoleplay() {
               </CardContent>
               <CardFooter className="flex justify-center">
                 <Button 
-                  className="bg-amber-600/60 hover:bg-amber-700/60 text-white px-6 py-5"
-                  disabled
+                  className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-5"
+                  onClick={() => setLocation('/data-ia/not-implemented')}
                 >
-                  Bientôt disponible
+                  Accéder au module
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
             </Card>
           </motion.div>
 
-          {/* Option 6: Je suis Data Manager - Bientôt disponible */}
+          {/* Option 6: Je suis Data Manager */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -424,16 +426,17 @@ export default function DataIaRoleplay() {
               </CardContent>
               <CardFooter className="flex justify-center">
                 <Button 
-                  className="bg-rose-600/60 hover:bg-rose-700/60 text-white px-6 py-5"
-                  disabled
+                  className="bg-rose-600 hover:bg-rose-700 text-white px-6 py-5"
+                  onClick={() => setLocation('/data-ia/not-implemented')}
                 >
-                  Bientôt disponible
+                  Accéder au module
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
             </Card>
           </motion.div>
           
-          {/* Option 7: Je suis Développeur IA - Bientôt disponible */}
+          {/* Option 7: Je suis Développeur IA */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -470,10 +473,11 @@ export default function DataIaRoleplay() {
               </CardContent>
               <CardFooter className="flex justify-center">
                 <Button 
-                  className="bg-cyan-600/60 hover:bg-cyan-700/60 text-white px-6 py-5"
-                  disabled
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-5"
+                  onClick={() => setLocation('/data-ia/not-implemented')}
                 >
-                  Bientôt disponible
+                  Accéder au module
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
             </Card>

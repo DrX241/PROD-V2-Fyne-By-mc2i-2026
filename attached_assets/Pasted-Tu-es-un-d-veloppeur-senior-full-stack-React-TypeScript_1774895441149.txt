@@ -1,0 +1,69 @@
+Tu es un développeur senior full-stack React/TypeScript/Express.
+Implémente un module complet appelé "Studio" qui permet de générer des formations
+interactives sur mesure, avec deux chemins d'entrée distincts.
+
+---
+
+## STACK TECHNIQUE
+- Frontend : React 18 + TypeScript, Tailwind CSS, Framer Motion, lucide-react, wouter (routing)
+- Backend : Express + TypeScript (tsx), Gemini API (gemini-2.5-flash via REST)
+- Upload : multer (memoryStorage), pdf-parse, mammoth, cheerio
+- Variables d'env : GEMINI_API_KEY, GEMINI_MODEL
+
+---
+
+## DESIGN
+- Fond page : bg-gray-50, texte principal : #061019
+- Couleurs FYNE : #006a9e (bleu), #dd0061 (rose/rouge), #7c3aed (violet)
+- Zéro border-radius (pas de rounded-*), tout est carré
+- Flat design, pas de shadows excessives
+- Police : font-black pour les titres, font-semibold pour les labels
+
+---
+
+## TYPES (TypeScript)
+
+type Stage = 'choice' | 'form' | 'generating' | 'upload' | 'analyzing' | 'program' | 'practice' | 'error'
+type Level = 'debutant' | 'intermediaire' | 'avance'
+type ToolType = 'excel' | 'python' | 'sql' | null
+type Difficulty = 'facile' | 'moyen' | 'difficile'
+
+interface StudioLecon { id, title, objectives[], keyPoints[], estimatedMinutes }
+interface StudioPratique { id, title, businessContext, instructions[], deliverable, difficulty }
+interface StudioSemaine { week, title, goals[], checkpoints[] }
+interface ExistingBrick { label, route, reason }
+interface StudioQCM { id, question, options[4], correctIndex, explanation }
+interface StudioProgram {
+  title, summary, source?, lecons[], pratiques[], qcm?, monteeEnCompetences[], existingBricks[]
+}
+interface PracticeFeedback { rating: 'excellent'|'bien'|'a_ameliorer', strengths[], improvements[], suggestion }
+interface ResolvedPractice { title, businessContext, instructions[], deliverable, difficulty, starter, excelSeed? }
+
+---
+
+## ARCHITECTURE FRONTEND (src/pages/studio/index.tsx)
+
+### États principaux
+- stage: Stage (initial: 'choice')
+- subject, audience, level, businessContext, duration (formulaire IA)
+- program: StudioProgram | null
+- practiceExercise: StudioPratique | null
+- practiceAnswer, practiceFeedback, evaluating, hintText, hintLoading
+- toolType: ToolType
+- uploadFile, uploadUrl, uploadMode: 'file'|'url', uploadError, dragOver
+- qcmAnswers: Record<string,number>, qcmRevealed: Record<string,boolean>
+- openLecon, openPratique, openSemaine (accordéons)
+
+### Logique outil auto-détection
+```typescript
+const TOOL_BY_ROUTE = {
+  '/cyber/formation': 'sql',
+  '/cyber/formation/python': 'python',
+  '/cyber/formation/excel': 'excel',
+}
+
+function inferToolType(ex, program, subject): ToolType {
+  // 1. Cherche dans existingBricks via TOOL_BY_ROUTE
+  // 2. Sinon scan du texte : excel/tableur/kpi → 'excel',
+  //    python/pandas → 'python', sql/requête/jointure → 'sql'
+}

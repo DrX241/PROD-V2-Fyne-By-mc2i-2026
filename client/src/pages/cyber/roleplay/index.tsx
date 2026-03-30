@@ -127,7 +127,7 @@ const RoleplayHub: React.FC = () => {
         "Mesure et priorisation des risques numériques",
         "Préparation à la gestion de crise cybernétique"
       ],
-      comingSoon: true
+      comingSoon: false
     },
     {
       id: 'crisis-management',
@@ -146,7 +146,7 @@ const RoleplayHub: React.FC = () => {
         "Décisions stratégiques en temps sous pression",
         "Gestion de la communication interne et externe"
       ],
-      comingSoon: true
+      comingSoon: false
     }
   ];
 
