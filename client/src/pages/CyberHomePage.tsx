@@ -116,7 +116,7 @@ const CyberHomePage: React.FC = () => {
       bgColor: 'bg-rose-100',
       accentColor: 'border-rose-500',
       route: '/playground/module-generator',
-      comingSoon: true
+      comingSoon: false
     }
   ];
 
