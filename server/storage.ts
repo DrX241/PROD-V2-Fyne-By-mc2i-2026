@@ -1,6 +1,9 @@
-import { users, type User, type InsertUser } from "@shared/schema";
+import {
+  users, type User, type InsertUser,
+  generatedTrainings, type GeneratedTraining, type InsertGeneratedTraining
+} from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import session from "express-session";
 import MemoryStore from "memorystore";
 
@@ -12,6 +15,10 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   upsertUser(user: InsertUser): Promise<User>;
   updateUserLastLogin(id: number): Promise<void>;
+  // Studio — formations générées
+  saveGeneratedTraining(training: InsertGeneratedTraining): Promise<GeneratedTraining>;
+  getGeneratedTraining(id: string): Promise<GeneratedTraining | undefined>;
+  listGeneratedTrainings(limit?: number): Promise<GeneratedTraining[]>;
 }
 
 // Implémentation de la mémoire pour les tests et le développement
@@ -91,6 +98,22 @@ export class MemStorage implements IStorage {
       this.users.set(id, user);
     }
   }
+
+  private trainings: Map<string, GeneratedTraining> = new Map();
+
+  async saveGeneratedTraining(t: InsertGeneratedTraining): Promise<GeneratedTraining> {
+    const record: GeneratedTraining = { ...t, createdAt: new Date() };
+    this.trainings.set(t.id, record);
+    return record;
+  }
+
+  async getGeneratedTraining(id: string): Promise<GeneratedTraining | undefined> {
+    return this.trainings.get(id);
+  }
+
+  async listGeneratedTrainings(limit = 20): Promise<GeneratedTraining[]> {
+    return Array.from(this.trainings.values()).slice(-limit).reverse();
+  }
 }
 
 // Implémentation de base de données pour la production
@@ -163,6 +186,30 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date(),
       })
       .where(eq(users.id, id));
+  }
+
+  async saveGeneratedTraining(t: InsertGeneratedTraining): Promise<GeneratedTraining> {
+    const [record] = await db
+      .insert(generatedTrainings)
+      .values(t)
+      .returning();
+    return record;
+  }
+
+  async getGeneratedTraining(id: string): Promise<GeneratedTraining | undefined> {
+    const [record] = await db
+      .select()
+      .from(generatedTrainings)
+      .where(eq(generatedTrainings.id, id));
+    return record;
+  }
+
+  async listGeneratedTrainings(limit = 20): Promise<GeneratedTraining[]> {
+    return db
+      .select()
+      .from(generatedTrainings)
+      .orderBy(desc(generatedTrainings.createdAt))
+      .limit(limit);
   }
 }
 

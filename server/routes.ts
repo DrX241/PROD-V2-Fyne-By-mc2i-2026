@@ -5624,6 +5624,161 @@ Niveau ${levelDesc}. Contexte français réaliste. Pour visual.type utilise: ema
     gamification: { points: 500, badge: '🏆', levels: ['Novice', 'Intermédiaire', 'Expert'] },
   });
 
+  // GET /api/studio/training/:id — Récupère une formation sauvegardée
+  app.get("/api/studio/training/:id", async (req: Request, res: Response) => {
+    try {
+      const training = await storage.getGeneratedTraining(req.params.id);
+      if (!training) return res.status(404).json({ error: 'Formation introuvable' });
+      res.json(training);
+    } catch (error) {
+      console.error('[Studio] Erreur récupération formation:', error);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  // GET /api/studio/trainings — Liste des formations récentes
+  app.get("/api/studio/trainings", async (req: Request, res: Response) => {
+    try {
+      const trainings = await storage.listGeneratedTrainings(20);
+      res.json(trainings);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  // ─── Prompt partagé pour la structure de formation complète ────────────────
+  const TRAINING_JSON_SCHEMA = `{
+  "title": "Titre accrocheur et précis de la formation",
+  "tagline": "Sous-titre engageant en moins de 12 mots",
+  "objectives": [
+    "Identifier et comprendre [concept clé 1]",
+    "Appliquer [bonne pratique] dans son contexte professionnel",
+    "Éviter les erreurs courantes liées à [sujet]",
+    "Reconnaître [situation à risque ou opportunité]"
+  ],
+  "modules": [
+    { "title": "Titre du module 1 basé sur le sujet", "duration": "8 min", "type": "Mise en situation" },
+    { "title": "Titre du module 2", "duration": "10 min", "type": "Scénarios décisionnels" },
+    { "title": "Titre du module 3", "duration": "8 min", "type": "QCM interactif" },
+    { "title": "Bilan et plan d'action", "duration": "5 min", "type": "Évaluation finale" }
+  ],
+  "scenarios": [
+    {
+      "id": 1,
+      "category": "Catégorie thématique du scénario 1",
+      "title": "Titre court du scénario 1",
+      "context": "Contexte optionnel : chiffre clé, règle ou fait important à connaître",
+      "situation": "Description détaillée et réaliste (3-4 phrases) : qui est le personnage, quelle est la situation concrète, quels sont les enjeux professionnels réels, quel est le problème ou la décision à prendre",
+      "choices": [
+        { "text": "Option A — incorrecte mais plausible", "correct": false, "feedback": "Explication claire de pourquoi c'est incorrect et quelles en seraient les conséquences réelles", "points": 0 },
+        { "text": "Option B — la bonne réponse", "correct": true, "feedback": "Bravo ! Explication de pourquoi c'est correct et ce que ça apporte concrètement", "points": 100 },
+        { "text": "Option C — incorrecte, erreur classique", "correct": false, "feedback": "C'est une erreur très courante. Voici pourquoi elle est problématique", "points": 0 }
+      ],
+      "reflexe": "Le réflexe à retenir : formulation courte et mémorable du bon comportement"
+    },
+    {
+      "id": 2,
+      "category": "Catégorie thématique du scénario 2",
+      "title": "Titre court du scénario 2",
+      "context": "Contexte différent du scénario 1",
+      "situation": "Nouvelle situation réaliste et différente du scénario 1 — autre aspect du sujet, autre contexte professionnel",
+      "choices": [
+        { "text": "Option A", "correct": false, "feedback": "Feedback A", "points": 0 },
+        { "text": "Option B — correcte", "correct": true, "feedback": "Feedback B positif", "points": 100 },
+        { "text": "Option C", "correct": false, "feedback": "Feedback C", "points": 0 }
+      ],
+      "reflexe": "Réflexe 2 à retenir"
+    },
+    {
+      "id": 3,
+      "category": "Catégorie thématique du scénario 3",
+      "title": "Titre court du scénario 3",
+      "context": "Contexte du scénario 3",
+      "situation": "Troisième situation — couvre un aspect encore différent, peut-être plus subtil ou avancé",
+      "choices": [
+        { "text": "Option A", "correct": true, "feedback": "Feedback A — c'est la bonne réponse", "points": 100 },
+        { "text": "Option B — incorrecte", "correct": false, "feedback": "Feedback B", "points": 0 },
+        { "text": "Option C — incorrecte", "correct": false, "feedback": "Feedback C", "points": 0 }
+      ],
+      "reflexe": "Réflexe 3 à retenir"
+    },
+    {
+      "id": 4,
+      "category": "Catégorie thématique du scénario 4",
+      "title": "Titre court du scénario 4",
+      "context": "Contexte du scénario 4",
+      "situation": "Quatrième situation — met en jeu une situation complexe ou un cas limite du sujet",
+      "choices": [
+        { "text": "Option A — incorrecte", "correct": false, "feedback": "Feedback A", "points": 0 },
+        { "text": "Option B — incorrecte", "correct": false, "feedback": "Feedback B", "points": 0 },
+        { "text": "Option C — correcte", "correct": true, "feedback": "Feedback C positif — explication approfondie", "points": 100 }
+      ],
+      "reflexe": "Réflexe 4 à retenir"
+    }
+  ],
+  "qcm": [
+    {
+      "question": "Question 1 sur un concept fondamental du sujet ?",
+      "options": [
+        { "text": "Réponse A incorrecte", "correct": false },
+        { "text": "Réponse B correcte", "correct": true },
+        { "text": "Réponse C incorrecte", "correct": false },
+        { "text": "Réponse D incorrecte", "correct": false }
+      ],
+      "explanation": "Explication pédagogique complète de la bonne réponse avec le contexte"
+    },
+    {
+      "question": "Question 2 sur un deuxième concept clé ?",
+      "options": [
+        { "text": "Option A", "correct": false },
+        { "text": "Option B", "correct": false },
+        { "text": "Option C — correcte", "correct": true },
+        { "text": "Option D", "correct": false }
+      ],
+      "explanation": "Explication 2"
+    },
+    {
+      "question": "Question 3 — cas pratique ou application concrète ?",
+      "options": [
+        { "text": "Option A — correcte", "correct": true },
+        { "text": "Option B", "correct": false },
+        { "text": "Option C", "correct": false },
+        { "text": "Option D", "correct": false }
+      ],
+      "explanation": "Explication 3 avec exemple concret"
+    },
+    {
+      "question": "Question 4 — erreur courante à identifier ?",
+      "options": [
+        { "text": "Option A", "correct": false },
+        { "text": "Option B — correcte", "correct": true },
+        { "text": "Option C", "correct": false },
+        { "text": "Option D", "correct": false }
+      ],
+      "explanation": "Explication 4 — pourquoi c'est une erreur fréquente"
+    },
+    {
+      "question": "Question 5 — synthèse ou bonne pratique à retenir ?",
+      "options": [
+        { "text": "Option A", "correct": false },
+        { "text": "Option B", "correct": false },
+        { "text": "Option C", "correct": false },
+        { "text": "Option D — correcte", "correct": true }
+      ],
+      "explanation": "Explication 5 — synthèse finale"
+    }
+  ],
+  "gamification": {
+    "points": 800,
+    "badge": "🏆",
+    "levels": [
+      { "name": "Novice", "threshold": 0 },
+      { "name": "Praticien", "threshold": 400 },
+      { "name": "Expert", "threshold": 700 }
+    ]
+  }
+}`;
+
   // POST /api/studio/generate-from-prompt
   app.post("/api/studio/generate-from-prompt", async (req: Request, res: Response) => {
     try {
@@ -5644,75 +5799,51 @@ Niveau ${levelDesc}. Contexte français réaliste. Pour visual.type utilise: ema
         high: 'très ludique et gamifié, maximise l\'engagement',
       };
 
-      const prompt = `Tu es un expert en ingénierie pédagogique et en formation professionnelle. Crée une formation complète basée sur ce besoin :
+      const prompt = `Tu es un expert en ingénierie pédagogique. Crée une formation professionnelle COMPLÈTE et JOUABLE, avec de vrais scénarios immersifs issus de situations réelles.
 
 BESOIN : ${pitch}
 DOMAINE : ${domain || 'À déterminer selon le besoin'}
 PUBLIC CIBLE : ${audienceLabels[audience] || audience}
 DURÉE : ${duration} minutes
-STYLE GAMIFICATION : ${gamifLabels[gamification] || gamification}
+GAMIFICATION : ${gamifLabels[gamification] || gamification}
 
-Génère une formation structurée et interactive. Réponds UNIQUEMENT avec ce JSON (aucun texte avant ou après) :
-{
-  "title": "Titre accrocheur de la formation",
-  "tagline": "Sous-titre court et engageant (max 12 mots)",
-  "objectives": [
-    "Objectif 1 — formulé avec un verbe d'action",
-    "Objectif 2",
-    "Objectif 3"
-  ],
-  "modules": [
-    { "title": "Titre du module 1", "duration": "10 min", "type": "Mise en situation" },
-    { "title": "Titre du module 2", "duration": "8 min", "type": "QCM interactif" },
-    { "title": "Titre du module 3", "duration": "12 min", "type": "Scénario décisionnel" }
-  ],
-  "scenario": {
-    "situation": "Description détaillée et réaliste d'une situation professionnelle qui met le participant face à un problème concret lié au sujet de la formation. Contexte précis, personnages, enjeux clairement définis. 3-4 phrases.",
-    "choices": [
-      { "text": "Première option de réponse", "correct": false, "feedback": "Explication de pourquoi cette réponse est incorrecte" },
-      { "text": "Deuxième option — la bonne", "correct": true, "feedback": "Explication de pourquoi cette réponse est correcte et ce qu'elle apporte" },
-      { "text": "Troisième option de réponse", "correct": false, "feedback": "Explication de pourquoi cette option est inadaptée" }
-    ]
-  },
-  "qcm": [
-    {
-      "question": "Question de compréhension sur un concept clé de la formation ?",
-      "options": [
-        { "text": "Mauvaise réponse A", "correct": false },
-        { "text": "Bonne réponse B", "correct": true },
-        { "text": "Mauvaise réponse C", "correct": false },
-        { "text": "Mauvaise réponse D", "correct": false }
-      ],
-      "explanation": "Explication pédagogique de la bonne réponse avec contexte"
-    },
-    {
-      "question": "Deuxième question sur un autre concept important ?",
-      "options": [
-        { "text": "Option A", "correct": false },
-        { "text": "Option B — correcte", "correct": true },
-        { "text": "Option C", "correct": false },
-        { "text": "Option D", "correct": false }
-      ],
-      "explanation": "Explication pédagogique"
-    }
-  ],
-  "gamification": {
-    "points": 500,
-    "badge": "🏆",
-    "levels": ["Novice", "Intermédiaire", "Expert"]
-  }
-}`;
+RÈGLES IMPORTANTES :
+- Chaque scénario doit décrire une situation CONCRÈTE et RÉALISTE avec un personnage nommé
+- Les 4 scénarios doivent couvrir 4 aspects DIFFÉRENTS du sujet
+- Les feedbacks doivent être pédagogiques et expliquer les conséquences réelles
+- Les réflexes doivent être courts, mémorables, actionnables
+- Les QCM doivent tester des connaissances pratiques, pas théoriques
+
+Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
+${TRAINING_JSON_SCHEMA}`;
 
       const response = await openAIService.getChatCompletion([
         { role: 'user', content: prompt }
-      ], 0.6, 4000);
+      ], 0.65, 4000);
 
       let training = parseTrainingJson(response);
       if (!training) {
-        console.warn('[Studio IA] Parsing JSON échoué, utilisation du fallback. Réponse brute:', response.slice(0, 500));
+        console.warn('[Studio IA] Parsing échoué. Fallback. Brut:', response.slice(0, 400));
         training = buildTrainingFallback(pitch.slice(0, 80));
       }
-      res.json({ training });
+
+      // Normaliser : assurer que scenarios[] existe (rétrocompat)
+      if (!training.scenarios && training.scenario) {
+        training.scenarios = [{ id: 1, ...training.scenario, title: 'Mise en situation', reflexe: 'Appliquez les bonnes pratiques.' }];
+      }
+
+      const id = uuidv4();
+      await storage.saveGeneratedTraining({
+        id, title: training.title || 'Formation générée',
+        tagline: training.tagline || '',
+        source: 'prompt',
+        sourceInfo: { pitch: pitch.slice(0, 200), domain, audience },
+        audience: audience || 'grand_public',
+        gamificationLevel: gamification || 'medium',
+        content: training,
+      });
+
+      res.json({ training, id });
     } catch (error) {
       console.error('[Studio IA] Erreur génération:', error);
       res.status(500).json({ error: 'Erreur lors de la génération de la formation. Réessayez.' });
@@ -5720,7 +5851,6 @@ Génère une formation structurée et interactive. Réponds UNIQUEMENT avec ce J
   });
 
   // POST /api/studio/generate-from-documents
-  // Accepts multipart/form-data with files + config
   const multer = (await import('multer')).default;
   const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024, files: 5 } });
 
@@ -5729,106 +5859,100 @@ Génère une formation structurée et interactive. Réponds UNIQUEMENT avec ce J
       const { title, audience, gamification } = req.body;
       const files = req.files as Express.Multer.File[] || [];
 
-      const audienceLabels: Record<string, string> = {
-        grand_public: 'grand public',
-        managers: 'managers et responsables',
-        experts: 'experts techniques',
-        rh: 'équipes RH',
-        dirigeants: 'dirigeants',
-      };
-      const gamifLabels: Record<string, string> = {
-        low: 'sérieux',
-        medium: 'équilibré',
-        high: 'très ludique',
-      };
-
-      // Extract text from files where possible
-      const filesSummary = files.length > 0
-        ? files.map(f => {
-            const ext = f.originalname.split('.').pop()?.toLowerCase();
-            let textContent = '';
-            if (ext === 'txt') {
-              textContent = f.buffer.toString('utf-8').slice(0, 3000);
+      // ── Extraction robuste du texte selon le type de fichier ─────────────────
+      const extractTextFromFile = async (f: Express.Multer.File): Promise<string> => {
+        const ext = f.originalname.split('.').pop()?.toLowerCase() || '';
+        try {
+          if (ext === 'txt') {
+            return f.buffer.toString('utf-8').slice(0, 8000);
+          }
+          if (ext === 'pdf') {
+            const pdfParse = (await import('pdf-parse')).default;
+            const data = await pdfParse(f.buffer);
+            return data.text.slice(0, 8000);
+          }
+          if (ext === 'docx' || ext === 'doc') {
+            const mammoth = await import('mammoth');
+            const result = await mammoth.extractRawText({ buffer: f.buffer });
+            return result.value.slice(0, 8000);
+          }
+          if (ext === 'pptx' || ext === 'ppt') {
+            // Extract text from PPTX (ZIP with XML)
+            const JSZip = (await import('jszip')).default;
+            const zip = await JSZip.loadAsync(f.buffer);
+            const slideTexts: string[] = [];
+            const slideFiles = Object.keys(zip.files).filter(n => n.match(/ppt\/slides\/slide\d+\.xml$/));
+            slideFiles.sort();
+            for (const slideName of slideFiles.slice(0, 30)) {
+              const content = await zip.files[slideName].async('text');
+              const text = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+              if (text.length > 20) slideTexts.push(text.slice(0, 500));
             }
-            return `- ${f.originalname} (${(f.size / 1024).toFixed(0)} Ko)${textContent ? '\n  Contenu extrait : ' + textContent : ''}`;
-          }).join('\n')
-        : 'Aucun fichier fourni — génère une formation sur un sujet pertinent';
+            return slideTexts.join('\n\n').slice(0, 8000);
+          }
+        } catch (e) {
+          console.warn(`[Studio] Extraction échouée pour ${f.originalname}:`, e);
+        }
+        return `[Fichier: ${f.originalname} — type non extractible directement, utilise le nom comme contexte]`;
+      };
 
-      const customTitle = title ? `Titre souhaité : "${title}"` : 'Génère un titre approprié';
+      // Extraire le texte de tous les fichiers en parallèle
+      const extractedTexts = await Promise.all(files.map(async f => {
+        const text = await extractTextFromFile(f);
+        return `=== ${f.originalname} (${(f.size / 1024).toFixed(0)} Ko) ===\n${text}`;
+      }));
 
-      const prompt = `Tu es un expert en ingénierie pédagogique. Un utilisateur a importé des documents pour créer une formation personnalisée.
+      const filesSummary = extractedTexts.length > 0
+        ? extractedTexts.join('\n\n').slice(0, 20000)
+        : 'Aucun fichier fourni';
 
-${customTitle}
-PUBLIC CIBLE : ${audienceLabels[audience] || audience}
-STYLE GAMIFICATION : ${gamifLabels[gamification] || gamification}
+      const audienceLabel = ({ grand_public: 'grand public', managers: 'managers', experts: 'experts', rh: 'équipes RH', dirigeants: 'dirigeants' } as any)[audience] || audience;
+      const gamifLabel = ({ low: 'sérieux', medium: 'équilibré', high: 'très ludique' } as any)[gamification] || gamification;
 
-DOCUMENTS FOURNIS :
+      const prompt = `Tu es un expert en ingénierie pédagogique. Voici le contenu extrait de documents fournis par un utilisateur.
+
+${title ? `TITRE SOUHAITÉ : "${title}"` : 'Génère un titre basé sur le contenu'}
+PUBLIC CIBLE : ${audienceLabel}
+GAMIFICATION : ${gamifLabel}
+
+CONTENU DES DOCUMENTS :
 ${filesSummary}
 
-Analyse les documents et crée une formation interactive et très personnalisée. Si les documents sont des présentations ou supports existants, extrais les concepts clés et les transforme en apprentissage actif (situations, QCM, scénarios).
+INSTRUCTIONS :
+- Crée une formation COMPLÈTE et JOUABLE avec 4 scénarios immersifs basés sur le contenu réel des documents
+- Chaque scénario doit référencer des concepts ou situations issus directement des documents
+- Les feedbacks doivent expliquer les conséquences concrètes des choix
+- Les QCM doivent tester des connaissances clés du contenu documentaire
 
-Réponds UNIQUEMENT avec ce JSON (aucun texte avant ou après) :
-{
-  "title": "${title || 'Titre de la formation basé sur les documents'}",
-  "tagline": "Sous-titre engageant qui capture l'essence des documents",
-  "objectives": [
-    "Objectif 1 issu du contenu des documents",
-    "Objectif 2",
-    "Objectif 3"
-  ],
-  "modules": [
-    { "title": "Module basé sur contenu document", "duration": "10 min", "type": "Mise en situation" },
-    { "title": "Module 2", "duration": "8 min", "type": "QCM interactif" },
-    { "title": "Module 3", "duration": "12 min", "type": "Scénario pratique" },
-    { "title": "Module 4", "duration": "5 min", "type": "Évaluation finale" }
-  ],
-  "scenario": {
-    "situation": "Situation réaliste et concrète directement inspirée du contenu des documents. Le participant est immergé dans un contexte professionnel réel. 3-4 phrases détaillées.",
-    "choices": [
-      { "text": "Choix A — incorrect", "correct": false, "feedback": "Feedback pédagogique" },
-      { "text": "Choix B — correct", "correct": true, "feedback": "Feedback positif avec explication" },
-      { "text": "Choix C — incorrect", "correct": false, "feedback": "Feedback pédagogique" }
-    ]
-  },
-  "qcm": [
-    {
-      "question": "Question directement issue du contenu des documents ?",
-      "options": [
-        { "text": "Option A", "correct": false },
-        { "text": "Option B correcte", "correct": true },
-        { "text": "Option C", "correct": false },
-        { "text": "Option D", "correct": false }
-      ],
-      "explanation": "Explication basée sur les documents"
-    },
-    {
-      "question": "Deuxième question sur un autre concept des documents ?",
-      "options": [
-        { "text": "Option A", "correct": true },
-        { "text": "Option B", "correct": false },
-        { "text": "Option C", "correct": false },
-        { "text": "Option D", "correct": false }
-      ],
-      "explanation": "Explication pédagogique"
-    }
-  ],
-  "gamification": {
-    "points": 600,
-    "badge": "🎯",
-    "levels": ["Découverte", "Maîtrise", "Expert"]
-  }
-}`;
+Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
+${TRAINING_JSON_SCHEMA}`;
 
       const response = await openAIService.getChatCompletion([
         { role: 'user', content: prompt }
-      ], 0.6, 4000);
+      ], 0.65, 4000);
 
       let training = parseTrainingJson(response);
       if (!training) {
-        console.warn('[Studio Documents] Parsing JSON échoué, utilisation du fallback. Réponse brute:', response.slice(0, 500));
-        training = buildTrainingFallback(title || filesSummary.slice(0, 80));
+        console.warn('[Studio Documents] Parsing échoué. Fallback:', response.slice(0, 400));
+        training = buildTrainingFallback(title || files[0]?.originalname || 'Document importé');
       }
-      res.json({ training });
+
+      if (!training.scenarios && training.scenario) {
+        training.scenarios = [{ id: 1, ...training.scenario, title: 'Mise en situation', reflexe: 'Appliquez les bonnes pratiques.' }];
+      }
+
+      const id = uuidv4();
+      await storage.saveGeneratedTraining({
+        id, title: training.title || 'Formation depuis documents',
+        tagline: training.tagline || '',
+        source: 'documents',
+        sourceInfo: { files: files.map(f => f.originalname) },
+        audience: audience || 'grand_public',
+        gamificationLevel: gamification || 'medium',
+        content: training,
+      });
+
+      res.json({ training, id });
     } catch (error) {
       console.error('[Studio Documents] Erreur génération:', error);
       res.status(500).json({ error: 'Erreur lors de la génération de la formation. Réessayez.' });
@@ -5922,102 +6046,58 @@ Réponds UNIQUEMENT avec ce JSON (aucun texte avant ou après) :
       const fullContent = corpus.join('\n\n').slice(0, 25000);
       const totalChars = fullContent.length;
 
-      const audienceLabels: Record<string, string> = {
-        grand_public: 'grand public',
-        managers: 'managers et responsables',
-        experts: 'experts techniques',
-        rh: 'équipes RH',
-        dirigeants: 'dirigeants',
-      };
-      const gamifLabels: Record<string, string> = {
-        low: 'sérieux',
-        medium: 'équilibré',
-        high: 'très ludique',
-      };
+      const audienceLabel = ({ grand_public: 'grand public', managers: 'managers', experts: 'experts', rh: 'équipes RH', dirigeants: 'dirigeants' } as any)[audience] || audience;
+      const gamifLabel = ({ low: 'sérieux', medium: 'équilibré', high: 'très ludique' } as any)[gamification] || gamification;
 
-      const prompt = `Tu es un expert en ingénierie pédagogique. Voici le contenu extrait d'un site web via crawl automatique.
+      const prompt = `Tu es un expert en ingénierie pédagogique. Voici le contenu extrait d'un site web par crawl automatique.
 
 SOURCE : ${url}
 PAGES CRAWLÉES : ${visited.size}
-TITRE SITE : ${siteName}
-PUBLIC CIBLE : ${audienceLabels[audience] || audience}
-GAMIFICATION : ${gamifLabels[gamification] || gamification}
+SITE : ${siteName}
+PUBLIC CIBLE : ${audienceLabel}
+GAMIFICATION : ${gamifLabel}
 ${title ? `TITRE SOUHAITÉ : "${title}"` : ''}
 
 CONTENU EXTRAIT :
 ${fullContent}
 
-Analyse ce contenu et crée une formation interactive très personnalisée basée exclusivement sur les informations trouvées sur ce site. Les scénarios, QCM et situations doivent être directement issus du contenu réel du site.
+INSTRUCTIONS :
+- Crée une formation COMPLÈTE et JOUABLE avec 4 scénarios basés exclusivement sur le contenu réel du site
+- Chaque scénario doit être ancré dans des situations concrètes issues du contenu
+- Tous les QCM doivent tester des connaissances réelles du site
+- Les feedbacks doivent référencer le contenu du site
 
-Réponds UNIQUEMENT avec ce JSON (aucun texte avant ou après) :
-{
-  "title": "${title || 'Titre basé sur le contenu du site'}",
-  "tagline": "Sous-titre engageant résumant l'essence du contenu",
-  "objectives": [
-    "Objectif 1 — formulé avec un verbe d'action, issu du contenu",
-    "Objectif 2",
-    "Objectif 3"
-  ],
-  "modules": [
-    { "title": "Module issu du contenu réel", "duration": "10 min", "type": "Mise en situation" },
-    { "title": "Module 2", "duration": "8 min", "type": "QCM interactif" },
-    { "title": "Module 3", "duration": "12 min", "type": "Scénario pratique" },
-    { "title": "Module 4 — Synthèse", "duration": "5 min", "type": "Évaluation finale" }
-  ],
-  "scenario": {
-    "situation": "Situation concrète et réaliste directement issue du contenu du site. Contexte professionnel détaillé, personnages, enjeux précis. 3-4 phrases.",
-    "choices": [
-      { "text": "Option A incorrecte", "correct": false, "feedback": "Explication basée sur le contenu du site" },
-      { "text": "Option B correcte", "correct": true, "feedback": "Explication positive avec référence au contenu" },
-      { "text": "Option C incorrecte", "correct": false, "feedback": "Explication pédagogique" }
-    ]
-  },
-  "qcm": [
-    {
-      "question": "Question directement issue du contenu du site ?",
-      "options": [
-        { "text": "Réponse A", "correct": false },
-        { "text": "Réponse B — correcte", "correct": true },
-        { "text": "Réponse C", "correct": false },
-        { "text": "Réponse D", "correct": false }
-      ],
-      "explanation": "Explication basée sur le contenu extrait"
-    },
-    {
-      "question": "Deuxième question ?",
-      "options": [
-        { "text": "Option A", "correct": true },
-        { "text": "Option B", "correct": false },
-        { "text": "Option C", "correct": false },
-        { "text": "Option D", "correct": false }
-      ],
-      "explanation": "Explication pédagogique"
-    }
-  ],
-  "gamification": {
-    "points": 700,
-    "badge": "🌐",
-    "levels": ["Découverte", "Maîtrise", "Expert"]
-  }
-}`;
+Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
+${TRAINING_JSON_SCHEMA}`;
 
       const aiResponse = await openAIService.getChatCompletion([
         { role: 'user', content: prompt }
-      ], 0.6, 4000);
+      ], 0.65, 4000);
 
       let training = parseTrainingJson(aiResponse);
       if (!training) {
-        console.warn('[Studio URL] Parsing JSON échoué, utilisation du fallback. Réponse brute:', aiResponse.slice(0, 500));
+        console.warn('[Studio URL] Parsing échoué. Fallback:', aiResponse.slice(0, 400));
         training = buildTrainingFallback(title || siteName);
       }
 
+      if (!training.scenarios && training.scenario) {
+        training.scenarios = [{ id: 1, ...training.scenario, title: 'Mise en situation', reflexe: 'Appliquez les bonnes pratiques.' }];
+      }
+
+      const id = uuidv4();
+      await storage.saveGeneratedTraining({
+        id, title: training.title || 'Formation depuis site web',
+        tagline: training.tagline || '',
+        source: 'url',
+        sourceInfo: { url, pagesVisited: visited.size, siteName },
+        audience: audience || 'grand_public',
+        gamificationLevel: gamification || 'medium',
+        content: training,
+      });
+
       res.json({
-        training,
-        scrapeInfo: {
-          pagesVisited: visited.size,
-          totalChars,
-          siteName: siteName.slice(0, 60),
-        }
+        training, id,
+        scrapeInfo: { pagesVisited: visited.size, totalChars, siteName: siteName.slice(0, 60) }
       });
     } catch (error: any) {
       console.error('[Studio URL] Erreur:', error?.message || error);

@@ -91,6 +91,7 @@ export default function StudioDocuments() {
   const [gamification, setGamification] = useState('medium');
   const [genStep, setGenStep] = useState(0);
   const [result, setResult] = useState<TrainingResult | null>(null);
+  const [trainingId, setTrainingId] = useState<string | null>(null);
   const [activeScenarioChoice, setActiveScenarioChoice] = useState<number | null>(null);
 
   const addFiles = useCallback((newFiles: FileList | null) => {
@@ -128,7 +129,7 @@ export default function StudioDocuments() {
       }
       clearInterval(interval);
       setGenStep(steps.length - 1);
-      setTimeout(() => { setResult(data.training); setStep('result'); }, 500);
+      setTimeout(() => { setResult(data.training); setTrainingId(data.id || null); setStep('result'); }, 500);
     } catch (err: any) {
       clearInterval(interval);
       toast({ title: 'Erreur', description: err.message || 'La génération a échoué.', variant: 'destructive' });
@@ -139,7 +140,7 @@ export default function StudioDocuments() {
   const restart = () => {
     setFiles([]); setUrl(''); setDepth('10'); setTitle('');
     setAudience('grand_public'); setGamification('medium');
-    setResult(null); setScrapeInfo(null); setActiveScenarioChoice(null);
+    setResult(null); setTrainingId(null); setScrapeInfo(null); setActiveScenarioChoice(null);
     setStep('upload');
   };
 
@@ -553,17 +554,29 @@ export default function StudioDocuments() {
                   )}
 
                   {/* CTA */}
-                  <div className="border border-gray-200 p-6 flex items-center justify-between bg-gray-50">
-                    <div>
-                      <div className="font-bold text-sm" style={{ color: DARK }}>Formation prête à déployer</div>
+                  <div className="border border-gray-200 p-6 bg-gray-50">
+                    <div className="mb-4">
+                      <div className="font-bold text-sm" style={{ color: DARK }}>Votre formation est prête</div>
                       <div className="text-xs text-gray-500 mt-0.5">
-                        {importMode === 'url' ? `Basée sur le contenu de ${new URL(url).hostname}` : 'Basée sur votre contenu original'}
+                        {importMode === 'url'
+                          ? (() => { try { return `Basée sur ${new URL(url).hostname}`; } catch { return 'Basée sur votre URL'; } })()
+                          : 'Basée sur votre contenu original'}
                       </div>
                     </div>
-                    <button className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold text-sm hover:opacity-90 transition-opacity"
-                      style={{ background: BLUE }}>
-                      <MessageSquare size={16} /> Affiner avec l'IA
-                    </button>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      {trainingId && (
+                        <button
+                          onClick={() => setLocation(`/playground/player/${trainingId}`)}
+                          className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity"
+                          style={{ background: PINK }}>
+                          <Play size={18} /> Lancer la formation
+                        </button>
+                      )}
+                      <button className="inline-flex items-center gap-2 px-6 py-3 font-bold text-sm border-2 hover:opacity-80 transition-opacity"
+                        style={{ borderColor: BLUE, color: BLUE }}>
+                        <MessageSquare size={16} /> Affiner avec l'IA
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

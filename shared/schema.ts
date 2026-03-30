@@ -307,6 +307,23 @@ export type AssistantConversation = typeof assistantConversations.$inferSelect;
 export type AssistantTemplate = typeof assistantTemplates.$inferSelect;
 export type CustomModule = typeof customModules.$inferSelect;
 
+// ─── STUDIO DE FORMATION — Formations générées ────────────────────────────────
+export const generatedTrainings = pgTable('generated_trainings', {
+  id: varchar('id', { length: 36 }).primaryKey(),
+  title: text('title').notNull(),
+  tagline: text('tagline'),
+  source: varchar('source', { length: 32 }).notNull().default('prompt'),
+  sourceInfo: jsonb('source_info').default({}),
+  audience: varchar('audience', { length: 64 }).notNull().default('grand_public'),
+  gamificationLevel: varchar('gamification_level', { length: 16 }).notNull().default('medium'),
+  content: jsonb('content').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const insertGeneratedTrainingSchema = createInsertSchema(generatedTrainings).omit({ createdAt: true });
+export type InsertGeneratedTraining = z.infer<typeof insertGeneratedTrainingSchema>;
+export type GeneratedTraining = typeof generatedTrainings.$inferSelect;
+
 // Table des sessions pour l'authentification
 export const sessions = pgTable(
   "sessions",

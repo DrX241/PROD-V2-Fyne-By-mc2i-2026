@@ -51,8 +51,9 @@ interface TrainingResult {
   objectives: string[];
   modules: { title: string; duration: string; type: string }[];
   scenario: { situation: string; choices: { text: string; correct: boolean; feedback: string }[] };
+  scenarios?: any[];
   qcm: { question: string; options: { text: string; correct: boolean }[]; explanation: string }[];
-  gamification: { points: number; badge: string; levels: string[] };
+  gamification: { points: number; badge: string; levels: any[] };
 }
 
 export default function StudioIA() {
@@ -67,6 +68,7 @@ export default function StudioIA() {
   const [gamification, setGamification] = useState('medium');
   const [genStep, setGenStep] = useState(0);
   const [result, setResult] = useState<TrainingResult | null>(null);
+  const [trainingId, setTrainingId] = useState<string | null>(null);
   const [activeScenarioChoice, setActiveScenarioChoice] = useState<number | null>(null);
   const [activeQcm, setActiveQcm] = useState<number | null>(null);
 
@@ -88,7 +90,7 @@ export default function StudioIA() {
       const data = await res.json();
       clearInterval(interval);
       setGenStep(GENERATION_STEPS.length - 1);
-      setTimeout(() => { setResult(data.training); setStep('result'); }, 500);
+      setTimeout(() => { setResult(data.training); setTrainingId(data.id || null); setStep('result'); }, 500);
     } catch {
       clearInterval(interval);
       toast({ title: 'Erreur', description: 'La génération a échoué. Réessayez.', variant: 'destructive' });
@@ -99,7 +101,7 @@ export default function StudioIA() {
   const restart = () => {
     setPitch(''); setDomain(''); setAudience('grand_public');
     setDuration('30'); setGamification('medium');
-    setResult(null); setActiveScenarioChoice(null); setActiveQcm(null);
+    setResult(null); setTrainingId(null); setActiveScenarioChoice(null); setActiveQcm(null);
     setStep('pitch');
   };
 
@@ -484,15 +486,29 @@ export default function StudioIA() {
                   )}
 
                   {/* CTA */}
-                  <div className="border border-gray-200 p-6 flex items-center justify-between bg-gray-50">
-                    <div>
-                      <div className="font-bold text-sm" style={{ color: DARK }}>Formation prête à déployer</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Export SCORM, LMS et PDF disponibles</div>
+                  <div className="border border-gray-200 p-6 bg-gray-50">
+                    <div className="mb-4">
+                      <div className="font-bold text-sm" style={{ color: DARK }}>Votre formation est prête</div>
+                      <div className="text-xs text-gray-500 mt-0.5">
+                        {(result.scenarios?.length || 0) > 0
+                          ? `${result.scenarios?.length || 0} scénarios · ${result.qcm?.length || 0} QCM`
+                          : `${result.qcm?.length || 0} questions`}
+                      </div>
                     </div>
-                    <button className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold text-sm hover:opacity-90 transition-opacity"
-                      style={{ background: BLUE }}>
-                      <MessageSquare size={16} /> Affiner avec l'IA
-                    </button>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      {trainingId && (
+                        <button
+                          onClick={() => setLocation(`/playground/player/${trainingId}`)}
+                          className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity"
+                          style={{ background: PINK }}>
+                          <Play size={18} /> Lancer la formation
+                        </button>
+                      )}
+                      <button className="inline-flex items-center gap-2 px-6 py-3 font-bold text-sm border-2 hover:opacity-80 transition-opacity"
+                        style={{ borderColor: BLUE, color: BLUE }}>
+                        <MessageSquare size={16} /> Affiner avec l'IA
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
