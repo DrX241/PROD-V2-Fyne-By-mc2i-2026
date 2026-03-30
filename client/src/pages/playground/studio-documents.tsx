@@ -5,7 +5,7 @@ import {
   ArrowLeft, ArrowRight, FileUp, Upload, Loader2, CheckCircle,
   Trophy, Target, BookOpen, MessageSquare, ChevronRight,
   RotateCcw, Star, Play, HelpCircle, X, FileText, Presentation,
-  Users, Zap, File, AlertCircle
+  Users, Zap, File, AlertCircle, Globe, Link2, Layers, Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,9 +13,6 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 
 const ACCEPTED = '.pdf,.pptx,.ppt,.docx,.doc,.txt';
-const ACCEPTED_MIME = ['application/pdf', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-  'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/msword', 'text/plain'];
 
 const FILE_ICONS: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-5 w-5 text-red-400" />,
@@ -40,13 +37,31 @@ const AUDIENCES = [
   { value: 'dirigeants', label: 'Dirigeants' },
 ];
 
-const GENERATION_STEPS = [
+const DEPTH_OPTIONS = [
+  { value: '5', label: '5 pages — rapide' },
+  { value: '10', label: '10 pages — standard' },
+  { value: '20', label: '20 pages — approfondi' },
+  { value: '40', label: '40 pages — exhaustif' },
+];
+
+const FILE_STEPS = [
   "Lecture des documents...",
   "Extraction du contenu clé...",
   "Identification des concepts...",
   "Création des mises en situation...",
   "Génération des QCM...",
   "Calibration de la gamification...",
+  "Finalisation de la formation...",
+];
+
+const URL_STEPS = [
+  "Connexion au site...",
+  "Exploration des pages...",
+  "Pagination et crawl...",
+  "Extraction du contenu...",
+  "Analyse sémantique...",
+  "Création des mises en situation...",
+  "Génération des QCM...",
   "Finalisation de la formation...",
 ];
 
@@ -60,6 +75,14 @@ interface TrainingResult {
   gamification: { points: number; badge: string; levels: string[] };
 }
 
+interface ScrapeInfo {
+  pagesVisited: number;
+  totalChars: number;
+  siteName: string;
+}
+
+type ImportMode = 'files' | 'url';
+
 export default function StudioDocuments() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -67,11 +90,23 @@ export default function StudioDocuments() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState<'upload' | 'config' | 'generating' | 'result'>('upload');
+  const [importMode, setImportMode] = useState<ImportMode>('files');
+
+  // Files
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+
+  // URL
+  const [url, setUrl] = useState('');
+  const [depth, setDepth] = useState('10');
+  const [scrapeInfo, setScrapeInfo] = useState<ScrapeInfo | null>(null);
+
+  // Config
   const [title, setTitle] = useState('');
   const [audience, setAudience] = useState('grand_public');
   const [gamification, setGamification] = useState('medium');
+
+  // Generation
   const [genStep, setGenStep] = useState(0);
   const [result, setResult] = useState<TrainingResult | null>(null);
   const [activeScenarioChoice, setActiveScenarioChoice] = useState<number | null>(null);
@@ -98,58 +133,87 @@ export default function StudioDocuments() {
   }, [addFiles]);
 
   const removeFile = (name: string) => setFiles(prev => prev.filter(f => f.name !== name));
-
   const formatSize = (bytes: number) => bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(0)} Ko` : `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
-
   const getExt = (name: string) => name.split('.').pop()?.toLowerCase() || 'file';
+
+  const isUrlValid = (u: string) => {
+    try { new URL(u); return true; } catch { return false; }
+  };
+
+  const canProceed = importMode === 'files' ? true : isUrlValid(url);
 
   const generate = async () => {
     setStep('generating');
     setGenStep(0);
+    const steps = importMode === 'url' ? URL_STEPS : FILE_STEPS;
 
     const interval = setInterval(() => {
-      setGenStep(prev => prev < GENERATION_STEPS.length - 1 ? prev + 1 : prev);
-    }, 900);
+      setGenStep(prev => prev < steps.length - 1 ? prev + 1 : prev);
+    }, importMode === 'url' ? 1200 : 900);
 
     try {
-      const formData = new FormData();
-      files.forEach(f => formData.append('files', f));
-      formData.append('title', title);
-      formData.append('audience', audience);
-      formData.append('gamification', gamification);
+      let data: any;
 
-      const res = await fetch('/api/studio/generate-from-documents', {
-        method: 'POST',
-        body: formData,
-      });
-      if (!res.ok) throw new Error('Erreur serveur');
-      const data = await res.json();
+      if (importMode === 'url') {
+        const res = await fetch('/api/studio/generate-from-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, depth: parseInt(depth), title, audience, gamification }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Erreur serveur');
+        }
+        data = await res.json();
+        if (data.scrapeInfo) setScrapeInfo(data.scrapeInfo);
+      } else {
+        const formData = new FormData();
+        files.forEach(f => formData.append('files', f));
+        formData.append('title', title);
+        formData.append('audience', audience);
+        formData.append('gamification', gamification);
+
+        const res = await fetch('/api/studio/generate-from-documents', {
+          method: 'POST',
+          body: formData,
+        });
+        if (!res.ok) throw new Error('Erreur serveur');
+        data = await res.json();
+      }
+
       clearInterval(interval);
-      setGenStep(GENERATION_STEPS.length - 1);
+      setGenStep(steps.length - 1);
       setTimeout(() => {
         setResult(data.training);
         setStep('result');
       }, 600);
-    } catch {
+    } catch (err: any) {
       clearInterval(interval);
-      toast({ title: 'Erreur', description: "La génération a échoué. Réessayez.", variant: 'destructive' });
+      toast({ title: 'Erreur', description: err.message || "La génération a échoué. Réessayez.", variant: 'destructive' });
       setStep('config');
     }
   };
 
   const restart = () => {
     setFiles([]);
+    setUrl('');
+    setDepth('10');
     setTitle('');
     setAudience('grand_public');
     setGamification('medium');
     setResult(null);
+    setScrapeInfo(null);
     setActiveScenarioChoice(null);
     setStep('upload');
   };
 
+  const steps = importMode === 'url' ? URL_STEPS : FILE_STEPS;
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#060d1a] to-[#0a1628] text-white">
       <div className="max-w-3xl mx-auto px-6 py-10">
+
+        {/* Header */}
         <div className="flex items-center gap-4 mb-10">
           <button onClick={() => step === 'upload' ? setLocation('/playground/module-generator') : restart()}
             className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors">
@@ -167,6 +231,8 @@ export default function StudioDocuments() {
         </div>
 
         <AnimatePresence mode="wait">
+
+          {/* ── ÉTAPE 1 : UPLOAD ── */}
           {step === 'upload' && (
             <motion.div key="upload" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
               <div className="mb-8">
@@ -174,84 +240,195 @@ export default function StudioDocuments() {
                   <FileUp className="h-6 w-6" />
                 </div>
                 <h1 className="text-3xl font-black mb-2">Importez vos contenus</h1>
-                <p className="text-gray-400">Glissez vos fichiers ou cliquez pour les sélectionner. L'IA analysera tout le contenu pour créer une formation sur mesure.</p>
+                <p className="text-gray-400">Glissez vos fichiers ou fournissez l'URL d'un site — l'IA crawlera tout le contenu automatiquement.</p>
               </div>
 
-              <div
-                ref={dropRef}
-                onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
-                onDragLeave={() => setIsDragging(false)}
-                onDrop={onDrop}
-                onClick={() => fileInputRef.current?.click()}
-                className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all ${
-                  isDragging
-                    ? 'border-emerald-400 bg-emerald-500/10'
-                    : 'border-white/20 hover:border-emerald-500/50 hover:bg-white/5'
-                }`}
-              >
-                <input ref={fileInputRef} type="file" accept={ACCEPTED} multiple className="hidden" onChange={e => addFiles(e.target.files)} />
-                <Upload className={`h-10 w-10 mx-auto mb-3 ${isDragging ? 'text-emerald-400' : 'text-gray-500'}`} />
-                <p className="text-white font-semibold mb-1">Glissez vos fichiers ici</p>
-                <p className="text-gray-500 text-sm">ou cliquez pour parcourir</p>
-                <div className="flex items-center justify-center gap-3 mt-4">
-                  {['PDF', 'PowerPoint', 'Word', 'Texte'].map(f => (
-                    <span key={f} className="px-2.5 py-1 rounded-full bg-white/10 text-gray-400 text-xs">{f}</span>
-                  ))}
-                </div>
-                <p className="text-gray-600 text-xs mt-3">Maximum 5 fichiers · 20 Mo chacun</p>
+              {/* Toggle mode */}
+              <div className="flex gap-2 p-1 bg-white/5 rounded-xl border border-white/10 mb-8">
+                <button onClick={() => setImportMode('files')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${
+                    importMode === 'files'
+                      ? 'bg-emerald-600 text-white shadow-lg'
+                      : 'text-gray-400 hover:text-white'
+                  }`}>
+                  <FileUp className="h-4 w-4" />
+                  Fichiers
+                </button>
+                <button onClick={() => setImportMode('url')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${
+                    importMode === 'url'
+                      ? 'bg-emerald-600 text-white shadow-lg'
+                      : 'text-gray-400 hover:text-white'
+                  }`}>
+                  <Globe className="h-4 w-4" />
+                  Site web / URL
+                </button>
               </div>
 
-              {files.length > 0 && (
-                <div className="mt-5 space-y-2">
-                  {files.map(f => (
-                    <div key={f.name} className="flex items-center gap-3 px-4 py-3 bg-white/5 border border-white/10 rounded-xl">
-                      {FILE_ICONS[getExt(f.name)] || <File className="h-5 w-5 text-gray-400" />}
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm text-white truncate">{f.name}</div>
-                        <div className="text-xs text-gray-500">{formatSize(f.size)}</div>
-                      </div>
-                      <button onClick={e => { e.stopPropagation(); removeFile(f.name); }} className="text-gray-500 hover:text-white transition-colors">
-                        <X className="h-4 w-4" />
-                      </button>
+              {/* ── MODE FICHIERS ── */}
+              {importMode === 'files' && (
+                <>
+                  <div
+                    ref={dropRef}
+                    onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
+                    onDragLeave={() => setIsDragging(false)}
+                    onDrop={onDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all ${
+                      isDragging
+                        ? 'border-emerald-400 bg-emerald-500/10'
+                        : 'border-white/20 hover:border-emerald-500/50 hover:bg-white/5'
+                    }`}
+                  >
+                    <input ref={fileInputRef} type="file" accept={ACCEPTED} multiple className="hidden" onChange={e => addFiles(e.target.files)} />
+                    <Upload className={`h-10 w-10 mx-auto mb-3 ${isDragging ? 'text-emerald-400' : 'text-gray-500'}`} />
+                    <p className="text-white font-semibold mb-1">Glissez vos fichiers ici</p>
+                    <p className="text-gray-500 text-sm">ou cliquez pour parcourir</p>
+                    <div className="flex items-center justify-center gap-3 mt-4">
+                      {['PDF', 'PowerPoint', 'Word', 'Texte'].map(f => (
+                        <span key={f} className="px-2.5 py-1 rounded-full bg-white/10 text-gray-400 text-xs">{f}</span>
+                      ))}
                     </div>
-                  ))}
+                    <p className="text-gray-600 text-xs mt-3">Maximum 5 fichiers · 20 Mo chacun</p>
+                  </div>
+
+                  {files.length > 0 && (
+                    <div className="mt-5 space-y-2">
+                      {files.map(f => (
+                        <div key={f.name} className="flex items-center gap-3 px-4 py-3 bg-white/5 border border-white/10 rounded-xl">
+                          {FILE_ICONS[getExt(f.name)] || <File className="h-5 w-5 text-gray-400" />}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm text-white truncate">{f.name}</div>
+                            <div className="text-xs text-gray-500">{formatSize(f.size)}</div>
+                          </div>
+                          <button onClick={e => { e.stopPropagation(); removeFile(f.name); }} className="text-gray-500 hover:text-white transition-colors">
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {files.length > 0 && (
+                    <div className="mt-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex gap-2.5">
+                      <CheckCircle className="h-4 w-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-emerald-200">
+                        {files.length} fichier{files.length > 1 ? 's' : ''} prêt{files.length > 1 ? 's' : ''} à analyser.
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* ── MODE URL ── */}
+              {importMode === 'url' && (
+                <div className="space-y-6">
+                  <div>
+                    <Label className="text-gray-300 mb-2 block">URL du site à analyser *</Label>
+                    <div className="relative">
+                      <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                      <Input
+                        value={url}
+                        onChange={e => setUrl(e.target.value)}
+                        placeholder="https://exemple.com/formation"
+                        className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-emerald-500"
+                      />
+                    </div>
+                    {url && !isUrlValid(url) && (
+                      <p className="text-xs text-red-400 mt-1.5 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> URL invalide — incluez http:// ou https://
+                      </p>
+                    )}
+                    {url && isUrlValid(url) && (
+                      <p className="text-xs text-emerald-400 mt-1.5 flex items-center gap-1">
+                        <CheckCircle className="h-3 w-3" /> URL valide
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-300 mb-3 flex items-center gap-2">
+                      <Layers className="h-4 w-4 text-emerald-400" /> Profondeur du crawl
+                    </Label>
+                    <div className="space-y-2">
+                      {DEPTH_OPTIONS.map(d => (
+                        <button key={d.value} onClick={() => setDepth(d.value)}
+                          className={`w-full text-left px-4 py-3 rounded-lg border text-sm font-medium transition-all ${
+                            depth === d.value
+                              ? 'border-emerald-500 bg-emerald-500/20 text-emerald-200'
+                              : 'border-white/10 bg-white/5 text-gray-400 hover:border-white/20'
+                          }`}>
+                          <div className="flex items-center justify-between">
+                            <span>{d.label}</span>
+                            {depth === d.value && <CheckCircle className="h-4 w-4 text-emerald-400" />}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+                    <div className="flex gap-2.5">
+                      <Search className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                      <div className="text-sm text-blue-200">
+                        <p className="font-semibold mb-1">Comment fonctionne le crawl ?</p>
+                        <ul className="space-y-1 text-blue-300/80 text-xs">
+                          <li>• Exploration automatique de toutes les pages du même domaine</li>
+                          <li>• Pagination et sous-pages incluses</li>
+                          <li>• Extraction du texte, titres, listes et tableaux</li>
+                          <li>• Contenu dupliqué filtré automatiquement</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
-              {files.length > 0 && (
-                <div className="mt-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex gap-2.5">
-                  <CheckCircle className="h-4 w-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-emerald-200">
-                    {files.length} fichier{files.length > 1 ? 's' : ''} prêt{files.length > 1 ? 's' : ''} à analyser. Continuez pour configurer la formation.
-                  </p>
-                </div>
-              )}
-
-              {files.length === 0 && (
-                <div className="mt-4 bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex gap-2.5">
-                  <AlertCircle className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-amber-200">
-                    Vous n'avez pas de fichier sous la main ? Vous pouvez tout de même continuer — l'IA vous demandera le sujet à traiter.
-                  </p>
-                </div>
-              )}
-
-              <Button onClick={() => setStep('config')} disabled={false}
-                className="w-full mt-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 py-5 font-semibold">
+              <Button
+                onClick={() => setStep('config')}
+                disabled={!canProceed}
+                className="w-full mt-8 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 py-5 font-semibold disabled:opacity-40"
+              >
                 Configurer la formation
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             </motion.div>
           )}
 
+          {/* ── ÉTAPE 2 : CONFIG ── */}
           {step === 'config' && (
             <motion.div key="config" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
               <div className="mb-8">
                 <h1 className="text-3xl font-black mb-2">Configurez la formation</h1>
-                <p className="text-gray-400">L'IA utilisera ces informations pour adapter le style et le niveau de la formation.</p>
+                <p className="text-gray-400">L'IA utilisera ces informations pour adapter le style et le niveau.</p>
               </div>
 
               <div className="space-y-8">
+                {/* Source recap */}
+                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Source de contenu</p>
+                  {importMode === 'url' ? (
+                    <div className="flex items-center gap-2.5">
+                      <Globe className="h-4 w-4 text-emerald-400 flex-shrink-0" />
+                      <div>
+                        <div className="text-sm text-white font-medium truncate">{url}</div>
+                        <div className="text-xs text-gray-500">Crawl jusqu'à {depth} pages</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      {files.length > 0 ? files.map(f => (
+                        <div key={f.name} className="flex items-center gap-2 text-sm text-gray-400">
+                          {FILE_ICONS[getExt(f.name)]}
+                          <span className="truncate">{f.name}</span>
+                        </div>
+                      )) : (
+                        <p className="text-sm text-gray-500 italic">Aucun fichier — génération depuis le sujet</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <div>
                   <Label className="text-gray-300 mb-2 block">Titre de la formation (optionnel)</Label>
                   <Input value={title} onChange={e => setTitle(e.target.value)}
@@ -296,20 +473,6 @@ export default function StudioDocuments() {
                   </div>
                 </div>
 
-                {files.length > 0 && (
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Fichiers à analyser</p>
-                    <div className="space-y-1">
-                      {files.map(f => (
-                        <div key={f.name} className="flex items-center gap-2 text-sm text-gray-400">
-                          {FILE_ICONS[getExt(f.name)]}
-                          <span className="truncate">{f.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 <Button onClick={generate}
                   className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 py-5 font-semibold">
                   <FileUp className="h-4 w-4 mr-2" />
@@ -319,19 +482,28 @@ export default function StudioDocuments() {
             </motion.div>
           )}
 
+          {/* ── ÉTAPE 3 : GÉNÉRATION ── */}
           {step === 'generating' && (
             <motion.div key="generating" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="flex flex-col items-center justify-center min-h-[60vh]">
               <div className="relative mb-10">
                 <div className="w-24 h-24 rounded-full border-4 border-emerald-500/30 border-t-emerald-500 animate-spin" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <FileUp className="h-10 w-10 text-emerald-400" />
+                  {importMode === 'url'
+                    ? <Globe className="h-10 w-10 text-emerald-400" />
+                    : <FileUp className="h-10 w-10 text-emerald-400" />}
                 </div>
               </div>
-              <h2 className="text-2xl font-bold mb-2 text-center">Analyse de vos documents</h2>
-              <p className="text-gray-400 mb-10 text-center">L'IA extrait et structure votre contenu...</p>
+              <h2 className="text-2xl font-bold mb-2 text-center">
+                {importMode === 'url' ? 'Crawl et analyse du site' : 'Analyse de vos documents'}
+              </h2>
+              <p className="text-gray-400 mb-10 text-center">
+                {importMode === 'url'
+                  ? `Exploration jusqu'à ${depth} pages en cours...`
+                  : "L'IA extrait et structure votre contenu..."}
+              </p>
               <div className="w-full max-w-sm space-y-3">
-                {GENERATION_STEPS.map((s, i) => (
+                {steps.map((s, i) => (
                   <div key={i} className={`flex items-center gap-3 transition-all duration-300 ${i <= genStep ? 'opacity-100' : 'opacity-20'}`}>
                     {i < genStep ? (
                       <CheckCircle className="h-4 w-4 text-emerald-400 flex-shrink-0" />
@@ -347,6 +519,7 @@ export default function StudioDocuments() {
             </motion.div>
           )}
 
+          {/* ── ÉTAPE 4 : RÉSULTAT ── */}
           {step === 'result' && result && (
             <motion.div key="result" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <div className="flex items-start justify-between mb-8">
@@ -356,6 +529,15 @@ export default function StudioDocuments() {
                   </div>
                   <h1 className="text-3xl font-black text-white">{result.title}</h1>
                   <p className="text-emerald-300 mt-1">{result.tagline}</p>
+                  {scrapeInfo && (
+                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                      <span className="flex items-center gap-1"><Globe className="h-3 w-3" /> {scrapeInfo.siteName}</span>
+                      <span>·</span>
+                      <span>{scrapeInfo.pagesVisited} pages analysées</span>
+                      <span>·</span>
+                      <span>{(scrapeInfo.totalChars / 1000).toFixed(0)}k caractères extraits</span>
+                    </div>
+                  )}
                 </div>
                 <button onClick={restart} className="flex items-center gap-1.5 text-gray-400 hover:text-white text-sm transition-colors">
                   <RotateCcw className="h-4 w-4" /> Recommencer
@@ -363,6 +545,7 @@ export default function StudioDocuments() {
               </div>
 
               <div className="space-y-6">
+                {/* Objectifs */}
                 <div className="bg-white/5 rounded-2xl border border-white/10 p-6">
                   <h2 className="font-bold text-sm uppercase tracking-wider text-gray-400 mb-4 flex items-center gap-2">
                     <Target className="h-4 w-4" /> Objectifs d'apprentissage
@@ -377,6 +560,7 @@ export default function StudioDocuments() {
                   </ul>
                 </div>
 
+                {/* Parcours */}
                 <div className="bg-white/5 rounded-2xl border border-white/10 p-6">
                   <h2 className="font-bold text-sm uppercase tracking-wider text-gray-400 mb-4 flex items-center gap-2">
                     <BookOpen className="h-4 w-4" /> Structure du parcours
@@ -394,6 +578,7 @@ export default function StudioDocuments() {
                   </div>
                 </div>
 
+                {/* Scénario interactif */}
                 <div className="bg-white/5 rounded-2xl border border-white/10 p-6">
                   <h2 className="font-bold text-sm uppercase tracking-wider text-gray-400 mb-4 flex items-center gap-2">
                     <Play className="h-4 w-4" /> Mise en situation — Aperçu
@@ -425,6 +610,7 @@ export default function StudioDocuments() {
                   </div>
                 </div>
 
+                {/* QCM */}
                 <div className="bg-white/5 rounded-2xl border border-white/10 p-6">
                   <h2 className="font-bold text-sm uppercase tracking-wider text-gray-400 mb-4 flex items-center gap-2">
                     <HelpCircle className="h-4 w-4" /> QCM — Exemples
@@ -446,6 +632,7 @@ export default function StudioDocuments() {
                   </div>
                 </div>
 
+                {/* Gamification */}
                 {result.gamification && (
                   <div className="bg-gradient-to-r from-amber-900/30 to-orange-900/20 border border-amber-500/20 rounded-2xl p-6">
                     <h2 className="font-bold text-sm uppercase tracking-wider text-amber-400 mb-4 flex items-center gap-2">
@@ -480,7 +667,9 @@ export default function StudioDocuments() {
                 <div className="bg-emerald-600/20 border border-emerald-500/30 rounded-2xl p-5 flex items-center justify-between">
                   <div>
                     <div className="font-semibold text-white">Formation prête à déployer</div>
-                    <div className="text-sm text-gray-400">Basée sur votre contenu original</div>
+                    <div className="text-sm text-gray-400">
+                      {importMode === 'url' ? `Basée sur le contenu de ${url}` : 'Basée sur votre contenu original'}
+                    </div>
                   </div>
                   <Button className="bg-emerald-600 hover:bg-emerald-500 text-white">
                     <MessageSquare className="h-4 w-4 mr-2" />

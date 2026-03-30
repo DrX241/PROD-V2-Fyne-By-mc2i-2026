@@ -5757,6 +5757,204 @@ Réponds UNIQUEMENT avec ce JSON (aucun texte avant ou après) :
     }
   });
 
+  // POST /api/studio/generate-from-url — Crawl + génération formation
+  app.post("/api/studio/generate-from-url", async (req: Request, res: Response) => {
+    try {
+      const { url, depth = 10, title, audience, gamification } = req.body;
+      if (!url) return res.status(400).json({ error: 'L\'URL est requise' });
+
+      let parsedUrl: URL;
+      try { parsedUrl = new URL(url); } catch {
+        return res.status(400).json({ error: 'URL invalide' });
+      }
+
+      const axios = (await import('axios')).default;
+      const cheerio = await import('cheerio');
+      const maxPages = Math.min(parseInt(String(depth)) || 10, 40);
+      const baseOrigin = parsedUrl.origin;
+      const visited = new Set<string>();
+      const queue: string[] = [url];
+      const corpus: string[] = [];
+      let siteName = parsedUrl.hostname;
+
+      const extractText = (html: string): string => {
+        const $ = cheerio.load(html);
+        $('script, style, nav, footer, header, .nav, .footer, .header, .menu, .sidebar, .cookie, .modal, .popup, .banner, .ad, [class*="nav"], [class*="menu"], [id*="nav"], [id*="menu"]').remove();
+        const title = $('title').text().trim();
+        const h1 = $('h1').map((_, el) => $(el).text().trim()).get().join(' | ');
+        const headings = $('h2, h3').map((_, el) => '## ' + $(el).text().trim()).get().join('\n');
+        const paragraphs = $('p, li, td, th').map((_, el) => $(el).text().trim()).get().filter(t => t.length > 30).join('\n');
+        return [title, h1, headings, paragraphs].filter(Boolean).join('\n\n').slice(0, 8000);
+      };
+
+      const extractLinks = (html: string, baseUrl: string): string[] => {
+        const $ = cheerio.load(html);
+        const links: string[] = [];
+        $('a[href]').each((_, el) => {
+          try {
+            const href = $(el).attr('href') || '';
+            const resolved = new URL(href, baseUrl).href;
+            const u = new URL(resolved);
+            if (u.origin === baseOrigin && !resolved.includes('#') &&
+                !resolved.match(/\.(jpg|jpeg|png|gif|svg|pdf|zip|mp4|mp3|css|js|xml|json)(\?|$)/i)) {
+              links.push(resolved.split('?')[0]);
+            }
+          } catch {}
+        });
+        return [...new Set(links)];
+      };
+
+      // BFS crawl
+      while (queue.length > 0 && visited.size < maxPages) {
+        const current = queue.shift()!;
+        if (visited.has(current)) continue;
+        visited.add(current);
+
+        try {
+          const response = await axios.get(current, {
+            timeout: 8000,
+            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; FYNEBot/1.0; +https://fyne.mc2i.fr)' },
+            maxRedirects: 5,
+          });
+          const html = response.data as string;
+
+          // Capture site name from first page
+          if (visited.size === 1) {
+            const $ = cheerio.load(html);
+            siteName = $('title').first().text().trim() || parsedUrl.hostname;
+          }
+
+          const text = extractText(html);
+          if (text.length > 100) corpus.push(`--- Page: ${current} ---\n${text}`);
+
+          const links = extractLinks(html, current);
+          for (const link of links) {
+            if (!visited.has(link) && !queue.includes(link)) queue.push(link);
+          }
+        } catch {}
+
+        // Small delay to be polite
+        if (visited.size % 5 === 0) await new Promise(r => setTimeout(r, 200));
+      }
+
+      if (corpus.length === 0) {
+        return res.status(400).json({ error: 'Impossible d\'extraire du contenu de ce site. Vérifiez que le site est accessible.' });
+      }
+
+      const fullContent = corpus.join('\n\n').slice(0, 25000);
+      const totalChars = fullContent.length;
+
+      const audienceLabels: Record<string, string> = {
+        grand_public: 'grand public',
+        managers: 'managers et responsables',
+        experts: 'experts techniques',
+        rh: 'équipes RH',
+        dirigeants: 'dirigeants',
+      };
+      const gamifLabels: Record<string, string> = {
+        low: 'sérieux',
+        medium: 'équilibré',
+        high: 'très ludique',
+      };
+
+      const prompt = `Tu es un expert en ingénierie pédagogique. Voici le contenu extrait d'un site web via crawl automatique.
+
+SOURCE : ${url}
+PAGES CRAWLÉES : ${visited.size}
+TITRE SITE : ${siteName}
+PUBLIC CIBLE : ${audienceLabels[audience] || audience}
+GAMIFICATION : ${gamifLabels[gamification] || gamification}
+${title ? `TITRE SOUHAITÉ : "${title}"` : ''}
+
+CONTENU EXTRAIT :
+${fullContent}
+
+Analyse ce contenu et crée une formation interactive très personnalisée basée exclusivement sur les informations trouvées sur ce site. Les scénarios, QCM et situations doivent être directement issus du contenu réel du site.
+
+Réponds UNIQUEMENT avec ce JSON (aucun texte avant ou après) :
+{
+  "title": "${title || 'Titre basé sur le contenu du site'}",
+  "tagline": "Sous-titre engageant résumant l'essence du contenu",
+  "objectives": [
+    "Objectif 1 — formulé avec un verbe d'action, issu du contenu",
+    "Objectif 2",
+    "Objectif 3"
+  ],
+  "modules": [
+    { "title": "Module issu du contenu réel", "duration": "10 min", "type": "Mise en situation" },
+    { "title": "Module 2", "duration": "8 min", "type": "QCM interactif" },
+    { "title": "Module 3", "duration": "12 min", "type": "Scénario pratique" },
+    { "title": "Module 4 — Synthèse", "duration": "5 min", "type": "Évaluation finale" }
+  ],
+  "scenario": {
+    "situation": "Situation concrète et réaliste directement issue du contenu du site. Contexte professionnel détaillé, personnages, enjeux précis. 3-4 phrases.",
+    "choices": [
+      { "text": "Option A incorrecte", "correct": false, "feedback": "Explication basée sur le contenu du site" },
+      { "text": "Option B correcte", "correct": true, "feedback": "Explication positive avec référence au contenu" },
+      { "text": "Option C incorrecte", "correct": false, "feedback": "Explication pédagogique" }
+    ]
+  },
+  "qcm": [
+    {
+      "question": "Question directement issue du contenu du site ?",
+      "options": [
+        { "text": "Réponse A", "correct": false },
+        { "text": "Réponse B — correcte", "correct": true },
+        { "text": "Réponse C", "correct": false },
+        { "text": "Réponse D", "correct": false }
+      ],
+      "explanation": "Explication basée sur le contenu extrait"
+    },
+    {
+      "question": "Deuxième question ?",
+      "options": [
+        { "text": "Option A", "correct": true },
+        { "text": "Option B", "correct": false },
+        { "text": "Option C", "correct": false },
+        { "text": "Option D", "correct": false }
+      ],
+      "explanation": "Explication pédagogique"
+    }
+  ],
+  "gamification": {
+    "points": 700,
+    "badge": "🌐",
+    "levels": ["Découverte", "Maîtrise", "Expert"]
+  }
+}`;
+
+      const aiResponse = await openAIService.getChatCompletion([
+        { role: 'user', content: prompt }
+      ], { maxTokens: 2000, temperature: 0.7 });
+
+      const parseJsonSafely = (text: string) => {
+        try {
+          const match = text.match(/\{[\s\S]*\}/);
+          if (match) return JSON.parse(match[0]);
+        } catch {}
+        try { return JSON.parse(text); } catch {}
+        return null;
+      };
+
+      const training = parseJsonSafely(aiResponse);
+      if (!training) {
+        return res.status(500).json({ error: 'Impossible de parser la réponse de l\'IA' });
+      }
+
+      res.json({
+        training,
+        scrapeInfo: {
+          pagesVisited: visited.size,
+          totalChars,
+          siteName: siteName.slice(0, 60),
+        }
+      });
+    } catch (error) {
+      console.error('[Studio URL] Erreur:', error);
+      res.status(500).json({ error: 'Erreur lors du crawl ou de la génération' });
+    }
+  });
+
   // Additional route handlers can be added here
 
   return createServer(app);
