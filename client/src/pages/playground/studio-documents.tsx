@@ -544,9 +544,10 @@ export default function StudioDocuments() {
                         ))}
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        {result.gamification.levels?.map((level, i) => (
+                        {result.gamification.levels?.map((level: any, i: number) => (
                           <span key={i} className="px-3 py-1 text-xs font-bold" style={{ background: `${BLUE}12`, color: BLUE }}>
-                            <Star size={10} className="inline mr-1" />{level}
+                            <Star size={10} className="inline mr-1" />
+                            {typeof level === 'string' ? level : level.name}
                           </span>
                         ))}
                       </div>

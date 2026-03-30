@@ -372,54 +372,66 @@ export default function StudioIA() {
                     </div>
                   </div>
 
-                  {/* Scénario */}
-                  <div className="border border-gray-200 p-6">
-                    <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4 flex items-center gap-2">
-                      <Play size={14} /> Mise en situation — Aperçu interactif
-                    </div>
-                    <div className="border-l-2 pl-4 py-2 mb-5 bg-gray-50 px-4"
-                      style={{ borderColor: BLUE }}>
-                      <p className="text-sm leading-relaxed" style={{ color: DARK }}>{result.scenario?.situation}</p>
-                    </div>
-                    <div className="space-y-2">
-                      {result.scenario?.choices?.map((choice, i) => (
-                        <motion.button key={i} onClick={() => setActiveScenarioChoice(i)}
-                          whileHover={{ x: 2 }} whileTap={{ scale: 0.99 }}
-                          className="w-full text-left border px-5 py-4 transition-all flex items-start gap-4 text-sm"
-                          style={{
-                            borderColor: activeScenarioChoice === null ? '#e5e7eb'
-                              : choice.correct ? '#16a34a'
-                              : activeScenarioChoice === i ? PINK : '#e5e7eb',
-                            background: activeScenarioChoice === null ? 'white'
-                              : choice.correct ? '#f0fdf4'
-                              : activeScenarioChoice === i ? `${PINK}08` : '#f9fafb',
-                          }}>
-                          <span className="w-7 h-7 flex-shrink-0 flex items-center justify-center text-xs font-bold border"
-                            style={{
-                              borderColor: activeScenarioChoice !== null && choice.correct ? '#16a34a'
-                                : activeScenarioChoice === i ? PINK : '#d1d5db',
-                              color: activeScenarioChoice !== null && choice.correct ? '#16a34a'
-                                : activeScenarioChoice === i ? PINK : '#6b7280',
-                            }}>
-                            {String.fromCharCode(65 + i)}
-                          </span>
-                          <div>
-                            <div style={{ color: DARK }}>{choice.text}</div>
-                            {activeScenarioChoice !== null && activeScenarioChoice === i && (
-                              <div className="text-xs mt-2" style={{ color: choice.correct ? '#16a34a' : '#9ca3af' }}>
-                                {choice.feedback}
-                              </div>
-                            )}
+                  {/* Scénario — Aperçu du 1er scénario sur 5 */}
+                  {(() => {
+                    const previewScenario = result.scenarios?.[0] ?? (result.scenario ? { ...result.scenario, title: 'Mise en situation', category: 'Scénario', reflexe: '' } : null);
+                    if (!previewScenario) return null;
+                    return (
+                      <div className="border border-gray-200 p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
+                            <Play size={14} /> Aperçu — Scénario 1 sur {result.scenarios?.length || 1}
                           </div>
-                        </motion.button>
-                      ))}
-                    </div>
-                  </div>
+                          <span className="text-xs px-2 py-0.5 font-bold" style={{ background: `${BLUE}12`, color: BLUE }}>
+                            {previewScenario.category}
+                          </span>
+                        </div>
+                        {previewScenario.title && (
+                          <p className="font-bold text-sm mb-3" style={{ color: DARK }}>{previewScenario.title}</p>
+                        )}
+                        <div className="border-l-2 pl-4 py-2 mb-5 bg-gray-50 px-4" style={{ borderColor: BLUE }}>
+                          <p className="text-sm leading-relaxed" style={{ color: DARK }}>{previewScenario.situation}</p>
+                        </div>
+                        <div className="space-y-2">
+                          {previewScenario.choices?.map((choice: any, i: number) => (
+                            <motion.button key={i} onClick={() => setActiveScenarioChoice(i)}
+                              whileHover={{ x: 2 }} whileTap={{ scale: 0.99 }}
+                              className="w-full text-left border px-5 py-4 transition-all flex items-start gap-4 text-sm"
+                              style={{
+                                borderColor: activeScenarioChoice === null ? '#e5e7eb' : choice.correct ? '#16a34a' : activeScenarioChoice === i ? PINK : '#e5e7eb',
+                                background: activeScenarioChoice === null ? 'white' : choice.correct ? '#f0fdf4' : activeScenarioChoice === i ? `${PINK}08` : '#f9fafb',
+                              }}>
+                              <span className="w-7 h-7 flex-shrink-0 flex items-center justify-center text-xs font-bold border"
+                                style={{
+                                  borderColor: activeScenarioChoice !== null && choice.correct ? '#16a34a' : activeScenarioChoice === i ? PINK : '#d1d5db',
+                                  color: activeScenarioChoice !== null && choice.correct ? '#16a34a' : activeScenarioChoice === i ? PINK : '#6b7280',
+                                }}>
+                                {String.fromCharCode(65 + i)}
+                              </span>
+                              <div>
+                                <div style={{ color: DARK }}>{choice.text}</div>
+                                {activeScenarioChoice !== null && activeScenarioChoice === i && (
+                                  <div className="text-xs mt-2" style={{ color: choice.correct ? '#16a34a' : '#9ca3af' }}>{choice.feedback}</div>
+                                )}
+                              </div>
+                            </motion.button>
+                          ))}
+                        </div>
+                        {result.scenarios && result.scenarios.length > 1 && (
+                          <p className="text-xs text-gray-400 mt-4 text-center">
+                            + {result.scenarios.length - 1} autre{result.scenarios.length > 2 ? 's' : ''} scénario{result.scenarios.length > 2 ? 's' : ''} disponibles dans le player
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })()}
 
-                  {/* QCM */}
+                  {/* QCM — Aperçu des 2 premières questions sur 10 */}
                   <div className="border border-gray-200 p-6">
-                    <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-5 flex items-center gap-2">
-                      <HelpCircle size={14} /> QCM — Exemples
+                    <div className="flex items-center justify-between mb-5">
+                      <div className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
+                        <HelpCircle size={14} /> Aperçu QCM — 2 questions sur {result.qcm?.length || 0}
+                      </div>
                     </div>
                     <div className="space-y-7">
                       {result.qcm?.slice(0, 2).map((q, qi) => (
@@ -430,12 +442,8 @@ export default function StudioIA() {
                               <button key={oi} onClick={() => setActiveQcm(qi * 10 + oi)}
                                 className="w-full text-left border px-4 py-3 text-xs transition-all"
                                 style={{
-                                  borderColor: activeQcm === null || Math.floor(activeQcm / 10) !== qi ? '#e5e7eb'
-                                    : opt.correct ? '#16a34a'
-                                    : activeQcm === qi * 10 + oi ? PINK : '#e5e7eb',
-                                  background: activeQcm === null || Math.floor(activeQcm / 10) !== qi ? 'white'
-                                    : opt.correct ? '#f0fdf4'
-                                    : activeQcm === qi * 10 + oi ? `${PINK}08` : '#f9fafb',
+                                  borderColor: activeQcm === null || Math.floor(activeQcm / 10) !== qi ? '#e5e7eb' : opt.correct ? '#16a34a' : activeQcm === qi * 10 + oi ? PINK : '#e5e7eb',
+                                  background: activeQcm === null || Math.floor(activeQcm / 10) !== qi ? 'white' : opt.correct ? '#f0fdf4' : activeQcm === qi * 10 + oi ? `${PINK}08` : '#f9fafb',
                                   color: DARK,
                                 }}>
                                 {opt.text}
@@ -443,13 +451,16 @@ export default function StudioIA() {
                             ))}
                           </div>
                           {activeQcm !== null && Math.floor(activeQcm / 10) === qi && (
-                            <div className="mt-2 text-xs border-l-2 pl-3 py-1" style={{ borderColor: BLUE, color: '#6b7280' }}>
-                              {q.explanation}
-                            </div>
+                            <div className="mt-2 text-xs border-l-2 pl-3 py-1" style={{ borderColor: BLUE, color: '#6b7280' }}>{q.explanation}</div>
                           )}
                         </div>
                       ))}
                     </div>
+                    {result.qcm && result.qcm.length > 2 && (
+                      <p className="text-xs text-gray-400 mt-5 text-center">
+                        + {result.qcm.length - 2} autres questions dans le player
+                      </p>
+                    )}
                   </div>
 
                   {/* Gamification */}
@@ -474,10 +485,11 @@ export default function StudioIA() {
                       </div>
                       {result.gamification.levels && (
                         <div className="flex items-center gap-2 flex-wrap">
-                          {result.gamification.levels.map((level, i) => (
+                          {result.gamification.levels.map((level: any, i: number) => (
                             <span key={i} className="px-3 py-1 text-xs font-bold"
                               style={{ background: `${BLUE}12`, color: BLUE }}>
-                              <Star size={10} className="inline mr-1" />{level}
+                              <Star size={10} className="inline mr-1" />
+                              {typeof level === 'string' ? level : level.name}
                             </span>
                           ))}
                         </div>

@@ -5651,130 +5651,195 @@ Niveau ${levelDesc}. Contexte français réaliste. Pour visual.type utilise: ema
   "title": "Titre accrocheur et précis de la formation",
   "tagline": "Sous-titre engageant en moins de 12 mots",
   "objectives": [
-    "Identifier et comprendre [concept clé 1]",
-    "Appliquer [bonne pratique] dans son contexte professionnel",
-    "Éviter les erreurs courantes liées à [sujet]",
-    "Reconnaître [situation à risque ou opportunité]"
+    "Identifier et comprendre [concept clé 1] dans son contexte professionnel",
+    "Appliquer [bonne pratique] face à des situations concrètes",
+    "Éviter les 3 erreurs les plus courantes liées à [sujet]",
+    "Reconnaître [signal d'alerte ou opportunité] et réagir correctement",
+    "Développer des réflexes durables et actionnables"
   ],
   "modules": [
-    { "title": "Titre du module 1 basé sur le sujet", "duration": "8 min", "type": "Mise en situation" },
-    { "title": "Titre du module 2", "duration": "10 min", "type": "Scénarios décisionnels" },
-    { "title": "Titre du module 3", "duration": "8 min", "type": "QCM interactif" },
-    { "title": "Bilan et plan d'action", "duration": "5 min", "type": "Évaluation finale" }
+    { "title": "Titre du module 1 — Introduction au sujet", "duration": "8 min", "type": "Mise en contexte" },
+    { "title": "Titre du module 2 — Mises en situation", "duration": "15 min", "type": "Scénarios décisionnels" },
+    { "title": "Titre du module 3 — Cas pratiques avancés", "duration": "12 min", "type": "Scénarios complexes" },
+    { "title": "Titre du module 4 — Évaluation des connaissances", "duration": "10 min", "type": "QCM interactif" },
+    { "title": "Bilan et réflexes à emporter", "duration": "5 min", "type": "Synthèse finale" }
   ],
   "scenarios": [
     {
       "id": 1,
-      "category": "Catégorie thématique du scénario 1",
-      "title": "Titre court du scénario 1",
-      "context": "Contexte optionnel : chiffre clé, règle ou fait important à connaître",
-      "situation": "Description détaillée et réaliste (3-4 phrases) : qui est le personnage, quelle est la situation concrète, quels sont les enjeux professionnels réels, quel est le problème ou la décision à prendre",
+      "category": "Catégorie thématique — aspect fondamental",
+      "title": "Titre court et accrocheur du scénario 1",
+      "context": "Chiffre clé, règle, fait important ou statistique réelle liée au sujet",
+      "situation": "Prénom + fonction du personnage. Situation concrète et détaillée en 4-5 phrases : lieu, moment, contexte professionnel précis, problème ou décision à prendre. Les enjeux sont clairement posés. Le participant doit comprendre qu'il y a une décision importante à prendre.",
       "choices": [
-        { "text": "Option A — incorrecte mais plausible", "correct": false, "feedback": "Explication claire de pourquoi c'est incorrect et quelles en seraient les conséquences réelles", "points": 0 },
-        { "text": "Option B — la bonne réponse", "correct": true, "feedback": "Bravo ! Explication de pourquoi c'est correct et ce que ça apporte concrètement", "points": 100 },
-        { "text": "Option C — incorrecte, erreur classique", "correct": false, "feedback": "C'est une erreur très courante. Voici pourquoi elle est problématique", "points": 0 }
+        { "text": "Choix A — plausible mais incorrect, erreur que beaucoup font", "correct": false, "feedback": "Explication détaillée des conséquences réelles de ce choix et pourquoi c'est problématique dans ce contexte professionnel.", "points": 0 },
+        { "text": "Choix B — la bonne réponse, formulée de façon naturelle", "correct": true, "feedback": "Bravo ! Explication développée de pourquoi c'est la bonne approche, avec les bénéfices concrets que ça apporte dans ce contexte.", "points": 100 },
+        { "text": "Choix C — incorrect, piège classique ou raccourci dangereux", "correct": false, "feedback": "C'est l'erreur la plus courante dans cette situation. Voici pourquoi elle est problématique et ses conséquences à moyen terme.", "points": 0 }
       ],
-      "reflexe": "Le réflexe à retenir : formulation courte et mémorable du bon comportement"
+      "reflexe": "Réflexe 1 : formulation courte, mémorable, actionnable — ce que la personne doit faire systématiquement"
     },
     {
       "id": 2,
-      "category": "Catégorie thématique du scénario 2",
+      "category": "Catégorie thématique — aspect différent du scénario 1",
       "title": "Titre court du scénario 2",
-      "context": "Contexte différent du scénario 1",
-      "situation": "Nouvelle situation réaliste et différente du scénario 1 — autre aspect du sujet, autre contexte professionnel",
+      "context": "Contexte factuel différent du scénario 1 — règle, chiffre ou situation spécifique",
+      "situation": "Nouveau personnage (prénom + fonction différente). Nouvelle situation professionnelle réaliste couvrant un autre angle du sujet — contexte, enjeux, décision clairement présentés en 4-5 phrases.",
       "choices": [
-        { "text": "Option A", "correct": false, "feedback": "Feedback A", "points": 0 },
-        { "text": "Option B — correcte", "correct": true, "feedback": "Feedback B positif", "points": 100 },
-        { "text": "Option C", "correct": false, "feedback": "Feedback C", "points": 0 }
+        { "text": "Choix A — incorrect, erreur de jugement courante", "correct": false, "feedback": "Feedback A détaillé avec conséquences réelles", "points": 0 },
+        { "text": "Choix B — correct, bonne pratique professionnelle", "correct": true, "feedback": "Feedback B positif avec explication complète et bénéfices concrets", "points": 100 },
+        { "text": "Choix C — incorrect, mauvaise priorité ou raccourci", "correct": false, "feedback": "Feedback C avec explication pédagogique des risques", "points": 0 }
       ],
-      "reflexe": "Réflexe 2 à retenir"
+      "reflexe": "Réflexe 2 : formulation courte et mémorable"
     },
     {
       "id": 3,
-      "category": "Catégorie thématique du scénario 3",
+      "category": "Catégorie thématique — aspect plus subtil ou technique",
       "title": "Titre court du scénario 3",
-      "context": "Contexte du scénario 3",
-      "situation": "Troisième situation — couvre un aspect encore différent, peut-être plus subtil ou avancé",
+      "context": "Contexte du scénario 3 — fait précis, chiffre ou règle moins connu",
+      "situation": "Troisième personnage dans une situation plus complexe ou nuancée — couvre un aspect moins évident du sujet, une situation ambiguë où la bonne réponse est contre-intuitive. 4-5 phrases détaillées.",
       "choices": [
-        { "text": "Option A", "correct": true, "feedback": "Feedback A — c'est la bonne réponse", "points": 100 },
-        { "text": "Option B — incorrecte", "correct": false, "feedback": "Feedback B", "points": 0 },
-        { "text": "Option C — incorrecte", "correct": false, "feedback": "Feedback C", "points": 0 }
+        { "text": "Choix A — la bonne réponse, contre-intuitive ou nuancée", "correct": true, "feedback": "Feedback A : explication approfondie de pourquoi c'est correct malgré ce que l'intuition dit", "points": 100 },
+        { "text": "Choix B — incorrect, réponse instinctive mais trompeuse", "correct": false, "feedback": "Feedback B : c'est l'erreur que fait la majorité dans cette situation et voici pourquoi c'est risqué", "points": 0 },
+        { "text": "Choix C — incorrect, demi-mesure insuffisante", "correct": false, "feedback": "Feedback C : pourquoi une réponse partielle ne suffit pas ici", "points": 0 }
       ],
-      "reflexe": "Réflexe 3 à retenir"
+      "reflexe": "Réflexe 3 : formulation mémorable pour retenir le bon comportement"
     },
     {
       "id": 4,
-      "category": "Catégorie thématique du scénario 4",
+      "category": "Catégorie thématique — situation sous pression ou urgence",
       "title": "Titre court du scénario 4",
-      "context": "Contexte du scénario 4",
-      "situation": "Quatrième situation — met en jeu une situation complexe ou un cas limite du sujet",
+      "context": "Contexte du scénario 4 — élément de pression, délai, hiérarchie ou urgence",
+      "situation": "Scénario 4 avec une contrainte temporelle, une pression hiérarchique ou une urgence qui pousse à prendre une mauvaise décision rapide. Le personnage doit résister à la pression pour faire le bon choix. 4-5 phrases réalistes.",
       "choices": [
-        { "text": "Option A — incorrecte", "correct": false, "feedback": "Feedback A", "points": 0 },
-        { "text": "Option B — incorrecte", "correct": false, "feedback": "Feedback B", "points": 0 },
-        { "text": "Option C — correcte", "correct": true, "feedback": "Feedback C positif — explication approfondie", "points": 100 }
+        { "text": "Choix A — incorrect, cède à la pression ou prend le raccourci", "correct": false, "feedback": "Feedback A : conséquences de céder à la pression dans ce contexte", "points": 0 },
+        { "text": "Choix B — incorrect, réaction excessive ou contre-productive", "correct": false, "feedback": "Feedback B : pourquoi cette réaction, bien qu'intentionnée, est problématique", "points": 0 },
+        { "text": "Choix C — correct, garde le cap malgré la pression", "correct": true, "feedback": "Feedback C : explication complète pourquoi maintenir la bonne pratique même sous pression est la seule vraie option", "points": 100 }
       ],
-      "reflexe": "Réflexe 4 à retenir"
+      "reflexe": "Réflexe 4 : comment rester professionnel sous pression"
+    },
+    {
+      "id": 5,
+      "category": "Catégorie thématique — cas complexe ou multi-facteurs",
+      "title": "Titre court du scénario 5",
+      "context": "Contexte du scénario 5 — situation qui combine plusieurs éléments du sujet",
+      "situation": "Scénario 5 plus élaboré : situation qui met en jeu plusieurs aspects du sujet simultanément. Le personnage fait face à une décision stratégique avec des implications multiples. C'est le scénario le plus complexe, qui synthétise les apprentissages précédents. 4-5 phrases riches.",
+      "choices": [
+        { "text": "Choix A — incorrect, vision partielle ou solution incomplète", "correct": false, "feedback": "Feedback A : pourquoi cette approche partielle ne résout pas le problème dans sa globalité", "points": 0 },
+        { "text": "Choix B — correct, approche systémique et complète", "correct": true, "feedback": "Feedback B : explication détaillée de l'approche gagnante qui prend en compte tous les facteurs — le niveau Expert", "points": 100 },
+        { "text": "Choix C — incorrect, bonne intention mais mauvaise méthode", "correct": false, "feedback": "Feedback C : l'intention est bonne mais la méthode comporte des risques importants dans ce contexte", "points": 0 }
+      ],
+      "reflexe": "Réflexe 5 : la règle d'or à retenir pour les situations complexes"
     }
   ],
   "qcm": [
     {
-      "question": "Question 1 sur un concept fondamental du sujet ?",
+      "question": "Question 1 — définition ou concept fondamental : [formulation précise comme une vraie question de formation] ?",
       "options": [
-        { "text": "Réponse A incorrecte", "correct": false },
-        { "text": "Réponse B correcte", "correct": true },
-        { "text": "Réponse C incorrecte", "correct": false },
-        { "text": "Réponse D incorrecte", "correct": false }
+        { "text": "Réponse A incorrecte mais plausible", "correct": false },
+        { "text": "Réponse B — la bonne réponse", "correct": true },
+        { "text": "Réponse C incorrecte, confusion courante", "correct": false },
+        { "text": "Réponse D incorrecte, trop extrême", "correct": false }
       ],
-      "explanation": "Explication pédagogique complète de la bonne réponse avec le contexte"
+      "explanation": "Explication pédagogique complète et développée de la bonne réponse — contexte, pourquoi c'est vrai, exemple concret si possible"
     },
     {
-      "question": "Question 2 sur un deuxième concept clé ?",
+      "question": "Question 2 — bonne pratique : quelle est la bonne façon de [action liée au sujet] ?",
       "options": [
-        { "text": "Option A", "correct": false },
-        { "text": "Option B", "correct": false },
+        { "text": "Option A — incorrecte", "correct": false },
+        { "text": "Option B — incorrecte, erreur classique", "correct": false },
         { "text": "Option C — correcte", "correct": true },
-        { "text": "Option D", "correct": false }
+        { "text": "Option D — incorrecte, trop vague", "correct": false }
       ],
-      "explanation": "Explication 2"
+      "explanation": "Explication 2 détaillée avec les raisons pratiques qui justifient cette bonne pratique"
     },
     {
-      "question": "Question 3 — cas pratique ou application concrète ?",
+      "question": "Question 3 — identification d'erreur : dans la situation suivante [description courte], qu'est-ce qui est problématique ?",
       "options": [
-        { "text": "Option A — correcte", "correct": true },
-        { "text": "Option B", "correct": false },
-        { "text": "Option C", "correct": false },
-        { "text": "Option D", "correct": false }
+        { "text": "Option A — correcte, identifie le vrai problème", "correct": true },
+        { "text": "Option B — incorrecte, symptôme et non la cause", "correct": false },
+        { "text": "Option C — incorrecte, hors sujet", "correct": false },
+        { "text": "Option D — incorrecte, partiellement vrai mais incomplet", "correct": false }
       ],
-      "explanation": "Explication 3 avec exemple concret"
+      "explanation": "Explication 3 — comment identifier cette erreur et ses conséquences réelles"
     },
     {
-      "question": "Question 4 — erreur courante à identifier ?",
+      "question": "Question 4 — chiffre ou donnée clé : lequel de ces chiffres correspond à [statistique ou seuil réel lié au sujet] ?",
       "options": [
-        { "text": "Option A", "correct": false },
-        { "text": "Option B — correcte", "correct": true },
-        { "text": "Option C", "correct": false },
-        { "text": "Option D", "correct": false }
+        { "text": "Option A — chiffre incorrect", "correct": false },
+        { "text": "Option B — chiffre correct", "correct": true },
+        { "text": "Option C — chiffre incorrect", "correct": false },
+        { "text": "Option D — chiffre incorrect", "correct": false }
       ],
-      "explanation": "Explication 4 — pourquoi c'est une erreur fréquente"
+      "explanation": "Explication 4 — contexte du chiffre, ce qu'il signifie et pourquoi il est important à connaître"
     },
     {
-      "question": "Question 5 — synthèse ou bonne pratique à retenir ?",
+      "question": "Question 5 — responsabilité ou rôle : qui est responsable de [action ou décision] dans ce contexte professionnel ?",
       "options": [
-        { "text": "Option A", "correct": false },
-        { "text": "Option B", "correct": false },
-        { "text": "Option C", "correct": false },
-        { "text": "Option D — correcte", "correct": true }
+        { "text": "Option A — incorrecte", "correct": false },
+        { "text": "Option B — incorrecte", "correct": false },
+        { "text": "Option C — correcte", "correct": true },
+        { "text": "Option D — incorrecte", "correct": false }
       ],
-      "explanation": "Explication 5 — synthèse finale"
+      "explanation": "Explication 5 — clarification des rôles et responsabilités dans ce contexte"
+    },
+    {
+      "question": "Question 6 — cas pratique : que fait-on en premier lieu quand [situation concrète typique du sujet] ?",
+      "options": [
+        { "text": "Option A — correcte, première action à faire", "correct": true },
+        { "text": "Option B — incorrecte, deuxième étape pas première", "correct": false },
+        { "text": "Option C — incorrecte, réaction intuitive mais erronée", "correct": false },
+        { "text": "Option D — incorrecte, inaction ou mauvaise priorité", "correct": false }
+      ],
+      "explanation": "Explication 6 — ordre des priorités et logique de la bonne séquence d'actions"
+    },
+    {
+      "question": "Question 7 — vrai ou faux enrichi : laquelle de ces affirmations sur [aspect du sujet] est VRAIE ?",
+      "options": [
+        { "text": "Affirmation A — fausse, idée reçue répandue", "correct": false },
+        { "text": "Affirmation B — fausse, vrai en théorie mais pas en pratique", "correct": false },
+        { "text": "Affirmation C — vraie", "correct": true },
+        { "text": "Affirmation D — fausse, exagération", "correct": false }
+      ],
+      "explanation": "Explication 7 — déconstruction des idées reçues et affirmation de la vérité avec sources ou exemples concrets"
+    },
+    {
+      "question": "Question 8 — conséquence : que risque-t-on si on ne respecte pas [règle ou bonne pratique du sujet] ?",
+      "options": [
+        { "text": "Option A — risque réel et principal", "correct": true },
+        { "text": "Option B — conséquence mineure, pas la principale", "correct": false },
+        { "text": "Option C — risque exagéré ou inexact", "correct": false },
+        { "text": "Option D — hors sujet", "correct": false }
+      ],
+      "explanation": "Explication 8 — détail des conséquences réelles, exemples de cas concrets si possible"
+    },
+    {
+      "question": "Question 9 — outil ou méthode : quel outil ou quelle approche est la plus adaptée pour [tâche ou problème lié au sujet] ?",
+      "options": [
+        { "text": "Option A — incorrecte, outil non adapté", "correct": false },
+        { "text": "Option B — correcte, meilleur outil ou méthode", "correct": true },
+        { "text": "Option C — incorrecte, trop complexe pour ce besoin", "correct": false },
+        { "text": "Option D — incorrecte, ancienne pratique dépassée", "correct": false }
+      ],
+      "explanation": "Explication 9 — pourquoi cet outil ou cette méthode est la mieux adaptée et dans quelles conditions l'utiliser"
+    },
+    {
+      "question": "Question 10 — synthèse finale : parmi ces quatre comportements face à [situation synthétique du sujet], lequel reflète le niveau Expert ?",
+      "options": [
+        { "text": "Comportement A — niveau débutant, réactif", "correct": false },
+        { "text": "Comportement B — niveau intermédiaire, partiel", "correct": false },
+        { "text": "Comportement C — niveau intermédiaire +, presque mais incomplet", "correct": false },
+        { "text": "Comportement D — niveau Expert, approche systémique et préventive", "correct": true }
+      ],
+      "explanation": "Explication 10 — description du comportement expert sur ce sujet et ce qui le distingue des autres niveaux"
     }
   ],
   "gamification": {
-    "points": 800,
+    "points": 1500,
     "badge": "🏆",
     "levels": [
       { "name": "Novice", "threshold": 0 },
-      { "name": "Praticien", "threshold": 400 },
-      { "name": "Expert", "threshold": 700 }
+      { "name": "Praticien", "threshold": 750 },
+      { "name": "Expert", "threshold": 1250 }
     ]
   }
 }`;
@@ -5807,19 +5872,21 @@ PUBLIC CIBLE : ${audienceLabels[audience] || audience}
 DURÉE : ${duration} minutes
 GAMIFICATION : ${gamifLabels[gamification] || gamification}
 
-RÈGLES IMPORTANTES :
-- Chaque scénario doit décrire une situation CONCRÈTE et RÉALISTE avec un personnage nommé
-- Les 4 scénarios doivent couvrir 4 aspects DIFFÉRENTS du sujet
-- Les feedbacks doivent être pédagogiques et expliquer les conséquences réelles
-- Les réflexes doivent être courts, mémorables, actionnables
-- Les QCM doivent tester des connaissances pratiques, pas théoriques
+RÈGLES IMPORTANTES — CONTENU RICHE OBLIGATOIRE :
+- Génère EXACTEMENT 5 scénarios immersifs et EXACTEMENT 10 questions QCM
+- Chaque scénario doit nommer un personnage (prénom + fonction), décrire la situation en 4-5 phrases riches et réalistes
+- Les 5 scénarios couvrent 5 aspects DIFFÉRENTS du sujet (pas de répétition)
+- Chaque feedback doit être détaillé : expliquer les conséquences réelles du choix (2-3 phrases)
+- Les réflexes doivent être courts, mémorables et actionnables (une phrase max)
+- Les 10 QCM testent des connaissances variées : définitions, cas pratiques, chiffres clés, erreurs courantes, bonnes pratiques, synthèse
+- Les explications des QCM doivent être développées avec du contexte concret
 
 Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
 ${TRAINING_JSON_SCHEMA}`;
 
       const response = await openAIService.getChatCompletion([
         { role: 'user', content: prompt }
-      ], 0.65, 4000);
+      ], 0.65, 8000);
 
       let training = parseTrainingJson(response);
       if (!training) {
@@ -5918,18 +5985,20 @@ GAMIFICATION : ${gamifLabel}
 CONTENU DES DOCUMENTS :
 ${filesSummary}
 
-INSTRUCTIONS :
-- Crée une formation COMPLÈTE et JOUABLE avec 4 scénarios immersifs basés sur le contenu réel des documents
-- Chaque scénario doit référencer des concepts ou situations issus directement des documents
-- Les feedbacks doivent expliquer les conséquences concrètes des choix
-- Les QCM doivent tester des connaissances clés du contenu documentaire
+INSTRUCTIONS — CONTENU RICHE OBLIGATOIRE :
+- Génère EXACTEMENT 5 scénarios immersifs et EXACTEMENT 10 questions QCM basés sur le contenu des documents
+- Chaque scénario nomme un personnage (prénom + fonction), 4-5 phrases détaillées
+- Les 5 scénarios couvrent 5 angles différents du contenu documentaire
+- Chaque feedback : 2-3 phrases expliquant les conséquences réelles du choix
+- Les 10 QCM testent des connaissances variées issues directement du contenu : définitions, chiffres, cas pratiques, erreurs, bonnes pratiques
+- Les explications QCM doivent référencer le contenu des documents
 
 Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
 ${TRAINING_JSON_SCHEMA}`;
 
       const response = await openAIService.getChatCompletion([
         { role: 'user', content: prompt }
-      ], 0.65, 4000);
+      ], 0.65, 8000);
 
       let training = parseTrainingJson(response);
       if (!training) {
@@ -6061,18 +6130,20 @@ ${title ? `TITRE SOUHAITÉ : "${title}"` : ''}
 CONTENU EXTRAIT :
 ${fullContent}
 
-INSTRUCTIONS :
-- Crée une formation COMPLÈTE et JOUABLE avec 4 scénarios basés exclusivement sur le contenu réel du site
-- Chaque scénario doit être ancré dans des situations concrètes issues du contenu
-- Tous les QCM doivent tester des connaissances réelles du site
-- Les feedbacks doivent référencer le contenu du site
+INSTRUCTIONS — CONTENU RICHE OBLIGATOIRE :
+- Génère EXACTEMENT 5 scénarios immersifs et EXACTEMENT 10 questions QCM basés sur le contenu du site
+- Chaque scénario nomme un personnage réaliste (prénom + fonction), 4-5 phrases riches et détaillées
+- Les 5 scénarios couvrent 5 angles différents du contenu extrait
+- Chaque feedback : 2-3 phrases expliquant les conséquences réelles, avec référence au contenu du site
+- Les 10 QCM testent des connaissances variées : définitions, chiffres clés, cas pratiques, erreurs courantes, bonnes pratiques, synthèse
+- Les explications QCM doivent être développées avec du contexte tiré du contenu
 
 Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
 ${TRAINING_JSON_SCHEMA}`;
 
       const aiResponse = await openAIService.getChatCompletion([
         { role: 'user', content: prompt }
-      ], 0.65, 4000);
+      ], 0.65, 8000);
 
       let training = parseTrainingJson(aiResponse);
       if (!training) {
