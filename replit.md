@@ -2,7 +2,19 @@
 
 ## Overview
 
-FYNE est une plateforme SaaS de formation immersive en cybersécurité et culture data développée par mc2i. La plateforme propose une approche innovante d'apprentissage par le biais de scénarios interactifs alimentés par l'intelligence artificielle. Elle comprend plusieurs modules spécialisés incluant "I AM CYBER", une expérience chatbot immersive, ainsi que des jeux sérieux, des simulations de crise, et des modules d'acculturation Data & IA.
+FYNE est une plateforme SaaS de formation immersive en cybersécurité et culture data développée par mc2i. La plateforme propose une approche innovante d'apprentissage par le biais de scénarios interactifs alimentés par l'intelligence artificielle. Elle comprend plusieurs modules spécialisés incluant "I AM CYBER", "I AM SI CHAMPION" (code interactif), une expérience chatbot immersive, ainsi que des jeux sérieux, des simulations de crise, et des modules d'acculturation Data & IA.
+
+### Module "I AM SI CHAMPION" — Environnement de Code Interactif
+Le module `client/src/pages/si-champion/` est un environnement de pratique du code inspiré de CoderPad, avec exécution réelle côté serveur. Il comprend :
+- **Hub** `/si-champion` — page d'accueil avec les 4 tracks et statistiques
+- **Bibliothèque** `/si-champion/challenges` — 30 défis filtrables par track et niveau
+- **Player** `/si-champion/challenge/:id` — éditeur Monaco + exécution réelle + tests auto
+
+**4 tracks** : Python (10 défis), SQL (10 défis, via sqlite3 en Python), JavaScript (5 défis), Data & Excel (5 défis)
+
+**Exécution réelle** via `server/routes/codeExecutionRoutes.ts` → POST `/api/code/execute` → `child_process.exec` (python3 / node) avec timeout 10s
+
+**Banque de défis** : `client/src/data/si-champion-challenges.ts` — 30 défis, niveaux Débutant/Intermédiaire/Expert, scénarios contextualisés mc2i, progression localStorage
 
 ### Module "Monsieur Tout le Monde" — Data & BI (refocalisé)
 Le module `client/src/pages/data-ia/roleplay/monsieur-tout-le-monde/index.tsx` a été entièrement refocalisé sur **Data, BI, Data Sciences, Data Analytics** uniquement. Il couvre :

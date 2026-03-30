@@ -16,6 +16,7 @@ import immersiveCrisisRoutes from './routes/immersiveCrisisRoutes';
 import prospectPulseRoutes from './routes/prospectPulseRoutes';
 import crisisCenterRoutes from './routes/crisisCenterRoutes';
 import audioRoutes from './routes/audioRoutes';
+import codeExecutionRoutes from './routes/codeExecutionRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { evaluateInterviewTest, generateAdaptiveQuestion, generateInitialQuestion } from './cyberInterviewTestController';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
@@ -655,6 +656,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Enregistrer les routes pour le Centre de Crise
   app.use('/api/crisis-center', crisisCenterRoutes);
+  app.use('/api/code', codeExecutionRoutes);
   
   // Routes pour l'exécution de code
   app.post('/api/code/execute/python', executePythonCode);

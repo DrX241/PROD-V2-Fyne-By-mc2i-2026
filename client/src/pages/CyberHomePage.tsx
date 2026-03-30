@@ -108,6 +108,17 @@ const CyberHomePage: React.FC = () => {
       route: '/amoa-mode-selection-new'
     },
     {
+      id: 'si-champion',
+      title: 'I AM SI CHAMPION',
+      description: 'Pratique Python, SQL, JavaScript dans un vrai environnement de code interactif',
+      icon: <div className="w-5 h-5 bg-cyan-500"></div>,
+      color: 'text-cyan-600',
+      bgColor: 'bg-cyan-100',
+      accentColor: 'border-cyan-500',
+      route: '/si-champion',
+      comingSoon: false
+    },
+    {
       id: 'generator',
       title: 'SOYEZ QUI VOUS VOULEZ',
       description: 'Créez vos propres modules de formation personnalisés',
