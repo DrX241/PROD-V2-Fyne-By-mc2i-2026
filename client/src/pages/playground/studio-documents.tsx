@@ -5,28 +5,30 @@ import {
   ArrowLeft, ArrowRight, FileUp, Upload, Loader2, CheckCircle,
   Trophy, Target, BookOpen, MessageSquare, ChevronRight,
   RotateCcw, Star, Play, HelpCircle, X, FileText, Presentation,
-  Users, Zap, File, AlertCircle, Globe, Link2, Layers, Search
+  Users, Zap, File, AlertCircle, Globe, Layers
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import mcLogoPath from '@assets/mc2i.png';
+
+const BLUE = '#006a9e';
+const PINK = '#dd0061';
+const DARK = '#061019';
 
 const ACCEPTED = '.pdf,.pptx,.ppt,.docx,.doc,.txt';
 
 const FILE_ICONS: Record<string, React.ReactNode> = {
-  pdf: <FileText className="h-5 w-5 text-red-400" />,
-  pptx: <Presentation className="h-5 w-5 text-orange-400" />,
-  ppt: <Presentation className="h-5 w-5 text-orange-400" />,
-  docx: <FileText className="h-5 w-5 text-blue-400" />,
-  doc: <FileText className="h-5 w-5 text-blue-400" />,
-  txt: <File className="h-5 w-5 text-gray-400" />,
+  pdf: <FileText size={16} style={{ color: '#ef4444' }} />,
+  pptx: <Presentation size={16} style={{ color: '#f97316' }} />,
+  ppt: <Presentation size={16} style={{ color: '#f97316' }} />,
+  docx: <FileText size={16} style={{ color: BLUE }} />,
+  doc: <FileText size={16} style={{ color: BLUE }} />,
+  txt: <File size={16} style={{ color: '#9ca3af' }} />,
 };
 
 const GAMIFICATION = [
-  { value: 'low', label: 'Sérieux', icon: '📚' },
-  { value: 'medium', label: 'Équilibré', icon: '⚡' },
-  { value: 'high', label: 'Ludique', icon: '🎮' },
+  { value: 'low', label: 'Sérieux', sub: 'axé contenu', icon: '📚' },
+  { value: 'medium', label: 'Équilibré', sub: 'contenu + jeu', icon: '⚡' },
+  { value: 'high', label: 'Ludique', sub: 'max engagement', icon: '🎮' },
 ];
 
 const AUDIENCES = [
@@ -38,31 +40,21 @@ const AUDIENCES = [
 ];
 
 const DEPTH_OPTIONS = [
-  { value: '5', label: '5 pages — rapide' },
-  { value: '10', label: '10 pages — standard' },
-  { value: '20', label: '20 pages — approfondi' },
-  { value: '40', label: '40 pages — exhaustif' },
+  { value: '5', label: '5 pages', sub: 'rapide' },
+  { value: '10', label: '10 pages', sub: 'standard' },
+  { value: '20', label: '20 pages', sub: 'approfondi' },
+  { value: '40', label: '40 pages', sub: 'exhaustif' },
 ];
 
 const FILE_STEPS = [
-  "Lecture des documents...",
-  "Extraction du contenu clé...",
-  "Identification des concepts...",
-  "Création des mises en situation...",
-  "Génération des QCM...",
-  "Calibration de la gamification...",
-  "Finalisation de la formation...",
+  'Lecture des documents...', 'Extraction du contenu clé...', 'Identification des concepts...',
+  'Création des mises en situation...', 'Génération des QCM...', 'Calibration de la gamification...', 'Finalisation...',
 ];
 
 const URL_STEPS = [
-  "Connexion au site...",
-  "Exploration des pages...",
-  "Pagination et crawl...",
-  "Extraction du contenu...",
-  "Analyse sémantique...",
-  "Création des mises en situation...",
-  "Génération des QCM...",
-  "Finalisation de la formation...",
+  'Connexion au site...', 'Exploration des pages...', 'Pagination et crawl...',
+  'Extraction du contenu...', 'Analyse sémantique...', 'Création des mises en situation...',
+  'Génération des QCM...', 'Finalisation...',
 ];
 
 interface TrainingResult {
@@ -75,13 +67,11 @@ interface TrainingResult {
   gamification: { points: number; badge: string; levels: string[] };
 }
 
-interface ScrapeInfo {
-  pagesVisited: number;
-  totalChars: number;
-  siteName: string;
-}
-
+interface ScrapeInfo { pagesVisited: number; totalChars: number; siteName: string; }
 type ImportMode = 'files' | 'url';
+type StepName = 'upload' | 'config' | 'generating' | 'result';
+
+const STEP_PROGRESS: Record<StepName, number> = { upload: 25, config: 50, generating: 75, result: 100 };
 
 export default function StudioDocuments() {
   const [, setLocation] = useLocation();
@@ -89,540 +79,443 @@ export default function StudioDocuments() {
   const dropRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [step, setStep] = useState<'upload' | 'config' | 'generating' | 'result'>('upload');
+  const [step, setStep] = useState<StepName>('upload');
   const [importMode, setImportMode] = useState<ImportMode>('files');
-
-  // Files
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
-
-  // URL
   const [url, setUrl] = useState('');
   const [depth, setDepth] = useState('10');
   const [scrapeInfo, setScrapeInfo] = useState<ScrapeInfo | null>(null);
-
-  // Config
   const [title, setTitle] = useState('');
   const [audience, setAudience] = useState('grand_public');
   const [gamification, setGamification] = useState('medium');
-
-  // Generation
   const [genStep, setGenStep] = useState(0);
   const [result, setResult] = useState<TrainingResult | null>(null);
   const [activeScenarioChoice, setActiveScenarioChoice] = useState<number | null>(null);
 
   const addFiles = useCallback((newFiles: FileList | null) => {
     if (!newFiles) return;
-    const valid = Array.from(newFiles).filter(f => {
-      const ext = f.name.split('.').pop()?.toLowerCase() || '';
-      return ['pdf', 'pptx', 'ppt', 'docx', 'doc', 'txt'].includes(ext);
-    });
-    if (valid.length < newFiles.length) {
-      toast({ title: 'Fichiers non supportés', description: 'Seuls PDF, PowerPoint, Word et texte sont acceptés.', variant: 'destructive' });
-    }
-    setFiles(prev => {
-      const names = new Set(prev.map(f => f.name));
-      return [...prev, ...valid.filter(f => !names.has(f.name))].slice(0, 5);
-    });
+    const valid = Array.from(newFiles).filter(f => ['pdf', 'pptx', 'ppt', 'docx', 'doc', 'txt'].includes(f.name.split('.').pop()?.toLowerCase() || ''));
+    if (valid.length < newFiles.length) toast({ title: 'Fichiers non supportés', description: 'Seuls PDF, PowerPoint, Word et texte sont acceptés.', variant: 'destructive' });
+    setFiles(prev => { const names = new Set(prev.map(f => f.name)); return [...prev, ...valid.filter(f => !names.has(f.name))].slice(0, 5); });
   }, [toast]);
 
-  const onDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    addFiles(e.dataTransfer.files);
-  }, [addFiles]);
-
+  const onDrop = useCallback((e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); addFiles(e.dataTransfer.files); }, [addFiles]);
   const removeFile = (name: string) => setFiles(prev => prev.filter(f => f.name !== name));
   const formatSize = (bytes: number) => bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(0)} Ko` : `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
   const getExt = (name: string) => name.split('.').pop()?.toLowerCase() || 'file';
-
-  const isUrlValid = (u: string) => {
-    try { new URL(u); return true; } catch { return false; }
-  };
-
-  const canProceed = importMode === 'files' ? true : isUrlValid(url);
+  const isUrlValid = (u: string) => { try { new URL(u); return true; } catch { return false; } };
 
   const generate = async () => {
     setStep('generating');
     setGenStep(0);
     const steps = importMode === 'url' ? URL_STEPS : FILE_STEPS;
-
-    const interval = setInterval(() => {
-      setGenStep(prev => prev < steps.length - 1 ? prev + 1 : prev);
-    }, importMode === 'url' ? 1200 : 900);
-
+    const interval = setInterval(() => setGenStep(prev => prev < steps.length - 1 ? prev + 1 : prev), importMode === 'url' ? 1200 : 900);
     try {
       let data: any;
-
       if (importMode === 'url') {
-        const res = await fetch('/api/studio/generate-from-url', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, depth: parseInt(depth), title, audience, gamification }),
-        });
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || 'Erreur serveur');
-        }
+        const res = await fetch('/api/studio/generate-from-url', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url, depth: parseInt(depth), title, audience, gamification }) });
+        if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error || 'Erreur'); }
         data = await res.json();
         if (data.scrapeInfo) setScrapeInfo(data.scrapeInfo);
       } else {
         const formData = new FormData();
         files.forEach(f => formData.append('files', f));
-        formData.append('title', title);
-        formData.append('audience', audience);
-        formData.append('gamification', gamification);
-
-        const res = await fetch('/api/studio/generate-from-documents', {
-          method: 'POST',
-          body: formData,
-        });
-        if (!res.ok) throw new Error('Erreur serveur');
+        formData.append('title', title); formData.append('audience', audience); formData.append('gamification', gamification);
+        const res = await fetch('/api/studio/generate-from-documents', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error();
         data = await res.json();
       }
-
       clearInterval(interval);
       setGenStep(steps.length - 1);
-      setTimeout(() => {
-        setResult(data.training);
-        setStep('result');
-      }, 600);
+      setTimeout(() => { setResult(data.training); setStep('result'); }, 500);
     } catch (err: any) {
       clearInterval(interval);
-      toast({ title: 'Erreur', description: err.message || "La génération a échoué. Réessayez.", variant: 'destructive' });
+      toast({ title: 'Erreur', description: err.message || 'La génération a échoué.', variant: 'destructive' });
       setStep('config');
     }
   };
 
   const restart = () => {
-    setFiles([]);
-    setUrl('');
-    setDepth('10');
-    setTitle('');
-    setAudience('grand_public');
-    setGamification('medium');
-    setResult(null);
-    setScrapeInfo(null);
-    setActiveScenarioChoice(null);
+    setFiles([]); setUrl(''); setDepth('10'); setTitle('');
+    setAudience('grand_public'); setGamification('medium');
+    setResult(null); setScrapeInfo(null); setActiveScenarioChoice(null);
     setStep('upload');
   };
 
   const steps = importMode === 'url' ? URL_STEPS : FILE_STEPS;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#060d1a] to-[#0a1628] text-white">
-      <div className="max-w-3xl mx-auto px-6 py-10">
-
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-10">
-          <button onClick={() => step === 'upload' ? setLocation('/playground/module-generator') : restart()}
-            className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors">
-            <ArrowLeft className="h-4 w-4" />
-            {step === 'upload' ? 'Retour' : 'Recommencer'}
-          </button>
-          <div className="flex-1 flex gap-1.5">
-            {(['upload', 'config', 'generating', 'result'] as const).map((s, i) => (
-              <div key={s} className={`h-1 flex-1 rounded-full transition-all ${
-                ['upload', 'config', 'generating', 'result'].indexOf(step) >= i
-                  ? 'bg-emerald-500' : 'bg-white/10'
-              }`} />
-            ))}
-          </div>
+    <div className="min-h-screen bg-white flex flex-col" style={{ color: DARK }}>
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
+        <div className="h-0.5 w-full bg-gray-100">
+          <div className="h-full transition-all duration-700" style={{ width: `${STEP_PROGRESS[step]}%`, background: PINK }} />
         </div>
+        <div className="flex items-center justify-between px-5 py-3">
+          <div className="flex items-center gap-3">
+            <button onClick={() => step === 'upload' ? setLocation('/playground/module-generator') : restart()} className="hover:opacity-60 transition-opacity">
+              <ArrowLeft size={18} style={{ color: BLUE }} />
+            </button>
+            <img src={mcLogoPath} alt="mc2i" className="h-7 w-auto" />
+            <div className="h-4 w-px bg-gray-200" />
+            <span className="font-bold text-sm" style={{ color: BLUE }}>FYNE</span>
+            <div className="h-4 w-px bg-gray-200 hidden sm:block" />
+            <span className="text-sm text-gray-500 font-medium hidden sm:block">Studio · Import de contenus</span>
+          </div>
+          {result && (
+            <button onClick={restart} className="flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-800 transition-colors">
+              <RotateCcw size={13} /> Recommencer
+            </button>
+          )}
+        </div>
+      </header>
 
+      <main className="flex-1 pt-14">
         <AnimatePresence mode="wait">
 
-          {/* ── ÉTAPE 1 : UPLOAD ── */}
+          {/* ═══ UPLOAD ══════════════════════════════════════════════════════ */}
           {step === 'upload' && (
-            <motion.div key="upload" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-              <div className="mb-8">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center mb-5">
-                  <FileUp className="h-6 w-6" />
+            <motion.div key="upload" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
+              className="min-h-screen flex flex-col justify-center px-6 lg:px-16 py-16">
+              <div className="max-w-2xl">
+                <div className="text-xs font-bold uppercase tracking-widest mb-5 px-3 py-1 inline-block"
+                  style={{ background: `${BLUE}12`, color: BLUE }}>
+                  Étape 1 · Import de contenus
                 </div>
-                <h1 className="text-3xl font-black mb-2">Importez vos contenus</h1>
-                <p className="text-gray-400">Glissez vos fichiers ou fournissez l'URL d'un site — l'IA crawlera tout le contenu automatiquement.</p>
-              </div>
+                <h1 className="text-4xl lg:text-5xl font-black tracking-tight mb-4 leading-tight">
+                  <span style={{ color: PINK }}>Importez</span><br />
+                  <span style={{ color: BLUE }}>vos contenus</span>
+                </h1>
+                <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
 
-              {/* Toggle mode */}
-              <div className="flex gap-2 p-1 bg-white/5 rounded-xl border border-white/10 mb-8">
-                <button onClick={() => setImportMode('files')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${
-                    importMode === 'files'
-                      ? 'bg-emerald-600 text-white shadow-lg'
-                      : 'text-gray-400 hover:text-white'
-                  }`}>
-                  <FileUp className="h-4 w-4" />
-                  Fichiers
-                </button>
-                <button onClick={() => setImportMode('url')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${
-                    importMode === 'url'
-                      ? 'bg-emerald-600 text-white shadow-lg'
-                      : 'text-gray-400 hover:text-white'
-                  }`}>
-                  <Globe className="h-4 w-4" />
-                  Site web / URL
-                </button>
-              </div>
+                {/* Toggle */}
+                <div className="flex border border-gray-200 mb-8">
+                  <button onClick={() => setImportMode('files')}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-bold transition-all"
+                    style={{ background: importMode === 'files' ? BLUE : 'white', color: importMode === 'files' ? 'white' : '#6b7280' }}>
+                    <FileUp size={16} /> Fichiers
+                  </button>
+                  <button onClick={() => setImportMode('url')}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-bold transition-all border-l border-gray-200"
+                    style={{ background: importMode === 'url' ? BLUE : 'white', color: importMode === 'url' ? 'white' : '#6b7280' }}>
+                    <Globe size={16} /> Site web / URL
+                  </button>
+                </div>
 
-              {/* ── MODE FICHIERS ── */}
-              {importMode === 'files' && (
-                <>
-                  <div
-                    ref={dropRef}
-                    onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
-                    onDragLeave={() => setIsDragging(false)}
-                    onDrop={onDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                    className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all ${
-                      isDragging
-                        ? 'border-emerald-400 bg-emerald-500/10'
-                        : 'border-white/20 hover:border-emerald-500/50 hover:bg-white/5'
-                    }`}
-                  >
-                    <input ref={fileInputRef} type="file" accept={ACCEPTED} multiple className="hidden" onChange={e => addFiles(e.target.files)} />
-                    <Upload className={`h-10 w-10 mx-auto mb-3 ${isDragging ? 'text-emerald-400' : 'text-gray-500'}`} />
-                    <p className="text-white font-semibold mb-1">Glissez vos fichiers ici</p>
-                    <p className="text-gray-500 text-sm">ou cliquez pour parcourir</p>
-                    <div className="flex items-center justify-center gap-3 mt-4">
-                      {['PDF', 'PowerPoint', 'Word', 'Texte'].map(f => (
-                        <span key={f} className="px-2.5 py-1 rounded-full bg-white/10 text-gray-400 text-xs">{f}</span>
-                      ))}
+                {/* ── FICHIERS ── */}
+                {importMode === 'files' && (
+                  <>
+                    <div ref={dropRef} onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
+                      onDragLeave={() => setIsDragging(false)} onDrop={onDrop}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border-2 border-dashed p-10 text-center cursor-pointer transition-all"
+                      style={{ borderColor: isDragging ? BLUE : '#d1d5db', background: isDragging ? `${BLUE}06` : '#fafafa' }}>
+                      <input ref={fileInputRef} type="file" accept={ACCEPTED} multiple className="hidden" onChange={e => addFiles(e.target.files)} />
+                      <Upload size={32} className="mx-auto mb-3" style={{ color: isDragging ? BLUE : '#9ca3af' }} />
+                      <p className="font-bold text-sm mb-1" style={{ color: DARK }}>Glissez vos fichiers ici</p>
+                      <p className="text-xs text-gray-500">ou cliquez pour parcourir</p>
+                      <div className="flex items-center justify-center gap-2 mt-4">
+                        {['PDF', 'PowerPoint', 'Word', 'Texte'].map(f => (
+                          <span key={f} className="px-2 py-0.5 border border-gray-200 text-xs text-gray-500 bg-white">{f}</span>
+                        ))}
+                      </div>
                     </div>
-                    <p className="text-gray-600 text-xs mt-3">Maximum 5 fichiers · 20 Mo chacun</p>
-                  </div>
-
-                  {files.length > 0 && (
-                    <div className="mt-5 space-y-2">
-                      {files.map(f => (
-                        <div key={f.name} className="flex items-center gap-3 px-4 py-3 bg-white/5 border border-white/10 rounded-xl">
-                          {FILE_ICONS[getExt(f.name)] || <File className="h-5 w-5 text-gray-400" />}
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-sm text-white truncate">{f.name}</div>
-                            <div className="text-xs text-gray-500">{formatSize(f.size)}</div>
+                    {files.length > 0 && (
+                      <div className="mt-4 space-y-2">
+                        {files.map(f => (
+                          <div key={f.name} className="flex items-center gap-3 border border-gray-200 px-4 py-3 bg-white">
+                            {FILE_ICONS[getExt(f.name)] || <File size={16} style={{ color: '#9ca3af' }} />}
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm truncate" style={{ color: DARK }}>{f.name}</div>
+                              <div className="text-xs text-gray-500">{formatSize(f.size)}</div>
+                            </div>
+                            <button onClick={e => { e.stopPropagation(); removeFile(f.name); }} className="hover:opacity-60 transition-opacity">
+                              <X size={14} style={{ color: '#9ca3af' }} />
+                            </button>
                           </div>
-                          <button onClick={e => { e.stopPropagation(); removeFile(f.name); }} className="text-gray-500 hover:text-white transition-colors">
-                            <X className="h-4 w-4" />
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* ── URL ── */}
+                {importMode === 'url' && (
+                  <div className="space-y-8">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+                        URL du site à analyser *
+                      </label>
+                      <div className="relative">
+                        <Globe size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#9ca3af' }} />
+                        <input type="url" value={url} onChange={e => setUrl(e.target.value)}
+                          placeholder="https://exemple.com/documentation"
+                          className="w-full border border-gray-200 pl-9 pr-4 py-3 text-sm focus:outline-none focus:border-gray-400 bg-white"
+                          style={{ color: DARK }} />
+                      </div>
+                      {url && !isUrlValid(url) && (
+                        <p className="text-xs mt-1.5 flex items-center gap-1" style={{ color: PINK }}>
+                          <AlertCircle size={12} /> URL invalide — incluez http:// ou https://
+                        </p>
+                      )}
+                      {url && isUrlValid(url) && (
+                        <p className="text-xs mt-1.5 flex items-center gap-1" style={{ color: '#16a34a' }}>
+                          <CheckCircle size={12} /> URL valide
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
+                        Profondeur du crawl
+                      </label>
+                      <div className="grid grid-cols-4 gap-2">
+                        {DEPTH_OPTIONS.map(d => (
+                          <button key={d.value} onClick={() => setDepth(d.value)}
+                            className="text-center border px-3 py-4 transition-all"
+                            style={{ borderColor: depth === d.value ? BLUE : '#e5e7eb', background: depth === d.value ? `${BLUE}08` : 'white' }}>
+                            <div className="text-sm font-bold" style={{ color: depth === d.value ? BLUE : DARK }}>{d.label}</div>
+                            <div className="text-xs text-gray-500">{d.sub}</div>
                           </button>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  )}
 
-                  {files.length > 0 && (
-                    <div className="mt-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex gap-2.5">
-                      <CheckCircle className="h-4 w-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-emerald-200">
-                        {files.length} fichier{files.length > 1 ? 's' : ''} prêt{files.length > 1 ? 's' : ''} à analyser.
-                      </p>
+                    <div className="border-l-2 pl-4 py-2" style={{ borderColor: BLUE }}>
+                      <p className="text-xs font-bold text-gray-700 mb-1">Comment fonctionne le crawl ?</p>
+                      <ul className="text-xs text-gray-500 space-y-0.5">
+                        <li>• Exploration automatique de toutes les pages internes</li>
+                        <li>• Pagination et sous-pages incluses</li>
+                        <li>• Extraction du texte, titres et listes</li>
+                        <li>• Contenu dupliqué filtré automatiquement</li>
+                      </ul>
                     </div>
-                  )}
-                </>
-              )}
+                  </div>
+                )}
 
-              {/* ── MODE URL ── */}
-              {importMode === 'url' && (
-                <div className="space-y-6">
-                  <div>
-                    <Label className="text-gray-300 mb-2 block">URL du site à analyser *</Label>
-                    <div className="relative">
-                      <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                      <Input
-                        value={url}
-                        onChange={e => setUrl(e.target.value)}
-                        placeholder="https://exemple.com/formation"
-                        className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-emerald-500"
-                      />
-                    </div>
-                    {url && !isUrlValid(url) && (
-                      <p className="text-xs text-red-400 mt-1.5 flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" /> URL invalide — incluez http:// ou https://
-                      </p>
-                    )}
-                    {url && isUrlValid(url) && (
-                      <p className="text-xs text-emerald-400 mt-1.5 flex items-center gap-1">
-                        <CheckCircle className="h-3 w-3" /> URL valide
-                      </p>
-                    )}
+                <button onClick={() => setStep('config')}
+                  disabled={importMode === 'url' && !isUrlValid(url)}
+                  className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed mt-8"
+                  style={{ background: BLUE }}>
+                  Configurer la formation <ArrowRight size={18} />
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ═══ CONFIG ══════════════════════════════════════════════════════ */}
+          {step === 'config' && (
+            <motion.div key="config" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
+              className="min-h-screen flex flex-col justify-center px-6 lg:px-16 py-16">
+              <div className="max-w-2xl">
+                <div className="text-xs font-bold uppercase tracking-widest mb-5 px-3 py-1 inline-block"
+                  style={{ background: `${BLUE}12`, color: BLUE }}>
+                  Étape 2 · Configuration
+                </div>
+                <h1 className="text-4xl font-black tracking-tight mb-4" style={{ color: DARK }}>
+                  Configurez<br /><span style={{ color: BLUE }}>la formation</span>
+                </h1>
+                <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
+
+                <div className="space-y-8">
+                  {/* Source recap */}
+                  <div className="border border-gray-100 p-4 bg-gray-50">
+                    <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Source</div>
+                    {importMode === 'url' ? (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Globe size={14} style={{ color: BLUE }} />
+                        <span className="truncate font-medium" style={{ color: DARK }}>{url}</span>
+                        <span className="text-gray-500 ml-auto whitespace-nowrap text-xs">≤ {depth} pages</span>
+                      </div>
+                    ) : files.length > 0 ? (
+                      <div className="space-y-1">
+                        {files.map(f => (
+                          <div key={f.name} className="flex items-center gap-2 text-xs text-gray-600">
+                            {FILE_ICONS[getExt(f.name)]} <span className="truncate">{f.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : <p className="text-xs text-gray-500 italic">Génération depuis le sujet demandé</p>}
                   </div>
 
+                  {/* Titre */}
                   <div>
-                    <Label className="text-gray-300 mb-3 flex items-center gap-2">
-                      <Layers className="h-4 w-4 text-emerald-400" /> Profondeur du crawl
-                    </Label>
-                    <div className="space-y-2">
-                      {DEPTH_OPTIONS.map(d => (
-                        <button key={d.value} onClick={() => setDepth(d.value)}
-                          className={`w-full text-left px-4 py-3 rounded-lg border text-sm font-medium transition-all ${
-                            depth === d.value
-                              ? 'border-emerald-500 bg-emerald-500/20 text-emerald-200'
-                              : 'border-white/10 bg-white/5 text-gray-400 hover:border-white/20'
-                          }`}>
-                          <div className="flex items-center justify-between">
-                            <span>{d.label}</span>
-                            {depth === d.value && <CheckCircle className="h-4 w-4 text-emerald-400" />}
-                          </div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+                      Titre de la formation (optionnel)
+                    </label>
+                    <input type="text" value={title} onChange={e => setTitle(e.target.value)}
+                      placeholder="L'IA proposera un titre si laissé vide"
+                      className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-gray-400 bg-white"
+                      style={{ color: DARK }} />
+                  </div>
+
+                  {/* Public */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">Public cible</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {AUDIENCES.map(a => (
+                        <button key={a.value} onClick={() => setAudience(a.value)}
+                          className="text-center border px-3 py-3 text-xs font-medium transition-all"
+                          style={{ borderColor: audience === a.value ? BLUE : '#e5e7eb', background: audience === a.value ? `${BLUE}08` : 'white', color: audience === a.value ? BLUE : DARK }}>
+                          {a.label}
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-                    <div className="flex gap-2.5">
-                      <Search className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                      <div className="text-sm text-blue-200">
-                        <p className="font-semibold mb-1">Comment fonctionne le crawl ?</p>
-                        <ul className="space-y-1 text-blue-300/80 text-xs">
-                          <li>• Exploration automatique de toutes les pages du même domaine</li>
-                          <li>• Pagination et sous-pages incluses</li>
-                          <li>• Extraction du texte, titres, listes et tableaux</li>
-                          <li>• Contenu dupliqué filtré automatiquement</li>
-                        </ul>
-                      </div>
+                  {/* Gamification */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">Gamification</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {GAMIFICATION.map(g => (
+                        <button key={g.value} onClick={() => setGamification(g.value)}
+                          className="text-center border px-4 py-5 transition-all"
+                          style={{ borderColor: gamification === g.value ? BLUE : '#e5e7eb', background: gamification === g.value ? `${BLUE}08` : 'white' }}>
+                          <div className="text-3xl mb-1.5">{g.icon}</div>
+                          <div className="text-sm font-bold" style={{ color: gamification === g.value ? BLUE : DARK }}>{g.label}</div>
+                          <div className="text-xs text-gray-500">{g.sub}</div>
+                        </button>
+                      ))}
                     </div>
                   </div>
+
+                  <button onClick={generate}
+                    className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity"
+                    style={{ background: BLUE }}>
+                    <FileUp size={18} /> Générer la formation
+                  </button>
                 </div>
-              )}
-
-              <Button
-                onClick={() => setStep('config')}
-                disabled={!canProceed}
-                className="w-full mt-8 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 py-5 font-semibold disabled:opacity-40"
-              >
-                Configurer la formation
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
-            </motion.div>
-          )}
-
-          {/* ── ÉTAPE 2 : CONFIG ── */}
-          {step === 'config' && (
-            <motion.div key="config" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-              <div className="mb-8">
-                <h1 className="text-3xl font-black mb-2">Configurez la formation</h1>
-                <p className="text-gray-400">L'IA utilisera ces informations pour adapter le style et le niveau.</p>
-              </div>
-
-              <div className="space-y-8">
-                {/* Source recap */}
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Source de contenu</p>
-                  {importMode === 'url' ? (
-                    <div className="flex items-center gap-2.5">
-                      <Globe className="h-4 w-4 text-emerald-400 flex-shrink-0" />
-                      <div>
-                        <div className="text-sm text-white font-medium truncate">{url}</div>
-                        <div className="text-xs text-gray-500">Crawl jusqu'à {depth} pages</div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-1">
-                      {files.length > 0 ? files.map(f => (
-                        <div key={f.name} className="flex items-center gap-2 text-sm text-gray-400">
-                          {FILE_ICONS[getExt(f.name)]}
-                          <span className="truncate">{f.name}</span>
-                        </div>
-                      )) : (
-                        <p className="text-sm text-gray-500 italic">Aucun fichier — génération depuis le sujet</p>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <Label className="text-gray-300 mb-2 block">Titre de la formation (optionnel)</Label>
-                  <Input value={title} onChange={e => setTitle(e.target.value)}
-                    placeholder="L'IA proposera un titre si laissé vide"
-                    className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-emerald-500" />
-                </div>
-
-                <div>
-                  <Label className="text-gray-300 mb-3 flex items-center gap-2">
-                    <Users className="h-4 w-4 text-emerald-400" /> Public cible
-                  </Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {AUDIENCES.map(a => (
-                      <button key={a.value} onClick={() => setAudience(a.value)}
-                        className={`text-center px-3 py-3 rounded-lg border text-xs font-medium transition-all ${
-                          audience === a.value
-                            ? 'border-emerald-500 bg-emerald-500/20 text-emerald-200'
-                            : 'border-white/10 bg-white/5 text-gray-400 hover:border-white/20'
-                        }`}>
-                        {a.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-gray-300 mb-3 flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-emerald-400" /> Gamification
-                  </Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {GAMIFICATION.map(g => (
-                      <button key={g.value} onClick={() => setGamification(g.value)}
-                        className={`text-center px-3 py-4 rounded-lg border text-sm font-medium transition-all ${
-                          gamification === g.value
-                            ? 'border-emerald-500 bg-emerald-500/20 text-emerald-200'
-                            : 'border-white/10 bg-white/5 text-gray-400 hover:border-white/20'
-                        }`}>
-                        <div className="text-2xl mb-1">{g.icon}</div>
-                        <div className="text-xs">{g.label}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <Button onClick={generate}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 py-5 font-semibold">
-                  <FileUp className="h-4 w-4 mr-2" />
-                  Générer la formation
-                </Button>
               </div>
             </motion.div>
           )}
 
-          {/* ── ÉTAPE 3 : GÉNÉRATION ── */}
+          {/* ═══ GÉNÉRATION ═══════════════════════════════════════════════════ */}
           {step === 'generating' && (
             <motion.div key="generating" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center min-h-[60vh]">
-              <div className="relative mb-10">
-                <div className="w-24 h-24 rounded-full border-4 border-emerald-500/30 border-t-emerald-500 animate-spin" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  {importMode === 'url'
-                    ? <Globe className="h-10 w-10 text-emerald-400" />
-                    : <FileUp className="h-10 w-10 text-emerald-400" />}
-                </div>
-              </div>
-              <h2 className="text-2xl font-bold mb-2 text-center">
+              className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+              <div className="w-16 h-16 border-4 border-gray-100 mb-10"
+                style={{ borderTopColor: BLUE, animation: 'spin 1s linear infinite' }} />
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: BLUE }}>
                 {importMode === 'url' ? 'Crawl et analyse du site' : 'Analyse de vos documents'}
-              </h2>
-              <p className="text-gray-400 mb-10 text-center">
-                {importMode === 'url'
-                  ? `Exploration jusqu'à ${depth} pages en cours...`
-                  : "L'IA extrait et structure votre contenu..."}
+              </div>
+              <h2 className="text-2xl font-black text-center mb-2" style={{ color: DARK }}>Génération en cours</h2>
+              <p className="text-sm text-gray-500 mb-12 text-center">
+                {importMode === 'url' ? `Exploration jusqu'à ${depth} pages...` : "L'IA structure votre contenu..."}
               </p>
               <div className="w-full max-w-sm space-y-3">
                 {steps.map((s, i) => (
                   <div key={i} className={`flex items-center gap-3 transition-all duration-300 ${i <= genStep ? 'opacity-100' : 'opacity-20'}`}>
-                    {i < genStep ? (
-                      <CheckCircle className="h-4 w-4 text-emerald-400 flex-shrink-0" />
-                    ) : i === genStep ? (
-                      <Loader2 className="h-4 w-4 text-emerald-400 animate-spin flex-shrink-0" />
-                    ) : (
-                      <div className="h-4 w-4 rounded-full border border-white/20 flex-shrink-0" />
-                    )}
-                    <span className={`text-sm ${i === genStep ? 'text-white font-medium' : 'text-gray-400'}`}>{s}</span>
+                    {i < genStep ? <CheckCircle size={16} style={{ color: BLUE, flexShrink: 0 }} />
+                      : i === genStep ? <Loader2 size={16} className="animate-spin flex-shrink-0" style={{ color: BLUE }} />
+                      : <div className="w-4 h-4 border border-gray-300 flex-shrink-0" />}
+                    <span className="text-sm" style={{ color: i === genStep ? DARK : '#9ca3af', fontWeight: i === genStep ? 600 : 400 }}>
+                      {s}
+                    </span>
                   </div>
                 ))}
               </div>
             </motion.div>
           )}
 
-          {/* ── ÉTAPE 4 : RÉSULTAT ── */}
+          {/* ═══ RÉSULTAT ═══════════════════════════════════════════════════ */}
           {step === 'result' && result && (
-            <motion.div key="result" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <div className="flex items-start justify-between mb-8">
-                <div>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold mb-3">
-                    <CheckCircle className="h-3 w-3" /> Formation générée
-                  </div>
-                  <h1 className="text-3xl font-black text-white">{result.title}</h1>
-                  <p className="text-emerald-300 mt-1">{result.tagline}</p>
-                  {scrapeInfo && (
-                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                      <span className="flex items-center gap-1"><Globe className="h-3 w-3" /> {scrapeInfo.siteName}</span>
-                      <span>·</span>
-                      <span>{scrapeInfo.pagesVisited} pages analysées</span>
-                      <span>·</span>
-                      <span>{(scrapeInfo.totalChars / 1000).toFixed(0)}k caractères extraits</span>
+            <motion.div key="result" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              className="min-h-screen px-6 lg:px-16 py-12">
+              <div className="max-w-3xl">
+                <div className="text-xs font-bold uppercase tracking-widest mb-4 px-3 py-1 inline-block"
+                  style={{ background: `${BLUE}12`, color: BLUE }}>
+                  Formation générée
+                </div>
+                <h1 className="text-4xl font-black mb-2" style={{ color: DARK }}>{result.title}</h1>
+                <p className="text-base mb-1" style={{ color: BLUE }}>{result.tagline}</p>
+                {scrapeInfo && (
+                  <p className="text-xs text-gray-500 mb-2">
+                    {scrapeInfo.pagesVisited} pages analysées · {(scrapeInfo.totalChars / 1000).toFixed(0)}k caractères extraits
+                  </p>
+                )}
+                <div className="w-16 h-1 mb-10" style={{ background: PINK }} />
+
+                <div className="space-y-8">
+                  {/* Objectifs */}
+                  <div className="border border-gray-200 p-6">
+                    <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4 flex items-center gap-2">
+                      <Target size={14} /> Objectifs d'apprentissage
                     </div>
-                  )}
-                </div>
-                <button onClick={restart} className="flex items-center gap-1.5 text-gray-400 hover:text-white text-sm transition-colors">
-                  <RotateCcw className="h-4 w-4" /> Recommencer
-                </button>
-              </div>
+                    <ul className="space-y-2.5">
+                      {result.objectives?.map((obj, i) => (
+                        <li key={i} className="flex items-start gap-3 text-sm" style={{ color: DARK }}>
+                          <ChevronRight size={16} className="flex-shrink-0 mt-0.5" style={{ color: BLUE }} />
+                          {obj}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-              <div className="space-y-6">
-                {/* Objectifs */}
-                <div className="bg-white/5 rounded-2xl border border-white/10 p-6">
-                  <h2 className="font-bold text-sm uppercase tracking-wider text-gray-400 mb-4 flex items-center gap-2">
-                    <Target className="h-4 w-4" /> Objectifs d'apprentissage
-                  </h2>
-                  <ul className="space-y-2.5">
-                    {result.objectives?.map((obj, i) => (
-                      <li key={i} className="flex items-start gap-2.5 text-sm text-gray-300">
-                        <ChevronRight className="h-4 w-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                        {obj}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Parcours */}
-                <div className="bg-white/5 rounded-2xl border border-white/10 p-6">
-                  <h2 className="font-bold text-sm uppercase tracking-wider text-gray-400 mb-4 flex items-center gap-2">
-                    <BookOpen className="h-4 w-4" /> Structure du parcours
-                  </h2>
-                  <div className="space-y-3">
-                    {result.modules?.map((mod, i) => (
-                      <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-white/5">
-                        <div className="w-8 h-8 rounded-lg bg-emerald-600/40 flex items-center justify-center text-sm font-bold text-emerald-300">{i + 1}</div>
-                        <div className="flex-1">
-                          <div className="font-medium text-white text-sm">{mod.title}</div>
-                          <div className="text-xs text-gray-500">{mod.type} · {mod.duration}</div>
+                  {/* Parcours */}
+                  <div className="border border-gray-200 p-6">
+                    <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4 flex items-center gap-2">
+                      <BookOpen size={14} /> Structure du parcours
+                    </div>
+                    <div className="space-y-2">
+                      {result.modules?.map((mod, i) => (
+                        <div key={i} className="flex items-center gap-4 border border-gray-100 px-4 py-3 bg-gray-50">
+                          <div className="w-7 h-7 flex items-center justify-center text-xs font-black text-white flex-shrink-0"
+                            style={{ background: BLUE }}>{i + 1}</div>
+                          <div className="flex-1">
+                            <div className="font-semibold text-sm" style={{ color: DARK }}>{mod.title}</div>
+                          </div>
+                          <div className="text-xs text-gray-500 whitespace-nowrap">{mod.type} · {mod.duration}</div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                {/* Scénario interactif */}
-                <div className="bg-white/5 rounded-2xl border border-white/10 p-6">
-                  <h2 className="font-bold text-sm uppercase tracking-wider text-gray-400 mb-4 flex items-center gap-2">
-                    <Play className="h-4 w-4" /> Mise en situation — Aperçu
-                  </h2>
-                  <div className="bg-gradient-to-br from-emerald-900/30 to-teal-900/20 border border-emerald-500/20 rounded-xl p-5 mb-4">
-                    <p className="text-sm text-gray-200 leading-relaxed">{result.scenario?.situation}</p>
+                  {/* Scénario */}
+                  <div className="border border-gray-200 p-6">
+                    <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4 flex items-center gap-2">
+                      <Play size={14} /> Mise en situation — Aperçu interactif
+                    </div>
+                    <div className="border-l-2 pl-4 py-2 mb-5 bg-gray-50 px-4" style={{ borderColor: BLUE }}>
+                      <p className="text-sm leading-relaxed" style={{ color: DARK }}>{result.scenario?.situation}</p>
+                    </div>
+                    <div className="space-y-2">
+                      {result.scenario?.choices?.map((choice, i) => (
+                        <motion.button key={i} onClick={() => setActiveScenarioChoice(i)}
+                          whileHover={{ x: 2 }} whileTap={{ scale: 0.99 }}
+                          className="w-full text-left border px-5 py-4 transition-all flex items-start gap-4 text-sm"
+                          style={{
+                            borderColor: activeScenarioChoice === null ? '#e5e7eb' : choice.correct ? '#16a34a' : activeScenarioChoice === i ? PINK : '#e5e7eb',
+                            background: activeScenarioChoice === null ? 'white' : choice.correct ? '#f0fdf4' : activeScenarioChoice === i ? `${PINK}08` : '#f9fafb',
+                          }}>
+                          <span className="w-7 h-7 flex-shrink-0 flex items-center justify-center text-xs font-bold border"
+                            style={{ borderColor: activeScenarioChoice !== null && choice.correct ? '#16a34a' : activeScenarioChoice === i ? PINK : '#d1d5db', color: activeScenarioChoice !== null && choice.correct ? '#16a34a' : activeScenarioChoice === i ? PINK : '#6b7280' }}>
+                            {String.fromCharCode(65 + i)}
+                          </span>
+                          <div>
+                            <div style={{ color: DARK }}>{choice.text}</div>
+                            {activeScenarioChoice !== null && activeScenarioChoice === i && (
+                              <div className="text-xs mt-2" style={{ color: choice.correct ? '#16a34a' : '#9ca3af' }}>{choice.feedback}</div>
+                            )}
+                          </div>
+                        </motion.button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    {result.scenario?.choices?.map((choice, i) => (
-                      <button key={i} onClick={() => setActiveScenarioChoice(i)}
-                        className={`w-full text-left px-4 py-3 rounded-lg border text-sm transition-all ${
-                          activeScenarioChoice === null
-                            ? 'border-white/15 bg-white/5 hover:border-emerald-400/50 hover:bg-emerald-500/10 text-gray-300'
-                            : choice.correct
-                            ? 'border-emerald-500 bg-emerald-500/15 text-emerald-200'
-                            : activeScenarioChoice === i
-                            ? 'border-red-500 bg-red-500/15 text-red-200'
-                            : 'border-white/10 bg-white/5 text-gray-500 opacity-60'
-                        }`}>
-                        <div className="flex items-start gap-2">
-                          <span className="font-bold text-xs mt-0.5 flex-shrink-0">{String.fromCharCode(65 + i)}.</span>
-                          <span>{choice.text}</span>
-                        </div>
-                        {activeScenarioChoice !== null && activeScenarioChoice === i && (
-                          <p className="mt-2 text-xs opacity-80 pl-4">{choice.feedback}</p>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
 
-                {/* QCM */}
-                <div className="bg-white/5 rounded-2xl border border-white/10 p-6">
-                  <h2 className="font-bold text-sm uppercase tracking-wider text-gray-400 mb-4 flex items-center gap-2">
-                    <HelpCircle className="h-4 w-4" /> QCM — Exemples
-                  </h2>
-                  <div className="space-y-5">
+                  {/* QCM */}
+                  <div className="border border-gray-200 p-6">
+                    <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-5 flex items-center gap-2">
+                      <HelpCircle size={14} /> QCM — Exemples
+                    </div>
                     {result.qcm?.slice(0, 2).map((q, qi) => (
-                      <div key={qi}>
-                        <p className="font-medium text-white text-sm mb-3">{qi + 1}. {q.question}</p>
-                        <div className="space-y-1.5">
+                      <div key={qi} className="mb-6 last:mb-0">
+                        <p className="font-bold text-sm mb-3" style={{ color: DARK }}>{qi + 1}. {q.question}</p>
+                        <div className="space-y-2">
                           {q.options?.map((opt, oi) => (
-                            <button key={oi}
-                              className="w-full text-left px-3 py-2.5 rounded-lg border border-white/10 bg-white/5 text-xs text-gray-400 hover:border-emerald-400/40 transition-all">
+                            <button key={oi} className="w-full text-left border px-4 py-3 text-xs transition-all hover:border-gray-400"
+                              style={{ borderColor: '#e5e7eb', background: 'white', color: DARK }}>
                               {opt.text}
                             </button>
                           ))}
@@ -630,57 +523,55 @@ export default function StudioDocuments() {
                       </div>
                     ))}
                   </div>
-                </div>
 
-                {/* Gamification */}
-                {result.gamification && (
-                  <div className="bg-gradient-to-r from-amber-900/30 to-orange-900/20 border border-amber-500/20 rounded-2xl p-6">
-                    <h2 className="font-bold text-sm uppercase tracking-wider text-amber-400 mb-4 flex items-center gap-2">
-                      <Trophy className="h-4 w-4" /> Gamification
-                    </h2>
-                    <div className="grid grid-cols-3 gap-4 text-center mb-4">
-                      <div>
-                        <div className="text-2xl font-black text-amber-300">{result.gamification.points}</div>
-                        <div className="text-xs text-gray-400">points max</div>
+                  {/* Gamification */}
+                  {result.gamification && (
+                    <div className="border border-gray-200 p-6">
+                      <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4 flex items-center gap-2">
+                        <Trophy size={14} /> Gamification
                       </div>
-                      <div>
-                        <div className="text-2xl">{result.gamification.badge}</div>
-                        <div className="text-xs text-gray-400">badge final</div>
+                      <div className="grid grid-cols-3 gap-3 mb-4">
+                        {[
+                          { val: result.gamification.points, sub: 'points max' },
+                          { val: result.gamification.badge, sub: 'badge final' },
+                          { val: result.gamification.levels?.length, sub: 'niveaux' },
+                        ].map((item, i) => (
+                          <div key={i} className="border border-gray-100 p-4 text-center bg-gray-50">
+                            <div className="text-2xl font-black mb-1" style={{ color: BLUE }}>{item.val}</div>
+                            <div className="text-xs text-gray-500">{item.sub}</div>
+                          </div>
+                        ))}
                       </div>
-                      <div>
-                        <div className="text-2xl font-black text-amber-300">{result.gamification.levels?.length}</div>
-                        <div className="text-xs text-gray-400">niveaux</div>
-                      </div>
-                    </div>
-                    {result.gamification.levels && (
                       <div className="flex items-center gap-2 flex-wrap">
-                        {result.gamification.levels.map((level, i) => (
-                          <span key={i} className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-medium">
-                            <Star className="h-3 w-3 inline mr-1" />{level}
+                        {result.gamification.levels?.map((level, i) => (
+                          <span key={i} className="px-3 py-1 text-xs font-bold" style={{ background: `${BLUE}12`, color: BLUE }}>
+                            <Star size={10} className="inline mr-1" />{level}
                           </span>
                         ))}
                       </div>
-                    )}
-                  </div>
-                )}
-
-                <div className="bg-emerald-600/20 border border-emerald-500/30 rounded-2xl p-5 flex items-center justify-between">
-                  <div>
-                    <div className="font-semibold text-white">Formation prête à déployer</div>
-                    <div className="text-sm text-gray-400">
-                      {importMode === 'url' ? `Basée sur le contenu de ${url}` : 'Basée sur votre contenu original'}
                     </div>
+                  )}
+
+                  {/* CTA */}
+                  <div className="border border-gray-200 p-6 flex items-center justify-between bg-gray-50">
+                    <div>
+                      <div className="font-bold text-sm" style={{ color: DARK }}>Formation prête à déployer</div>
+                      <div className="text-xs text-gray-500 mt-0.5">
+                        {importMode === 'url' ? `Basée sur le contenu de ${new URL(url).hostname}` : 'Basée sur votre contenu original'}
+                      </div>
+                    </div>
+                    <button className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold text-sm hover:opacity-90 transition-opacity"
+                      style={{ background: BLUE }}>
+                      <MessageSquare size={16} /> Affiner avec l'IA
+                    </button>
                   </div>
-                  <Button className="bg-emerald-600 hover:bg-emerald-500 text-white">
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Affiner avec l'IA
-                  </Button>
                 </div>
               </div>
             </motion.div>
           )}
+
         </AnimatePresence>
-      </div>
+      </main>
     </div>
   );
 }
