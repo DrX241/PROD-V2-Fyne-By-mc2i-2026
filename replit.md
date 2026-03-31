@@ -4,6 +4,24 @@
 
 FYNE est une plateforme SaaS de formation immersive en cybersécurité et culture data développée par mc2i. La plateforme propose une approche innovante d'apprentissage par le biais de scénarios interactifs alimentés par l'intelligence artificielle. Elle comprend plusieurs modules spécialisés incluant "I AM CYBER", "I AM SI CHAMPION" (code interactif), une expérience chatbot immersive, ainsi que des jeux sérieux, des simulations de crise, et des modules d'acculturation Data & IA.
 
+### Studio de Formation — Nouvelles fonctionnalités (mars 2026)
+Le Studio génère désormais :
+- **7 mises en situation professionnelles ouvertes** : l'apprenant rédige une réponse libre en texte, évaluée par l'IA via `POST /api/studio/evaluate-response` (score 0-100, points forts, points à améliorer, réponse experte)
+- **10 QCM immersifs** (inchangé)
+- **Bibliothèque de formations** : page `/playground/module-generator` liste toutes les formations sauvegardées avec lien direct vers le player et bouton de suppression
+- **DELETE** `/api/studio/training/:id` : supprime une formation de la base de données
+- **Rétrocompatibilité** : les formations avec `scenarios[]` (ancien format choice-based) sont automatiquement converties en `situations[]` au chargement
+
+Structure JSON des situations :
+```json
+{ "id": 1, "category": "...", "title": "...", "contexte": "...", "situation": "...", "attendu": "3-5 points clés attendus" }
+```
+
+Structure JSON de l'évaluation (réponse de `/api/studio/evaluate-response`) :
+```json
+{ "score": 75, "appreciation": "Bien", "feedback": "...", "pointsForts": ["..."], "pointsAmelioration": ["..."], "reponseExperte": "..." }
+```
+
 ### Module "I AM SI CHAMPION" — Environnement de Code Interactif
 Le module `client/src/pages/si-champion/` est un environnement de pratique du code inspiré de CoderPad, avec exécution réelle côté serveur. Il comprend :
 - **Hub** `/si-champion` — page d'accueil avec les 4 tracks et statistiques

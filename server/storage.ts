@@ -19,6 +19,7 @@ export interface IStorage {
   saveGeneratedTraining(training: InsertGeneratedTraining): Promise<GeneratedTraining>;
   getGeneratedTraining(id: string): Promise<GeneratedTraining | undefined>;
   listGeneratedTrainings(limit?: number): Promise<GeneratedTraining[]>;
+  deleteGeneratedTraining(id: string): Promise<void>;
 }
 
 // Implémentation de la mémoire pour les tests et le développement
@@ -113,6 +114,10 @@ export class MemStorage implements IStorage {
 
   async listGeneratedTrainings(limit = 20): Promise<GeneratedTraining[]> {
     return Array.from(this.trainings.values()).slice(-limit).reverse();
+  }
+
+  async deleteGeneratedTraining(id: string): Promise<void> {
+    this.trainings.delete(id);
   }
 }
 
@@ -210,6 +215,12 @@ export class DatabaseStorage implements IStorage {
       .from(generatedTrainings)
       .orderBy(desc(generatedTrainings.createdAt))
       .limit(limit);
+  }
+
+  async deleteGeneratedTraining(id: string): Promise<void> {
+    await db
+      .delete(generatedTrainings)
+      .where(eq(generatedTrainings.id, id));
   }
 }
 

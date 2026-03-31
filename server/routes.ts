@@ -5641,10 +5641,67 @@ Niveau ${levelDesc}. Contexte français réaliste. Pour visual.type utilise: ema
   // GET /api/studio/trainings — Liste des formations récentes
   app.get("/api/studio/trainings", async (req: Request, res: Response) => {
     try {
-      const trainings = await storage.listGeneratedTrainings(20);
+      const trainings = await storage.listGeneratedTrainings(50);
       res.json(trainings);
     } catch (error) {
       res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  // DELETE /api/studio/training/:id — Supprime une formation
+  app.delete("/api/studio/training/:id", async (req: Request, res: Response) => {
+    try {
+      await storage.deleteGeneratedTraining(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('[Studio] Erreur suppression formation:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression' });
+    }
+  });
+
+  // POST /api/studio/evaluate-response — Évalue une réponse libre via l'IA
+  app.post("/api/studio/evaluate-response", async (req: Request, res: Response) => {
+    try {
+      const { situation, contexte, attendu, reponse } = req.body;
+      if (!situation || !attendu || !reponse) {
+        return res.status(400).json({ error: 'Paramètres manquants' });
+      }
+      const prompt = `Tu es un formateur expert. Évalue la réponse d'un participant à une mise en situation professionnelle.
+
+CONTEXTE : ${contexte || ''}
+MISE EN SITUATION : ${situation}
+RÉPONSE ATTENDUE (référentiel) : ${attendu}
+RÉPONSE DU PARTICIPANT : ${reponse}
+
+Évalue la réponse et réponds UNIQUEMENT avec ce JSON valide (sans markdown) :
+{
+  "score": <entier entre 0 et 100>,
+  "appreciation": "<Excellent|Bien|Insuffisant>",
+  "feedback": "<Retour personnalisé et bienveillant sur la réponse — 2-3 phrases>",
+  "pointsForts": ["<point fort 1>", "<point fort 2>"],
+  "pointsAmelioration": ["<point à améliorer 1>", "<point à améliorer 2>"],
+  "reponseExperte": "<Reformulation de la réponse idéale en 2-3 phrases claires et actionnables>"
+}`;
+
+      const response = await openAIService.getChatCompletion([
+        { role: 'user', content: prompt }
+      ], 0.4, 1000);
+
+      const parsed = parseJsonSafely(response);
+      if (!parsed) {
+        return res.json({
+          score: 50,
+          appreciation: 'Bien',
+          feedback: 'Votre réponse montre une bonne compréhension du sujet.',
+          pointsForts: ['Réponse structurée'],
+          pointsAmelioration: ['Préciser davantage les actions concrètes'],
+          reponseExperte: attendu,
+        });
+      }
+      res.json(parsed);
+    } catch (error) {
+      console.error('[Studio] Erreur évaluation:', error);
+      res.status(500).json({ error: 'Erreur lors de l\'évaluation' });
     }
   });
 
@@ -5661,76 +5718,67 @@ Niveau ${levelDesc}. Contexte français réaliste. Pour visual.type utilise: ema
   ],
   "modules": [
     { "title": "Titre du module 1 — Introduction au sujet", "duration": "8 min", "type": "Mise en contexte" },
-    { "title": "Titre du module 2 — Mises en situation", "duration": "15 min", "type": "Scénarios décisionnels" },
-    { "title": "Titre du module 3 — Cas pratiques avancés", "duration": "12 min", "type": "Scénarios complexes" },
-    { "title": "Titre du module 4 — Évaluation des connaissances", "duration": "10 min", "type": "QCM interactif" },
+    { "title": "Titre du module 2 — Mises en situation", "duration": "20 min", "type": "Mises en situation professionnelles" },
+    { "title": "Titre du module 3 — Cas pratiques avancés", "duration": "15 min", "type": "Situations complexes" },
+    { "title": "Titre du module 4 — Évaluation des connaissances", "duration": "15 min", "type": "QCM immersif" },
     { "title": "Bilan et réflexes à emporter", "duration": "5 min", "type": "Synthèse finale" }
   ],
-  "scenarios": [
+  "situations": [
     {
       "id": 1,
       "category": "Catégorie thématique — aspect fondamental",
-      "title": "Titre court et accrocheur du scénario 1",
-      "context": "Chiffre clé, règle, fait important ou statistique réelle liée au sujet",
-      "situation": "Prénom + fonction du personnage. Situation concrète et détaillée en 4-5 phrases : lieu, moment, contexte professionnel précis, problème ou décision à prendre. Les enjeux sont clairement posés. Le participant doit comprendre qu'il y a une décision importante à prendre.",
-      "choices": [
-        { "text": "Choix A — plausible mais incorrect, erreur que beaucoup font", "correct": false, "feedback": "Explication détaillée des conséquences réelles de ce choix et pourquoi c'est problématique dans ce contexte professionnel.", "points": 0 },
-        { "text": "Choix B — la bonne réponse, formulée de façon naturelle", "correct": true, "feedback": "Bravo ! Explication développée de pourquoi c'est la bonne approche, avec les bénéfices concrets que ça apporte dans ce contexte.", "points": 100 },
-        { "text": "Choix C — incorrect, piège classique ou raccourci dangereux", "correct": false, "feedback": "C'est l'erreur la plus courante dans cette situation. Voici pourquoi elle est problématique et ses conséquences à moyen terme.", "points": 0 }
-      ],
-      "reflexe": "Réflexe 1 : formulation courte, mémorable, actionnable — ce que la personne doit faire systématiquement"
+      "title": "Titre court et accrocheur de la situation 1",
+      "contexte": "Fait clé, règle ou statistique réelle liée au sujet (1-2 phrases)",
+      "situation": "Prénom + fonction du personnage. Situation professionnelle concrète et immersive en 4-5 phrases : lieu, moment, contexte précis, problème à résoudre ou décision à prendre. Les enjeux professionnels et humains sont clairement posés.",
+      "attendu": "Réponse idéale structurée : 3-5 points clés que le participant doit mentionner. Ex : '1. Identifier le risque X. 2. Alerter le responsable Y. 3. Appliquer la procédure Z. 4. Documenter l'incident. 5. Ne pas agir seul.'"
     },
     {
       "id": 2,
-      "category": "Catégorie thématique — aspect différent du scénario 1",
-      "title": "Titre court du scénario 2",
-      "context": "Contexte factuel différent du scénario 1 — règle, chiffre ou situation spécifique",
+      "category": "Catégorie thématique — aspect différent de la situation 1",
+      "title": "Titre court de la situation 2",
+      "contexte": "Contexte factuel différent — règle, chiffre ou contrainte spécifique (1-2 phrases)",
       "situation": "Nouveau personnage (prénom + fonction différente). Nouvelle situation professionnelle réaliste couvrant un autre angle du sujet — contexte, enjeux, décision clairement présentés en 4-5 phrases.",
-      "choices": [
-        { "text": "Choix A — incorrect, erreur de jugement courante", "correct": false, "feedback": "Feedback A détaillé avec conséquences réelles", "points": 0 },
-        { "text": "Choix B — correct, bonne pratique professionnelle", "correct": true, "feedback": "Feedback B positif avec explication complète et bénéfices concrets", "points": 100 },
-        { "text": "Choix C — incorrect, mauvaise priorité ou raccourci", "correct": false, "feedback": "Feedback C avec explication pédagogique des risques", "points": 0 }
-      ],
-      "reflexe": "Réflexe 2 : formulation courte et mémorable"
+      "attendu": "Points clés attendus pour la situation 2 : liste des éléments essentiels de la bonne réponse professionnelle"
     },
     {
       "id": 3,
-      "category": "Catégorie thématique — aspect plus subtil ou technique",
-      "title": "Titre court du scénario 3",
-      "context": "Contexte du scénario 3 — fait précis, chiffre ou règle moins connu",
-      "situation": "Troisième personnage dans une situation plus complexe ou nuancée — couvre un aspect moins évident du sujet, une situation ambiguë où la bonne réponse est contre-intuitive. 4-5 phrases détaillées.",
-      "choices": [
-        { "text": "Choix A — la bonne réponse, contre-intuitive ou nuancée", "correct": true, "feedback": "Feedback A : explication approfondie de pourquoi c'est correct malgré ce que l'intuition dit", "points": 100 },
-        { "text": "Choix B — incorrect, réponse instinctive mais trompeuse", "correct": false, "feedback": "Feedback B : c'est l'erreur que fait la majorité dans cette situation et voici pourquoi c'est risqué", "points": 0 },
-        { "text": "Choix C — incorrect, demi-mesure insuffisante", "correct": false, "feedback": "Feedback C : pourquoi une réponse partielle ne suffit pas ici", "points": 0 }
-      ],
-      "reflexe": "Réflexe 3 : formulation mémorable pour retenir le bon comportement"
+      "category": "Catégorie thématique — situation ambiguë ou contre-intuitive",
+      "title": "Titre court de la situation 3",
+      "contexte": "Contexte de la situation 3 — fait précis ou règle moins connue (1-2 phrases)",
+      "situation": "Troisième personnage dans une situation plus complexe ou nuancée. Couvre un aspect subtil du sujet où la bonne réponse est contre-intuitive. 4-5 phrases détaillées.",
+      "attendu": "Points clés attendus pour la situation 3 : éléments contre-intuitifs à identifier, approche correcte à adopter"
     },
     {
       "id": 4,
       "category": "Catégorie thématique — situation sous pression ou urgence",
-      "title": "Titre court du scénario 4",
-      "context": "Contexte du scénario 4 — élément de pression, délai, hiérarchie ou urgence",
-      "situation": "Scénario 4 avec une contrainte temporelle, une pression hiérarchique ou une urgence qui pousse à prendre une mauvaise décision rapide. Le personnage doit résister à la pression pour faire le bon choix. 4-5 phrases réalistes.",
-      "choices": [
-        { "text": "Choix A — incorrect, cède à la pression ou prend le raccourci", "correct": false, "feedback": "Feedback A : conséquences de céder à la pression dans ce contexte", "points": 0 },
-        { "text": "Choix B — incorrect, réaction excessive ou contre-productive", "correct": false, "feedback": "Feedback B : pourquoi cette réaction, bien qu'intentionnée, est problématique", "points": 0 },
-        { "text": "Choix C — correct, garde le cap malgré la pression", "correct": true, "feedback": "Feedback C : explication complète pourquoi maintenir la bonne pratique même sous pression est la seule vraie option", "points": 100 }
-      ],
-      "reflexe": "Réflexe 4 : comment rester professionnel sous pression"
+      "title": "Titre court de la situation 4",
+      "contexte": "Contexte d'urgence ou de pression hiérarchique — contrainte temporelle ou décisionnelle (1-2 phrases)",
+      "situation": "Situation 4 avec contrainte temporelle ou pression hiérarchique. Le personnage doit agir vite sans compromettre les bonnes pratiques. 4-5 phrases réalistes.",
+      "attendu": "Points clés attendus pour la situation 4 : gestion de la pression, priorités correctes, comportement professionnel"
     },
     {
       "id": 5,
+      "category": "Catégorie thématique — erreur classique à éviter",
+      "title": "Titre court de la situation 5",
+      "contexte": "Contexte de la situation 5 — erreur très répandue dans ce domaine (1-2 phrases)",
+      "situation": "Situation 5 : le personnage est sur le point de commettre (ou vient de commettre) l'erreur la plus fréquente liée au sujet. Comment réagit-il correctement ? 4-5 phrases.",
+      "attendu": "Points clés attendus pour la situation 5 : identifier l'erreur, corriger, prévenir la récidive"
+    },
+    {
+      "id": 6,
+      "category": "Catégorie thématique — collaboration ou communication",
+      "title": "Titre court de la situation 6",
+      "contexte": "Contexte de la situation 6 — interaction avec collègues, clients ou hiérarchie (1-2 phrases)",
+      "situation": "Situation 6 impliquant plusieurs parties prenantes. Le personnage doit gérer une interaction professionnelle complexe liée au sujet. 4-5 phrases détaillées.",
+      "attendu": "Points clés attendus pour la situation 6 : communication appropriée, posture professionnelle, actions concrètes"
+    },
+    {
+      "id": 7,
       "category": "Catégorie thématique — cas complexe ou multi-facteurs",
-      "title": "Titre court du scénario 5",
-      "context": "Contexte du scénario 5 — situation qui combine plusieurs éléments du sujet",
-      "situation": "Scénario 5 plus élaboré : situation qui met en jeu plusieurs aspects du sujet simultanément. Le personnage fait face à une décision stratégique avec des implications multiples. C'est le scénario le plus complexe, qui synthétise les apprentissages précédents. 4-5 phrases riches.",
-      "choices": [
-        { "text": "Choix A — incorrect, vision partielle ou solution incomplète", "correct": false, "feedback": "Feedback A : pourquoi cette approche partielle ne résout pas le problème dans sa globalité", "points": 0 },
-        { "text": "Choix B — correct, approche systémique et complète", "correct": true, "feedback": "Feedback B : explication détaillée de l'approche gagnante qui prend en compte tous les facteurs — le niveau Expert", "points": 100 },
-        { "text": "Choix C — incorrect, bonne intention mais mauvaise méthode", "correct": false, "feedback": "Feedback C : l'intention est bonne mais la méthode comporte des risques importants dans ce contexte", "points": 0 }
-      ],
-      "reflexe": "Réflexe 5 : la règle d'or à retenir pour les situations complexes"
+      "title": "Titre court de la situation 7",
+      "contexte": "Contexte de la situation 7 — situation synthétisant plusieurs aspects du sujet (1-2 phrases)",
+      "situation": "Situation 7 plus élaborée : plusieurs aspects du sujet se combinent simultanément. Décision stratégique avec implications multiples. Synthèse de tous les apprentissages précédents. 4-5 phrases riches.",
+      "attendu": "Points clés attendus pour la situation 7 (niveau Expert) : approche systémique, anticipation, actions prioritaires, réflexe à retenir"
     }
   ],
   "qcm": [
@@ -5875,20 +5923,19 @@ DURÉE : ${duration} minutes
 GAMIFICATION : ${gamifLabels[gamification] || gamification}
 
 RÈGLES IMPORTANTES — CONTENU RICHE OBLIGATOIRE :
-- Génère EXACTEMENT 5 scénarios immersifs et EXACTEMENT 10 questions QCM
-- Chaque scénario doit nommer un personnage (prénom + fonction), décrire la situation en 4-5 phrases riches et réalistes
-- Les 5 scénarios couvrent 5 aspects DIFFÉRENTS du sujet (pas de répétition)
-- Chaque feedback doit être détaillé : expliquer les conséquences réelles du choix (2-3 phrases)
-- Les réflexes doivent être courts, mémorables et actionnables (une phrase max)
+- Génère EXACTEMENT 7 mises en situation professionnelles (champ "situations") et EXACTEMENT 10 questions QCM
+- Chaque situation nomme un personnage (prénom + fonction) et décrit la situation en 4-5 phrases riches et réalistes
+- Les 7 situations couvrent 7 angles DIFFÉRENTS du sujet (pas de répétition thématique)
+- Le champ "attendu" liste 3-5 points clés que le participant doit mentionner dans sa réponse idéale
 - Les 10 QCM testent des connaissances variées : définitions, cas pratiques, chiffres clés, erreurs courantes, bonnes pratiques, synthèse
-- Les explications des QCM doivent être développées avec du contexte concret
+- Les explications des QCM doivent être développées avec du contexte concret (2-3 phrases)
 
 Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
 ${TRAINING_JSON_SCHEMA}`;
 
       const response = await openAIService.getChatCompletion([
         { role: 'user', content: prompt }
-      ], 0.65, 8000);
+      ], 0.65, 12000);
 
       let training = parseTrainingJson(response);
       if (!training) {
@@ -5896,9 +5943,18 @@ ${TRAINING_JSON_SCHEMA}`;
         training = buildTrainingFallback(pitch.slice(0, 80));
       }
 
-      // Normaliser : assurer que scenarios[] existe (rétrocompat)
-      if (!training.scenarios && training.scenario) {
-        training.scenarios = [{ id: 1, ...training.scenario, title: 'Mise en situation', reflexe: 'Appliquez les bonnes pratiques.' }];
+      // Normaliser : rétrocompat — convertit scenarios vers situations si nécessaire
+      if (!training.situations && training.scenarios && Array.isArray(training.scenarios)) {
+        training.situations = training.scenarios.map((s: any) => ({
+          id: s.id,
+          category: s.category || 'Mise en situation',
+          title: s.title || 'Situation',
+          contexte: s.context || '',
+          situation: s.situation || '',
+          attendu: s.reflexe || 'Appliquez les bonnes pratiques professionnelles.',
+        }));
+      } else if (!training.situations && training.scenario) {
+        training.situations = [{ id: 1, category: 'Mise en situation', title: 'Situation', contexte: '', situation: training.scenario, attendu: 'Appliquez les bonnes pratiques professionnelles.' }];
       }
 
       const id = uuidv4();
@@ -5988,19 +6044,19 @@ CONTENU DES DOCUMENTS :
 ${filesSummary}
 
 INSTRUCTIONS — CONTENU RICHE OBLIGATOIRE :
-- Génère EXACTEMENT 5 scénarios immersifs et EXACTEMENT 10 questions QCM basés sur le contenu des documents
-- Chaque scénario nomme un personnage (prénom + fonction), 4-5 phrases détaillées
-- Les 5 scénarios couvrent 5 angles différents du contenu documentaire
-- Chaque feedback : 2-3 phrases expliquant les conséquences réelles du choix
+- Génère EXACTEMENT 7 mises en situation professionnelles (champ "situations") et EXACTEMENT 10 questions QCM basés sur le contenu des documents
+- Chaque situation nomme un personnage (prénom + fonction), décrit la situation en 4-5 phrases détaillées
+- Les 7 situations couvrent 7 angles différents du contenu documentaire
+- Le champ "attendu" liste 3-5 points clés que le participant doit mentionner dans sa réponse idéale
 - Les 10 QCM testent des connaissances variées issues directement du contenu : définitions, chiffres, cas pratiques, erreurs, bonnes pratiques
-- Les explications QCM doivent référencer le contenu des documents
+- Les explications QCM doivent référencer le contenu des documents (2-3 phrases)
 
 Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
 ${TRAINING_JSON_SCHEMA}`;
 
       const response = await openAIService.getChatCompletion([
         { role: 'user', content: prompt }
-      ], 0.65, 8000);
+      ], 0.65, 12000);
 
       let training = parseTrainingJson(response);
       if (!training) {
@@ -6008,8 +6064,18 @@ ${TRAINING_JSON_SCHEMA}`;
         training = buildTrainingFallback(title || files[0]?.originalname || 'Document importé');
       }
 
-      if (!training.scenarios && training.scenario) {
-        training.scenarios = [{ id: 1, ...training.scenario, title: 'Mise en situation', reflexe: 'Appliquez les bonnes pratiques.' }];
+      // Normaliser : rétrocompat — convertit scenarios vers situations si nécessaire
+      if (!training.situations && training.scenarios && Array.isArray(training.scenarios)) {
+        training.situations = training.scenarios.map((s: any) => ({
+          id: s.id,
+          category: s.category || 'Mise en situation',
+          title: s.title || 'Situation',
+          contexte: s.context || '',
+          situation: s.situation || '',
+          attendu: s.reflexe || 'Appliquez les bonnes pratiques professionnelles.',
+        }));
+      } else if (!training.situations && training.scenario) {
+        training.situations = [{ id: 1, category: 'Mise en situation', title: 'Situation', contexte: '', situation: training.scenario, attendu: 'Appliquez les bonnes pratiques professionnelles.' }];
       }
 
       const id = uuidv4();
@@ -6133,19 +6199,19 @@ CONTENU EXTRAIT :
 ${fullContent}
 
 INSTRUCTIONS — CONTENU RICHE OBLIGATOIRE :
-- Génère EXACTEMENT 5 scénarios immersifs et EXACTEMENT 10 questions QCM basés sur le contenu du site
-- Chaque scénario nomme un personnage réaliste (prénom + fonction), 4-5 phrases riches et détaillées
-- Les 5 scénarios couvrent 5 angles différents du contenu extrait
-- Chaque feedback : 2-3 phrases expliquant les conséquences réelles, avec référence au contenu du site
+- Génère EXACTEMENT 7 mises en situation professionnelles (champ "situations") et EXACTEMENT 10 questions QCM basés sur le contenu du site
+- Chaque situation nomme un personnage réaliste (prénom + fonction), 4-5 phrases riches et détaillées
+- Les 7 situations couvrent 7 angles différents du contenu extrait
+- Le champ "attendu" liste 3-5 points clés que le participant doit mentionner dans sa réponse idéale
 - Les 10 QCM testent des connaissances variées : définitions, chiffres clés, cas pratiques, erreurs courantes, bonnes pratiques, synthèse
-- Les explications QCM doivent être développées avec du contexte tiré du contenu
+- Les explications QCM doivent être développées avec du contexte tiré du contenu (2-3 phrases)
 
 Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
 ${TRAINING_JSON_SCHEMA}`;
 
       const aiResponse = await openAIService.getChatCompletion([
         { role: 'user', content: prompt }
-      ], 0.65, 8000);
+      ], 0.65, 12000);
 
       let training = parseTrainingJson(aiResponse);
       if (!training) {
@@ -6153,8 +6219,18 @@ ${TRAINING_JSON_SCHEMA}`;
         training = buildTrainingFallback(title || siteName);
       }
 
-      if (!training.scenarios && training.scenario) {
-        training.scenarios = [{ id: 1, ...training.scenario, title: 'Mise en situation', reflexe: 'Appliquez les bonnes pratiques.' }];
+      // Normaliser : rétrocompat — convertit scenarios vers situations si nécessaire
+      if (!training.situations && training.scenarios && Array.isArray(training.scenarios)) {
+        training.situations = training.scenarios.map((s: any) => ({
+          id: s.id,
+          category: s.category || 'Mise en situation',
+          title: s.title || 'Situation',
+          contexte: s.context || '',
+          situation: s.situation || '',
+          attendu: s.reflexe || 'Appliquez les bonnes pratiques professionnelles.',
+        }));
+      } else if (!training.situations && training.scenario) {
+        training.situations = [{ id: 1, category: 'Mise en situation', title: 'Situation', contexte: '', situation: training.scenario, attendu: 'Appliquez les bonnes pratiques professionnelles.' }];
       }
 
       const id = uuidv4();

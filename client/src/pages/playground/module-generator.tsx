@@ -1,15 +1,62 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Brain, FileUp, Sparkles, Upload, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  ArrowLeft, Brain, FileUp, Sparkles, Upload, ArrowRight,
+  BookOpen, Trash2, Play, Calendar, ChevronRight, Library
+} from 'lucide-react';
 import mcLogoPath from '@assets/mc2i.png';
 
 const BLUE = '#006a9e';
 const PINK = '#dd0061';
 const DARK = '#061019';
 
+interface SavedTraining {
+  id: string;
+  title: string;
+  tagline: string;
+  source: string;
+  audience: string;
+  gamificationLevel: string;
+  createdAt: string;
+}
+
+function formatDate(d: string) {
+  const date = new Date(d);
+  return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function sourceLabel(source: string) {
+  if (source === 'prompt') return 'IA from scratch';
+  if (source === 'documents') return 'Documents';
+  if (source === 'url') return 'URL / Site web';
+  return source;
+}
+
 export default function ModuleGenerator() {
   const [, setLocation] = useLocation();
+  const [trainings, setTrainings] = useState<SavedTraining[]>([]);
+  const [deleting, setDeleting] = useState<string | null>(null);
+
+  const loadTrainings = useCallback(() => {
+    fetch('/api/studio/trainings')
+      .then(r => r.json())
+      .then(data => setTrainings(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => { loadTrainings(); }, [loadTrainings]);
+
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm('Supprimer cette formation ? Cette action est irréversible.')) return;
+    setDeleting(id);
+    try {
+      await fetch(`/api/studio/training/${id}`, { method: 'DELETE' });
+      setTrainings(prev => prev.filter(t => t.id !== id));
+    } catch {}
+    setDeleting(null);
+  };
 
   const cards = [
     {
@@ -21,7 +68,7 @@ export default function ModuleGenerator() {
       bullets: [
         'Pitchez votre besoin en langage naturel',
         'L\'IA sélectionne les meilleures sources',
-        'Scénarios, QCM et gamification générés',
+        '7 mises en situation + 10 QCM générés',
         'Prêt en moins de 60 secondes',
       ],
       color: BLUE,
@@ -36,7 +83,7 @@ export default function ModuleGenerator() {
       bullets: [
         'PDF, PowerPoint, Word et sites web',
         'Crawl automatique des pages du site',
-        'Mises en situation dans la vraie vie',
+        '7 mises en situation professionnelles',
         'Gamification adaptée au niveau',
       ],
       color: PINK,
@@ -65,7 +112,7 @@ export default function ModuleGenerator() {
         </div>
       </header>
 
-      <main className="flex-1 pt-14 flex flex-col justify-center">
+      <main className="flex-1 pt-14">
         <div className="max-w-5xl mx-auto px-6 lg:px-12 py-16 w-full">
           {/* Titre */}
           <div className="mb-14">
@@ -80,12 +127,12 @@ export default function ModuleGenerator() {
             </h1>
             <div className="w-16 h-1 mb-6" style={{ background: PINK }} />
             <p className="text-lg text-gray-600 leading-relaxed max-w-xl">
-              Choisissez votre approche. En quelques minutes, l'IA génère une formation complète avec scénarios interactifs, QCM et gamification.
+              Choisissez votre approche. En quelques minutes, l'IA génère une formation complète avec mises en situation, QCM immersif et gamification.
             </p>
           </div>
 
           {/* Cartes */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-20">
             {cards.map((card, idx) => (
               <motion.div
                 key={card.id}
@@ -95,7 +142,6 @@ export default function ModuleGenerator() {
                 whileHover={{ y: -2 }}
                 onClick={() => setLocation(card.route)}
                 className="cursor-pointer border border-gray-200 bg-white hover:border-gray-400 transition-all duration-200"
-                style={{ cursor: 'pointer' }}
               >
                 <div className="p-8 flex flex-col h-full">
                   <div className="flex items-start justify-between mb-6">
@@ -136,6 +182,91 @@ export default function ModuleGenerator() {
                 </div>
               </motion.div>
             ))}
+          </div>
+
+          {/* ─── Bibliothèque de formations ──────────────────────────────────── */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Library size={18} style={{ color: BLUE }} />
+                <h2 className="text-xl font-black" style={{ color: DARK }}>Formations sauvegardées</h2>
+              </div>
+              {trainings.length > 0 && (
+                <span className="text-xs font-bold px-2 py-1"
+                  style={{ background: `${BLUE}12`, color: BLUE }}>
+                  {trainings.length} formation{trainings.length > 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
+
+            {trainings.length === 0 ? (
+              <div className="border border-dashed border-gray-200 p-12 text-center">
+                <BookOpen size={28} className="mx-auto mb-3 text-gray-300" />
+                <p className="text-sm text-gray-400">Aucune formation générée pour l'instant.</p>
+                <p className="text-xs text-gray-300 mt-1">Vos formations apparaîtront ici après génération.</p>
+              </div>
+            ) : (
+              <AnimatePresence>
+                <div className="space-y-2">
+                  {trainings.map((t, idx) => (
+                    <motion.div
+                      key={t.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ delay: idx * 0.04 }}
+                      className="border border-gray-200 bg-white hover:border-gray-400 transition-all duration-150 group"
+                    >
+                      <div className="flex items-center gap-4 px-5 py-4">
+                        {/* Icon */}
+                        <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center border border-gray-100"
+                          style={{ background: `${BLUE}08`, color: BLUE }}>
+                          <BookOpen size={16} />
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <h3 className="font-bold text-sm truncate" style={{ color: DARK }}>{t.title}</h3>
+                          </div>
+                          {t.tagline && (
+                            <p className="text-xs text-gray-500 truncate">{t.tagline}</p>
+                          )}
+                          <div className="flex items-center gap-3 mt-1">
+                            <span className="text-xs font-medium px-1.5 py-0.5"
+                              style={{ background: `${BLUE}10`, color: BLUE }}>
+                              {sourceLabel(t.source)}
+                            </span>
+                            {t.createdAt && (
+                              <span className="text-xs text-gray-400 flex items-center gap-1">
+                                <Calendar size={10} /> {formatDate(t.createdAt)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <button
+                            onClick={() => setLocation(`/playground/player/${t.id}`)}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 text-white font-bold text-xs hover:opacity-90 transition-opacity"
+                            style={{ background: BLUE }}>
+                            <Play size={13} /> Jouer
+                          </button>
+                          <button
+                            onClick={(e) => handleDelete(t.id, e)}
+                            disabled={deleting === t.id}
+                            className="w-9 h-9 flex items-center justify-center border border-gray-200 hover:border-red-300 hover:text-red-500 transition-colors text-gray-400 disabled:opacity-40"
+                            title="Supprimer">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </AnimatePresence>
+            )}
           </div>
         </div>
       </main>

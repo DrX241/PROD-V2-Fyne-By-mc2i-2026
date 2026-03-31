@@ -62,7 +62,9 @@ interface TrainingResult {
   tagline: string;
   objectives: string[];
   modules: { title: string; duration: string; type: string }[];
-  scenario: { situation: string; choices: { text: string; correct: boolean; feedback: string }[] };
+  situations?: { id: number; category: string; title: string; contexte?: string; situation: string; attendu: string }[];
+  scenario?: { situation: string; choices: { text: string; correct: boolean; feedback: string }[] };
+  scenarios?: any[];
   qcm: { question: string; options: { text: string; correct: boolean }[]; explanation: string }[];
   gamification: { points: number; badge: string; levels: string[] };
 }
@@ -473,37 +475,47 @@ export default function StudioDocuments() {
                     </div>
                   </div>
 
-                  {/* Scénario */}
-                  <div className="border border-gray-200 p-6">
-                    <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4 flex items-center gap-2">
-                      <Play size={14} /> Mise en situation — Aperçu interactif
-                    </div>
-                    <div className="border-l-2 pl-4 py-2 mb-5 bg-gray-50 px-4" style={{ borderColor: BLUE }}>
-                      <p className="text-sm leading-relaxed" style={{ color: DARK }}>{result.scenario?.situation}</p>
-                    </div>
-                    <div className="space-y-2">
-                      {result.scenario?.choices?.map((choice, i) => (
-                        <motion.button key={i} onClick={() => setActiveScenarioChoice(i)}
-                          whileHover={{ x: 2 }} whileTap={{ scale: 0.99 }}
-                          className="w-full text-left border px-5 py-4 transition-all flex items-start gap-4 text-sm"
-                          style={{
-                            borderColor: activeScenarioChoice === null ? '#e5e7eb' : choice.correct ? '#16a34a' : activeScenarioChoice === i ? PINK : '#e5e7eb',
-                            background: activeScenarioChoice === null ? 'white' : choice.correct ? '#f0fdf4' : activeScenarioChoice === i ? `${PINK}08` : '#f9fafb',
-                          }}>
-                          <span className="w-7 h-7 flex-shrink-0 flex items-center justify-center text-xs font-bold border"
-                            style={{ borderColor: activeScenarioChoice !== null && choice.correct ? '#16a34a' : activeScenarioChoice === i ? PINK : '#d1d5db', color: activeScenarioChoice !== null && choice.correct ? '#16a34a' : activeScenarioChoice === i ? PINK : '#6b7280' }}>
-                            {String.fromCharCode(65 + i)}
-                          </span>
-                          <div>
-                            <div style={{ color: DARK }}>{choice.text}</div>
-                            {activeScenarioChoice !== null && activeScenarioChoice === i && (
-                              <div className="text-xs mt-2" style={{ color: choice.correct ? '#16a34a' : '#9ca3af' }}>{choice.feedback}</div>
-                            )}
+                  {/* Mise en situation — Aperçu de la 1ère situation */}
+                  {(() => {
+                    const allSituations = result.situations || result.scenarios?.map((s: any) => ({ ...s, attendu: s.reflexe })) || [];
+                    const preview = allSituations[0] || (result.scenario ? { title: 'Mise en situation', category: 'Scénario', situation: result.scenario.situation, attendu: '' } : null);
+                    if (!preview) return null;
+                    return (
+                      <div className="border border-gray-200 p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
+                            <Play size={14} /> Aperçu — Mise en situation 1 sur {allSituations.length || 1}
                           </div>
-                        </motion.button>
-                      ))}
-                    </div>
-                  </div>
+                          {preview.category && (
+                            <span className="text-xs px-2 py-0.5 font-bold" style={{ background: `${BLUE}12`, color: BLUE }}>
+                              {preview.category}
+                            </span>
+                          )}
+                        </div>
+                        {preview.title && (
+                          <p className="font-bold text-sm mb-3" style={{ color: DARK }}>{preview.title}</p>
+                        )}
+                        {preview.contexte && (
+                          <div className="border-l-2 pl-3 mb-3 text-xs text-gray-500 py-1" style={{ borderColor: BLUE }}>{preview.contexte}</div>
+                        )}
+                        <div className="border border-gray-200 p-4 mb-4 bg-white">
+                          <p className="text-sm leading-relaxed" style={{ color: DARK }}>{preview.situation}</p>
+                        </div>
+                        {preview.attendu && (
+                          <div className="border p-4 flex items-start gap-3"
+                            style={{ borderColor: `${BLUE}30`, background: `${BLUE}06` }}>
+                            <div className="text-xs font-bold uppercase tracking-wider flex-shrink-0 mt-0.5" style={{ color: BLUE }}>Attendu</div>
+                            <p className="text-xs leading-relaxed text-gray-600">{preview.attendu}</p>
+                          </div>
+                        )}
+                        {allSituations.length > 1 && (
+                          <p className="text-xs text-gray-400 mt-4 text-center">
+                            + {allSituations.length - 1} autre{allSituations.length > 2 ? 's' : ''} situation{allSituations.length > 2 ? 's' : ''} dans le player
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   {/* QCM */}
                   <div className="border border-gray-200 p-6">

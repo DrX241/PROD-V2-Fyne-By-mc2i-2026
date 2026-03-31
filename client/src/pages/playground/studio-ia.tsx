@@ -50,7 +50,8 @@ interface TrainingResult {
   tagline: string;
   objectives: string[];
   modules: { title: string; duration: string; type: string }[];
-  scenario: { situation: string; choices: { text: string; correct: boolean; feedback: string }[] };
+  situations?: { id: number; category: string; title: string; contexte?: string; situation: string; attendu: string }[];
+  scenario?: any;
   scenarios?: any[];
   qcm: { question: string; options: { text: string; correct: boolean }[]; explanation: string }[];
   gamification: { points: number; badge: string; levels: any[] };
@@ -372,54 +373,39 @@ export default function StudioIA() {
                     </div>
                   </div>
 
-                  {/* Scénario — Aperçu du 1er scénario sur 5 */}
+                  {/* Mise en situation — Aperçu de la 1ère situation */}
                   {(() => {
-                    const previewScenario = result.scenarios?.[0] ?? (result.scenario ? { ...result.scenario, title: 'Mise en situation', category: 'Scénario', reflexe: '' } : null);
-                    if (!previewScenario) return null;
+                    const allSituations = result.situations || result.scenarios?.map((s: any) => ({ ...s, attendu: s.reflexe })) || [];
+                    const preview = allSituations[0];
+                    if (!preview) return null;
                     return (
                       <div className="border border-gray-200 p-6">
                         <div className="flex items-center justify-between mb-4">
                           <div className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
-                            <Play size={14} /> Aperçu — Scénario 1 sur {result.scenarios?.length || 1}
+                            <Play size={14} /> Aperçu — Mise en situation 1 sur {allSituations.length}
                           </div>
                           <span className="text-xs px-2 py-0.5 font-bold" style={{ background: `${BLUE}12`, color: BLUE }}>
-                            {previewScenario.category}
+                            {preview.category}
                           </span>
                         </div>
-                        {previewScenario.title && (
-                          <p className="font-bold text-sm mb-3" style={{ color: DARK }}>{previewScenario.title}</p>
+                        {preview.title && (
+                          <p className="font-bold text-sm mb-3" style={{ color: DARK }}>{preview.title}</p>
                         )}
-                        <div className="border-l-2 pl-4 py-2 mb-5 bg-gray-50 px-4" style={{ borderColor: BLUE }}>
-                          <p className="text-sm leading-relaxed" style={{ color: DARK }}>{previewScenario.situation}</p>
+                        {preview.contexte && (
+                          <div className="border-l-2 pl-3 mb-3 text-xs text-gray-500 py-1"
+                            style={{ borderColor: BLUE }}>{preview.contexte}</div>
+                        )}
+                        <div className="border border-gray-200 p-4 mb-4 bg-white">
+                          <p className="text-sm leading-relaxed" style={{ color: DARK }}>{preview.situation}</p>
                         </div>
-                        <div className="space-y-2">
-                          {previewScenario.choices?.map((choice: any, i: number) => (
-                            <motion.button key={i} onClick={() => setActiveScenarioChoice(i)}
-                              whileHover={{ x: 2 }} whileTap={{ scale: 0.99 }}
-                              className="w-full text-left border px-5 py-4 transition-all flex items-start gap-4 text-sm"
-                              style={{
-                                borderColor: activeScenarioChoice === null ? '#e5e7eb' : choice.correct ? '#16a34a' : activeScenarioChoice === i ? PINK : '#e5e7eb',
-                                background: activeScenarioChoice === null ? 'white' : choice.correct ? '#f0fdf4' : activeScenarioChoice === i ? `${PINK}08` : '#f9fafb',
-                              }}>
-                              <span className="w-7 h-7 flex-shrink-0 flex items-center justify-center text-xs font-bold border"
-                                style={{
-                                  borderColor: activeScenarioChoice !== null && choice.correct ? '#16a34a' : activeScenarioChoice === i ? PINK : '#d1d5db',
-                                  color: activeScenarioChoice !== null && choice.correct ? '#16a34a' : activeScenarioChoice === i ? PINK : '#6b7280',
-                                }}>
-                                {String.fromCharCode(65 + i)}
-                              </span>
-                              <div>
-                                <div style={{ color: DARK }}>{choice.text}</div>
-                                {activeScenarioChoice !== null && activeScenarioChoice === i && (
-                                  <div className="text-xs mt-2" style={{ color: choice.correct ? '#16a34a' : '#9ca3af' }}>{choice.feedback}</div>
-                                )}
-                              </div>
-                            </motion.button>
-                          ))}
+                        <div className="border p-4 flex items-start gap-3"
+                          style={{ borderColor: `${BLUE}30`, background: `${BLUE}06` }}>
+                          <div className="text-xs font-bold uppercase tracking-wider flex-shrink-0 mt-0.5" style={{ color: BLUE }}>Attendu</div>
+                          <p className="text-xs leading-relaxed text-gray-600">{preview.attendu}</p>
                         </div>
-                        {result.scenarios && result.scenarios.length > 1 && (
+                        {allSituations.length > 1 && (
                           <p className="text-xs text-gray-400 mt-4 text-center">
-                            + {result.scenarios.length - 1} autre{result.scenarios.length > 2 ? 's' : ''} scénario{result.scenarios.length > 2 ? 's' : ''} disponibles dans le player
+                            + {allSituations.length - 1} autre{allSituations.length > 2 ? 's' : ''} situation{allSituations.length > 2 ? 's' : ''} disponibles dans le player
                           </p>
                         )}
                       </div>
@@ -502,8 +488,8 @@ export default function StudioIA() {
                     <div className="mb-4">
                       <div className="font-bold text-sm" style={{ color: DARK }}>Votre formation est prête</div>
                       <div className="text-xs text-gray-500 mt-0.5">
-                        {(result.scenarios?.length || 0) > 0
-                          ? `${result.scenarios?.length || 0} scénarios · ${result.qcm?.length || 0} QCM`
+                        {(result.situations?.length || result.scenarios?.length || 0) > 0
+                          ? `${result.situations?.length || result.scenarios?.length || 0} situations · ${result.qcm?.length || 0} QCM`
                           : `${result.qcm?.length || 0} questions`}
                       </div>
                     </div>
