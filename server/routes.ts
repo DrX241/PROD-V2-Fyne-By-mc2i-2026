@@ -5954,7 +5954,7 @@ ${TRAINING_JSON_SCHEMA}`;
           attendu: s.reflexe || 'Appliquez les bonnes pratiques professionnelles.',
         }));
       } else if (!training.situations && training.scenario) {
-        training.situations = [{ id: 1, category: 'Mise en situation', title: 'Situation', contexte: '', situation: training.scenario, attendu: 'Appliquez les bonnes pratiques professionnelles.' }];
+        training.situations = [{ id: 1, category: 'Mise en situation', title: 'Situation', contexte: '', situation: training.scenario?.situation || '', attendu: 'Appliquez les bonnes pratiques professionnelles.' }];
       }
 
       const id = uuidv4();
@@ -6075,7 +6075,7 @@ ${TRAINING_JSON_SCHEMA}`;
           attendu: s.reflexe || 'Appliquez les bonnes pratiques professionnelles.',
         }));
       } else if (!training.situations && training.scenario) {
-        training.situations = [{ id: 1, category: 'Mise en situation', title: 'Situation', contexte: '', situation: training.scenario, attendu: 'Appliquez les bonnes pratiques professionnelles.' }];
+        training.situations = [{ id: 1, category: 'Mise en situation', title: 'Situation', contexte: '', situation: training.scenario?.situation || '', attendu: 'Appliquez les bonnes pratiques professionnelles.' }];
       }
 
       const id = uuidv4();
@@ -6230,7 +6230,7 @@ ${TRAINING_JSON_SCHEMA}`;
           attendu: s.reflexe || 'Appliquez les bonnes pratiques professionnelles.',
         }));
       } else if (!training.situations && training.scenario) {
-        training.situations = [{ id: 1, category: 'Mise en situation', title: 'Situation', contexte: '', situation: training.scenario, attendu: 'Appliquez les bonnes pratiques professionnelles.' }];
+        training.situations = [{ id: 1, category: 'Mise en situation', title: 'Situation', contexte: '', situation: training.scenario?.situation || '', attendu: 'Appliquez les bonnes pratiques professionnelles.' }];
       }
 
       const id = uuidv4();

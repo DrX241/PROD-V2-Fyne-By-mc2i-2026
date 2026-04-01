@@ -129,6 +129,11 @@ export default function TrainingPlayer() {
       .then(data => {
         const content: Training = data.content;
         // Normalize: situations first (new format), then scenarios (old format)
+        const toSituationStr = (v: any): string => {
+          if (typeof v === 'string') return v;
+          if (v && typeof v === 'object' && typeof v.situation === 'string') return v.situation;
+          return '';
+        };
         if (!content.situations || !Array.isArray(content.situations) || content.situations.length === 0) {
           if (content.scenarios && Array.isArray(content.scenarios) && content.scenarios.length > 0) {
             content.situations = content.scenarios.map((s: Scenario) => ({
@@ -136,7 +141,7 @@ export default function TrainingPlayer() {
               category: s.category || 'Mise en situation',
               title: s.title,
               contexte: s.context || '',
-              situation: s.situation,
+              situation: toSituationStr(s.situation),
               attendu: s.reflexe || 'Appliquez les bonnes pratiques.',
             }));
           } else if (content.scenario) {
@@ -144,12 +149,19 @@ export default function TrainingPlayer() {
               id: 1,
               category: 'Mise en situation',
               title: 'Scénario',
-              situation: content.scenario.situation || '',
+              situation: toSituationStr(content.scenario.situation) || toSituationStr(content.scenario),
               attendu: 'Appliquez les bonnes pratiques.',
             }];
           } else {
             content.situations = [];
           }
+        } else {
+          // Defensive: fix any corrupted situations where situation field is an object
+          content.situations = content.situations.map((s: any) => ({
+            ...s,
+            situation: toSituationStr(s.situation),
+            attendu: typeof s.attendu === 'string' ? s.attendu : 'Appliquez les bonnes pratiques.',
+          }));
         }
         setTraining(content);
         setPhase('intro');
