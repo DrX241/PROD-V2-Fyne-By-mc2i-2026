@@ -1,0 +1,149 @@
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+Version-Demo-ALL-092025:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+0zjxxc9to.an~.js:21 
+      /////////////////////
+   ///////////////////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////        Curious and driven?
+  ///////////////@@@@@@@///////        Work with us!
+  ///////////////@@@@@@@///////
+  ///////////////@@@@@@@///////        https://join.replit.com/hack.with.us
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@#//////////////
+   ///////////////////////////
+      /////////////////////
+      
+0zjxxc9to.an~.js:21 Download the Apollo DevTools for a better development experience: https://chrome.google.com/webstore/detail/apollo-client-developer-t/jdkknkkbebbapilgoeccciglkfbmbnfm
+0zjxxc9to.an~.js:21 [LaunchDarkly] LaunchDarkly client initialized
+sp.replit.com/v1/i:1  Failed to load resource: the server responded with a status of 400 ()
+sp.replit.com/v1/i:1  Failed to load resource: the server responded with a status of 400 ()
+0zjxxc9to.an~.js:21 Cache data may be lost when replacing the subscriptionSummary field of a Customer object.
+
+This could cause additional (usually avoidable) network requests to fetch data that were otherwise cached.
+
+To address this problem (which is not a bug in Apollo Client), either ensure all objects of type CustomerSubscriptionSummarySelfServe have an ID or a custom merge function, or define a custom merge function for the Customer.subscriptionSummary field, so InMemoryCache can safely merge these objects:
+
+  existing: {"__typename":"CustomerSubscriptionSummarySelfServe","plan":{"__typename":"CustomerSubscriptionSummaryTieredSelfServePlan","planPrefix":"pro"}}
+  incoming: {"__typename":"CustomerSubscriptionSummarySelfServe"}
+
+For more information about these options, please refer to the documentation:
+
+  * Ensuring entity objects have IDs: https://go.apollo.dev/c/generating-unique-identifiers
+  * Defining custom merge functions: https://go.apollo.dev/c/merging-non-normalized-objects
+
+(anonymous) @ 0zjxxc9to.an~.js:21
+Version-Demo-ALL-092025:1 Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner.
+m.stripe.network/inner.html#url=https%3A%2F%2Freplit.com%2Ft%2Fmc2i%2Frepls%2FVersion-Demo-ALL-092025&title=V2-Fyne%20By%20mc2i%20-%20Version-D%C3%A9mo-ALL-092025%20-%20Replit&referrer=&muid=89b03f3a-c8f7-4ff5-a111-4f832b7a6ef52c1ff8&sid=NA&version=6&preview=false&__shared_params__[version]=acacia:1 Error handling response: Error: runtime/sendMessage: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+    at chrome-extension://fdjamakpfbbddfjaooikfcpapjohcfmg/content/contentScripts/kwift.CHROME.js:1:197599
+m.stripe.network/inner.html#url=https%3A%2F%2Freplit.com%2Ft%2Fmc2i%2Frepls%2FVersion-Demo-ALL-092025&title=V2-Fyne%20By%20mc2i%20-%20Version-D%C3%A9mo-ALL-092025%20-%20Replit&referrer=&muid=89b03f3a-c8f7-4ff5-a111-4f832b7a6ef52c1ff8&sid=NA&version=6&preview=false&__shared_params__[version]=acacia:1 Error handling response: Error: runtime/sendMessage: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+    at chrome-extension://fdjamakpfbbddfjaooikfcpapjohcfmg/content/contentScripts/kwift.CHROME.js:1:197599
+stallwart.build.js:1 stallwart: failed ping 1
+stallwart.build.js:1 stallwart: failed ping 2
+stallwart.build.js:1 stallwart: failed ping 3
+stallwart.build.js:1 stallwart: failed ping 4
+stallwart.build.js:1 stallwart: failed ping 5
+recaptcha__fr.js:1484 Uncaught (in promise) Error: reCAPTCHA Timeout (o)
+recaptcha__fr.js:1484 Uncaught (in promise) Error: reCAPTCHA Timeout (o)
+gravatar.com/avatar/1f5c6dce5443fd47a706da6ffe143b91?d=404:1  Failed to load resource: the server responded with a status of 404 ()
+0i8wy8tbht2ow.js:2 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+C @ 0i8wy8tbht2ow.js:2
+0i8wy8tbht2ow.js:2 Unrecognized feature: 'ambient-light-sensor'.
+C @ 0i8wy8tbht2ow.js:2
+0i8wy8tbht2ow.js:2 Unrecognized feature: 'battery'.
+C @ 0i8wy8tbht2ow.js:2
+0i8wy8tbht2ow.js:2 Unrecognized feature: 'execution-while-not-rendered'.
+C @ 0i8wy8tbht2ow.js:2
+0i8wy8tbht2ow.js:2 Unrecognized feature: 'execution-while-out-of-viewport'.
+C @ 0i8wy8tbht2ow.js:2
+0i8wy8tbht2ow.js:2 Unrecognized feature: 'layout-animations'.
+C @ 0i8wy8tbht2ow.js:2
+0i8wy8tbht2ow.js:2 Unrecognized feature: 'legacy-image-formats'.
+C @ 0i8wy8tbht2ow.js:2
+0i8wy8tbht2ow.js:2 Unrecognized feature: 'navigation-override'.
+C @ 0i8wy8tbht2ow.js:2
+0i8wy8tbht2ow.js:2 Unrecognized feature: 'oversized-images'.
+C @ 0i8wy8tbht2ow.js:2
+0i8wy8tbht2ow.js:2 Unrecognized feature: 'publickey-credentials'.
+C @ 0i8wy8tbht2ow.js:2
+0i8wy8tbht2ow.js:2 Unrecognized feature: 'speaker-selection'.
+C @ 0i8wy8tbht2ow.js:2
+0i8wy8tbht2ow.js:2 Unrecognized feature: 'unoptimized-images'.
+C @ 0i8wy8tbht2ow.js:2
+0i8wy8tbht2ow.js:2 Unrecognized feature: 'unsized-media'.
+C @ 0i8wy8tbht2ow.js:2
+0i8wy8tbht2ow.js:2 Unrecognized feature: 'pointer-lock'.
+C @ 0i8wy8tbht2ow.js:2
+0i8wy8tbht2ow.js:2 Allow attribute will take precedence over 'allowfullscreen'.
+C @ 0i8wy8tbht2ow.js:2
+0i8wy8tbht2ow.js:2 Allow attribute will take precedence over 'allowpaymentrequest'.
+C @ 0i8wy8tbht2ow.js:2
+contentScript.js:2 Error when handling getFlag for "allowedOriginsToCommunicateWith": The message port closed before a response was received.
+(anonymous) @ contentScript.js:2
+contentScript.js:2 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'includes')
+    at contentScript.js:2:721872
+contentScript.js:2 Error when handling getFlag for "allowedOriginsToCommunicateWith": The message port closed before a response was received.
+(anonymous) @ contentScript.js:2
+contentScript.js:2 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'includes')
+    at contentScript.js:2:721872
+contentScript.js:2 Error when handling getFlag for "allowedOriginsToCommunicateWith": The message port closed before a response was received.
+(anonymous) @ contentScript.js:2
+contentScript.js:2 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'includes')
+    at contentScript.js:2:721872
+0i8wy8tbht2ow.js:2 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+C @ 0i8wy8tbht2ow.js:2
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'ambient-light-sensor'.
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'battery'.
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'execution-while-not-rendered'.
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'execution-while-out-of-viewport'.
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'layout-animations'.
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'legacy-image-formats'.
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'navigation-override'.
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'oversized-images'.
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'publickey-credentials'.
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'speaker-selection'.
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'unoptimized-images'.
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'unsized-media'.
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Allow attribute will take precedence over 'allowfullscreen'.
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Allow attribute will take precedence over 'allowpaymentrequest'.
+injected.js:37 Thème appliqué: futuristic
+injected.js:37 Thème appliqué: futuristic
+injected.js:37 Theme actuel: futuristic
+injected.js:37 Theme actuel: futuristic
+contentScript.js:2 Error when handling getFlag for "allowedOriginsToCommunicateWith": The message port closed before a response was received.
+(anonymous) @ contentScript.js:2
+contentScript.js:2 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'includes')
+    at contentScript.js:2:721872
+0zjxxc9to.an~.js:21 Haven't heard from the server in a while, resetting connection...
+(anonymous) @ 0zjxxc9to.an~.js:21
+0zjxxc9to.an~.js:21 Haven't heard from the server in a while, resetting connection...
+(anonymous) @ 0zjxxc9to.an~.js:21
+contentScript.js:2 Error when handling getFlag for "allowedOriginsToCommunicateWith": The message port closed before a response was received.
+(anonymous) @ contentScript.js:2
+contentScript.js:2 Error when handling getFlag for "allowedOriginsToCommunicateWith": The message port closed before a response was received.
+(anonymous) @ contentScript.js:2
+contentScript.js:2 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'includes')
+    at contentScript.js:2:721872
+contentScript.js:2 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'includes')
+    at contentScript.js:2:721872
+contentScript.js:2 Error when handling getFlag for "allowedOriginsToCommunicateWith": The message port closed before a response was received.
+(anonymous) @ contentScript.js:2
+contentScript.js:2 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'includes')
+    at contentScript.js:2:721872
+6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/api/studio/evaluate-response:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+6efa53d9-6af2-4562-9d28-c5658abf4d9a-00-27xq4fhl3tc2k.janeway.replit.dev/api/studio/evaluate-response:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)

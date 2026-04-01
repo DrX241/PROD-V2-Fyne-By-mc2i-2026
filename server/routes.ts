@@ -5687,6 +5687,17 @@ RÉPONSE DU PARTICIPANT : ${reponse}
         { role: 'user', content: prompt }
       ], 0.4, 1000);
 
+      const parseJsonSafely = (str: string) => {
+        try {
+          const clean = str.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+          const start = clean.indexOf('{');
+          const end = clean.lastIndexOf('}');
+          if (start === -1 || end === -1) return null;
+          const fixed = clean.slice(start, end + 1).replace(/[\r\n]+/g, ' ');
+          return JSON.parse(fixed);
+        } catch { return null; }
+      };
+
       const parsed = parseJsonSafely(response);
       if (!parsed) {
         return res.json({
