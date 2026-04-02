@@ -35,6 +35,7 @@ import ModuleGenerator from "./pages/playground/module-generator";
 import StudioIA from "./pages/playground/studio-ia";
 import StudioDocuments from "./pages/playground/studio-documents";
 import TrainingPlayer from "./pages/playground/player";
+import LessonPlayer from "./pages/playground/lesson-player";
 import SiChampionHub from "./pages/si-champion/index";
 import SiChampionChallenges from "./pages/si-champion/challenges";
 import SiChampionPlayer from "./pages/si-champion/player";
@@ -422,6 +423,7 @@ function AppContent() {
                 <Route path="/playground/studio-ia" component={StudioIA} />
                 <Route path="/playground/studio-documents" component={StudioDocuments} />
                 <Route path="/playground/player/:id" component={TrainingPlayer} />
+                <Route path="/playground/lesson/:id" component={LessonPlayer} />
                 {/* Routes I AM SI CHAMPION */}
                 <Route path="/si-champion" component={SiChampionHub} />
                 <Route path="/si-champion/challenges" component={SiChampionChallenges} />

@@ -51,6 +51,11 @@ const FILE_STEPS = [
   'Création des mises en situation...', 'Génération des QCM...', 'Calibration de la gamification...', 'Finalisation...',
 ];
 
+const LESSON_STEPS = [
+  'Lecture des documents...', 'Extraction du contenu...', 'Identification des concepts clés...',
+  'Structuration de la leçon...', 'Génération des slides théorie...', 'Génération des slides pratique...', 'Finalisation de la leçon...',
+];
+
 const URL_STEPS = [
   'Connexion au site...', 'Exploration des pages...', 'Pagination et crawl...',
   'Extraction du contenu...', 'Analyse sémantique...', 'Création des mises en situation...',
@@ -71,6 +76,7 @@ interface TrainingResult {
 
 interface ScrapeInfo { pagesVisited: number; totalChars: number; siteName: string; }
 type ImportMode = 'files' | 'url';
+type OutputMode = 'formation' | 'lecon';
 type StepName = 'upload' | 'config' | 'generating' | 'result';
 
 const STEP_PROGRESS: Record<StepName, number> = { upload: 25, config: 50, generating: 75, result: 100 };
@@ -82,6 +88,7 @@ export default function StudioDocuments() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState<StepName>('upload');
+  const [outputMode, setOutputMode] = useState<OutputMode>('formation');
   const [importMode, setImportMode] = useState<ImportMode>('files');
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -112,6 +119,30 @@ export default function StudioDocuments() {
   const generate = async () => {
     setStep('generating');
     setGenStep(0);
+
+    // Lesson mode: call lesson endpoint and redirect to lesson player
+    if (outputMode === 'lecon') {
+      const steps = LESSON_STEPS;
+      const interval = setInterval(() => setGenStep(prev => prev < steps.length - 1 ? prev + 1 : prev), 1000);
+      try {
+        const formData = new FormData();
+        files.forEach(f => formData.append('files', f));
+        formData.append('title', title);
+        formData.append('audience', audience);
+        const res = await fetch('/api/studio/generate-lesson', { method: 'POST', body: formData });
+        if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error || 'Erreur'); }
+        const data = await res.json();
+        clearInterval(interval);
+        setGenStep(steps.length - 1);
+        setTimeout(() => { setLocation(`/playground/lesson/${data.id}`); }, 600);
+      } catch (err: any) {
+        clearInterval(interval);
+        toast({ title: 'Erreur', description: err.message || 'La génération de la leçon a échoué.', variant: 'destructive' });
+        setStep('config');
+      }
+      return;
+    }
+
     const steps = importMode === 'url' ? URL_STEPS : FILE_STEPS;
     const interval = setInterval(() => setGenStep(prev => prev < steps.length - 1 ? prev + 1 : prev), importMode === 'url' ? 1200 : 900);
     try {
@@ -146,7 +177,7 @@ export default function StudioDocuments() {
     setStep('upload');
   };
 
-  const steps = importMode === 'url' ? URL_STEPS : FILE_STEPS;
+  const steps = outputMode === 'lecon' ? LESSON_STEPS : importMode === 'url' ? URL_STEPS : FILE_STEPS;
 
   return (
     <div className="min-h-screen bg-white flex flex-col" style={{ color: DARK }}>
@@ -192,7 +223,37 @@ export default function StudioDocuments() {
                 </h1>
                 <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
 
-                {/* Toggle */}
+                {/* Output mode selector */}
+                <div className="mb-6">
+                  <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Type de contenu à générer</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button onClick={() => setOutputMode('formation')}
+                      className="flex flex-col items-start gap-1 px-4 py-4 border-2 text-left transition-all"
+                      style={{ borderColor: outputMode === 'formation' ? BLUE : '#e5e7eb', background: outputMode === 'formation' ? `${BLUE}08` : 'white' }}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 border-2 flex items-center justify-center" style={{ borderColor: BLUE }}>
+                          {outputMode === 'formation' && <div className="w-1.5 h-1.5" style={{ background: BLUE }} />}
+                        </div>
+                        <span className="text-sm font-bold" style={{ color: outputMode === 'formation' ? BLUE : DARK }}>Formation interactive</span>
+                      </div>
+                      <p className="text-xs text-gray-500 ml-5">Situations + QCM · évaluation IA</p>
+                    </button>
+                    <button onClick={() => { setOutputMode('lecon'); setImportMode('files'); }}
+                      className="flex flex-col items-start gap-1 px-4 py-4 border-2 text-left transition-all"
+                      style={{ borderColor: outputMode === 'lecon' ? PINK : '#e5e7eb', background: outputMode === 'lecon' ? `${PINK}08` : 'white' }}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 border-2 flex items-center justify-center" style={{ borderColor: PINK }}>
+                          {outputMode === 'lecon' && <div className="w-1.5 h-1.5" style={{ background: PINK }} />}
+                        </div>
+                        <span className="text-sm font-bold" style={{ color: outputMode === 'lecon' ? PINK : DARK }}>Leçon en slides</span>
+                      </div>
+                      <p className="text-xs text-gray-500 ml-5">Théorie + Pratique · slides interactifs</p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Import mode toggle (formation only, or both) */}
+                {outputMode === 'formation' && (
                 <div className="flex border border-gray-200 mb-8">
                   <button onClick={() => setImportMode('files')}
                     className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-bold transition-all"
@@ -205,6 +266,13 @@ export default function StudioDocuments() {
                     <Globe size={16} /> Site web / URL
                   </button>
                 </div>
+                )}
+                {outputMode === 'lecon' && (
+                  <div className="flex items-center gap-2 mb-6 px-3 py-2" style={{ background: `${PINK}08`, border: `1px solid ${PINK}30` }}>
+                    <Layers size={14} style={{ color: PINK }} />
+                    <p className="text-xs text-gray-600">Importez vos documents (PDF, PowerPoint, Word, TXT) — la leçon sera générée en slides théorie/pratique</p>
+                  </div>
+                )}
 
                 {/* ── FICHIERS ── */}
                 {importMode === 'files' && (
@@ -317,7 +385,7 @@ export default function StudioDocuments() {
                   Étape 2 · Configuration
                 </div>
                 <h1 className="text-4xl font-black tracking-tight mb-4" style={{ color: DARK }}>
-                  Configurez<br /><span style={{ color: BLUE }}>la formation</span>
+                  Configurez<br /><span style={{ color: outputMode === 'lecon' ? PINK : BLUE }}>{outputMode === 'lecon' ? 'la leçon' : 'la formation'}</span>
                 </h1>
                 <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
 
@@ -367,7 +435,8 @@ export default function StudioDocuments() {
                     </div>
                   </div>
 
-                  {/* Gamification */}
+                  {/* Gamification — masquée en mode leçon */}
+                  {outputMode !== 'lecon' && (
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">Gamification</label>
                     <div className="grid grid-cols-3 gap-2">
@@ -382,11 +451,12 @@ export default function StudioDocuments() {
                       ))}
                     </div>
                   </div>
+                  )}
 
                   <button onClick={generate}
                     className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity"
-                    style={{ background: BLUE }}>
-                    <FileUp size={18} /> Générer la formation
+                    style={{ background: outputMode === 'lecon' ? PINK : BLUE }}>
+                    <FileUp size={18} /> {outputMode === 'lecon' ? 'Générer la leçon en slides' : 'Générer la formation'}
                   </button>
                 </div>
               </div>
@@ -400,12 +470,14 @@ export default function StudioDocuments() {
               <div className="w-16 h-16 border-4 border-gray-100 mb-10"
                 style={{ borderTopColor: BLUE, animation: 'spin 1s linear infinite' }} />
               <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-              <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: BLUE }}>
-                {importMode === 'url' ? 'Crawl et analyse du site' : 'Analyse de vos documents'}
+              <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: outputMode === 'lecon' ? PINK : BLUE }}>
+                {outputMode === 'lecon' ? 'Création de la leçon interactive' : importMode === 'url' ? 'Crawl et analyse du site' : 'Analyse de vos documents'}
               </div>
-              <h2 className="text-2xl font-black text-center mb-2" style={{ color: DARK }}>Génération en cours</h2>
+              <h2 className="text-2xl font-black text-center mb-2" style={{ color: DARK }}>
+                {outputMode === 'lecon' ? 'Génération de votre leçon' : 'Génération en cours'}
+              </h2>
               <p className="text-sm text-gray-500 mb-12 text-center">
-                {importMode === 'url' ? `Exploration jusqu'à ${depth} pages...` : "L'IA structure votre contenu..."}
+                {outputMode === 'lecon' ? "L'IA structure vos slides théorie et pratique..." : importMode === 'url' ? `Exploration jusqu'à ${depth} pages...` : "L'IA structure votre contenu..."}
               </p>
               <div className="w-full max-w-sm space-y-3">
                 {steps.map((s, i) => (
