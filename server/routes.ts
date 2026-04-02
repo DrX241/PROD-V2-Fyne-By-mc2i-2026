@@ -6107,7 +6107,7 @@ ${TRAINING_JSON_SCHEMA}`;
     }
   });
 
-  // POST /api/studio/generate-from-url — Crawl + génération formation
+  // POST /api/studio/generate-from-url — Scraping robuste multi-stratégies + génération formation
   app.post("/api/studio/generate-from-url", async (req: Request, res: Response) => {
     try {
       const { url, depth = 10, title, audience, gamification } = req.body;
@@ -6120,97 +6120,329 @@ ${TRAINING_JSON_SCHEMA}`;
 
       const axios = (await import('axios')).default;
       const cheerio = await import('cheerio');
-      const maxPages = Math.min(parseInt(String(depth)) || 10, 40);
+      const xml2js = await import('xml2js');
       const baseOrigin = parsedUrl.origin;
-      const visited = new Set<string>();
-      const queue: string[] = [url];
-      const corpus: string[] = [];
-      let siteName = parsedUrl.hostname;
 
-      const extractText = (html: string): string => {
-        const $ = cheerio.load(html);
-        $('script, style, nav, footer, header, .nav, .footer, .header, .menu, .sidebar, .cookie, .modal, .popup, .banner, .ad, [class*="nav"], [class*="menu"], [id*="nav"], [id*="menu"]').remove();
-        const title = $('title').text().trim();
-        const h1 = $('h1').map((_, el) => $(el).text().trim()).get().join(' | ');
-        const headings = $('h2, h3').map((_, el) => '## ' + $(el).text().trim()).get().join('\n');
-        const paragraphs = $('p, li, td, th').map((_, el) => $(el).text().trim()).get().filter(t => t.length > 30).join('\n');
-        return [title, h1, headings, paragraphs].filter(Boolean).join('\n\n').slice(0, 8000);
+      // ─── Multi user-agents pour éviter le blocage ──────────────────────────────
+      const USER_AGENTS = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+        'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)',
+      ];
+      let uaIndex = 0;
+
+      // ─── Fetch avec retry et rotation de user-agent ────────────────────────────
+      const fetchUrl = async (targetUrl: string, attempt = 0): Promise<string | null> => {
+        try {
+          const ua = USER_AGENTS[uaIndex % USER_AGENTS.length];
+          uaIndex++;
+          const resp = await axios.get(targetUrl, {
+            timeout: 12000,
+            maxRedirects: 5,
+            headers: {
+              'User-Agent': ua,
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,text/xml;q=0.8,*/*;q=0.7',
+              'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+              'Cache-Control': 'no-cache',
+              'Pragma': 'no-cache',
+            },
+            responseType: 'text',
+            maxContentLength: 5 * 1024 * 1024,
+          });
+          return typeof resp.data === 'string' ? resp.data : JSON.stringify(resp.data);
+        } catch (err: any) {
+          if (attempt < 2 && (err?.response?.status === 429 || err?.response?.status === 503)) {
+            await new Promise(r => setTimeout(r, 1200 * (attempt + 1)));
+            return fetchUrl(targetUrl, attempt + 1);
+          }
+          return null;
+        }
       };
 
+      // ─── Extraction intelligente du contenu d'une page ────────────────────────
+      const extractText = (html: string, pageUrl: string): string => {
+        const $ = cheerio.load(html);
+        $('script, style, noscript, nav, footer, header, .nav, .footer, .header, .menu, .sidebar, .cookie, .modal, .popup, .banner, [class*="nav-"], [class*="-nav"], [class*="menu"], [id*="nav"], [id*="menu"], [id*="cookie"], [id*="popup"], [aria-hidden="true"], .breadcrumb, .pagination, [class*="social"], [class*="share"]').remove();
+
+        // JSON-LD structured data
+        const jsonLdTexts: string[] = [];
+        $('script[type="application/ld+json"]').each((_, el) => {
+          try {
+            const data = JSON.parse($(el).html() || '');
+            if (data.description) jsonLdTexts.push(data.description);
+            if (data.articleBody) jsonLdTexts.push(data.articleBody);
+            if (data.text) jsonLdTexts.push(data.text);
+            if (data.name && data['@type']) jsonLdTexts.push(`${data['@type']}: ${data.name}`);
+          } catch {}
+        });
+
+        // Détection intelligente de la zone de contenu principal
+        const mainSelectors = ['article', 'main', '[role="main"]', '.content', '#content', '.post-content', '.entry-content', '.article-body', '.page-content', '.main-content', '.post-body', '#main', '.container main', '.wrapper main'];
+        let mainText = '';
+        for (const sel of mainSelectors) {
+          const el = $(sel).first();
+          if (el.length && el.text().trim().length > 200) {
+            mainText = el.text().replace(/\s+/g, ' ').trim();
+            break;
+          }
+        }
+
+        const pageTitle = $('title').first().text().trim();
+        const h1s = $('h1').map((_, el) => $(el).text().trim()).get().filter(t => t.length > 2).join(' | ');
+        const headings = $('h2, h3, h4').map((_, el) => '## ' + $(el).text().trim()).get().filter(t => t.length > 5).slice(0, 30).join('\n');
+        const metaDesc = $('meta[name="description"]').attr('content') || $('meta[property="og:description"]').attr('content') || '';
+
+        if (!mainText) {
+          const paras = $('p, li, td, th, dt, dd, blockquote').map((_, el) => $(el).text().trim()).get().filter(t => t.length > 30).join('\n');
+          mainText = paras;
+        }
+
+        const parts = [
+          pageTitle && `TITRE: ${pageTitle}`,
+          h1s && `H1: ${h1s}`,
+          metaDesc && `DESCRIPTION: ${metaDesc}`,
+          jsonLdTexts.length > 0 && `DONNÉES STRUCTURÉES: ${jsonLdTexts.join(' ')}`,
+          headings && `SECTIONS:\n${headings}`,
+          mainText && `CONTENU:\n${mainText.slice(0, 6000)}`,
+        ].filter(Boolean);
+
+        return parts.join('\n\n').slice(0, 8000);
+      };
+
+      // ─── Extraction des liens internes ────────────────────────────────────────
       const extractLinks = (html: string, baseUrl: string): string[] => {
         const $ = cheerio.load(html);
         const links: string[] = [];
         $('a[href]').each((_, el) => {
           try {
             const href = $(el).attr('href') || '';
-            const resolved = new URL(href, baseUrl).href;
+            if (!href || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('javascript:')) return;
+            const resolved = new URL(href, baseUrl).href.split('#')[0].split('?')[0];
             const u = new URL(resolved);
-            if (u.origin === baseOrigin && !resolved.includes('#') &&
-                !resolved.match(/\.(jpg|jpeg|png|gif|svg|pdf|zip|mp4|mp3|css|js|xml|json)(\?|$)/i)) {
-              links.push(resolved.split('?')[0]);
+            if (u.origin === baseOrigin && !resolved.match(/\.(jpg|jpeg|png|gif|svg|pdf|zip|mp4|mp3|css|js|woff|ttf|eot|ico)(\?|$)/i)) {
+              links.push(resolved);
             }
           } catch {}
         });
         return [...new Set(links)];
       };
 
-      // BFS crawl
-      while (queue.length > 0 && visited.size < maxPages) {
-        const current = queue.shift()!;
-        if (visited.has(current)) continue;
-        visited.add(current);
-
+      // ─── Parsing sitemap.xml (avec support sitemap_index) ─────────────────────
+      const parseSitemapXml = async (sitemapUrl: string, depth2 = 0): Promise<string[]> => {
+        if (depth2 > 2) return [];
         try {
-          const response = await axios.get(current, {
-            timeout: 8000,
-            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; FYNEBot/1.0; +https://fyne.mc2i.fr)' },
-            maxRedirects: 5,
-          });
-          const html = response.data as string;
+          const xml = await fetchUrl(sitemapUrl);
+          if (!xml || xml.trim()[0] !== '<') return [];
+          const result = await xml2js.parseStringPromise(xml, { explicitArray: false });
+          const urls: string[] = [];
 
-          // Capture site name from first page
-          if (visited.size === 1) {
-            const $ = cheerio.load(html);
-            siteName = $('title').first().text().trim() || parsedUrl.hostname;
+          if (result?.sitemapindex?.sitemap) {
+            const sitemaps = Array.isArray(result.sitemapindex.sitemap) ? result.sitemapindex.sitemap : [result.sitemapindex.sitemap];
+            for (const s of sitemaps.slice(0, 6)) {
+              const loc = typeof s === 'string' ? s : s.loc;
+              if (loc) { const sub = await parseSitemapXml(loc, depth2 + 1); urls.push(...sub); }
+            }
           }
-
-          const text = extractText(html);
-          if (text.length > 100) corpus.push(`--- Page: ${current} ---\n${text}`);
-
-          const links = extractLinks(html, current);
-          for (const link of links) {
-            if (!visited.has(link) && !queue.includes(link)) queue.push(link);
+          if (result?.urlset?.url) {
+            const entries = Array.isArray(result.urlset.url) ? result.urlset.url : [result.urlset.url];
+            for (const entry of entries) {
+              const loc = typeof entry === 'string' ? entry : entry.loc;
+              if (loc && typeof loc === 'string') {
+                try { const u = new URL(loc); if (u.origin === baseOrigin) urls.push(loc); } catch {}
+              }
+            }
           }
-        } catch {}
+          return [...new Set(urls)];
+        } catch { return []; }
+      };
 
-        // Small delay to be polite
-        if (visited.size % 5 === 0) await new Promise(r => setTimeout(r, 200));
+      // ─── Parsing RSS/Atom feed ─────────────────────────────────────────────────
+      const parseRssFeed = async (feedUrl: string): Promise<string> => {
+        try {
+          const xml = await fetchUrl(feedUrl);
+          if (!xml || xml.trim()[0] !== '<') return '';
+          const result = await xml2js.parseStringPromise(xml, { explicitArray: false });
+          const items = result?.rss?.channel?.item || result?.feed?.entry || [];
+          const arr = Array.isArray(items) ? items : [items];
+          return arr.slice(0, 25).map((item: any) => {
+            const t = item.title?._ || item.title || '';
+            const desc = item.description?._ || item.description || item.summary?._ || item.summary || '';
+            const contentEncoded = item['content:encoded']?._ || item['content:encoded'] || '';
+            const $ = cheerio.load(contentEncoded || desc);
+            const text = $.text().replace(/\s+/g, ' ').trim().slice(0, 600);
+            return `### ${t}\n${text}`;
+          }).filter((t: string) => t.length > 15).join('\n\n');
+        } catch { return ''; }
+      };
+
+      // ─── Découverte du sitemap depuis robots.txt + chemins communs ────────────
+      const discoverSitemapUrls = async (): Promise<string[]> => {
+        const sitemapUrls: string[] = [];
+        const robotsTxt = await fetchUrl(`${baseOrigin}/robots.txt`);
+        if (robotsTxt) {
+          const matches = [...robotsTxt.matchAll(/Sitemap:\s*(.+)/gi)];
+          for (const m of matches) sitemapUrls.push(m[1].trim());
+        }
+        const commonPaths = ['/sitemap.xml', '/sitemap_index.xml', '/sitemap-index.xml', '/sitemap/sitemap.xml', '/wp-sitemap.xml', '/post-sitemap.xml', '/page-sitemap.xml', '/sitemap1.xml'];
+        for (const path of commonPaths) {
+          if (!sitemapUrls.some(u => u.includes(path))) sitemapUrls.push(`${baseOrigin}${path}`);
+        }
+        const allUrls: string[] = [];
+        for (const sitemapUrl of sitemapUrls.slice(0, 6)) {
+          const urls = await parseSitemapXml(sitemapUrl);
+          allUrls.push(...urls);
+          if (allUrls.length > 300) break;
+        }
+        return [...new Set(allUrls)];
+      };
+
+      // ─── Détection des flux RSS/Atom ──────────────────────────────────────────
+      const detectFeedUrls = (html: string): string[] => {
+        const $ = cheerio.load(html);
+        const feedUrls: string[] = [];
+        $('link[type="application/rss+xml"], link[type="application/atom+xml"]').each((_, el) => {
+          const href = $(el).attr('href');
+          if (href) { try { feedUrls.push(new URL(href, url).href); } catch {} }
+        });
+        ['/feed', '/rss', '/feed.xml', '/rss.xml', '/atom.xml', '/blog/feed', '/news/feed'].forEach(path => {
+          feedUrls.push(`${baseOrigin}${path}`);
+        });
+        return [...new Set(feedUrls)].slice(0, 4);
+      };
+
+      // ═══ ORCHESTRATION DU SCRAPING ════════════════════════════════════════════
+      const maxPages = Math.min(parseInt(String(depth)) || 10, 40);
+      const visited = new Set<string>();
+      const corpus: string[] = [];
+      let siteName = parsedUrl.hostname;
+      let feedContent = '';
+
+      // Étape 1 : Fetch de la page principale
+      console.log(`[Studio URL] Démarrage scraping: ${url}`);
+      const mainHtml = await fetchUrl(url);
+      if (!mainHtml) {
+        return res.status(400).json({ error: 'Impossible d\'accéder à ce site. Vérifiez que l\'URL est correcte et que le site est accessible.' });
       }
 
-      if (corpus.length === 0) {
-        return res.status(400).json({ error: 'Impossible d\'extraire du contenu de ce site. Vérifiez que le site est accessible.' });
+      visited.add(url.split('#')[0].split('?')[0]);
+      const mainText = extractText(mainHtml, url);
+      if (mainText.length > 50) corpus.push(`--- Page principale: ${url} ---\n${mainText}`);
+
+      const $main = cheerio.load(mainHtml);
+      siteName = $main('title').first().text().trim() || $main('meta[property="og:site_name"]').attr('content') || parsedUrl.hostname;
+
+      // Étape 2 : Feeds RSS/Atom (excellente source de contenu structuré)
+      const feedUrls = detectFeedUrls(mainHtml);
+      for (const feedUrl of feedUrls) {
+        const fc = await parseRssFeed(feedUrl);
+        if (fc.length > 200) {
+          feedContent = fc;
+          console.log(`[Studio URL] Feed trouvé: ${feedUrl} (${fc.length} chars)`);
+          break;
+        }
       }
 
-      const fullContent = corpus.join('\n\n').slice(0, 25000);
+      // Étape 3 : Découverte via sitemap (prioritaire sur BFS)
+      let pageQueue: string[] = [];
+      const sitemapUrls = await discoverSitemapUrls();
+      if (sitemapUrls.length > 0) {
+        console.log(`[Studio URL] Sitemap: ${sitemapUrls.length} URLs découvertes`);
+        // Score : préférer les pages de contenu (shallow, pas de dates, pas de tags)
+        const scored = sitemapUrls
+          .filter(u => !visited.has(u))
+          .map(u => {
+            let score = 100;
+            try {
+              const path = new URL(u).pathname;
+              score -= path.split('/').filter(Boolean).length * 5;
+              if (path.match(/\d{4}\/\d{2}\/\d{2}/)) score -= 30;
+              if (path.match(/\/(tag|category|author|page|wp-json|feed|amp)\//i)) score -= 25;
+              if (path.match(/\/(about|service|produit|product|solution|offre|expertise|formation|guide|docs?|blog|news)\//i)) score += 20;
+            } catch {}
+            return { url: u, score };
+          })
+          .sort((a, b) => b.score - a.score)
+          .map(x => x.url);
+        pageQueue = scored;
+      } else {
+        // Fallback : BFS depuis la page principale
+        pageQueue = extractLinks(mainHtml, url);
+      }
+
+      // Étape 4 : Crawl des pages
+      for (const pageUrl of pageQueue) {
+        if (visited.size >= maxPages) break;
+        if (visited.has(pageUrl)) continue;
+        visited.add(pageUrl);
+
+        const html = await fetchUrl(pageUrl);
+        if (!html) continue;
+
+        const text = extractText(html, pageUrl);
+        if (text.length > 100) corpus.push(`--- Page: ${pageUrl} ---\n${text}`);
+
+        // Si pas de sitemap, compléter la queue via BFS
+        if (sitemapUrls.length === 0) {
+          const links = extractLinks(html, pageUrl);
+          for (const l of links) {
+            if (!visited.has(l) && !pageQueue.includes(l)) pageQueue.push(l);
+          }
+        }
+        if (visited.size % 5 === 0) await new Promise(r => setTimeout(r, 150));
+      }
+
+      console.log(`[Studio URL] Crawl terminé: ${visited.size} pages, ${corpus.length} avec contenu`);
+
+      if (corpus.length === 0 && !feedContent) {
+        return res.status(400).json({
+          error: 'Impossible d\'extraire du contenu de ce site. Le site est peut-être rendu en JavaScript (SPA), protégé, ou nécessite une authentification. Essayez avec une URL de page de contenu spécifique (ex: /blog, /docs, /about).'
+        });
+      }
+
+      // ─── Construction du corpus final + RAG sur grands volumes ──────────────
+      let fullContent = corpus.join('\n\n');
+      if (feedContent) fullContent = `CONTENU FLUX RSS/FEED:\n${feedContent}\n\n---\n\n${fullContent}`;
+
+      const MAX_DIRECT = 30000;
+      let processedContent = '';
+
+      if (fullContent.length > MAX_DIRECT) {
+        console.log(`[Studio URL] Grand corpus (${fullContent.length} chars) → résumé par chunks (RAG)`);
+        const chunkSize = 12000;
+        const chunks: string[] = [];
+        for (let i = 0; i < fullContent.length; i += chunkSize) chunks.push(fullContent.slice(i, i + chunkSize));
+
+        const summaries = await Promise.all(chunks.slice(0, 5).map(async (chunk, idx) => {
+          const r = await openAIService.getChatCompletion([{
+            role: 'user',
+            content: `Tu es un expert en extraction d'informations pédagogiques. Résume les informations clés de ce contenu web en bullet points factuels et précis (max 35 points). Ignore la navigation, les menus, les publicités. Retiens uniquement : faits, définitions, chiffres clés, processus, bonnes pratiques, cas d'usage, bénéfices, risques, réglementations, exemples concrets.\n\nCONTENU (partie ${idx + 1}/${chunks.slice(0, 5).length}):\n${chunk}`
+          }], 0.3, 2000);
+          return `SYNTHÈSE PARTIE ${idx + 1}:\n${r}`;
+        }));
+
+        processedContent = summaries.join('\n\n---\n\n').slice(0, MAX_DIRECT);
+        console.log(`[Studio URL] RAG: ${summaries.length} chunks résumés → ${processedContent.length} chars`);
+      } else {
+        processedContent = fullContent.slice(0, MAX_DIRECT);
+      }
+
       const totalChars = fullContent.length;
-
       const audienceLabel = ({ grand_public: 'grand public', managers: 'managers', experts: 'experts', rh: 'équipes RH', dirigeants: 'dirigeants' } as any)[audience] || audience;
       const gamifLabel = ({ low: 'sérieux', medium: 'équilibré', high: 'très ludique' } as any)[gamification] || gamification;
 
-      const prompt = `Tu es un expert en ingénierie pédagogique. Voici le contenu extrait d'un site web par crawl automatique.
+      const prompt = `Tu es un expert en ingénierie pédagogique. Voici le contenu extrait d'un site web par scraping multi-stratégies (BFS + sitemap + RSS + JSON-LD).
 
 SOURCE : ${url}
-PAGES CRAWLÉES : ${visited.size}
-SITE : ${siteName}
-PUBLIC CIBLE : ${audienceLabel}
-GAMIFICATION : ${gamifLabel}
+PAGES ANALYSÉES : ${visited.size} | SITE : ${siteName}
+PUBLIC CIBLE : ${audienceLabel} | GAMIFICATION : ${gamifLabel}
 ${title ? `TITRE SOUHAITÉ : "${title}"` : ''}
 
-CONTENU EXTRAIT :
-${fullContent}
+CONTENU EXTRAIT ET SYNTHÉTISÉ :
+${processedContent}
 
 INSTRUCTIONS — CONTENU RICHE OBLIGATOIRE :
-- Génère EXACTEMENT 7 mises en situation professionnelles (champ "situations") et EXACTEMENT 10 questions QCM basés sur le contenu du site
+- Génère EXACTEMENT 7 mises en situation professionnelles (champ "situations") et EXACTEMENT 10 questions QCM basés STRICTEMENT sur le contenu du site
 - Chaque situation nomme un personnage réaliste (prénom + fonction), 4-5 phrases riches et détaillées
 - Les 7 situations couvrent 7 angles différents du contenu extrait
 - Le champ "attendu" liste 3-5 points clés que le participant doit mentionner dans sa réponse idéale
@@ -6226,19 +6458,15 @@ ${TRAINING_JSON_SCHEMA}`;
 
       let training = parseTrainingJson(aiResponse);
       if (!training) {
-        console.warn('[Studio URL] Parsing échoué. Fallback:', aiResponse.slice(0, 400));
+        console.warn('[Studio URL] Parsing JSON échoué. Fallback:', aiResponse.slice(0, 400));
         training = buildTrainingFallback(title || siteName);
       }
 
-      // Normaliser : rétrocompat — convertit scenarios vers situations si nécessaire
+      // Normaliser : rétrocompat
       if (!training.situations && training.scenarios && Array.isArray(training.scenarios)) {
         training.situations = training.scenarios.map((s: any) => ({
-          id: s.id,
-          category: s.category || 'Mise en situation',
-          title: s.title || 'Situation',
-          contexte: s.context || '',
-          situation: s.situation || '',
-          attendu: s.reflexe || 'Appliquez les bonnes pratiques professionnelles.',
+          id: s.id, category: s.category || 'Mise en situation', title: s.title || 'Situation',
+          contexte: s.context || '', situation: s.situation || '', attendu: s.reflexe || 'Appliquez les bonnes pratiques professionnelles.',
         }));
       } else if (!training.situations && training.scenario) {
         training.situations = [{ id: 1, category: 'Mise en situation', title: 'Situation', contexte: '', situation: training.scenario?.situation || '', attendu: 'Appliquez les bonnes pratiques professionnelles.' }];
@@ -6246,25 +6474,19 @@ ${TRAINING_JSON_SCHEMA}`;
 
       const id = uuidv4();
       await storage.saveGeneratedTraining({
-        id, title: training.title || 'Formation depuis site web',
-        tagline: training.tagline || '',
-        source: 'url',
-        sourceInfo: { url, pagesVisited: visited.size, siteName },
-        audience: audience || 'grand_public',
-        gamificationLevel: gamification || 'medium',
-        content: training,
+        id, title: training.title || 'Formation depuis site web', tagline: training.tagline || '',
+        source: 'url', sourceInfo: { url, pagesVisited: visited.size, siteName },
+        audience: audience || 'grand_public', gamificationLevel: gamification || 'medium', content: training,
       });
 
-      res.json({
-        training, id,
-        scrapeInfo: { pagesVisited: visited.size, totalChars, siteName: siteName.slice(0, 60) }
-      });
+      res.json({ training, id, scrapeInfo: { pagesVisited: visited.size, totalChars, siteName: siteName.slice(0, 60) } });
+
     } catch (error: any) {
       console.error('[Studio URL] Erreur:', error?.message || error);
       const msg = error?.message?.includes('ECONNREFUSED') || error?.message?.includes('ENOTFOUND')
         ? 'Site inaccessible — vérifiez que l\'URL est correcte et que le site est en ligne.'
         : error?.message?.includes('timeout')
-        ? 'Le site met trop de temps à répondre. Réessayez avec moins de pages.'
+        ? 'Le site met trop de temps à répondre. Essayez avec une URL de page spécifique.'
         : 'Erreur lors du crawl ou de la génération. Réessayez.';
       res.status(500).json({ error: msg });
     }
