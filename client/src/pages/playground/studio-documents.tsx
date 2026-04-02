@@ -88,7 +88,7 @@ export default function StudioDocuments() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState<StepName>('upload');
-  const [outputMode, setOutputMode] = useState<OutputMode>('formation');
+  const [outputMode] = useState<OutputMode>('lecon');
   const [importMode, setImportMode] = useState<ImportMode>('files');
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -214,65 +214,22 @@ export default function StudioDocuments() {
               className="min-h-screen flex flex-col justify-center px-6 lg:px-16 py-16">
               <div className="max-w-2xl">
                 <div className="text-xs font-bold uppercase tracking-widest mb-5 px-3 py-1 inline-block"
-                  style={{ background: `${BLUE}12`, color: BLUE }}>
-                  Étape 1 · Import de contenus
+                  style={{ background: `${PINK}12`, color: PINK }}>
+                  Étape 1 · Import de documents
                 </div>
                 <h1 className="text-4xl lg:text-5xl font-black tracking-tight mb-4 leading-tight">
-                  <span style={{ color: PINK }}>Importez</span><br />
-                  <span style={{ color: BLUE }}>vos contenus</span>
+                  <span style={{ color: PINK }}>Créez</span><br />
+                  <span style={{ color: DARK }}>votre leçon en slides</span>
                 </h1>
                 <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
 
-                {/* Output mode selector */}
+                {/* Info leçon */}
                 <div className="mb-6">
-                  <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Type de contenu à générer</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button onClick={() => setOutputMode('formation')}
-                      className="flex flex-col items-start gap-1 px-4 py-4 border-2 text-left transition-all"
-                      style={{ borderColor: outputMode === 'formation' ? BLUE : '#e5e7eb', background: outputMode === 'formation' ? `${BLUE}08` : 'white' }}>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 border-2 flex items-center justify-center" style={{ borderColor: BLUE }}>
-                          {outputMode === 'formation' && <div className="w-1.5 h-1.5" style={{ background: BLUE }} />}
-                        </div>
-                        <span className="text-sm font-bold" style={{ color: outputMode === 'formation' ? BLUE : DARK }}>Formation interactive</span>
-                      </div>
-                      <p className="text-xs text-gray-500 ml-5">Situations + QCM · évaluation IA</p>
-                    </button>
-                    <button onClick={() => { setOutputMode('lecon'); setImportMode('files'); }}
-                      className="flex flex-col items-start gap-1 px-4 py-4 border-2 text-left transition-all"
-                      style={{ borderColor: outputMode === 'lecon' ? PINK : '#e5e7eb', background: outputMode === 'lecon' ? `${PINK}08` : 'white' }}>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 border-2 flex items-center justify-center" style={{ borderColor: PINK }}>
-                          {outputMode === 'lecon' && <div className="w-1.5 h-1.5" style={{ background: PINK }} />}
-                        </div>
-                        <span className="text-sm font-bold" style={{ color: outputMode === 'lecon' ? PINK : DARK }}>Leçon en slides</span>
-                      </div>
-                      <p className="text-xs text-gray-500 ml-5">Théorie + Pratique · slides interactifs</p>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Import mode toggle (formation only, or both) */}
-                {outputMode === 'formation' && (
-                <div className="flex border border-gray-200 mb-8">
-                  <button onClick={() => setImportMode('files')}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-bold transition-all"
-                    style={{ background: importMode === 'files' ? BLUE : 'white', color: importMode === 'files' ? 'white' : '#6b7280' }}>
-                    <FileUp size={16} /> Fichiers
-                  </button>
-                  <button onClick={() => setImportMode('url')}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-bold transition-all border-l border-gray-200"
-                    style={{ background: importMode === 'url' ? BLUE : 'white', color: importMode === 'url' ? 'white' : '#6b7280' }}>
-                    <Globe size={16} /> Site web / URL
-                  </button>
-                </div>
-                )}
-                {outputMode === 'lecon' && (
-                  <div className="flex items-center gap-2 mb-6 px-3 py-2" style={{ background: `${PINK}08`, border: `1px solid ${PINK}30` }}>
+                  <div className="flex items-center gap-2 px-3 py-2" style={{ background: `${PINK}08`, border: `1px solid ${PINK}30` }}>
                     <Layers size={14} style={{ color: PINK }} />
                     <p className="text-xs text-gray-600">Importez vos documents (PDF, PowerPoint, Word, TXT) — la leçon sera générée en slides théorie/pratique</p>
                   </div>
-                )}
+                </div>
 
                 {/* ── FICHIERS ── */}
                 {importMode === 'files' && (
