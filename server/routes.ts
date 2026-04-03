@@ -6003,9 +6003,11 @@ ${TRAINING_JSON_SCHEMA}`;
             return f.buffer.toString('utf-8').slice(0, 8000);
           }
           if (ext === 'pdf') {
-            const pdfParse = (await import('pdf-parse')).default;
-            const data = await pdfParse(f.buffer);
-            return data.text.slice(0, 8000);
+            const { PDFParse } = await import('pdf-parse');
+            const parser = new PDFParse({ data: f.buffer });
+            await parser.load();
+            const result = await parser.getText();
+            return (result.text || '').slice(0, 8000);
           }
           if (ext === 'docx' || ext === 'doc') {
             const mammoth = await import('mammoth');
@@ -6507,9 +6509,11 @@ ${TRAINING_JSON_SCHEMA}`;
         try {
           if (ext === 'txt') return f.buffer.toString('utf-8').slice(0, 12000);
           if (ext === 'pdf') {
-            const pdfParse = (await import('pdf-parse')).default;
-            const data = await pdfParse(f.buffer);
-            return data.text.slice(0, 12000);
+            const { PDFParse } = await import('pdf-parse');
+            const parser = new PDFParse({ data: f.buffer });
+            await parser.load();
+            const result = await parser.getText();
+            return (result.text || '').slice(0, 12000);
           }
           if (ext === 'docx' || ext === 'doc') {
             const mammoth = await import('mammoth');
