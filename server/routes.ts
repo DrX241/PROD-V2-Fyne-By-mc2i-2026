@@ -6562,6 +6562,8 @@ RÈGLES OBLIGATOIRES :
 5. Contenu FIDÈLE au document — ne pas inventer — utilise les termes exacts du document
 6. Chaque slide "theorie" : titre (du concept exact), contenu (4-5 phrases d'explication), pointsCles (3 bullet points essentiels), exemple (2-3 phrases)
 7. Chaque slide "pratique" : titre, contexte (situation 3-4 phrases), question (défi concret), indice (conseil), reponse (réponse complète 3-4 phrases)
+8. Génère aussi un QCM de 5 questions qui teste la compréhension des concepts couverts dans les slides
+9. Chaque question QCM : question claire, 4 choix (A/B/C/D), bonneReponse (index 0-3), explication courte de la bonne réponse
 
 Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
 {
@@ -6623,12 +6625,25 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
       "points": ["Enseignement clé 1", "Enseignement clé 2", "Enseignement clé 3", "Enseignement clé 4", "Enseignement clé 5"],
       "message": "Message de clôture motivant et actionnable — 2 phrases"
     }
+  ],
+  "qcm": [
+    {
+      "id": 1,
+      "question": "Question sur un concept clé de la leçon ?",
+      "choix": ["A. Premier choix", "B. Deuxième choix", "C. Troisième choix", "D. Quatrième choix"],
+      "bonneReponse": 0,
+      "explication": "Explication concise de pourquoi c'est la bonne réponse — 1-2 phrases"
+    },
+    { "id": 2, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 2, "explication": "..." },
+    { "id": 3, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." },
+    { "id": 4, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 3, "explication": "..." },
+    { "id": 5, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 0, "explication": "..." }
   ]
 }`;
 
       const aiResponse = await openAIService.getChatCompletion([
         { role: 'user', content: prompt }
-      ], 0.6, 14000);
+      ], 0.6, 16000);
 
       const parseJsonSafely = (str: string) => {
         try {

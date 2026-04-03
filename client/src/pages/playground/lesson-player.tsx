@@ -3,12 +3,14 @@ import { useParams, useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, ChevronRight, BookOpen, Zap, CheckCircle,
-  Lightbulb, Target, ArrowLeft, Eye, EyeOff, Award
+  Lightbulb, Target, ArrowLeft, Eye, EyeOff, Award, XCircle, HelpCircle
 } from 'lucide-react';
 
 const BLUE = '#006a9e';
 const PINK = '#dd0061';
 const DARK = '#061019';
+const GREEN = '#059669';
+const RED = '#dc2626';
 
 interface SlideIntro {
   id: number; type: 'intro';
@@ -28,8 +30,18 @@ interface SlideConclusion {
 }
 type Slide = SlideIntro | SlideTheorie | SlidePratique | SlideConclusion;
 
+interface QcmQuestion {
+  id: number;
+  question: string;
+  choix: string[];
+  bonneReponse: number;
+  explication: string;
+}
+
 interface Lesson {
-  title: string; subtitle: string; description: string; slides: Slide[];
+  title: string; subtitle: string; description: string;
+  slides: Slide[];
+  qcm?: QcmQuestion[];
 }
 
 const slideVariants = {
@@ -37,6 +49,8 @@ const slideVariants = {
   center: { x: 0, opacity: 1 },
   exit: (dir: number) => ({ x: dir > 0 ? -80 : 80, opacity: 0 }),
 };
+
+type Phase = 'slides' | 'qcm' | 'score';
 
 export default function LessonPlayer() {
   const { id } = useParams<{ id: string }>();
@@ -46,7 +60,13 @@ export default function LessonPlayer() {
   const [direction, setDirection] = useState(1);
   const [revealed, setRevealed] = useState<Record<number, boolean>>({});
   const [error, setError] = useState('');
-  const [completed, setCompleted] = useState(false);
+  const [phase, setPhase] = useState<Phase>('slides');
+
+  // QCM state
+  const [qcmIdx, setQcmIdx] = useState(0);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<(number | null)[]>([]);
+  const [confirmed, setConfirmed] = useState(false);
 
   useEffect(() => {
     fetch(`/api/studio/training/${id}`)
@@ -71,6 +91,7 @@ export default function LessonPlayer() {
 
   if (!lesson) return (
     <div style={{ minHeight: '100vh', background: DARK, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       <div style={{ textAlign: 'center' }}>
         <div style={{ width: 48, height: 48, border: `3px solid ${BLUE}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
         <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>Chargement de la leçon...</p>
@@ -82,18 +103,220 @@ export default function LessonPlayer() {
   const total = slides.length;
   const slide = slides[currentIdx];
   const progress = ((currentIdx + 1) / total) * 100;
+  const hasQcm = lesson.qcm && lesson.qcm.length > 0;
 
   const goNext = () => {
     if (currentIdx < total - 1) { setDirection(1); setCurrentIdx(i => i + 1); }
-    else setCompleted(true);
+    else if (hasQcm) {
+      setPhase('qcm');
+      setAnswers(new Array(lesson.qcm!.length).fill(null));
+    } else {
+      setPhase('score');
+    }
   };
   const goPrev = () => {
     if (currentIdx > 0) { setDirection(-1); setCurrentIdx(i => i - 1); }
   };
   const toggleReveal = (idx: number) => setRevealed(r => ({ ...r, [idx]: !r[idx] }));
 
-  if (completed) return <CompletionScreen lesson={lesson} onRestart={() => { setCurrentIdx(0); setCompleted(false); setRevealed({}); }} onBack={() => navigate('/playground/module-generator')} />;
+  const handleRestart = () => {
+    setCurrentIdx(0); setPhase('slides'); setRevealed({});
+    setQcmIdx(0); setSelected(null); setAnswers([]); setConfirmed(false);
+  };
 
+  // ── QCM PHASE ──────────────────────────────────────────────────────────────
+  if (phase === 'qcm' && hasQcm) {
+    const questions = lesson.qcm!;
+    const q = questions[qcmIdx];
+    const isLast = qcmIdx === questions.length - 1;
+    const isCorrect = confirmed && selected === q.bonneReponse;
+
+    const confirmAnswer = () => {
+      if (selected === null) return;
+      const newAnswers = [...answers];
+      newAnswers[qcmIdx] = selected;
+      setAnswers(newAnswers);
+      setConfirmed(true);
+    };
+
+    const goNextQ = () => {
+      setSelected(null);
+      setConfirmed(false);
+      if (isLast) setPhase('score');
+      else setQcmIdx(i => i + 1);
+    };
+
+    return (
+      <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+
+        {/* Header */}
+        <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '0 24px', height: 56, display: 'flex', alignItems: 'center', gap: 16, position: 'sticky', top: 0, zIndex: 50 }}>
+          <button onClick={() => navigate('/playground/module-generator')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+            <ArrowLeft size={16} /> Retour
+          </button>
+          <div style={{ width: 1, height: 20, background: '#e5e7eb' }} />
+          <div style={{ flex: 1 }}>
+            <p style={{ margin: 0, fontWeight: 600, fontSize: 14, color: DARK }}>{lesson.title}</p>
+          </div>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: `rgba(221,0,97,0.1)`, color: PINK, fontSize: 12, fontWeight: 700 }}>
+            <HelpCircle size={12} /> QCM — {qcmIdx + 1}/{questions.length}
+          </span>
+        </div>
+
+        {/* Progress bar */}
+        <div style={{ height: 3, background: '#e5e7eb' }}>
+          <motion.div style={{ height: '100%', background: PINK }} animate={{ width: `${((qcmIdx + 1) / questions.length) * 100}%` }} transition={{ duration: 0.4 }} />
+        </div>
+
+        {/* Question dots */}
+        <div style={{ padding: '12px 24px', display: 'flex', gap: 6, justifyContent: 'center', background: 'white', borderBottom: '1px solid #f3f4f6' }}>
+          {questions.map((_, i) => (
+            <div key={i} style={{ width: 28, height: 8, background: i === qcmIdx ? PINK : i < qcmIdx ? (answers[i] === questions[i].bonneReponse ? GREEN : RED) : '#e5e7eb' }} />
+          ))}
+        </div>
+
+        {/* Question card */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px' }}>
+          <div style={{ width: '100%', maxWidth: 720 }}>
+            <AnimatePresence mode="wait">
+              <motion.div key={qcmIdx} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.25 }}>
+
+                {/* Question */}
+                <div style={{ background: 'white', border: '1px solid #e5e7eb', marginBottom: 16 }}>
+                  <div style={{ height: 4, background: PINK }} />
+                  <div style={{ padding: '32px 36px' }}>
+                    <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, letterSpacing: 3, color: PINK, textTransform: 'uppercase' }}>Question {qcmIdx + 1}</p>
+                    <p style={{ margin: 0, fontSize: 20, fontWeight: 700, color: DARK, lineHeight: 1.5 }}>{q.question}</p>
+                  </div>
+                </div>
+
+                {/* Choices */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+                  {q.choix.map((choix, ci) => {
+                    let bg = 'white';
+                    let borderColor = selected === ci ? PINK : '#e5e7eb';
+                    let textColor = DARK;
+                    if (confirmed) {
+                      if (ci === q.bonneReponse) { bg = `${GREEN}15`; borderColor = GREEN; textColor = GREEN; }
+                      else if (ci === selected && selected !== q.bonneReponse) { bg = `${RED}10`; borderColor = RED; textColor = RED; }
+                      else { borderColor = '#e5e7eb'; }
+                    }
+                    return (
+                      <button key={ci} disabled={confirmed}
+                        onClick={() => setSelected(ci)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px', background: bg, border: `2px solid ${borderColor}`, cursor: confirmed ? 'default' : 'pointer', textAlign: 'left', transition: 'all 0.15s' }}>
+                        <div style={{ width: 32, height: 32, border: `2px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: selected === ci && !confirmed ? `${PINK}15` : 'transparent' }}>
+                          {confirmed && ci === q.bonneReponse ? <CheckCircle size={16} style={{ color: GREEN }} /> :
+                           confirmed && ci === selected && selected !== q.bonneReponse ? <XCircle size={16} style={{ color: RED }} /> :
+                           <span style={{ fontSize: 13, fontWeight: 700, color: borderColor }}>{'ABCD'[ci]}</span>}
+                        </div>
+                        <span style={{ fontSize: 15, fontWeight: selected === ci ? 600 : 400, color: textColor, lineHeight: 1.4 }}>{choix}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Feedback */}
+                <AnimatePresence>
+                  {confirmed && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+                      <div style={{ padding: '16px 20px', background: isCorrect ? `${GREEN}12` : `${RED}08`, borderLeft: `3px solid ${isCorrect ? GREEN : RED}`, marginBottom: 16 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                          {isCorrect ? <CheckCircle size={16} style={{ color: GREEN }} /> : <XCircle size={16} style={{ color: RED }} />}
+                          <span style={{ fontWeight: 700, fontSize: 14, color: isCorrect ? GREEN : RED }}>
+                            {isCorrect ? 'Bonne réponse !' : `Incorrect — la bonne réponse est ${['A','B','C','D'][q.bonneReponse]}`}
+                          </span>
+                        </div>
+                        <p style={{ margin: 0, fontSize: 14, color: '#374151', lineHeight: 1.6 }}>{q.explication}</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{ background: 'white', borderTop: '1px solid #e5e7eb', padding: '16px 24px', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+          {!confirmed ? (
+            <button onClick={confirmAnswer} disabled={selected === null}
+              style={{ padding: '12px 32px', border: 'none', background: selected === null ? '#e5e7eb' : PINK, color: 'white', cursor: selected === null ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 14 }}>
+              Valider ma réponse
+            </button>
+          ) : (
+            <button onClick={goNextQ}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 28px', border: 'none', background: BLUE, color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: 14 }}>
+              {isLast ? 'Voir mes résultats' : 'Question suivante'} <ChevronRight size={18} />
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── SCORE PHASE ─────────────────────────────────────────────────────────────
+  if (phase === 'score') {
+    const questions = lesson.qcm || [];
+    const score = questions.length > 0
+      ? answers.filter((a, i) => a === questions[i].bonneReponse).length
+      : 0;
+    const pct = questions.length > 0 ? Math.round((score / questions.length) * 100) : 100;
+    const mention = pct >= 80 ? 'Excellent !' : pct >= 60 ? 'Bien !' : pct >= 40 ? 'À retravailler' : 'À approfondir';
+    const mentionColor = pct >= 80 ? GREEN : pct >= 60 ? BLUE : pct >= 40 ? '#f59e0b' : RED;
+
+    return (
+      <div style={{ minHeight: '100vh', background: DARK, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${BLUE}, ${PINK})` }} />
+
+        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }}
+          style={{ width: '100%', maxWidth: 560, textAlign: 'center' }}>
+
+          {/* Score circle */}
+          <div style={{ width: 120, height: 120, border: `4px solid ${mentionColor}`, borderRadius: '50%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+            <span style={{ fontSize: 36, fontWeight: 900, color: mentionColor, lineHeight: 1 }}>{score}</span>
+            <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>/ {questions.length}</span>
+          </div>
+
+          <p style={{ margin: '0 0 6px', fontSize: 28, fontWeight: 800, color: 'white' }}>{mention}</p>
+          <p style={{ margin: '0 0 32px', fontSize: 16, color: 'rgba(255,255,255,0.55)' }}>{pct}% de bonnes réponses</p>
+
+          {/* Per-question recap */}
+          {questions.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 36, textAlign: 'left' }}>
+              {questions.map((q, i) => {
+                const correct = answers[i] === q.bonneReponse;
+                return (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 16px', background: 'rgba(255,255,255,0.05)', borderLeft: `3px solid ${correct ? GREEN : RED}` }}>
+                    {correct ? <CheckCircle size={16} style={{ color: GREEN, flexShrink: 0, marginTop: 2 }} /> : <XCircle size={16} style={{ color: RED, flexShrink: 0, marginTop: 2 }} />}
+                    <div>
+                      <p style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.85)', lineHeight: 1.4 }}>{q.question}</p>
+                      {!correct && <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>Réponse correcte : {q.choix[q.bonneReponse]}</p>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+            <button onClick={handleRestart}
+              style={{ padding: '12px 24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
+              Recommencer
+            </button>
+            <button onClick={() => navigate('/playground/module-generator')}
+              style={{ padding: '12px 28px', background: BLUE, border: 'none', color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: 14 }}>
+              Retour au studio
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // ── SLIDES PHASE ────────────────────────────────────────────────────────────
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -107,6 +330,11 @@ export default function LessonPlayer() {
         <div style={{ flex: 1, overflow: 'hidden' }}>
           <p style={{ margin: 0, fontWeight: 600, fontSize: 14, color: DARK, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{lesson.title}</p>
         </div>
+        {hasQcm && (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: `rgba(221,0,97,0.08)`, color: PINK, fontSize: 11, fontWeight: 600 }}>
+            <HelpCircle size={11} /> QCM après les slides
+          </span>
+        )}
         <span style={{ fontSize: 13, color: '#6b7280', whiteSpace: 'nowrap' }}>{currentIdx + 1} / {total}</span>
       </div>
 
@@ -122,6 +350,8 @@ export default function LessonPlayer() {
             style={{ width: 28, height: 8, border: 'none', cursor: 'pointer', borderRadius: 0, transition: 'all 0.2s',
               background: i === currentIdx ? (s.type === 'pratique' ? PINK : BLUE) : i < currentIdx ? (s.type === 'pratique' ? 'rgba(221,0,97,0.3)' : 'rgba(0,106,158,0.3)') : '#e5e7eb' }} />
         ))}
+        {/* QCM pill */}
+        {hasQcm && <div style={{ width: 8, height: 8, background: PINK, opacity: 0.4, alignSelf: 'center', marginLeft: 4 }} />}
       </div>
 
       {/* Slide content */}
@@ -151,7 +381,7 @@ export default function LessonPlayer() {
 
         <button onClick={goNext}
           style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 24px', border: 'none', background: slide.type === 'pratique' ? PINK : BLUE, color: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
-          {currentIdx === total - 1 ? 'Terminer' : 'Suivant'} <ChevronRight size={18} />
+          {currentIdx === total - 1 ? (hasQcm ? 'Passer au QCM' : 'Terminer') : 'Suivant'} <ChevronRight size={18} />
         </button>
       </div>
     </div>
@@ -187,12 +417,10 @@ function IntroSlide({ slide }: { slide: SlideIntro }) {
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${BLUE}, ${PINK})` }} />
       <div style={{ position: 'absolute', top: -120, right: -80, width: 320, height: 320, borderRadius: '50%', background: `${BLUE}18` }} />
       <div style={{ position: 'absolute', bottom: -80, left: -40, width: 200, height: 200, borderRadius: '50%', background: `${PINK}12` }} />
-
       <div style={{ position: 'relative' }}>
         <p style={{ margin: '0 0 16px', fontSize: 11, fontWeight: 700, letterSpacing: 3, color: BLUE, textTransform: 'uppercase' }}>Introduction</p>
         <h1 style={{ margin: '0 0 16px', fontSize: 36, fontWeight: 700, color: 'white', lineHeight: 1.2 }}>{slide.titre}</h1>
         <p style={{ margin: '0 0 40px', fontSize: 16, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>{slide.contenu}</p>
-
         <div>
           <p style={{ margin: '0 0 16px', fontSize: 12, fontWeight: 600, color: BLUE, textTransform: 'uppercase', letterSpacing: 2 }}>Objectifs de cette leçon</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -212,15 +440,12 @@ function IntroSlide({ slide }: { slide: SlideIntro }) {
 function TheorieSlide({ slide }: { slide: SlideTheorie }) {
   return (
     <div style={{ background: 'white', minHeight: 480, border: '1px solid #e5e7eb' }}>
-      {/* Top bar */}
       <div style={{ height: 4, background: BLUE }} />
       <div style={{ padding: '40px 48px' }}>
         <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, letterSpacing: 3, color: BLUE, textTransform: 'uppercase' }}>Théorie</p>
         <h2 style={{ margin: '0 0 24px', fontSize: 28, fontWeight: 700, color: DARK }}>{slide.titre}</h2>
         <p style={{ margin: '0 0 32px', fontSize: 16, color: '#374151', lineHeight: 1.8 }}>{slide.contenu}</p>
-
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
-          {/* Key points */}
           <div>
             <p style={{ margin: '0 0 14px', fontSize: 12, fontWeight: 700, color: BLUE, textTransform: 'uppercase', letterSpacing: 1.5 }}>Points clés</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -232,8 +457,6 @@ function TheorieSlide({ slide }: { slide: SlideTheorie }) {
               ))}
             </div>
           </div>
-
-          {/* Example */}
           <div>
             <p style={{ margin: '0 0 14px', fontSize: 12, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1.5 }}>Exemple concret</p>
             <div style={{ padding: '20px', background: '#f9fafb', borderLeft: '3px solid #e5e7eb', position: 'relative' }}>
@@ -255,30 +478,21 @@ function PratiqueSlide({ slide, idx, revealed, onToggle }: { slide: SlidePratiqu
       <div style={{ padding: '40px 48px', position: 'relative' }}>
         <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, letterSpacing: 3, color: PINK, textTransform: 'uppercase' }}>Mise en pratique</p>
         <h2 style={{ margin: '0 0 24px', fontSize: 28, fontWeight: 700, color: 'white' }}>{slide.titre}</h2>
-
-        {/* Context */}
         <div style={{ padding: '20px 24px', background: 'rgba(255,255,255,0.06)', borderLeft: `3px solid rgba(255,255,255,0.2)`, marginBottom: 24 }}>
           <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.75)', lineHeight: 1.8 }}>{slide.contexte}</p>
         </div>
-
-        {/* Question */}
         <div style={{ padding: '20px 24px', background: `${PINK}15`, borderLeft: `3px solid ${PINK}`, marginBottom: 20 }}>
           <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, color: PINK, textTransform: 'uppercase', letterSpacing: 1.5 }}>Votre défi</p>
           <p style={{ margin: 0, fontSize: 16, fontWeight: 600, color: 'white', lineHeight: 1.6 }}>{slide.question}</p>
         </div>
-
-        {/* Hint */}
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 16px', background: 'rgba(255,255,255,0.04)', marginBottom: 24 }}>
           <Lightbulb size={14} style={{ color: '#f59e0b', marginTop: 2, flexShrink: 0 }} />
           <p style={{ margin: 0, fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, fontStyle: 'italic' }}>{slide.indice}</p>
         </div>
-
-        {/* Reveal */}
         <button onClick={onToggle} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: revealed ? 'rgba(255,255,255,0.12)' : PINK, border: 'none', color: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 14, marginBottom: revealed ? 20 : 0 }}>
           {revealed ? <EyeOff size={16} /> : <Eye size={16} />}
           {revealed ? 'Masquer la réponse' : 'Révéler la réponse idéale'}
         </button>
-
         <AnimatePresence>
           {revealed && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.25 }}>
@@ -316,30 +530,6 @@ function ConclusionSlide({ slide }: { slide: SlideConclusion }) {
           <p style={{ margin: 0, fontSize: 15, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, fontStyle: 'italic' }}>{slide.message}</p>
         </div>
       </div>
-    </div>
-  );
-}
-
-function CompletionScreen({ lesson, onRestart, onBack }: { lesson: Lesson; onRestart: () => void; onBack: () => void }) {
-  return (
-    <div style={{ minHeight: '100vh', background: DARK, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32, textAlign: 'center' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${BLUE}, ${PINK})` }} />
-      <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }}>
-        <div style={{ width: 80, height: 80, background: `linear-gradient(135deg, ${BLUE}, ${PINK})`, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
-          <Award size={36} style={{ color: 'white' }} />
-        </div>
-        <h1 style={{ color: 'white', fontSize: 32, fontWeight: 700, margin: '0 0 12px' }}>Leçon terminée !</h1>
-        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 16, margin: '0 0 8px' }}>{lesson.title}</p>
-        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14, margin: '0 0 40px' }}>{lesson.slides.length} slides complétées</p>
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
-          <button onClick={onRestart} style={{ padding: '12px 28px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
-            Recommencer
-          </button>
-          <button onClick={onBack} style={{ padding: '12px 28px', background: BLUE, border: 'none', color: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
-            Retour au studio
-          </button>
-        </div>
-      </motion.div>
     </div>
   );
 }
