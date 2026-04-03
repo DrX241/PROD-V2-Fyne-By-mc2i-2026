@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ArrowLeft, Brain, FileUp, Sparkles, Upload, ArrowRight,
-  BookOpen, Trash2, Play, Calendar, ChevronRight, Library
+  ArrowLeft, Sparkles, Upload, ArrowRight,
+  BookOpen, Trash2, Play, Calendar, Library
 } from 'lucide-react';
 import mcLogoPath from '@assets/mc2i.png';
 
@@ -68,7 +68,6 @@ export default function ModuleGenerator() {
     {
       id: 'ia',
       badge: 'IA from scratch',
-      icon: <Brain size={28} />,
       title: 'Générer avec l\'IA',
       description: 'Décrivez votre besoin en quelques mots. L\'IA génère une leçon complète en slides théorie/pratique avec un QCM de validation, adaptée à votre public.',
       bullets: [
@@ -83,7 +82,6 @@ export default function ModuleGenerator() {
     {
       id: 'docs',
       badge: 'Depuis vos documents',
-      icon: <FileUp size={28} />,
       title: 'Importer mes contenus',
       description: 'Apportez vos supports existants — PDF, PowerPoint, Word. L\'IA les transforme en leçon interactive avec slides théorie/pratique et QCM de validation.',
       bullets: [
@@ -151,10 +149,6 @@ export default function ModuleGenerator() {
               >
                 <div className="p-8 flex flex-col h-full">
                   <div className="flex items-start justify-between mb-6">
-                    <div className="w-14 h-14 flex items-center justify-center border border-gray-100"
-                      style={{ background: `${card.color}10`, color: card.color }}>
-                      {card.icon}
-                    </div>
                     <span className="text-xs font-bold uppercase tracking-widest px-2 py-1"
                       style={{ background: `${card.color}12`, color: card.color }}>
                       {card.badge}
