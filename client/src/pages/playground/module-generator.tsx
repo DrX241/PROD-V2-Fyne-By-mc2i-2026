@@ -30,7 +30,13 @@ function sourceLabel(source: string) {
   if (source === 'prompt') return 'IA from scratch';
   if (source === 'documents') return 'Documents';
   if (source === 'url') return 'URL / Site web';
+  if (source === 'lesson') return 'Leçon en slides';
   return source;
+}
+
+function playerRoute(training: SavedTraining) {
+  if (training.source === 'lesson') return `/playground/lesson/${training.id}`;
+  return `/playground/player/${training.id}`;
 }
 
 export default function ModuleGenerator() {
@@ -64,14 +70,14 @@ export default function ModuleGenerator() {
       badge: 'IA from scratch',
       icon: <Brain size={28} />,
       title: 'Générer avec l\'IA',
-      description: 'Décrivez votre besoin en quelques mots. L\'IA puise dans sa base de connaissance pour créer une formation complète, adaptée à votre public cible.',
+      description: 'Décrivez votre besoin en quelques mots. L\'IA génère une leçon complète en slides théorie/pratique avec un QCM de validation, adaptée à votre public.',
       bullets: [
         'Pitchez votre besoin en langage naturel',
-        'L\'IA sélectionne les meilleures sources',
-        '7 mises en situation + 10 QCM générés',
+        'Slides théorie alternées avec pratique',
+        'QCM de 5 questions à la fin',
         'Prêt en moins de 60 secondes',
       ],
-      color: BLUE,
+      color: PINK,
       route: '/playground/studio-ia',
     },
     {
@@ -79,12 +85,12 @@ export default function ModuleGenerator() {
       badge: 'Depuis vos documents',
       icon: <FileUp size={28} />,
       title: 'Importer mes contenus',
-      description: 'Apportez vos supports existants — PDF, PowerPoint, Word — ou l\'URL d\'un site web. L\'IA les transforme en formation interactive et engageante.',
+      description: 'Apportez vos supports existants — PDF, PowerPoint, Word. L\'IA les transforme en leçon interactive avec slides théorie/pratique et QCM de validation.',
       bullets: [
-        'PDF, PowerPoint, Word et sites web',
-        'Crawl automatique des pages du site',
-        '7 mises en situation professionnelles',
-        'Gamification adaptée au niveau',
+        'PDF, PowerPoint, Word acceptés',
+        'Slides théorie alternées avec pratique',
+        'QCM de 5 questions à la fin',
+        'Contenu fidèle à vos documents',
       ],
       color: PINK,
       route: '/playground/studio-documents',
@@ -122,12 +128,12 @@ export default function ModuleGenerator() {
             </div>
             <h1 className="text-5xl lg:text-6xl font-black tracking-tight leading-none mb-4">
               <span style={{ color: PINK }}>Créez votre</span><br />
-              <span style={{ color: DARK }}>formation</span><br />
-              <span style={{ color: BLUE }}>sur mesure</span>
+              <span style={{ color: DARK }}>leçon</span><br />
+              <span style={{ color: PINK }}>en slides</span>
             </h1>
             <div className="w-16 h-1 mb-6" style={{ background: PINK }} />
             <p className="text-lg text-gray-600 leading-relaxed max-w-xl">
-              Choisissez votre approche. En quelques minutes, l'IA génère une formation complète avec mises en situation, QCM immersif et gamification.
+              Deux approches, même résultat : une leçon interactive avec slides théorie/pratique et QCM de validation, prête en quelques minutes.
             </p>
           </div>
 
@@ -188,8 +194,8 @@ export default function ModuleGenerator() {
           <div>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <Library size={18} style={{ color: BLUE }} />
-                <h2 className="text-xl font-black" style={{ color: DARK }}>Formations sauvegardées</h2>
+                <Library size={18} style={{ color: PINK }} />
+                <h2 className="text-xl font-black" style={{ color: DARK }}>Leçons sauvegardées</h2>
               </div>
               {trainings.length > 0 && (
                 <span className="text-xs font-bold px-2 py-1"
@@ -248,10 +254,10 @@ export default function ModuleGenerator() {
                         {/* Actions */}
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <button
-                            onClick={() => setLocation(`/playground/player/${t.id}`)}
+                            onClick={() => setLocation(playerRoute(t))}
                             className="inline-flex items-center gap-1.5 px-4 py-2 text-white font-bold text-xs hover:opacity-90 transition-opacity"
-                            style={{ background: BLUE }}>
-                            <Play size={13} /> Jouer
+                            style={{ background: t.source === 'lesson' ? PINK : BLUE }}>
+                            <Play size={13} /> {t.source === 'lesson' ? 'Voir la leçon' : 'Jouer'}
                           </button>
                           <button
                             onClick={(e) => handleDelete(t.id, e)}

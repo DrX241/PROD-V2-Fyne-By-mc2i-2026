@@ -6494,6 +6494,140 @@ ${TRAINING_JSON_SCHEMA}`;
     }
   });
 
+  // POST /api/studio/generate-lesson-from-prompt — Génère une leçon interactive en slides depuis un pitch texte
+  app.post("/api/studio/generate-lesson-from-prompt", async (req: Request, res: Response) => {
+    try {
+      const { pitch, domain, audience, duration } = req.body;
+      if (!pitch) return res.status(400).json({ error: 'Le pitch est requis' });
+
+      const audienceLabels: Record<string, string> = {
+        grand_public: 'grand public sans expertise particulière',
+        managers: 'managers et responsables d\'équipe',
+        experts: 'experts techniques',
+        rh: 'équipes RH et formation',
+        dirigeants: 'dirigeants et membres du COMEX',
+        commercial: 'équipes commerciales',
+      };
+
+      const prompt = `Tu es un expert en ingénierie pédagogique. Crée une leçon interactive complète en format slides à partir du besoin suivant.
+
+BESOIN : ${pitch}
+${domain ? `DOMAINE : ${domain}` : ''}
+PUBLIC CIBLE : ${audienceLabels[audience] || audience || 'grand public'}
+${duration ? `DURÉE CIBLE : ${duration} minutes` : ''}
+
+RÈGLES OBLIGATOIRES :
+1. Génère une leçon de 12 à 14 slides : intro + 5-6 paires (théorie puis pratique) + conclusion
+2. ALTERNE impérativement : intro → théorie → pratique → théorie → pratique → ... → conclusion
+3. THÉORIE : explique des concepts RÉELS et précis liés au besoin (définitions, mécanismes, chiffres, procédures, bonnes pratiques)
+4. PRATIQUE : propose un exercice d'application basé sur une situation professionnelle réaliste liée au concept précédent
+5. Contenu riche, pédagogique et adapté au public cible — utilise des exemples concrets
+6. Chaque slide "theorie" : titre (du concept exact), contenu (4-5 phrases d'explication), pointsCles (3 bullet points essentiels), exemple (2-3 phrases)
+7. Chaque slide "pratique" : titre, contexte (situation 3-4 phrases), question (défi concret), indice (conseil), reponse (réponse complète 3-4 phrases)
+8. Génère aussi un QCM de 5 questions qui teste la compréhension des concepts couverts dans les slides
+9. Chaque question QCM : question claire, 4 choix (A/B/C/D), bonneReponse (index 0-3), explication courte de la bonne réponse
+
+Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
+{
+  "title": "Titre de la leçon",
+  "subtitle": "Sous-titre pédagogique — angle en moins de 12 mots",
+  "description": "Résumé de ce que cette leçon enseigne — 2 phrases",
+  "slides": [
+    {
+      "id": 1,
+      "type": "intro",
+      "titre": "Titre accrocheur de l'introduction",
+      "contenu": "Accroche et présentation du sujet — pourquoi c'est crucial — 2-3 phrases percutantes",
+      "objectifs": ["Objectif 1 avec verbe d'action", "Objectif 2", "Objectif 3", "Objectif 4"]
+    },
+    {
+      "id": 2,
+      "type": "theorie",
+      "titre": "Nom exact du concept 1",
+      "contenu": "Explication précise et détaillée — 4-5 phrases riches",
+      "pointsCles": ["Point clé essentiel 1", "Point clé 2", "Point clé 3"],
+      "exemple": "Exemple concret ou cas d'usage professionnel — 2-3 phrases"
+    },
+    {
+      "id": 3,
+      "type": "pratique",
+      "titre": "Exercice : Appliquer [concept 1]",
+      "contexte": "Situation professionnelle réaliste — personnage + contexte + défi — 3-4 phrases",
+      "question": "Question ouverte ou défi concret posé au participant",
+      "indice": "Piste de réflexion pour guider sans donner la réponse",
+      "reponse": "Réponse idéale et complète — 3-4 phrases avec les bonnes pratiques"
+    },
+    { "id": 4, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
+    { "id": 5, "type": "pratique", "titre": "...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
+    { "id": 6, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
+    { "id": 7, "type": "pratique", "titre": "...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
+    { "id": 8, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
+    { "id": 9, "type": "pratique", "titre": "...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
+    { "id": 10, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
+    { "id": 11, "type": "pratique", "titre": "...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
+    {
+      "id": 12,
+      "type": "conclusion",
+      "titre": "Ce qu'il faut retenir",
+      "points": ["Enseignement clé 1", "Enseignement clé 2", "Enseignement clé 3", "Enseignement clé 4", "Enseignement clé 5"],
+      "message": "Message de clôture motivant et actionnable — 2 phrases"
+    }
+  ],
+  "qcm": [
+    {
+      "id": 1,
+      "question": "Question sur un concept clé de la leçon ?",
+      "choix": ["A. Premier choix", "B. Deuxième choix", "C. Troisième choix", "D. Quatrième choix"],
+      "bonneReponse": 0,
+      "explication": "Explication concise de pourquoi c'est la bonne réponse — 1-2 phrases"
+    },
+    { "id": 2, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 2, "explication": "..." },
+    { "id": 3, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." },
+    { "id": 4, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 3, "explication": "..." },
+    { "id": 5, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 0, "explication": "..." }
+  ]
+}`;
+
+      const aiResponse = await openAIService.getChatCompletion([
+        { role: 'user', content: prompt }
+      ], 0.65, 16000);
+
+      const parseJsonSafely = (str: string) => {
+        try {
+          const clean = str.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+          const start = clean.indexOf('{');
+          const end = clean.lastIndexOf('}');
+          if (start === -1 || end === -1) return null;
+          const fixed = clean.slice(start, end + 1).replace(/[\r\n]+/g, ' ');
+          return JSON.parse(fixed);
+        } catch { return null; }
+      };
+
+      const lesson = parseJsonSafely(aiResponse);
+      if (!lesson || !lesson.slides || !Array.isArray(lesson.slides) || lesson.slides.length < 3) {
+        console.warn('[Lesson IA] Parsing échoué:', aiResponse.slice(0, 500));
+        return res.status(500).json({ error: 'Impossible de générer la leçon. Réessayez.' });
+      }
+
+      const id = uuidv4();
+      await storage.saveGeneratedTraining({
+        id,
+        title: lesson.title || 'Leçon interactive',
+        tagline: lesson.subtitle || '',
+        source: 'lesson',
+        sourceInfo: { pitch: pitch.slice(0, 200), domain, slideCount: lesson.slides.length },
+        audience: audience || 'grand_public',
+        gamificationLevel: 'medium',
+        content: lesson,
+      });
+
+      res.json({ lesson, id });
+    } catch (error: any) {
+      console.error('[Studio Lesson IA] Erreur:', error?.message || error);
+      res.status(500).json({ error: 'Erreur lors de la génération de la leçon. Réessayez.' });
+    }
+  });
+
   // POST /api/studio/generate-lesson — Génère une leçon interactive en slides depuis des documents
   const multerLesson = (await import('multer')).default;
   const uploadLesson = multerLesson({ storage: multerLesson.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024, files: 3 } });
