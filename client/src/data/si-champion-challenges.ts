@@ -2,6 +2,12 @@ export type Track = 'python' | 'sql' | 'javascript' | 'data';
 export type Level = 'débutant' | 'intermédiaire' | 'expert';
 export type Language = 'python' | 'javascript' | 'sql';
 
+export interface TableDef {
+  name: string;
+  columns: string[];
+  rows: (string | number | null)[][];
+}
+
 export interface Challenge {
   id: string;
   track: Track;
@@ -16,6 +22,8 @@ export interface Challenge {
   points: number;
   tags: string[];
   duration: number; // minutes
+  tables?: TableDef[];
+  sqlConcept?: string;
 }
 
 export const CHALLENGES: Challenge[] = [
@@ -347,18 +355,36 @@ for row in conn.execute(query):
     hints: [
       'SELECT * sélectionne toutes les colonnes',
       'FROM indique la table source',
-      'La requête est déjà écrite — observe sa structure',
+      'La requête est déjà écrite — observe sa structure et exécute-la',
     ],
     points: 100,
     tags: ['SELECT', 'FROM', 'basique'],
     duration: 5,
+    tables: [{
+      name: 'produits',
+      columns: ['id', 'nom', 'categorie', 'prix', 'stock'],
+      rows: [
+        [1, 'Laptop ProX', 'Informatique', 899.99, 45],
+        [2, 'Câble HDMI', 'Accessoires', 12.5, 200],
+        [3, 'Écran 27"', 'Informatique', 349.0, 30],
+        [4, 'Souris sans fil', 'Accessoires', 29.99, 150],
+        [5, 'Clavier mécanique', 'Accessoires', 89.0, 80],
+      ],
+    }],
+    sqlConcept: `SELECT * FROM table_name
+→ retourne TOUTES les colonnes
+
+SELECT col1, col2 FROM table_name
+→ retourne des colonnes spécifiques
+
+FROM indique quelle table interroger.`,
   },
   {
     id: 'sql-002',
     track: 'sql',
     level: 'débutant',
-    title: 'Filtrer avec WHERE',
-    context: 'L\'équipe stock veut voir uniquement les produits de la catégorie "Informatique" pour préparer un inventaire.',
+    title: 'Filtrer avec WHERE et ORDER BY',
+    context: 'L\'équipe stock veut voir uniquement les produits de la catégorie "Informatique" triés par prix pour préparer un inventaire.',
     instructions: 'Affiche uniquement le nom et le prix des produits de la catégorie `Informatique`, triés par prix décroissant.',
     starterCode: `import sqlite3
 
@@ -399,13 +425,93 @@ for row in conn.execute(query):
     points: 100,
     tags: ['WHERE', 'ORDER BY', 'filtrage'],
     duration: 5,
+    tables: [{
+      name: 'produits',
+      columns: ['id', 'nom', 'categorie', 'prix', 'stock'],
+      rows: [
+        [1, 'Laptop ProX', 'Informatique', 899.99, 45],
+        [2, 'Câble HDMI', 'Accessoires', 12.5, 200],
+        [3, 'Écran 27"', 'Informatique', 349.0, 30],
+        [4, 'Souris sans fil', 'Accessoires', 29.99, 150],
+        [5, 'Clavier mécanique', 'Accessoires', 89.0, 80],
+        [6, 'SSD 1To', 'Informatique', 129.0, 60],
+      ],
+    }],
+    sqlConcept: `WHERE condition → filtre les lignes
+  Exemple : WHERE categorie = 'Informatique'
+  Opérateurs : =  <>  >  <  >=  <=  LIKE  IN  BETWEEN
+
+ORDER BY col ASC|DESC → trie les résultats
+  ASC = croissant (défaut)  |  DESC = décroissant`,
   },
   {
     id: 'sql-003',
     track: 'sql',
     level: 'débutant',
-    title: 'Agrégations et GROUP BY',
-    context: 'La direction veut un résumé des ventes par département. Tu dois calculer le total des ventes et le nombre de transactions par département.',
+    title: 'Statistiques simples — COUNT, SUM, AVG',
+    context: 'Juste avant le CODIR mensuel, ton manager t\'envoie un message Teams : "Besoin de 3 stats rapides sur notre catalogue produits pour la présentation — tu peux les sortir vite ?" Tu as 5 minutes.',
+    instructions: 'Affiche sur 3 lignes séparées : le nombre total de produits, le prix moyen arrondi à 2 décimales, et le prix maximum.',
+    starterCode: `import sqlite3
+
+conn = sqlite3.connect(':memory:')
+conn.execute("""
+    CREATE TABLE produits (
+        id INTEGER, nom TEXT, categorie TEXT, prix REAL, stock INTEGER
+    )
+""")
+conn.executemany("INSERT INTO produits VALUES (?,?,?,?,?)", [
+    (1, 'Laptop ProX', 'Informatique', 899.99, 45),
+    (2, 'Câble HDMI', 'Accessoires', 12.50, 200),
+    (3, 'Écran 27"', 'Informatique', 349.00, 30),
+    (4, 'Souris sans fil', 'Accessoires', 29.99, 150),
+    (5, 'Clavier mécanique', 'Accessoires', 89.00, 80),
+    (6, 'SSD 1To', 'Informatique', 129.00, 60),
+])
+conn.commit()
+
+# 3 requêtes déjà écrites — exécute-les et affiche chaque résultat
+query1 = "SELECT COUNT(*) FROM produits"
+query2 = "SELECT ROUND(AVG(prix), 2) FROM produits"
+query3 = "SELECT MAX(prix) FROM produits"
+
+# TODO : affiche les 3 résultats (un par ligne)
+`,
+    language: 'python',
+    expectedOutput: '6\n251.58\n899.99',
+    hints: [
+      'conn.execute(query1).fetchone()[0] retourne la valeur unique du COUNT',
+      'Appelle print() pour chaque requête, une par une',
+      'ROUND(AVG(prix), 2) arrondit directement en SQL à 2 décimales',
+    ],
+    points: 100,
+    tags: ['COUNT', 'AVG', 'MAX', 'MIN', 'SUM'],
+    duration: 5,
+    tables: [{
+      name: 'produits',
+      columns: ['id', 'nom', 'categorie', 'prix', 'stock'],
+      rows: [
+        [1, 'Laptop ProX', 'Informatique', 899.99, 45],
+        [2, 'Câble HDMI', 'Accessoires', 12.5, 200],
+        [3, 'Écran 27"', 'Informatique', 349.0, 30],
+        [4, 'Souris sans fil', 'Accessoires', 29.99, 150],
+        [5, 'Clavier mécanique', 'Accessoires', 89.0, 80],
+        [6, 'SSD 1To', 'Informatique', 129.0, 60],
+      ],
+    }],
+    sqlConcept: `COUNT(*) → nombre total de lignes
+SUM(col) → somme des valeurs
+AVG(col) → moyenne
+MIN(col) → minimum  |  MAX(col) → maximum
+ROUND(valeur, n) → arrondi à n décimales
+
+Exemple : SELECT COUNT(*), ROUND(AVG(prix), 2) FROM produits`,
+  },
+  {
+    id: 'sql-004',
+    track: 'sql',
+    level: 'débutant',
+    title: 'Regrouper avec GROUP BY',
+    context: 'La direction veut un résumé des ventes par département avant le comité. Tu dois calculer le total et le nombre de transactions pour chaque zone géographique.',
     instructions: 'Affiche pour chaque département : son nom, le total des ventes et le nombre de commandes, triés par total décroissant.',
     starterCode: `import sqlite3
 
@@ -439,19 +545,36 @@ for row in conn.execute(query):
     expectedOutput: 'Nord|36800.0|3\nSud|26800.0|3\nEst|20700.0|2\nOuest|14500.0|2',
     hints: [
       'GROUP BY regroupe les lignes par valeur de colonne',
-      'SUM() calcule la somme, COUNT(*) compte les lignes',
+      'SUM() calcule la somme, COUNT(*) compte les lignes par groupe',
       'ORDER BY total DESC trie par total décroissant',
     ],
     points: 150,
     tags: ['GROUP BY', 'SUM', 'COUNT'],
     duration: 8,
+    tables: [{
+      name: 'commandes',
+      columns: ['id', 'departement', 'montant', 'vendeur'],
+      rows: [
+        [1, 'Nord', 12000, 'Alice'],
+        [2, 'Sud', 8500, 'Bob'],
+        [3, 'Nord', 15000, 'Alice'],
+        [4, 'Est', 6200, 'Claire'],
+        [5, 'Sud', 11000, 'Bob'],
+      ],
+    }],
+    sqlConcept: `GROUP BY col → regroupe les lignes identiques
+  Toutes les colonnes du SELECT doivent être dans GROUP BY
+  OU dans une fonction d'agrégation (SUM, COUNT, AVG…)
+
+SUM(montant) AS total → nomme la colonne résultat
+COUNT(*) AS nb → compte les lignes du groupe`,
   },
   {
-    id: 'sql-004',
+    id: 'sql-005',
     track: 'sql',
     level: 'intermédiaire',
     title: 'INNER JOIN — Relier les tables',
-    context: 'Le système de facturation utilise deux tables : `clients` et `factures`. Tu dois générer un rapport avec les noms des clients et leurs montants de facture.',
+    context: 'Le système de facturation utilise deux tables séparées : `clients` et `factures`. Tu dois générer un rapport lisible avec les noms des clients et leurs montants.',
     instructions: 'Affiche le nom du client, le numéro de facture et le montant pour chaque facture, triés par montant décroissant.',
     starterCode: `import sqlite3
 
@@ -486,13 +609,32 @@ for row in conn.execute(query):
     points: 200,
     tags: ['JOIN', 'INNER JOIN', 'relations'],
     duration: 10,
+    tables: [
+      {
+        name: 'clients',
+        columns: ['id', 'nom', 'ville'],
+        rows: [[1, 'Alice Dupont', 'Paris'], [2, 'Bob Martin', 'Lyon'], [3, 'Claire Durand', 'Marseille']],
+      },
+      {
+        name: 'factures',
+        columns: ['id', 'client_id', 'numero', 'montant'],
+        rows: [[1, 1, 'FAC-001', 4500], [2, 2, 'FAC-002', 2100], [3, 1, 'FAC-003', 8900], [4, 3, 'FAC-004', 3300], [5, 2, 'FAC-005', 6700]],
+      },
+    ],
+    sqlConcept: `INNER JOIN table2 ON t1.col = t2.col
+→ lie deux tables via une clé commune
+→ ne retourne que les lignes avec correspondance des deux côtés
+
+FROM factures f
+INNER JOIN clients c ON f.client_id = c.id
+→ f et c sont des alias (noms raccourcis)`,
   },
   {
-    id: 'sql-005',
+    id: 'sql-006',
     track: 'sql',
     level: 'intermédiaire',
     title: 'HAVING — Filtrer les groupes',
-    context: 'Le responsable commercial veut voir uniquement les vendeurs qui ont réalisé plus de 3 ventes ce mois-ci, pour attribuer un bonus.',
+    context: 'Le responsable commercial veut voir uniquement les vendeurs qui ont réalisé plus de 3 ventes ce mois-ci, pour attribuer un bonus de performance.',
     instructions: 'Affiche le nom du vendeur et son nombre de ventes, uniquement si nb_ventes > 3, trié du plus productif au moins productif.',
     starterCode: `import sqlite3
 
@@ -530,13 +672,31 @@ for row in conn.execute(query):
     points: 200,
     tags: ['HAVING', 'GROUP BY', 'filtrage agrégats'],
     duration: 10,
+    tables: [{
+      name: 'ventes',
+      columns: ['id', 'vendeur', 'montant', 'date'],
+      rows: [
+        [1, 'Sophie', 1200, '2024-01'],
+        [2, 'Sophie', 900, '2024-01'],
+        [3, 'Marc', 3400, '2024-01'],
+        [4, 'Sophie', 1500, '2024-01'],
+        [5, 'Julie', 800, '2024-01'],
+      ],
+    }],
+    sqlConcept: `HAVING condition → filtre les GROUPES (après GROUP BY)
+  ≠ WHERE qui filtre les LIGNES (avant GROUP BY)
+
+Ordre d'exécution SQL :
+  FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY
+
+Exemple : HAVING COUNT(*) > 3`,
   },
   {
-    id: 'sql-006',
+    id: 'sql-007',
     track: 'sql',
     level: 'intermédiaire',
-    title: 'LEFT JOIN — Trouver les clients sans commande',
-    context: 'Le service client veut identifier les clients inscrits qui n\'ont jamais passé commande, pour les relancer par email.',
+    title: 'LEFT JOIN — Clients sans commande',
+    context: 'Le service client veut identifier les clients inscrits qui n\'ont jamais passé commande, pour les relancer par email avec une offre de bienvenue.',
     instructions: 'Affiche uniquement les noms des clients sans aucune commande, triés alphabétiquement.',
     starterCode: `import sqlite3
 
@@ -576,14 +736,38 @@ for row in conn.execute(query):
     points: 200,
     tags: ['LEFT JOIN', 'IS NULL', 'relations'],
     duration: 10,
+    tables: [
+      {
+        name: 'clients',
+        columns: ['id', 'nom', 'email'],
+        rows: [
+          [1, 'Alice Dupont', 'alice@mc2i.fr'],
+          [2, 'Bob Martin', 'bob@mc2i.fr'],
+          [3, 'Claire Durand', 'claire@mc2i.fr'],
+          [4, 'David Petit', 'david@mc2i.fr'],
+          [5, 'Eva Leclerc', 'eva@mc2i.fr'],
+        ],
+      },
+      {
+        name: 'commandes',
+        columns: ['id', 'client_id', 'total'],
+        rows: [[1, 1, 450], [2, 1, 890], [3, 3, 230], [4, 5, 1200]],
+      },
+    ],
+    sqlConcept: `LEFT JOIN → retourne TOUTES les lignes de la table gauche
+  + les correspondances de la table droite (NULL si absentes)
+  ≠ INNER JOIN qui exclut les lignes sans correspondance
+
+Pattern "orphelins" :
+LEFT JOIN table2 ON ... WHERE table2.id IS NULL`,
   },
   {
-    id: 'sql-007',
+    id: 'sql-008',
     track: 'sql',
     level: 'expert',
     title: 'Sous-requête — Top vendeurs par région',
-    context: 'La direction veut voir, pour chaque région, uniquement le meilleur vendeur (celui avec le plus grand total de ventes).',
-    instructions: 'Affiche le nom du vendeur, sa région et son total, un par région. Format : `vendeur|region|total`.',
+    context: 'La direction veut voir, pour chaque région, uniquement le meilleur vendeur (celui avec le plus grand total de ventes). Un seul par région.',
+    instructions: 'Affiche le nom du vendeur, sa région et son total, un par région. Format : `vendeur|region|total`, trié par région.',
     starterCode: `import sqlite3
 
 conn = sqlite3.connect(':memory:')
@@ -614,20 +798,42 @@ for row in conn.execute(query):
     language: 'python',
     expectedOutput: 'Frank|Est|55000.0\nAlice|Nord|45000.0\nHugo|Ouest|39000.0\nClaire|Sud|52000.0',
     hints: [
-      'Une sous-requête est un SELECT dans le FROM ou le WHERE',
+      'Une sous-requête est un SELECT imbriqué dans le FROM',
       'Commence par calculer le MAX par région dans la sous-requête',
       'Joins ensuite cette sous-requête avec la table principale',
     ],
     points: 300,
     tags: ['sous-requête', 'MAX', 'GROUP BY'],
     duration: 20,
+    tables: [{
+      name: 'ventes_reg',
+      columns: ['id', 'vendeur', 'region', 'total'],
+      rows: [
+        [1, 'Alice', 'Nord', 45000],
+        [2, 'Bob', 'Nord', 38000],
+        [3, 'Claire', 'Sud', 52000],
+        [4, 'David', 'Sud', 48000],
+        [5, 'Eva', 'Est', 41000],
+        [6, 'Frank', 'Est', 55000],
+        [7, 'Grace', 'Ouest', 33000],
+        [8, 'Hugo', 'Ouest', 39000],
+      ],
+    }],
+    sqlConcept: `Sous-requête = SELECT imbriqué dans un autre SELECT
+
+SELECT ... FROM table
+INNER JOIN (SELECT ...) AS alias ON ...
+           ↑ sous-requête dans le FROM
+
+La sous-requête s'exécute EN PREMIER
+son résultat est utilisé par la requête principale.`,
   },
   {
-    id: 'sql-008',
+    id: 'sql-009',
     track: 'sql',
     level: 'expert',
     title: 'Window Functions — RANK()',
-    context: 'Le DRH veut classer les employés par salaire à l\'intérieur de chaque département, pour préparer les revues de performance.',
+    context: 'Le DRH veut classer les employés par salaire à l\'intérieur de chaque département, pour préparer les entretiens de revue de performance annuels.',
     instructions: 'Affiche pour chaque employé : son nom, son département, son salaire et son rang dans le département. Trié par département puis rang.',
     starterCode: `import sqlite3
 
@@ -656,19 +862,39 @@ for row in conn.execute(query):
     expectedOutput: 'David|Data|91000.0|1\nClaire|Data|68000.0|2\nFrank|Data|68000.0|2\nBob|Dev|82000.0|1\nEva|Dev|78000.0|2\nAlice|Dev|75000.0|3\nHugo|RH|62000.0|1\nGrace|RH|55000.0|2',
     hints: [
       'RANK() attribue un rang, avec des ex-aequo possibles',
-      'PARTITION BY segmente par département',
+      'PARTITION BY segmente par département (indépendamment)',
       'ORDER BY salaire DESC trie du plus élevé au plus bas',
     ],
     points: 350,
     tags: ['window functions', 'RANK', 'PARTITION BY'],
     duration: 20,
+    tables: [{
+      name: 'employes',
+      columns: ['id', 'nom', 'departement', 'salaire'],
+      rows: [
+        [1, 'Alice', 'Dev', 75000],
+        [2, 'Bob', 'Dev', 82000],
+        [3, 'Claire', 'Data', 68000],
+        [4, 'David', 'Data', 91000],
+        [5, 'Eva', 'Dev', 78000],
+      ],
+    }],
+    sqlConcept: `RANK() OVER (PARTITION BY dept ORDER BY salaire DESC)
+
+Fonctions de fenêtre = calculs sur des "fenêtres" de lignes
+PARTITION BY → divise en groupes indépendants
+ORDER BY → ordre du classement dans chaque groupe
+
+ROW_NUMBER() → pas d'ex-aequo
+RANK() → ex-aequo + saut de rang (1, 1, 3…)
+DENSE_RANK() → ex-aequo sans saut (1, 1, 2…)`,
   },
   {
-    id: 'sql-009',
+    id: 'sql-010',
     track: 'sql',
     level: 'expert',
     title: 'CTE — Clients à fort potentiel',
-    context: 'Le service commercial veut identifier les clients dont le panier moyen dépasse 500€ ET qui ont commandé plus de 5 fois. Ce sont les clients "Gold" à chouchouter.',
+    context: 'Le service commercial veut identifier les clients "Gold" : ceux dont le panier moyen dépasse 500€ ET qui ont commandé plus de 5 fois. Ce sont les clients à chouchouter.',
     instructions: 'Affiche le nom des clients Gold, leur nb de commandes et leur panier moyen (arrondi à 2 décimales), triés par panier moyen décroissant.',
     starterCode: `import sqlite3
 
@@ -712,45 +938,27 @@ for row in conn.execute(query):
     points: 350,
     tags: ['CTE', 'WITH', 'agrégats', 'filtrage'],
     duration: 20,
-  },
-  {
-    id: 'sql-010',
-    track: 'sql',
-    level: 'expert',
-    title: 'Analyse de tendance — LAG()',
-    context: 'Le contrôleur de gestion veut comparer les ventes mensuelles d\'une année à l\'autre pour calculer l\'évolution en pourcentage.',
-    instructions: 'Affiche pour chaque mois : le mois, le total des ventes et l\'évolution vs le mois précédent en % arrondi à 1 décimale. Ignore la première ligne (pas de précédent). Format : `mois|total|evolution%`.',
-    starterCode: `import sqlite3
-
-conn = sqlite3.connect(':memory:')
-conn.executescript("""
-    CREATE TABLE monthly (mois TEXT, total REAL);
-    INSERT INTO monthly VALUES
-        ('2024-01',120000),('2024-02',135000),('2024-03',128000),
-        ('2024-04',152000),('2024-05',148000),('2024-06',165000);
-""")
-
-# Utilise LAG() pour comparer au mois précédent
-query = """
-SELECT mois, total,
-       ROUND((total - LAG(total) OVER (ORDER BY mois)) * 100.0 / LAG(total) OVER (ORDER BY mois), 1) as evolution
-FROM monthly
-"""
-
-rows = list(conn.execute(query))
-for row in rows[1:]:  # ignore first row (no previous month)
-    print('|'.join(str(v) for v in row))
-`,
-    language: 'python',
-    expectedOutput: '2024-02|135000.0|12.5\n2024-03|128000.0|-5.2\n2024-04|152000.0|18.8\n2024-05|148000.0|-2.6\n2024-06|165000.0|11.5',
-    hints: [
-      'LAG(col) OVER (ORDER BY ...) retourne la valeur précédente',
-      'Formule évolution : (actuel - précédent) * 100 / précédent',
-      'ROUND(..., 1) pour 1 décimale',
+    tables: [
+      {
+        name: 'cli',
+        columns: ['id', 'nom'],
+        rows: [[1, 'Alice'], [2, 'Bob'], [3, 'Claire'], [4, 'David'], [5, 'Eva']],
+      },
+      {
+        name: 'ord (extrait)',
+        columns: ['id', 'cli_id', 'montant'],
+        rows: [[1, 1, 800], [2, 1, 650], [7, 2, 200], [10, 3, 600], [16, 4, 100]],
+      },
     ],
-    points: 400,
-    tags: ['LAG', 'window functions', 'évolution'],
-    duration: 25,
+    sqlConcept: `WITH nom_cte AS (
+  SELECT ...
+)
+SELECT ... FROM nom_cte
+
+CTE = Common Table Expression (table temporaire nommée)
+→ rend les requêtes complexes plus lisibles
+→ peut être réutilisée dans la suite
+→ chaînable : WITH cte1 AS (...), cte2 AS (...)`,
   },
 
   // ─── JAVASCRIPT TRACK ──────────────────────────────────────────────────────

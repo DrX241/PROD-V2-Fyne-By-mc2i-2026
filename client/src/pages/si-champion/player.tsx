@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Editor from '@monaco-editor/react';
 import {
   Play, ChevronLeft, ChevronRight, Lightbulb, Trophy, Clock,
-  CheckCircle2, XCircle, RotateCcw, ArrowRight, Terminal, Star, BookOpen
+  CheckCircle2, XCircle, RotateCcw, ArrowRight, Terminal, Star, BookOpen, Database
 } from 'lucide-react';
 import mcLogoPath from '@assets/mc2i.png';
 import { CHALLENGES, TRACKS, LEVEL_CONFIG, getChallengeById } from '@/data/si-champion-challenges';
@@ -428,6 +428,69 @@ export default function ChallengePlayer({ params }: { params: { id: string } }) 
                     <p className="text-sm text-gray-700 leading-relaxed">{challenge.context}</p>
                   </div>
                 </div>
+
+                {/* SQL Tables */}
+                {challenge.tables && challenge.tables.length > 0 && (
+                  <div>
+                    <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1">
+                      <Database size={10} /> Données disponibles
+                    </div>
+                    <div className="space-y-2">
+                      {challenge.tables.map(table => (
+                        <div key={table.name} className="border border-gray-200 overflow-hidden">
+                          <div className="px-2.5 py-1.5 bg-gray-50 border-b border-gray-200 flex items-center gap-2">
+                            <span className="text-[10px] font-black text-gray-400 uppercase">TABLE</span>
+                            <code className="text-xs font-bold" style={{ color: DARK }}>{table.name}</code>
+                          </div>
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-xs border-collapse">
+                              <thead>
+                                <tr>
+                                  {table.columns.map(col => (
+                                    <th key={col} className="px-2 py-1 text-left font-bold text-gray-500 bg-gray-50 border-b border-gray-200 whitespace-nowrap">
+                                      {col}
+                                    </th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {table.rows.slice(0, 5).map((row, i) => (
+                                  <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                    {row.map((cell, j) => (
+                                      <td key={j} className="px-2 py-1 text-gray-700 border-t border-gray-100 whitespace-nowrap">
+                                        {String(cell ?? '')}
+                                      </td>
+                                    ))}
+                                  </tr>
+                                ))}
+                                {table.rows.length > 5 && (
+                                  <tr>
+                                    <td colSpan={table.columns.length} className="px-2 py-1 text-gray-400 text-[10px] border-t border-gray-100 italic">
+                                      … {table.rows.length - 5} lignes supplémentaires dans le code
+                                    </td>
+                                  </tr>
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* SQL Concept reminder */}
+                {challenge.sqlConcept && (
+                  <div className="border border-blue-100 overflow-hidden">
+                    <div className="px-2.5 py-1.5 bg-blue-50 border-b border-blue-100 flex items-center gap-1.5">
+                      <Database size={10} style={{ color: BLUE }} />
+                      <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: BLUE }}>Rappel SQL</span>
+                    </div>
+                    <pre className="p-3 text-xs font-mono leading-relaxed text-gray-700 whitespace-pre-wrap bg-white overflow-x-auto">
+                      {challenge.sqlConcept}
+                    </pre>
+                  </div>
+                )}
 
                 {/* Mission task */}
                 <div>
