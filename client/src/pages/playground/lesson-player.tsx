@@ -662,8 +662,8 @@ export default function LessonPlayer() {
       </div>
 
       {/* Slide content */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px' }}>
-        <div style={{ width: '100%', maxWidth: 860 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '16px 24px' }}>
+        <div style={{ width: '100%', maxWidth: 1040 }}>
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div key={currentIdx} custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3, ease: 'easeInOut' }}>
               {slide.type === 'intro' && <IntroSlide slide={slide as SlideIntro} />}
@@ -750,7 +750,7 @@ function TypeBadge({ type }: { type: string }) {
 
 function IntroSlide({ slide }: { slide: SlideIntro }) {
   return (
-    <div style={{ background: DARK, padding: '64px 56px', minHeight: 480, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ background: DARK, padding: '64px 56px', minHeight: 'calc(100vh - 200px)', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${BLUE}, ${PINK})` }} />
       <div style={{ position: 'absolute', top: -120, right: -80, width: 320, height: 320, borderRadius: '50%', background: `${BLUE}18` }} />
       <div style={{ position: 'absolute', bottom: -80, left: -40, width: 200, height: 200, borderRadius: '50%', background: `${PINK}12` }} />
@@ -776,7 +776,7 @@ function IntroSlide({ slide }: { slide: SlideIntro }) {
 
 function TheorieSlide({ slide }: { slide: SlideTheorie }) {
   return (
-    <div style={{ background: 'white', minHeight: 480, border: '1px solid #e5e7eb' }}>
+    <div style={{ background: 'white', minHeight: 'calc(100vh - 200px)', border: '1px solid #e5e7eb' }}>
       <div style={{ height: 4, background: BLUE }} />
       <div style={{ padding: '40px 48px' }}>
         <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, letterSpacing: 3, color: BLUE, textTransform: 'uppercase' }}>Théorie</p>
@@ -809,7 +809,7 @@ function TheorieSlide({ slide }: { slide: SlideTheorie }) {
 
 function PratiqueSlide({ slide, idx, revealed, onToggle }: { slide: SlidePratique; idx: number; revealed: boolean; onToggle: () => void }) {
   return (
-    <div style={{ background: DARK, minHeight: 480, border: `2px solid ${PINK}20`, position: 'relative', overflow: 'hidden' }}>
+    <div style={{ background: DARK, minHeight: 'calc(100vh - 200px)', border: `2px solid ${PINK}20`, position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: -100, right: -60, width: 280, height: 280, borderRadius: '50%', background: `${PINK}08` }} />
       <div style={{ height: 4, background: PINK }} />
       <div style={{ padding: '40px 48px', position: 'relative' }}>
@@ -847,7 +847,7 @@ function PratiqueSlide({ slide, idx, revealed, onToggle }: { slide: SlidePratiqu
 
 function ConclusionSlide({ slide }: { slide: SlideConclusion }) {
   return (
-    <div style={{ background: DARK, minHeight: 480, position: 'relative', overflow: 'hidden' }}>
+    <div style={{ background: DARK, minHeight: 'calc(100vh - 200px)', position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${BLUE}, ${PINK})` }} />
       <div style={{ position: 'absolute', top: -80, right: -60, width: 240, height: 240, borderRadius: '50%', background: `${BLUE}12` }} />
       <div style={{ padding: '48px 56px', position: 'relative' }}>
@@ -944,7 +944,7 @@ function FillBlankSlide({ slide, inputs, onInputChange, submitted, onSubmit }: {
   };
 
   return (
-    <div style={{ background: 'white', minHeight: 480, border: `2px solid ${PURPLE}25`, position: 'relative', overflow: 'hidden' }}>
+    <div style={{ background: 'white', minHeight: 'calc(100vh - 200px)', border: `2px solid ${PURPLE}25`, position: 'relative', overflow: 'hidden' }}>
       <div style={{ height: 4, background: PURPLE }} />
       <div style={{ position: 'absolute', top: -80, right: -60, width: 200, height: 200, borderRadius: '50%', background: `${PURPLE}06` }} />
       <div style={{ padding: '40px 48px', position: 'relative' }}>
@@ -1096,7 +1096,7 @@ function VraiFauxSlide({ slide, answers, onAnswerChange, submitted, onSubmit }: 
   const allCorrect = submitted && correctCount === affirmations.length;
 
   return (
-    <div style={{ background: 'white', minHeight: 480, border: `2px solid ${AMBER}25`, position: 'relative', overflow: 'hidden' }}>
+    <div style={{ background: 'white', minHeight: 'calc(100vh - 200px)', border: `2px solid ${AMBER}25`, position: 'relative', overflow: 'hidden' }}>
       <div style={{ height: 4, background: AMBER }} />
       <div style={{ position: 'absolute', top: -80, right: -60, width: 200, height: 200, borderRadius: '50%', background: `${AMBER}06` }} />
       <div style={{ padding: '36px 48px', position: 'relative' }}>
