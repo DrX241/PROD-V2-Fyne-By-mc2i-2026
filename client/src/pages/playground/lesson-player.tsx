@@ -803,6 +803,7 @@ function FillBlankSlide({ slide, inputs, onInputChange, submitted, onSubmit }: {
   submitted: boolean;
   onSubmit: () => void;
 }) {
+  const [showAnswers, setShowAnswers] = useState(false);
   const segments = parseFillBlank(slide.phrase || '');
   const mots = slide.mots || [];
   const allFilled = mots.every((_, i) => (inputs[i] || '').trim().length > 0);
@@ -883,10 +884,34 @@ function FillBlankSlide({ slide, inputs, onInputChange, submitted, onSubmit }: {
         </AnimatePresence>
 
         {!submitted && (
-          <button onClick={onSubmit} disabled={!allFilled}
-            style={{ marginTop: 20, padding: '12px 32px', border: 'none', background: allFilled ? PURPLE : '#e5e7eb', color: 'white', cursor: allFilled ? 'pointer' : 'not-allowed', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <PenLine size={16} /> Valider mes réponses
-          </button>
+          <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+              <button onClick={onSubmit} disabled={!allFilled}
+                style={{ padding: '12px 32px', border: 'none', background: allFilled ? PURPLE : '#e5e7eb', color: 'white', cursor: allFilled ? 'pointer' : 'not-allowed', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <PenLine size={16} /> Valider mes réponses
+              </button>
+              <button onClick={() => setShowAnswers(s => !s)}
+                style={{ padding: '10px 20px', border: `1px solid ${PURPLE}40`, background: showAnswers ? `${PURPLE}10` : 'transparent', color: PURPLE, cursor: 'pointer', fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Eye size={14} /> {showAnswers ? 'Masquer les réponses' : 'Voir les réponses'}
+              </button>
+            </div>
+            <AnimatePresence>
+              {showAnswers && (
+                <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+                  <div style={{ padding: '14px 18px', background: `${PURPLE}08`, border: `1px solid ${PURPLE}30`, borderLeft: `3px solid ${PURPLE}` }}>
+                    <p style={{ margin: '0 0 10px', fontSize: 11, fontWeight: 700, color: PURPLE, textTransform: 'uppercase', letterSpacing: 1.5 }}>Réponses attendues</p>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      {mots.map((mot, i) => (
+                        <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 12px', background: `${PURPLE}15`, border: `1px solid ${PURPLE}40`, color: PURPLE, fontSize: 14, fontWeight: 700 }}>
+                          <span style={{ fontSize: 11, opacity: 0.6 }}>Blanc {i + 1} :</span> {mot}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         )}
       </div>
     </div>
