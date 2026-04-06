@@ -4,6 +4,30 @@
 
 FYNE est une plateforme SaaS de formation immersive en cybersécurité et culture data développée par mc2i. La plateforme propose une approche innovante d'apprentissage par le biais de scénarios interactifs alimentés par l'intelligence artificielle. Elle comprend plusieurs modules spécialisés incluant "I AM CYBER", "I AM SI CHAMPION" (code interactif), une expérience chatbot immersive, ainsi que des jeux sérieux, des simulations de crise, et des modules d'acculturation Data & IA.
 
+### Player — Gamification (avril 2026)
+Le player `client/src/pages/playground/lesson-player.tsx` intègre un système XP complet :
+- **+5 XP** à chaque slide avancée (une seule fois par slide)
+- **+15 XP** à chaque défi pratique révélé (une seule fois par défi)
+- **+20 XP** bonus au passage en phase QCM (toutes les slides terminées)
+- **+50 XP** par bonne réponse QCM + bonus combo (×1 par réponse consécutive au-delà de 2)
+- **Combo streak** : affiché en header (🔥 Combo xN) + bonus XP supplémentaire dès le 3e enchaînement
+- **Flash vert** sur l'écran à chaque bonne réponse QCM
+- **Shake** de la liste des choix à chaque mauvaise réponse
+- **Notification flottante** +XP animée (top-right)
+- **Écran score** remplacé : badge dynamique (🏆⭐🎯📈💪), XP total, meilleur combo, particles CSS, recap détaillé avec XP par question
+
+### Gemini — Fallback multi-modèles (avril 2026)
+`server/services/gemini.ts` — `callGemini()` essaie automatiquement :
+1. `gemini-2.5-flash` (90s timeout)
+2. `gemini-2.0-flash` (délai 1.2s, 4s si rate-limit 429)
+3. `gemini-1.5-flash`
+Méthode interne `callGeminiModel()` gère l'AbortController par modèle.
+
+### Prompts — Mise à jour (avril 2026)
+- **Grand public** : bloc de vulgarisation extrême injecté dans les deux endpoints (`grandPublicBlock` / `grandPublicBlockDocs`) — métaphores du quotidien obligatoires, "c'est comme si..."
+- **QCM** : passé de 5 à **10 questions** dans les deux endpoints (prompt-ia et documents)
+- **Pratique** : titre avec niveau obligatoire ("Défi Débutant/Intermédiaire/Expert : ..."), formulation engageante
+
 ### Studio de Formation — Nouvelles fonctionnalités (mars 2026)
 Le Studio génère désormais :
 - **7 mises en situation professionnelles ouvertes** : l'apprenant rédige une réponse libre en texte, évaluée par l'IA via `POST /api/studio/evaluate-response` (score 0-100, points forts, points à améliorer, réponse experte)

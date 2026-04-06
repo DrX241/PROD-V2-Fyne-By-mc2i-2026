@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, ChevronRight, BookOpen, Zap, CheckCircle,
-  Lightbulb, Target, ArrowLeft, Eye, EyeOff, Award, XCircle, HelpCircle
+  Lightbulb, Target, ArrowLeft, Eye, EyeOff, Award, XCircle, HelpCircle,
+  Flame
 } from 'lucide-react';
 
 const BLUE = '#006a9e';
@@ -68,6 +69,27 @@ export default function LessonPlayer() {
   const [answers, setAnswers] = useState<(number | null)[]>([]);
   const [confirmed, setConfirmed] = useState(false);
 
+  // Gamification state
+  const [xp, setXp] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [maxStreak, setMaxStreak] = useState(0);
+  const [xpNotif, setXpNotif] = useState<{ amount: number; key: number; label?: string } | null>(null);
+  const [wrongShake, setWrongShake] = useState(false);
+  const [correctFlash, setCorrectFlash] = useState(false);
+  const [slideXpEarned, setSlideXpEarned] = useState<Set<number>>(new Set());
+  const [revealXpEarned, setRevealXpEarned] = useState<Set<number>>(new Set());
+
+  const gainXp = useCallback((amount: number, label?: string) => {
+    setXp(prev => prev + amount);
+    setXpNotif({ amount, key: Date.now(), label });
+  }, []);
+
+  useEffect(() => {
+    if (!xpNotif) return;
+    const t = setTimeout(() => setXpNotif(null), 1900);
+    return () => clearTimeout(t);
+  }, [xpNotif?.key]);
+
   useEffect(() => {
     fetch(`/api/studio/training/${id}`)
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
@@ -106,10 +128,20 @@ export default function LessonPlayer() {
   const hasQcm = lesson.qcm && lesson.qcm.length > 0;
 
   const goNext = () => {
-    if (currentIdx < total - 1) { setDirection(1); setCurrentIdx(i => i + 1); }
-    else if (hasQcm) {
+    if (currentIdx < total - 1) {
+      setDirection(1);
+      setCurrentIdx(i => {
+        const next = i + 1;
+        if (!slideXpEarned.has(next)) {
+          gainXp(5, 'Slide suivante');
+          setSlideXpEarned(prev => new Set(prev).add(next));
+        }
+        return next;
+      });
+    } else if (hasQcm) {
       setPhase('qcm');
       setAnswers(new Array(lesson.qcm!.length).fill(null));
+      gainXp(20, 'Slides terminées !');
     } else {
       setPhase('score');
     }
@@ -117,11 +149,19 @@ export default function LessonPlayer() {
   const goPrev = () => {
     if (currentIdx > 0) { setDirection(-1); setCurrentIdx(i => i - 1); }
   };
-  const toggleReveal = (idx: number) => setRevealed(r => ({ ...r, [idx]: !r[idx] }));
+  const toggleReveal = (idx: number) => {
+    if (!revealed[idx] && !revealXpEarned.has(idx)) {
+      gainXp(15, 'Défi relevé !');
+      setRevealXpEarned(prev => new Set(prev).add(idx));
+    }
+    setRevealed(r => ({ ...r, [idx]: !r[idx] }));
+  };
 
   const handleRestart = () => {
     setCurrentIdx(0); setPhase('slides'); setRevealed({});
     setQcmIdx(0); setSelected(null); setAnswers([]); setConfirmed(false);
+    setXp(0); setStreak(0); setMaxStreak(0);
+    setSlideXpEarned(new Set()); setRevealXpEarned(new Set());
   };
 
   // ── QCM PHASE ──────────────────────────────────────────────────────────────
@@ -133,10 +173,25 @@ export default function LessonPlayer() {
 
     const confirmAnswer = () => {
       if (selected === null) return;
+      const correct = selected === q.bonneReponse;
       const newAnswers = [...answers];
       newAnswers[qcmIdx] = selected;
       setAnswers(newAnswers);
       setConfirmed(true);
+
+      if (correct) {
+        const newStreak = streak + 1;
+        setStreak(newStreak);
+        setMaxStreak(s => Math.max(s, newStreak));
+        const bonus = newStreak >= 3 ? Math.round(30 * (newStreak - 2)) : 0;
+        gainXp(50 + bonus, newStreak >= 3 ? `🔥 Combo x${newStreak} !` : undefined);
+        setCorrectFlash(true);
+        setTimeout(() => setCorrectFlash(false), 700);
+      } else {
+        setStreak(0);
+        setWrongShake(true);
+        setTimeout(() => setWrongShake(false), 500);
+      }
     };
 
     const goNextQ = () => {
@@ -147,8 +202,29 @@ export default function LessonPlayer() {
     };
 
     return (
-      <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+        <style>{`
+          @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+          @keyframes xpFloat { 0%{opacity:0;transform:translateY(20px) scale(0.8)} 20%{opacity:1;transform:translateY(0) scale(1.1)} 80%{opacity:1;transform:translateY(-8px) scale(1)} 100%{opacity:0;transform:translateY(-20px) scale(0.9)} }
+        `}</style>
+
+        {/* Correct flash overlay */}
+        <AnimatePresence>
+          {correctFlash && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
+              style={{ position: 'fixed', inset: 0, background: `${GREEN}18`, zIndex: 200, pointerEvents: 'none' }} />
+          )}
+        </AnimatePresence>
+
+        {/* XP notification */}
+        <AnimatePresence>
+          {xpNotif && (
+            <motion.div key={xpNotif.key} initial={{ opacity: 0, y: 24, scale: 0.85 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -16 }}
+              style={{ position: 'fixed', top: 72, right: 24, zIndex: 300, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: '#d97706', color: 'white', fontWeight: 800, fontSize: 14 }}>
+              ⚡ +{xpNotif.amount} XP {xpNotif.label && <span style={{ fontWeight: 600, fontSize: 12 }}>{xpNotif.label}</span>}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Header */}
         <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '0 24px', height: 56, display: 'flex', alignItems: 'center', gap: 16, position: 'sticky', top: 0, zIndex: 50 }}>
@@ -157,10 +233,18 @@ export default function LessonPlayer() {
           </button>
           <div style={{ width: 1, height: 20, background: '#e5e7eb' }} />
           <div style={{ flex: 1 }}>
-            <p style={{ margin: 0, fontWeight: 600, fontSize: 14, color: DARK }}>{lesson.title}</p>
+            <p style={{ margin: 0, fontWeight: 600, fontSize: 14, color: DARK, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{lesson.title}</p>
           </div>
+          {streak >= 2 && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', background: '#fef3c7', color: '#d97706', fontSize: 12, fontWeight: 800 }}>
+              <Flame size={13} /> Combo x{streak}
+            </span>
+          )}
+          <span style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', background: '#fef3c7', color: '#d97706', fontSize: 12, fontWeight: 800 }}>
+            ⚡ {xp} XP
+          </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: `rgba(221,0,97,0.1)`, color: PINK, fontSize: 12, fontWeight: 700 }}>
-            <HelpCircle size={12} /> QCM — {qcmIdx + 1}/{questions.length}
+            <HelpCircle size={12} /> {qcmIdx + 1}/{questions.length}
           </span>
         </div>
 
@@ -170,29 +254,33 @@ export default function LessonPlayer() {
         </div>
 
         {/* Question dots */}
-        <div style={{ padding: '12px 24px', display: 'flex', gap: 6, justifyContent: 'center', background: 'white', borderBottom: '1px solid #f3f4f6' }}>
+        <div style={{ padding: '10px 24px', display: 'flex', gap: 5, justifyContent: 'center', flexWrap: 'wrap', background: 'white', borderBottom: '1px solid #f3f4f6' }}>
           {questions.map((_, i) => (
-            <div key={i} style={{ width: 28, height: 8, background: i === qcmIdx ? PINK : i < qcmIdx ? (answers[i] === questions[i].bonneReponse ? GREEN : RED) : '#e5e7eb' }} />
+            <div key={i} style={{ width: 24, height: 8, background: i === qcmIdx ? PINK : i < qcmIdx ? (answers[i] === questions[i].bonneReponse ? GREEN : RED) : '#e5e7eb', transition: 'background 0.3s' }} />
           ))}
         </div>
 
         {/* Question card */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '28px 24px' }}>
           <div style={{ width: '100%', maxWidth: 720 }}>
             <AnimatePresence mode="wait">
               <motion.div key={qcmIdx} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.25 }}>
 
                 {/* Question */}
-                <div style={{ background: 'white', border: '1px solid #e5e7eb', marginBottom: 16 }}>
+                <div style={{ background: 'white', border: '1px solid #e5e7eb', marginBottom: 14 }}>
                   <div style={{ height: 4, background: PINK }} />
-                  <div style={{ padding: '32px 36px' }}>
-                    <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, letterSpacing: 3, color: PINK, textTransform: 'uppercase' }}>Question {qcmIdx + 1}</p>
-                    <p style={{ margin: 0, fontSize: 20, fontWeight: 700, color: DARK, lineHeight: 1.5 }}>{q.question}</p>
+                  <div style={{ padding: '24px 32px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: PINK, textTransform: 'uppercase' }}>Question {qcmIdx + 1}</span>
+                      <span style={{ fontSize: 10, color: '#9ca3af' }}>· +50 XP si correct</span>
+                      {streak >= 3 && <span style={{ fontSize: 10, color: '#d97706', fontWeight: 700 }}>+{Math.round(30 * (streak - 2))} XP bonus combo</span>}
+                    </div>
+                    <p style={{ margin: 0, fontSize: 19, fontWeight: 700, color: DARK, lineHeight: 1.5 }}>{q.question}</p>
                   </div>
                 </div>
 
                 {/* Choices */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 16, animation: wrongShake ? 'shake 0.5s ease' : 'none' }}>
                   {q.choix.map((choix, ci) => {
                     let bg = 'white';
                     let borderColor = selected === ci ? PINK : '#e5e7eb';
@@ -205,11 +293,11 @@ export default function LessonPlayer() {
                     return (
                       <button key={ci} disabled={confirmed}
                         onClick={() => setSelected(ci)}
-                        style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px', background: bg, border: `2px solid ${borderColor}`, cursor: confirmed ? 'default' : 'pointer', textAlign: 'left', transition: 'all 0.15s' }}>
-                        <div style={{ width: 32, height: 32, border: `2px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: selected === ci && !confirmed ? `${PINK}15` : 'transparent' }}>
-                          {confirmed && ci === q.bonneReponse ? <CheckCircle size={16} style={{ color: GREEN }} /> :
-                           confirmed && ci === selected && selected !== q.bonneReponse ? <XCircle size={16} style={{ color: RED }} /> :
-                           <span style={{ fontSize: 13, fontWeight: 700, color: borderColor }}>{'ABCD'[ci]}</span>}
+                        style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', background: bg, border: `2px solid ${borderColor}`, cursor: confirmed ? 'default' : 'pointer', textAlign: 'left', transition: 'all 0.15s' }}>
+                        <div style={{ width: 30, height: 30, border: `2px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: selected === ci && !confirmed ? `${PINK}15` : 'transparent' }}>
+                          {confirmed && ci === q.bonneReponse ? <CheckCircle size={15} style={{ color: GREEN }} /> :
+                           confirmed && ci === selected && selected !== q.bonneReponse ? <XCircle size={15} style={{ color: RED }} /> :
+                           <span style={{ fontSize: 12, fontWeight: 700, color: borderColor }}>{'ABCD'[ci]}</span>}
                         </div>
                         <span style={{ fontSize: 15, fontWeight: selected === ci ? 600 : 400, color: textColor, lineHeight: 1.4 }}>{choix}</span>
                       </button>
@@ -221,11 +309,11 @@ export default function LessonPlayer() {
                 <AnimatePresence>
                   {confirmed && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                      <div style={{ padding: '16px 20px', background: isCorrect ? `${GREEN}12` : `${RED}08`, borderLeft: `3px solid ${isCorrect ? GREEN : RED}`, marginBottom: 16 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                          {isCorrect ? <CheckCircle size={16} style={{ color: GREEN }} /> : <XCircle size={16} style={{ color: RED }} />}
-                          <span style={{ fontWeight: 700, fontSize: 14, color: isCorrect ? GREEN : RED }}>
-                            {isCorrect ? 'Bonne réponse !' : `Incorrect — la bonne réponse est ${['A','B','C','D'][q.bonneReponse]}`}
+                      <div style={{ padding: '14px 18px', background: isCorrect ? `${GREEN}12` : `${RED}08`, borderLeft: `3px solid ${isCorrect ? GREEN : RED}`, marginBottom: 12 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+                          {isCorrect ? <CheckCircle size={15} style={{ color: GREEN }} /> : <XCircle size={15} style={{ color: RED }} />}
+                          <span style={{ fontWeight: 800, fontSize: 14, color: isCorrect ? GREEN : RED }}>
+                            {isCorrect ? (streak >= 3 ? `🔥 Combo x${streak} — Excellent !` : 'Bonne réponse !') : `Incorrect — bonne réponse : ${['A','B','C','D'][q.bonneReponse]}`}
                           </span>
                         </div>
                         <p style={{ margin: 0, fontSize: 14, color: '#374151', lineHeight: 1.6 }}>{q.explication}</p>
@@ -240,7 +328,10 @@ export default function LessonPlayer() {
         </div>
 
         {/* Footer */}
-        <div style={{ background: 'white', borderTop: '1px solid #e5e7eb', padding: '16px 24px', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+        <div style={{ background: 'white', borderTop: '1px solid #e5e7eb', padding: '14px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', bottom: 0, zIndex: 40 }}>
+          <span style={{ fontSize: 12, color: '#9ca3af' }}>
+            {answers.filter((a, i) => a !== null && a === questions[i]?.bonneReponse).length} bonne{answers.filter((a, i) => a !== null && a === questions[i]?.bonneReponse).length > 1 ? 's' : ''} sur {qcmIdx} répondue{qcmIdx > 1 ? 's' : ''}
+          </span>
           {!confirmed ? (
             <button onClick={confirmAnswer} disabled={selected === null}
               style={{ padding: '12px 32px', border: 'none', background: selected === null ? '#e5e7eb' : PINK, color: 'white', cursor: selected === null ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 14 }}>
@@ -248,8 +339,8 @@ export default function LessonPlayer() {
             </button>
           ) : (
             <button onClick={goNextQ}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 28px', border: 'none', background: BLUE, color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: 14 }}>
-              {isLast ? 'Voir mes résultats' : 'Question suivante'} <ChevronRight size={18} />
+              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 28px', border: 'none', background: isCorrect ? GREEN : BLUE, color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: 14 }}>
+              {isLast ? '🏆 Voir mes résultats' : 'Question suivante'} <ChevronRight size={18} />
             </button>
           )}
         </div>
@@ -264,37 +355,86 @@ export default function LessonPlayer() {
       ? answers.filter((a, i) => a === questions[i].bonneReponse).length
       : 0;
     const pct = questions.length > 0 ? Math.round((score / questions.length) * 100) : 100;
-    const mention = pct >= 80 ? 'Excellent !' : pct >= 60 ? 'Bien !' : pct >= 40 ? 'À retravailler' : 'À approfondir';
-    const mentionColor = pct >= 80 ? GREEN : pct >= 60 ? BLUE : pct >= 40 ? '#f59e0b' : RED;
+    const mention = pct >= 90 ? 'Maître !' : pct >= 75 ? 'Excellent !' : pct >= 60 ? 'Bien joué !' : pct >= 40 ? 'En progression' : 'À retravailler';
+    const mentionColor = pct >= 75 ? GREEN : pct >= 60 ? BLUE : pct >= 40 ? '#f59e0b' : RED;
+    const badge = pct >= 90 ? { icon: '🏆', label: 'Maître de la leçon', color: '#f59e0b' }
+                : pct >= 75 ? { icon: '⭐', label: 'Expert validé', color: GREEN }
+                : pct >= 60 ? { icon: '🎯', label: 'Objectif atteint', color: BLUE }
+                : pct >= 40 ? { icon: '📈', label: 'En progression', color: '#f59e0b' }
+                :             { icon: '💪', label: 'Continue à pratiquer', color: '#9ca3af' };
+
+    const particles = Array.from({ length: pct >= 60 ? 20 : 8 }, (_, i) => ({
+      id: i, left: Math.random() * 100, delay: Math.random() * 1.5,
+      color: [PINK, BLUE, GREEN, '#f59e0b', '#7c3aed'][i % 5],
+      size: 4 + Math.random() * 6,
+    }));
 
     return (
-      <div style={{ minHeight: '100vh', background: DARK, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+      <div style={{ minHeight: '100vh', background: DARK, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '48px 24px', overflowX: 'hidden', position: 'relative' }}>
+        <style>{`
+          @keyframes particle { 0%{transform:translateY(100vh) rotate(0deg);opacity:1} 100%{transform:translateY(-20vh) rotate(720deg);opacity:0} }
+          @keyframes glow { 0%,100%{box-shadow:0 0 20px ${PINK}40} 50%{box-shadow:0 0 40px ${PINK}80} }
+        `}</style>
+
+        {/* Gradient top bar */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${BLUE}, ${PINK})` }} />
 
-        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }}
-          style={{ width: '100%', maxWidth: 560, textAlign: 'center' }}>
+        {/* Particles */}
+        {particles.map(p => (
+          <div key={p.id} style={{
+            position: 'fixed', bottom: -10, left: `${p.left}%`,
+            width: p.size, height: p.size, background: p.color,
+            animation: `particle ${2 + p.delay}s ease-out ${p.delay}s 1 forwards`,
+            pointerEvents: 'none', zIndex: 0,
+          }} />
+        ))}
 
-          {/* Score circle */}
-          <div style={{ width: 120, height: 120, border: `4px solid ${mentionColor}`, borderRadius: '50%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
-            <span style={{ fontSize: 36, fontWeight: 900, color: mentionColor, lineHeight: 1 }}>{score}</span>
-            <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>/ {questions.length}</span>
+        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }}
+          style={{ width: '100%', maxWidth: 600, position: 'relative', zIndex: 1 }}>
+
+          {/* Badge */}
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <div style={{ fontSize: 52, marginBottom: 10 }}>{badge.icon}</div>
+            <span style={{ display: 'inline-block', padding: '5px 16px', background: `${badge.color}20`, color: badge.color, fontSize: 12, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>
+              {badge.label}
+            </span>
+            <p style={{ margin: '0 0 4px', fontSize: 32, fontWeight: 900, color: 'white' }}>{mention}</p>
+            <p style={{ margin: 0, fontSize: 15, color: 'rgba(255,255,255,0.5)' }}>{score}/{questions.length} bonnes réponses · {pct}%</p>
           </div>
 
-          <p style={{ margin: '0 0 6px', fontSize: 28, fontWeight: 800, color: 'white' }}>{mention}</p>
-          <p style={{ margin: '0 0 32px', fontSize: 16, color: 'rgba(255,255,255,0.55)' }}>{pct}% de bonnes réponses</p>
+          {/* XP Total */}
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 28, flexWrap: 'wrap' }}>
+            <div style={{ padding: '14px 24px', background: 'rgba(255,255,255,0.06)', textAlign: 'center', minWidth: 100 }}>
+              <p style={{ margin: '0 0 4px', fontSize: 28, fontWeight: 900, color: '#f59e0b' }}>⚡ {xp}</p>
+              <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1 }}>XP Total</p>
+            </div>
+            {maxStreak >= 2 && (
+              <div style={{ padding: '14px 24px', background: 'rgba(255,255,255,0.06)', textAlign: 'center', minWidth: 100 }}>
+                <p style={{ margin: '0 0 4px', fontSize: 28, fontWeight: 900, color: '#d97706' }}>🔥 x{maxStreak}</p>
+                <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1 }}>Meilleur combo</p>
+              </div>
+            )}
+            <div style={{ padding: '14px 24px', background: 'rgba(255,255,255,0.06)', textAlign: 'center', minWidth: 100 }}>
+              <div style={{ fontSize: 28, marginBottom: 4 }}>{pct >= 75 ? '✅' : pct >= 60 ? '📊' : '📝'}</div>
+              <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1 }}>Score</p>
+            </div>
+          </div>
 
           {/* Per-question recap */}
           {questions.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 36, textAlign: 'left' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 32, textAlign: 'left' }}>
               {questions.map((q, i) => {
                 const correct = answers[i] === q.bonneReponse;
                 return (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 16px', background: 'rgba(255,255,255,0.05)', borderLeft: `3px solid ${correct ? GREEN : RED}` }}>
-                    {correct ? <CheckCircle size={16} style={{ color: GREEN, flexShrink: 0, marginTop: 2 }} /> : <XCircle size={16} style={{ color: RED, flexShrink: 0, marginTop: 2 }} />}
-                    <div>
-                      <p style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.85)', lineHeight: 1.4 }}>{q.question}</p>
-                      {!correct && <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>Réponse correcte : {q.choix[q.bonneReponse]}</p>}
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 14px', background: 'rgba(255,255,255,0.04)', borderLeft: `3px solid ${correct ? GREEN : RED}` }}>
+                    {correct
+                      ? <CheckCircle size={14} style={{ color: GREEN, flexShrink: 0, marginTop: 3 }} />
+                      : <XCircle size={14} style={{ color: RED, flexShrink: 0, marginTop: 3 }} />}
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: '0 0 3px', fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.8)', lineHeight: 1.4 }}>{q.question}</p>
+                      {!correct && <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>✓ {q.choix[q.bonneReponse]}</p>}
                     </div>
+                    {correct && <span style={{ fontSize: 11, color: '#f59e0b', fontWeight: 700, flexShrink: 0 }}>+50 XP</span>}
                   </div>
                 );
               })}
@@ -303,11 +443,11 @@ export default function LessonPlayer() {
 
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
             <button onClick={handleRestart}
-              style={{ padding: '12px 24px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
+              style={{ padding: '12px 24px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
               Recommencer
             </button>
             <button onClick={() => navigate('/playground/module-generator')}
-              style={{ padding: '12px 28px', background: BLUE, border: 'none', color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: 14 }}>
+              style={{ padding: '12px 28px', background: PINK, border: 'none', color: 'white', cursor: 'pointer', fontWeight: 800, fontSize: 14 }}>
               Retour au studio
             </button>
           </div>
@@ -318,8 +458,18 @@ export default function LessonPlayer() {
 
   // ── SLIDES PHASE ────────────────────────────────────────────────────────────
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column', position: 'relative' }}>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+
+      {/* XP notification */}
+      <AnimatePresence>
+        {xpNotif && (
+          <motion.div key={xpNotif.key} initial={{ opacity: 0, y: 24, scale: 0.85 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -16 }}
+            style={{ position: 'fixed', top: 72, right: 24, zIndex: 300, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: '#d97706', color: 'white', fontWeight: 800, fontSize: 14 }}>
+            ⚡ +{xpNotif.amount} XP {xpNotif.label && <span style={{ fontWeight: 600, fontSize: 12 }}>{xpNotif.label}</span>}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Header */}
       <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '0 24px', height: 56, display: 'flex', alignItems: 'center', gap: 16, position: 'sticky', top: 0, zIndex: 50 }}>
@@ -333,6 +483,11 @@ export default function LessonPlayer() {
         {hasQcm && (
           <span style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: `rgba(221,0,97,0.08)`, color: PINK, fontSize: 11, fontWeight: 600 }}>
             <HelpCircle size={11} /> QCM après les slides
+          </span>
+        )}
+        {xp > 0 && (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', background: '#fef3c7', color: '#d97706', fontSize: 12, fontWeight: 800 }}>
+            ⚡ {xp} XP
           </span>
         )}
         <span style={{ fontSize: 13, color: '#6b7280', whiteSpace: 'nowrap' }}>{currentIdx + 1} / {total}</span>

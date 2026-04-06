@@ -6509,23 +6509,33 @@ ${TRAINING_JSON_SCHEMA}`;
         commercial: 'équipes commerciales',
       };
 
+      const grandPublicBlock = audience === 'grand_public' ? `
+MODE GRAND PUBLIC — VULGARISATION EXTRÊME OBLIGATOIRE :
+- Tu t'adresses à quelqu'un qui n'a JAMAIS entendu ces termes. Zéro jargon sans explication immédiate.
+- Chaque concept DOIT avoir une métaphore de la vie courante (cuisine, sport, courses, voiture, famille, téléphone, argent, maison, météo).
+- Utilise systématiquement "c'est comme si..." ou "imagine que..." pour ancrer chaque notion.
+- Phrases courtes. Vocabulaire simple. Exemples du quotidien UNIQUEMENT.
+- Les mises en pratique : situations de la vie de tous les jours, pas professionnelles (ex: gérer ses mots de passe comme ses clés de maison).
+- Le QCM : questions formulées simplement, sans termes techniques, distracteurs plausibles mais faciles à démêler avec du bon sens.
+` : '';
+
       const prompt = `Tu es un expert en ingénierie pédagogique. Crée une leçon interactive complète en format slides à partir du besoin suivant.
 
 BESOIN : ${pitch}
 ${domain ? `DOMAINE : ${domain}` : ''}
 PUBLIC CIBLE : ${audienceLabels[audience] || audience || 'grand public'}
 ${duration ? `DURÉE CIBLE : ${duration} minutes` : ''}
-
+${grandPublicBlock}
 RÈGLES OBLIGATOIRES :
 1. Génère une leçon de 12 à 14 slides : intro + 5-6 paires (théorie puis pratique) + conclusion
 2. ALTERNE impérativement : intro → théorie → pratique → théorie → pratique → ... → conclusion
 3. THÉORIE : explique des concepts RÉELS et précis liés au besoin (définitions, mécanismes, chiffres, procédures, bonnes pratiques)
-4. PRATIQUE : propose un exercice d'application basé sur une situation professionnelle réaliste liée au concept précédent
-5. Contenu riche, pédagogique et adapté au public cible — utilise des exemples concrets
+4. PRATIQUE : formule chaque exercice comme un DÉFI engageant avec un niveau (Débutant/Intermédiaire/Expert) — situation réaliste, question ouverte stimulante
+5. Contenu riche, pédagogique et adapté au public cible — utilise des exemples concrets et percutants
 6. Chaque slide "theorie" : titre (du concept exact), contenu (4-5 phrases d'explication), pointsCles (3 bullet points essentiels), exemple (2-3 phrases)
-7. Chaque slide "pratique" : titre, contexte (situation 3-4 phrases), question (défi concret), indice (conseil), reponse (réponse complète 3-4 phrases)
-8. Génère aussi un QCM de 5 questions qui teste la compréhension des concepts couverts dans les slides
-9. Chaque question QCM : question claire, 4 choix (A/B/C/D), bonneReponse (index 0-3), explication courte de la bonne réponse
+7. Chaque slide "pratique" : titre avec niveau ex "Défi Intermédiaire : [nom]", contexte (situation 3-4 phrases immersive), question (défi concret stimulant), indice (conseil), reponse (réponse complète 3-4 phrases)
+8. Génère aussi un QCM de 10 questions variées qui testent la compréhension des concepts couverts dans les slides
+9. Chaque question QCM : question claire et précise, 4 choix (A/B/C/D) dont 1 seul correct, bonneReponse (index 0-3), explication motivante de la bonne réponse
 
 Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
 {
@@ -6579,12 +6589,17 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
       "question": "Question sur un concept clé de la leçon ?",
       "choix": ["A. Premier choix", "B. Deuxième choix", "C. Troisième choix", "D. Quatrième choix"],
       "bonneReponse": 0,
-      "explication": "Explication concise de pourquoi c'est la bonne réponse — 1-2 phrases"
+      "explication": "Explication motivante de pourquoi c'est la bonne réponse — 1-2 phrases"
     },
     { "id": 2, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 2, "explication": "..." },
     { "id": 3, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." },
     { "id": 4, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 3, "explication": "..." },
-    { "id": 5, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 0, "explication": "..." }
+    { "id": 5, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 0, "explication": "..." },
+    { "id": 6, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." },
+    { "id": 7, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 2, "explication": "..." },
+    { "id": 8, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 0, "explication": "..." },
+    { "id": 9, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 3, "explication": "..." },
+    { "id": 10, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." }
   ]
 }`;
 
@@ -6680,6 +6695,16 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
       const filesSummary = extractedTexts.join('\n\n').slice(0, 25000);
       const audienceLabel = ({ grand_public: 'grand public', managers: 'managers', experts: 'experts', rh: 'équipes RH', dirigeants: 'dirigeants' } as any)[audience] || 'professionnels';
 
+      const grandPublicBlockDocs = audience === 'grand_public' ? `
+MODE GRAND PUBLIC — VULGARISATION EXTRÊME OBLIGATOIRE :
+- Tu t'adresses à quelqu'un qui n'a JAMAIS entendu ces termes. Zéro jargon sans explication immédiate.
+- Chaque concept DOIT avoir une métaphore de la vie courante (cuisine, sport, courses, voiture, famille, téléphone, argent, maison, météo).
+- Utilise systématiquement "c'est comme si..." ou "imagine que..." pour ancrer chaque notion.
+- Phrases courtes. Vocabulaire simple. Exemples du quotidien UNIQUEMENT.
+- Les mises en pratique : situations de la vie de tous les jours, pas professionnelles.
+- Le QCM : questions formulées simplement, sans termes techniques.
+` : '';
+
       const prompt = `Tu es un expert en ingénierie pédagogique spécialisé dans les leçons interactives. Crée une leçon complète basée STRICTEMENT sur le contenu des documents fournis.
 
 FICHIERS FOURNIS :
@@ -6687,17 +6712,17 @@ ${filesSummary}
 
 PUBLIC CIBLE : ${audienceLabel}
 ${title ? `TITRE SOUHAITÉ : "${title}"` : ''}
-
+${grandPublicBlockDocs}
 RÈGLES OBLIGATOIRES :
 1. Génère une leçon de 12 à 14 slides : intro + 5-6 paires (théorie puis pratique) + conclusion
 2. ALTERNE impérativement : intro → théorie → pratique → théorie → pratique → ... → conclusion
 3. THÉORIE : explique des concepts RÉELS et précis tirés du document (définitions, mécanismes, chiffres, procédures)
-4. PRATIQUE : propose un exercice d'application basé sur une situation professionnelle réaliste liée au concept précédent
+4. PRATIQUE : formule chaque exercice comme un DÉFI engageant avec un niveau (Débutant/Intermédiaire/Expert) — situation réaliste et immersive liée au concept précédent
 5. Contenu FIDÈLE au document — ne pas inventer — utilise les termes exacts du document
 6. Chaque slide "theorie" : titre (du concept exact), contenu (4-5 phrases d'explication), pointsCles (3 bullet points essentiels), exemple (2-3 phrases)
-7. Chaque slide "pratique" : titre, contexte (situation 3-4 phrases), question (défi concret), indice (conseil), reponse (réponse complète 3-4 phrases)
-8. Génère aussi un QCM de 5 questions qui teste la compréhension des concepts couverts dans les slides
-9. Chaque question QCM : question claire, 4 choix (A/B/C/D), bonneReponse (index 0-3), explication courte de la bonne réponse
+7. Chaque slide "pratique" : titre avec niveau ex "Défi Débutant : [nom]", contexte (situation 3-4 phrases immersive), question (défi concret stimulant), indice (conseil), reponse (réponse complète 3-4 phrases)
+8. Génère aussi un QCM de 10 questions variées qui testent la compréhension des concepts couverts dans les slides
+9. Chaque question QCM : question claire et précise, 4 choix (A/B/C/D) dont 1 seul correct, bonneReponse (index 0-3), explication motivante de la bonne réponse
 
 Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
 {
@@ -6766,12 +6791,17 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
       "question": "Question sur un concept clé de la leçon ?",
       "choix": ["A. Premier choix", "B. Deuxième choix", "C. Troisième choix", "D. Quatrième choix"],
       "bonneReponse": 0,
-      "explication": "Explication concise de pourquoi c'est la bonne réponse — 1-2 phrases"
+      "explication": "Explication motivante de pourquoi c'est la bonne réponse — 1-2 phrases"
     },
     { "id": 2, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 2, "explication": "..." },
     { "id": 3, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." },
     { "id": 4, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 3, "explication": "..." },
-    { "id": 5, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 0, "explication": "..." }
+    { "id": 5, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 0, "explication": "..." },
+    { "id": 6, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." },
+    { "id": 7, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 2, "explication": "..." },
+    { "id": 8, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 0, "explication": "..." },
+    { "id": 9, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 3, "explication": "..." },
+    { "id": 10, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." }
   ]
 }`;
 

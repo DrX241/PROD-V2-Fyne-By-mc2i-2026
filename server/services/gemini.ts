@@ -153,78 +153,112 @@ class GeminiService {
     return this.callGemini(messages, temperature, actualMaxTokens);
   }
 
+  private readonly MODEL_CHAIN = [
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+  ];
+
+  private async callGeminiModel(
+    model: string,
+    contents: any[],
+    systemInstruction: string,
+    temperature: number,
+    maxTokens: number
+  ): Promise<string> {
+    const requestBody: any = {
+      contents,
+      generationConfig: { temperature, maxOutputTokens: maxTokens },
+    };
+    if (systemInstruction) {
+      requestBody.systemInstruction = { parts: [{ text: systemInstruction }] };
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
+
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/${model}:generateContent?key=${this.apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody),
+          signal: controller.signal,
+        }
+      );
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`${model} HTTP ${response.status}: ${errorData.slice(0, 300)}`);
+      }
+
+      const data = await response.json();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error(`${model}: réponse vide ou format inattendu`);
+      return text;
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      throw error;
+    }
+  }
+
   private async callGemini(
     messages: ChatCompletionRequestMessage[],
     temperature: number,
     maxTokens: number
   ): Promise<string> {
-    try {
-      console.log(`Making Gemini FYNE API request`);
-      console.log(`Request parameters: temperature=${temperature}, max_tokens=${maxTokens}`);
-      console.log(`Nombre de messages: ${messages.length}, Premier role: ${messages[0]?.role}`);
+    console.log(`Making Gemini FYNE API request`);
+    console.log(`Request parameters: temperature=${temperature}, max_tokens=${maxTokens}`);
+    console.log(`Nombre de messages: ${messages.length}, Premier role: ${messages[0]?.role}`);
 
-      const geminiContents: any[] = [];
-      let systemInstruction = "";
+    const geminiContents: any[] = [];
+    let systemInstruction = "";
 
-      for (const msg of messages) {
-        if (msg.role === 'system') {
-          systemInstruction += (systemInstruction ? "\n" : "") + msg.content;
-        } else {
-          geminiContents.push({
-            role: msg.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: msg.content }]
-          });
-        }
+    for (const msg of messages) {
+      if (msg.role === 'system') {
+        systemInstruction += (systemInstruction ? "\n" : "") + msg.content;
+      } else {
+        geminiContents.push({
+          role: msg.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: msg.content }],
+        });
       }
+    }
+    if (geminiContents.length === 0) {
+      geminiContents.push({ role: 'user', parts: [{ text: 'Bonjour' }] });
+    }
 
-      if (geminiContents.length === 0) {
-        geminiContents.push({ role: 'user', parts: [{ text: 'Bonjour' }] });
-      }
+    let lastError: Error = new Error('Aucun modèle disponible');
 
-      const requestBody: any = {
-        contents: geminiContents,
-        generationConfig: {
-          temperature,
-          maxOutputTokens: maxTokens
-        }
-      };
-
-      if (systemInstruction) {
-        requestBody.systemInstruction = {
-          parts: [{ text: systemInstruction }]
-        };
-      }
-
-      const response = await fetch(
-        `${this.baseUrl}/gemini-2.5-flash:generateContent?key=${this.apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody)
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error(`Gemini FYNE API error: ${response.status}`, errorData);
-        throw new Error(`Gemini FYNE API error: ${response.status} - ${errorData}`);
-      }
-
-      const data = await response.json();
-
-      if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-        const content = data.candidates[0].content.parts[0].text;
+    for (let modelIdx = 0; modelIdx < this.MODEL_CHAIN.length; modelIdx++) {
+      const model = this.MODEL_CHAIN[modelIdx];
+      try {
+        console.log(`[Gemini] Tentative avec le modèle: ${model}`);
+        const result = await this.callGeminiModel(model, geminiContents, systemInstruction, temperature, maxTokens);
         this.connectionStatus = 'connected';
         this.lastConnectionCheck = Date.now();
-        return content;
-      }
+        if (modelIdx > 0) console.log(`[Gemini] ✓ Succès avec le modèle de secours: ${model}`);
+        return result;
+      } catch (error: any) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+        console.warn(`[Gemini] ✗ Modèle ${model} échoué: ${lastError.message.slice(0, 120)}`);
 
-      throw new Error("Format de réponse Gemini FYNE inattendu");
-    } catch (error: any) {
-      console.error("Error calling Gemini FYNE API:", error.message || error);
-      this.connectionStatus = 'disconnected';
-      throw error;
+        const isRateLimit = lastError.message.includes('429') || lastError.message.toLowerCase().includes('quota');
+        const isLastModel = modelIdx === this.MODEL_CHAIN.length - 1;
+
+        if (isLastModel) break;
+
+        const delay = isRateLimit ? 4000 : 1200;
+        console.log(`[Gemini] Bascule vers le prochain modèle dans ${delay}ms...`);
+        await new Promise(r => setTimeout(r, delay));
+      }
     }
+
+    this.connectionStatus = 'disconnected';
+    console.error('[Gemini] Tous les modèles ont échoué.');
+    throw lastError;
   }
 
   async getChatCompletionWithModel(
