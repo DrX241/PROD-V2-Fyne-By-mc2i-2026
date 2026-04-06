@@ -59,11 +59,6 @@ export default function SiChampionHub() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-bold mb-6 border"
-                style={{ borderColor: PINK, color: PINK }}>
-                <Zap size={12} />
-                NOUVEAU MODULE — PRATIQUE RÉELLE
-              </div>
               <h1 className="text-5xl font-black tracking-tight mb-4" style={{ color: DARK }}>
                 I AM<br />
                 <span style={{ color: BLUE }}>SI</span>{' '}
