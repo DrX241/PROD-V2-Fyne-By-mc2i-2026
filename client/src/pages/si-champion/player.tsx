@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import mcLogoPath from '@assets/mc2i.png';
 import { CHALLENGES, TRACKS, LEVEL_CONFIG, getChallengeById } from '@/data/si-champion-challenges';
+import ExcelPlayer from './excel-player';
 
 const BLUE = '#006a9e';
 const PINK = '#dd0061';
@@ -40,6 +41,14 @@ interface RunResult {
 }
 
 export default function ChallengePlayer({ params }: { params: { id: string } }) {
+  const challenge = getChallengeById(params.id);
+  if (challenge?.challengeType === 'excel') {
+    return <ExcelPlayer challengeId={params.id} />;
+  }
+  return <CodePlayer params={params} />;
+}
+
+function CodePlayer({ params }: { params: { id: string } }) {
   const challengeId = params.id;
   const [, navigate] = useLocation();
   const challenge = getChallengeById(challengeId);

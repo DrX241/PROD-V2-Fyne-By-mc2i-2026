@@ -8,6 +8,21 @@ export interface TableDef {
   rows: (string | number | null)[][];
 }
 
+export interface ExcelTargetCell {
+  ref: string;
+  label?: string;
+  expectedValue: number | string;
+  tolerance?: number;
+  hint?: string;
+}
+
+export interface ExcelData {
+  rows: (string | number | null)[][];
+  numCols: number;
+  targetCells: ExcelTargetCell[];
+  formulaConcept?: string;
+}
+
 export interface Challenge {
   id: string;
   track: Track;
@@ -21,9 +36,11 @@ export interface Challenge {
   hints: string[];
   points: number;
   tags: string[];
-  duration: number; // minutes
+  duration: number;
   tables?: TableDef[];
   sqlConcept?: string;
+  challengeType?: 'code' | 'excel';
+  excelData?: ExcelData;
 }
 
 export const CHALLENGES: Challenge[] = [
@@ -963,184 +980,278 @@ CTE = Common Table Expression (table temporaire nommée)
 
   // ─── DATA / EXCEL TRACK ────────────────────────────────────────────────────
   {
-    id: 'data-001',
+    id: 'excel-001',
     track: 'data',
     level: 'débutant',
-    title: 'SOMME.SI — Ventes par région',
-    context: 'Tu travailles sur un rapport Excel pour un client retail. La formule SOMME.SI est indispensable pour agréger les ventes par région.',
-    instructions: 'Simule SOMME.SI : calcule le total des ventes pour chaque région et affiche au format `Région: total€`, trié par région alphabétiquement.',
-    starterCode: `# Simule une feuille Excel avec SOMME.SI
-donnees = [
-    {"region": "Nord", "ventes": 12500},
-    {"region": "Sud", "ventes": 8900},
-    {"region": "Nord", "ventes": 15000},
-    {"region": "Est", "ventes": 7200},
-    {"region": "Sud", "ventes": 11300},
-    {"region": "Est", "ventes": 9800},
-    {"region": "Nord", "ventes": 6700},
-    {"region": "Ouest", "ventes": 13400},
-]
-
-# TODO : calcule le total par région (SOMME.SI) et affiche par ordre alphabétique
-`,
+    title: 'Sommer une colonne',
+    context: 'Tu intègres la mission IT d\'un client retail. La DSI t\'a transmis le détail budgétaire du poste informatique et ton manager attend le total dans la cellule B7 avant la réunion.',
+    instructions: 'Entre la formule SOMME dans la cellule B7 pour calculer le total du budget IT. La formule doit sommer les cellules B2 à B6.',
+    starterCode: '',
     language: 'python',
-    expectedOutput: 'Est: 17000€\nNord: 34200€\nOuest: 13400€\nSud: 20200€',
+    expectedOutput: '',
     hints: [
-      'Crée un dictionnaire {region: total} pour accumuler',
-      'Utilise sorted() sur les clés pour l\'ordre alphabétique',
-      'f"{region}: {total}€" pour le format d\'affichage',
+      'En Excel, une formule commence toujours par le signe =',
+      'La syntaxe est =SOMME(début:fin), par exemple =SOMME(B2:B6)',
+      'La plage B2:B6 couvre toutes les lignes du tableau (Licences → Support)',
     ],
     points: 100,
-    tags: ['SUMIF', 'agrégation', 'Excel'],
-    duration: 8,
+    tags: ['SOMME', 'débutant', 'budget'],
+    duration: 5,
+    challengeType: 'excel',
+    excelData: {
+      numCols: 2,
+      rows: [
+        ['Poste', 'Coût (€)'],
+        ['Licences logiciels', 4800],
+        ['Matériel informatique', 12500],
+        ['Formation équipe', 3200],
+        ['Hébergement cloud', 8400],
+        ['Support technique', 2100],
+        ['TOTAL', null],
+      ],
+      targetCells: [
+        { ref: 'B7', expectedValue: 31000, hint: '=SOMME(B2:B6)' },
+      ],
+      formulaConcept: '=SOMME(plage)\n=SOMME(B2:B6)\n→ additionne toutes les cellules\n   de B2 jusqu\'à B6',
+    },
   },
   {
-    id: 'data-002',
+    id: 'excel-002',
     track: 'data',
     level: 'débutant',
-    title: 'RECHERCHEV — Correspondance de tables',
-    context: 'Dans Excel, RECHERCHEV permet de chercher une valeur dans une table et d\'en retourner une autre colonne. Tu dois l\'implémenter en Python.',
-    instructions: 'Pour chaque commande, trouve le nom du client correspondant et affiche : `FAC-XXX — Nom Client — montant€`, un par ligne.',
-    starterCode: `# Table de référence clients (comme la plage de RECHERCHEV)
-clients = {
-    "C001": "Alice Dupont",
-    "C002": "Bob Martin",
-    "C003": "Claire Durand",
-    "C004": "David Petit",
-}
-
-# Données source (les commandes)
-commandes = [
-    {"facture": "FAC-001", "client_id": "C003", "montant": 4500},
-    {"facture": "FAC-002", "client_id": "C001", "montant": 2100},
-    {"facture": "FAC-003", "client_id": "C002", "montant": 8900},
-    {"facture": "FAC-004", "client_id": "C004", "montant": 3300},
-]
-
-# TODO : simule RECHERCHEV pour afficher chaque commande avec le nom client
-`,
+    title: 'Sommer plusieurs colonnes',
+    context: 'Le directeur régional veut un tableau de synthèse des revenus par trimestre. Tu dois calculer le total de chaque colonne trimestrielle pour comparer les performances.',
+    instructions: 'Entre une formule SOMME dans les cellules B5, C5 et D5 pour obtenir le total de chaque trimestre (T1, T2, T3).',
+    starterCode: '',
     language: 'python',
-    expectedOutput: 'FAC-001 — Claire Durand — 4500€\nFAC-002 — Alice Dupont — 2100€\nFAC-003 — Bob Martin — 8900€\nFAC-004 — David Petit — 3300€',
+    expectedOutput: '',
     hints: [
-      'clients[commande["client_id"]] retourne le nom du client',
-      'Utilise .get() pour éviter les KeyError : clients.get(id, "Inconnu")',
-      'f"{f} — {nom} — {m}€" pour le format',
+      'Applique la même logique pour chaque colonne : =SOMME(B2:B4), =SOMME(C2:C4)...',
+      'La lettre de colonne change mais la plage de lignes reste la même (2 à 4)',
+      'Clique sur chaque cellule jaune une par une pour entrer ta formule',
     ],
-    points: 100,
-    tags: ['VLOOKUP', 'dictionnaire', 'Excel'],
-    duration: 8,
+    points: 150,
+    tags: ['SOMME', 'multi-colonnes', 'revenus'],
+    duration: 5,
+    challengeType: 'excel',
+    excelData: {
+      numCols: 4,
+      rows: [
+        ['Région', 'T1 (€)', 'T2 (€)', 'T3 (€)'],
+        ['Paris', 142000, 156000, 138000],
+        ['Lyon', 89000, 94000, 102000],
+        ['Bordeaux', 67000, 71000, 58000],
+        ['TOTAL', null, null, null],
+      ],
+      targetCells: [
+        { ref: 'B5', expectedValue: 298000, hint: '=SOMME(B2:B4)' },
+        { ref: 'C5', expectedValue: 321000, hint: '=SOMME(C2:C4)' },
+        { ref: 'D5', expectedValue: 298000, hint: '=SOMME(D2:D4)' },
+      ],
+      formulaConcept: '=SOMME(plage)\n=SOMME(B2:B4) → total colonne T1\n=SOMME(C2:C4) → total colonne T2\n=SOMME(D2:D4) → total colonne T3',
+    },
   },
   {
-    id: 'data-003',
+    id: 'excel-003',
+    track: 'data',
+    level: 'débutant',
+    title: 'Moyenne, Min et Max',
+    context: 'L\'équipe qualité suit les scores de satisfaction client mois par mois. Ton manager veut 3 indicateurs synthétiques : la moyenne, le score le plus bas et le score le plus haut.',
+    instructions: 'Remplis les 3 cellules de synthèse : la Moyenne (B8), le Minimum (B9) et le Maximum (B10) des scores mensuels.',
+    starterCode: '',
+    language: 'python',
+    expectedOutput: '',
+    hints: [
+      'Pour la moyenne : =MOYENNE(B2:B7)',
+      'Pour le minimum : =MIN(B2:B7)',
+      'Pour le maximum : =MAX(B2:B7)',
+    ],
+    points: 150,
+    tags: ['MOYENNE', 'MIN', 'MAX', 'statistiques'],
+    duration: 5,
+    challengeType: 'excel',
+    excelData: {
+      numCols: 2,
+      rows: [
+        ['Mois', 'Score /100'],
+        ['Janvier', 78],
+        ['Février', 92],
+        ['Mars', 65],
+        ['Avril', 88],
+        ['Mai', 74],
+        ['Juin', 95],
+        ['Moyenne', null],
+        ['Minimum', null],
+        ['Maximum', null],
+      ],
+      targetCells: [
+        { ref: 'B8', expectedValue: 82, hint: '=MOYENNE(B2:B7)' },
+        { ref: 'B9', expectedValue: 65, hint: '=MIN(B2:B7)' },
+        { ref: 'B10', expectedValue: 95, hint: '=MAX(B2:B7)' },
+      ],
+      formulaConcept: '=MOYENNE(plage) → moyenne\n=MIN(plage)     → valeur minimale\n=MAX(plage)     → valeur maximale',
+    },
+  },
+  {
+    id: 'excel-004',
     track: 'data',
     level: 'intermédiaire',
-    title: 'Tableau croisé dynamique (TCD)',
-    context: 'Un TCD Excel résume les données en lignes/colonnes. Tu dois créer l\'équivalent Python : total des ventes par vendeur ET par trimestre.',
-    instructions: 'Affiche un tableau avec vendeur en ligne et trimestre en colonne (Q1, Q2, Q3). Format : `Vendeur | Q1 | Q2 | Q3`, les totaux séparés par "|".',
-    starterCode: `ventes = [
-    {"vendeur": "Alice", "trimestre": "Q1", "montant": 12000},
-    {"vendeur": "Alice", "trimestre": "Q2", "montant": 15000},
-    {"vendeur": "Alice", "trimestre": "Q3", "montant": 11000},
-    {"vendeur": "Bob", "trimestre": "Q1", "montant": 18000},
-    {"vendeur": "Bob", "trimestre": "Q2", "montant": 9000},
-    {"vendeur": "Bob", "trimestre": "Q3", "montant": 21000},
-    {"vendeur": "Claire", "trimestre": "Q1", "montant": 8000},
-    {"vendeur": "Claire", "trimestre": "Q2", "montant": 14000},
-    {"vendeur": "Claire", "trimestre": "Q3", "montant": 16000},
-]
-
-# TODO : crée le TCD et affiche-le
-`,
+    title: 'SOMME.SI — Agréger par critère',
+    context: 'Le rapport de ventes régionales contient un mélange de lignes pour différentes régions. Tu dois isoler et sommer les ventes par région pour le rapport de direction.',
+    instructions: 'Utilise SOMME.SI pour calculer le total des ventes pour chaque région : Nord (B10), Sud (B11) et Est (B12).',
+    starterCode: '',
     language: 'python',
-    expectedOutput: 'Alice | 12000 | 15000 | 11000\nBob | 18000 | 9000 | 21000\nClaire | 8000 | 14000 | 16000',
+    expectedOutput: '',
     hints: [
-      'Utilise un dict imbriqué : pivot[vendeur][trimestre] = montant',
-      'Initialise avec setdefault ou defaultdict',
-      'Itère sur sorted(pivot.items()) pour l\'ordre alphabétique',
+      'Syntaxe : =SOMME.SI(plage_critère, critère, plage_somme)',
+      'Pour Nord : =SOMME.SI(A2:A8,"Nord",B2:B8)',
+      'Change uniquement le critère pour Sud et Est : "Sud", "Est"',
     ],
     points: 200,
-    tags: ['TCD', 'pivot', 'Excel'],
-    duration: 15,
+    tags: ['SOMME.SI', 'critères', 'régions'],
+    duration: 10,
+    challengeType: 'excel',
+    excelData: {
+      numCols: 2,
+      rows: [
+        ['Région', 'Ventes (€)'],
+        ['Nord', 12500],
+        ['Sud', 8900],
+        ['Nord', 15000],
+        ['Est', 7200],
+        ['Sud', 11300],
+        ['Est', 9800],
+        ['Nord', 6700],
+        [null, null],
+        ['Total Nord', null],
+        ['Total Sud', null],
+        ['Total Est', null],
+      ],
+      targetCells: [
+        { ref: 'B10', expectedValue: 34200, hint: '=SOMME.SI(A2:A8,"Nord",B2:B8)' },
+        { ref: 'B11', expectedValue: 20200, hint: '=SOMME.SI(A2:A8,"Sud",B2:B8)' },
+        { ref: 'B12', expectedValue: 17000, hint: '=SOMME.SI(A2:A8,"Est",B2:B8)' },
+      ],
+      formulaConcept: '=SOMME.SI(plage_critère, critère, plage_somme)\n=SOMME.SI(A2:A8,"Nord",B2:B8)\n→ si A = "Nord" → somme B correspondant',
+    },
   },
   {
-    id: 'data-004',
+    id: 'excel-005',
     track: 'data',
     level: 'intermédiaire',
-    title: 'Dashboard KPIs — Calcul d\'indicateurs',
-    context: 'Le directeur veut un mini-dashboard avec 4 KPIs issus des données de vente : total, panier moyen, meilleur produit, taux de conversion.',
-    instructions: 'Affiche les 4 KPIs, chacun sur une ligne :\n`CA Total: X€\nPanier moyen: X€\nMeilleur produit: X\nTaux conversion: X%`',
-    starterCode: `transactions = [
-    {"produit": "Laptop", "montant": 800, "converti": True},
-    {"produit": "Laptop", "montant": 800, "converti": True},
-    {"produit": "Laptop", "montant": 800, "converti": True},
-    {"produit": "Licence ERP", "montant": 400, "converti": True},
-    {"produit": "Formation", "montant": 200, "converti": True},
-    {"produit": "Écran Pro", "montant": 600, "converti": True},
-    {"produit": "Laptop", "montant": 800, "converti": False},
-    {"produit": "Licence ERP", "montant": 400, "converti": False},
-    {"produit": "Formation", "montant": 200, "converti": False},
-    {"produit": "Écran Pro", "montant": 600, "converti": False},
-]
-
-# TODO : calcule et affiche les 4 KPIs
-`,
+    title: 'NB.SI — Compter avec critères',
+    context: 'Le chef de projet veut un tableau de bord rapide sur l\'état des projets en cours. Tu dois compter les projets terminés et calculer le pourcentage d\'avancement.',
+    instructions: 'Calcule le nombre de projets "Terminé" (B11) puis le pourcentage correspondant (B12). Remplis B11 en premier — B12 peut utiliser ce résultat.',
+    starterCode: '',
     language: 'python',
-    expectedOutput: 'CA Total: 3600€\nPanier moyen: 600.0€\nMeilleur produit: Laptop\nTaux conversion: 60.0%',
+    expectedOutput: '',
     hints: [
-      'CA Total = somme des montants des transactions converties',
-      'Panier moyen = CA Total / nb transactions converties',
-      'Meilleur produit = produit avec le plus de conversions',
-      'Taux = (converties / total) * 100',
+      'Pour NB.SI : =NB.SI(B2:B9,"Terminé")',
+      'Le critère doit être entre guillemets et correspond exactement au texte de la cellule',
+      'Pour le % : =B11/8*100 (8 = nombre total de projets)',
     ],
-    points: 250,
-    tags: ['KPI', 'dashboard', 'calcul'],
-    duration: 15,
+    points: 200,
+    tags: ['NB.SI', 'pourcentage', 'projets'],
+    duration: 10,
+    challengeType: 'excel',
+    excelData: {
+      numCols: 2,
+      rows: [
+        ['Projet', 'Statut'],
+        ['Migration CRM', 'Terminé'],
+        ['Audit sécurité', 'En cours'],
+        ['Formation ERP', 'Terminé'],
+        ['Refonte API', 'En attente'],
+        ['Data Quality', 'Terminé'],
+        ['DevOps CI/CD', 'En cours'],
+        ['Archivage GED', 'Terminé'],
+        ['Reporting BI', 'En cours'],
+        [null, null],
+        ['Nb Terminé', null],
+        ['% Terminé', null],
+      ],
+      targetCells: [
+        { ref: 'B11', expectedValue: 4, hint: '=NB.SI(B2:B9,"Terminé")' },
+        { ref: 'B12', expectedValue: 50, hint: '=B11/8*100' },
+      ],
+      formulaConcept: '=NB.SI(plage, critère)\n=NB.SI(B2:B9,"Terminé")\n→ compte les cellules égales à "Terminé"',
+    },
   },
   {
-    id: 'data-005',
+    id: 'excel-006',
+    track: 'data',
+    level: 'intermédiaire',
+    title: 'Formule SI — Logique conditionnelle',
+    context: 'Le contrôleur de gestion veut un statut automatique sur chaque ligne de budget : si les dépenses dépassent le budget prévu, afficher "En dépassement", sinon "Dans les clous".',
+    instructions: 'Entre une formule SI dans D2 et D5 pour classifier automatiquement le statut de chaque projet selon son budget.',
+    starterCode: '',
+    language: 'python',
+    expectedOutput: '',
+    hints: [
+      'Syntaxe : =SI(condition, valeur_si_vrai, valeur_si_faux)',
+      'La condition est : C2>B2 (dépensé > budget prévu ?)',
+      'Pour D2 : =SI(C2>B2,"En dépassement","Dans les clous")',
+    ],
+    points: 250,
+    tags: ['SI', 'conditionnel', 'budget'],
+    duration: 10,
+    challengeType: 'excel',
+    excelData: {
+      numCols: 4,
+      rows: [
+        ['Projet', 'Budget (€)', 'Dépensé (€)', 'Statut'],
+        ['Projet Alpha', 50000, 54200, null],
+        ['Projet Beta', 80000, 76500, 'Dans les clous'],
+        ['Projet Gamma', 35000, 31000, 'Dans les clous'],
+        ['Projet Delta', 62000, 58300, null],
+      ],
+      targetCells: [
+        { ref: 'D2', expectedValue: 'En dépassement', hint: '=SI(C2>B2,"En dépassement","Dans les clous")' },
+        { ref: 'D5', expectedValue: 'Dans les clous', hint: '=SI(C5>B5,"En dépassement","Dans les clous")' },
+      ],
+      formulaConcept: '=SI(condition, valeur_si_vrai, valeur_si_faux)\n=SI(C2>B2,"En dépassement","Dans les clous")\n→ si dépensé > budget → "En dépassement"',
+    },
+  },
+  {
+    id: 'excel-007',
     track: 'data',
     level: 'expert',
-    title: 'Nettoyage & normalisation de données',
-    context: 'Un fichier CSV importé dans Excel contient des dates dans 3 formats différents, des montants avec virgule au lieu de point, et des doublons. Tu dois tout normaliser.',
-    instructions: 'Normalise chaque ligne et affiche au format `YYYY-MM-DD | montant_float`, une par ligne, sans doublons, triées par date.',
-    starterCode: `import re
-from datetime import datetime
-
-lignes_brutes = [
-    "15/03/2024;1.250,50",
-    "2024-03-20;899.99",
-    "20-03-2024;2.100,00",
-    "15/03/2024;1.250,50",   # doublon
-    "2024-04-01;450.00",
-    "01/04/2024;450.00",     # doublon même date différent format
-    "10/04/2024;750,25",
-]
-
-def parse_date(s):
-    # TODO : parse les 3 formats de date
-    # Formats possibles : %d/%m/%Y, %Y-%m-%d, %d-%m-%Y
-    pass
-
-def parse_montant(s):
-    # TODO : normalise le montant en float
-    # Cas 1 : "1.250,50" → virgule ET point → point=milliers, virgule=décimal → enlever points puis virgule→point
-    # Cas 2 : "750,25" → seulement virgule → virgule=décimal → virgule→point
-    # Cas 3 : "899.99" → seulement point → déjà format standard → float() direct
-    pass
-
-# TODO : traite, déduplique, et affiche les lignes normalisées
-`,
+    title: 'Dashboard KPIs — Combiner les formules',
+    context: 'Le directeur commercial veut un mini-tableau de bord synthétique par région. Tu dois calculer le CA total par région avec SOMME.SI, puis la moyenne globale avec MOYENNE.',
+    instructions: 'Calcule le CA Total Paris (B8), le CA Total Lyon (B9), et le CA moyen de tous les consultants (B10) en combinant SOMME.SI et MOYENNE.',
+    starterCode: '',
     language: 'python',
-    expectedOutput: '2024-03-15 | 1250.5\n2024-03-20 | 899.99\n2024-03-20 | 2100.0\n2024-04-01 | 450.0\n2024-04-10 | 750.25',
+    expectedOutput: '',
     hints: [
-      'Pour parse_date : essaie strptime avec plusieurs formats dans un try/except',
-      'Formats à tester : ["%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y"]',
-      'Pour parse_montant : 3 cas → si virgule ET point → "1.250,50" (supprimer les points de milliers, virgule→point) ; si seulement virgule → "750,25" (virgule→point) ; sinon déjà format standard',
-      'Pour dédupliquer : utilise un set() ou vérifie si (date, montant) est déjà vu',
+      'Pour le CA Paris : =SOMME.SI(B2:B6,"Paris",C2:C6)',
+      'Pour le CA Lyon : =SOMME.SI(B2:B6,"Lyon",C2:C6)',
+      'Pour la moyenne : =MOYENNE(C2:C6) — sur toute la colonne C',
     ],
-    points: 400,
-    tags: ['nettoyage', 'datetime', 'normalisation', 'regex'],
-    duration: 25,
+    points: 350,
+    tags: ['SOMME.SI', 'MOYENNE', 'dashboard', 'KPI'],
+    duration: 15,
+    challengeType: 'excel',
+    excelData: {
+      numCols: 4,
+      rows: [
+        ['Consultant', 'Région', 'CA Réel (€)', 'Objectif (€)'],
+        ['Alice Morin', 'Paris', 145000, 140000],
+        ['Bob Leroy', 'Lyon', 92000, 95000],
+        ['Claire Vidal', 'Paris', 138000, 130000],
+        ['David Nguyen', 'Lyon', 81000, 85000],
+        ['Eva Petit', 'Bordeaux', 112000, 110000],
+        [null, null, null, null],
+        ['CA Total Paris', null, null, null],
+        ['CA Total Lyon', null, null, null],
+        ['CA Moyen', null, null, null],
+      ],
+      targetCells: [
+        { ref: 'B8', expectedValue: 283000, hint: '=SOMME.SI(B2:B6,"Paris",C2:C6)' },
+        { ref: 'B9', expectedValue: 173000, hint: '=SOMME.SI(B2:B6,"Lyon",C2:C6)' },
+        { ref: 'B10', expectedValue: 113600, hint: '=MOYENNE(C2:C6)' },
+      ],
+      formulaConcept: 'Combiner SOMME.SI et MOYENNE :\n=SOMME.SI(B2:B6,"Paris",C2:C6)\n→ total CA des consultants Paris\n=MOYENNE(C2:C6) → CA moyen global',
+    },
   },
 ];
 
