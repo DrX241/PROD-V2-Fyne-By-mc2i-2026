@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Sparkles, Check, Edit2, Loader2, RefreshCw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, Check, Edit2, Loader2, RefreshCw, Shield, Lock, BarChart2, Target, Users, TrendingUp, ShoppingBag, Monitor, Settings2, MessageSquare, Heart, PenLine, type LucideIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import mcLogoPath from '@assets/mc2i.png';
 import AgentLoadingScreen from '@/components/AgentLoadingScreen';
@@ -10,19 +10,19 @@ const BLUE = '#006a9e';
 const PINK = '#dd0061';
 const DARK = '#061019';
 
-const DOMAINS = [
-  { value: 'cybersecurite', label: 'Cybersécurité', icon: '🛡️' },
-  { value: 'rgpd', label: 'RGPD & Données', icon: '🔒' },
-  { value: 'excel_data', label: 'Excel & Data', icon: '📊' },
-  { value: 'management', label: 'Management', icon: '🎯' },
-  { value: 'rh', label: 'RH & Formation', icon: '👥' },
-  { value: 'finance', label: 'Finance', icon: '💰' },
-  { value: 'commerce', label: 'Commerce & Vente', icon: '🤝' },
-  { value: 'it', label: 'IT & Systèmes', icon: '💻' },
-  { value: 'qualite', label: 'Qualité & Process', icon: '⚙️' },
-  { value: 'communication', label: 'Communication', icon: '📣' },
-  { value: 'sante', label: 'Santé & Sécurité', icon: '🏥' },
-  { value: 'autre', label: 'Autre', icon: '✏️' },
+const DOMAINS: { value: string; label: string; icon: LucideIcon }[] = [
+  { value: 'cybersecurite', label: 'Cybersécurité',   icon: Shield },
+  { value: 'rgpd',          label: 'RGPD & Données',  icon: Lock },
+  { value: 'excel_data',    label: 'Excel & Data',    icon: BarChart2 },
+  { value: 'management',    label: 'Management',       icon: Target },
+  { value: 'rh',            label: 'RH & Formation',  icon: Users },
+  { value: 'finance',       label: 'Finance',          icon: TrendingUp },
+  { value: 'commerce',      label: 'Commerce & Vente', icon: ShoppingBag },
+  { value: 'it',            label: 'IT & Systèmes',   icon: Monitor },
+  { value: 'qualite',       label: 'Qualité & Process',icon: Settings2 },
+  { value: 'communication', label: 'Communication',    icon: MessageSquare },
+  { value: 'sante',         label: 'Santé & Sécurité', icon: Heart },
+  { value: 'autre',         label: 'Autre',            icon: PenLine },
 ];
 
 const AUDIENCES = [
@@ -206,7 +206,7 @@ export default function StudioIA() {
                               <Check size={10} style={{ color: BLUE }} />
                             </span>
                           )}
-                          <span className="text-lg leading-none">{d.icon}</span>
+                          <d.icon size={18} />
                           <span className="text-center leading-tight">{d.label}</span>
                         </button>
                       ))}
