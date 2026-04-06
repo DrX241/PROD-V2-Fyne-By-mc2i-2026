@@ -6540,7 +6540,8 @@ Réponds UNIQUEMENT avec ce JSON (sans markdown) :
       const start = clean.indexOf('{');
       const end = clean.lastIndexOf('}');
       if (start === -1 || end === -1) throw new Error('JSON invalide');
-      const plan = JSON.parse(clean.slice(start, end + 1));
+      const fixed = clean.slice(start, end + 1).replace(/[\r\n]+/g, ' ');
+      const plan = JSON.parse(fixed);
 
       return res.json(plan);
     } catch (err: any) {
