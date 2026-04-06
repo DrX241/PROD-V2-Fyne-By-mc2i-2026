@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import mcLogoPath from '@assets/mc2i.png';
+import AgentLoadingScreen from '@/components/AgentLoadingScreen';
 
 const BLUE = '#006a9e';
 const PINK = '#dd0061';
@@ -422,32 +423,8 @@ export default function StudioDocuments() {
 
           {/* ═══ GÉNÉRATION ═══════════════════════════════════════════════════ */}
           {step === 'generating' && (
-            <motion.div key="generating" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
-              <div className="w-16 h-16 border-4 border-gray-100 mb-10"
-                style={{ borderTopColor: BLUE, animation: 'spin 1s linear infinite' }} />
-              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-              <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: outputMode === 'lecon' ? PINK : BLUE }}>
-                {outputMode === 'lecon' ? 'Création de la leçon interactive' : importMode === 'url' ? 'Crawl et analyse du site' : 'Analyse de vos documents'}
-              </div>
-              <h2 className="text-2xl font-black text-center mb-2" style={{ color: DARK }}>
-                {outputMode === 'lecon' ? 'Génération de votre leçon' : 'Génération en cours'}
-              </h2>
-              <p className="text-sm text-gray-500 mb-12 text-center">
-                {outputMode === 'lecon' ? "L'IA structure vos slides théorie et pratique..." : importMode === 'url' ? `Exploration jusqu'à ${depth} pages...` : "L'IA structure votre contenu..."}
-              </p>
-              <div className="w-full max-w-sm space-y-3">
-                {steps.map((s, i) => (
-                  <div key={i} className={`flex items-center gap-3 transition-all duration-300 ${i <= genStep ? 'opacity-100' : 'opacity-20'}`}>
-                    {i < genStep ? <CheckCircle size={16} style={{ color: BLUE, flexShrink: 0 }} />
-                      : i === genStep ? <Loader2 size={16} className="animate-spin flex-shrink-0" style={{ color: BLUE }} />
-                      : <div className="w-4 h-4 border border-gray-300 flex-shrink-0" />}
-                    <span className="text-sm" style={{ color: i === genStep ? DARK : '#9ca3af', fontWeight: i === genStep ? 600 : 400 }}>
-                      {s}
-                    </span>
-                  </div>
-                ))}
-              </div>
+            <motion.div key="generating" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <AgentLoadingScreen mode="docs" />
             </motion.div>
           )}
 

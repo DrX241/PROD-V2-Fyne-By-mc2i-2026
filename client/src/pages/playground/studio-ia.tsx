@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  ArrowLeft, ArrowRight, Brain, Sparkles, Loader2, CheckCircle
-} from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import mcLogoPath from '@assets/mc2i.png';
+import AgentLoadingScreen from '@/components/AgentLoadingScreen';
 
 const BLUE = '#006a9e';
 const PINK = '#dd0061';
@@ -27,14 +26,6 @@ const DURATIONS = [
   { value: '120', label: '2 heures', sub: 'approfondi' },
 ];
 
-const GENERATION_STEPS = [
-  'Analyse de votre besoin...',
-  'Identification des concepts clés...',
-  'Structuration des slides théorie...',
-  'Création des mises en pratique...',
-  'Génération du QCM de validation...',
-  'Finalisation de la leçon...',
-];
 
 export default function StudioIA() {
   const [, setLocation] = useLocation();
@@ -45,16 +36,11 @@ export default function StudioIA() {
   const [domain, setDomain] = useState('');
   const [audience, setAudience] = useState('grand_public');
   const [duration, setDuration] = useState('30');
-  const [genStep, setGenStep] = useState(0);
 
   const progress = step === 'pitch' ? 33 : step === 'config' ? 66 : 90;
 
   const generate = async () => {
     setStep('generating');
-    setGenStep(0);
-    const interval = setInterval(() => {
-      setGenStep(prev => prev < GENERATION_STEPS.length - 1 ? prev + 1 : prev);
-    }, 1200);
     try {
       const res = await fetch('/api/studio/generate-lesson-from-prompt', {
         method: 'POST',
@@ -63,13 +49,8 @@ export default function StudioIA() {
       });
       if (!res.ok) throw new Error();
       const data = await res.json();
-      clearInterval(interval);
-      setGenStep(GENERATION_STEPS.length - 1);
-      setTimeout(() => {
-        setLocation(`/playground/lesson/${data.id}`);
-      }, 400);
+      setLocation(`/playground/lesson/${data.id}`);
     } catch {
-      clearInterval(interval);
       toast({ title: 'Erreur', description: 'La génération a échoué. Réessayez.', variant: 'destructive' });
       setStep('config');
     }
@@ -247,33 +228,8 @@ export default function StudioIA() {
 
           {/* ═══ GÉNÉRATION ═══════════════════════════════════════════════════ */}
           {step === 'generating' && (
-            <motion.div key="generating" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
-              <div className="w-16 h-16 border-4 border-gray-100 mb-10"
-                style={{ borderTopColor: PINK, animation: 'spin 1s linear infinite' }} />
-              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-              <div className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: PINK }}>
-                Création de votre leçon interactive
-              </div>
-              <h2 className="text-2xl font-black text-center mb-2" style={{ color: DARK }}>
-                Génération en cours
-              </h2>
-              <p className="text-gray-500 text-sm mb-12 text-center">L'IA structure vos slides théorie et pratique...</p>
-
-              <div className="w-full max-w-sm space-y-3">
-                {GENERATION_STEPS.map((s, i) => (
-                  <div key={i} className={`flex items-center gap-3 transition-all duration-300 ${i <= genStep ? 'opacity-100' : 'opacity-20'}`}>
-                    {i < genStep
-                      ? <CheckCircle size={16} style={{ color: PINK, flexShrink: 0 }} />
-                      : i === genStep
-                      ? <Loader2 size={16} className="animate-spin flex-shrink-0" style={{ color: PINK }} />
-                      : <div className="w-4 h-4 border border-gray-300 flex-shrink-0" />}
-                    <span className="text-sm" style={{ color: i === genStep ? DARK : '#9ca3af', fontWeight: i === genStep ? 600 : 400 }}>
-                      {s}
-                    </span>
-                  </div>
-                ))}
-              </div>
+            <motion.div key="generating" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <AgentLoadingScreen mode="prompt" />
             </motion.div>
           )}
 
