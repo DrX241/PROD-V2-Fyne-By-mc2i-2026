@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, ChevronRight, BookOpen, Zap, CheckCircle,
   Lightbulb, Target, ArrowLeft, Eye, EyeOff, Award, XCircle, HelpCircle,
-  Flame, PenLine, ToggleLeft
+  Flame, PenLine, ToggleLeft, RefreshCw, AlertCircle
 } from 'lucide-react';
 
 const BLUE = '#006a9e';
@@ -412,28 +412,40 @@ export default function LessonPlayer() {
       : 0;
     const pct = questions.length > 0 ? Math.round((score / questions.length) * 100) : 100;
     const mention = pct >= 90 ? 'Maître !' : pct >= 75 ? 'Excellent !' : pct >= 60 ? 'Bien joué !' : pct >= 40 ? 'En progression' : 'À retravailler';
-    const mentionColor = pct >= 75 ? GREEN : pct >= 60 ? BLUE : pct >= 40 ? '#f59e0b' : RED;
-    const badge = pct >= 90 ? { icon: '🏆', label: 'Maître de la leçon', color: '#f59e0b' }
-                : pct >= 75 ? { icon: '⭐', label: 'Expert validé', color: GREEN }
-                : pct >= 60 ? { icon: '🎯', label: 'Objectif atteint', color: BLUE }
-                : pct >= 40 ? { icon: '📈', label: 'En progression', color: '#f59e0b' }
-                :             { icon: '💪', label: 'Continue à pratiquer', color: '#9ca3af' };
+    const badge = pct >= 90 ? { label: 'Maître de la leçon', color: '#f59e0b' }
+                : pct >= 75 ? { label: 'Expert validé', color: GREEN }
+                : pct >= 60 ? { label: 'Objectif atteint', color: BLUE }
+                : pct >= 40 ? { label: 'En progression', color: '#f59e0b' }
+                :             { label: 'Continue à pratiquer', color: '#9ca3af' };
 
-    const particles = Array.from({ length: pct >= 60 ? 20 : 8 }, (_, i) => ({
+    const wrongQs = questions.map((q, i) => ({ q, i, correct: answers[i] === q.bonneReponse })).filter(x => !x.correct);
+    const correctQs = questions.map((q, i) => ({ q, i, correct: answers[i] === q.bonneReponse })).filter(x => x.correct);
+
+    // Extract lesson key points from slides
+    const theorieSlides = (lesson.slides || []).filter((s: any) => s.type === 'theorie');
+    const conclusionSlide = (lesson.slides || []).find((s: any) => s.type === 'conclusion') as SlideConclusion | undefined;
+    const keyPoints: { titre: string; points: string[] }[] = theorieSlides.map((s: any) => ({
+      titre: s.titre || '',
+      points: (s.pointsCles || []).slice(0, 2),
+    }));
+    if (conclusionSlide?.points?.length) {
+      keyPoints.push({ titre: 'Points essentiels à retenir', points: conclusionSlide.points });
+    }
+
+    const particles = Array.from({ length: pct >= 60 ? 18 : 6 }, (_, i) => ({
       id: i, left: Math.random() * 100, delay: Math.random() * 1.5,
       color: [PINK, BLUE, GREEN, '#f59e0b', '#7c3aed'][i % 5],
-      size: 4 + Math.random() * 6,
+      size: 4 + Math.random() * 5,
     }));
 
     return (
-      <div style={{ minHeight: '100vh', background: DARK, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '48px 24px', overflowX: 'hidden', position: 'relative' }}>
+      <div style={{ minHeight: '100vh', background: DARK, display: 'flex', flexDirection: 'column', position: 'relative', overflowX: 'hidden' }}>
         <style>{`
           @keyframes particle { 0%{transform:translateY(100vh) rotate(0deg);opacity:1} 100%{transform:translateY(-20vh) rotate(720deg);opacity:0} }
-          @keyframes glow { 0%,100%{box-shadow:0 0 20px ${PINK}40} 50%{box-shadow:0 0 40px ${PINK}80} }
         `}</style>
 
-        {/* Gradient top bar */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${BLUE}, ${PINK})` }} />
+        {/* Top bar */}
+        <div style={{ height: 4, background: `linear-gradient(90deg, ${BLUE}, ${PINK})`, flexShrink: 0 }} />
 
         {/* Particles */}
         {particles.map(p => (
@@ -445,68 +457,149 @@ export default function LessonPlayer() {
           }} />
         ))}
 
-        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }}
-          style={{ width: '100%', maxWidth: 600, position: 'relative', zIndex: 1 }}>
+        {/* Header */}
+        <div style={{ padding: '28px 48px 24px', borderBottom: '1px solid rgba(255,255,255,0.07)', position: 'relative', zIndex: 1 }}>
+          <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, letterSpacing: 3, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase' }}>Résultats de la formation</p>
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: 'white' }}>{lesson.title}</h1>
+        </div>
 
-          {/* Badge */}
-          <div style={{ textAlign: 'center', marginBottom: 28 }}>
-            <span style={{ display: 'inline-block', padding: '5px 16px', background: `${badge.color}20`, color: badge.color, fontSize: 12, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>
-              {badge.label}
-            </span>
-            <p style={{ margin: '0 0 4px', fontSize: 32, fontWeight: 900, color: 'white' }}>{mention}</p>
-            <p style={{ margin: 0, fontSize: 15, color: 'rgba(255,255,255,0.5)' }}>{score}/{questions.length} bonnes réponses · {pct}%</p>
-          </div>
+        {/* Two-column body */}
+        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '320px 1fr', position: 'relative', zIndex: 1 }}>
 
-          {/* XP Total */}
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 28, flexWrap: 'wrap' }}>
-            <div style={{ padding: '14px 24px', background: 'rgba(255,255,255,0.06)', textAlign: 'center', minWidth: 100 }}>
-              <p style={{ margin: '0 0 4px', fontSize: 28, fontWeight: 900, color: '#f59e0b' }}>⚡ {xp}</p>
-              <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1 }}>XP Total</p>
-            </div>
-            {maxStreak >= 2 && (
-              <div style={{ padding: '14px 24px', background: 'rgba(255,255,255,0.06)', textAlign: 'center', minWidth: 100 }}>
-                <p style={{ margin: '0 0 4px', fontSize: 28, fontWeight: 900, color: '#d97706' }}>🔥 x{maxStreak}</p>
-                <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1 }}>Meilleur combo</p>
+          {/* ── LEFT PANEL ── */}
+          <div style={{ borderRight: '1px solid rgba(255,255,255,0.07)', padding: '36px 32px', display: 'flex', flexDirection: 'column', gap: 20, position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' }}>
+
+            {/* Score circle */}
+            <div style={{ textAlign: 'center', paddingBottom: 24, borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 110, height: 110, border: `4px solid ${badge.color}`, borderRadius: '50%', marginBottom: 16, position: 'relative' }}>
+                <div>
+                  <p style={{ margin: 0, fontSize: 32, fontWeight: 900, color: 'white', lineHeight: 1 }}>{pct}%</p>
+                  <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{score}/{questions.length}</p>
+                </div>
               </div>
-            )}
-            <div style={{ padding: '14px 24px', background: 'rgba(255,255,255,0.06)', textAlign: 'center', minWidth: 100 }}>
-              <div style={{ fontSize: 28, marginBottom: 4 }}>{pct >= 75 ? '✅' : pct >= 60 ? '📊' : '📝'}</div>
-              <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1 }}>Score</p>
+              <span style={{ display: 'inline-block', padding: '4px 14px', background: `${badge.color}20`, color: badge.color, fontSize: 11, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 10 }}>
+                {badge.label}
+              </span>
+              <p style={{ margin: 0, fontSize: 20, fontWeight: 800, color: 'white' }}>{mention}</p>
+            </div>
+
+            {/* XP & combo */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(255,255,255,0.05)' }}>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>XP Total</span>
+                <span style={{ fontSize: 18, fontWeight: 900, color: '#f59e0b' }}>⚡ {xp}</span>
+              </div>
+              {maxStreak >= 2 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(255,255,255,0.05)' }}>
+                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Meilleur combo</span>
+                  <span style={{ fontSize: 18, fontWeight: 900, color: '#d97706' }}>🔥 ×{maxStreak}</span>
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(255,255,255,0.05)' }}>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Bonnes réponses</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: GREEN }}>{correctQs.length}/{questions.length}</span>
+              </div>
+              {wrongQs.length > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(255,255,255,0.05)' }}>
+                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>À revoir</span>
+                  <span style={{ fontSize: 16, fontWeight: 700, color: RED }}>{wrongQs.length} question{wrongQs.length > 1 ? 's' : ''}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <button onClick={handleRestart}
+                style={{ width: '100%', padding: '13px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <RefreshCw size={15} /> Recommencer
+              </button>
+              <button onClick={() => navigate('/playground/module-generator')}
+                style={{ width: '100%', padding: '13px', background: PINK, border: 'none', color: 'white', cursor: 'pointer', fontWeight: 800, fontSize: 14 }}>
+                Retour au studio
+              </button>
             </div>
           </div>
 
-          {/* Per-question recap */}
-          {questions.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 32, textAlign: 'left' }}>
-              {questions.map((q, i) => {
-                const correct = answers[i] === q.bonneReponse;
-                return (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 14px', background: 'rgba(255,255,255,0.04)', borderLeft: `3px solid ${correct ? GREEN : RED}` }}>
-                    {correct
-                      ? <CheckCircle size={14} style={{ color: GREEN, flexShrink: 0, marginTop: 3 }} />
-                      : <XCircle size={14} style={{ color: RED, flexShrink: 0, marginTop: 3 }} />}
-                    <div style={{ flex: 1 }}>
-                      <p style={{ margin: '0 0 3px', fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.8)', lineHeight: 1.4 }}>{q.question}</p>
-                      {!correct && <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>✓ {q.choix[q.bonneReponse]}</p>}
+          {/* ── RIGHT PANEL ── */}
+          <div style={{ padding: '36px 48px', overflowY: 'auto' }}>
+
+            {/* Résumé des points abordés */}
+            {keyPoints.length > 0 && (
+              <section style={{ marginBottom: 40 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+                  <BookOpen size={16} style={{ color: BLUE }} />
+                  <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: 3, color: BLUE, textTransform: 'uppercase' }}>Résumé de la formation</p>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
+                  {keyPoints.map((kp, i) => (
+                    <div key={i} style={{ padding: '16px 20px', background: 'rgba(255,255,255,0.04)', borderLeft: `3px solid ${BLUE}` }}>
+                      <p style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)' }}>{kp.titre}</p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {kp.points.map((pt, j) => (
+                          <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                            <div style={{ width: 4, height: 4, background: BLUE, marginTop: 6, flexShrink: 0 }} />
+                            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>{pt}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    {correct && <span style={{ fontSize: 11, color: '#f59e0b', fontWeight: 700, flexShrink: 0 }}>+50 XP</span>}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  ))}
+                </div>
+              </section>
+            )}
 
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-            <button onClick={handleRestart}
-              style={{ padding: '12px 24px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
-              Recommencer
-            </button>
-            <button onClick={() => navigate('/playground/module-generator')}
-              style={{ padding: '12px 28px', background: PINK, border: 'none', color: 'white', cursor: 'pointer', fontWeight: 800, fontSize: 14 }}>
-              Retour au studio
-            </button>
+            {/* À revoir */}
+            {wrongQs.length > 0 && (
+              <section style={{ marginBottom: 40 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                  <AlertCircle size={16} style={{ color: RED }} />
+                  <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: 3, color: RED, textTransform: 'uppercase' }}>Points à revoir</p>
+                  <span style={{ padding: '2px 8px', background: `${RED}20`, color: RED, fontSize: 11, fontWeight: 700 }}>{wrongQs.length}</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {wrongQs.map(({ q, i }) => (
+                    <div key={i} style={{ padding: '16px 20px', background: `${RED}08`, border: `1px solid ${RED}25`, borderLeft: `3px solid ${RED}` }}>
+                      <p style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>{q.question}</p>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 12px', background: `${GREEN}12`, borderLeft: `2px solid ${GREEN}` }}>
+                        <CheckCircle size={13} style={{ color: GREEN, marginTop: 1, flexShrink: 0 }} />
+                        <div>
+                          <p style={{ margin: '0 0 2px', fontSize: 11, fontWeight: 700, color: GREEN, textTransform: 'uppercase', letterSpacing: 0.8 }}>Bonne réponse</p>
+                          <p style={{ margin: 0, fontSize: 13, color: 'rgba(255,255,255,0.75)' }}>{q.choix[q.bonneReponse]}</p>
+                        </div>
+                      </div>
+                      {q.explication && (
+                        <p style={{ margin: '10px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6, fontStyle: 'italic' }}>{q.explication}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Questions réussies */}
+            {correctQs.length > 0 && (
+              <section>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                  <CheckCircle size={16} style={{ color: GREEN }} />
+                  <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: 3, color: GREEN, textTransform: 'uppercase' }}>Déjà maîtrisé</p>
+                  <span style={{ padding: '2px 8px', background: `${GREEN}20`, color: GREEN, fontSize: 11, fontWeight: 700 }}>{correctQs.length}</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {correctQs.map(({ q, i }) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 16px', background: 'rgba(255,255,255,0.03)', borderLeft: `3px solid ${GREEN}40` }}>
+                      <CheckCircle size={13} style={{ color: `${GREEN}70`, marginTop: 2, flexShrink: 0 }} />
+                      <div style={{ flex: 1 }}>
+                        <p style={{ margin: '0 0 2px', fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.65)', lineHeight: 1.4 }}>{q.question}</p>
+                        <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{q.choix[q.bonneReponse]}</p>
+                      </div>
+                      <span style={{ fontSize: 11, color: '#f59e0b', fontWeight: 700, flexShrink: 0 }}>+50 XP</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
-        </motion.div>
+        </div>
       </div>
     );
   }
