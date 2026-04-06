@@ -43,6 +43,7 @@ export default function ModuleGenerator() {
   const [, setLocation] = useLocation();
   const [trainings, setTrainings] = useState<SavedTraining[]>([]);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; title: string } | null>(null);
 
   const loadTrainings = useCallback(() => {
     fetch('/api/studio/trainings')
@@ -53,9 +54,16 @@ export default function ModuleGenerator() {
 
   useEffect(() => { loadTrainings(); }, [loadTrainings]);
 
-  const handleDelete = async (id: string, e: React.MouseEvent) => {
+  const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm('Supprimer cette formation ? Cette action est irréversible.')) return;
+    const training = trainings.find(t => t.id === id);
+    setDeleteConfirm({ id, title: training?.title || 'cette formation' });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm) return;
+    const { id } = deleteConfirm;
+    setDeleteConfirm(null);
     setDeleting(id);
     try {
       await fetch(`/api/studio/training/${id}`, { method: 'DELETE' });
@@ -270,6 +278,50 @@ export default function ModuleGenerator() {
           </div>
         </div>
       </main>
+
+      {/* ── Modale de confirmation de suppression ── */}
+      <AnimatePresence>
+        {deleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setDeleteConfirm(null)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(6,16,25,0.65)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+            <motion.div
+              initial={{ scale: 0.94, opacity: 0, y: 8 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.94, opacity: 0, y: 8 }}
+              transition={{ duration: 0.18 }}
+              onClick={e => e.stopPropagation()}
+              style={{ background: 'white', width: '100%', maxWidth: 420, padding: '32px 28px', position: 'relative' }}>
+              {/* Barre rouge en haut */}
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: '#dc2626' }} />
+
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 20 }}>
+                <div style={{ width: 40, height: 40, background: '#fef2f2', border: '1px solid #fecaca', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Trash2 size={18} style={{ color: '#dc2626' }} />
+                </div>
+                <div>
+                  <p style={{ margin: '0 0 6px', fontSize: 16, fontWeight: 800, color: DARK }}>Supprimer la formation ?</p>
+                  <p style={{ margin: 0, fontSize: 13, color: '#6b7280', lineHeight: 1.5 }}>
+                    <strong style={{ color: DARK }}>« {deleteConfirm.title} »</strong> sera supprimée définitivement. Cette action est irréversible.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => setDeleteConfirm(null)}
+                  style={{ padding: '10px 20px', border: '1px solid #e5e7eb', background: 'white', color: DARK, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
+                  Annuler
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  style={{ padding: '10px 24px', border: 'none', background: '#dc2626', color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Trash2 size={14} /> Supprimer
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
