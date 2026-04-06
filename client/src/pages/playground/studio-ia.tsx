@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, Check, Edit2, Loader2, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import mcLogoPath from '@assets/mc2i.png';
 import AgentLoadingScreen from '@/components/AgentLoadingScreen';
@@ -9,6 +9,21 @@ import AgentLoadingScreen from '@/components/AgentLoadingScreen';
 const BLUE = '#006a9e';
 const PINK = '#dd0061';
 const DARK = '#061019';
+
+const DOMAINS = [
+  { value: 'cybersecurite', label: 'Cybersécurité', icon: '🛡️' },
+  { value: 'rgpd', label: 'RGPD & Données', icon: '🔒' },
+  { value: 'excel_data', label: 'Excel & Data', icon: '📊' },
+  { value: 'management', label: 'Management', icon: '🎯' },
+  { value: 'rh', label: 'RH & Formation', icon: '👥' },
+  { value: 'finance', label: 'Finance', icon: '💰' },
+  { value: 'commerce', label: 'Commerce & Vente', icon: '🤝' },
+  { value: 'it', label: 'IT & Systèmes', icon: '💻' },
+  { value: 'qualite', label: 'Qualité & Process', icon: '⚙️' },
+  { value: 'communication', label: 'Communication', icon: '📣' },
+  { value: 'sante', label: 'Santé & Sécurité', icon: '🏥' },
+  { value: 'autre', label: 'Autre', icon: '✏️' },
+];
 
 const AUDIENCES = [
   { value: 'grand_public', label: 'Grand public' },
@@ -19,6 +34,12 @@ const AUDIENCES = [
   { value: 'commercial', label: 'Équipes commerciales' },
 ];
 
+const DIFFICULTIES = [
+  { value: 'debutant', label: 'Débutant', sub: 'Notions fondamentales' },
+  { value: 'intermediaire', label: 'Intermédiaire', sub: 'Cas pratiques métier' },
+  { value: 'expert', label: 'Expert', sub: 'Enjeux avancés' },
+];
+
 const DURATIONS = [
   { value: '15', label: '15 min', sub: 'micro-learning' },
   { value: '30', label: '30 min', sub: 'express' },
@@ -26,18 +47,56 @@ const DURATIONS = [
   { value: '120', label: '2 heures', sub: 'approfondi' },
 ];
 
+const SLIDE_TYPE_LABELS: Record<string, { label: string; color: string }> = {
+  intro:       { label: 'Intro',        color: BLUE },
+  theorie:     { label: 'Théorie',      color: '#7c3aed' },
+  pratique:    { label: 'Pratique',     color: '#059669' },
+  'fill-blank':{ label: 'Texte à trous',color: '#d97706' },
+  'vrai-faux': { label: 'Vrai / Faux',  color: '#dc2626' },
+  conclusion:  { label: 'Conclusion',   color: DARK },
+};
+
+interface PlanItem { index: number; type: string; titre: string; }
+interface PlanPreview { title: string; subtitle: string; plan: PlanItem[]; }
 
 export default function StudioIA() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  const [step, setStep] = useState<'pitch' | 'config' | 'generating'>('pitch');
+  const [step, setStep] = useState<'pitch' | 'config' | 'plan' | 'generating'>('pitch');
   const [pitch, setPitch] = useState('');
-  const [domain, setDomain] = useState('');
+  const [domainKey, setDomainKey] = useState('');
+  const [customDomain, setCustomDomain] = useState('');
   const [audience, setAudience] = useState('grand_public');
+  const [difficulty, setDifficulty] = useState('intermediaire');
   const [duration, setDuration] = useState('30');
+  const [planLoading, setPlanLoading] = useState(false);
+  const [planPreview, setPlanPreview] = useState<PlanPreview | null>(null);
 
-  const progress = step === 'pitch' ? 33 : step === 'config' ? 66 : 90;
+  const domainValue = domainKey === 'autre' ? customDomain : (DOMAINS.find(d => d.value === domainKey)?.label || '');
+
+  const progress = step === 'pitch' ? 25 : step === 'config' ? 50 : step === 'plan' ? 75 : 100;
+
+  const goToPlan = async () => {
+    setPlanLoading(true);
+    setStep('plan');
+    setPlanPreview(null);
+    try {
+      const res = await fetch('/api/studio/preview-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pitch, domain: domainValue, audience, difficulty, duration }),
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setPlanPreview(data);
+    } catch {
+      toast({ title: 'Erreur', description: 'Impossible de générer le plan. Réessayez.', variant: 'destructive' });
+      setStep('config');
+    } finally {
+      setPlanLoading(false);
+    }
+  };
 
   const generate = async () => {
     setStep('generating');
@@ -45,20 +104,29 @@ export default function StudioIA() {
       const res = await fetch('/api/studio/generate-lesson-from-prompt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pitch, domain, audience, duration }),
+        body: JSON.stringify({ pitch, domain: domainValue, audience, difficulty, duration }),
       });
       if (!res.ok) throw new Error();
       const data = await res.json();
       setLocation(`/playground/lesson/${data.id}`);
     } catch {
       toast({ title: 'Erreur', description: 'La génération a échoué. Réessayez.', variant: 'destructive' });
-      setStep('config');
+      setStep('plan');
     }
   };
 
   const restart = () => {
-    setPitch(''); setDomain(''); setAudience('grand_public'); setDuration('30');
+    setPitch(''); setDomainKey(''); setCustomDomain('');
+    setAudience('grand_public'); setDifficulty('intermediaire'); setDuration('30');
+    setPlanPreview(null);
     setStep('pitch');
+  };
+
+  const handleBack = () => {
+    if (step === 'pitch') setLocation('/playground/module-generator');
+    else if (step === 'config') setStep('pitch');
+    else if (step === 'plan') setStep('config');
+    else restart();
   };
 
   return (
@@ -70,9 +138,7 @@ export default function StudioIA() {
         </div>
         <div className="flex items-center justify-between px-5 py-3">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => step === 'pitch' ? setLocation('/playground/module-generator') : restart()}
-              className="hover:opacity-60 transition-opacity">
+            <button onClick={handleBack} className="hover:opacity-60 transition-opacity">
               <ArrowLeft size={18} style={{ color: BLUE }} />
             </button>
             <img src={mcLogoPath} alt="mc2i" className="h-7 w-auto" />
@@ -81,6 +147,9 @@ export default function StudioIA() {
             <div className="h-4 w-px bg-gray-200 hidden sm:block" />
             <span className="text-sm text-gray-500 font-medium hidden sm:block">Studio IA · Leçon en slides</span>
           </div>
+          <span className="text-xs text-gray-400 font-medium">
+            {step === 'pitch' ? '1/3' : step === 'config' ? '2/3' : step === 'plan' ? '3/3' : '…'}
+          </span>
         </div>
       </header>
 
@@ -94,18 +163,16 @@ export default function StudioIA() {
               <div className="max-w-2xl">
                 <div className="text-xs font-bold uppercase tracking-widest mb-5 px-3 py-1 inline-block"
                   style={{ background: `${PINK}12`, color: PINK }}>
-                  Étape 1 sur 2 · Votre besoin
+                  Étape 1 · Votre besoin
                 </div>
                 <h1 className="text-4xl lg:text-5xl font-black tracking-tight mb-4 leading-tight">
                   <span style={{ color: PINK }}>Pitchez</span> votre<br />
                   <span style={{ color: DARK }}>besoin de formation</span>
                 </h1>
-                <div className="w-16 h-1 mb-6" style={{ background: PINK }} />
-                <p className="text-base text-gray-600 leading-relaxed mb-10">
-                  Décrivez en quelques mots ce que vous voulez former. L'IA crée une leçon complète avec slides théorie/pratique et QCM de validation.
-                </p>
+                <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
 
-                <div className="space-y-6">
+                <div className="space-y-8">
+                  {/* Pitch */}
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                       Votre besoin de formation *
@@ -115,23 +182,50 @@ export default function StudioIA() {
                       onChange={e => setPitch(e.target.value)}
                       placeholder="Ex : Former mes commerciaux aux bonnes pratiques de cybersécurité — phishing, mots de passe, données clients. Ils n'ont aucune base technique."
                       className="w-full border border-gray-200 px-4 py-3 text-sm resize-none focus:outline-none focus:border-gray-400 bg-white"
-                      style={{ minHeight: 140, color: DARK }}
+                      style={{ minHeight: 130, color: DARK }}
                     />
                     <p className="text-xs text-gray-400 mt-1">{pitch.length} / 500 caractères</p>
                   </div>
 
+                  {/* Domain tiles */}
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
-                      Domaine / secteur (optionnel)
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
+                      Domaine <span className="text-gray-400 font-normal normal-case">(optionnel)</span>
                     </label>
-                    <input
-                      type="text"
-                      value={domain}
-                      onChange={e => setDomain(e.target.value)}
-                      placeholder="Ex : Cybersécurité, Data, RH, Finance, Vente..."
-                      className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-gray-400 bg-white"
-                      style={{ color: DARK }}
-                    />
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                      {DOMAINS.map(d => (
+                        <button key={d.value} onClick={() => setDomainKey(domainKey === d.value ? '' : d.value)}
+                          className="flex flex-col items-center gap-1 border px-2 py-3 text-xs font-medium transition-all relative"
+                          style={{
+                            borderColor: domainKey === d.value ? BLUE : '#e5e7eb',
+                            background: domainKey === d.value ? `${BLUE}0a` : 'white',
+                            color: domainKey === d.value ? BLUE : '#6b7280',
+                          }}>
+                          {domainKey === d.value && (
+                            <span className="absolute top-1 right-1">
+                              <Check size={10} style={{ color: BLUE }} />
+                            </span>
+                          )}
+                          <span className="text-lg leading-none">{d.icon}</span>
+                          <span className="text-center leading-tight">{d.label}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Free text when "Autre" is selected */}
+                    {domainKey === 'autre' && (
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-3">
+                        <input
+                          type="text"
+                          value={customDomain}
+                          onChange={e => setCustomDomain(e.target.value)}
+                          placeholder="Précisez le domaine..."
+                          autoFocus
+                          className="w-full border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:border-gray-500 bg-white"
+                          style={{ color: DARK }}
+                        />
+                      </motion.div>
+                    )}
                   </div>
 
                   <div className="border-l-2 pl-4 py-1" style={{ borderColor: PINK }}>
@@ -160,7 +254,7 @@ export default function StudioIA() {
               <div className="max-w-2xl">
                 <div className="text-xs font-bold uppercase tracking-widest mb-5 px-3 py-1 inline-block"
                   style={{ background: `${PINK}12`, color: PINK }}>
-                  Étape 2 sur 2 · Paramètres
+                  Étape 2 · Paramètres
                 </div>
                 <h1 className="text-4xl font-black tracking-tight mb-4" style={{ color: DARK }}>
                   Paramétrez<br /><span style={{ color: PINK }}>la leçon</span>
@@ -169,9 +263,15 @@ export default function StudioIA() {
 
                 <div className="space-y-10">
                   {/* Recap pitch */}
-                  <div className="border border-gray-100 p-4 bg-gray-50">
-                    <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Votre besoin</div>
-                    <p className="text-sm text-gray-700 line-clamp-2">{pitch}</p>
+                  <div className="border border-gray-100 p-4 bg-gray-50 flex items-start gap-3">
+                    <div className="flex-1">
+                      <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Votre besoin</div>
+                      <p className="text-sm text-gray-700 line-clamp-2">{pitch}</p>
+                      {domainValue && <span className="inline-block mt-2 text-xs px-2 py-0.5 font-medium" style={{ background: `${BLUE}12`, color: BLUE }}>{domainValue}</span>}
+                    </div>
+                    <button onClick={() => setStep('pitch')} className="text-gray-400 hover:text-gray-600 flex-shrink-0">
+                      <Edit2 size={14} />
+                    </button>
                   </div>
 
                   {/* Public */}
@@ -189,6 +289,26 @@ export default function StudioIA() {
                             color: audience === a.value ? PINK : DARK,
                           }}>
                           {a.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Niveau de difficulté */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
+                      Niveau de difficulté
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {DIFFICULTIES.map(d => (
+                        <button key={d.value} onClick={() => setDifficulty(d.value)}
+                          className="text-center border px-3 py-4 transition-all"
+                          style={{
+                            borderColor: difficulty === d.value ? BLUE : '#e5e7eb',
+                            background: difficulty === d.value ? `${BLUE}0a` : 'white',
+                          }}>
+                          <div className="text-sm font-bold mb-0.5" style={{ color: difficulty === d.value ? BLUE : DARK }}>{d.label}</div>
+                          <div className="text-xs text-gray-500">{d.sub}</div>
                         </button>
                       ))}
                     </div>
@@ -215,13 +335,86 @@ export default function StudioIA() {
                   </div>
 
                   <button
-                    onClick={generate}
+                    onClick={goToPlan}
                     className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity"
                     style={{ background: PINK }}
                   >
-                    <Sparkles size={18} /> Générer ma leçon en slides
+                    <Sparkles size={18} /> Voir le plan de la leçon
                   </button>
                 </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ═══ PLAN PREVIEW ════════════════════════════════════════════════ */}
+          {step === 'plan' && (
+            <motion.div key="plan" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
+              className="min-h-screen flex flex-col justify-center px-6 lg:px-16 py-16">
+              <div className="max-w-2xl">
+                <div className="text-xs font-bold uppercase tracking-widest mb-5 px-3 py-1 inline-block"
+                  style={{ background: `${PINK}12`, color: PINK }}>
+                  Étape 3 · Validation du plan
+                </div>
+
+                {planLoading ? (
+                  <div className="flex flex-col items-start gap-6">
+                    <h1 className="text-4xl font-black tracking-tight" style={{ color: DARK }}>
+                      L'IA construit<br /><span style={{ color: PINK }}>votre plan…</span>
+                    </h1>
+                    <div className="w-16 h-1" style={{ background: PINK }} />
+                    <div className="flex items-center gap-3 text-gray-500">
+                      <Loader2 size={20} className="animate-spin" style={{ color: PINK }} />
+                      <span className="text-sm">Analyse du besoin et structuration en cours…</span>
+                    </div>
+                  </div>
+                ) : planPreview ? (
+                  <>
+                    <h1 className="text-3xl lg:text-4xl font-black tracking-tight mb-2 leading-tight" style={{ color: DARK }}>
+                      {planPreview.title}
+                    </h1>
+                    <p className="text-base text-gray-500 mb-2">{planPreview.subtitle}</p>
+                    <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
+
+                    {/* Plan slides */}
+                    <div className="space-y-2 mb-8">
+                      {planPreview.plan.map((item, i) => {
+                        const typeInfo = SLIDE_TYPE_LABELS[item.type] || { label: item.type, color: DARK };
+                        return (
+                          <div key={i} className="flex items-center gap-3 border border-gray-100 px-4 py-3 bg-white">
+                            <span className="text-xs font-bold w-5 text-gray-400 flex-shrink-0">{item.index}</span>
+                            <span className="text-xs font-bold px-2 py-0.5 flex-shrink-0"
+                              style={{ background: `${typeInfo.color}15`, color: typeInfo.color }}>
+                              {typeInfo.label}
+                            </span>
+                            <span className="text-sm text-gray-700 truncate">{item.titre}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="border-l-2 pl-4 py-1 mb-8" style={{ borderColor: '#e5e7eb' }}>
+                      <p className="text-sm text-gray-500">
+                        Ce plan vous convient ? Lancez la génération complète, ou modifiez vos paramètres pour l'affiner.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        onClick={generate}
+                        className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity"
+                        style={{ background: PINK }}
+                      >
+                        <Sparkles size={18} /> Générer la leçon complète
+                      </button>
+                      <button
+                        onClick={goToPlan}
+                        className="inline-flex items-center gap-2 px-5 py-4 border border-gray-300 text-sm font-medium text-gray-600 hover:border-gray-400 transition-colors"
+                      >
+                        <RefreshCw size={15} /> Regénérer le plan
+                      </button>
+                    </div>
+                  </>
+                ) : null}
               </div>
             </motion.div>
           )}

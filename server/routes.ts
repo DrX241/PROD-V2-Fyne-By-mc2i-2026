@@ -6501,10 +6501,58 @@ ${TRAINING_JSON_SCHEMA}`;
     }
   });
 
+  // POST /api/studio/preview-plan — Génère un plan rapide (~3s) avant la génération complète
+  app.post("/api/studio/preview-plan", async (req: Request, res: Response) => {
+    try {
+      const { pitch, domain, audience, difficulty, duration } = req.body;
+      if (!pitch) return res.status(400).json({ error: 'Le pitch est requis' });
+
+      const audienceLabels: Record<string, string> = {
+        grand_public: 'grand public', managers: 'managers', experts: 'experts techniques',
+        rh: 'RH & Formation', dirigeants: 'dirigeants', commercial: 'équipes commerciales',
+      };
+
+      const prompt = `Tu es un expert en ingénierie pédagogique. À partir du besoin suivant, génère UNIQUEMENT un plan de leçon léger (pas le contenu complet).
+
+BESOIN : ${pitch}
+${domain ? `DOMAINE : ${domain}` : ''}
+PUBLIC : ${audienceLabels[audience] || audience}
+NIVEAU : ${difficulty || 'intermédiaire'}
+${duration ? `DURÉE : ${duration} minutes` : ''}
+
+Génère un plan avec 12-15 slides. Types possibles : intro, theorie, pratique, fill-blank, vrai-faux, conclusion.
+
+Réponds UNIQUEMENT avec ce JSON (sans markdown) :
+{
+  "title": "Titre accrocheur de la leçon",
+  "subtitle": "Sous-titre — angle en moins de 12 mots",
+  "plan": [
+    {"index": 1, "type": "intro", "titre": "Titre de la slide"},
+    {"index": 2, "type": "theorie", "titre": "Titre du concept"},
+    {"index": 3, "type": "pratique", "titre": "Défi Débutant : ..."}
+  ]
+}`;
+
+      const messages = [{ role: 'user' as const, content: prompt }];
+      const raw = await openAIService.getChatCompletion(messages, 0.7, 2000);
+
+      const clean = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const start = clean.indexOf('{');
+      const end = clean.lastIndexOf('}');
+      if (start === -1 || end === -1) throw new Error('JSON invalide');
+      const plan = JSON.parse(clean.slice(start, end + 1));
+
+      return res.json(plan);
+    } catch (err: any) {
+      console.error('preview-plan error:', err);
+      return res.status(500).json({ error: 'Erreur lors de la génération du plan' });
+    }
+  });
+
   // POST /api/studio/generate-lesson-from-prompt — Génère une leçon interactive en slides depuis un pitch texte
   app.post("/api/studio/generate-lesson-from-prompt", async (req: Request, res: Response) => {
     try {
-      const { pitch, domain, audience, duration } = req.body;
+      const { pitch, domain, audience, difficulty, duration } = req.body;
       if (!pitch) return res.status(400).json({ error: 'Le pitch est requis' });
 
       const audienceLabels: Record<string, string> = {
@@ -6514,6 +6562,12 @@ ${TRAINING_JSON_SCHEMA}`;
         rh: 'équipes RH et formation',
         dirigeants: 'dirigeants et membres du COMEX',
         commercial: 'équipes commerciales',
+      };
+
+      const difficultyLabels: Record<string, string> = {
+        debutant: 'Débutant — notions fondamentales, vocabulaire de base, exemples simples, défis accessibles',
+        intermediaire: 'Intermédiaire — concepts métier, cas pratiques réalistes, défis stimulants',
+        expert: 'Expert — enjeux avancés, cas complexes, subtilités techniques, défis exigeants',
       };
 
       const grandPublicBlock = audience === 'grand_public' ? `
@@ -6531,6 +6585,7 @@ MODE GRAND PUBLIC — VULGARISATION EXTRÊME OBLIGATOIRE :
 BESOIN : ${pitch}
 ${domain ? `DOMAINE : ${domain}` : ''}
 PUBLIC CIBLE : ${audienceLabels[audience] || audience || 'grand public'}
+NIVEAU DE DIFFICULTÉ : ${difficultyLabels[difficulty] || difficultyLabels['intermediaire']}
 ${duration ? `DURÉE CIBLE : ${duration} minutes` : ''}
 ${grandPublicBlock}
 RÈGLES OBLIGATOIRES :
