@@ -35,6 +35,25 @@ const RoleplayHub: React.FC = () => {
   // Liste des scénarios de jeu de rôle
   const scenarios = [
     {
+      id: 'debutant-cyber',
+      title: "Je suis Monsieur Tout le Monde",
+      description: "Je veux apprendre à me protéger des risques numériques au quotidien",
+      link: '/cyber/learning-center/modules/debutant-cyber',
+      icon: <Shield className="h-10 w-10 text-amber-300" />,
+      color: 'amber',
+      gradient: 'from-amber-900/70 to-amber-700/30',
+      border: 'border-amber-500/30',
+      buttonGradient: 'from-amber-700 to-amber-600',
+      buttonHover: 'hover:from-amber-600 hover:to-amber-500',
+      textColor: 'text-amber-300',
+      details: [
+        "4 modules immersifs avec scénarios réels",
+        "Choix interactifs et feedback immédiat",
+        "Score de risque personnel + badge final"
+      ],
+      comingSoon: false
+    },
+    {
       id: 'recruiter',
       title: "Je suis Membre du Service de Formation",
       description: "Je souhaite évaluer les compétences cybersécurité de mes collaborateurs",
@@ -88,25 +107,6 @@ const RoleplayHub: React.FC = () => {
         "Environnement web pour pratiquer l'exploitation",
         "Scénarios adaptés à votre niveau technique",
         "Méthodologie structurée de tests d'intrusion"
-      ],
-      comingSoon: false
-    },
-    {
-      id: 'debutant-cyber',
-      title: "Je suis Monsieur Tout le Monde",
-      description: "Je veux apprendre à me protéger des risques numériques au quotidien",
-      link: '/cyber/learning-center/modules/debutant-cyber',
-      icon: <Shield className="h-10 w-10 text-amber-300" />,
-      color: 'amber',
-      gradient: 'from-amber-900/70 to-amber-700/30',
-      border: 'border-amber-500/30',
-      buttonGradient: 'from-amber-700 to-amber-600',
-      buttonHover: 'hover:from-amber-600 hover:to-amber-500',
-      textColor: 'text-amber-300',
-      details: [
-        "4 modules immersifs avec scénarios réels",
-        "Choix interactifs et feedback immédiat",
-        "Score de risque personnel + badge final"
       ],
       comingSoon: false
     },
