@@ -5988,9 +5988,16 @@ ${TRAINING_JSON_SCHEMA}`;
 
   // POST /api/studio/generate-from-documents
   const multer = (await import('multer')).default;
-  const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024, files: 5 } });
+  const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024, files: 5 } });
+  const uploadMiddleware = (req: Request, res: Response, next: any) => {
+    upload.array('files', 5)(req, res, (err: any) => {
+      if (err?.code === 'LIMIT_FILE_SIZE') return res.status(413).json({ error: 'Fichier trop volumineux. La taille maximale est de 50 Mo par fichier.' });
+      if (err) return res.status(500).json({ error: "Erreur lors de l'upload." });
+      next();
+    });
+  };
 
-  app.post("/api/studio/generate-from-documents", upload.array('files', 5), async (req: Request, res: Response) => {
+  app.post("/api/studio/generate-from-documents", uploadMiddleware, async (req: Request, res: Response) => {
     try {
       const { title, audience, gamification } = req.body;
       const files = req.files as Express.Multer.File[] || [];
@@ -6665,9 +6672,16 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
 
   // POST /api/studio/generate-lesson — Génère une leçon interactive en slides depuis des documents
   const multerLesson = (await import('multer')).default;
-  const uploadLesson = multerLesson({ storage: multerLesson.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024, files: 3 } });
+  const uploadLesson = multerLesson({ storage: multerLesson.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024, files: 3 } });
+  const uploadLessonMiddleware = (req: Request, res: Response, next: any) => {
+    uploadLesson.array('files', 3)(req, res, (err: any) => {
+      if (err?.code === 'LIMIT_FILE_SIZE') return res.status(413).json({ error: 'Fichier trop volumineux. La taille maximale est de 50 Mo par fichier.' });
+      if (err) return res.status(500).json({ error: "Erreur lors de l'upload." });
+      next();
+    });
+  };
 
-  app.post("/api/studio/generate-lesson", uploadLesson.array('files', 3), async (req: Request, res: Response) => {
+  app.post("/api/studio/generate-lesson", uploadLessonMiddleware, async (req: Request, res: Response) => {
     try {
       const { title, audience } = req.body;
       const files = req.files as Express.Multer.File[] || [];

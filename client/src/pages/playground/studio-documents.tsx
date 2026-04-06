@@ -104,11 +104,21 @@ export default function StudioDocuments() {
   const [trainingId, setTrainingId] = useState<string | null>(null);
   const [activeScenarioChoice, setActiveScenarioChoice] = useState<number | null>(null);
 
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 Mo
+
   const addFiles = useCallback((newFiles: FileList | null) => {
     if (!newFiles) return;
-    const valid = Array.from(newFiles).filter(f => ['pdf', 'pptx', 'ppt', 'docx', 'doc', 'txt'].includes(f.name.split('.').pop()?.toLowerCase() || ''));
-    if (valid.length < newFiles.length) toast({ title: 'Fichiers non supportés', description: 'Seuls PDF, PowerPoint, Word et texte sont acceptés.', variant: 'destructive' });
-    setFiles(prev => { const names = new Set(prev.map(f => f.name)); return [...prev, ...valid.filter(f => !names.has(f.name))].slice(0, 5); });
+    const all = Array.from(newFiles);
+    const tooLarge = all.filter(f => f.size > MAX_FILE_SIZE);
+    if (tooLarge.length > 0) {
+      toast({ title: 'Fichier trop volumineux', description: `"${tooLarge[0].name}" dépasse 50 Mo. Veuillez utiliser un fichier plus léger.`, variant: 'destructive' });
+    }
+    const validType = all.filter(f => ['pdf', 'pptx', 'ppt', 'docx', 'doc', 'txt'].includes(f.name.split('.').pop()?.toLowerCase() || ''));
+    const validSize = validType.filter(f => f.size <= MAX_FILE_SIZE);
+    if (validType.length < all.filter(f => f.size <= MAX_FILE_SIZE).length) {
+      toast({ title: 'Fichiers non supportés', description: 'Seuls PDF, PowerPoint, Word et texte sont acceptés.', variant: 'destructive' });
+    }
+    setFiles(prev => { const names = new Set(prev.map(f => f.name)); return [...prev, ...validSize.filter(f => !names.has(f.name))].slice(0, 5); });
   }, [toast]);
 
   const onDrop = useCallback((e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); addFiles(e.dataTransfer.files); }, [addFiles]);
@@ -158,7 +168,7 @@ export default function StudioDocuments() {
         files.forEach(f => formData.append('files', f));
         formData.append('title', title); formData.append('audience', audience); formData.append('gamification', gamification);
         const res = await fetch('/api/studio/generate-from-documents', { method: 'POST', body: formData });
-        if (!res.ok) throw new Error();
+        if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error || 'Erreur'); }
         data = await res.json();
       }
       clearInterval(interval);
