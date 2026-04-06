@@ -450,7 +450,6 @@ export default function LessonPlayer() {
 
           {/* Badge */}
           <div style={{ textAlign: 'center', marginBottom: 28 }}>
-            <div style={{ fontSize: 52, marginBottom: 10 }}>{badge.icon}</div>
             <span style={{ display: 'inline-block', padding: '5px 16px', background: `${badge.color}20`, color: badge.color, fontSize: 12, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>
               {badge.label}
             </span>
