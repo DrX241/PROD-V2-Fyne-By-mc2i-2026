@@ -2,7 +2,7 @@ import { Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { ArrowRight, Terminal, Database, Code2, BarChart3, Trophy, Zap, Target, Clock } from 'lucide-react';
 import mcLogoPath from '@assets/mc2i.png';
-import { CHALLENGES, TRACKS, getTotalPoints } from '@/data/si-champion-challenges';
+import { CHALLENGES, TRACKS, getTotalPoints, getChallengeById } from '@/data/si-champion-challenges';
 
 const BLUE = '#006a9e';
 const PINK = '#dd0061';
@@ -24,6 +24,8 @@ const stats = [
 
 export default function SiChampionHub() {
   const [, navigate] = useLocation();
+  const lastChallengeId = typeof window !== 'undefined' ? localStorage.getItem('si-champion-last') : null;
+  const lastChallenge = lastChallengeId ? getChallengeById(lastChallengeId) : null;
 
   return (
     <div className="min-h-screen bg-white text-[#061019]">
@@ -70,17 +72,27 @@ export default function SiChampionHub() {
               <p className="text-xl text-gray-600 max-w-2xl mb-8 leading-relaxed">
                 L'environnement de code interactif de FYNE. Pratique Python, SQL, JavaScript et la Data dans un vrai environnement d'exécution — comme les pros.
               </p>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 flex-wrap">
                 <Link href="/si-champion/challenges">
                   <button className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold text-base" style={{ background: BLUE }}>
                     Voir les défis <ArrowRight size={18} />
                   </button>
                 </Link>
-                <Link href="/si-champion/challenges?track=python">
-                  <button className="inline-flex items-center gap-2 px-8 py-4 font-bold text-base border-2 border-gray-200 text-gray-700 hover:border-gray-400 transition-colors">
-                    Démarrer en Python
+                {lastChallenge ? (
+                  <button
+                    onClick={() => navigate(`/si-champion/challenge/${lastChallenge.id}`)}
+                    className="inline-flex items-center gap-2 px-8 py-4 font-bold text-base border-2 text-white"
+                    style={{ borderColor: PINK, background: PINK }}
+                  >
+                    Reprendre — {lastChallenge.title}
                   </button>
-                </Link>
+                ) : (
+                  <Link href="/si-champion/challenges?track=python">
+                    <button className="inline-flex items-center gap-2 px-8 py-4 font-bold text-base border-2 border-gray-200 text-gray-700 hover:border-gray-400 transition-colors">
+                      Démarrer en Python
+                    </button>
+                  </Link>
+                )}
               </div>
             </motion.div>
           </div>

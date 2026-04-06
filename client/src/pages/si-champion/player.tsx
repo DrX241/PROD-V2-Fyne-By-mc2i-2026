@@ -53,8 +53,20 @@ export default function ChallengePlayer({ params }: { params: { id: string } }) 
   const [elapsed, setElapsed] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showXpAnim, setShowXpAnim] = useState(false);
   const [showTab, setShowTab] = useState<'output' | 'expected' | 'instructions'>('instructions');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const computeDiff = (expected: string, actual: string) => {
+    const expLines = expected.split('\n');
+    const actLines = actual.split('\n');
+    const maxLen = Math.max(expLines.length, actLines.length);
+    return Array.from({ length: maxLen }, (_, i) => ({
+      exp: expLines[i] ?? '',
+      got: actLines[i] ?? '',
+      match: expLines[i] === actLines[i],
+    }));
+  };
 
   const isCompleted = getCompleted().includes(challengeId);
 
@@ -70,6 +82,7 @@ export default function ChallengePlayer({ params }: { params: { id: string } }) 
     setTimerActive(false);
     setShowSuccess(false);
     setShowTab('instructions');
+    localStorage.setItem('si-champion-last', challengeId);
   }, [challengeId, challenge]);
 
   // Timer
@@ -81,6 +94,20 @@ export default function ChallengePlayer({ params }: { params: { id: string } }) 
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [timerActive]);
+
+  // Ctrl+Enter shortcut (ref pattern to always call latest handleRun)
+  const handleRunRef = useRef<() => void>(() => {});
+  useEffect(() => { handleRunRef.current = handleRun; });
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        handleRunRef.current();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -121,7 +148,9 @@ export default function ChallengePlayer({ params }: { params: { id: string } }) 
         setTimerActive(false);
         markCompleted(challengeId);
         setShowSuccess(true);
+        setShowXpAnim(true);
         setTimeout(() => setShowSuccess(false), 4000);
+        setTimeout(() => setShowXpAnim(false), 2200);
       }
     } catch (err) {
       setResult({ stdout: '', stderr: 'Erreur réseau — vérifie ta connexion', exitCode: 1, executionTime: 0 });
@@ -232,6 +261,22 @@ export default function ChallengePlayer({ params }: { params: { id: string } }) 
         </div>
         <div className="h-0.5 w-full" style={{ background: PINK }} />
       </header>
+
+      {/* Floating XP notification */}
+      <AnimatePresence>
+        {showXpAnim && (
+          <motion.div
+            initial={{ opacity: 1, y: 0, scale: 1 }}
+            animate={{ opacity: 0, y: -80, scale: 1.1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 2.0, ease: 'easeOut' }}
+            className="fixed top-20 right-8 z-[100] px-5 py-3 text-white font-black text-lg pointer-events-none"
+            style={{ background: '#16a34a' }}
+          >
+            +{challenge.points} pts
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Success Banner */}
       <AnimatePresence>
@@ -362,16 +407,36 @@ export default function ChallengePlayer({ params }: { params: { id: string } }) 
             {/* ── Instructions Tab ── */}
             {showTab === 'instructions' && (
               <div className="space-y-4">
-                <div>
-                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Contexte</div>
-                  <p className="text-sm text-gray-700 leading-relaxed">{challenge.context}</p>
+                {/* Mission brief card — like an internal Teams message */}
+                <div className="border border-gray-200 overflow-hidden">
+                  <div className="flex items-center gap-2.5 px-3 py-2 bg-gray-50 border-b border-gray-200">
+                    <div className="w-7 h-7 flex items-center justify-center text-white text-xs font-black flex-shrink-0"
+                      style={{ background: BLUE }}>
+                      MC
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold" style={{ color: DARK }}>Manager de mission · mc2i</div>
+                      <div className="text-[10px] text-gray-400">Briefing mission — {track.label}</div>
+                    </div>
+                    <div className="ml-auto">
+                      <span className="text-[10px] font-bold px-1.5 py-0.5" style={{ background: levelCfg.bg, color: levelCfg.color }}>
+                        {levelCfg.label}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-3">
+                    <p className="text-sm text-gray-700 leading-relaxed">{challenge.context}</p>
+                  </div>
                 </div>
+
+                {/* Mission task */}
                 <div>
-                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Mission</div>
-                  <div className="text-sm text-gray-900 leading-relaxed font-medium border-l-2 pl-3" style={{ borderColor: PINK }}>
+                  <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Ce qu'on attend de toi</div>
+                  <div className="text-sm text-gray-900 leading-relaxed font-medium border-l-2 pl-3 py-1" style={{ borderColor: PINK }}>
                     {challenge.instructions}
                   </div>
                 </div>
+
                 <div className="flex flex-wrap gap-1.5">
                   {challenge.tags.map(tag => (
                     <span key={tag} className="px-2 py-0.5 text-xs bg-gray-100 text-gray-500 font-medium">{tag}</span>
@@ -410,7 +475,7 @@ export default function ChallengePlayer({ params }: { params: { id: string } }) 
                       <div className={`flex items-center gap-2 p-3 font-bold text-sm ${isPassed ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
                         {isPassed
                           ? <><CheckCircle2 size={16} /> Bravo ! Ton output correspond au résultat attendu.</>
-                          : <><XCircle size={16} /> L'output ne correspond pas encore. Vérifie l'onglet "Résultat attendu".</>
+                          : <><XCircle size={16} /> L'output ne correspond pas. Voici le diff ci-dessous.</>
                         }
                       </div>
                     )}
@@ -418,7 +483,7 @@ export default function ChallengePlayer({ params }: { params: { id: string } }) 
                     {result.stdout && (
                       <div>
                         <div className="text-xs font-bold text-gray-400 mb-1.5">STDOUT</div>
-                        <pre className="text-xs font-mono bg-gray-900 text-green-400 p-3 overflow-auto max-h-40 whitespace-pre-wrap">
+                        <pre className="text-xs font-mono bg-gray-900 text-green-400 p-3 overflow-auto max-h-32 whitespace-pre-wrap">
                           {result.stdout}
                         </pre>
                       </div>
@@ -427,9 +492,42 @@ export default function ChallengePlayer({ params }: { params: { id: string } }) 
                     {result.stderr && (
                       <div>
                         <div className="text-xs font-bold text-red-400 mb-1.5">ERREUR</div>
-                        <pre className="text-xs font-mono bg-red-950 text-red-300 p-3 overflow-auto max-h-40 whitespace-pre-wrap">
+                        <pre className="text-xs font-mono bg-red-950 text-red-300 p-3 overflow-auto max-h-32 whitespace-pre-wrap">
                           {result.stderr}
                         </pre>
+                      </div>
+                    )}
+                    {/* Inline diff when failed */}
+                    {isPassed === false && !result.stderr && (
+                      <div>
+                        <div className="flex items-center gap-4 mb-1.5">
+                          <span className="text-xs font-bold text-blue-600">ATTENDU</span>
+                          <span className="text-xs font-bold text-red-500">TON OUTPUT</span>
+                        </div>
+                        <div className="border border-gray-200 overflow-hidden text-xs font-mono">
+                          {computeDiff(challenge.expectedOutput.trim(), result.stdout.trim()).map((line, i) => (
+                            <div
+                              key={i}
+                              className={`flex gap-0 ${line.match ? '' : 'bg-red-50'}`}
+                            >
+                              <span className="w-6 text-center py-0.5 text-gray-300 bg-gray-50 border-r border-gray-200 flex-shrink-0 select-none">
+                                {i + 1}
+                              </span>
+                              {line.match ? (
+                                <span className="flex-1 px-2 py-0.5 text-gray-700">{line.exp || '\u00a0'}</span>
+                              ) : (
+                                <div className="flex flex-1 min-w-0">
+                                  <span className="flex-1 px-2 py-0.5 text-blue-700 bg-blue-50 border-r border-blue-100 truncate" title={line.exp}>
+                                    {line.exp || '(vide)'}
+                                  </span>
+                                  <span className="flex-1 px-2 py-0.5 text-red-600 bg-red-50 truncate" title={line.got}>
+                                    {line.got || '(vide)'}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                     {/* Meta */}

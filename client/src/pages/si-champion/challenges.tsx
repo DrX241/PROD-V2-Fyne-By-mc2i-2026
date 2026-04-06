@@ -29,6 +29,7 @@ export default function ChallengesPage() {
   const [levelFilter, setLevelFilter] = useState<Level | 'all'>('all');
   const [search, setSearch] = useState('');
   const [completed, setCompleted] = useState<string[]>([]);
+  const [lastChallengeId] = useState<string | null>(() => localStorage.getItem('si-champion-last'));
 
   useEffect(() => {
     setCompleted(getCompleted());
@@ -166,6 +167,66 @@ export default function ChallengesPage() {
           </div>
         </div>
 
+        {/* Reprendre banner */}
+        {lastChallengeId && (() => {
+          const lc = CHALLENGES.find(c => c.id === lastChallengeId);
+          if (!lc) return null;
+          const lcTrack = TRACKS.find(t => t.id === lc.track)!;
+          const lcLevel = LEVEL_CONFIG[lc.level];
+          const lcCompleted = completed.includes(lc.id);
+          return (
+            <div
+              className="mb-6 p-4 border-2 flex items-center justify-between gap-4 cursor-pointer hover:shadow-md transition-shadow"
+              style={{ borderColor: '#006a9e', background: '#f0f7ff' }}
+              onClick={() => navigate(`/si-champion/challenge/${lc.id}`)}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-white text-xs font-black" style={{ background: '#006a9e' }}>
+                  {lcCompleted ? <CheckCircle2 size={16} /> : <ArrowRight size={16} />}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-0.5">
+                    {lcCompleted ? 'Dernier défi complété' : 'Reprendre'}
+                  </div>
+                  <div className="font-black text-sm truncate" style={{ color: '#061019' }}>{lc.title}</div>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[10px] font-bold px-1.5 py-0.5" style={{ background: lcTrack.bgLight, color: lcTrack.color }}>{lcTrack.label}</span>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5" style={{ background: lcLevel.bg, color: lcLevel.color }}>{lcLevel.label}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex-shrink-0 text-xs font-bold px-4 py-2 text-white" style={{ background: '#006a9e' }}>
+                {lcCompleted ? 'Revoir' : 'Continuer'}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Track progress */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          {TRACKS.map(track => {
+            const total = CHALLENGES.filter(c => c.track === track.id).length;
+            const done = CHALLENGES.filter(c => c.track === track.id && completed.includes(c.id)).length;
+            const pct = total > 0 ? (done / total) * 100 : 0;
+            return (
+              <div
+                key={track.id}
+                className="p-3 border border-gray-200 cursor-pointer hover:border-gray-400 transition-colors"
+                onClick={() => setTrackFilter(trackFilter === track.id ? 'all' : track.id)}
+                style={trackFilter === track.id ? { borderColor: track.color, background: track.bgLight } : {}}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-bold" style={{ color: track.color }}>{track.label}</span>
+                  <span className="text-xs text-gray-400">{done}/{total}</span>
+                </div>
+                <div className="h-1 bg-gray-200">
+                  <div className="h-full transition-all" style={{ width: `${pct}%`, background: track.color }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
         {/* Grid */}
         {filtered.length === 0 ? (
           <div className="text-center py-24 text-gray-400">
@@ -185,13 +246,15 @@ export default function ChallengesPage() {
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.04 }}
-                  className="border border-gray-200 p-5 cursor-pointer hover:border-gray-400 hover:shadow-md transition-all group relative"
+                  className={`border-2 p-5 cursor-pointer hover:shadow-md transition-all group relative ${
+                    isCompleted ? 'border-green-400 bg-green-50' : 'border-gray-200 hover:border-gray-400'
+                  }`}
                   onClick={() => navigate(`/si-champion/challenge/${challenge.id}`)}
                 >
                   {/* Completed badge */}
                   {isCompleted && (
-                    <div className="absolute top-3 right-3">
-                      <CheckCircle2 size={18} style={{ color: '#16a34a' }} />
+                    <div className="absolute top-3 right-3 flex items-center gap-1 text-xs font-bold text-green-700">
+                      <CheckCircle2 size={14} /> Complété
                     </div>
                   )}
 
