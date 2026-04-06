@@ -1,214 +1,294 @@
-import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState, useRef } from 'react';
 
 const BLUE = '#006a9e';
 const PINK = '#dd0061';
 const DARK = '#061019';
 
 const AGENTS = {
-  analyste:    { name: 'Agent Analyste',   color: BLUE,      initial: 'A' },
-  pedagogue:   { name: 'Agent Pédagogue',  color: '#7c3aed', initial: 'P' },
-  redacteur:   { name: 'Agent Rédacteur',  color: '#059669', initial: 'R' },
-  qcm:         { name: 'Agent QCM',        color: '#d97706', initial: 'Q' },
-  superviseur: { name: 'Superviseur IA',   color: PINK,      initial: 'S' },
+  superviseur: { name: 'Superviseur IA', color: PINK,      initial: 'S', label: 'Supervision' },
+  analyste:    { name: 'Analyste',       color: BLUE,      initial: 'A', label: 'Analyse' },
+  pedagogue:   { name: 'Pédagogue',      color: '#7c3aed', initial: 'P', label: 'Pédagogie' },
+  redacteur:   { name: 'Rédacteur',      color: '#059669', initial: 'R', label: 'Rédaction' },
+  qcm:         { name: 'Agent QCM',      color: '#d97706', initial: 'Q', label: 'Évaluation' },
 } as const;
-
 type AgentKey = keyof typeof AGENTS;
 
-interface AgentMessage {
+const W = 560;
+const H = 340;
+
+const POS: Record<AgentKey, { x: number; y: number }> = {
+  superviseur: { x: 280, y: 52  },
+  analyste:    { x: 68,  y: 188 },
+  pedagogue:   { x: 492, y: 188 },
+  redacteur:   { x: 135, y: 316 },
+  qcm:         { x: 425, y: 316 },
+};
+
+const CONNECTIONS: [AgentKey, AgentKey][] = [
+  ['superviseur', 'analyste'],
+  ['superviseur', 'pedagogue'],
+  ['superviseur', 'redacteur'],
+  ['superviseur', 'qcm'],
+  ['analyste',    'pedagogue'],
+  ['analyste',    'redacteur'],
+  ['analyste',    'qcm'],
+  ['pedagogue',   'qcm'],
+  ['pedagogue',   'redacteur'],
+  ['redacteur',   'qcm'],
+];
+
+const ACTIVITIES: Record<AgentKey, string[]> = {
+  superviseur: [
+    'Orchestration de l\'équipe en cours…',
+    'Contrôle qualité pédagogique…',
+    'Synchronisation des modules…',
+    'Validation de la cohérence globale…',
+  ],
+  analyste: [
+    'Décomposition des concepts clés…',
+    'Analyse sémantique du contenu…',
+    'Identification des prérequis…',
+    'Extraction des points essentiels…',
+  ],
+  pedagogue: [
+    'Structuration de l\'architecture pédagogique…',
+    'Séquençage des apprentissages…',
+    'Équilibrage théorie / pratique…',
+    'Optimisation de la progression…',
+  ],
+  redacteur: [
+    'Rédaction des slides théorie…',
+    'Création des mises en pratique…',
+    'Formulation des exemples concrets…',
+    'Finalisation du contenu…',
+  ],
+  qcm: [
+    'Génération des questions d\'évaluation…',
+    'Conception des distracteurs…',
+    'Calibrage de la difficulté…',
+    'Validation des explications…',
+  ],
+};
+
+interface Pulse {
+  id: number;
   from: AgentKey;
-  to: string;
-  text: string;
-  delay: number;
+  to: AgentKey;
+  color: string;
+  startTime: number;
+  duration: number;
 }
-
-const MESSAGES_PROMPT: AgentMessage[] = [
-  { from: 'analyste',    to: 'Équipe',       text: 'Analyse du pitch en cours… Je décompose les concepts clés à couvrir.', delay: 0 },
-  { from: 'pedagogue',   to: 'Analyste',     text: 'Reçu. Je structure l\'architecture : intro + slides théorie/pratique + conclusion.', delay: 2000 },
-  { from: 'analyste',    to: 'Pédagogue',    text: 'Profil apprenant identifié. Adapte le niveau de langage et les exemples en conséquence.', delay: 4000 },
-  { from: 'redacteur',   to: 'Pédagogue',    text: 'Je démarre la rédaction des slides. Combien de théorie dois-je prévoir ?', delay: 5800 },
-  { from: 'pedagogue',   to: 'Rédacteur',    text: '3 slides théorie alternées avec 3 mises en pratique. Inclure des exemples terrain.', delay: 7400 },
-  { from: 'qcm',         to: 'Équipe',       text: 'Je prépare 5 questions QCM avec distracteurs pertinents basés sur les concepts clés.', delay: 9200 },
-  { from: 'redacteur',   to: 'QCM',          text: 'Slides finalisées. Je vous transmets les points centraux pour les questions.', delay: 11000 },
-  { from: 'superviseur', to: 'Équipe',       text: 'Vérification qualité : cohérence pédagogique, clarté, progressivité…', delay: 13000 },
-  { from: 'superviseur', to: 'Équipe',       text: '✓ Leçon validée. Compilation et sauvegarde en cours.', delay: 15000 },
-];
-
-const MESSAGES_DOCS: AgentMessage[] = [
-  { from: 'analyste',    to: 'Équipe',       text: 'Analyse des documents fournis… Extraction du contenu sémantique.', delay: 0 },
-  { from: 'pedagogue',   to: 'Analyste',     text: 'Je reçois les données. J\'identifie la structure pédagogique optimale.', delay: 2000 },
-  { from: 'analyste',    to: 'Pédagogue',    text: 'Contenu riche détecté. Priorité aux concepts les plus actionnables.', delay: 4000 },
-  { from: 'redacteur',   to: 'Pédagogue',    text: 'Démarrage de la mise en forme en slides. Théorie puis mise en pratique.', delay: 5800 },
-  { from: 'pedagogue',   to: 'Rédacteur',    text: 'Valide. Alterne exposition théorique et application concrète pour chaque thème.', delay: 7400 },
-  { from: 'qcm',         to: 'Équipe',       text: 'Extraction des éléments évaluables… Génération des 5 questions QCM en cours.', delay: 9200 },
-  { from: 'redacteur',   to: 'QCM',          text: 'Slides prêtes. Je vous transmets les points clés pour le quiz de validation.', delay: 11000 },
-  { from: 'superviseur', to: 'Équipe',       text: 'Contrôle final : cohérence avec les sources, clarté des consignes pratiques…', delay: 13000 },
-  { from: 'superviseur', to: 'Équipe',       text: '✓ Leçon validée. Sauvegarde et préparation du player en cours.', delay: 15000 },
-];
 
 interface Props {
   mode?: 'prompt' | 'docs';
 }
 
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * Math.max(0, Math.min(1, t));
+}
+
 export default function AgentLoadingScreen({ mode = 'prompt' }: Props) {
-  const messages = mode === 'docs' ? MESSAGES_DOCS : MESSAGES_PROMPT;
-  const [visible, setVisible] = useState<number[]>([]);
-  const [typing, setTyping] = useState<number | null>(0);
+  const [pulses, setPulses] = useState<Pulse[]>([]);
+  const [activeAgent, setActiveAgent] = useState<AgentKey>('superviseur');
+  const [activityMsg, setActivityMsg] = useState(ACTIVITIES.superviseur[0]);
+  const [, forceUpdate] = useState(0);
+
+  const nextId = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  const lastPulseRef = useRef(0);
+  const nextIntervalRef = useRef(700);
+  const pulsesRef = useRef<Pulse[]>([]);
 
   useEffect(() => {
-    const timers: ReturnType<typeof setTimeout>[] = [];
+    pulsesRef.current = pulses;
+  }, [pulses]);
 
-    messages.forEach((msg, i) => {
-      timers.push(setTimeout(() => {
-        setTyping(i);
-      }, msg.delay));
-      timers.push(setTimeout(() => {
-        setVisible(prev => [...prev, i]);
-        setTyping(i + 1 < messages.length ? i + 1 : null);
-      }, msg.delay + 900));
-    });
+  useEffect(() => {
+    const loop = (timestamp: number) => {
+      const now = Date.now();
 
-    return () => timers.forEach(clearTimeout);
+      // Spawn new pulse?
+      if (now - lastPulseRef.current > nextIntervalRef.current) {
+        lastPulseRef.current = now;
+        nextIntervalRef.current = 550 + Math.random() * 600;
+
+        const conn = CONNECTIONS[Math.floor(Math.random() * CONNECTIONS.length)];
+        const [from, to] = (Math.random() > 0.5 ? conn : [conn[1], conn[0]]) as [AgentKey, AgentKey];
+        const duration = 900 + Math.random() * 500;
+
+        const pulse: Pulse = {
+          id: nextId.current++,
+          from, to,
+          color: AGENTS[from].color,
+          startTime: now,
+          duration,
+        };
+
+        setPulses(prev => {
+          const alive = prev.filter(p => now - p.startTime < p.duration + 100);
+          return [...alive, pulse];
+        });
+
+        setActiveAgent(from);
+        const msgs = ACTIVITIES[from];
+        setActivityMsg(msgs[Math.floor(Math.random() * msgs.length)]);
+      }
+
+      forceUpdate(n => n + 1);
+      rafRef.current = requestAnimationFrame(loop);
+    };
+
+    rafRef.current = requestAnimationFrame(loop);
+    return () => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current); };
   }, []);
 
+  const now = Date.now();
+  const ag = AGENTS[activeAgent];
+  const NODE_SIZE = 44;
+  const HALF = NODE_SIZE / 2;
+
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px' }}>
+    <div style={{
+      minHeight: '100vh', background: '#f8fafc',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      padding: '24px',
+    }}>
 
       {/* Header */}
-      <div style={{ marginBottom: 32, textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: `${PINK}10`, marginBottom: 12 }}>
-          <span style={{ width: 6, height: 6, background: PINK, borderRadius: '50%', display: 'inline-block', animation: 'pulse 1.2s ease-in-out infinite' }} />
+      <div style={{ marginBottom: 28, textAlign: 'center' }}>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          padding: '5px 14px', background: `${PINK}10`, marginBottom: 12,
+        }}>
+          <span style={{
+            width: 6, height: 6, borderRadius: '50%', background: PINK, display: 'inline-block',
+            animation: 'nn-pulse 1.1s ease-in-out infinite',
+          }} />
           <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: PINK, textTransform: 'uppercase' }}>
-            Équipe IA · Génération en cours
+            Réseau d'agents · Génération en cours
           </span>
         </div>
-        <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: DARK }}>Vos agents travaillent sur la leçon</h2>
-        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#6b7280' }}>Chaque agent prend en charge une partie de la création…</p>
-      </div>
-
-      {/* Agents roster */}
-      <div style={{ display: 'flex', gap: 16, marginBottom: 32, flexWrap: 'wrap', justifyContent: 'center' }}>
-        {(Object.keys(AGENTS) as AgentKey[]).map(key => {
-          const ag = AGENTS[key];
-          const isActive = typing !== null && messages[typing]?.from === key;
-          const hasDone = visible.some(i => messages[i].from === key);
-          return (
-            <div key={key} style={{
-              display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px',
-              border: `1px solid ${isActive ? ag.color : hasDone ? `${ag.color}50` : '#e5e7eb'}`,
-              background: isActive ? `${ag.color}10` : 'white',
-              transition: 'all 0.3s',
-            }}>
-              <div style={{
-                width: 28, height: 28, background: isActive ? ag.color : hasDone ? `${ag.color}30` : '#f3f4f6',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 11, fontWeight: 800, color: isActive ? 'white' : hasDone ? ag.color : '#9ca3af',
-                transition: 'all 0.3s',
-              }}>
-                {ag.initial}
-              </div>
-              <span style={{ fontSize: 12, fontWeight: isActive ? 700 : 500, color: isActive ? ag.color : '#6b7280', whiteSpace: 'nowrap' }}>
-                {ag.name}
-              </span>
-              {isActive && (
-                <span style={{ display: 'flex', gap: 2 }}>
-                  {[0, 1, 2].map(i => (
-                    <span key={i} style={{
-                      width: 4, height: 4, background: ag.color, borderRadius: '50%',
-                      animation: `bounce 0.9s ease-in-out ${i * 0.15}s infinite`,
-                    }} />
-                  ))}
-                </span>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Chat panel */}
-      <div style={{ width: '100%', maxWidth: 580, border: '1px solid #e5e7eb', background: 'white' }}>
-        {/* Panel header */}
-        <div style={{ borderBottom: '1px solid #f3f4f6', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ display: 'flex', gap: 4 }}>
-            <div style={{ width: 8, height: 8, background: '#e5e7eb' }} />
-            <div style={{ width: 8, height: 8, background: '#e5e7eb' }} />
-            <div style={{ width: 8, height: 8, background: '#e5e7eb' }} />
-          </div>
-          <span style={{ fontSize: 11, color: '#9ca3af', fontWeight: 600, letterSpacing: 1 }}>CANAL · FYNE STUDIO</span>
+        <div style={{ fontSize: 14, color: '#6b7280', minHeight: 22 }}>
+          <span style={{ color: ag.color, fontWeight: 700 }}>{ag.name}</span>
+          <span style={{ margin: '0 6px', color: '#d1d5db' }}>·</span>
+          <span>{activityMsg}</span>
         </div>
+      </div>
 
-        {/* Messages */}
-        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 14, minHeight: 320, maxHeight: 360, overflowY: 'auto' }}>
-          <AnimatePresence>
-            {visible.map(i => {
-              const msg = messages[i];
-              const ag = AGENTS[msg.from];
-              return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.25 }}
-                  style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}
+      {/* Network */}
+      <div style={{ width: '100%', maxWidth: W }}>
+        <svg
+          width="100%"
+          viewBox={`0 0 ${W} ${H}`}
+          style={{ overflow: 'visible', display: 'block' }}
+        >
+          {/* Connection lines */}
+          {CONNECTIONS.map(([a, b]) => {
+            const pa = POS[a];
+            const pb = POS[b];
+            const active = pulses.some(p =>
+              (p.from === a && p.to === b) || (p.from === b && p.to === a)
+            );
+            return (
+              <line
+                key={`line-${a}-${b}`}
+                x1={pa.x} y1={pa.y}
+                x2={pb.x} y2={pb.y}
+                stroke={active ? '#c7d2da' : '#e5e7eb'}
+                strokeWidth={active ? 1.5 : 1}
+                strokeDasharray={active ? undefined : '3 5'}
+              />
+            );
+          })}
+
+          {/* Pulses */}
+          {pulses.map(pulse => {
+            const t = (now - pulse.startTime) / pulse.duration;
+            if (t < 0 || t > 1) return null;
+            const from = POS[pulse.from];
+            const to = POS[pulse.to];
+            const x = lerp(from.x, to.x, t);
+            const y = lerp(from.y, to.y, t);
+            const opacity = t < 0.12 ? t / 0.12 : t > 0.82 ? (1 - t) / 0.18 : 1;
+            return (
+              <g key={`pulse-${pulse.id}`}>
+                <circle cx={x} cy={y} r={9} fill={pulse.color} opacity={opacity * 0.18} />
+                <circle cx={x} cy={y} r={4.5} fill={pulse.color} opacity={opacity * 0.9} />
+                <circle cx={x} cy={y} r={2} fill="white" opacity={opacity * 0.8} />
+              </g>
+            );
+          })}
+
+          {/* Nodes */}
+          {(Object.keys(AGENTS) as AgentKey[]).map(key => {
+            const a = AGENTS[key];
+            const p = POS[key];
+            const isSender   = pulses.some(pl => pl.from === key && (now - pl.startTime) / pl.duration < 0.25);
+            const isReceiver = pulses.some(pl => pl.to === key   && (now - pl.startTime) / pl.duration > 0.75);
+            const isActive   = key === activeAgent;
+            const lit        = isSender || isReceiver || isActive;
+
+            return (
+              <g key={key} transform={`translate(${p.x - HALF}, ${p.y - HALF})`}>
+                {/* Outer glow when active */}
+                {lit && (
+                  <rect
+                    x={-5} y={-5}
+                    width={NODE_SIZE + 10} height={NODE_SIZE + 10}
+                    fill={`${a.color}18`}
+                    stroke={a.color}
+                    strokeWidth={1}
+                  />
+                )}
+                {/* Node square */}
+                <rect
+                  width={NODE_SIZE} height={NODE_SIZE}
+                  fill={isActive ? a.color : lit ? `${a.color}10` : 'white'}
+                  stroke={a.color}
+                  strokeWidth={lit ? 2 : 1.5}
+                />
+                {/* Initial */}
+                <text
+                  x={HALF} y={HALF + 1}
+                  textAnchor="middle" dominantBaseline="middle"
+                  fontSize={15} fontWeight={800}
+                  fill={isActive ? 'white' : a.color}
+                  fontFamily="system-ui, -apple-system, sans-serif"
                 >
-                  <div style={{
-                    width: 30, height: 30, background: ag.color, flexShrink: 0,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 11, fontWeight: 800, color: 'white',
-                  }}>
-                    {ag.initial}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 3 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: ag.color }}>{ag.name}</span>
-                      <span style={{ fontSize: 10, color: '#9ca3af' }}>→ {msg.to}</span>
-                    </div>
-                    <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.55, padding: '8px 12px', background: '#f9fafb', borderLeft: `2px solid ${ag.color}` }}>
-                      {msg.text}
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
+                  {a.initial}
+                </text>
+                {/* Label */}
+                <text
+                  x={HALF} y={NODE_SIZE + 14}
+                  textAnchor="middle"
+                  fontSize={9.5} fontWeight={600}
+                  fill={lit ? a.color : '#9ca3af'}
+                  fontFamily="system-ui, -apple-system, sans-serif"
+                >
+                  {a.label}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
 
-          {/* Typing indicator */}
-          {typing !== null && typing < messages.length && (
-            <motion.div
-              key={`typing-${typing}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              style={{ display: 'flex', gap: 10, alignItems: 'center' }}
-            >
-              <div style={{
-                width: 30, height: 30, background: `${AGENTS[messages[typing].from].color}20`, flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 11, fontWeight: 800, color: AGENTS[messages[typing].from].color,
-                border: `1px solid ${AGENTS[messages[typing].from].color}40`,
-              }}>
-                {AGENTS[messages[typing].from].initial}
-              </div>
-              <div style={{ display: 'flex', gap: 4, padding: '8px 12px', background: '#f9fafb', border: '1px solid #f3f4f6' }}>
-                {[0, 1, 2].map(i => (
-                  <span key={i} style={{
-                    width: 6, height: 6, background: '#9ca3af', borderRadius: '50%',
-                    animation: `bounce 0.9s ease-in-out ${i * 0.15}s infinite`,
-                  }} />
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </div>
+      {/* Pulse count indicator */}
+      <div style={{ marginTop: 24, display: 'flex', gap: 6, alignItems: 'center' }}>
+        {pulses.filter(p => (now - p.startTime) / p.duration < 1).map(p => (
+          <div key={p.id} style={{
+            width: 6, height: 6,
+            background: p.color,
+            opacity: 0.6,
+            transition: 'opacity 0.3s',
+          }} />
+        ))}
       </div>
 
       <style>{`
-        @keyframes bounce {
-          0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
-          40% { transform: translateY(-5px); opacity: 1; }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
+        @keyframes nn-pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.25; transform: scale(0.7); }
         }
       `}</style>
     </div>
