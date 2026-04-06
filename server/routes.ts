@@ -5490,7 +5490,7 @@ Niveau ${levelDesc}. Contexte français réaliste. Pour visual.type utilise: ema
     try {
       const response = await openAIService.getChatCompletion(
         [{ role: 'user', content: prompt }],
-        { maxTokens: 1200 }
+        { maxTokens: 1200, responseFormat: 'json_object' }
       );
 
       const parseJsonSafely = (str: string) => {

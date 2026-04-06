@@ -134,23 +134,40 @@ class GeminiService {
 
   async getChatCompletion(
     messages: ChatCompletionRequestMessage[],
-    temperatureOrUseSecondary?: number | boolean,
+    options: { temperature?: number, maxTokens?: number, responseFormat?: string }
+  ): Promise<string>;
+
+  async getChatCompletion(
+    messages: ChatCompletionRequestMessage[],
+    temperatureOrUseSecondary?: number | boolean | { temperature?: number, maxTokens?: number, responseFormat?: string },
     maxTokensOrTemperature?: number,
     maxTokensOrOptions?: number | { responseFormat?: string },
     options?: { responseFormat?: string }
   ): Promise<string> {
     let temperature: number = 0.7;
     let actualMaxTokens: number = 2000;
+    let responseFormat: string | undefined;
 
     if (typeof temperatureOrUseSecondary === 'boolean') {
       temperature = typeof maxTokensOrTemperature === 'number' ? maxTokensOrTemperature : 0.7;
       actualMaxTokens = typeof maxTokensOrOptions === 'number' ? maxTokensOrOptions : 2000;
+      responseFormat = options?.responseFormat;
+    } else if (typeof temperatureOrUseSecondary === 'object' && temperatureOrUseSecondary !== null) {
+      // Called as getChatCompletion(messages, { maxTokens, responseFormat })
+      const opts = temperatureOrUseSecondary as any;
+      temperature = opts.temperature ?? 0.7;
+      actualMaxTokens = opts.maxTokens ?? 2000;
+      responseFormat = opts.responseFormat;
     } else {
       temperature = typeof temperatureOrUseSecondary === 'number' ? temperatureOrUseSecondary : 0.7;
       actualMaxTokens = typeof maxTokensOrTemperature === 'number' ? maxTokensOrTemperature : 2000;
+      if (typeof maxTokensOrOptions === 'object' && maxTokensOrOptions !== null) {
+        responseFormat = (maxTokensOrOptions as { responseFormat?: string }).responseFormat;
+      }
+      responseFormat = responseFormat ?? options?.responseFormat;
     }
 
-    return this.callGemini(messages, temperature, actualMaxTokens);
+    return this.callGemini(messages, temperature, actualMaxTokens, responseFormat);
   }
 
   private readonly MODEL_CHAIN = [
@@ -163,11 +180,16 @@ class GeminiService {
     contents: any[],
     systemInstruction: string,
     temperature: number,
-    maxTokens: number
+    maxTokens: number,
+    responseFormat?: string
   ): Promise<string> {
+    const generationConfig: any = { temperature, maxOutputTokens: maxTokens };
+    if (responseFormat === 'json_object') {
+      generationConfig.responseMimeType = 'application/json';
+    }
     const requestBody: any = {
       contents,
-      generationConfig: { temperature, maxOutputTokens: maxTokens },
+      generationConfig,
     };
     if (systemInstruction) {
       requestBody.systemInstruction = { parts: [{ text: systemInstruction }] };
@@ -206,7 +228,8 @@ class GeminiService {
   private async callGemini(
     messages: ChatCompletionRequestMessage[],
     temperature: number,
-    maxTokens: number
+    maxTokens: number,
+    responseFormat?: string
   ): Promise<string> {
     console.log(`Making Gemini FYNE API request`);
     console.log(`Request parameters: temperature=${temperature}, max_tokens=${maxTokens}`);
@@ -235,7 +258,7 @@ class GeminiService {
       const model = this.MODEL_CHAIN[modelIdx];
       try {
         console.log(`[Gemini] Tentative avec le modèle: ${model}`);
-        const result = await this.callGeminiModel(model, geminiContents, systemInstruction, temperature, maxTokens);
+        const result = await this.callGeminiModel(model, geminiContents, systemInstruction, temperature, maxTokens, responseFormat);
         this.connectionStatus = 'connected';
         this.lastConnectionCheck = Date.now();
         if (modelIdx > 0) console.log(`[Gemini] ✓ Succès avec le modèle de secours: ${model}`);
