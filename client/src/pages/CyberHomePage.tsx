@@ -108,17 +108,6 @@ const CyberHomePage: React.FC = () => {
       route: '/amoa-mode-selection-new'
     },
     {
-      id: 'si-champion',
-      title: 'I AM SI CHAMPION',
-      description: 'Pratique Python, SQL, JavaScript dans un vrai environnement de code interactif',
-      icon: <div className="w-5 h-5 bg-cyan-500"></div>,
-      color: 'text-cyan-600',
-      bgColor: 'bg-cyan-100',
-      accentColor: 'border-cyan-500',
-      route: '/si-champion',
-      comingSoon: false
-    },
-    {
       id: 'generator',
       title: 'SOYEZ QUI VOUS VOULEZ',
       description: 'Créez vos propres modules de formation personnalisés',
@@ -255,8 +244,7 @@ const CyberHomePage: React.FC = () => {
                     ${module.id === 'cyber' ? 'border-t-8 border-t-indigo-500' : ''}
                     ${module.id === 'data' ? 'border-t-8 border-t-purple-500' : ''}
                     ${module.id === 'mc2i' ? 'border-t-8 border-t-emerald-500' : ''}
-                    ${module.id === 'generator' ? 'border-t-8 border-t-rose-500' : ''}
-                    ${module.id === 'si-champion' ? 'border-t-8 border-t-cyan-500' : ''}`
+                    ${module.id === 'generator' ? 'border-t-8 border-t-rose-500' : ''}`
                   }
                   onMouseEnter={() => setHoveredModule(module.id)}
                   onMouseLeave={() => setHoveredModule(null)}

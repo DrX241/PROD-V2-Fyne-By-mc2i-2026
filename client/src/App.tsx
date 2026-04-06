@@ -36,9 +36,7 @@ import StudioIA from "./pages/playground/studio-ia";
 import StudioDocuments from "./pages/playground/studio-documents";
 import TrainingPlayer from "./pages/playground/player";
 import LessonPlayer from "./pages/playground/lesson-player";
-import SiChampionHub from "./pages/si-champion/index";
-import SiChampionChallenges from "./pages/si-champion/challenges";
-import SiChampionPlayer from "./pages/si-champion/player";
+
 // Import des pages de la nouvelle interface cyber V3
 import CyberV3 from "./pages/cyber-v3";
 // Import de la page à propos de FYNE
@@ -424,11 +422,6 @@ function AppContent() {
                 <Route path="/playground/studio-documents" component={StudioDocuments} />
                 <Route path="/playground/player/:id" component={TrainingPlayer} />
                 <Route path="/playground/lesson/:id" component={LessonPlayer} />
-                {/* Routes I AM SI CHAMPION */}
-                <Route path="/si-champion" component={SiChampionHub} />
-                <Route path="/si-champion/challenges" component={SiChampionChallenges} />
-                <Route path="/si-champion/challenge/:id" component={SiChampionPlayer} />
-
                 {/* Route par défaut (404) */}
                 <Route component={NotFound} />
               </Switch>
