@@ -10,6 +10,20 @@ const BLUE = '#006a9e';
 const PINK = '#dd0061';
 const DARK = '#061019';
 
+const DOMAIN_PROMPTS: Record<string, string> = {
+  cybersecurite: "Former tous les collaborateurs aux bonnes pratiques de cybersécurité au quotidien : reconnaître un email de phishing, créer et gérer des mots de passe robustes, sécuriser son poste de travail et ses données, réagir correctement en cas d'incident. Public non technique, exemples concrets tirés du quotidien professionnel.",
+  rgpd: "Sensibiliser les équipes au RGPD et à la protection des données personnelles : comprendre ce qu'est une donnée personnelle, les droits des personnes concernées, les obligations légales de l'entreprise, les bons réflexes en cas de violation de données, et comment collecter/stocker/supprimer les données en conformité.",
+  excel_data: "Maîtriser les fondamentaux d'Excel et de l'analyse de données : formules essentielles (SOMME, RECHERCHEV, SI, NB.SI), tableaux croisés dynamiques, mise en forme conditionnelle, création de graphiques pertinents, et initiation à la lecture critique des données et indicateurs métier.",
+  management: "Développer les compétences managériales essentielles : donner un feedback constructif, mener un entretien individuel efficace, fixer des objectifs SMART, gérer les conflits dans l'équipe, motiver et engager ses collaborateurs dans la durée, et adapter son style de management selon les profils.",
+  rh: "Former les professionnels RH et managers aux processus clés des ressources humaines : conduite d'entretien de recrutement, onboarding réussi, gestion des entretiens annuels, prévention des RPS (risques psychosociaux), cadre légal du droit du travail et obligations employeur.",
+  finance: "Acquérir les bases de la finance d'entreprise pour non-financiers : lire et comprendre un bilan et un compte de résultat, maîtriser les notions de rentabilité, marge et cash-flow, comprendre le budget prévisionnel, analyser les indicateurs financiers clés et dialoguer efficacement avec les équipes finance.",
+  commerce: "Renforcer les compétences commerciales et de vente : techniques de prospection efficaces, qualification des besoins clients, construction d'un argumentaire percutant, gestion des objections, closing et fidélisation. Focus sur la vente consultative et la relation client dans un contexte B2B.",
+  it: "Former les utilisateurs et équipes IT aux fondamentaux des systèmes d'information : architecture réseau et cloud, gestion des accès et des droits, sauvegardes et continuité de service, ITIL et gestion des incidents, bonnes pratiques de maintenance et de support utilisateur.",
+  qualite: "Sensibiliser aux démarches qualité et à l'amélioration continue : comprendre les normes ISO, mettre en place des indicateurs de performance (KPIs), utiliser les outils qualité (5S, PDCA, ishikawa, cartographie de processus), gérer les non-conformités et animer une culture qualité dans l'équipe.",
+  communication: "Développer les compétences en communication professionnelle : prise de parole en public, structuration d'un message clair et impactant, communication écrite efficace (emails, rapports, présentations), écoute active, gestion du feedback et adaptation du discours selon l'interlocuteur.",
+  sante: "Former les collaborateurs à la santé et sécurité au travail : identifier les risques professionnels (TMS, RPS, accidents), appliquer les gestes et postures adaptés, connaître les obligations légales employeur et salarié, réagir face à une situation d'urgence, et contribuer activement à la prévention des risques.",
+};
+
 const DOMAINS: { value: string; label: string; icon: LucideIcon }[] = [
   { value: 'cybersecurite', label: 'Cybersécurité',   icon: Shield },
   { value: 'rgpd',          label: 'RGPD & Données',  icon: Lock },
@@ -194,7 +208,15 @@ export default function StudioIA() {
                     </label>
                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                       {DOMAINS.map(d => (
-                        <button key={d.value} onClick={() => setDomainKey(domainKey === d.value ? '' : d.value)}
+                        <button key={d.value} onClick={() => {
+                          const next = domainKey === d.value ? '' : d.value;
+                          setDomainKey(next);
+                          if (next && next !== 'autre' && DOMAIN_PROMPTS[next]) {
+                            setPitch(DOMAIN_PROMPTS[next]);
+                          } else if (!next) {
+                            setPitch('');
+                          }
+                        }}
                           className="flex flex-col items-center gap-1 border px-2 py-3 text-xs font-medium transition-all relative"
                           style={{
                             borderColor: domainKey === d.value ? BLUE : '#e5e7eb',
