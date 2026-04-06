@@ -361,10 +361,9 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
     return excelData?.targetCells.find(tc => tc.ref.toUpperCase() === ref.toUpperCase());
   }, [excelData]);
 
-  // Any non-header cell is editable (row index > 0)
+  // All cells are editable, like real Excel
   const isEditableCell = useCallback((ref: string) => {
-    const pos = parseRef(ref);
-    return pos !== null && pos.row > 0;
+    return parseRef(ref) !== null;
   }, []);
 
   const applyFormulas = useCallback((newFormulas: Record<string, string>, grid: (string | number | null)[][]): Record<string, number | string> => {
