@@ -20,7 +20,6 @@ Le player `client/src/pages/playground/lesson-player.tsx` intègre un système X
 `server/services/gemini.ts` — `callGemini()` essaie automatiquement :
 1. `gemini-2.5-flash` (90s timeout)
 2. `gemini-2.0-flash` (délai 1.2s, 4s si rate-limit 429)
-3. `gemini-1.5-flash`
 Méthode interne `callGeminiModel()` gère l'AbortController par modèle.
 
 ### Prompts — Mise à jour (avril 2026)
