@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
-import { ArrowRight, Terminal, Database, Code2, BarChart3, Trophy, Zap, Target, Clock, RotateCcw } from 'lucide-react';
+import { ArrowRight, Terminal, Database, BarChart3, Trophy, Zap, Target, Clock, RotateCcw } from 'lucide-react';
 import mcLogoPath from '@assets/mc2i.png';
 import { CHALLENGES, TRACKS, getTotalPoints, getChallengeById } from '@/data/si-champion-challenges';
 
@@ -15,14 +15,13 @@ const DARK = '#061019';
 const trackIcons: Record<string, React.ReactNode> = {
   python: <Terminal size={28} />,
   sql: <Database size={28} />,
-  javascript: <Code2 size={28} />,
   data: <BarChart3 size={28} />,
 };
 
 const stats = [
   { value: CHALLENGES.length, label: 'défis pratiques', icon: <Target size={18} /> },
   { value: getTotalPoints().toLocaleString(), label: 'points à gagner', icon: <Trophy size={18} /> },
-  { value: 4, label: 'technologies', icon: <Zap size={18} /> },
+  { value: 3, label: 'technologies', icon: <Zap size={18} /> },
   { value: '~' + Math.round(CHALLENGES.reduce((s, c) => s + c.duration, 0) / 60) + 'h', label: 'de pratique', icon: <Clock size={18} /> },
 ];
 
@@ -81,7 +80,7 @@ export default function SiChampionHub() {
                 <span style={{ color: PINK }}>CHAMPION</span>
               </h1>
               <p className="text-xl text-gray-600 max-w-2xl mb-8 leading-relaxed">
-                L'environnement de code interactif de FYNE. Pratique Python, SQL, JavaScript et la Data dans un vrai environnement d'exécution — comme les pros.
+                L'environnement de code interactif de FYNE. Pratique Python, SQL et la Data dans un vrai environnement d'exécution — comme les pros.
               </p>
               <div className="flex items-center gap-4 flex-wrap">
                 <Link href="/si-champion/challenges">

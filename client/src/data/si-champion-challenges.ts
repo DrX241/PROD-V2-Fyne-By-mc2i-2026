@@ -1,6 +1,6 @@
-export type Track = 'python' | 'sql' | 'javascript' | 'data';
+export type Track = 'python' | 'sql' | 'data';
 export type Level = 'débutant' | 'intermédiaire' | 'expert';
-export type Language = 'python' | 'javascript' | 'sql';
+export type Language = 'python' | 'sql';
 
 export interface TableDef {
   name: string;
@@ -961,161 +961,6 @@ CTE = Common Table Expression (table temporaire nommée)
 → chaînable : WITH cte1 AS (...), cte2 AS (...)`,
   },
 
-  // ─── JAVASCRIPT TRACK ──────────────────────────────────────────────────────
-  {
-    id: 'js-001',
-    track: 'javascript',
-    level: 'débutant',
-    title: 'Filtrer et trier un tableau',
-    context: 'L\'équipe front-end d\'un portail interne doit afficher uniquement les utilisateurs actifs, triés par nom.',
-    instructions: 'Affiche les noms des utilisateurs actifs, un par ligne, triés alphabétiquement.',
-    starterCode: `const utilisateurs = [
-  { nom: "Alice Dupont", actif: true },
-  { nom: "Bob Martin", actif: false },
-  { nom: "Claire Durand", actif: true },
-  { nom: "David Petit", actif: false },
-  { nom: "Eva Leclerc", actif: true },
-];
-
-// TODO : filtre les actifs, trie par nom, affiche un par ligne
-`,
-    language: 'javascript',
-    expectedOutput: 'Alice Dupont\nClaire Durand\nEva Leclerc',
-    hints: [
-      'Utilise .filter(u => u.actif) pour garder les actifs',
-      '.sort((a, b) => a.nom.localeCompare(b.nom)) pour trier',
-      '.forEach(u => console.log(u.nom)) pour afficher',
-    ],
-    points: 100,
-    tags: ['filter', 'sort', 'forEach'],
-    duration: 5,
-  },
-  {
-    id: 'js-002',
-    track: 'javascript',
-    level: 'débutant',
-    title: 'Calculer avec reduce()',
-    context: 'Un tableau de bord affiche le total des dépenses d\'un projet. Tu dois calculer le montant total à partir d\'un tableau de lignes de dépenses.',
-    instructions: 'Affiche le total des dépenses arrondi à 2 décimales. Format : `Total: 12345.67€`.',
-    starterCode: `const depenses = [
-  { label: "Hébergement cloud", montant: 1250.50 },
-  { label: "Licences logiciels", montant: 4800.00 },
-  { label: "Formation équipe", montant: 2350.75 },
-  { label: "Matériel", montant: 890.25 },
-  { label: "Consulting", montant: 7500.00 },
-];
-
-// TODO : calcule le total avec reduce() et affiche-le
-`,
-    language: 'javascript',
-    expectedOutput: 'Total: 16791.50€',
-    hints: [
-      'reduce((acc, d) => acc + d.montant, 0) pour sommer',
-      'toFixed(2) pour arrondir à 2 décimales',
-      'console.log(`Total: ${total}€`)',
-    ],
-    points: 100,
-    tags: ['reduce', 'calcul', 'toFixed'],
-    duration: 5,
-  },
-  {
-    id: 'js-003',
-    track: 'javascript',
-    level: 'intermédiaire',
-    title: 'Transformer des données avec map()',
-    context: 'Un service web retourne des données produits avec des prix en dollars. Tu dois les convertir en euros et générer des slugs pour les URLs.',
-    instructions: 'Affiche chaque produit transformé au format `slug — prix en EUR`, un par ligne. Taux : 1 USD = 0.92 EUR. Prix arrondi à 2 décimales. Slug = nom en minuscules avec espaces remplacés par tirets.',
-    starterCode: `const produits = [
-  { nom: "Laptop Pro", prixUSD: 1299 },
-  { nom: "Wireless Mouse", prixUSD: 45 },
-  { nom: "USB Hub 4 Ports", prixUSD: 29 },
-  { nom: "Monitor 27 inch", prixUSD: 349 },
-];
-
-const TAUX = 0.92;
-
-// TODO : transforme chaque produit et affiche-le
-`,
-    language: 'javascript',
-    expectedOutput: 'laptop-pro — 1195.08€\nwireless-mouse — 41.40€\nusb-hub-4-ports — 26.68€\nmonitor-27-inch — 321.08€',
-    hints: [
-      'Utilise .map() pour transformer chaque élément',
-      'nom.toLowerCase().replace(/ /g, \'-\') pour le slug',
-      '(prix * TAUX).toFixed(2) pour la conversion',
-    ],
-    points: 200,
-    tags: ['map', 'transformation', 'string'],
-    duration: 10,
-  },
-  {
-    id: 'js-004',
-    track: 'javascript',
-    level: 'intermédiaire',
-    title: 'Grouper des données par clé',
-    context: 'Un système de logs retourne des événements. Tu dois les regrouper par type pour un rapport de monitoring.',
-    instructions: 'Affiche pour chaque type d\'événement le nombre d\'occurrences, au format `TYPE: N`, trié alphabétiquement par type.',
-    starterCode: `const logs = [
-  "ERROR", "INFO", "WARNING", "ERROR", "INFO",
-  "ERROR", "DEBUG", "INFO", "WARNING", "INFO",
-  "ERROR", "DEBUG", "INFO", "WARNING", "DEBUG",
-];
-
-// TODO : groupe par type et affiche le compte de chacun
-`,
-    language: 'javascript',
-    expectedOutput: 'DEBUG: 3\nERROR: 4\nINFO: 5\nWARNING: 3',
-    hints: [
-      'Utilise un objet {} comme dictionnaire de comptage',
-      'logs.forEach(type => { compte[type] = (compte[type] || 0) + 1; })',
-      'Object.keys().sort() pour trier alphabétiquement',
-    ],
-    points: 200,
-    tags: ['groupBy', 'reduce', 'Object'],
-    duration: 10,
-  },
-  {
-    id: 'js-005',
-    track: 'javascript',
-    level: 'expert',
-    title: 'Async/Await — Pipeline de traitement',
-    context: 'Un microservice doit récupérer des données, les valider, et les transformer en parallèle. Tu dois simuler ce pipeline avec des Promises.',
-    instructions: 'Le code simule 3 étapes asynchrones (fetch, validate, transform). Lance-les en parallèle avec Promise.all() et affiche le résultat final.',
-    starterCode: `// Simule des opérations asynchrones
-const fetchData = () => new Promise(resolve =>
-  setTimeout(() => resolve([10, 25, 8, 42, 15, 3, 37]), 10)
-);
-
-const validateData = (data) => new Promise(resolve =>
-  setTimeout(() => resolve(data.filter(n => n >= 10)), 10)
-);
-
-const transformData = (data) => new Promise(resolve =>
-  setTimeout(() => resolve(data.map(n => n * 2)), 10)
-);
-
-// TODO : chaîne les 3 opérations avec async/await
-// Affiche le résultat final au format : "Résultat: [...]"
-async function pipeline() {
-  const raw = await fetchData();
-  const valid = await validateData(raw);
-  const result = await transformData(valid);
-  console.log("Résultat: [" + result.join(", ") + "]");
-}
-
-pipeline();
-`,
-    language: 'javascript',
-    expectedOutput: 'Résultat: [20, 50, 84, 30, 74]',
-    hints: [
-      'async/await permet d\'attendre une Promise',
-      'await fetchData() retourne les données après délai',
-      'La chaîne est : fetch → validate → transform',
-    ],
-    points: 300,
-    tags: ['async', 'await', 'Promise', 'pipeline'],
-    duration: 15,
-  },
-
   // ─── DATA / EXCEL TRACK ────────────────────────────────────────────────────
   {
     id: 'data-001',
@@ -1317,15 +1162,6 @@ export const TRACKS = [
     bgLight: '#FFF5EB',
     icon: '',
     count: CHALLENGES.filter(c => c.track === 'sql').length,
-  },
-  {
-    id: 'javascript' as Track,
-    label: 'JavaScript',
-    description: 'Front-end, asynchrone, manipulation de tableaux',
-    color: '#F7DF1E',
-    bgLight: '#FEFCE8',
-    icon: '',
-    count: CHALLENGES.filter(c => c.track === 'javascript').length,
   },
   {
     id: 'data' as Track,

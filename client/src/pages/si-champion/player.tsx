@@ -312,8 +312,7 @@ export default function ChallengePlayer({ params }: { params: { id: string } }) 
           <div className="flex-shrink-0 px-4 py-2 border-b border-gray-100 flex items-center justify-between bg-gray-50">
             <div className="flex items-center gap-2">
               <span className="text-xs font-mono text-gray-500">
-                {challenge.language === 'python' ? 'solution.py' :
-                  challenge.language === 'javascript' ? 'solution.js' : 'solution.py'}
+                {challenge.language === 'sql' ? 'query.sql' : 'solution.py'}
               </span>
               {isCompleted && (
                 <span className="flex items-center gap-1 text-xs font-bold" style={{ color: '#16a34a' }}>
