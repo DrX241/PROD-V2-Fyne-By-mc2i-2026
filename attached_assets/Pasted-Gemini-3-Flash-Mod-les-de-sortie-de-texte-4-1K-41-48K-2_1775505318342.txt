@@ -1,0 +1,218 @@
+Gemini 3 Flash
+Modèles de sortie de texte	
+4 / 1K
+41.48K / 2M
+31 / 10K
+Gemini 2.5 Flash
+Modèles de sortie de texte	
+3 / 1K
+34.32K / 1M
+15 / 10K
+Gemini 2 Flash
+Modèles de sortie de texte	
+2 / 2K
+2.71K / 4M
+4 / Illimité
+Gemini 2.5 Pro
+Modèles de sortie de texte	
+0 / 150
+0 / 2M
+0 / 1K
+Gemini 2 Flash Lite
+Modèles de sortie de texte	
+0 / 4K
+0 / 4M
+0 / Illimité
+Gemini 2.5 Flash TTS
+Modèles génératifs multimodaux	
+0 / 10
+0 / 10K
+0 / 100
+Gemini 2.5 Pro TTS
+Modèles génératifs multimodaux	
+0 / 10
+0 / 10K
+0 / 50
+Gemma 3 1B
+Autres modèles	
+0 / 30
+0 / 15K
+0 / 14.4K
+Gemma 3 4B
+Autres modèles	
+0 / 30
+0 / 15K
+0 / 14.4K
+Gemma 3 12B
+Autres modèles	
+0 / 30
+0 / 15K
+0 / 14.4K
+Gemma 3 27B
+Autres modèles	
+0 / 30
+0 / 15K
+0 / 14.4K
+Imagen 4 Generate
+Modèles génératifs multimodaux	
+0 / 10
+-	
+0 / 70
+Imagen 4 Ultra Generate
+Modèles génératifs multimodaux	
+0 / 5
+-	
+0 / 30
+Imagen 4 Fast Generate
+Modèles génératifs multimodaux	
+0 / 10
+-	
+0 / 70
+Gemma 3 2B
+Autres modèles	
+0 / 30
+0 / 15K
+0 / 14.4K
+Gemma 4 26B
+Autres modèles	
+0 / 30
+0 / 16K
+0 / 14.4K
+Gemma 4 31B
+Autres modèles	
+0 / 30
+0 / 16K
+0 / 14.4K
+Gemini Embedding 1
+Autres modèles	
+0 / 3K
+0 / 1M
+0 / Illimité
+Gemini 3.1 Flash Lite
+Modèles de sortie de texte	
+0 / 4K
+0 / 4M
+0 / 150K
+Gemini 3.1 Pro
+Modèles de sortie de texte	
+0 / 25
+0 / 2M
+0 / 250
+Gemini 2.5 Flash Lite
+Modèles de sortie de texte	
+0 / 4K
+0 / 4M
+0 / Illimité
+Nano Banana (Gemini 2.5 Flash Preview Image)
+Modèles génératifs multimodaux	
+0 / 500
+0 / 500K
+0 / 2K
+Nano Banana Pro (Gemini 3 Pro Image)
+Modèles génératifs multimodaux	
+0 / 20
+0 / 100K
+0 / 250
+Nano Banana 2 (Gemini 3.1 Flash Image)
+Modèles génératifs multimodaux	
+0 / 100
+0 / 200K
+0 / 1K
+Lyria 3 Clip
+Modèles génératifs multimodaux	
+0 / 150
+0 / 4M
+0 / 500
+Lyria 3 Pro
+Modèles génératifs multimodaux	
+0 / 150
+0 / 4M
+0 / 500
+Veo 3 Generate
+info
+Modèles génératifs multimodaux	
+0 / 2
+-	
+0 / 10
+Veo 3 Fast Generate
+info
+Modèles génératifs multimodaux	
+0 / 2
+-	
+0 / 10
+Veo 3 Lite Generate
+info
+Modèles génératifs multimodaux	
+0 / 2
+-	
+0 / 10
+Gemini Robotics ER 1.5 Preview
+Autres modèles	
+0 / 1K
+0 / 2M
+0 / 14.4K
+Computer Use Preview
+Autres modèles	
+0 / 150
+0 / 2M
+0 / 10K
+Gemini Embedding 2
+Autres modèles	
+0 / 3K
+0 / 1M
+0 / Illimité
+Deep Research Pro Preview
+Agents	
+0 / 1
+0 / 500K
+0 / 1.44K
+Gemini 2.5 Flash Native Audio Dialog
+API Live	
+0 / Illimité
+0 / 1M
+0 / Illimité
+Gemini 3 Flash Live
+API Live	
+0 / Illimité
+0 / 150K
+0 / Illimité
+Outils
+Gemini 2.5 Flash
+Ancrage selon la carte	-	-	
+0 / Illimité
+Gemini 2.5 Pro
+Ancrage selon la carte	-	-	
+0 / Illimité
+Gemini 3 Flash
+Ancrage selon la carte	-	-	
+0 / Illimité
+Gemini 3.1 Flash Lite
+Ancrage selon la carte	-	-	
+0 / Illimité
+Gemini 3.1 Pro
+Ancrage selon la carte	-	-	
+0 / Illimité
+Gemini 2.5 Flash Lite
+Ancrage selon la carte	-	-	
+0 / Illimité
+Computer Use Preview
+Ancrage selon la carte	-	-	
+0 / Illimité
+Deep Research Pro Preview
+Ancrage selon la carte	-	-	
+0 / Illimité
+Gemini 2
+Ancrage de recherche	-	-	
+0 / 5K
+Gemini 2.5
+info
+Ancrage de recherche	-	-	
+0 / 5K
+Gemini 3
+info
+Ancrage de recherche	-	-	
+0 / 1.5K
+Default
+info
+Ancrage de recherche	-	-	
+0 / 5K
