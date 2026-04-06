@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, ChevronRight, BookOpen, Zap, CheckCircle,
   Lightbulb, Target, ArrowLeft, Eye, EyeOff, Award, XCircle, HelpCircle,
-  Flame
+  Flame, PenLine, ToggleLeft
 } from 'lucide-react';
 
 const BLUE = '#006a9e';
@@ -12,6 +12,8 @@ const PINK = '#dd0061';
 const DARK = '#061019';
 const GREEN = '#059669';
 const RED = '#dc2626';
+const PURPLE = '#7c3aed';
+const AMBER = '#d97706';
 
 interface SlideIntro {
   id: number; type: 'intro';
@@ -29,7 +31,20 @@ interface SlideConclusion {
   id: number; type: 'conclusion';
   titre: string; points: string[]; message: string;
 }
-type Slide = SlideIntro | SlideTheorie | SlidePratique | SlideConclusion;
+interface SlideFillBlank {
+  id: number; type: 'fill-blank';
+  titre: string;
+  instruction: string;
+  phrase: string;
+  mots: string[];
+  explication: string;
+}
+interface SlideVraiFaux {
+  id: number; type: 'vrai-faux';
+  titre: string;
+  affirmations: { texte: string; reponse: boolean; explication: string }[];
+}
+type Slide = SlideIntro | SlideTheorie | SlidePratique | SlideConclusion | SlideFillBlank | SlideVraiFaux;
 
 interface QcmQuestion {
   id: number;
@@ -89,6 +104,16 @@ export default function LessonPlayer() {
     const t = setTimeout(() => setXpNotif(null), 1900);
     return () => clearTimeout(t);
   }, [xpNotif?.key]);
+
+  // Mini-game state
+  const [mgInputs, setMgInputs] = useState<string[]>([]);
+  const [mgVFAnswers, setMgVFAnswers] = useState<(boolean | null)[]>([]);
+  const [mgSubmitted, setMgSubmitted] = useState(false);
+  const [mgXpEarned, setMgXpEarned] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    setMgSubmitted(false);
+  }, [currentIdx]);
 
   useEffect(() => {
     fetch(`/api/studio/training/${id}`)
@@ -162,6 +187,37 @@ export default function LessonPlayer() {
     setQcmIdx(0); setSelected(null); setAnswers([]); setConfirmed(false);
     setXp(0); setStreak(0); setMaxStreak(0);
     setSlideXpEarned(new Set()); setRevealXpEarned(new Set());
+    setMgInputs([]); setMgVFAnswers([]); setMgSubmitted(false); setMgXpEarned(new Set());
+  };
+
+  const handleFillBlankSubmit = (slide: SlideFillBlank) => {
+    setMgSubmitted(true);
+    if (mgXpEarned.has(currentIdx)) return;
+    const mots = slide.mots || [];
+    const allCorrect = mots.every((mot, i) => {
+      const input = (mgInputs[i] || '').trim().toLowerCase();
+      const expected = mot.trim().toLowerCase();
+      return input === expected || expected.startsWith(input) && input.length >= 3;
+    });
+    const partialCount = mots.filter((mot, i) => {
+      const input = (mgInputs[i] || '').trim().toLowerCase();
+      return input === mot.trim().toLowerCase();
+    }).length;
+    const xpAmount = allCorrect ? 30 : partialCount > 0 ? 15 : 5;
+    const label = allCorrect ? 'Parfait !' : partialCount > 0 ? `${partialCount}/${mots.length} corrects` : 'À retravailler';
+    gainXp(xpAmount, label);
+    setMgXpEarned(prev => new Set(prev).add(currentIdx));
+  };
+
+  const handleVraiFauxSubmit = (slide: SlideVraiFaux) => {
+    setMgSubmitted(true);
+    if (mgXpEarned.has(currentIdx)) return;
+    const affirmations = slide.affirmations || [];
+    const correctCount = affirmations.filter((a, i) => mgVFAnswers[i] === a.reponse).length;
+    const xpAmount = correctCount === affirmations.length ? 30 : correctCount > 0 ? 15 : 5;
+    const label = correctCount === affirmations.length ? 'Score parfait !' : `${correctCount}/${affirmations.length} corrects`;
+    gainXp(xpAmount, label);
+    setMgXpEarned(prev => new Set(prev).add(currentIdx));
   };
 
   // ── QCM PHASE ──────────────────────────────────────────────────────────────
@@ -500,11 +556,15 @@ export default function LessonPlayer() {
 
       {/* Slide pills */}
       <div style={{ padding: '12px 24px', display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap', background: 'white', borderBottom: '1px solid #f3f4f6' }}>
-        {slides.map((s, i) => (
-          <button key={i} onClick={() => { setDirection(i > currentIdx ? 1 : -1); setCurrentIdx(i); }}
-            style={{ width: 28, height: 8, border: 'none', cursor: 'pointer', borderRadius: 0, transition: 'all 0.2s',
-              background: i === currentIdx ? (s.type === 'pratique' ? PINK : BLUE) : i < currentIdx ? (s.type === 'pratique' ? 'rgba(221,0,97,0.3)' : 'rgba(0,106,158,0.3)') : '#e5e7eb' }} />
-        ))}
+        {slides.map((s, i) => {
+          const activeColor = s.type === 'pratique' ? PINK : s.type === 'fill-blank' ? PURPLE : s.type === 'vrai-faux' ? AMBER : BLUE;
+          const pastColor = s.type === 'pratique' ? 'rgba(221,0,97,0.35)' : s.type === 'fill-blank' ? 'rgba(124,58,237,0.35)' : s.type === 'vrai-faux' ? 'rgba(217,119,6,0.35)' : 'rgba(0,106,158,0.3)';
+          return (
+            <button key={i} onClick={() => { setDirection(i > currentIdx ? 1 : -1); setCurrentIdx(i); }}
+              style={{ width: 28, height: 8, border: 'none', cursor: 'pointer', borderRadius: 0, transition: 'all 0.2s',
+                background: i === currentIdx ? activeColor : i < currentIdx ? pastColor : '#e5e7eb' }} />
+          );
+        })}
         {/* QCM pill */}
         {hasQcm && <div style={{ width: 8, height: 8, background: PINK, opacity: 0.4, alignSelf: 'center', marginLeft: 4 }} />}
       </div>
@@ -518,6 +578,24 @@ export default function LessonPlayer() {
               {slide.type === 'theorie' && <TheorieSlide slide={slide as SlideTheorie} />}
               {slide.type === 'pratique' && <PratiqueSlide slide={slide as SlidePratique} idx={currentIdx} revealed={!!revealed[currentIdx]} onToggle={() => toggleReveal(currentIdx)} />}
               {slide.type === 'conclusion' && <ConclusionSlide slide={slide as SlideConclusion} />}
+              {slide.type === 'fill-blank' && (
+                <FillBlankSlide
+                  slide={slide as SlideFillBlank}
+                  inputs={mgInputs}
+                  onInputChange={(i, v) => setMgInputs(arr => { const n = [...arr]; n[i] = v; return n; })}
+                  submitted={mgSubmitted}
+                  onSubmit={() => handleFillBlankSubmit(slide as SlideFillBlank)}
+                />
+              )}
+              {slide.type === 'vrai-faux' && (
+                <VraiFauxSlide
+                  slide={slide as SlideVraiFaux}
+                  answers={mgVFAnswers}
+                  onAnswerChange={(i, v) => setMgVFAnswers(arr => { const n = [...arr]; n[i] = v; return n; })}
+                  submitted={mgSubmitted}
+                  onSubmit={() => handleVraiFauxSubmit(slide as SlideVraiFaux)}
+                />
+              )}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -535,7 +613,9 @@ export default function LessonPlayer() {
         </div>
 
         <button onClick={goNext}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 24px', border: 'none', background: slide.type === 'pratique' ? PINK : BLUE, color: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 24px', border: 'none',
+            background: slide.type === 'pratique' ? PINK : slide.type === 'fill-blank' ? PURPLE : slide.type === 'vrai-faux' ? AMBER : BLUE,
+            color: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
           {currentIdx === total - 1 ? (hasQcm ? 'Passer au QCM' : 'Terminer') : 'Suivant'} <ChevronRight size={18} />
         </button>
       </div>
@@ -552,6 +632,16 @@ function TypeBadge({ type }: { type: string }) {
   if (type === 'pratique') return (
     <span style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: `rgba(221,0,97,0.1)`, color: PINK, fontSize: 12, fontWeight: 600 }}>
       <Zap size={12} /> PRATIQUE
+    </span>
+  );
+  if (type === 'fill-blank') return (
+    <span style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: `rgba(124,58,237,0.1)`, color: PURPLE, fontSize: 12, fontWeight: 600 }}>
+      <PenLine size={12} /> TEXTE À TROUS
+    </span>
+  );
+  if (type === 'vrai-faux') return (
+    <span style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: `rgba(217,119,6,0.1)`, color: AMBER, fontSize: 12, fontWeight: 600 }}>
+      <ToggleLeft size={12} /> VRAI OU FAUX
     </span>
   );
   if (type === 'intro') return (
@@ -684,6 +774,231 @@ function ConclusionSlide({ slide }: { slide: SlideConclusion }) {
         <div style={{ padding: '20px 24px', background: `${BLUE}20`, borderLeft: `3px solid ${BLUE}` }}>
           <p style={{ margin: 0, fontSize: 15, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, fontStyle: 'italic' }}>{slide.message}</p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── parseFillBlank helper ───────────────────────────────────────────────────
+function parseFillBlank(phrase: string) {
+  const parts: Array<{ type: 'text' | 'blank'; content: string; blankIdx: number }> = [];
+  const regex = /\[([^\]]+)\]/g;
+  let lastIdx = 0;
+  let blankIdx = 0;
+  let match;
+  while ((match = regex.exec(phrase)) !== null) {
+    if (match.index > lastIdx) parts.push({ type: 'text', content: phrase.slice(lastIdx, match.index), blankIdx: -1 });
+    parts.push({ type: 'blank', content: match[1], blankIdx: blankIdx++ });
+    lastIdx = regex.lastIndex;
+  }
+  if (lastIdx < phrase.length) parts.push({ type: 'text', content: phrase.slice(lastIdx), blankIdx: -1 });
+  return parts;
+}
+
+// ── FillBlankSlide ──────────────────────────────────────────────────────────
+function FillBlankSlide({ slide, inputs, onInputChange, submitted, onSubmit }: {
+  slide: SlideFillBlank;
+  inputs: string[];
+  onInputChange: (i: number, v: string) => void;
+  submitted: boolean;
+  onSubmit: () => void;
+}) {
+  const segments = parseFillBlank(slide.phrase || '');
+  const mots = slide.mots || [];
+  const allFilled = mots.every((_, i) => (inputs[i] || '').trim().length > 0);
+
+  const isCorrect = (i: number) => {
+    const input = (inputs[i] || '').trim().toLowerCase();
+    return input === mots[i]?.trim().toLowerCase();
+  };
+  const allCorrect = submitted && mots.every((_, i) => isCorrect(i));
+
+  return (
+    <div style={{ background: 'white', minHeight: 480, border: `2px solid ${PURPLE}25`, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ height: 4, background: PURPLE }} />
+      <div style={{ position: 'absolute', top: -80, right: -60, width: 200, height: 200, borderRadius: '50%', background: `${PURPLE}06` }} />
+      <div style={{ padding: '40px 48px', position: 'relative' }}>
+        <p style={{ margin: '0 0 6px', fontSize: 11, fontWeight: 700, letterSpacing: 3, color: PURPLE, textTransform: 'uppercase' }}>Mini-jeu · Texte à trous</p>
+        <h2 style={{ margin: '0 0 8px', fontSize: 26, fontWeight: 700, color: DARK }}>{slide.titre}</h2>
+        <p style={{ margin: '0 0 28px', fontSize: 14, color: '#6b7280' }}>{slide.instruction || 'Complète les blancs avec les bons termes.'}</p>
+
+        {/* Phrase with blanks */}
+        <div style={{ padding: '24px 28px', background: `${PURPLE}06`, border: `1px solid ${PURPLE}20`, marginBottom: 28, lineHeight: 2.2, fontSize: 18, color: DARK, fontWeight: 500 }}>
+          {segments.map((seg, si) => {
+            if (seg.type === 'text') return <span key={si}>{seg.content}</span>;
+            const bi = seg.blankIdx;
+            const correct = submitted ? isCorrect(bi) : null;
+            return (
+              <span key={si} style={{ display: 'inline-flex', alignItems: 'center', margin: '0 4px', verticalAlign: 'middle' }}>
+                <input
+                  disabled={submitted}
+                  value={inputs[bi] || ''}
+                  onChange={e => onInputChange(bi, e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && allFilled && !submitted) onSubmit(); }}
+                  placeholder={`mot ${bi + 1}`}
+                  style={{
+                    width: Math.max(80, (mots[bi]?.length || 8) * 10),
+                    padding: '4px 10px', fontSize: 16, fontWeight: 700,
+                    border: `2px solid ${submitted ? (correct ? GREEN : RED) : PURPLE}`,
+                    background: submitted ? (correct ? `${GREEN}12` : `${RED}10`) : `${PURPLE}08`,
+                    color: submitted ? (correct ? GREEN : RED) : PURPLE,
+                    outline: 'none', textAlign: 'center',
+                    borderRadius: 0,
+                  }}
+                />
+                {submitted && (
+                  correct
+                    ? <CheckCircle size={16} style={{ color: GREEN, marginLeft: 4 }} />
+                    : <XCircle size={16} style={{ color: RED, marginLeft: 4 }} />
+                )}
+              </span>
+            );
+          })}
+        </div>
+
+        {/* Correction révélée */}
+        <AnimatePresence>
+          {submitted && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              {!allCorrect && (
+                <div style={{ marginBottom: 14 }}>
+                  <p style={{ margin: '0 0 8px', fontSize: 12, fontWeight: 700, color: RED, textTransform: 'uppercase', letterSpacing: 1 }}>Réponses attendues</p>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    {mots.map((mot, i) => (
+                      <span key={i} style={{ padding: '4px 12px', background: `${GREEN}15`, border: `1px solid ${GREEN}`, color: GREEN, fontSize: 14, fontWeight: 700 }}>
+                        {i + 1}. {mot}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div style={{ padding: '14px 18px', background: allCorrect ? `${GREEN}10` : `${PURPLE}08`, borderLeft: `3px solid ${allCorrect ? GREEN : PURPLE}` }}>
+                <p style={{ margin: '0 0 4px', fontSize: 12, fontWeight: 700, color: allCorrect ? GREEN : PURPLE, textTransform: 'uppercase', letterSpacing: 1 }}>
+                  {allCorrect ? '✓ Parfait ! ' : 'Explication'}
+                </p>
+                <p style={{ margin: 0, fontSize: 14, color: '#374151', lineHeight: 1.7 }}>{slide.explication}</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {!submitted && (
+          <button onClick={onSubmit} disabled={!allFilled}
+            style={{ marginTop: 20, padding: '12px 32px', border: 'none', background: allFilled ? PURPLE : '#e5e7eb', color: 'white', cursor: allFilled ? 'pointer' : 'not-allowed', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <PenLine size={16} /> Valider mes réponses
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── VraiFauxSlide ───────────────────────────────────────────────────────────
+function VraiFauxSlide({ slide, answers, onAnswerChange, submitted, onSubmit }: {
+  slide: SlideVraiFaux;
+  answers: (boolean | null)[];
+  onAnswerChange: (i: number, v: boolean) => void;
+  submitted: boolean;
+  onSubmit: () => void;
+}) {
+  const affirmations = slide.affirmations || [];
+  const allAnswered = affirmations.every((_, i) => answers[i] !== null && answers[i] !== undefined);
+  const correctCount = submitted ? affirmations.filter((a, i) => answers[i] === a.reponse).length : 0;
+  const allCorrect = submitted && correctCount === affirmations.length;
+
+  return (
+    <div style={{ background: 'white', minHeight: 480, border: `2px solid ${AMBER}25`, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ height: 4, background: AMBER }} />
+      <div style={{ position: 'absolute', top: -80, right: -60, width: 200, height: 200, borderRadius: '50%', background: `${AMBER}06` }} />
+      <div style={{ padding: '36px 48px', position: 'relative' }}>
+        <p style={{ margin: '0 0 6px', fontSize: 11, fontWeight: 700, letterSpacing: 3, color: AMBER, textTransform: 'uppercase' }}>Mini-jeu · Vrai ou Faux</p>
+        <h2 style={{ margin: '0 0 28px', fontSize: 26, fontWeight: 700, color: DARK }}>{slide.titre}</h2>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
+          {affirmations.map((aff, i) => {
+            const userAnswer = answers[i];
+            const isAnswered = userAnswer !== null && userAnswer !== undefined;
+            const correct = submitted ? userAnswer === aff.reponse : null;
+
+            return (
+              <motion.div key={i} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}>
+                <div style={{
+                  border: `2px solid ${submitted ? (correct ? GREEN : RED) : isAnswered ? AMBER : '#e5e7eb'}`,
+                  background: submitted ? (correct ? `${GREEN}08` : `${RED}06`) : 'white',
+                  overflow: 'hidden',
+                }}>
+                  <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+                    {/* Result icon */}
+                    <div style={{ width: 24, flexShrink: 0, marginTop: 2 }}>
+                      {submitted ? (
+                        correct ? <CheckCircle size={20} style={{ color: GREEN }} /> : <XCircle size={20} style={{ color: RED }} />
+                      ) : (
+                        <span style={{ width: 20, height: 20, border: `2px solid #d1d5db`, display: 'inline-block', borderRadius: '50%' }} />
+                      )}
+                    </div>
+                    <p style={{ margin: 0, flex: 1, fontSize: 16, color: DARK, lineHeight: 1.55, fontWeight: 500 }}>{aff.texte}</p>
+
+                    {/* Vrai / Faux buttons */}
+                    <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                      {[true, false].map(val => {
+                        const label = val ? 'Vrai' : 'Faux';
+                        const selected = userAnswer === val;
+                        const btnColor = val ? GREEN : RED;
+                        return (
+                          <button key={String(val)} disabled={submitted}
+                            onClick={() => onAnswerChange(i, val)}
+                            style={{
+                              padding: '7px 16px', border: `2px solid ${selected ? btnColor : '#e5e7eb'}`,
+                              background: selected ? `${btnColor}15` : 'white',
+                              color: selected ? btnColor : '#9ca3af',
+                              cursor: submitted ? 'default' : 'pointer',
+                              fontWeight: 700, fontSize: 13,
+                              transition: 'all 0.15s',
+                            }}>
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Explanation revealed after submit */}
+                  <AnimatePresence>
+                    {submitted && (
+                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0 }}>
+                        <div style={{ padding: '10px 20px 14px 60px', background: correct ? `${GREEN}08` : `${RED}06`, borderTop: `1px solid ${correct ? GREEN : RED}20` }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: correct ? GREEN : RED }}>
+                            {aff.reponse ? '✓ Vrai' : '✓ Faux'} —{' '}
+                          </span>
+                          <span style={{ fontSize: 13, color: '#374151' }}>{aff.explication}</span>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {submitted ? (
+          <div style={{ padding: '14px 18px', background: allCorrect ? `${GREEN}12` : `${AMBER}10`, borderLeft: `3px solid ${allCorrect ? GREEN : AMBER}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 22 }}>{allCorrect ? '🏆' : correctCount >= affirmations.length / 2 ? '👍' : '💪'}</span>
+            <div>
+              <p style={{ margin: '0 0 2px', fontWeight: 800, fontSize: 14, color: allCorrect ? GREEN : AMBER }}>
+                {correctCount}/{affirmations.length} correct{correctCount > 1 ? 's' : ''}
+              </p>
+              <p style={{ margin: 0, fontSize: 13, color: '#6b7280' }}>
+                {allCorrect ? 'Excellent ! Tu maîtrises le sujet.' : 'Relis les explications pour consolider tes connaissances.'}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <button onClick={onSubmit} disabled={!allAnswered}
+            style={{ padding: '12px 32px', border: 'none', background: allAnswered ? AMBER : '#e5e7eb', color: 'white', cursor: allAnswered ? 'pointer' : 'not-allowed', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <ToggleLeft size={16} /> Valider mes réponses
+          </button>
+        )}
       </div>
     </div>
   );

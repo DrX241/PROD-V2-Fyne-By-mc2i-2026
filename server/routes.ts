@@ -6527,15 +6527,17 @@ PUBLIC CIBLE : ${audienceLabels[audience] || audience || 'grand public'}
 ${duration ? `DURÉE CIBLE : ${duration} minutes` : ''}
 ${grandPublicBlock}
 RÈGLES OBLIGATOIRES :
-1. Génère une leçon de 12 à 14 slides : intro + 5-6 paires (théorie puis pratique) + conclusion
-2. ALTERNE impérativement : intro → théorie → pratique → théorie → pratique → ... → conclusion
+1. Génère une leçon de 13 à 15 slides : intro + 5-6 paires [théorie + pratique/fill-blank/vrai-faux] + conclusion
+2. ALTERNE : intro → théorie → [pratique OU fill-blank OU vrai-faux] → théorie → ... → conclusion — avec OBLIGATOIREMENT au minimum 1 slide "fill-blank" et 1 slide "vrai-faux" parmi les slides de pratique
 3. THÉORIE : explique des concepts RÉELS et précis liés au besoin (définitions, mécanismes, chiffres, procédures, bonnes pratiques)
 4. PRATIQUE : formule chaque exercice comme un DÉFI engageant avec un niveau (Débutant/Intermédiaire/Expert) — situation réaliste, question ouverte stimulante
 5. Contenu riche, pédagogique et adapté au public cible — utilise des exemples concrets et percutants
 6. Chaque slide "theorie" : titre (du concept exact), contenu (4-5 phrases d'explication), pointsCles (3 bullet points essentiels), exemple (2-3 phrases)
 7. Chaque slide "pratique" : titre avec niveau ex "Défi Intermédiaire : [nom]", contexte (situation 3-4 phrases immersive), question (défi concret stimulant), indice (conseil), reponse (réponse complète 3-4 phrases)
-8. Génère aussi un QCM de 10 questions variées qui testent la compréhension des concepts couverts dans les slides
-9. Chaque question QCM : question claire et précise, 4 choix (A/B/C/D) dont 1 seul correct, bonneReponse (index 0-3), explication motivante de la bonne réponse
+8. Chaque slide "fill-blank" (TEXTE À TROUS) : titre accrocheur, instruction courte, phrase avec 2-3 mots-clés remplacés par [mot], tableau mots (les mots attendus dans l'ordre), explication pédagogique. IMPORTANT : utilise [crochets] dans la phrase pour marquer chaque blanc.
+9. Chaque slide "vrai-faux" : titre, affirmations (tableau de 3-4 objets {texte, reponse:true/false, explication}) — affirmations stimulantes qui challengent les préconçus, réponses variées (pas que du vrai ou que du faux)
+10. Génère aussi un QCM de 10 questions variées qui testent la compréhension des concepts couverts dans les slides
+11. Chaque question QCM : question claire et précise, 4 choix (A/B/C/D) dont 1 seul correct, bonneReponse (index 0-3), explication motivante de la bonne réponse
 
 Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
 {
@@ -6568,13 +6570,31 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
       "reponse": "Réponse idéale et complète — 3-4 phrases avec les bonnes pratiques"
     },
     { "id": 4, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    { "id": 5, "type": "pratique", "titre": "...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
+    {
+      "id": 5,
+      "type": "fill-blank",
+      "titre": "Complète la définition",
+      "instruction": "Remplis les blancs avec les bons termes :",
+      "phrase": "Le [concept clé 1] consiste à [action principale] afin de [objectif].",
+      "mots": ["concept clé 1", "action principale", "objectif"],
+      "explication": "Explication pédagogique du concept illustré par la phrase — 2-3 phrases."
+    },
     { "id": 6, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    { "id": 7, "type": "pratique", "titre": "...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
+    {
+      "id": 7,
+      "type": "vrai-faux",
+      "titre": "Vrai ou Faux ?",
+      "affirmations": [
+        { "texte": "Affirmation vraie sur un concept de la leçon.", "reponse": true, "explication": "Explication courte — pourquoi c'est vrai." },
+        { "texte": "Idée reçue fausse que les apprenants pourraient croire.", "reponse": false, "explication": "Explication courte — pourquoi c'est faux." },
+        { "texte": "Autre affirmation à évaluer.", "reponse": true, "explication": "Explication courte." },
+        { "texte": "Autre idée reçue à challenger.", "reponse": false, "explication": "Explication courte." }
+      ]
+    },
     { "id": 8, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    { "id": 9, "type": "pratique", "titre": "...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
+    { "id": 9, "type": "pratique", "titre": "Défi Expert : ...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
     { "id": 10, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    { "id": 11, "type": "pratique", "titre": "...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
+    { "id": 11, "type": "pratique", "titre": "Défi Intermédiaire : ...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
     {
       "id": 12,
       "type": "conclusion",
@@ -6714,15 +6734,17 @@ PUBLIC CIBLE : ${audienceLabel}
 ${title ? `TITRE SOUHAITÉ : "${title}"` : ''}
 ${grandPublicBlockDocs}
 RÈGLES OBLIGATOIRES :
-1. Génère une leçon de 12 à 14 slides : intro + 5-6 paires (théorie puis pratique) + conclusion
-2. ALTERNE impérativement : intro → théorie → pratique → théorie → pratique → ... → conclusion
+1. Génère une leçon de 13 à 15 slides : intro + 5-6 paires [théorie + pratique/fill-blank/vrai-faux] + conclusion
+2. ALTERNE : intro → théorie → [pratique OU fill-blank OU vrai-faux] → théorie → ... → conclusion — avec OBLIGATOIREMENT au minimum 1 slide "fill-blank" et 1 slide "vrai-faux" parmi les slides d'exercice
 3. THÉORIE : explique des concepts RÉELS et précis tirés du document (définitions, mécanismes, chiffres, procédures)
 4. PRATIQUE : formule chaque exercice comme un DÉFI engageant avec un niveau (Débutant/Intermédiaire/Expert) — situation réaliste et immersive liée au concept précédent
 5. Contenu FIDÈLE au document — ne pas inventer — utilise les termes exacts du document
 6. Chaque slide "theorie" : titre (du concept exact), contenu (4-5 phrases d'explication), pointsCles (3 bullet points essentiels), exemple (2-3 phrases)
 7. Chaque slide "pratique" : titre avec niveau ex "Défi Débutant : [nom]", contexte (situation 3-4 phrases immersive), question (défi concret stimulant), indice (conseil), reponse (réponse complète 3-4 phrases)
-8. Génère aussi un QCM de 10 questions variées qui testent la compréhension des concepts couverts dans les slides
-9. Chaque question QCM : question claire et précise, 4 choix (A/B/C/D) dont 1 seul correct, bonneReponse (index 0-3), explication motivante de la bonne réponse
+8. Chaque slide "fill-blank" (TEXTE À TROUS) : titre accrocheur, instruction courte, phrase tirée du contenu du document avec 2-3 mots-clés remplacés par [mot] en crochets, tableau mots (les mots attendus dans l'ordre), explication pédagogique
+9. Chaque slide "vrai-faux" : titre, affirmations (tableau de 3-4 objets {texte, reponse:true/false, explication}) — affirmations basées sur le contenu du document, réponses variées
+10. Génère aussi un QCM de 10 questions variées qui testent la compréhension des concepts couverts dans les slides
+11. Chaque question QCM : question claire et précise, 4 choix (A/B/C/D) dont 1 seul correct, bonneReponse (index 0-3), explication motivante de la bonne réponse
 
 Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
 {
@@ -6771,14 +6793,33 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
       "indice": "...",
       "reponse": "..."
     },
-    { "id": 6, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    { "id": 7, "type": "pratique", "titre": "...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
-    { "id": 8, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    { "id": 9, "type": "pratique", "titre": "...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
-    { "id": 10, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    { "id": 11, "type": "pratique", "titre": "...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
     {
-      "id": 12,
+      "id": 6,
+      "type": "fill-blank",
+      "titre": "Complète la définition",
+      "instruction": "Remplis les blancs avec les bons termes tirés du document :",
+      "phrase": "Le [concept clé] permet de [action] grâce à [mécanisme].",
+      "mots": ["concept clé", "action", "mécanisme"],
+      "explication": "Explication pédagogique du concept — 2-3 phrases."
+    },
+    { "id": 7, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
+    {
+      "id": 8,
+      "type": "vrai-faux",
+      "titre": "Vrai ou Faux ?",
+      "affirmations": [
+        { "texte": "Affirmation vraie tirée du document.", "reponse": true, "explication": "Explication courte." },
+        { "texte": "Idée reçue fausse à corriger.", "reponse": false, "explication": "Explication courte." },
+        { "texte": "Autre affirmation à évaluer.", "reponse": true, "explication": "Explication courte." },
+        { "texte": "Autre idée reçue.", "reponse": false, "explication": "Explication courte." }
+      ]
+    },
+    { "id": 9, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
+    { "id": 10, "type": "pratique", "titre": "Défi Expert : ...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
+    { "id": 11, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
+    { "id": 12, "type": "pratique", "titre": "Défi Intermédiaire : ...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
+    {
+      "id": 13,
       "type": "conclusion",
       "titre": "Ce qu'il faut retenir",
       "points": ["Enseignement clé 1", "Enseignement clé 2", "Enseignement clé 3", "Enseignement clé 4", "Enseignement clé 5"],
