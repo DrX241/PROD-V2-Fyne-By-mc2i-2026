@@ -6536,12 +6536,28 @@ Réponds UNIQUEMENT avec ce JSON (sans markdown) :
       const messages = [{ role: 'user' as const, content: prompt }];
       const raw = await openAIService.getChatCompletion(messages, 0.7, 2000);
 
-      const clean = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      const start = clean.indexOf('{');
-      const end = clean.lastIndexOf('}');
-      if (start === -1 || end === -1) throw new Error('JSON invalide');
-      const fixed = clean.slice(start, end + 1).replace(/[\r\n]+/g, ' ');
-      const plan = JSON.parse(fixed);
+      const parsePreviewPlan = (str: string) => {
+        try {
+          // 1. Retirer les blocs markdown
+          let s = str.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+          // 2. Isoler le JSON entre { et }
+          const start = s.indexOf('{');
+          const end = s.lastIndexOf('}');
+          if (start === -1 || end === -1) return null;
+          s = s.slice(start, end + 1);
+          // 3. Remplacer tous les caractères de contrôle par un espace
+          s = s.replace(/[\x00-\x1F\x7F]/g, ' ');
+          // 4. Supprimer les virgules finales avant ] ou } (trailing commas)
+          s = s.replace(/,\s*([}\]])/g, '$1');
+          return JSON.parse(s);
+        } catch { return null; }
+      };
+
+      const plan = parsePreviewPlan(raw);
+      if (!plan) {
+        console.error('[preview-plan] JSON invalide, début de la réponse brute:', raw.slice(0, 300));
+        throw new Error('JSON invalide retourné par le modèle');
+      }
 
       return res.json(plan);
     } catch (err: any) {
