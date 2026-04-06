@@ -301,6 +301,7 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
   const [computed, setComputed] = useState<Record<string, number | string>>({});
   const [selectedCell, setSelectedCell] = useState<string | null>(null);
   const [editingFormula, setEditingFormula] = useState('');
+  const [isInlineEditing, setIsInlineEditing] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -313,6 +314,7 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
   const [dragTarget, setDragTarget] = useState<string | null>(null);
 
   const formulaBarRef = useRef<HTMLInputElement>(null);
+  const inlineCellRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isCompleted = getCompleted().includes(challengeId);
 
@@ -401,21 +403,69 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
     checkAndFinish(newComputed);
   }, [excelData, formulas, challengeId, applyFormulas, checkAndFinish]);
 
-  const handleCellClick = useCallback((ref: string) => {
+  // Activate inline editing on the currently selected cell
+  const activateInlineEdit = useCallback((initialChar?: string) => {
+    if (!selectedCell) return;
+    setIsInlineEditing(true);
+    if (initialChar !== undefined) {
+      // Typing a char starts fresh (like Excel overwrite mode)
+      setEditingFormula(initialChar);
+    }
+    setTimeout(() => {
+      if (inlineCellRef.current) {
+        inlineCellRef.current.focus();
+        // Move cursor to end
+        const len = inlineCellRef.current.value.length;
+        inlineCellRef.current.setSelectionRange(len, len);
+      }
+    }, 0);
+    if (!timerActive && !isCompleted) setTimerActive(true);
+  }, [selectedCell, timerActive, isCompleted]);
+
+  // Single click: select cell, show formula in bar (no inline edit yet)
+  const handleCellClick = useCallback((ref: string, e?: React.MouseEvent) => {
+    const refUp = ref.toUpperCase();
+    if (!isEditableCell(refUp)) return;
+    e?.preventDefault();
+
+    // If clicking an already-selected cell → activate inline edit
+    if (selectedCell === refUp) {
+      activateInlineEdit();
+      return;
+    }
+    // Commit any ongoing edit on previous cell before switching
+    if (selectedCell && isInlineEditing) {
+      commitFormula(selectedCell, editingFormula);
+    }
+    setIsInlineEditing(false);
+    setSelectedCell(refUp);
+    setEditingFormula(formulas[refUp] || '');
+  }, [isEditableCell, selectedCell, isInlineEditing, editingFormula, formulas, commitFormula, activateInlineEdit]);
+
+  // Double-click: activate inline edit immediately
+  const handleCellDoubleClick = useCallback((ref: string) => {
     const refUp = ref.toUpperCase();
     if (!isEditableCell(refUp)) return;
     setSelectedCell(refUp);
     setEditingFormula(formulas[refUp] || '');
-    setTimeout(() => formulaBarRef.current?.focus(), 0);
+    setIsInlineEditing(true);
+    setTimeout(() => {
+      if (inlineCellRef.current) {
+        inlineCellRef.current.focus();
+        const len = inlineCellRef.current.value.length;
+        inlineCellRef.current.setSelectionRange(len, len);
+      }
+    }, 0);
     if (!timerActive && !isCompleted) setTimerActive(true);
   }, [isEditableCell, formulas, timerActive, isCompleted]);
 
-  const handleFormulaCommit = useCallback(() => {
+  const handleFormulaCommit = useCallback((navigateNext = true) => {
     if (!selectedCell || !isEditableCell(selectedCell)) return;
     commitFormula(selectedCell, editingFormula);
+    setIsInlineEditing(false);
 
     // After committing, move to next unfilled target cell
-    if (excelData) {
+    if (navigateNext && excelData) {
       const targets = excelData.targetCells;
       const currentIdx = targets.findIndex(tc => tc.ref.toUpperCase() === selectedCell.toUpperCase());
       const nextTarget = targets.find((tc, i) => i > currentIdx && !formulas[tc.ref.toUpperCase()])
@@ -424,68 +474,127 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
         const nr = nextTarget.ref.toUpperCase();
         setSelectedCell(nr);
         setEditingFormula(formulas[nr] || '');
-        setTimeout(() => formulaBarRef.current?.focus(), 0);
       }
     }
   }, [selectedCell, editingFormula, commitFormula, isEditableCell, excelData, formulas]);
 
-  // Keyboard: arrow keys between target cells + Ctrl+C/V
-  const handleFormulaBarKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') { e.preventDefault(); handleFormulaCommit(); return; }
-    if (e.key === 'Escape') { setSelectedCell(null); setEditingFormula(''); return; }
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      handleFormulaCommit();
+  // Shared commit-and-navigate logic
+  const commitAndMove = useCallback((rowOff: number, colOff: number) => {
+    if (!selectedCell || !excelData) return;
+    commitFormula(selectedCell, editingFormula);
+    setIsInlineEditing(false);
+    const pos = parseRef(selectedCell);
+    if (!pos) return;
+    const newRef = toRef(pos.col + colOff, pos.row + rowOff).toUpperCase();
+    const nr = parseRef(newRef);
+    if (!nr || nr.row < 0 || nr.row >= excelData.rows.length || nr.col < 0 || nr.col >= excelData.numCols) return;
+    setSelectedCell(newRef);
+    setEditingFormula(formulas[newRef] || '');
+  }, [selectedCell, excelData, editingFormula, formulas, commitFormula]);
+
+  // Keydown for INLINE cell input (inside the cell itself)
+  const handleInlineCellKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') { e.preventDefault(); commitAndMove(1, 0); return; }
+    if (e.key === 'Tab') { e.preventDefault(); commitAndMove(0, e.shiftKey ? -1 : 1); return; }
+    if (e.key === 'Escape') {
+      // Cancel edit, restore old value
+      setEditingFormula(formulas[selectedCell || ''] || '');
+      setIsInlineEditing(false);
       return;
     }
+    if (e.key === 'ArrowUp' && !editingFormula.startsWith('=')) { e.preventDefault(); commitAndMove(-1, 0); return; }
+    if (e.key === 'ArrowDown' && !editingFormula.startsWith('=')) { e.preventDefault(); commitAndMove(1, 0); return; }
+    // Ctrl+C/V inside inline edit
+    if ((e.ctrlKey || e.metaKey) && e.key === 'c' && selectedCell && formulas[selectedCell]) {
+      setClipboard(formulas[selectedCell]);
+      setCopyFlash(selectedCell);
+      setTimeout(() => setCopyFlash(null), 900);
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'v' && clipboard) {
+      e.preventDefault();
+      setEditingFormula(clipboard);
+    }
+  }, [commitAndMove, formulas, selectedCell, editingFormula, clipboard]);
+
+  // Keydown for formula bar input
+  const handleFormulaBarKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') { e.preventDefault(); handleFormulaCommit(); return; }
+    if (e.key === 'Escape') {
+      setEditingFormula(formulas[selectedCell || ''] || '');
+      setIsInlineEditing(false);
+      return;
+    }
+    if (e.key === 'Tab') { e.preventDefault(); handleFormulaCommit(); return; }
     if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
-      // Copy current formula
       if (selectedCell && formulas[selectedCell]) {
         setClipboard(formulas[selectedCell]);
         setCopyFlash(selectedCell);
-        setTimeout(() => setCopyFlash(null), 1000);
+        setTimeout(() => setCopyFlash(null), 900);
       }
       return;
     }
     if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-      // Paste: adjust formula based on offset from clipboard source
-      if (clipboard !== null && selectedCell) {
-        e.preventDefault();
-        setEditingFormula(clipboard);
-      }
+      if (clipboard !== null && selectedCell) { e.preventDefault(); setEditingFormula(clipboard); }
       return;
     }
-  }, [handleFormulaCommit, selectedCell, formulas, clipboard]);
+    // Typing in formula bar also activates inline edit visual sync
+    if (!isInlineEditing) setIsInlineEditing(true);
+  }, [handleFormulaCommit, selectedCell, formulas, clipboard, isInlineEditing]);
 
-  // Global keyboard handler for grid navigation
+  // Global keyboard handler on the grid container (when NOT inline editing)
   const handleGridKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (!selectedCell || !excelData) return;
-    const pos = parseRef(selectedCell);
-    if (!pos) return;
+    // If inline editing, let the inline input handle it
+    if (isInlineEditing) return;
 
-    const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
-    if (!arrowKeys.includes(e.key)) return;
-    e.preventDefault();
-
-    let newRow = pos.row;
-    let newCol = pos.col;
-    if (e.key === 'ArrowRight') newCol++;
-    if (e.key === 'ArrowLeft') newCol--;
-    if (e.key === 'ArrowDown') newRow++;
-    if (e.key === 'ArrowUp') newRow--;
-
-    const newRef = toRef(newCol, newRow).toUpperCase();
-    const r = parseRef(newRef);
-    if (!r) return;
-    if (r.row < 0 || r.row >= excelData.rows.length) return;
-    if (r.col < 0 || r.col >= excelData.numCols) return;
-
-    // Commit current editing before moving
-    if (selectedCell && isEditableCell(selectedCell) && editingFormula !== (formulas[selectedCell] || '')) {
-      commitFormula(selectedCell, editingFormula);
+    // F2 → activate inline edit
+    if (e.key === 'F2') { e.preventDefault(); activateInlineEdit(); return; }
+    // Delete/Backspace → clear cell
+    if ((e.key === 'Delete' || e.key === 'Backspace') && !isInlineEditing) {
+      e.preventDefault();
+      const newFormulas = { ...formulas, [selectedCell]: '' };
+      delete newFormulas[selectedCell];
+      const newComputed = applyFormulas(newFormulas, excelData.rows);
+      setFormulas(newFormulas);
+      setComputed(newComputed);
+      setEditingFormula('');
+      saveFormulas(challengeId, newFormulas);
+      checkAndFinish(newComputed);
+      return;
     }
-    handleCellClick(newRef);
-  }, [selectedCell, excelData, editingFormula, formulas, isEditableCell, commitFormula, handleCellClick]);
+    // Arrow keys → navigate
+    const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+    if (arrowKeys.includes(e.key)) {
+      e.preventDefault();
+      const pos = parseRef(selectedCell);
+      if (!pos) return;
+      let { row, col } = pos;
+      if (e.key === 'ArrowRight') col++;
+      if (e.key === 'ArrowLeft') col--;
+      if (e.key === 'ArrowDown') row++;
+      if (e.key === 'ArrowUp') row--;
+      const newRef = toRef(col, row).toUpperCase();
+      const nr = parseRef(newRef);
+      if (!nr || nr.row < 0 || nr.row >= excelData.rows.length || nr.col < 0 || nr.col >= excelData.numCols) return;
+      setSelectedCell(newRef);
+      setEditingFormula(formulas[newRef] || '');
+      return;
+    }
+    // Enter → activate inline edit
+    if (e.key === 'Enter') { e.preventDefault(); activateInlineEdit(); return; }
+    // Printable character → start inline edit with that char (overwrite mode)
+    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault();
+      setIsInlineEditing(true);
+      setEditingFormula(e.key);
+      setTimeout(() => {
+        if (inlineCellRef.current) {
+          inlineCellRef.current.focus();
+          inlineCellRef.current.setSelectionRange(1, 1);
+        }
+      }, 0);
+    }
+  }, [selectedCell, excelData, isInlineEditing, activateInlineEdit, formulas, applyFormulas, challengeId, checkAndFinish]);
 
   // ─── Drag-to-fill (fill handle) ─────────────────────────────────────────────
   const handleFillHandleMouseDown = useCallback((e: React.MouseEvent, sourceRef: string) => {
@@ -556,6 +665,7 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
     setComputed({});
     setSelectedCell(null);
     setEditingFormula('');
+    setIsInlineEditing(false);
     setAllCorrect(false);
     setElapsed(0);
     setTimerActive(false);
@@ -776,12 +886,16 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
               ref={formulaBarRef}
               type="text"
               value={editingFormula}
-              onChange={e => setEditingFormula(e.target.value)}
+              onChange={e => {
+                setEditingFormula(e.target.value);
+                if (!isInlineEditing) setIsInlineEditing(true);
+              }}
               onKeyDown={handleFormulaBarKeyDown}
+              onFocus={() => { if (selectedCell && !isInlineEditing) setIsInlineEditing(true); }}
               placeholder={
                 selectedCell
-                  ? 'Entre une valeur ou une formule (ex: =SOMME(B2:B6))  •  Ctrl+C copier  •  Ctrl+V coller'
-                  : 'Clique sur n\'importe quelle cellule pour l\'éditer'
+                  ? 'Entre une valeur ou formule — ou tape directement dans la cellule'
+                  : 'Clique sur une cellule pour commencer'
               }
               className="flex-1 px-3 py-2 text-sm font-mono focus:outline-none bg-white"
               style={selectedCell ? { borderLeft: `3px solid ${EXCEL_GREEN}` } : {}}
@@ -807,15 +921,17 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
           </div>
 
           {/* Keyboard hints bar */}
-          <div className="flex-shrink-0 flex items-center gap-4 px-4 py-1 bg-gray-50 border-b border-gray-100 text-[10px] text-gray-400">
+          <div className="flex-shrink-0 flex items-center gap-3 px-4 py-1 bg-gray-50 border-b border-gray-100 text-[10px] text-gray-400">
+            <span>Double-clic ou frappe = éditer</span>
+            <span className="text-gray-200">|</span>
             <span>↵ Valider</span>
-            <span>⇥ Tab = cellule suivante</span>
+            <span>⎋ Escape = annuler</span>
+            <span>⇥ Tab = suivant</span>
             <span>↑↓←→ Naviguer</span>
-            <span>Ctrl+C Copier formule</span>
-            <span>Ctrl+V Coller</span>
+            <span>F2 = éditer</span>
             <span className="ml-auto flex items-center gap-1">
               <span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: EXCEL_GREEN }} />
-              Glisser la poignée verte pour recopier
+              Glisser la poignée verte = recopier
             </span>
           </div>
 
@@ -898,47 +1014,95 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
                         const isBold = isHeaderRow || (typeof rawValue === 'string' && (rawValue.startsWith('TOTAL') || rawValue.startsWith('CA ') || rawValue === 'Moyenne' || rawValue === 'Minimum' || rawValue === 'Maximum' || rawValue === 'Nb Terminé' || rawValue === '% Terminé'));
                         const isRightAlign = typeof displayValue === 'number';
 
+                        const isCellInlineEditing = isSelected && isInlineEditing;
+
                         return (
                           <td
                             key={colIdx}
-                            onClick={() => handleCellClick(ref)}
+                            onClick={(e) => handleCellClick(ref, e)}
+                            onDoubleClick={() => handleCellDoubleClick(ref)}
                             onMouseEnter={() => handleCellMouseEnter(refUp)}
                             style={{
                               background: bgColor,
                               border: borderStyle,
                               color: textColor,
-                              cursor: isEditable ? 'text' : 'default',
+                              cursor: isEditable ? 'default' : 'default',
                               position: 'relative',
                               minHeight: '26px',
+                              padding: 0,
                               transition: 'background 0.12s',
                             }}
-                            className={`px-2 py-1 text-xs whitespace-nowrap overflow-hidden ${isBold ? 'font-bold' : ''} ${isRightAlign ? 'text-right' : 'text-left'}`}
+                            className={`text-xs whitespace-nowrap overflow-hidden ${isBold ? 'font-bold' : ''} ${isRightAlign ? 'text-right' : 'text-left'}`}
                           >
-                            {/* Target cell placeholder */}
-                            {isTarget && !hasComputed && (
-                              <span className="text-amber-400 font-medium italic text-[10px]">
-                                {tc?.label || 'Formule…'}
-                              </span>
+                            {/* Inline edit input — shown when cell is being edited */}
+                            {isCellInlineEditing ? (
+                              <input
+                                ref={inlineCellRef}
+                                type="text"
+                                value={editingFormula}
+                                onChange={e => {
+                                  setEditingFormula(e.target.value);
+                                  // Sync with formula bar
+                                }}
+                                onKeyDown={handleInlineCellKeyDown}
+                                onBlur={() => {
+                                  // Commit on blur unless we're moving to formula bar
+                                  setTimeout(() => {
+                                    if (document.activeElement !== formulaBarRef.current) {
+                                      commitFormula(selectedCell!, editingFormula);
+                                      setIsInlineEditing(false);
+                                    }
+                                  }, 100);
+                                }}
+                                style={{
+                                  position: 'absolute',
+                                  inset: 0,
+                                  width: '100%',
+                                  height: '100%',
+                                  border: 'none',
+                                  outline: 'none',
+                                  background: 'white',
+                                  color: textColor,
+                                  fontFamily: 'inherit',
+                                  fontSize: '12px',
+                                  fontWeight: isBold ? 'bold' : 'normal',
+                                  textAlign: isRightAlign ? 'right' : 'left',
+                                  padding: '1px 8px',
+                                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                                  zIndex: 20,
+                                  minWidth: '120px',
+                                }}
+                                onClick={e => e.stopPropagation()}
+                              />
+                            ) : (
+                              <div className="px-2 py-1 h-full w-full">
+                                {/* Target cell placeholder when empty */}
+                                {isTarget && !hasComputed && (
+                                  <span className="text-amber-400 font-medium italic text-[10px]">
+                                    {tc?.label || 'Formule…'}
+                                  </span>
+                                )}
+                                {/* Regular value display */}
+                                {(!isTarget || hasComputed) && (
+                                  <span className={isTarget && correct ? 'font-bold' : ''}>
+                                    {displayValue !== null && displayValue !== undefined && displayValue !== '' ? String(displayValue) : ''}
+                                  </span>
+                                )}
+                              </div>
                             )}
-                            {/* Value display */}
-                            {(!isTarget || hasComputed) && (
-                              <span className={isTarget && correct ? 'font-bold' : ''}>
-                                {displayValue !== null && displayValue !== undefined && displayValue !== '' ? String(displayValue) : ''}
-                              </span>
-                            )}
-                            {/* Status icon for target cells */}
-                            {isTarget && hasComputed && (
-                              <span className="absolute right-1 top-1/2 -translate-y-1/2">
+                            {/* Status icon for target cells (hidden during inline edit) */}
+                            {isTarget && hasComputed && !isCellInlineEditing && (
+                              <span className="absolute right-1 top-1/2 -translate-y-1/2" style={{ zIndex: 5 }}>
                                 {correct
                                   ? <CheckCircle2 size={11} style={{ color: '#16a34a' }} />
                                   : <XCircle size={11} style={{ color: '#dc2626' }} />
                                 }
                               </span>
                             )}
-                            {/* Fill handle — shown on any selected editable cell */}
-                            {isSelected && isEditable && (
+                            {/* Fill handle — shown on selected cell, hidden during edit */}
+                            {isSelected && isEditable && !isCellInlineEditing && (
                               <span
-                                onMouseDown={(e) => handleFillHandleMouseDown(e, refUp)}
+                                onMouseDown={(e) => { e.stopPropagation(); handleFillHandleMouseDown(e, refUp); }}
                                 style={{
                                   position: 'absolute',
                                   bottom: -4,
