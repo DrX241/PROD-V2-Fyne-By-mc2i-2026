@@ -1,8 +1,12 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
-import { ArrowRight, Terminal, Database, Code2, BarChart3, Trophy, Zap, Target, Clock } from 'lucide-react';
+import { ArrowRight, Terminal, Database, Code2, BarChart3, Trophy, Zap, Target, Clock, RotateCcw } from 'lucide-react';
 import mcLogoPath from '@assets/mc2i.png';
 import { CHALLENGES, TRACKS, getTotalPoints, getChallengeById } from '@/data/si-champion-challenges';
+
+const STORAGE_KEY = 'si-champion-completed';
+const CODE_STORAGE_PREFIX = 'si-champion-code-';
 
 const BLUE = '#006a9e';
 const PINK = '#dd0061';
@@ -24,8 +28,20 @@ const stats = [
 
 export default function SiChampionHub() {
   const [, navigate] = useLocation();
+  const [confirmReset, setConfirmReset] = useState(false);
   const lastChallengeId = typeof window !== 'undefined' ? localStorage.getItem('si-champion-last') : null;
   const lastChallenge = lastChallengeId ? getChallengeById(lastChallengeId) : null;
+
+  const completedIds: string[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  const completedCount = completedIds.length;
+
+  function handleReset() {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem('si-champion-last');
+    CHALLENGES.forEach(c => localStorage.removeItem(CODE_STORAGE_PREFIX + c.id));
+    setConfirmReset(false);
+    window.location.reload();
+  }
 
   return (
     <div className="min-h-screen bg-white text-[#061019]">
@@ -217,7 +233,7 @@ export default function SiChampionHub() {
               <h2 className="text-2xl font-black mb-2" style={{ color: DARK }}>
                 Prêt à coder comme un SI Champion ?
               </h2>
-              <p className="text-gray-500">30 défis, 4 technologies, exécution réelle. À toi de jouer.</p>
+              <p className="text-gray-500">{CHALLENGES.length} défis, 4 technologies, exécution réelle. À toi de jouer.</p>
             </div>
             <Link href="/si-champion/challenges">
               <button className="inline-flex items-center gap-2 px-10 py-4 text-white font-bold text-base whitespace-nowrap" style={{ background: PINK }}>
@@ -226,6 +242,42 @@ export default function SiChampionHub() {
             </Link>
           </div>
         </section>
+
+        {/* Reset progress */}
+        {completedCount > 0 && (
+          <section className="py-6 px-6 border-t border-gray-100">
+            <div className="max-w-5xl mx-auto flex items-center justify-between">
+              <p className="text-sm text-gray-400">
+                <span className="font-semibold text-gray-600">{completedCount} défi{completedCount > 1 ? 's' : ''} complété{completedCount > 1 ? 's' : ''}</span> sur {CHALLENGES.length} — ta progression est sauvegardée localement.
+              </p>
+              {!confirmReset ? (
+                <button
+                  onClick={() => setConfirmReset(true)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-gray-400 hover:text-red-500 border border-gray-200 hover:border-red-200 transition-colors"
+                >
+                  <RotateCcw size={12} /> Réinitialiser la progression
+                </button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">Supprimer les {completedCount} défi{completedCount > 1 ? 's' : ''} complété{completedCount > 1 ? 's' : ''} ?</span>
+                  <button
+                    onClick={handleReset}
+                    className="px-3 py-1.5 text-xs font-bold text-white"
+                    style={{ background: '#dc2626' }}
+                  >
+                    Confirmer
+                  </button>
+                  <button
+                    onClick={() => setConfirmReset(false)}
+                    className="px-3 py-1.5 text-xs font-bold border border-gray-200 text-gray-500 hover:border-gray-400"
+                  >
+                    Annuler
+                  </button>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );
