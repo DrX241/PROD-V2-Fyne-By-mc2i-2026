@@ -361,6 +361,12 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
     return excelData?.targetCells.find(tc => tc.ref.toUpperCase() === ref.toUpperCase());
   }, [excelData]);
 
+  // Any non-header cell is editable (row index > 0)
+  const isEditableCell = useCallback((ref: string) => {
+    const pos = parseRef(ref);
+    return pos !== null && pos.row > 0;
+  }, []);
+
   const applyFormulas = useCallback((newFormulas: Record<string, string>, grid: (string | number | null)[][]): Record<string, number | string> => {
     const newComputed: Record<string, number | string> = {};
     for (const [ref, formula] of Object.entries(newFormulas)) {
@@ -398,37 +404,31 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
 
   const handleCellClick = useCallback((ref: string) => {
     const refUp = ref.toUpperCase();
+    if (!isEditableCell(refUp)) return;
     setSelectedCell(refUp);
-    const f = isTargetCell(refUp) ? (formulas[refUp] || '') : '';
-    setEditingFormula(f);
-    if (isTargetCell(refUp)) {
-      setTimeout(() => formulaBarRef.current?.focus(), 0);
-      if (!timerActive && !isCompleted) setTimerActive(true);
-    }
-  }, [isTargetCell, formulas, timerActive, isCompleted]);
+    setEditingFormula(formulas[refUp] || '');
+    setTimeout(() => formulaBarRef.current?.focus(), 0);
+    if (!timerActive && !isCompleted) setTimerActive(true);
+  }, [isEditableCell, formulas, timerActive, isCompleted]);
 
   const handleFormulaCommit = useCallback(() => {
-    if (!selectedCell || !isTargetCell(selectedCell)) return;
+    if (!selectedCell || !isEditableCell(selectedCell)) return;
     commitFormula(selectedCell, editingFormula);
 
-    // Move to next unfilled target cell
+    // After committing, move to next unfilled target cell
     if (excelData) {
       const targets = excelData.targetCells;
       const currentIdx = targets.findIndex(tc => tc.ref.toUpperCase() === selectedCell.toUpperCase());
-      const next = targets.find((tc, i) => i > currentIdx && !formulas[tc.ref.toUpperCase()]);
-      const nextAny = targets.find((_, i) => i !== currentIdx);
-      const nextTarget = next || nextAny;
+      const nextTarget = targets.find((tc, i) => i > currentIdx && !formulas[tc.ref.toUpperCase()])
+        || targets.find(tc => !formulas[tc.ref.toUpperCase()]);
       if (nextTarget) {
         const nr = nextTarget.ref.toUpperCase();
         setSelectedCell(nr);
         setEditingFormula(formulas[nr] || '');
         setTimeout(() => formulaBarRef.current?.focus(), 0);
-      } else {
-        setSelectedCell(null);
-        setEditingFormula('');
       }
     }
-  }, [selectedCell, editingFormula, commitFormula, isTargetCell, excelData, formulas]);
+  }, [selectedCell, editingFormula, commitFormula, isEditableCell, excelData, formulas]);
 
   // Keyboard: arrow keys between target cells + Ctrl+C/V
   const handleFormulaBarKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -482,11 +482,11 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
     if (r.col < 0 || r.col >= excelData.numCols) return;
 
     // Commit current editing before moving
-    if (selectedCell && isTargetCell(selectedCell) && editingFormula !== (formulas[selectedCell] || '')) {
+    if (selectedCell && isEditableCell(selectedCell) && editingFormula !== (formulas[selectedCell] || '')) {
       commitFormula(selectedCell, editingFormula);
     }
     handleCellClick(newRef);
-  }, [selectedCell, excelData, editingFormula, formulas, isTargetCell, commitFormula, handleCellClick]);
+  }, [selectedCell, excelData, editingFormula, formulas, isEditableCell, commitFormula, handleCellClick]);
 
   // ─── Drag-to-fill (fill handle) ─────────────────────────────────────────────
   const handleFillHandleMouseDown = useCallback((e: React.MouseEvent, sourceRef: string) => {
@@ -522,7 +522,7 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
       for (let c = colMin; c <= colMax; c++) {
         const targetRef = toRef(c, r).toUpperCase();
         if (targetRef === dragSource.toUpperCase()) continue;
-        if (!isTargetCell(targetRef)) continue;
+        if (!isEditableCell(targetRef)) continue; // skip header row
         const colOff = c - src.col;
         const rowOff = r - src.row;
         const adjusted = shiftFormula(sourceFormula, colOff, rowOff);
@@ -535,14 +535,13 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
     saveFormulas(challengeId, newFormulas);
     checkAndFinish(newComputed);
 
-    // Select last target
     const lastRef = toRef(dst.col, dst.row).toUpperCase();
     setSelectedCell(lastRef);
     setEditingFormula(newFormulas[lastRef] || '');
     setDragSource(null);
     setDragTarget(null);
     if (!timerActive && !isCompleted) setTimerActive(true);
-  }, [dragSource, dragTarget, excelData, formulas, isTargetCell, applyFormulas, challengeId, checkAndFinish, timerActive, isCompleted]);
+  }, [dragSource, dragTarget, excelData, formulas, isEditableCell, applyFormulas, challengeId, checkAndFinish, timerActive, isCompleted]);
 
   // Mouse up anywhere stops the drag
   useEffect(() => {
@@ -782,16 +781,13 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
               onKeyDown={handleFormulaBarKeyDown}
               placeholder={
                 selectedCell
-                  ? isTargetCell(selectedCell)
-                    ? 'Entre ta formule ici, ex: =SOMME(B2:B6)  •  Ctrl+C copier  •  Ctrl+V coller'
-                    : 'Lecture seule — cette cellule contient une valeur fixe'
-                  : 'Clique sur une cellule jaune pour entrer une formule'
+                  ? 'Entre une valeur ou une formule (ex: =SOMME(B2:B6))  •  Ctrl+C copier  •  Ctrl+V coller'
+                  : 'Clique sur n\'importe quelle cellule pour l\'éditer'
               }
-              readOnly={!!(selectedCell && !isTargetCell(selectedCell))}
-              className="flex-1 px-3 py-2 text-sm font-mono focus:outline-none bg-white disabled:bg-gray-50 disabled:text-gray-400 read-only:bg-gray-50 read-only:text-gray-500"
-              style={selectedCell && isTargetCell(selectedCell) ? { borderLeft: `3px solid ${EXCEL_GREEN}` } : {}}
+              className="flex-1 px-3 py-2 text-sm font-mono focus:outline-none bg-white"
+              style={selectedCell ? { borderLeft: `3px solid ${EXCEL_GREEN}` } : {}}
             />
-            {selectedCell && isTargetCell(selectedCell) && formulas[selectedCell] && (
+            {selectedCell && formulas[selectedCell] && (
               <button
                 onClick={() => handleCopyFormula(selectedCell)}
                 title="Copier la formule (Ctrl+C)"
@@ -800,7 +796,7 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
                 <Copy size={14} />
               </button>
             )}
-            {selectedCell && isTargetCell(selectedCell) && (
+            {selectedCell && (
               <button
                 onClick={handleFormulaCommit}
                 className="flex-shrink-0 px-4 py-2 text-white text-xs font-bold"
@@ -860,43 +856,48 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
                         const ref = `${colLetter(colIdx)}${rowNum}`;
                         const refUp = ref.toUpperCase();
                         const isTarget = isTargetCell(ref);
+                        const isEditable = isEditableCell(ref);
                         const tc = getTargetCell(ref);
                         const isSelected = selectedCell?.toUpperCase() === refUp;
-                        const hasValue = computed[refUp] !== undefined;
+                        const hasFormula = formulas[refUp] !== undefined && formulas[refUp] !== '';
+                        const hasComputed = computed[refUp] !== undefined;
                         const correct = tc ? isCellCorrect(computed, ref, tc.expectedValue, tc.tolerance) : false;
-                        const wrong = hasValue && !correct && isTarget;
+                        const wrong = hasComputed && !correct && isTarget;
                         const rawValue = row[colIdx];
                         const inDragRange = dragRange.has(refUp) && refUp !== dragSource?.toUpperCase();
                         const isCopyFlashing = copyFlash === refUp;
 
+                        // The value to display: formula result > raw data
                         const computedVal = computed[refUp];
-                        const displayValue = hasValue
+                        const displayValue = hasComputed
                           ? (typeof computedVal === 'number'
                             ? (Number.isInteger(computedVal) ? computedVal : Number((computedVal as number).toFixed(4)))
                             : computedVal)
                           : (rawValue !== null ? rawValue : '');
 
-                        // Cell styling
+                        // Background
                         let bgColor = 'white';
                         let borderStyle = '1px solid #d1d5db';
                         if (isHeaderRow) bgColor = '#f3f4f6';
-                        if (isTarget && !hasValue) bgColor = '#fffbeb';
+                        if (isTarget && !hasComputed) bgColor = '#fffbeb';
                         if (isTarget && correct) bgColor = '#f0fdf4';
                         if (isTarget && wrong) bgColor = '#fff1f2';
-                        if (inDragRange && isTarget) bgColor = '#dbeafe';
+                        if (!isTarget && hasFormula && !isHeaderRow) bgColor = '#f0f9ff';
+                        if (inDragRange && isEditable) bgColor = '#dbeafe';
                         if (isCopyFlashing) bgColor = '#dcfce7';
                         if (isSelected) borderStyle = `2px solid ${EXCEL_GREEN}`;
                         if (inDragRange) borderStyle = `1px dashed ${BLUE}`;
 
+                        // Text color
                         let textColor = '#111827';
                         if (isHeaderRow) textColor = '#374151';
                         if (isTarget && correct) textColor = '#16a34a';
                         if (isTarget && wrong) textColor = '#dc2626';
-                        if (!isTarget && typeof rawValue === 'number') textColor = '#1e40af';
-                        if (isTarget && hasValue && typeof computedVal === 'number') textColor = correct ? '#16a34a' : '#dc2626';
+                        if (!isTarget && !isHeaderRow && typeof displayValue === 'number') textColor = '#1e40af';
+                        if (isTarget && hasComputed && typeof computedVal === 'number') textColor = correct ? '#16a34a' : '#dc2626';
 
                         const isBold = isHeaderRow || (typeof rawValue === 'string' && (rawValue.startsWith('TOTAL') || rawValue.startsWith('CA ') || rawValue === 'Moyenne' || rawValue === 'Minimum' || rawValue === 'Maximum' || rawValue === 'Nb Terminé' || rawValue === '% Terminé'));
-                        const isRightAlign = typeof rawValue === 'number' || (hasValue && typeof computedVal === 'number');
+                        const isRightAlign = typeof displayValue === 'number';
 
                         return (
                           <td
@@ -907,25 +908,27 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
                               background: bgColor,
                               border: borderStyle,
                               color: textColor,
-                              cursor: isTarget ? 'text' : 'default',
+                              cursor: isEditable ? 'text' : 'default',
                               position: 'relative',
                               minHeight: '26px',
-                              transition: 'background 0.15s',
+                              transition: 'background 0.12s',
                             }}
                             className={`px-2 py-1 text-xs whitespace-nowrap overflow-hidden ${isBold ? 'font-bold' : ''} ${isRightAlign ? 'text-right' : 'text-left'}`}
                           >
-                            {isTarget && !hasValue && (
+                            {/* Target cell placeholder */}
+                            {isTarget && !hasComputed && (
                               <span className="text-amber-400 font-medium italic text-[10px]">
                                 {tc?.label || 'Formule…'}
                               </span>
                             )}
-                            {(!isTarget || hasValue) && (
+                            {/* Value display */}
+                            {(!isTarget || hasComputed) && (
                               <span className={isTarget && correct ? 'font-bold' : ''}>
                                 {displayValue !== null && displayValue !== undefined && displayValue !== '' ? String(displayValue) : ''}
                               </span>
                             )}
-                            {/* Status icon */}
-                            {isTarget && hasValue && (
+                            {/* Status icon for target cells */}
+                            {isTarget && hasComputed && (
                               <span className="absolute right-1 top-1/2 -translate-y-1/2">
                                 {correct
                                   ? <CheckCircle2 size={11} style={{ color: '#16a34a' }} />
@@ -933,8 +936,8 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
                                 }
                               </span>
                             )}
-                            {/* Fill handle — shown on selected target cell */}
-                            {isSelected && isTarget && (
+                            {/* Fill handle — shown on any selected editable cell */}
+                            {isSelected && isEditable && (
                               <span
                                 onMouseDown={(e) => handleFillHandleMouseDown(e, refUp)}
                                 style={{
@@ -948,7 +951,7 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
                                   cursor: 'crosshair',
                                   zIndex: 10,
                                 }}
-                                title="Glisser pour recopier la formule vers les cellules adjacentes"
+                                title="Glisser pour recopier vers les cellules adjacentes"
                               />
                             )}
                           </td>
@@ -962,9 +965,9 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
           </div>
 
           {/* Bottom legend */}
-          <div className="flex-shrink-0 flex items-center gap-4 px-4 py-1.5 bg-gray-50 border-t border-gray-100 text-[10px] text-gray-400">
+          <div className="flex-shrink-0 flex items-center gap-3 px-4 py-1.5 bg-gray-50 border-t border-gray-100 text-[10px] text-gray-400 flex-wrap">
             <span className="flex items-center gap-1">
-              <span className="inline-block w-3 h-3 bg-amber-50 border border-amber-200" /> À remplir
+              <span className="inline-block w-3 h-3 bg-amber-50 border border-amber-200" /> Cellule cible vide
             </span>
             <span className="flex items-center gap-1">
               <span className="inline-block w-3 h-3 bg-green-50 border border-green-200" /> Correcte
@@ -973,7 +976,10 @@ export default function ExcelPlayer({ challengeId }: { challengeId: string }) {
               <span className="inline-block w-3 h-3 bg-red-50 border border-red-200" /> Incorrecte
             </span>
             <span className="flex items-center gap-1">
-              <span className="inline-block w-3 h-3 bg-blue-50 border border-blue-200 border-dashed" /> Recopie en cours
+              <span className="inline-block w-3 h-3 bg-blue-50 border border-blue-100" /> Cellule modifiée
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="inline-block w-3 h-3 border border-dashed border-blue-400 bg-blue-50" /> Recopie en cours
             </span>
           </div>
         </div>
