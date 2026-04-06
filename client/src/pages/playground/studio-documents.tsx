@@ -5,7 +5,8 @@ import {
   ArrowLeft, ArrowRight, FileUp, Upload, Loader2, CheckCircle,
   Trophy, Target, BookOpen, MessageSquare, ChevronRight,
   RotateCcw, Star, Play, HelpCircle, X, FileText, Presentation,
-  Users, Zap, File, AlertCircle, Globe, Layers
+  Users, Zap, File, AlertCircle, Globe, Layers, Eye, ScanLine,
+  CircleCheck, TriangleAlert, CircleX, FileSearch
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import mcLogoPath from '@assets/mc2i.png';
@@ -76,11 +77,21 @@ interface TrainingResult {
 }
 
 interface ScrapeInfo { pagesVisited: number; totalChars: number; siteName: string; }
+interface FilePreviewItem { name: string; size: number; chars: number; quality: 'good' | 'ok' | 'low' | 'unreadable'; preview: string; }
+interface ExtractPreviewResult { files: FilePreviewItem[]; totalChars: number; combinedPreview: string; overallQuality: 'good' | 'ok' | 'low' | 'unreadable'; }
+
 type ImportMode = 'files' | 'url';
 type OutputMode = 'formation' | 'lecon';
-type StepName = 'upload' | 'config' | 'generating' | 'result';
+type StepName = 'upload' | 'preview' | 'config' | 'generating' | 'result';
 
-const STEP_PROGRESS: Record<StepName, number> = { upload: 25, config: 50, generating: 75, result: 100 };
+const STEP_PROGRESS: Record<StepName, number> = { upload: 20, preview: 45, config: 65, generating: 85, result: 100 };
+
+const QUALITY_META: Record<string, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
+  good:       { label: 'Excellent',  color: '#059669', bg: '#05966912', icon: <CircleCheck size={14} /> },
+  ok:         { label: 'Lisible',    color: '#006a9e', bg: '#006a9e12', icon: <Eye size={14} /> },
+  low:        { label: 'Partiel',    color: '#d97706', bg: '#d9770612', icon: <TriangleAlert size={14} /> },
+  unreadable: { label: 'Illisible',  color: '#dc2626', bg: '#dc262612', icon: <CircleX size={14} /> },
+};
 
 export default function StudioDocuments() {
   const [, setLocation] = useLocation();
@@ -103,6 +114,8 @@ export default function StudioDocuments() {
   const [result, setResult] = useState<TrainingResult | null>(null);
   const [trainingId, setTrainingId] = useState<string | null>(null);
   const [activeScenarioChoice, setActiveScenarioChoice] = useState<number | null>(null);
+  const [previewData, setPreviewData] = useState<ExtractPreviewResult | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 Mo
 
@@ -181,10 +194,29 @@ export default function StudioDocuments() {
     }
   };
 
+  const goToPreview = async () => {
+    if (importMode === 'url') { setStep('config'); return; }
+    setPreviewLoading(true);
+    try {
+      const formData = new FormData();
+      files.forEach(f => formData.append('files', f));
+      const res = await fetch('/api/studio/extract-preview', { method: 'POST', body: formData });
+      if (!res.ok) throw new Error('Lecture impossible');
+      const data: ExtractPreviewResult = await res.json();
+      setPreviewData(data);
+      setStep('preview');
+    } catch {
+      toast({ title: 'Lecture échouée', description: 'Impossible de lire les fichiers. Vérifiez leur format.', variant: 'destructive' });
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
   const restart = () => {
     setFiles([]); setUrl(''); setDepth('10'); setTitle('');
     setAudience('grand_public'); setGamification('medium');
     setResult(null); setTrainingId(null); setScrapeInfo(null); setActiveScenarioChoice(null);
+    setPreviewData(null);
     setStep('upload');
   };
 
@@ -333,12 +365,117 @@ export default function StudioDocuments() {
                   </div>
                 )}
 
-                <button onClick={() => setStep('config')}
-                  disabled={importMode === 'url' && !isUrlValid(url)}
+                <button
+                  onClick={goToPreview}
+                  disabled={
+                    previewLoading ||
+                    (importMode === 'url' && !isUrlValid(url)) ||
+                    (importMode === 'files' && files.length === 0)
+                  }
                   className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed mt-8"
                   style={{ background: BLUE }}>
-                  Configurer la formation <ArrowRight size={18} />
+                  {previewLoading
+                    ? <><Loader2 size={18} className="animate-spin" /> Lecture en cours…</>
+                    : <>{importMode === 'files' ? <><FileSearch size={18} /> Vérifier le contenu</> : <>Configurer la formation <ArrowRight size={18} /></>}</>
+                  }
                 </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ═══ PREVIEW EXTRACTION ════════════════════════════════════════ */}
+          {step === 'preview' && previewData && (
+            <motion.div key="preview" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
+              className="min-h-screen flex flex-col justify-center px-6 lg:px-16 py-16">
+              <div className="max-w-2xl">
+                <div className="text-xs font-bold uppercase tracking-widest mb-5 px-3 py-1 inline-block"
+                  style={{ background: `${BLUE}12`, color: BLUE }}>
+                  Étape 2 · Vérification du contenu
+                </div>
+                <h1 className="text-4xl font-black tracking-tight mb-4" style={{ color: DARK }}>
+                  Contenu<br /><span style={{ color: BLUE }}>extrait des fichiers</span>
+                </h1>
+                <div className="w-16 h-1 mb-8" style={{ background: BLUE }} />
+
+                {/* Bilan qualité global */}
+                {(() => {
+                  const q = QUALITY_META[previewData.overallQuality];
+                  return (
+                    <div className="flex items-start gap-3 border px-4 py-4 mb-6"
+                      style={{ borderColor: q.color, background: q.bg }}>
+                      <span style={{ color: q.color }} className="mt-0.5 flex-shrink-0">{q.icon}</span>
+                      <div>
+                        <div className="text-sm font-bold mb-0.5" style={{ color: q.color }}>
+                          Qualité globale : {q.label} — {(previewData.totalChars / 1000).toFixed(1)} k caractères extraits
+                        </div>
+                        {previewData.overallQuality === 'unreadable' && (
+                          <p className="text-xs text-gray-600 mt-1">
+                            Aucun texte n'a pu être extrait. Le document est peut-être un scan image, chiffré, ou dans un format non supporté. La génération risque d'être vide ou hors sujet.
+                          </p>
+                        )}
+                        {previewData.overallQuality === 'low' && (
+                          <p className="text-xs text-gray-600 mt-1">
+                            Peu de texte extrait — le PDF est peut-être un scan ou contient surtout des images. La leçon pourrait manquer de contenu.
+                          </p>
+                        )}
+                        {(previewData.overallQuality === 'ok' || previewData.overallQuality === 'good') && (
+                          <p className="text-xs text-gray-600 mt-1">
+                            Le contenu est bien lisible et exploitable pour générer une leçon pertinente.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Bilan par fichier */}
+                <div className="space-y-2 mb-6">
+                  {previewData.files.map((f, i) => {
+                    const q = QUALITY_META[f.quality];
+                    return (
+                      <div key={i} className="flex items-center gap-3 border border-gray-100 px-4 py-3 bg-white">
+                        {FILE_ICONS[f.name.split('.').pop()?.toLowerCase() || ''] || <File size={16} style={{ color: '#9ca3af' }} />}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium truncate" style={{ color: DARK }}>{f.name}</div>
+                          <div className="text-xs text-gray-400">{(f.chars / 1000).toFixed(1)} k car. · {formatSize(f.size)}</div>
+                        </div>
+                        <span className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 flex-shrink-0"
+                          style={{ background: q.bg, color: q.color }}>
+                          {q.icon} {q.label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Aperçu texte extrait */}
+                <div className="mb-8">
+                  <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-1.5">
+                    <ScanLine size={13} /> Aperçu du texte extrait
+                  </div>
+                  <div className="border border-gray-200 bg-gray-50 px-4 py-4">
+                    <p className="text-xs text-gray-600 leading-relaxed font-mono whitespace-pre-wrap break-words line-clamp-[12]">
+                      {previewData.combinedPreview || '(aucun texte extrait)'}
+                    </p>
+                    {previewData.totalChars > 900 && (
+                      <p className="text-xs text-gray-400 mt-2 italic">… aperçu tronqué, le document complet sera utilisé pour la génération.</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => setStep('config')}
+                    disabled={previewData.overallQuality === 'unreadable'}
+                    className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
+                    style={{ background: previewData.overallQuality === 'unreadable' ? '#9ca3af' : BLUE }}>
+                    Configurer la leçon <ArrowRight size={18} />
+                  </button>
+                  <button onClick={() => setStep('upload')}
+                    className="inline-flex items-center gap-2 px-5 py-4 border border-gray-300 text-sm font-medium text-gray-600 hover:border-gray-400 transition-colors">
+                    <ArrowLeft size={15} /> Changer les fichiers
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}

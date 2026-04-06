@@ -6725,6 +6725,76 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
     }
   });
 
+  // POST /api/studio/extract-preview — Extrait le texte brut des fichiers et retourne un aperçu + qualité
+  const multerPreview = (await import('multer')).default;
+  const uploadPreview = multerPreview({ storage: multerPreview.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024, files: 5 } });
+  const uploadPreviewMiddleware = (req: Request, res: Response, next: any) => {
+    uploadPreview.array('files', 5)(req, res, (err: any) => {
+      if (err?.code === 'LIMIT_FILE_SIZE') return res.status(413).json({ error: 'Fichier trop volumineux.' });
+      if (err) return res.status(500).json({ error: "Erreur lors de l'upload." });
+      next();
+    });
+  };
+
+  const extractTextPreview = async (f: Express.Multer.File): Promise<string> => {
+    const ext = f.originalname.split('.').pop()?.toLowerCase() || '';
+    try {
+      if (ext === 'txt') return f.buffer.toString('utf-8').slice(0, 6000);
+      if (ext === 'pdf') {
+        const { PDFParse } = await import('pdf-parse');
+        const parser = new PDFParse({ data: f.buffer });
+        await parser.load();
+        const result = await parser.getText();
+        return (result.text || '').slice(0, 6000);
+      }
+      if (ext === 'docx' || ext === 'doc') {
+        const mammoth = await import('mammoth');
+        const result = await mammoth.extractRawText({ buffer: f.buffer });
+        return result.value.slice(0, 6000);
+      }
+      if (ext === 'pptx' || ext === 'ppt') {
+        const JSZip = (await import('jszip')).default;
+        const zip = await JSZip.loadAsync(f.buffer);
+        const slideFiles = Object.keys(zip.files).filter(n => n.match(/ppt\/slides\/slide\d+\.xml$/)).sort();
+        const texts: string[] = [];
+        for (const slideName of slideFiles.slice(0, 20)) {
+          const content = await zip.files[slideName].async('text');
+          const text = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+          if (text.length > 20) texts.push(text.slice(0, 400));
+        }
+        return texts.join('\n').slice(0, 6000);
+      }
+    } catch (e) {
+      console.warn(`[Preview] Extraction échouée pour ${f.originalname}:`, e);
+    }
+    return '';
+  };
+
+  app.post("/api/studio/extract-preview", uploadPreviewMiddleware, async (req: Request, res: Response) => {
+    try {
+      const files = req.files as Express.Multer.File[] || [];
+      if (files.length === 0) return res.status(400).json({ error: 'Aucun fichier fourni' });
+
+      const fileResults = await Promise.all(files.map(async f => {
+        const text = await extractTextPreview(f);
+        const chars = text.replace(/\s+/g, ' ').trim().length;
+        const quality: 'good' | 'ok' | 'low' | 'unreadable' =
+          chars > 1500 ? 'good' : chars > 400 ? 'ok' : chars > 80 ? 'low' : 'unreadable';
+        return { name: f.originalname, size: f.size, chars, quality, preview: text.slice(0, 800).replace(/\s+/g, ' ').trim() };
+      }));
+
+      const totalChars = fileResults.reduce((s, f) => s + f.chars, 0);
+      const combinedPreview = fileResults.map(f => f.preview).join('\n\n---\n\n').slice(0, 900);
+      const overallQuality: 'good' | 'ok' | 'low' | 'unreadable' =
+        totalChars > 2000 ? 'good' : totalChars > 600 ? 'ok' : totalChars > 120 ? 'low' : 'unreadable';
+
+      res.json({ files: fileResults, totalChars, combinedPreview, overallQuality });
+    } catch (error: any) {
+      console.error('[Extract Preview] Erreur:', error?.message || error);
+      res.status(500).json({ error: 'Erreur lors de la lecture des fichiers.' });
+    }
+  });
+
   // POST /api/studio/generate-lesson — Génère une leçon interactive en slides depuis des documents
   const multerLesson = (await import('multer')).default;
   const uploadLesson = multerLesson({ storage: multerLesson.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024, files: 3 } });
