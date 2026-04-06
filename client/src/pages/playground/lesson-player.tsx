@@ -803,16 +803,53 @@ function FillBlankSlide({ slide, inputs, onInputChange, submitted, onSubmit }: {
   submitted: boolean;
   onSubmit: () => void;
 }) {
-  const [showAnswers, setShowAnswers] = useState(false);
-  const segments = parseFillBlank(slide.phrase || '');
   const mots = slide.mots || [];
-  const allFilled = mots.every((_, i) => (inputs[i] || '').trim().length > 0);
+  const segments = parseFillBlank(slide.phrase || '');
+  const blankCount = segments.filter(s => s.type === 'blank').length;
 
-  const isCorrect = (i: number) => {
-    const input = (inputs[i] || '').trim().toLowerCase();
-    return input === mots[i]?.trim().toLowerCase();
+  // blankToWordIdx[blankIdx] = index in mots[], or null if empty
+  const [blankToWordIdx, setBlankToWordIdx] = useState<(number | null)[]>(() => new Array(blankCount).fill(null));
+  const [selectedWordIdx, setSelectedWordIdx] = useState<number | null>(null);
+  const [showAnswers, setShowAnswers] = useState(false);
+
+  const usedWordIndices = new Set(blankToWordIdx.filter(x => x !== null) as number[]);
+  const allFilled = blankToWordIdx.length === blankCount && blankToWordIdx.every(x => x !== null);
+
+  const isCorrect = (bi: number) => {
+    const wi = blankToWordIdx[bi];
+    if (wi === null) return false;
+    return mots[wi]?.trim().toLowerCase() === mots[bi]?.trim().toLowerCase();
   };
   const allCorrect = submitted && mots.every((_, i) => isCorrect(i));
+
+  const handleWordClick = (wi: number) => {
+    if (submitted) return;
+    if (usedWordIndices.has(wi)) return;
+    setSelectedWordIdx(prev => prev === wi ? null : wi);
+  };
+
+  const handleBlankClick = (bi: number) => {
+    if (submitted) return;
+    if (selectedWordIdx !== null) {
+      // If the selected word is already in another blank, remove it from there first
+      const prevBlank = blankToWordIdx.findIndex(x => x === selectedWordIdx);
+      const next = [...blankToWordIdx];
+      if (prevBlank !== -1) { next[prevBlank] = null; onInputChange(prevBlank, ''); }
+      // If this blank had a word, it goes back to pool automatically (just overwrite)
+      next[bi] = selectedWordIdx;
+      setBlankToWordIdx(next);
+      onInputChange(bi, mots[selectedWordIdx]);
+      setSelectedWordIdx(null);
+    } else {
+      // Remove word from blank → back to pool
+      if (blankToWordIdx[bi] !== null) {
+        const next = [...blankToWordIdx];
+        next[bi] = null;
+        setBlankToWordIdx(next);
+        onInputChange(bi, '');
+      }
+    }
+  };
 
   return (
     <div style={{ background: 'white', minHeight: 480, border: `2px solid ${PURPLE}25`, position: 'relative', overflow: 'hidden' }}>
@@ -821,61 +858,97 @@ function FillBlankSlide({ slide, inputs, onInputChange, submitted, onSubmit }: {
       <div style={{ padding: '40px 48px', position: 'relative' }}>
         <p style={{ margin: '0 0 6px', fontSize: 11, fontWeight: 700, letterSpacing: 3, color: PURPLE, textTransform: 'uppercase' }}>Mini-jeu · Texte à trous</p>
         <h2 style={{ margin: '0 0 8px', fontSize: 26, fontWeight: 700, color: DARK }}>{slide.titre}</h2>
-        <p style={{ margin: '0 0 28px', fontSize: 14, color: '#6b7280' }}>{slide.instruction || 'Complète les blancs avec les bons termes.'}</p>
+        <p style={{ margin: '0 0 24px', fontSize: 14, color: '#6b7280' }}>{slide.instruction || 'Place les mots dans les bons emplacements.'}</p>
 
-        {/* Phrase with blanks */}
-        <div style={{ padding: '24px 28px', background: `${PURPLE}06`, border: `1px solid ${PURPLE}20`, marginBottom: 28, lineHeight: 2.2, fontSize: 18, color: DARK, fontWeight: 500 }}>
+        {/* Phrase with clickable blanks */}
+        <div style={{ padding: '20px 24px', background: `${PURPLE}04`, border: `1px solid ${PURPLE}18`, marginBottom: 20, lineHeight: 3, fontSize: 17, color: DARK, fontWeight: 500 }}>
           {segments.map((seg, si) => {
             if (seg.type === 'text') return <span key={si}>{seg.content}</span>;
             const bi = seg.blankIdx;
+            const wi = blankToWordIdx[bi] ?? null;
+            const hasWord = wi !== null;
             const correct = submitted ? isCorrect(bi) : null;
+            const isDropTarget = selectedWordIdx !== null && !submitted;
             return (
-              <span key={si} style={{ display: 'inline-flex', alignItems: 'center', margin: '0 4px', verticalAlign: 'middle' }}>
-                <input
-                  disabled={submitted}
-                  value={inputs[bi] || ''}
-                  onChange={e => onInputChange(bi, e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter' && allFilled && !submitted) onSubmit(); }}
-                  placeholder={`mot ${bi + 1}`}
-                  style={{
-                    width: Math.max(80, (mots[bi]?.length || 8) * 10),
-                    padding: '4px 10px', fontSize: 16, fontWeight: 700,
-                    border: `2px solid ${submitted ? (correct ? GREEN : RED) : PURPLE}`,
-                    background: submitted ? (correct ? `${GREEN}12` : `${RED}10`) : `${PURPLE}08`,
-                    color: submitted ? (correct ? GREEN : RED) : PURPLE,
-                    outline: 'none', textAlign: 'center',
-                    borderRadius: 0,
-                  }}
-                />
-                {submitted && (
-                  correct
-                    ? <CheckCircle size={16} style={{ color: GREEN, marginLeft: 4 }} />
-                    : <XCircle size={16} style={{ color: RED, marginLeft: 4 }} />
+              <span key={si}
+                onClick={() => handleBlankClick(bi)}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  minWidth: Math.max(90, (mots[bi]?.length || 6) * 11),
+                  height: 38, margin: '0 6px', padding: '0 14px',
+                  border: `2px ${hasWord ? 'solid' : 'dashed'} ${submitted ? (correct ? GREEN : RED) : hasWord ? PURPLE : isDropTarget ? `${PURPLE}80` : '#c4b5fd'}`,
+                  background: submitted ? (correct ? `${GREEN}12` : `${RED}10`) : hasWord ? `${PURPLE}15` : isDropTarget ? `${PURPLE}08` : `${PURPLE}04`,
+                  color: submitted ? (correct ? GREEN : RED) : hasWord ? PURPLE : '#a78bfa',
+                  fontWeight: hasWord ? 800 : 400, fontSize: 15,
+                  cursor: !submitted ? 'pointer' : 'default',
+                  transition: 'all 0.15s', verticalAlign: 'middle',
+                  boxShadow: isDropTarget && !hasWord ? `0 0 0 3px ${PURPLE}30` : 'none',
+                }}>
+                {hasWord ? mots[wi!] : '···'}
+                {submitted && hasWord && (correct
+                  ? <CheckCircle size={14} style={{ color: GREEN }} />
+                  : <XCircle size={14} style={{ color: RED }} />
                 )}
               </span>
             );
           })}
         </div>
 
-        {/* Correction révélée */}
+        {/* Instruction contextuelle */}
+        {!submitted && (
+          <p style={{ margin: '0 0 12px', fontSize: 12, color: selectedWordIdx !== null ? PURPLE : '#9ca3af', fontWeight: selectedWordIdx !== null ? 700 : 400, transition: 'color 0.2s' }}>
+            {selectedWordIdx !== null
+              ? `"${mots[selectedWordIdx]}" sélectionné — clique sur un emplacement pour le placer`
+              : 'Clique sur un mot ci-dessous pour le sélectionner, puis sur un emplacement'}
+          </p>
+        )}
+
+        {/* Banque de mots */}
+        {!submitted && (
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 20 }}>
+            {mots.map((mot, wi) => {
+              const isPlaced = usedWordIndices.has(wi);
+              const isSelected = selectedWordIdx === wi;
+              return (
+                <button key={wi} onClick={() => handleWordClick(wi)}
+                  style={{
+                    padding: '9px 18px', fontWeight: 700, fontSize: 14,
+                    border: `2px solid ${isSelected ? PURPLE : isPlaced ? '#e5e7eb' : `${PURPLE}55`}`,
+                    background: isSelected ? PURPLE : isPlaced ? '#f3f4f6' : `${PURPLE}08`,
+                    color: isSelected ? 'white' : isPlaced ? '#c4b5fd' : PURPLE,
+                    cursor: isPlaced ? 'default' : 'pointer',
+                    opacity: isPlaced ? 0.45 : 1,
+                    transition: 'all 0.15s',
+                    transform: isSelected ? 'scale(1.06)' : 'scale(1)',
+                    boxShadow: isSelected ? `0 4px 12px ${PURPLE}40` : 'none',
+                  }}>
+                  {mot}
+                  {isPlaced && <span style={{ marginLeft: 6, fontSize: 11 }}>✓</span>}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Correction après soumission */}
         <AnimatePresence>
           {submitted && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
               {!allCorrect && (
-                <div style={{ marginBottom: 14 }}>
-                  <p style={{ margin: '0 0 8px', fontSize: 12, fontWeight: 700, color: RED, textTransform: 'uppercase', letterSpacing: 1 }}>Réponses attendues</p>
+                <div style={{ marginBottom: 12 }}>
+                  <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1 }}>Ordre attendu</p>
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {mots.map((mot, i) => (
-                      <span key={i} style={{ padding: '4px 12px', background: `${GREEN}15`, border: `1px solid ${GREEN}`, color: GREEN, fontSize: 14, fontWeight: 700 }}>
+                      <span key={i} style={{ padding: '4px 12px', background: `${GREEN}15`, border: `1px solid ${GREEN}50`, color: GREEN, fontSize: 14, fontWeight: 700 }}>
                         {i + 1}. {mot}
                       </span>
                     ))}
                   </div>
                 </div>
               )}
-              <div style={{ padding: '14px 18px', background: allCorrect ? `${GREEN}10` : `${PURPLE}08`, borderLeft: `3px solid ${allCorrect ? GREEN : PURPLE}` }}>
+              <div style={{ padding: '14px 18px', background: allCorrect ? `${GREEN}10` : `${PURPLE}06`, borderLeft: `3px solid ${allCorrect ? GREEN : PURPLE}` }}>
                 <p style={{ margin: '0 0 4px', fontSize: 12, fontWeight: 700, color: allCorrect ? GREEN : PURPLE, textTransform: 'uppercase', letterSpacing: 1 }}>
-                  {allCorrect ? '✓ Parfait ! ' : 'Explication'}
+                  {allCorrect ? '✓ Parfait !' : 'Explication'}
                 </p>
                 <p style={{ margin: 0, fontSize: 14, color: '#374151', lineHeight: 1.7 }}>{slide.explication}</p>
               </div>
@@ -883,36 +956,35 @@ function FillBlankSlide({ slide, inputs, onInputChange, submitted, onSubmit }: {
           )}
         </AnimatePresence>
 
+        {/* Actions */}
         {!submitted && (
-          <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-              <button onClick={onSubmit} disabled={!allFilled}
-                style={{ padding: '12px 32px', border: 'none', background: allFilled ? PURPLE : '#e5e7eb', color: 'white', cursor: allFilled ? 'pointer' : 'not-allowed', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <PenLine size={16} /> Valider mes réponses
-              </button>
-              <button onClick={() => setShowAnswers(s => !s)}
-                style={{ padding: '10px 20px', border: `1px solid ${PURPLE}40`, background: showAnswers ? `${PURPLE}10` : 'transparent', color: PURPLE, cursor: 'pointer', fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Eye size={14} /> {showAnswers ? 'Masquer les réponses' : 'Voir les réponses'}
-              </button>
-            </div>
-            <AnimatePresence>
-              {showAnswers && (
-                <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
-                  <div style={{ padding: '14px 18px', background: `${PURPLE}08`, border: `1px solid ${PURPLE}30`, borderLeft: `3px solid ${PURPLE}` }}>
-                    <p style={{ margin: '0 0 10px', fontSize: 11, fontWeight: 700, color: PURPLE, textTransform: 'uppercase', letterSpacing: 1.5 }}>Réponses attendues</p>
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                      {mots.map((mot, i) => (
-                        <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 12px', background: `${PURPLE}15`, border: `1px solid ${PURPLE}40`, color: PURPLE, fontSize: 14, fontWeight: 700 }}>
-                          <span style={{ fontSize: 11, opacity: 0.6 }}>Blanc {i + 1} :</span> {mot}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', marginTop: 4 }}>
+            <button onClick={onSubmit} disabled={!allFilled}
+              style={{ padding: '12px 32px', border: 'none', background: allFilled ? PURPLE : '#e5e7eb', color: 'white', cursor: allFilled ? 'pointer' : 'not-allowed', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8, transition: 'background 0.2s' }}>
+              <PenLine size={16} /> Valider mes réponses
+            </button>
+            <button onClick={() => setShowAnswers(s => !s)}
+              style={{ padding: '10px 18px', border: `1px solid ${PURPLE}40`, background: showAnswers ? `${PURPLE}10` : 'transparent', color: PURPLE, cursor: 'pointer', fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Eye size={14} /> {showAnswers ? 'Masquer les réponses' : 'Voir les réponses'}
+            </button>
           </div>
         )}
+        <AnimatePresence>
+          {showAnswers && !submitted && (
+            <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} style={{ marginTop: 12 }}>
+              <div style={{ padding: '12px 16px', background: `${PURPLE}08`, border: `1px solid ${PURPLE}30`, borderLeft: `3px solid ${PURPLE}` }}>
+                <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, color: PURPLE, textTransform: 'uppercase', letterSpacing: 1.5 }}>Réponses attendues (dans l'ordre)</p>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {mots.map((mot, i) => (
+                    <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 12px', background: `${PURPLE}15`, border: `1px solid ${PURPLE}40`, color: PURPLE, fontSize: 14, fontWeight: 700 }}>
+                      <span style={{ fontSize: 10, opacity: 0.55 }}>Blanc {i + 1} :</span> {mot}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
