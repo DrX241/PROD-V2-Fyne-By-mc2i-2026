@@ -369,7 +369,7 @@ export default function LessonPlayer() {
       </div>
 
       {/* Footer navigation */}
-      <div style={{ background: 'white', borderTop: '1px solid #e5e7eb', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'white', borderTop: '1px solid #e5e7eb', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', bottom: 0, zIndex: 40 }}>
         <button onClick={goPrev} disabled={currentIdx === 0}
           style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', border: '1px solid #e5e7eb', background: 'white', cursor: currentIdx === 0 ? 'not-allowed' : 'pointer', opacity: currentIdx === 0 ? 0.4 : 1, fontWeight: 500, fontSize: 14, color: DARK }}>
           <ChevronLeft size={18} /> Précédent
