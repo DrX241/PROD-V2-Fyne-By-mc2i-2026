@@ -220,57 +220,76 @@ const CyberHomePage: React.FC = () => {
         </section>
         
         {/* Section Modules */}
-        <section id="modules" className="relative z-20 py-16 bg-[#f5f5f5]">
+        <section id="modules" className="relative z-20 py-20 bg-[#061019]">
           <div className="container mx-auto px-8">
-            <div className="flex items-end justify-between mb-10 border-b border-gray-300 pb-6">
+            {/* Header */}
+            <div className="flex items-end justify-between mb-12">
               <div>
-                <span className="text-xs font-bold uppercase tracking-widest text-[#006a9e] mb-2 block">Modules Exclusifs</span>
-                <h2 className="text-3xl md:text-4xl font-black tracking-tight text-[#061019]">
-                  Des <span className="text-[#dd0061]">formations</span> pour tous les besoins
+                <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#dd0061] mb-3 block">— Modules Exclusifs</span>
+                <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white leading-none">
+                  Des formations<br />
+                  <span className="text-[#006a9e]">pour tous les besoins</span>
                 </h2>
               </div>
+              <div className="hidden md:block text-right">
+                <span className="text-xs text-white/30 uppercase tracking-widest">04 modules</span>
+              </div>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-px bg-gray-300 border border-gray-300 mx-auto max-w-7xl">
-              {modules.map((module) => {
+
+            {/* Cards grid */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-px bg-white/10 border border-white/10 mx-auto max-w-7xl">
+              {modules.map((module, idx) => {
                 const accentHex =
                   module.id === 'cyber' ? '#6366f1' :
                   module.id === 'data' ? '#a855f7' :
-                  module.id === 'mc2i' ? '#10b981' : '#f43f5e';
+                  module.id === 'mc2i' ? '#10b981' : '#dd0061';
+                const isHovered = hoveredModule === module.id;
                 return (
                   <motion.div
                     key={module.id}
-                    className="bg-white overflow-hidden transition-all duration-200 flex flex-col"
+                    className="relative overflow-hidden flex flex-col"
                     onMouseEnter={() => setHoveredModule(module.id)}
                     onMouseLeave={() => setHoveredModule(null)}
-                    whileHover={{ backgroundColor: '#fafafa' }}
-                    initial={{ opacity: 0, y: 16 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25 }}
+                    transition={{ duration: 0.3, delay: idx * 0.07 }}
                     onClick={() => !module.comingSoon && setLocation(module.route)}
-                    style={{ cursor: module.comingSoon ? 'default' : 'pointer' }}
+                    style={{
+                      cursor: module.comingSoon ? 'default' : 'pointer',
+                      background: isHovered ? accentHex : '#0d1f2d',
+                      transition: 'background 0.3s ease',
+                    }}
                   >
-                    {/* Accent bar */}
-                    <div style={{ height: 3, background: accentHex }} />
+                    {/* Large index number */}
+                    <div
+                      className="absolute top-4 right-4 text-7xl font-black leading-none select-none pointer-events-none"
+                      style={{ color: isHovered ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.05)', transition: 'color 0.3s ease' }}
+                    >
+                      {String(idx + 1).padStart(2, '0')}
+                    </div>
 
-                    <div className="p-6 flex flex-col flex-1">
-                      {/* Icon dot */}
-                      <div className="w-8 h-8 flex items-center justify-center mb-5 border border-gray-200"
-                        style={{ background: `${accentHex}10` }}>
-                        <div style={{ width: 10, height: 10, background: accentHex }} />
-                      </div>
+                    <div className="p-7 flex flex-col flex-1 relative z-10">
+                      {/* Top accent line */}
+                      <div style={{ width: 32, height: 2, background: isHovered ? 'rgba(255,255,255,0.6)' : accentHex, marginBottom: 24, transition: 'all 0.3s ease' }} />
 
-                      <h3 className="text-sm font-black uppercase tracking-widest mb-3 text-[#061019]">{module.title}</h3>
-                      <p className="text-xs text-gray-500 leading-relaxed mb-6 flex-1">{module.description}</p>
+                      <h3 className="text-xs font-black uppercase tracking-[0.15em] mb-4 text-white leading-tight">{module.title}</h3>
+                      <p className="text-xs leading-relaxed mb-8 flex-1" style={{ color: isHovered ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.45)' }}>
+                        {module.description}
+                      </p>
 
-                      <div className="flex items-center text-xs font-bold uppercase tracking-widest">
+                      <div className="flex items-center gap-2">
                         {module.comingSoon ? (
-                          <span className="text-gray-400">Sur devis</span>
+                          <span className="text-xs text-white/30 uppercase tracking-widest">Sur devis</span>
                         ) : (
-                          <>
-                            <span style={{ color: accentHex }}>Explorer</span>
-                            <ChevronRight className="ml-1 w-3 h-3" style={{ color: accentHex }} />
-                          </>
+                          <span
+                            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-2 transition-all duration-300"
+                            style={{
+                              background: isHovered ? 'rgba(0,0,0,0.2)' : accentHex,
+                              color: 'white',
+                            }}
+                          >
+                            Explorer <ArrowRight size={12} />
+                          </span>
                         )}
                       </div>
                     </div>
