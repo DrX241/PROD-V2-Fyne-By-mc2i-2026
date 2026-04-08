@@ -121,12 +121,12 @@ export default function LessonPlayer() {
       .then(data => {
         const content = data.content;
         if (!content?.slides || !Array.isArray(content.slides)) {
-          setError('Cette leçon n\'a pas pu être chargée.');
+          setError('Ce micro learning n\'a pas pu être chargé.');
           return;
         }
         setLesson(content as Lesson);
       })
-      .catch(() => setError('Leçon introuvable.'));
+      .catch(() => setError('Module introuvable.'));
   }, [id]);
 
   if (error) return (
@@ -141,7 +141,7 @@ export default function LessonPlayer() {
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       <div style={{ textAlign: 'center' }}>
         <div style={{ width: 48, height: 48, border: `3px solid ${BLUE}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
-        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>Chargement de la leçon...</p>
+        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>Chargement du micro learning...</p>
       </div>
     </div>
   );
@@ -158,7 +158,7 @@ export default function LessonPlayer() {
       setCurrentIdx(i => {
         const next = i + 1;
         if (!slideXpEarned.has(next)) {
-          gainXp(5, 'Slide suivante');
+          gainXp(5, 'Étape suivante');
           setSlideXpEarned(prev => new Set(prev).add(next));
         }
         return next;
@@ -166,7 +166,7 @@ export default function LessonPlayer() {
     } else if (hasQcm) {
       setPhase('qcm');
       setAnswers(new Array(lesson.qcm!.length).fill(null));
-      gainXp(20, 'Slides terminées !');
+      gainXp(20, 'Modules terminés !');
     } else {
       setPhase('score');
     }
@@ -412,7 +412,7 @@ export default function LessonPlayer() {
       : 0;
     const pct = questions.length > 0 ? Math.round((score / questions.length) * 100) : 100;
     const mention = pct >= 90 ? 'Maître !' : pct >= 75 ? 'Excellent !' : pct >= 60 ? 'Bien joué !' : pct >= 40 ? 'En progression' : 'À retravailler';
-    const badge = pct >= 90 ? { label: 'Maître de la leçon', color: '#f59e0b' }
+    const badge = pct >= 90 ? { label: 'Maître du module', color: '#f59e0b' }
                 : pct >= 75 ? { label: 'Expert validé', color: GREEN }
                 : pct >= 60 ? { label: 'Objectif atteint', color: BLUE }
                 : pct >= 40 ? { label: 'En progression', color: '#f59e0b' }
@@ -630,7 +630,7 @@ export default function LessonPlayer() {
         </div>
         {hasQcm && (
           <span style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: `rgba(221,0,97,0.08)`, color: PINK, fontSize: 11, fontWeight: 600 }}>
-            <HelpCircle size={11} /> QCM après les slides
+            <HelpCircle size={11} /> QCM après les modules
           </span>
         )}
         {xp > 0 && (
@@ -759,7 +759,7 @@ function IntroSlide({ slide }: { slide: SlideIntro }) {
         <h1 style={{ margin: '0 0 16px', fontSize: 36, fontWeight: 700, color: 'white', lineHeight: 1.2 }}>{slide.titre}</h1>
         <p style={{ margin: '0 0 40px', fontSize: 16, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>{slide.contenu}</p>
         <div>
-          <p style={{ margin: '0 0 16px', fontSize: 12, fontWeight: 600, color: BLUE, textTransform: 'uppercase', letterSpacing: 2 }}>Objectifs de cette leçon</p>
+          <p style={{ margin: '0 0 16px', fontSize: 12, fontWeight: 600, color: BLUE, textTransform: 'uppercase', letterSpacing: 2 }}>Objectifs de ce module</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             {slide.objectifs?.map((obj, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 16px', background: 'rgba(255,255,255,0.06)', borderLeft: `3px solid ${BLUE}` }}>

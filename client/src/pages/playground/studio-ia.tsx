@@ -159,7 +159,7 @@ export default function StudioIA() {
             <div className="h-4 w-px bg-gray-200" />
             <span className="font-bold text-sm" style={{ color: BLUE }}>FYNE</span>
             <div className="h-4 w-px bg-gray-200 hidden sm:block" />
-            <span className="text-sm text-gray-500 font-medium hidden sm:block">Studio IA · Leçon en slides</span>
+            <span className="text-sm text-gray-500 font-medium hidden sm:block">Studio IA · Micro Learning</span>
           </div>
           <span className="text-xs text-gray-400 font-medium">
             {step === 'pitch' ? '1/3' : step === 'config' ? '2/3' : step === 'plan' ? '3/3' : '…'}
@@ -252,7 +252,7 @@ export default function StudioIA() {
 
                   <div className="border-l-2 pl-4 py-1" style={{ borderColor: PINK }}>
                     <p className="text-sm text-gray-500">
-                      Plus votre pitch est précis, plus la leçon sera pertinente et directement utilisable.
+                      Plus votre pitch est précis, plus le micro learning sera pertinent et directement utilisable.
                     </p>
                   </div>
 
@@ -279,7 +279,7 @@ export default function StudioIA() {
                   Étape 2 · Paramètres
                 </div>
                 <h1 className="text-4xl font-black tracking-tight mb-4" style={{ color: DARK }}>
-                  Paramétrez<br /><span style={{ color: PINK }}>la leçon</span>
+                  Paramétrez<br /><span style={{ color: PINK }}>le module</span>
                 </h1>
                 <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
 
@@ -361,7 +361,7 @@ export default function StudioIA() {
                     className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity"
                     style={{ background: PINK }}
                   >
-                    <Sparkles size={18} /> Voir le plan de la leçon
+                    <Sparkles size={18} /> Voir le plan du module
                   </button>
                 </div>
               </div>
@@ -426,7 +426,7 @@ export default function StudioIA() {
                         className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity"
                         style={{ background: PINK }}
                       >
-                        <Sparkles size={18} /> Générer la leçon complète
+                        <Sparkles size={18} /> Générer le micro learning
                       </button>
                       <button
                         onClick={goToPlan}

@@ -30,7 +30,7 @@ function sourceLabel(source: string) {
   if (source === 'prompt') return 'IA from scratch';
   if (source === 'documents') return 'Documents';
   if (source === 'url') return 'URL / Site web';
-  if (source === 'lesson') return 'Leçon en slides';
+  if (source === 'lesson') return 'Micro Learning';
   return source;
 }
 
@@ -78,10 +78,10 @@ export default function ModuleGenerator() {
       id: 'ia',
       badge: 'IA from scratch',
       title: 'Générer avec l\'IA',
-      description: 'Décrivez votre besoin en quelques mots. L\'IA génère une leçon complète en slides théorie/pratique avec un QCM de validation, adaptée à votre public.',
+      description: 'Décrivez votre besoin en quelques mots. L\'IA génère un micro learning interactif théorie/pratique avec un QCM de validation, adapté à votre public.',
       bullets: [
         'Pitchez votre besoin en langage naturel',
-        'Slides théorie alternées avec pratique',
+        'Modules théorie alternés avec pratique',
         'QCM de 5 questions à la fin',
         'Prêt en moins de 60 secondes',
       ],
@@ -92,10 +92,10 @@ export default function ModuleGenerator() {
       id: 'docs',
       badge: 'Depuis vos documents',
       title: 'Importer mes contenus',
-      description: 'Apportez vos supports existants — PDF, PowerPoint, Word. L\'IA les transforme en leçon interactive avec slides théorie/pratique et QCM de validation.',
+      description: 'Apportez vos supports existants — PDF, PowerPoint, Word. L\'IA les transforme en micro learning interactif théorie/pratique et QCM de validation.',
       bullets: [
         'PDF, PowerPoint, Word acceptés',
-        'Slides théorie alternées avec pratique',
+        'Modules théorie alternés avec pratique',
         'QCM de 5 questions à la fin',
         'Contenu fidèle à vos documents',
       ],
@@ -135,12 +135,12 @@ export default function ModuleGenerator() {
             </div>
             <h1 className="text-5xl lg:text-6xl font-black tracking-tight leading-none mb-4">
               <span style={{ color: PINK }}>Créez votre</span><br />
-              <span style={{ color: DARK }}>leçon</span><br />
-              <span style={{ color: PINK }}>en slides</span>
+              <span style={{ color: DARK }}>micro</span><br />
+              <span style={{ color: PINK }}>learning</span>
             </h1>
             <div className="w-16 h-1 mb-6" style={{ background: PINK }} />
             <p className="text-lg text-gray-600 leading-relaxed max-w-xl">
-              Deux approches, même résultat : une leçon interactive avec slides théorie/pratique et QCM de validation, prête en quelques minutes.
+              Deux approches, même résultat : un micro learning interactif théorie/pratique et QCM de validation, prêt en quelques minutes.
             </p>
           </div>
 
@@ -198,7 +198,7 @@ export default function ModuleGenerator() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <Library size={18} style={{ color: PINK }} />
-                <h2 className="text-xl font-black" style={{ color: DARK }}>Leçons sauvegardées</h2>
+                <h2 className="text-xl font-black" style={{ color: DARK }}>Modules sauvegardés</h2>
               </div>
               {trainings.length > 0 && (
                 <span className="text-xs font-bold px-2 py-1"
@@ -260,7 +260,7 @@ export default function ModuleGenerator() {
                             onClick={() => setLocation(playerRoute(t))}
                             className="inline-flex items-center gap-1.5 px-4 py-2 text-white font-bold text-xs hover:opacity-90 transition-opacity"
                             style={{ background: t.source === 'lesson' ? PINK : BLUE }}>
-                            <Play size={13} /> {t.source === 'lesson' ? 'Voir la leçon' : 'Jouer'}
+                            <Play size={13} /> {t.source === 'lesson' ? 'Voir le module' : 'Jouer'}
                           </button>
                           <button
                             onClick={(e) => handleDelete(t.id, e)}

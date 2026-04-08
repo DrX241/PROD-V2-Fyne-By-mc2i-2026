@@ -55,7 +55,7 @@ const FILE_STEPS = [
 
 const LESSON_STEPS = [
   'Lecture des documents...', 'Extraction du contenu...', 'Identification des concepts clés...',
-  'Structuration de la leçon...', 'Génération des slides théorie...', 'Génération des slides pratique...', 'Finalisation de la leçon...',
+  'Structuration du module...', 'Génération des modules théorie...', 'Génération des modules pratique...', 'Finalisation du micro learning...',
 ];
 
 const URL_STEPS = [
@@ -161,7 +161,7 @@ export default function StudioDocuments() {
         setTimeout(() => { setLocation(`/playground/lesson/${data.id}`); }, 600);
       } catch (err: any) {
         clearInterval(interval);
-        toast({ title: 'Erreur', description: err.message || 'La génération de la leçon a échoué.', variant: 'destructive' });
+        toast({ title: 'Erreur', description: err.message || 'La génération du micro learning a échoué.', variant: 'destructive' });
         setStep('config');
       }
       return;
@@ -262,7 +262,7 @@ export default function StudioDocuments() {
                 </div>
                 <h1 className="text-4xl lg:text-5xl font-black tracking-tight mb-4 leading-tight">
                   <span style={{ color: PINK }}>Créez</span><br />
-                  <span style={{ color: DARK }}>votre leçon en slides</span>
+                  <span style={{ color: DARK }}>votre micro learning</span>
                 </h1>
                 <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
 
@@ -270,7 +270,7 @@ export default function StudioDocuments() {
                 <div className="mb-6">
                   <div className="flex items-center gap-2 px-3 py-2" style={{ background: `${PINK}08`, border: `1px solid ${PINK}30` }}>
                     <Layers size={14} style={{ color: PINK }} />
-                    <p className="text-xs text-gray-600">Importez vos documents (PDF, PowerPoint, Word, TXT) — la leçon sera générée en slides théorie/pratique</p>
+                    <p className="text-xs text-gray-600">Importez vos documents (PDF, PowerPoint, Word, TXT) — le micro learning sera généré en modules théorie/pratique</p>
                   </div>
                 </div>
 
@@ -415,12 +415,12 @@ export default function StudioDocuments() {
                         )}
                         {previewData.overallQuality === 'low' && (
                           <p className="text-xs text-gray-600 mt-1">
-                            Peu de texte extrait — le PDF est peut-être un scan ou contient surtout des images. La leçon pourrait manquer de contenu.
+                            Peu de texte extrait — le PDF est peut-être un scan ou contient surtout des images. Le module pourrait manquer de contenu.
                           </p>
                         )}
                         {(previewData.overallQuality === 'ok' || previewData.overallQuality === 'good') && (
                           <p className="text-xs text-gray-600 mt-1">
-                            Le contenu est bien lisible et exploitable pour générer une leçon pertinente.
+                            Le contenu est bien lisible et exploitable pour générer un module pertinent.
                           </p>
                         )}
                       </div>
@@ -469,7 +469,7 @@ export default function StudioDocuments() {
                     disabled={previewData.overallQuality === 'unreadable'}
                     className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
                     style={{ background: previewData.overallQuality === 'unreadable' ? '#9ca3af' : BLUE }}>
-                    Configurer la leçon <ArrowRight size={18} />
+                    Configurer le module <ArrowRight size={18} />
                   </button>
                   <button onClick={() => setStep('upload')}
                     className="inline-flex items-center gap-2 px-5 py-4 border border-gray-300 text-sm font-medium text-gray-600 hover:border-gray-400 transition-colors">
@@ -490,7 +490,7 @@ export default function StudioDocuments() {
                   Étape 2 · Configuration
                 </div>
                 <h1 className="text-4xl font-black tracking-tight mb-4" style={{ color: DARK }}>
-                  Configurez<br /><span style={{ color: outputMode === 'lecon' ? PINK : BLUE }}>{outputMode === 'lecon' ? 'la leçon' : 'la formation'}</span>
+                  Configurez<br /><span style={{ color: outputMode === 'lecon' ? PINK : BLUE }}>{outputMode === 'lecon' ? 'le module' : 'la formation'}</span>
                 </h1>
                 <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
 
@@ -561,7 +561,7 @@ export default function StudioDocuments() {
                   <button onClick={generate}
                     className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity"
                     style={{ background: outputMode === 'lecon' ? PINK : BLUE }}>
-                    <FileUp size={18} /> {outputMode === 'lecon' ? 'Générer la leçon en slides' : 'Générer la formation'}
+                    <FileUp size={18} /> {outputMode === 'lecon' ? 'Générer le micro learning' : 'Générer la formation'}
                   </button>
                 </div>
               </div>
