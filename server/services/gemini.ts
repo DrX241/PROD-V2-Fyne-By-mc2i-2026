@@ -9,6 +9,7 @@ export type ApiKeyType = 'primary' | 'secondary';
 
 class GeminiService {
   private apiKey: string;
+  private apiKey2: string;
   private baseUrl: string;
   private currentConfig: ApiKeyType = 'secondary';
   private responseCache: Map<string, CachedResponse> = new Map();
@@ -19,10 +20,12 @@ class GeminiService {
 
   constructor() {
     this.apiKey = process.env.GEMINI_API_KEY || "";
+    this.apiKey2 = process.env.GEMINI_API_KEY_2 || "";
     this.baseUrl = "https://generativelanguage.googleapis.com/v1beta/models";
 
     console.log("Initializing Gemini FYNE Service");
     console.log(`Gemini API Key: ***${this.apiKey ? this.apiKey.slice(-5) : "non définie"}`);
+    console.log(`Gemini API Key 2: ***${this.apiKey2 ? this.apiKey2.slice(-5) : "non définie"}`);
 
     if (!this.apiKey) {
       console.error("ERREUR: Aucune clé API Gemini fournie (GEMINI_API_KEY)");
@@ -61,10 +64,13 @@ class GeminiService {
       }
 
       const response = await fetch(
-        `${this.baseUrl}/gemini-2.5-flash:generateContent?key=${this.apiKey}`,
+        `${this.baseUrl}/gemini-2.5-flash:generateContent`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': this.apiKey,
+          },
           body: JSON.stringify({
             contents: [{ parts: [{ text: "Hello" }] }],
             generationConfig: { maxOutputTokens: 5 }
@@ -170,9 +176,10 @@ class GeminiService {
     return this.callGemini(messages, temperature, actualMaxTokens, responseFormat);
   }
 
-  private readonly MODEL_CHAIN = [
-    'gemini-2.5-flash',
-    'gemini-2.0-flash-lite',
+  private readonly MODEL_CHAIN: Array<{ model: string; keySlot: 1 | 2 }> = [
+    { model: 'gemini-2.5-flash',    keySlot: 1 },  // clé 1 — primaire
+    { model: 'gemini-flash-latest', keySlot: 2 },  // clé 2 — Gemini 3 Flash
+    { model: 'gemini-2.5-flash',    keySlot: 2 },  // clé 2 — dernier recours
   ];
 
   private async callGeminiModel(
@@ -181,8 +188,10 @@ class GeminiService {
     systemInstruction: string,
     temperature: number,
     maxTokens: number,
-    responseFormat?: string
+    responseFormat?: string,
+    apiKey?: string
   ): Promise<string> {
+    const key = apiKey || this.apiKey;
     const generationConfig: any = { temperature, maxOutputTokens: maxTokens };
     if (responseFormat === 'json_object') {
       generationConfig.responseMimeType = 'application/json';
@@ -200,10 +209,13 @@ class GeminiService {
 
     try {
       const response = await fetch(
-        `${this.baseUrl}/${model}:generateContent?key=${this.apiKey}`,
+        `${this.baseUrl}/${model}:generateContent`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': key,
+          },
           body: JSON.stringify(requestBody),
           signal: controller.signal,
         }
@@ -255,41 +267,46 @@ class GeminiService {
     let lastError: Error = new Error('Aucun modèle disponible');
 
     for (let modelIdx = 0; modelIdx < this.MODEL_CHAIN.length; modelIdx++) {
-      const model = this.MODEL_CHAIN[modelIdx];
+      const { model, keySlot } = this.MODEL_CHAIN[modelIdx];
+      const apiKey = keySlot === 2 ? this.apiKey2 : this.apiKey;
       const maxRetries = 2;
+
+      // Sauter si la clé requise n'est pas configurée
+      if (!apiKey) {
+        console.warn(`[Gemini] Clé ${keySlot} non configurée, passage au suivant`);
+        continue;
+      }
 
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
           if (attempt > 0) {
-            console.log(`[Gemini] Retry ${attempt}/${maxRetries} pour ${model}...`);
+            console.log(`[Gemini] Retry ${attempt}/${maxRetries} pour ${model} (clé ${keySlot})...`);
           } else {
-            console.log(`[Gemini] Tentative avec le modèle: ${model}`);
+            console.log(`[Gemini] Tentative avec le modèle: ${model} (clé ${keySlot})`);
           }
-          const result = await this.callGeminiModel(model, geminiContents, systemInstruction, temperature, maxTokens, responseFormat);
+          const result = await this.callGeminiModel(model, geminiContents, systemInstruction, temperature, maxTokens, responseFormat, apiKey);
           this.connectionStatus = 'connected';
           this.lastConnectionCheck = Date.now();
-          if (modelIdx > 0) console.log(`[Gemini] ✓ Succès avec le modèle de secours: ${model}`);
+          if (modelIdx > 0) console.log(`[Gemini] ✓ Succès avec le modèle de secours: ${model} (clé ${keySlot})`);
           return result;
         } catch (error: any) {
           lastError = error instanceof Error ? error : new Error(String(error));
           const is503 = lastError.message.includes('503') || lastError.message.toLowerCase().includes('unavailable') || lastError.message.toLowerCase().includes('high dem');
           const is404 = lastError.message.includes('404') || lastError.message.toLowerCase().includes('not found');
-          const isRateLimit = lastError.message.includes('429') || lastError.message.toLowerCase().includes('quota');
 
           if (is404) {
-            // Modèle indisponible définitivement, passer au suivant sans retry
             console.warn(`[Gemini] ✗ Modèle ${model} introuvable (404), passage au suivant`);
             break;
           }
 
           if (is503 && attempt < maxRetries) {
             const retryDelay = (attempt + 1) * 3000;
-            console.warn(`[Gemini] ✗ Modèle ${model} surchargé (503), retry dans ${retryDelay}ms...`);
+            console.warn(`[Gemini] ✗ ${model} surchargé (503), retry dans ${retryDelay}ms...`);
             await new Promise(r => setTimeout(r, retryDelay));
             continue;
           }
 
-          console.warn(`[Gemini] ✗ Modèle ${model} échoué: ${lastError.message.slice(0, 120)}`);
+          console.warn(`[Gemini] ✗ Modèle ${model} (clé ${keySlot}) échoué: ${lastError.message.slice(0, 120)}`);
           break;
         }
       }
