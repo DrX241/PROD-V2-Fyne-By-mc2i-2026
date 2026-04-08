@@ -7042,6 +7042,73 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
     }
   });
 
+  // ─── DATA CHALLENGE: génération de question 1v1 via Gemini ───────────────
+  app.post('/api/data-challenge/question', async (req: Request, res: Response) => {
+    try {
+      const { tech, difficulty, previousQuestions = [] } = req.body;
+      if (!tech || !difficulty) {
+        return res.status(400).json({ error: 'tech et difficulty requis' });
+      }
+
+      const techLabels: Record<string, string> = {
+        sql: 'SQL (requêtes, jointures, agrégations, indexes, optimisation, SGBD)',
+        powerbi: 'Power BI (DAX, modélisation de données, visuels, Power Query, performance)',
+        python: 'Python (pandas, numpy, logique, structures de données, algorithmique, data science)',
+        excel: 'Excel (formules avancées, tableaux croisés dynamiques, Power Query, VBA, bonnes pratiques)',
+      };
+
+      const difficultyMap: Record<string, string> = {
+        'débutant': 'débutant (concepts de base, syntaxe simple)',
+        'intermédiaire': 'intermédiaire (concepts avancés, cas pratiques)',
+        'expert': 'expert (optimisation, edge cases, architecture, best practices)',
+      };
+
+      const avoidList = previousQuestions.length > 0
+        ? `\n\nÉvite absolument ces thèmes déjà couverts: ${previousQuestions.slice(-5).join('; ')}`
+        : '';
+
+      const prompt = `Tu es un expert formateur en ${techLabels[tech] || tech}.
+Génère UNE question de niveau ${difficultyMap[difficulty] || difficulty} pour un consultant mc2i.
+La question doit être précise, technique, et basée sur des situations réelles de consulting.${avoidList}
+
+RÉPONDS UNIQUEMENT en JSON valide avec exactement ce format (pas de markdown, pas de backticks):
+{
+  "question": "La question précise ici",
+  "choices": ["Choix A", "Choix B", "Choix C", "Choix D"],
+  "correct": 0,
+  "explanation": "Explication concise et pédagogique de la bonne réponse (2-3 phrases max)"
+}
+
+Règles:
+- "correct" est l'index 0-3 de la bonne réponse dans "choices"
+- Les 4 choix doivent être plausibles mais un seul correct
+- La question doit être en français
+- Pas de question trop évidente ni trop obscure`;
+
+      const messages = [{ role: 'user' as const, content: prompt }];
+      const rawResponse = await geminiService.getChatCompletionWithCache(messages, 0.7, 600, false);
+
+      let parsed;
+      try {
+        const cleaned = rawResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        parsed = JSON.parse(cleaned);
+      } catch {
+        const jsonMatch = rawResponse.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('Impossible de parser la réponse Gemini');
+        parsed = JSON.parse(jsonMatch[0]);
+      }
+
+      if (!parsed.question || !Array.isArray(parsed.choices) || parsed.choices.length !== 4 || parsed.correct === undefined) {
+        throw new Error('Format de question invalide');
+      }
+
+      res.json(parsed);
+    } catch (error: any) {
+      console.error('[DataChallenge] Erreur génération question:', error?.message);
+      res.status(500).json({ error: 'Erreur lors de la génération de la question. Réessayez.' });
+    }
+  });
+
   // Additional route handlers can be added here
 
   return createServer(app);
