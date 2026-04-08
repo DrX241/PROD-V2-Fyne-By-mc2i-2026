@@ -7051,61 +7051,108 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
       }
 
       const techLabels: Record<string, string> = {
-        sql: 'SQL (requêtes, jointures, agrégations, indexes, optimisation, SGBD)',
-        powerbi: 'Power BI (DAX, modélisation de données, visuels, Power Query, performance)',
-        python: 'Python (pandas, numpy, logique, structures de données, algorithmique, data science)',
-        excel: 'Excel (formules avancées, tableaux croisés dynamiques, Power Query, VBA, bonnes pratiques)',
-      };
-
-      const difficultyMap: Record<string, string> = {
-        'débutant': 'débutant (concepts de base, syntaxe simple)',
-        'intermédiaire': 'intermédiaire (concepts avancés, cas pratiques)',
-        'expert': 'expert (optimisation, edge cases, architecture, best practices)',
+        sql: 'SQL (requêtes, jointures, agrégations, indexes, optimisation de requêtes)',
+        powerbi: 'Power BI (DAX, modélisation, visuels, Power Query)',
+        python: 'Python data science (pandas, numpy, structures de données, algorithmique)',
+        excel: 'Excel avancé (formules, tableaux croisés dynamiques, Power Query)',
       };
 
       const avoidList = previousQuestions.length > 0
-        ? `\n\nÉvite absolument ces thèmes déjà couverts: ${previousQuestions.slice(-5).join('; ')}`
+        ? `Evite ces sujets déjà traités: ${previousQuestions.slice(-4).join(' | ')}.`
         : '';
 
-      const prompt = `Tu es un expert formateur en ${techLabels[tech] || tech}.
-Génère UNE question de niveau ${difficultyMap[difficulty] || difficulty} pour un consultant mc2i.
-La question doit être précise, technique, et basée sur des situations réelles de consulting.${avoidList}
+      // Message système séparé pour guider le format
+      const systemMsg: ChatCompletionRequestMessage = {
+        role: 'system',
+        content: `Tu es un expert en formation ${techLabels[tech] || tech} pour des consultants data.
+Ta seule tâche est de générer des questions de quiz en JSON.
+Tu DOIS toujours répondre avec un objet JSON valide et RIEN D'AUTRE.
+Aucun texte avant ou après le JSON. Pas de markdown. Pas de backticks. Pas d'explication.
+Format obligatoire:
+{"question":"...","choices":["A","B","C","D"],"correct":0,"explanation":"..."}`
+      };
 
-RÉPONDS UNIQUEMENT en JSON valide avec exactement ce format (pas de markdown, pas de backticks):
-{
-  "question": "La question précise ici",
-  "choices": ["Choix A", "Choix B", "Choix C", "Choix D"],
-  "correct": 0,
-  "explanation": "Explication concise et pédagogique de la bonne réponse (2-3 phrases max)"
-}
+      // Nonce unique pour contourner le cache (chaque question doit être unique)
+      const nonce = Date.now();
+      const userMsg: ChatCompletionRequestMessage = {
+        role: 'user',
+        content: `Génère UNE question QCM de niveau ${difficulty} sur ${techLabels[tech] || tech}.
+${avoidList}
+La question doit être précise et technique. Les 4 choix doivent être plausibles.
+"correct" = index 0-3 de la bonne réponse. Explication: 1-2 phrases max. Tout en français.
+[ref:${nonce}]`
+      };
 
-Règles:
-- "correct" est l'index 0-3 de la bonne réponse dans "choices"
-- Les 4 choix doivent être plausibles mais un seul correct
-- La question doit être en français
-- Pas de question trop évidente ni trop obscure`;
+      const messages = [systemMsg, userMsg];
+      const rawResponse = await geminiService.getChatCompletionWithCache(messages, 0.3, 500, false);
 
-      const messages = [{ role: 'user' as const, content: prompt }];
-      const rawResponse = await geminiService.getChatCompletionWithCache(messages, 0.7, 600, false);
+      console.log('[DataChallenge] Raw response preview:', rawResponse.slice(0, 200));
 
-      let parsed;
-      try {
-        const cleaned = rawResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-        parsed = JSON.parse(cleaned);
-      } catch {
-        const jsonMatch = rawResponse.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error('Impossible de parser la réponse Gemini');
-        parsed = JSON.parse(jsonMatch[0]);
+      // Extraction JSON robuste — plusieurs stratégies
+      let parsed: any = null;
+      const strategies = [
+        // 1. Nettoyer markdown et parser directement
+        () => {
+          const cleaned = rawResponse
+            .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '')
+            .replace(/```json\s*/gi, '')
+            .replace(/```\s*/g, '')
+            .trim();
+          return JSON.parse(cleaned);
+        },
+        // 2. Extraire le premier objet JSON valide
+        () => {
+          const match = rawResponse.match(/\{[^{}]*"question"[^{}]*"choices"[^{}]*\}/s);
+          if (!match) throw new Error('no match');
+          return JSON.parse(match[0]);
+        },
+        // 3. Extraire n'importe quel objet JSON dans la réponse
+        () => {
+          const match = rawResponse.match(/\{[\s\S]*?\}/);
+          if (!match) throw new Error('no match');
+          return JSON.parse(match[0]);
+        },
+        // 4. Regex pour extraire champs individuels et reconstruire
+        () => {
+          const qMatch = rawResponse.match(/"question"\s*:\s*"([^"]+)"/);
+          const cMatch = rawResponse.match(/"choices"\s*:\s*\[([^\]]+)\]/);
+          const iMatch = rawResponse.match(/"correct"\s*:\s*(\d)/);
+          const eMatch = rawResponse.match(/"explanation"\s*:\s*"([^"]+)"/);
+          if (!qMatch || !cMatch || !iMatch) throw new Error('fields missing');
+          const choices = cMatch[1].match(/"([^"]+)"/g)?.map((s: string) => s.slice(1, -1)) || [];
+          return {
+            question: qMatch[1],
+            choices,
+            correct: parseInt(iMatch[1]),
+            explanation: eMatch ? eMatch[1] : '',
+          };
+        },
+      ];
+
+      for (const strategy of strategies) {
+        try {
+          const candidate = strategy();
+          if (
+            candidate?.question &&
+            Array.isArray(candidate?.choices) &&
+            candidate.choices.length === 4 &&
+            typeof candidate.correct === 'number'
+          ) {
+            parsed = candidate;
+            break;
+          }
+        } catch { /* essai suivant */ }
       }
 
-      if (!parsed.question || !Array.isArray(parsed.choices) || parsed.choices.length !== 4 || parsed.correct === undefined) {
-        throw new Error('Format de question invalide');
+      if (!parsed) {
+        console.error('[DataChallenge] Impossible de parser. Réponse brute:', rawResponse.slice(0, 400));
+        return res.status(500).json({ error: 'Réponse IA invalide. Réessayez.' });
       }
 
       res.json(parsed);
     } catch (error: any) {
-      console.error('[DataChallenge] Erreur génération question:', error?.message);
-      res.status(500).json({ error: 'Erreur lors de la génération de la question. Réessayez.' });
+      console.error('[DataChallenge] Erreur:', error?.message);
+      res.status(500).json({ error: 'Erreur lors de la génération. Réessayez.' });
     }
   });
 
