@@ -126,26 +126,24 @@ export default function ModuleGenerator() {
       </header>
 
       <main className="flex-1 pt-14">
-        <div className="max-w-5xl mx-auto px-6 lg:px-12 py-16 w-full">
+        <div className="max-w-5xl mx-auto px-6 lg:px-12 py-8 w-full">
           {/* Titre */}
-          <div className="mb-14">
-            <div className="text-xs font-bold uppercase tracking-widest mb-5 px-3 py-1 inline-block"
+          <div className="mb-8">
+            <div className="text-xs font-bold uppercase tracking-widest mb-3 px-3 py-1 inline-block"
               style={{ background: `${BLUE}12`, color: BLUE }}>
               Soyez qui vous voulez
             </div>
-            <h1 className="text-5xl lg:text-6xl font-black tracking-tight leading-none mb-4">
-              <span style={{ color: PINK }}>Créez votre</span><br />
-              <span style={{ color: DARK }}>micro</span><br />
-              <span style={{ color: PINK }}>learning</span>
+            <h1 className="text-4xl lg:text-5xl font-black tracking-tight leading-none mb-3">
+              <span style={{ color: PINK }}>Créez votre </span><span style={{ color: DARK }}>micro </span><span style={{ color: PINK }}>learning</span>
             </h1>
-            <div className="w-16 h-1 mb-6" style={{ background: PINK }} />
-            <p className="text-lg text-gray-600 leading-relaxed max-w-xl">
+            <div className="w-16 h-1 mb-4" style={{ background: PINK }} />
+            <p className="text-base text-gray-600 leading-relaxed max-w-xl">
               Deux approches, même résultat : un micro learning interactif théorie/pratique et QCM de validation, prêt en quelques minutes.
             </p>
           </div>
 
           {/* Cartes */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
             {cards.map((card, idx) => (
               <motion.div
                 key={card.id}
@@ -156,22 +154,22 @@ export default function ModuleGenerator() {
                 onClick={() => setLocation(card.route)}
                 className="cursor-pointer border border-gray-200 bg-white hover:border-gray-400 transition-all duration-200"
               >
-                <div className="p-8 flex flex-col h-full">
-                  <div className="flex items-start justify-between mb-6">
+                <div className="p-6 flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-4">
                     <span className="text-xs font-bold uppercase tracking-widest px-2 py-1"
                       style={{ background: `${card.color}12`, color: card.color }}>
                       {card.badge}
                     </span>
                   </div>
 
-                  <h2 className="text-2xl font-black mb-3" style={{ color: DARK }}>
+                  <h2 className="text-xl font-black mb-2" style={{ color: DARK }}>
                     {card.title}
                   </h2>
-                  <p className="text-sm text-gray-600 leading-relaxed mb-6 flex-grow">
+                  <p className="text-sm text-gray-600 leading-relaxed mb-4 flex-grow">
                     {card.description}
                   </p>
 
-                  <ul className="space-y-2 mb-8">
+                  <ul className="space-y-1.5 mb-5">
                     {card.bullets.map((b, i) => (
                       <li key={i} className="flex items-center gap-2.5 text-sm text-gray-700">
                         <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: card.color }} />
