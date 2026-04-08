@@ -53,6 +53,7 @@ export default function ModuleGenerator() {
   }, []);
 
   useEffect(() => { loadTrainings(); }, [loadTrainings]);
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
