@@ -563,10 +563,10 @@ export default function DataChallenge() {
                 {tie ? '🤝' : userWins ? '🏆' : '🤖'}
               </motion.div>
               <h2 className="text-3xl font-black mb-1">
-                {tie ? 'Égalité !' : userWins ? 'Victoire !' : 'L'IA gagne !'}
+                {tie ? "Égalité !" : userWins ? "Victoire !" : "L\u2019IA gagne !"}
               </h2>
               <p className="text-blue-300">
-                {tie ? 'Vous êtes à égalité avec l'IA.' : userWins ? 'Vous avez battu l'IA FYNE !' : 'L'IA FYNE vous a devancé cette fois.'}
+                {tie ? "Vous êtes à égalité avec l\u2019IA." : userWins ? "Vous avez battu l\u2019IA FYNE !" : "L\u2019IA FYNE vous a devancé cette fois."}
               </p>
             </div>
 
