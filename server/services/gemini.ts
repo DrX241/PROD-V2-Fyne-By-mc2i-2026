@@ -172,7 +172,7 @@ class GeminiService {
 
   private readonly MODEL_CHAIN = [
     'gemini-2.5-flash',
-    'gemini-1.5-flash',
+    'gemini-2.0-flash-lite',
   ];
 
   private async callGeminiModel(
@@ -256,26 +256,51 @@ class GeminiService {
 
     for (let modelIdx = 0; modelIdx < this.MODEL_CHAIN.length; modelIdx++) {
       const model = this.MODEL_CHAIN[modelIdx];
-      try {
-        console.log(`[Gemini] Tentative avec le modèle: ${model}`);
-        const result = await this.callGeminiModel(model, geminiContents, systemInstruction, temperature, maxTokens, responseFormat);
-        this.connectionStatus = 'connected';
-        this.lastConnectionCheck = Date.now();
-        if (modelIdx > 0) console.log(`[Gemini] ✓ Succès avec le modèle de secours: ${model}`);
-        return result;
-      } catch (error: any) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-        console.warn(`[Gemini] ✗ Modèle ${model} échoué: ${lastError.message.slice(0, 120)}`);
+      const maxRetries = 2;
 
-        const isRateLimit = lastError.message.includes('429') || lastError.message.toLowerCase().includes('quota');
-        const isLastModel = modelIdx === this.MODEL_CHAIN.length - 1;
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          if (attempt > 0) {
+            console.log(`[Gemini] Retry ${attempt}/${maxRetries} pour ${model}...`);
+          } else {
+            console.log(`[Gemini] Tentative avec le modèle: ${model}`);
+          }
+          const result = await this.callGeminiModel(model, geminiContents, systemInstruction, temperature, maxTokens, responseFormat);
+          this.connectionStatus = 'connected';
+          this.lastConnectionCheck = Date.now();
+          if (modelIdx > 0) console.log(`[Gemini] ✓ Succès avec le modèle de secours: ${model}`);
+          return result;
+        } catch (error: any) {
+          lastError = error instanceof Error ? error : new Error(String(error));
+          const is503 = lastError.message.includes('503') || lastError.message.toLowerCase().includes('unavailable') || lastError.message.toLowerCase().includes('high dem');
+          const is404 = lastError.message.includes('404') || lastError.message.toLowerCase().includes('not found');
+          const isRateLimit = lastError.message.includes('429') || lastError.message.toLowerCase().includes('quota');
 
-        if (isLastModel) break;
+          if (is404) {
+            // Modèle indisponible définitivement, passer au suivant sans retry
+            console.warn(`[Gemini] ✗ Modèle ${model} introuvable (404), passage au suivant`);
+            break;
+          }
 
-        const delay = isRateLimit ? 4000 : 1200;
-        console.log(`[Gemini] Bascule vers le prochain modèle dans ${delay}ms...`);
-        await new Promise(r => setTimeout(r, delay));
+          if (is503 && attempt < maxRetries) {
+            const retryDelay = (attempt + 1) * 3000;
+            console.warn(`[Gemini] ✗ Modèle ${model} surchargé (503), retry dans ${retryDelay}ms...`);
+            await new Promise(r => setTimeout(r, retryDelay));
+            continue;
+          }
+
+          console.warn(`[Gemini] ✗ Modèle ${model} échoué: ${lastError.message.slice(0, 120)}`);
+          break;
+        }
       }
+
+      const isLastModel = modelIdx === this.MODEL_CHAIN.length - 1;
+      if (isLastModel) break;
+
+      const isRateLimit = lastError.message.includes('429') || lastError.message.toLowerCase().includes('quota');
+      const delay = isRateLimit ? 4000 : 1200;
+      console.log(`[Gemini] Bascule vers le prochain modèle dans ${delay}ms...`);
+      await new Promise(r => setTimeout(r, delay));
     }
 
     this.connectionStatus = 'disconnected';
