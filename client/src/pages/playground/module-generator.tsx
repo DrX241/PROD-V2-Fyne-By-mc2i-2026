@@ -139,9 +139,6 @@ export default function ModuleGenerator() {
               </h1>
               <div className="w-16 h-1 mt-3" style={{ background: PINK }} />
             </div>
-            <p className="text-sm text-gray-500 leading-relaxed max-w-xs hidden md:block">
-              Deux approches, même résultat : un micro learning interactif théorie/pratique et QCM de validation, prêt en quelques minutes.
-            </p>
           </div>
 
           {/* Cartes */}
