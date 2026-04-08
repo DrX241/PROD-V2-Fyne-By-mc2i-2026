@@ -381,6 +381,13 @@ function AppContent() {
                     </Suspense>
                   )}
                 </Route>
+                <Route path="/data-ia/data-challenge">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      {React.createElement(lazy(() => import("./pages/data-ia/data-challenge")))}
+                    </Suspense>
+                  )}
+                </Route>
                 <Route path="/amoa/new" component={AmoaModeSelectionNew} />
                 <Route path="/amoa/sas-academie" component={SasAcademie} />
                 <Route path="/amoa/roleplay" component={AmoaRoleplay} />
