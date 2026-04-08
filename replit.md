@@ -18,8 +18,8 @@ Le player `client/src/pages/playground/lesson-player.tsx` intègre un système X
 
 ### Gemini — Fallback multi-modèles (avril 2026)
 `server/services/gemini.ts` — `callGemini()` essaie automatiquement :
-1. `gemini-2.5-flash` (90s timeout)
-2. `gemini-2.0-flash-lite` (délai 1.2s, 4s si rate-limit 429)
+1. `gemini-2.5-flash` (primaire — 1K RPM, 1M TPM)
+2. `gemini-2.0-flash-lite` (fallback — 4K RPM, RPD illimité)
 - Sur erreur 503, retry x2 avec délai progressif (3s, 6s) avant de passer au modèle suivant
 - Sur erreur 404, passage immédiat au modèle suivant sans retry
 Méthode interne `callGeminiModel()` gère l'AbortController par modèle.
