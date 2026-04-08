@@ -220,70 +220,63 @@ const CyberHomePage: React.FC = () => {
         </section>
         
         {/* Section Modules */}
-        <section id="modules" className="relative z-20 py-24 bg-gray-50">
+        <section id="modules" className="relative z-20 py-16 bg-[#f5f5f5]">
           <div className="container mx-auto px-8">
-            <div className="text-center mb-16">
-              <div className="inline-block">
-                <span className="px-4 py-1 rounded-full text-sm font-semibold bg-[#006a9e]/10 text-[#006a9e] tracking-wide border border-[#006a9e]/30">
-                  Modules Exclusifs
-                </span>
+            <div className="flex items-end justify-between mb-10 border-b border-gray-300 pb-6">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-widest text-[#006a9e] mb-2 block">Modules Exclusifs</span>
+                <h2 className="text-3xl md:text-4xl font-black tracking-tight text-[#061019]">
+                  Des <span className="text-[#dd0061]">formations</span> pour tous les besoins
+                </h2>
               </div>
-              <h2 className="mt-4 text-4xl md:text-5xl font-bold tracking-wider text-[#061019]">
-                Des <span className="text-[#dd0061]">formations</span> pour tous les besoins
-              </h2>
-              <p className="mt-4 text-xl text-gray-600 max-w-2xl mx-auto">
-                Explorez nos modules spécialisés conçus pour développer vos compétences dans des domaines stratégiques.
-              </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mx-auto max-w-7xl">
-              {modules.map((module) => (
-                <motion.div 
-                  key={module.id}
-                  className={`bg-white rounded-3xl overflow-hidden shadow-lg transition-all duration-300
-                    ${module.id === 'cyber' ? 'border-t-8 border-t-indigo-500' : ''}
-                    ${module.id === 'data' ? 'border-t-8 border-t-purple-500' : ''}
-                    ${module.id === 'mc2i' ? 'border-t-8 border-t-emerald-500' : ''}
-                    ${module.id === 'generator' ? 'border-t-8 border-t-rose-500' : ''}`
-                  }
-                  onMouseEnter={() => setHoveredModule(module.id)}
-                  onMouseLeave={() => setHoveredModule(null)}
-                  whileHover={{ y: -10, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  onClick={() => !module.comingSoon && setLocation(module.route)}
-                  style={{ cursor: module.comingSoon ? 'default' : 'pointer' }}
-                >
-                  <div className="p-6">
-                    <div 
-                      className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 
-                        ${module.bgColor}`
-                      }
-                    >
-                      <div>
-                        {module.icon}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-px bg-gray-300 border border-gray-300 mx-auto max-w-7xl">
+              {modules.map((module) => {
+                const accentHex =
+                  module.id === 'cyber' ? '#6366f1' :
+                  module.id === 'data' ? '#a855f7' :
+                  module.id === 'mc2i' ? '#10b981' : '#f43f5e';
+                return (
+                  <motion.div
+                    key={module.id}
+                    className="bg-white overflow-hidden transition-all duration-200 flex flex-col"
+                    onMouseEnter={() => setHoveredModule(module.id)}
+                    onMouseLeave={() => setHoveredModule(null)}
+                    whileHover={{ backgroundColor: '#fafafa' }}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                    onClick={() => !module.comingSoon && setLocation(module.route)}
+                    style={{ cursor: module.comingSoon ? 'default' : 'pointer' }}
+                  >
+                    {/* Accent bar */}
+                    <div style={{ height: 3, background: accentHex }} />
+
+                    <div className="p-6 flex flex-col flex-1">
+                      {/* Icon dot */}
+                      <div className="w-8 h-8 flex items-center justify-center mb-5 border border-gray-200"
+                        style={{ background: `${accentHex}10` }}>
+                        <div style={{ width: 10, height: 10, background: accentHex }} />
+                      </div>
+
+                      <h3 className="text-sm font-black uppercase tracking-widest mb-3 text-[#061019]">{module.title}</h3>
+                      <p className="text-xs text-gray-500 leading-relaxed mb-6 flex-1">{module.description}</p>
+
+                      <div className="flex items-center text-xs font-bold uppercase tracking-widest">
+                        {module.comingSoon ? (
+                          <span className="text-gray-400">Sur devis</span>
+                        ) : (
+                          <>
+                            <span style={{ color: accentHex }}>Explorer</span>
+                            <ChevronRight className="ml-1 w-3 h-3" style={{ color: accentHex }} />
+                          </>
+                        )}
                       </div>
                     </div>
-                    <h3 className="text-lg font-bold mb-3 text-gray-800">{module.title}</h3>
-                    <p className="text-sm text-gray-600 mb-4">{module.description}</p>
-                    <div className="flex items-center text-sm font-medium">
-                      {module.comingSoon ? (
-                        <span className="text-gray-500 flex items-center">
-                          Sur devis
-                        </span>
-                      ) : (
-                        <>
-                          <span className={module.color}>
-                            Explorer
-                          </span>
-                          <ChevronRight className={`ml-1 w-4 h-4 ${module.color}`} />
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </section>
