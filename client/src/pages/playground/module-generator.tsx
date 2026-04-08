@@ -128,16 +128,18 @@ export default function ModuleGenerator() {
       <main className="flex-1 pt-14">
         <div className="max-w-5xl mx-auto px-6 lg:px-12 py-8 w-full">
           {/* Titre */}
-          <div className="mb-8">
-            <div className="text-xs font-bold uppercase tracking-widest mb-3 px-3 py-1 inline-block"
-              style={{ background: `${BLUE}12`, color: BLUE }}>
-              Soyez qui vous voulez
+          <div className="mb-6 flex items-center justify-between gap-8">
+            <div className="flex-shrink-0">
+              <div className="text-xs font-bold uppercase tracking-widest mb-2 px-3 py-1 inline-block"
+                style={{ background: `${BLUE}12`, color: BLUE }}>
+                Soyez qui vous voulez
+              </div>
+              <h1 className="text-4xl lg:text-5xl font-black tracking-tight leading-none">
+                <span style={{ color: PINK }}>Créez votre </span><span style={{ color: DARK }}>micro </span><span style={{ color: PINK }}>learning</span>
+              </h1>
+              <div className="w-16 h-1 mt-3" style={{ background: PINK }} />
             </div>
-            <h1 className="text-4xl lg:text-5xl font-black tracking-tight leading-none mb-3">
-              <span style={{ color: PINK }}>Créez votre </span><span style={{ color: DARK }}>micro </span><span style={{ color: PINK }}>learning</span>
-            </h1>
-            <div className="w-16 h-1 mb-4" style={{ background: PINK }} />
-            <p className="text-base text-gray-600 leading-relaxed max-w-xl">
+            <p className="text-sm text-gray-500 leading-relaxed max-w-xs hidden md:block">
               Deux approches, même résultat : un micro learning interactif théorie/pratique et QCM de validation, prêt en quelques minutes.
             </p>
           </div>
