@@ -77,7 +77,7 @@ export default function ModuleGenerator() {
     {
       id: 'ia',
       badge: 'IA from scratch',
-      title: 'Générer avec l\'IA',
+      title: 'Générer à partir d\'un prompt en langage naturel',
       description: 'Décrivez votre besoin en quelques mots. L\'IA génère un micro learning interactif théorie/pratique avec un QCM de validation, adapté à votre public.',
       bullets: [
         'Pitchez votre besoin en langage naturel',
