@@ -269,7 +269,7 @@ class GeminiService {
     for (let modelIdx = 0; modelIdx < this.MODEL_CHAIN.length; modelIdx++) {
       const { model, keySlot } = this.MODEL_CHAIN[modelIdx];
       const apiKey = keySlot === 2 ? this.apiKey2 : this.apiKey;
-      const maxRetries = 2;
+      const maxRetries = 1;
 
       // Sauter si la clé requise n'est pas configurée
       if (!apiKey) {
@@ -300,7 +300,7 @@ class GeminiService {
           }
 
           if (is503 && attempt < maxRetries) {
-            const retryDelay = (attempt + 1) * 3000;
+            const retryDelay = (attempt + 1) * 800;
             console.warn(`[Gemini] ✗ ${model} surchargé (503), retry dans ${retryDelay}ms...`);
             await new Promise(r => setTimeout(r, retryDelay));
             continue;
@@ -315,7 +315,7 @@ class GeminiService {
       if (isLastModel) break;
 
       const isRateLimit = lastError.message.includes('429') || lastError.message.toLowerCase().includes('quota');
-      const delay = isRateLimit ? 4000 : 1200;
+      const delay = isRateLimit ? 1500 : 200;
       console.log(`[Gemini] Bascule vers le prochain modèle dans ${delay}ms...`);
       await new Promise(r => setTimeout(r, delay));
     }
