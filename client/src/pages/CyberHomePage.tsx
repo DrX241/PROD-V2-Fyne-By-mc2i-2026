@@ -108,6 +108,17 @@ const CyberHomePage: React.FC = () => {
       route: '/amoa-mode-selection-new'
     },
     {
+      id: 'si-champion',
+      title: 'I AM SI CHAMPION',
+      description: 'Pilotez vos campagnes d\'évaluation et faites passer vos tests dans un espace dédié',
+      icon: <div className="w-5 h-5 bg-amber-500"></div>,
+      color: 'text-amber-600',
+      bgColor: 'bg-amber-100',
+      accentColor: 'border-amber-500',
+      route: 'https://v2fynebymc2i.vercel.app/evaluation',
+      external: true
+    },
+    {
       id: 'generator',
       title: 'SOYEZ QUI VOUS VOULEZ',
       description: 'Créez vos propres modules de formation personnalisés',
@@ -117,17 +128,6 @@ const CyberHomePage: React.FC = () => {
       accentColor: 'border-rose-500',
       route: '/playground/module-generator',
       comingSoon: false
-    },
-    {
-      id: 'si-champion',
-      title: 'SI CHAMPION',
-      description: 'Pilotez vos campagnes d\'évaluation et faites passer vos tests dans un espace dédié',
-      icon: <div className="w-5 h-5 bg-amber-500"></div>,
-      color: 'text-amber-600',
-      bgColor: 'bg-amber-100',
-      accentColor: 'border-amber-500',
-      route: 'https://v2fynebymc2i.vercel.app/evaluation',
-      external: true
     }
   ];
 
