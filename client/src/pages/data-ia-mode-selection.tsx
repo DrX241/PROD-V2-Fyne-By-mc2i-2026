@@ -351,7 +351,7 @@ export default function DataIAModeSelection() {
                       className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-6 py-5"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation('/data-ia/sas-academie');
+                        window.open('https://v2fynebymc2i.vercel.app/cyber/formation/data', '_blank', 'noopener,noreferrer');
                       }}
                     >
                       Je découvre l'académie
