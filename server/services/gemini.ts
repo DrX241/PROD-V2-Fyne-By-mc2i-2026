@@ -196,6 +196,9 @@ class GeminiService {
     if (responseFormat === 'json_object') {
       generationConfig.responseMimeType = 'application/json';
     }
+    if (model.includes('2.5')) {
+      generationConfig.thinkingConfig = { thinkingBudget: 0 };
+    }
     const requestBody: any = {
       contents,
       generationConfig,
