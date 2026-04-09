@@ -231,11 +231,6 @@ const CyberHomePage: React.FC = () => {
         <section id="modules" className="relative z-20 py-24 bg-gray-50">
           <div className="container mx-auto px-8">
             <div className="text-center mb-16">
-              <div className="inline-block">
-                <span className="px-4 py-1 rounded-full text-sm font-semibold bg-[#006a9e]/10 text-[#006a9e] tracking-wide border border-[#006a9e]/30">
-                  Modules Exclusifs
-                </span>
-              </div>
               <h2 className="mt-4 text-4xl md:text-5xl font-bold tracking-wider text-[#061019]">
                 Des <span className="text-[#dd0061]">formations</span> pour tous les besoins
               </h2>
