@@ -407,58 +407,6 @@ export default function DataIAModeSelection() {
                     </Button>
                   </div>
                 </div>
-
-                {/* DATA CHALLENGE */}
-                <div 
-                  className={`cyber-edge-distort relative overflow-hidden p-6 col-span-1 md:col-span-2 ${
-                    highContrastMode 
-                      ? 'bg-gray-800 border border-gray-700' 
-                      : 'bg-gradient-to-br from-sky-600/60 to-indigo-900 border-2 border-sky-400/50 shadow-lg shadow-sky-500/30'
-                  } hover:shadow-lg hover:scale-[1.01] transition-all duration-300`}
-                >
-                  <div className="flex flex-col md:flex-row md:items-center gap-6">
-                    <div className="flex items-center justify-center md:justify-start">
-                      <div className={`p-3 rounded-lg ${
-                        highContrastMode 
-                          ? 'bg-yellow-800' 
-                          : 'bg-gradient-to-r from-sky-500 to-blue-600 shadow-md'
-                      }`}>
-                        <Trophy 
-                          className={`${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
-                          style={{ 
-                            height: `calc(2rem * ${textSize})`, 
-                            width: `calc(2rem * ${textSize})` 
-                          }} 
-                        />
-                      </div>
-                    </div>
-                    <div className="flex-1 text-center md:text-left">
-                      <h3 className={`font-data-title mb-1 ${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
-                        style={{ 
-                          fontSize: `calc(1.5rem * ${textSize})`,
-                          lineHeight: "1.2"
-                        }}>
-                        DATA CHALLENGE
-                      </h3>
-                      <p className={`${highContrastMode ? 'text-gray-300' : 'text-sky-200'}`}
-                        style={{ fontSize: `calc(0.95rem * ${textSize})` }}>
-                        Testez vos connaissances SQL, Power BI, Python et Excel avec des quiz à 3 niveaux
-                      </p>
-                    </div>
-                    <div className="flex justify-center md:justify-end">
-                      <Button 
-                        className="bg-gradient-to-r from-sky-500 to-blue-700 hover:from-sky-600 hover:to-blue-800 text-white px-6 py-5 whitespace-nowrap"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLocation('/data-ia/data-challenge');
-                        }}
-                      >
-                        Je me challenge
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
