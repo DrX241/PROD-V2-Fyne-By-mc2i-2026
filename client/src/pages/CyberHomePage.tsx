@@ -34,6 +34,7 @@ interface Module {
   accentColor: string;
   route: string;
   comingSoon?: boolean;
+  external?: boolean;
 }
 
 const CyberHomePage: React.FC = () => {
@@ -116,6 +117,17 @@ const CyberHomePage: React.FC = () => {
       accentColor: 'border-rose-500',
       route: '/playground/module-generator',
       comingSoon: false
+    },
+    {
+      id: 'si-champion',
+      title: 'SI CHAMPION',
+      description: 'Pilotez vos campagnes d\'évaluation et faites passer vos tests dans un espace dédié',
+      icon: <div className="w-5 h-5 bg-amber-500"></div>,
+      color: 'text-amber-600',
+      bgColor: 'bg-amber-100',
+      accentColor: 'border-amber-500',
+      route: 'https://v2fynebymc2i.vercel.app/evaluation',
+      external: true
     }
   ];
 
@@ -239,7 +251,7 @@ const CyberHomePage: React.FC = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mx-auto max-w-7xl">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5 mx-auto max-w-7xl">
               {modules.map((module) => (
                 <motion.div 
                   key={module.id}
@@ -247,7 +259,8 @@ const CyberHomePage: React.FC = () => {
                     ${module.id === 'cyber' ? 'border-t-8 border-t-indigo-500' : ''}
                     ${module.id === 'data' ? 'border-t-8 border-t-purple-500' : ''}
                     ${module.id === 'mc2i' ? 'border-t-8 border-t-emerald-500' : ''}
-                    ${module.id === 'generator' ? 'border-t-8 border-t-rose-500' : ''}`
+                    ${module.id === 'generator' ? 'border-t-8 border-t-rose-500' : ''}
+                    ${module.id === 'si-champion' ? 'border-t-8 border-t-amber-500' : ''}`
                   }
                   onMouseEnter={() => setHoveredModule(module.id)}
                   onMouseLeave={() => setHoveredModule(null)}
@@ -255,7 +268,14 @@ const CyberHomePage: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
-                  onClick={() => !module.comingSoon && setLocation(module.route)}
+                  onClick={() => {
+                    if (module.comingSoon) return;
+                    if (module.external) {
+                      window.open(module.route, '_blank', 'noopener,noreferrer');
+                    } else {
+                      setLocation(module.route);
+                    }
+                  }}
                   style={{ cursor: module.comingSoon ? 'default' : 'pointer' }}
                 >
                   <div className="p-6">
