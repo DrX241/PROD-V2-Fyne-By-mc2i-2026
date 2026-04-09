@@ -17,7 +17,6 @@ import {
   ChevronRight,
   Power,
   Check,
-  ArrowRight,
   ShoppingCart
 } from 'lucide-react';
 import mcLogoPath from "@assets/mc2i.png";
@@ -204,15 +203,24 @@ const CyberHomePage: React.FC = () => {
                 Découvrez une nouvelle dimension d'apprentissage interactif avec nos modules IA innovants qui s'adaptent parfaitement à votre progression.
               </p>
               
-              <div className="flex items-center justify-center mt-10">
+              <div className="flex flex-col items-center justify-center mt-10 gap-2">
                 <motion.button
-                  onClick={() => setLocation('/fyne-about')}
-                  className="px-8 py-5 bg-gradient-to-r from-[#006a9e] to-[#0085c7] hover:from-[#0085c7] hover:to-[#006a9e] text-white rounded-md text-lg font-semibold shadow-lg transition-all duration-300 flex items-center"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.98 }}
+                  onClick={() => document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="flex flex-col items-center gap-1 group focus:outline-none"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.97 }}
                 >
-                  <span>DÉCOUVREZ FYNE</span>
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <span className="text-[#006a9e] font-semibold text-base tracking-wide group-hover:text-[#0085c7] transition-colors">
+                    Découvrez FYNE
+                  </span>
+                  <motion.div
+                    animate={{ y: [0, 8, 0] }}
+                    transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+                    className="flex flex-col items-center"
+                  >
+                    <ChevronRight className="rotate-90 h-6 w-6 text-[#006a9e] group-hover:text-[#0085c7] transition-colors" />
+                    <ChevronRight className="rotate-90 h-6 w-6 text-[#006a9e]/50 group-hover:text-[#0085c7]/50 -mt-3 transition-colors" />
+                  </motion.div>
                 </motion.button>
               </div>
             </motion.div>

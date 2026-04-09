@@ -42,7 +42,7 @@ export default function FyneLanding() {
               qui s'adaptent en temps réel à vos besoins.
             </p>
             
-            <Link href="/fyne-about">
+            <Link href="/">
               <CyberButton 
                 variant="primary" 
                 className="px-6 py-5 text-lg"
