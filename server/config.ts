@@ -15,9 +15,9 @@ export const bedrockConfig = {
 };
 
 export const geminiConfig = {
-  apiKey: process.env.GEMINI_API_KEY || '',
-  baseUrl: 'https://generativelanguage.googleapis.com/v1beta/models',
-  modelName: 'Gemini FYNE',
+  apiKey: process.env.AI_GATEWAY_API_KEY || process.env.GEMINI_API_KEY || '',
+  baseUrl: process.env.AI_GATEWAY_URL || 'https://aigateway.mc2i-lab.fr/v1',
+  modelName: process.env.AI_PRIMARY_MODEL || 'gemini-2.5-flash',
   isConnected: false,
   lastCheckTime: 0,
   isFunctional: function() {
