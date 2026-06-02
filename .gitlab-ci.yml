@@ -1,0 +1,85 @@
+stages:
+  - deploy
+
+deploy_to_ec2:
+  stage: deploy
+  image:
+    name: amazon/aws-cli:latest
+    entrypoint: [""]
+
+  id_tokens:
+    AWS_JWT_TOKEN:
+      aud: https://gitlab.mc2i-lab.fr
+
+  before_script:
+    - mkdir -p ~/.aws
+    - echo "${AWS_JWT_TOKEN}" > /tmp/web_identity_token
+    - export AWS_WEB_IDENTITY_TOKEN_FILE=/tmp/web_identity_token
+    - export AWS_ROLE_ARN=${AWS_ROLE_ARN}
+    - export AWS_DEFAULT_REGION=${AWS_REGION}
+    - aws sts get-caller-identity
+
+  script:
+    - echo "Deploiement de FYNE sur ${EC2_INSTANCE_ID}..."
+    - |
+      REPO_URL="https://oauth2:${GITLAB_TOKEN}@gitlab.mc2i-lab.fr/Le_Lab/uc40-fyne/gitlab-profile.git"
+      COMMAND_ID=$(aws ssm send-command \
+        --instance-ids "${EC2_INSTANCE_ID}" \
+        --document-name "AWS-RunShellScript" \
+        --parameters "commands=[
+          \"set -e\",
+          \"export HOME=/root\",
+          \"echo [1/5] Recuperation du code...\",
+          \"mkdir -p /var/www/fyne\",
+          \"git config --global --add safe.directory /var/www/fyne\",
+          \"cd /var/www/fyne\",
+          \"git init 2>/dev/null || true\",
+          \"git remote remove origin 2>/dev/null || true\",
+          \"git remote add origin ${REPO_URL}\",
+          \"git fetch origin main --depth=1\",
+          \"git checkout -f origin/main\",
+          \"echo [2/5] Installation des dependances...\",
+          \"npm install 2>&1 | tail -5\",
+          \"echo [3/5] Build de lapplication...\",
+          \"npm run build 2>&1 | tail -10\",
+          \"echo [4/5] Migration de la base de donnees...\",
+          \"DATABASE_URL='${DATABASE_URL}' npx drizzle-kit push 2>&1 | tail -5\",
+          \"echo [5/5] Demarrage via PM2...\",
+          \"pm2 stop fyne-app 2>/dev/null || true\",
+          \"pm2 delete fyne-app 2>/dev/null || true\",
+          \"pm2 stop fyne-test 2>/dev/null || true\",
+          \"pm2 delete fyne-test 2>/dev/null || true\",
+          \"DATABASE_URL='${DATABASE_URL}' PORT=80 pm2 start dist/index.js --name fyne-app\",
+          \"pm2 save\",
+          \"pm2 list\"
+        ]" \
+        --query "Command.CommandId" \
+        --output text)
+
+    - echo "Commande SSM lancee - ID $COMMAND_ID. Attente..."
+    - |
+      while true; do
+        STATUS=$(aws ssm get-command-invocation \
+          --command-id "$COMMAND_ID" \
+          --instance-id "${EC2_INSTANCE_ID}" \
+          --query "Status" \
+          --output text)
+        if [ "$STATUS" != "InProgress" ] && [ "$STATUS" != "Pending" ]; then
+          break
+        fi
+        sleep 10
+      done
+
+    - FINAL_STATUS=$(aws ssm get-command-invocation --command-id "$COMMAND_ID" --instance-id "${EC2_INSTANCE_ID}" --query "Status" --output text)
+    - echo "Statut final -> $FINAL_STATUS"
+    - echo "--- STDOUT EC2 ---"
+    - aws ssm get-command-invocation --command-id "$COMMAND_ID" --instance-id "${EC2_INSTANCE_ID}" --query "StandardOutputContent" --output text
+    - |
+      if [ "$FINAL_STATUS" != "Success" ]; then
+        echo "--- STDERR EC2 ---"
+        aws ssm get-command-invocation --command-id "$COMMAND_ID" --instance-id "${EC2_INSTANCE_ID}" --query "StandardErrorContent" --output text
+        exit 1
+      fi
+
+  only:
+    - main
