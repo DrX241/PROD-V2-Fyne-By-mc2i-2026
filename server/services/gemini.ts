@@ -9,8 +9,10 @@ export type ApiKeyType = 'primary' | 'secondary';
 
 const GATEWAY_URL = process.env.AI_GATEWAY_URL || "https://aigateway.mc2i-lab.fr/v1";
 const GATEWAY_KEY = process.env.AI_GATEWAY_API_KEY || "";
+const GEMINI_KEY = process.env.GEMINI_API_KEY || "";
 const PRIMARY_MODEL = process.env.AI_PRIMARY_MODEL || "gemini-2.5-flash";
 const SECONDARY_MODEL = process.env.AI_SECONDARY_MODEL || "gemini-2.5-flash";
+const USE_GEMINI_DIRECT = !GATEWAY_KEY && !!GEMINI_KEY;
 
 class GeminiService {
   private responseCache: Map<string, CachedResponse> = new Map();
@@ -21,13 +23,18 @@ class GeminiService {
   private currentConfig: ApiKeyType = 'secondary';
 
   constructor() {
-    console.log("Initializing AI Gateway Service");
-    console.log(`Gateway URL: ${GATEWAY_URL}`);
-    console.log(`API Key: ***${GATEWAY_KEY ? GATEWAY_KEY.slice(-5) : "non définie"}`);
+    if (USE_GEMINI_DIRECT) {
+      console.log("Initializing Gemini Direct Service (fallback)");
+      console.log(`Gemini API Key: ***${GEMINI_KEY.slice(-5)}`);
+    } else {
+      console.log("Initializing AI Gateway Service");
+      console.log(`Gateway URL: ${GATEWAY_URL}`);
+      console.log(`API Key: ***${GATEWAY_KEY ? GATEWAY_KEY.slice(-5) : "non définie"}`);
+    }
     console.log(`Primary model: ${PRIMARY_MODEL}`);
 
-    if (!GATEWAY_KEY) {
-      console.warn("AI_GATEWAY_API_KEY non définie — fonctionnalité IA désactivée");
+    if (!GATEWAY_KEY && !GEMINI_KEY) {
+      console.warn("Aucune clé IA configurée — fonctionnalité IA désactivée");
     }
 
     this.checkConnection();
@@ -54,7 +61,7 @@ class GeminiService {
   }
 
   async checkConnection(): Promise<boolean> {
-    if (!GATEWAY_KEY) {
+    if (!GATEWAY_KEY && !GEMINI_KEY) {
       this.connectionStatus = 'disconnected';
       return false;
     }
@@ -64,34 +71,42 @@ class GeminiService {
         return true;
       }
 
-      const response = await fetch(`${GATEWAY_URL}/chat/completions`, {
+      const url = USE_GEMINI_DIRECT
+        ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`
+        : `${GATEWAY_URL}/chat/completions`;
+
+      const headers: any = { 'Content-Type': 'application/json' };
+      let body: any;
+
+      if (USE_GEMINI_DIRECT) {
+        headers['x-goog-api-key'] = GEMINI_KEY;
+        body = { contents: [{ parts: [{ text: "Hello" }] }], generationConfig: { maxOutputTokens: 5 } };
+      } else {
+        headers['Authorization'] = `Bearer ${GATEWAY_KEY}`;
+        headers['x-litellm-tags'] = 'FYNE';
+        body = { model: PRIMARY_MODEL, messages: [{ role: "user", content: "Hello" }], max_tokens: 5 };
+      }
+
+      const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${GATEWAY_KEY}`,
-          'x-litellm-tags': 'FYNE',
-        },
-        body: JSON.stringify({
-          model: PRIMARY_MODEL,
-          messages: [{ role: "user", content: "Hello" }],
-          max_tokens: 5,
-        }),
+        headers,
+        body: JSON.stringify(body),
         signal: AbortSignal.timeout(10000),
       });
 
       if (response.ok) {
         this.connectionStatus = 'connected';
         this.lastConnectionCheck = Date.now();
-        console.log("AI Gateway connection successful");
+        console.log("AI connection successful");
         return true;
       } else {
         const err = await response.text();
-        console.error("AI Gateway connection check failed:", err);
+        console.error("AI connection check failed:", err);
         this.connectionStatus = 'disconnected';
         return false;
       }
     } catch (error) {
-      console.error("Error checking AI Gateway connection:", error);
+      console.error("Error checking AI connection:", error);
       this.connectionStatus = 'disconnected';
       return false;
     }
@@ -116,48 +131,90 @@ class GeminiService {
     responseFormat?: string,
     model?: string
   ): Promise<string> {
-    if (!GATEWAY_KEY) {
-      throw new Error("AI_GATEWAY_API_KEY non configurée");
+    if (!GATEWAY_KEY && !GEMINI_KEY) {
+      throw new Error("Aucune clé IA configurée (AI_GATEWAY_API_KEY ou GEMINI_API_KEY)");
     }
 
     const targetModel = model || PRIMARY_MODEL;
-    console.log(`[AI Gateway] Appel modèle: ${targetModel}, temp=${temperature}, max_tokens=${maxTokens}`);
-
-    const requestBody: any = {
-      model: targetModel,
-      messages,
-      temperature,
-      max_tokens: maxTokens,
-    };
-
-    if (responseFormat === 'json_object') {
-      requestBody.response_format = { type: "json_object" };
-    }
-
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 90000);
 
     try {
-      const response = await fetch(`${GATEWAY_URL}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${GATEWAY_KEY}`,
-          'x-litellm-tags': 'FYNE',
-        },
-        body: JSON.stringify(requestBody),
-        signal: controller.signal,
-      });
-      clearTimeout(timeoutId);
+      let text: string;
 
-      if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(`Gateway HTTP ${response.status}: ${errorData.slice(0, 300)}`);
+      if (USE_GEMINI_DIRECT) {
+        console.log(`[Gemini Direct] Appel modèle: ${targetModel}, temp=${temperature}, max_tokens=${maxTokens}`);
+
+        const geminiContents: any[] = [];
+        let systemInstruction = "";
+        for (const msg of messages) {
+          if (msg.role === 'system') {
+            systemInstruction += (systemInstruction ? "\n" : "") + msg.content;
+          } else {
+            geminiContents.push({
+              role: msg.role === 'assistant' ? 'model' : 'user',
+              parts: [{ text: msg.content }],
+            });
+          }
+        }
+        if (geminiContents.length === 0) {
+          geminiContents.push({ role: 'user', parts: [{ text: 'Bonjour' }] });
+        }
+
+        const generationConfig: any = { temperature, maxOutputTokens: maxTokens };
+        if (responseFormat === 'json_object') generationConfig.responseMimeType = 'application/json';
+        if (targetModel.includes('2.5')) generationConfig.thinkingConfig = { thinkingBudget: 0 };
+
+        const requestBody: any = { contents: geminiContents, generationConfig };
+        if (systemInstruction) requestBody.systemInstruction = { parts: [{ text: systemInstruction }] };
+
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': GEMINI_KEY },
+            body: JSON.stringify(requestBody),
+            signal: controller.signal,
+          }
+        );
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          const errorData = await response.text();
+          throw new Error(`Gemini HTTP ${response.status}: ${errorData.slice(0, 300)}`);
+        }
+
+        const data = await response.json();
+        text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error("Réponse vide ou format inattendu depuis Gemini");
+
+      } else {
+        console.log(`[AI Gateway] Appel modèle: ${targetModel}, temp=${temperature}, max_tokens=${maxTokens}`);
+
+        const requestBody: any = { model: targetModel, messages, temperature, max_tokens: maxTokens };
+        if (responseFormat === 'json_object') requestBody.response_format = { type: "json_object" };
+
+        const response = await fetch(`${GATEWAY_URL}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${GATEWAY_KEY}`,
+            'x-litellm-tags': 'FYNE',
+          },
+          body: JSON.stringify(requestBody),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          const errorData = await response.text();
+          throw new Error(`Gateway HTTP ${response.status}: ${errorData.slice(0, 300)}`);
+        }
+
+        const data = await response.json();
+        text = data?.choices?.[0]?.message?.content;
+        if (!text) throw new Error("Réponse vide ou format inattendu depuis la gateway");
       }
-
-      const data = await response.json();
-      const text = data?.choices?.[0]?.message?.content;
-      if (!text) throw new Error("Réponse vide ou format inattendu depuis la gateway");
 
       this.connectionStatus = 'connected';
       this.lastConnectionCheck = Date.now();
