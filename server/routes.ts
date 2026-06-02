@@ -6702,10 +6702,6 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
   ]
 }`;
 
-      const aiResponse = await openAIService.getChatCompletion([
-        { role: 'user', content: prompt }
-      ], 0.65, 16000);
-
       const parseJsonSafely = (str: string) => {
         try {
           const clean = str.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -6717,11 +6713,28 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
         } catch { return null; }
       };
 
+      const lessonCacheKey = `${pitch.trim()}|${audience || 'grand_public'}|${difficulty || 'intermediaire'}|${domain || ''}`;
+      const { getCached: getLessonCache, setCached: setLessonCache } = await import('./services/dbCacheService');
+      const cachedLesson = await getLessonCache(lessonCacheKey, 'lesson');
+      if (cachedLesson) {
+        const lesson = parseJsonSafely(cachedLesson);
+        if (lesson) {
+          console.log('[Lesson] Cache DB hit');
+          return res.json({ lesson, id: `cached-${Date.now()}`, fromCache: true });
+        }
+      }
+
+      const aiResponse = await openAIService.getChatCompletion([
+        { role: 'user', content: prompt }
+      ], 0.65, 16000);
+
       const lesson = parseJsonSafely(aiResponse);
       if (!lesson || !lesson.slides || !Array.isArray(lesson.slides) || lesson.slides.length < 3) {
         console.warn('[Lesson IA] Parsing échoué:', aiResponse.slice(0, 500));
         return res.status(500).json({ error: 'Impossible de générer la leçon. Réessayez.' });
       }
+
+      await setLessonCache(lessonCacheKey, 'lesson', aiResponse, 30);
 
       const id = uuidv4();
       await storage.saveGeneratedTraining({

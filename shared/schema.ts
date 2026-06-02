@@ -337,3 +337,18 @@ export const sessions = pgTable(
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+// ─── CACHE LLM PERSISTANT ────────────────────────────────────────────────────
+export const llmCache = pgTable('llm_cache', {
+  id: serial('id').primaryKey(),
+  cacheKey: varchar('cache_key', { length: 64 }).unique().notNull(),
+  domain: varchar('domain', { length: 100 }).notNull(),
+  prompt: text('prompt').notNull(),
+  response: text('response').notNull(),
+  hits: integer('hits').notNull().default(0),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  expiresAt: timestamp('expires_at'),
+}, (table) => [index('IDX_llm_cache_key').on(table.cacheKey)]);
+
+export type LlmCache = typeof llmCache.$inferSelect;

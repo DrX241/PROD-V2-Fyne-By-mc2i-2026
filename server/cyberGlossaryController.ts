@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { openAIService } from './services/openai';
 import { extractJsonFromOpenAiResponse } from "./openAiResponseHelper";
 import { ChatCompletionRequestMessage } from "@shared/schema";
+import { getCached, setCached } from './services/dbCacheService';
 
 // Interface pour les termes du glossaire
 export interface GlossaryTerm {
@@ -34,11 +35,21 @@ export async function searchGlossaryTerm(req: Request, res: Response) {
       return res.status(400).json({ success: false, message: 'Le terme à rechercher est requis' });
     }
     
-    // Vérifier si le terme existe déjà dans le cache
     const cacheKey = term.toLowerCase().trim();
+
+    // Vérifier le cache mémoire
     if (glossaryTermsCache.has(cacheKey)) {
-      const cachedTerm = glossaryTermsCache.get(cacheKey);
-      return res.status(200).json({ success: true, term: cachedTerm });
+      return res.status(200).json({ success: true, term: glossaryTermsCache.get(cacheKey) });
+    }
+
+    // Vérifier le cache DB persistant
+    const dbCached = await getCached(cacheKey, 'glossaire');
+    if (dbCached) {
+      try {
+        const parsed = JSON.parse(dbCached);
+        glossaryTermsCache.set(cacheKey, parsed);
+        return res.status(200).json({ success: true, term: parsed });
+      } catch {}
     }
     
     // Générer un nouvel ID pour le terme
@@ -98,10 +109,10 @@ Important : La réponse doit être EXCLUSIVEMENT le JSON valide, sans intro, com
       isBookmarked: false
     };
     
-    // Mettre en cache
+    // Mettre en cache mémoire + DB (permanent pour le glossaire)
     glossaryTermsCache.set(cacheKey, glossaryTerm);
-    
-    // Définir un timeout pour supprimer du cache
+    await setCached(cacheKey, 'glossaire', JSON.stringify(glossaryTerm));
+
     setTimeout(() => {
       glossaryTermsCache.delete(cacheKey);
     }, CACHE_EXPIRY);
