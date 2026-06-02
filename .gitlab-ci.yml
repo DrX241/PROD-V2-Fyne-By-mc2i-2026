@@ -25,8 +25,13 @@ build_app:
     - git config user.name "GitLab CI"
     - git remote set-url origin "https://oauth2:${GITLAB_TOKEN}@gitlab.mc2i-lab.fr/Le_Lab/uc40-fyne/gitlab-profile.git"
     - git add -f dist/
-    - git diff --cached --quiet && echo "dist/ inchange, pas de commit" || git commit -m "ci: update dist/ [skip ci]"
-    - git push origin HEAD:main
+    - |
+      if git diff --cached --quiet; then
+        echo "dist/ inchange, pas de commit"
+      else
+        git commit -m "ci: update dist/ [skip ci]"
+        git push origin HEAD:main
+      fi
   only:
     - main
 
