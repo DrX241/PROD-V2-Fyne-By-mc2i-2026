@@ -12,6 +12,9 @@ router.post('/text-to-speech', async (req, res) => {
       return res.status(400).json({ error: 'Le texte est requis' });
     }
     
+    if (!azureSpeechService) {
+      return res.status(503).json({ error: 'Service audio non configuré' });
+    }
     // Appel au service Azure Speech
     const { audioStream, contentLength } = await azureSpeechService.textToSpeechStream({
       text,

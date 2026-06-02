@@ -17,7 +17,8 @@ class AzureSpeechService {
     const speechRegion = process.env.AZURE_SPEECH_REGION;
 
     if (!speechKey || !speechRegion) {
-      throw new Error('Les clés Azure Speech ne sont pas configurées');
+      console.warn('Azure Speech non configuré (AZURE_SPEECH_KEY/AZURE_SPEECH_REGION manquants) — fonctionnalité désactivée');
+      return;
     }
 
     this.speechConfig = sdk.SpeechConfig.fromSubscription(speechKey, speechRegion);
@@ -157,5 +158,7 @@ class AzureSpeechService {
   }
 }
 
-// Exporter une instance singleton du service
-export const azureSpeechService = new AzureSpeechService();
+// Exporter une instance singleton du service (null si non configuré)
+export const azureSpeechService = (process.env.AZURE_SPEECH_KEY && process.env.AZURE_SPEECH_REGION)
+  ? new AzureSpeechService()
+  : null;
