@@ -43,13 +43,13 @@ deploy_to_ec2:
           \"echo [3/5] Build de lapplication...\",
           \"npm run build 2>&1 | tail -10\",
           \"echo [4/5] Migration de la base de donnees...\",
-          \"DATABASE_URL='${DATABASE_URL}' npx drizzle-kit push 2>&1 | tail -5\",
+          \"DATABASE_URL='${DATABASE_URL}?sslmode=no-verify' npx drizzle-kit push 2>&1 | tail -5\",
           \"echo [5/5] Demarrage via PM2...\",
           \"pm2 stop fyne-app 2>/dev/null || true\",
           \"pm2 delete fyne-app 2>/dev/null || true\",
           \"pm2 stop fyne-test 2>/dev/null || true\",
           \"pm2 delete fyne-test 2>/dev/null || true\",
-          \"DATABASE_URL='${DATABASE_URL}' PORT=80 NODE_ENV=production pm2 start dist/index.js --name fyne-app\",
+          \"DATABASE_URL='${DATABASE_URL}?sslmode=no-verify' PORT=80 NODE_ENV=production pm2 start dist/index.js --name fyne-app\",
           \"pm2 save\",
           \"pm2 list\"
         ]" \
