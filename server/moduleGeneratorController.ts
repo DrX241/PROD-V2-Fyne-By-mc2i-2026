@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { openAIService } from './services/openai';
+import { geminiService as openAIService } from './services/gemini';
+import { getCached, setCached } from './services/dbCacheService';
 import { db } from './db';
 import { customModules, type InsertCustomModule } from '@shared/schema';
 import { eq, desc } from 'drizzle-orm';
@@ -50,11 +51,18 @@ export async function generateModule(req: Request, res: Response) {
 
     // Construction du prompt système pour l'IA
     const systemPrompt = constructSystemPrompt(moduleConfig);
-    
+
     // Construction du prompt utilisateur
     const userPrompt = constructUserPrompt(moduleConfig);
 
-    // Appel à Azure OpenAI
+    // Vérification du cache DB
+    const cacheKey = `${moduleConfig.domain}|${moduleConfig.difficulty}|${moduleConfig.gamificationLevel}|${moduleConfig.learningStyle}|${moduleConfig.topics.sort().join(',')}`;
+    const cached = await getCached(cacheKey, 'module-generator');
+    if (cached) {
+      return res.status(200).json({ success: true, modules: JSON.parse(cached), fromCache: true });
+    }
+
+    // Appel au LLM
     const moduleResponse = await openAIService.getChatCompletion(
       [
         { role: 'system', content: systemPrompt },
@@ -62,7 +70,7 @@ export async function generateModule(req: Request, res: Response) {
       ],
       false, // useSecondaryKey - utiliser le modèle principal
       0.7, // temperature
-      2000, // max_tokens
+      8000, // max_tokens
       { responseFormat: "json" } // format de réponse souhaité
     );
 
@@ -86,6 +94,9 @@ export async function generateModule(req: Request, res: Response) {
         throw new Error('La réponse n\'est pas au format JSON valide et ne peut pas être extraite');
       }
     }
+
+    // Sauvegarde en cache DB (30 jours)
+    await setCached(cacheKey, 'module-generator', JSON.stringify(modules), 30);
 
     // Retour de la réponse au client
     return res.status(200).json({
