@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 import session from "express-session";
 import connectPg from "connect-pg-simple";
+import { pool } from "./db";
 import { AuthController } from "./authController";
 import { openAIService, geminiService } from "./services/gemini";
 import attachmentRoutes from './routes/attachmentRoutes';
@@ -481,7 +482,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const pgSession = connectPg(session);
   app.use(session({
     store: new pgSession({
-      conString: process.env.DATABASE_URL,
+      pool: pool,
       createTableIfMissing: true,
     }),
     secret: process.env.SESSION_SECRET || 'votre-secret-session-ultra-securise-changez-moi',
