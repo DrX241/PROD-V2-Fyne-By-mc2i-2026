@@ -24796,10 +24796,8 @@ ${TRAINING_JSON_SCHEMA}`;
             return f.buffer.toString("utf-8").slice(0, 8e3);
           }
           if (ext === "pdf") {
-            const { PDFParse } = await import("pdf-parse");
-            const parser = new PDFParse({ data: f.buffer });
-            await parser.load();
-            const result = await parser.getText();
+            const pdfParse = (await import("pdf-parse")).default;
+            const result = await pdfParse(f.buffer);
             return (result.text || "").slice(0, 8e3);
           }
           if (ext === "docx" || ext === "doc") {
@@ -25497,10 +25495,8 @@ R\xE9ponds UNIQUEMENT avec ce JSON valide (sans texte avant ni apr\xE8s, sans ma
     try {
       if (ext === "txt") return f.buffer.toString("utf-8").slice(0, 6e3);
       if (ext === "pdf") {
-        const { PDFParse } = await import("pdf-parse");
-        const parser = new PDFParse({ data: f.buffer });
-        await parser.load();
-        const result = await parser.getText();
+        const pdfParse = (await import("pdf-parse")).default;
+        const result = await pdfParse(f.buffer);
         return (result.text || "").slice(0, 6e3);
       }
       if (ext === "docx" || ext === "doc") {
@@ -25563,10 +25559,8 @@ R\xE9ponds UNIQUEMENT avec ce JSON valide (sans texte avant ni apr\xE8s, sans ma
         try {
           if (ext === "txt") return f.buffer.toString("utf-8").slice(0, 12e3);
           if (ext === "pdf") {
-            const { PDFParse } = await import("pdf-parse");
-            const parser = new PDFParse({ data: f.buffer });
-            await parser.load();
-            const result = await parser.getText();
+            const pdfParse = (await import("pdf-parse")).default;
+            const result = await pdfParse(f.buffer);
             return (result.text || "").slice(0, 12e3);
           }
           if (ext === "docx" || ext === "doc") {
