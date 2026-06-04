@@ -6011,10 +6011,8 @@ ${TRAINING_JSON_SCHEMA}`;
             return f.buffer.toString('utf-8').slice(0, 8000);
           }
           if (ext === 'pdf') {
-            const { PDFParse } = await import('pdf-parse');
-            const parser = new PDFParse({ data: f.buffer });
-            await parser.load();
-            const result = await parser.getText();
+            const pdfParse = (await import('pdf-parse')).default;
+            const result = await pdfParse(f.buffer);
             return (result.text || '').slice(0, 8000);
           }
           if (ext === 'docx' || ext === 'doc') {
@@ -6772,10 +6770,8 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
     try {
       if (ext === 'txt') return f.buffer.toString('utf-8').slice(0, 6000);
       if (ext === 'pdf') {
-        const { PDFParse } = await import('pdf-parse');
-        const parser = new PDFParse({ data: f.buffer });
-        await parser.load();
-        const result = await parser.getText();
+        const pdfParse = (await import('pdf-parse')).default;
+        const result = await pdfParse(f.buffer);
         return (result.text || '').slice(0, 6000);
       }
       if (ext === 'docx' || ext === 'doc') {
@@ -6848,10 +6844,8 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
         try {
           if (ext === 'txt') return f.buffer.toString('utf-8').slice(0, 12000);
           if (ext === 'pdf') {
-            const { PDFParse } = await import('pdf-parse');
-            const parser = new PDFParse({ data: f.buffer });
-            await parser.load();
-            const result = await parser.getText();
+            const pdfParse = (await import('pdf-parse')).default;
+            const result = await pdfParse(f.buffer);
             return (result.text || '').slice(0, 12000);
           }
           if (ext === 'docx' || ext === 'doc') {
