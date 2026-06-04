@@ -2689,6 +2689,7 @@ var DatabaseStorage = class {
 var storage = new DatabaseStorage();
 
 // server/routes.ts
+init_db();
 import path5 from "path";
 import { fileURLToPath as fileURLToPath3 } from "url";
 import { v4 as uuidv48 } from "uuid";
@@ -20431,7 +20432,7 @@ async function registerRoutes(app2) {
   const pgSession = connectPg(session2);
   app2.use(session2({
     store: new pgSession({
-      conString: process.env.DATABASE_URL,
+      pool,
       createTableIfMissing: true
     }),
     secret: process.env.SESSION_SECRET || "votre-secret-session-ultra-securise-changez-moi",
