@@ -16383,7 +16383,8 @@ async function generateLearningRecommendations(req, res) {
 }
 
 // server/moduleGeneratorController.ts
-init_openai();
+init_gemini();
+init_dbCacheService();
 init_db();
 init_schema();
 import { eq as eq4 } from "drizzle-orm";
