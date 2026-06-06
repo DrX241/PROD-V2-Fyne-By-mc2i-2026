@@ -194,26 +194,81 @@ class GeminiService {
         const requestBody: any = { model: targetModel, messages, temperature, max_tokens: maxTokens };
         if (responseFormat === 'json_object') requestBody.response_format = { type: "json_object" };
 
-        const response = await fetch(`${GATEWAY_URL}/chat/completions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${GATEWAY_KEY}`,
-            'x-litellm-tags': 'FYNE',
-          },
-          body: JSON.stringify(requestBody),
-          signal: controller.signal,
-        });
-        clearTimeout(timeoutId);
+        let gatewaySuccess = false;
+        if (GATEWAY_KEY) {
+          try {
+            const response = await fetch(`${GATEWAY_URL}/chat/completions`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${GATEWAY_KEY}`,
+                'x-litellm-tags': 'FYNE',
+              },
+              body: JSON.stringify(requestBody),
+              signal: AbortSignal.timeout(80000),
+            });
 
-        if (!response.ok) {
-          const errorData = await response.text();
-          throw new Error(`Gateway HTTP ${response.status}: ${errorData.slice(0, 300)}`);
+            if (response.ok) {
+              const data = await response.json();
+              text = data?.choices?.[0]?.message?.content;
+              if (text) gatewaySuccess = true;
+            }
+          } catch (gatewayErr) {
+            console.warn(`[AI Gateway] Inaccessible, bascule sur Gemini direct:`, (gatewayErr as any)?.cause?.code || gatewayErr);
+          }
         }
 
-        const data = await response.json();
-        text = data?.choices?.[0]?.message?.content;
-        if (!text) throw new Error("Réponse vide ou format inattendu depuis la gateway");
+        // Fallback vers Gemini direct si la gateway a échoué
+        if (!gatewaySuccess) {
+          if (!GEMINI_KEY) throw new Error("AI Gateway inaccessible et GEMINI_API_KEY non configurée");
+
+          console.log(`[Gemini Direct Fallback] Appel modèle: ${targetModel}, temp=${temperature}, max_tokens=${maxTokens}`);
+
+          const geminiContents: any[] = [];
+          let systemInstruction = "";
+          for (const msg of messages) {
+            if (msg.role === 'system') {
+              systemInstruction += (systemInstruction ? "\n" : "") + msg.content;
+            } else {
+              geminiContents.push({
+                role: msg.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: msg.content }],
+              });
+            }
+          }
+          if (geminiContents.length === 0) {
+            geminiContents.push({ role: 'user', parts: [{ text: 'Bonjour' }] });
+          }
+
+          const generationConfig: any = { temperature, maxOutputTokens: maxTokens };
+          if (responseFormat === 'json_object') generationConfig.responseMimeType = 'application/json';
+          if (targetModel.includes('2.5')) generationConfig.thinkingConfig = { thinkingBudget: 0 };
+
+          const fallbackBody: any = { contents: geminiContents, generationConfig };
+          if (systemInstruction) fallbackBody.systemInstruction = { parts: [{ text: systemInstruction }] };
+
+          const fallbackResponse = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'x-goog-api-key': GEMINI_KEY },
+              body: JSON.stringify(fallbackBody),
+              signal: controller.signal,
+            }
+          );
+          clearTimeout(timeoutId);
+
+          if (!fallbackResponse.ok) {
+            const errorData = await fallbackResponse.text();
+            throw new Error(`Gemini Direct HTTP ${fallbackResponse.status}: ${errorData.slice(0, 300)}`);
+          }
+
+          const fallbackData = await fallbackResponse.json();
+          text = fallbackData?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!text) throw new Error("Réponse vide ou format inattendu depuis Gemini Direct");
+        } else {
+          clearTimeout(timeoutId);
+        }
       }
 
       this.connectionStatus = 'connected';
