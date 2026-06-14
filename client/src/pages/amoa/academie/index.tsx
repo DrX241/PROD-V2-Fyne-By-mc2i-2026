@@ -30,7 +30,7 @@ export default function AmoaAcademie() {
       duration: '2-3h',
       level: 'débutant',
       destination: '/amoa/academie/modules/intro-amoa',
-      comingSoon: true
+      comingSoon: false
     },
     {
       id: 'expression-besoins',
@@ -40,7 +40,7 @@ export default function AmoaAcademie() {
       duration: '3-4h',
       level: 'débutant',
       destination: '/amoa/academie/modules/expression-besoins',
-      comingSoon: true
+      comingSoon: false
     },
     {
       id: 'specifications-fonctionnelles',
@@ -50,7 +50,7 @@ export default function AmoaAcademie() {
       duration: '4-5h',
       level: 'intermédiaire',
       destination: '/amoa/academie/modules/specifications-fonctionnelles',
-      comingSoon: true
+      comingSoon: false
     },
     {
       id: 'gestion-tests',
@@ -60,7 +60,7 @@ export default function AmoaAcademie() {
       duration: '3-4h',
       level: 'intermédiaire',
       destination: '/amoa/academie/modules/gestion-tests',
-      comingSoon: true
+      comingSoon: false
     }
   ];
 

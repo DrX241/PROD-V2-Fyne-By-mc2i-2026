@@ -483,22 +483,6 @@ export default function Home() {
     fetchCustomModules();
   }, []);
   
-  // Préchargement du module I AM mc2i pour une navigation plus rapide
-  useEffect(() => {
-    const preloadModule = async () => {
-      try {
-        // Le module I AM mc2i est souvent utilisé, on le précharge en mémoire
-        import('./amoa-mode-selection-new')
-          .then(() => console.log('Module I AM mc2i préchargé avec succès'))
-          .catch(() => {/* silence */});
-      } catch (error) {
-        // Silencieux - pas besoin d'alerter l'utilisateur si l'optimisation échoue
-      }
-    };
-    
-    // Exécution du préchargement après le rendu initial
-    preloadModule();
-  }, []);
 
   // Modules avec animations interactives
   const modules = [
@@ -513,7 +497,6 @@ export default function Home() {
       accentColor: "bg-blue-500",
       linkTo: "/cyber" // Lien direct vers la page cyber
     },
-    // Le module Cyber Playground a été supprimé selon la demande
     {
       title: "I AM DATA & IA",
       description: "Maîtrisez les concepts avancés de data science et d'intelligence artificielle à travers des simulations pratiques et des défis concrets.",
@@ -523,15 +506,7 @@ export default function Home() {
       accentColor: "bg-purple-500",
       linkTo: "/data-ia"
     },
-    {
-      title: "I AM mc2i",
-      description: "Perfectionnez vos compétences en assistance à maîtrise d'ouvrage avec des experts virtuels qui vous guideront à travers des cas complexes.",
-      icon: null,
-      color: "bg-emerald-600",
-      bgColor: "bg-gradient-to-br from-emerald-50 to-emerald-100",
-      accentColor: "bg-emerald-500",
-      linkTo: "/amoa-mode-selection-new"
-    },
+    // Le module Cyber Playground a été supprimé selon la demande
     {
       title: "Soyez qui vous voulez",
       description: "Créez votre propre parcours d'apprentissage personnalisé avec notre IA générative qui s'adapte à vos besoins spécifiques et objectifs professionnels.",

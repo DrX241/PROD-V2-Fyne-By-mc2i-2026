@@ -24,7 +24,7 @@ class OpenAIService {
   private readonly CACHE_TTL = 1000 * 60 * 60;
   private connectionStatus: 'connected' | 'disconnected' | 'reconnecting' = 'disconnected';
   private lastConnectionCheck: number = 0;
-  private readonly CONNECTION_CHECK_INTERVAL = 1000 * 60 * 1; // Vérifie la connexion toutes les minutes
+  private readonly CONNECTION_CHECK_INTERVAL = 1000 * 60 * 15; // Vérifie la connexion toutes les 15 minutes
   private reconnectInterval: NodeJS.Timeout | null = null;
   private reconnectAttempts: number = 0;
   private readonly MAX_RECONNECT_ATTEMPTS = 5;
@@ -94,33 +94,7 @@ class OpenAIService {
     console.log(`Azure OpenAI Service initialized with primary model: ${this.primaryConfig.modelName}`);
     console.log(`Azure OpenAI Service initialized with secondary model: ${this.secondaryConfig.modelName}`);
 
-    // Vérification initiale de la connexion avec le service Azure OpenAI
-    // Formatage correct de l'URL : suppression des doubles slashes
-    let baseEndpoint = this.secondaryConfig.endpoint;
-    if (baseEndpoint.endsWith('/')) {
-      baseEndpoint = baseEndpoint.slice(0, -1);
-    }
-
-    console.log(`Checking connection to Azure OpenAI at: ${baseEndpoint}/openai/deployments/${this.secondaryConfig.deploymentName}/chat/completions?api-version=${this.secondaryConfig.apiVersion}`);
-
-    this.checkConnection();
-
-    // Démarrer la vérification périodique de connexion
-    this.startPeriodicConnectionCheck();
-  }
-
-  // Démarre une vérification périodique de la connexion
-  private startPeriodicConnectionCheck(): void {
-    // Vérification toutes les minutes
-    setInterval(() => {
-      console.log('Performing periodic connection check to Azure OpenAI...');
-      this.checkConnection().then(isConnected => {
-        if (!isConnected && this.connectionStatus !== 'reconnecting') {
-          console.log('Connection lost, starting automatic reconnection...');
-          this.startReconnectionProcess();
-        }
-      });
-    }, this.CONNECTION_CHECK_INTERVAL);
+    // Azure OpenAI désactivé — plus utilisé en production (remplacé par Bedrock)
   }
 
   // Démarre le processus de reconnexion

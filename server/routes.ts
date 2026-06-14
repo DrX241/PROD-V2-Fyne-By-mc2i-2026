@@ -9,6 +9,8 @@ import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
 import { AuthController } from "./authController";
+import { llmTrackingMiddleware } from "./middleware/llmTrackingMiddleware";
+import { SsoAdminController, SsoAuthController } from "./ssoController";
 import { openAIService, geminiService } from "./services/gemini";
 import attachmentRoutes from './routes/attachmentRoutes';
 import cyberForgeRoutes from './routes/cyberForgeRoutes';
@@ -18,6 +20,12 @@ import prospectPulseRoutes from './routes/prospectPulseRoutes';
 import crisisCenterRoutes from './routes/crisisCenterRoutes';
 import audioRoutes from './routes/audioRoutes';
 import codeExecutionRoutes from './routes/codeExecutionRoutes';
+import formationRoutes from './routes/formationRoutes';
+import clientAuthRoutes, { clientKpiRouter } from './routes/clientAuthRoutes';
+import clientManagementRoutes from './routes/clientManagementRoutes';
+import clientAdminRoutes from './routes/clientAdminRoutes';
+import trainingRoutes from './routes/trainingRoutes';
+import evaluationRoutes from './routes/evaluationRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { evaluateInterviewTest, generateAdaptiveQuestion, generateInitialQuestion } from './cyberInterviewTestController';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
@@ -96,6 +104,8 @@ import { generateTeamMemberResponse, simulateTeamInteraction, generateCrisisUpda
 import { getChallenges, getChallengeById, getUserStats, getUserReports, submitBugReport, getReportById } from "./bugHunterController";
 import { generateCustomTool } from "./toolGeneratorController";
 import { getOrCreateUser, getUserById } from "./userController";
+import { AdminController } from "./adminController";
+import { SuperAdminController } from "./superAdminController";
 import { evaluateUserPerformance, generateFeedbackMessage } from "./amoaReflexTestController";
 import { generateAmoaQuestions } from "./amoaQuestionGenerator";
 import { 
@@ -485,30 +495,358 @@ export async function registerRoutes(app: Express): Promise<Server> {
       pool: pool,
       createTableIfMissing: true,
     }),
+    name: 'fyne.sid',
     secret: process.env.SESSION_SECRET || 'votre-secret-session-ultra-securise-changez-moi',
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // Mettre à true en production avec HTTPS
+      secure: false,
       httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 jours
+      maxAge: 7 * 24 * 60 * 60 * 1000
     }
   }));
+
+  // Session dédiée portail client (cookie séparé)
+  app.use('/api/client', session({
+    store: new pgSession({
+      pool: pool,
+      createTableIfMissing: true,
+    }),
+    name: 'fyne.client.sid',
+    secret: process.env.SESSION_SECRET || 'votre-secret-session-ultra-securise-changez-moi',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    }
+  }));
+
+  // Tracking LLM — injecte userId/feature dans AsyncLocalStorage pour chaque requête API
+  app.use('/api', llmTrackingMiddleware);
 
   // Routes d'authentification
   app.post('/api/auth/login', AuthController.login);
   app.post('/api/auth/logout', AuthController.logout);
   app.get('/api/auth/check', AuthController.checkAuth);
+  app.get('/api/auth/sso-status', async (_req, res) => {
+    try {
+      const { db: _db } = await import('./db');
+      const { ssoConfig: ssoTable } = await import('@shared/schema');
+      const [cfg] = await _db.select({ isEnabled: ssoTable.isEnabled }).from(ssoTable).limit(1);
+      res.json({ enabled: cfg?.isEnabled ?? false });
+    } catch { res.json({ enabled: false }); }
+  });
+
+  // Routes admin (protégées par rôle admin)
+  app.get('/api/admin/users', AuthController.requireAuth, AuthController.requireAdmin, AdminController.listUsers);
+  app.post('/api/admin/users', AuthController.requireAuth, AuthController.requireAdmin, AdminController.createUser);
+  app.patch('/api/admin/users/:id/toggle', AuthController.requireAuth, AuthController.requireAdmin, AdminController.toggleUser);
+  app.post('/api/admin/users/:id/reset-password', AuthController.requireAuth, AuthController.requireAdmin, AdminController.resetPassword);
+  app.delete('/api/admin/users/:id', AuthController.requireAuth, AuthController.requireAdmin, AdminController.deleteUser);
+  app.get('/api/admin/stats', AuthController.requireAuth, AuthController.requireAdmin, AdminController.getStats);
+  app.get('/api/admin/users/:id/report', AuthController.requireAuth, AuthController.requireAdmin, AdminController.exportUserPDF);
+  app.get('/api/admin/llm-usage', AuthController.requireAuth, AuthController.requireAdmin, AdminController.getLlmUsage);
+  app.patch('/api/admin/users/:id/modules', AuthController.requireAuth, AuthController.requireAdmin, async (req: Request, res: Response) => {
+    const adminUser = (req.session as any).user;
+    const { modulesEnabled } = req.body; // string[] ou null
+    try {
+      // l'admin ne peut accorder que ses propres modules
+      const adminModules: string[] = adminUser?.modulesEnabled ?? [];
+      const filtered = Array.isArray(modulesEnabled)
+        ? (modulesEnabled as string[]).filter((m: string) => adminModules.includes(m))
+        : null;
+      const result = await pool.query(
+        `UPDATE users SET modules_enabled = $1, updated_at = NOW() WHERE id = $2 RETURNING id`,
+        [filtered, req.params.id]
+      );
+      if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'Utilisateur introuvable' });
+      res.json({ success: true });
+    } catch (err) {
+      console.error('[admin] patch modules error:', err);
+      res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+  });
+
+  // Routes SSO (publiques : login + callback)
+  app.get('/auth/sso/login', SsoAuthController.initiateLogin);
+  app.get('/auth/sso/callback', SsoAuthController.handleCallback);
+
+  // Routes SSO (admin : config)
+  app.get('/api/admin/sso', AuthController.requireAuth, AuthController.requireAdmin, SsoAdminController.getConfig);
+  app.post('/api/admin/sso', AuthController.requireAuth, AuthController.requireAdmin, SsoAdminController.saveConfig);
+  app.post('/api/admin/sso/test', AuthController.requireAuth, AuthController.requireAdmin, SsoAdminController.testConfig);
+
+  // ── Super Admin routes ────────────────────────────────────────────────────────
+  app.get('/api/superadmin/users', AuthController.requireAuth, SuperAdminController.listUsers);
+  app.post('/api/superadmin/users', AuthController.requireAuth, SuperAdminController.createUser);
+  app.patch('/api/superadmin/users/:id/role', AuthController.requireAuth, SuperAdminController.updateRole);
+  app.patch('/api/superadmin/users/:id/subscription', AuthController.requireAuth, SuperAdminController.updateSubscription);
+  app.post('/api/superadmin/users/:id/reset-tokens', AuthController.requireAuth, SuperAdminController.resetTokens);
+  app.patch('/api/superadmin/users/:id/toggle', AuthController.requireAuth, SuperAdminController.toggleUser);
+  app.delete('/api/superadmin/users/:id', AuthController.requireAuth, SuperAdminController.deleteUser);
+  app.get('/api/superadmin/token-stats', AuthController.requireAuth, SuperAdminController.tokenStats);
+
+  // ── Superadmin: System Health (local exec — server runs on EC2) ──────────
+  app.get('/api/superadmin/system-health', async (req: Request, res: Response) => {
+    if (req.session?.user?.role !== 'superadmin') {
+      return res.status(403).json({ success: false, error: 'Forbidden' });
+    }
+
+    const { exec } = await import('child_process');
+    const execAsync = (cmd: string): Promise<string> =>
+      new Promise((resolve) => {
+        exec(cmd, { timeout: 10000 }, (err, stdout, stderr) => {
+          resolve((stdout || stderr || '').trim());
+        });
+      });
+
+    try {
+      const [diskOut, memOut, cpuOut, dockerOut, uptimeOut, appOut, npmOut] = await Promise.all([
+        execAsync("df -h / | tail -1"),
+        execAsync("free -m | grep Mem"),
+        execAsync("top -bn1 | grep 'Cpu(s)' | head -1"),
+        execAsync("docker system df 2>/dev/null || echo 'docker-unavailable'"),
+        execAsync("uptime"),
+        execAsync("docker ps --format '{{.Names}}\t{{.Status}}\t{{.Image}}' 2>/dev/null || pm2 list 2>/dev/null || echo 'no-containers'"),
+        execAsync("du -sh /root/.npm 2>/dev/null || echo '0\t-'"),
+      ]);
+
+      // Disk: /dev/nvme0n1p1  32G  5.2G  27G  16% /
+      const diskParts = diskOut.trim().split(/\s+/);
+      const disk = {
+        total:   diskParts[1] ?? '',
+        used:    diskParts[2] ?? '',
+        avail:   diskParts[3] ?? '',
+        usedPct: parseInt((diskParts[4] ?? '0').replace('%', ''), 10),
+      };
+
+      // Memory: Mem:  total  used  free  shared  buff/cache  available
+      const memParts = memOut.trim().split(/\s+/);
+      const memTotal = parseInt(memParts[1] ?? '0', 10);
+      const memUsed  = parseInt(memParts[2] ?? '0', 10);
+      const memory = {
+        total:   memTotal,
+        used:    memUsed,
+        free:    parseInt(memParts[3] ?? '0', 10),
+        usedPct: Math.round(memUsed / (memTotal || 1) * 100),
+      };
+
+      // CPU: %Cpu(s):  2.1 us,  0.5 sy,  0.0 ni, 97.4 id
+      const cpuUser   = parseFloat(cpuOut.match(/(\d+[\.,]\d+)\s+us/)?.[1]?.replace(',', '.') ?? '0');
+      const cpuSystem = parseFloat(cpuOut.match(/(\d+[\.,]\d+)\s+sy/)?.[1]?.replace(',', '.') ?? '0');
+      const cpuIdle   = parseFloat(cpuOut.match(/(\d+[\.,]\d+)\s+id/)?.[1]?.replace(',', '.') ?? '0');
+      const cpu = { user: cpuUser, system: cpuSystem, idle: cpuIdle };
+
+      // Docker df output — skip header line
+      const dockerLines = dockerOut.split('\n').filter(l => l && !l.startsWith('TYPE') && !l.includes('docker-unavailable'));
+      const dockerMap: Record<string, string> = {};
+      for (const dl of dockerLines) {
+        const parts = dl.trim().split(/\s{2,}/);
+        if (parts[0]) dockerMap[parts[0].toLowerCase()] = parts[2] ?? '0B';
+      }
+      const docker = {
+        images:     dockerMap['images']      ?? '0B',
+        containers: dockerMap['containers']  ?? '0B',
+        buildCache: dockerMap['build cache'] ?? '0B',
+      };
+
+      // App processes (docker ps or pm2)
+      const appLines = appOut.split('\n').filter(Boolean).filter(l => !l.includes('no-containers'));
+      const app = appLines.map(l => {
+        const [name, status, image] = l.split('\t');
+        return { name: name ?? l, status: status ?? 'running', image: image ?? '' };
+      });
+
+      // npm cache size
+      const npmCache = npmOut.split('\t')[0].trim();
+
+      return res.json({
+        success: true,
+        disk,
+        memory,
+        cpu,
+        docker,
+        uptime: uptimeOut,
+        app,
+        npmCache,
+        checkedAt: new Date().toISOString(),
+      });
+
+    } catch (err: any) {
+      console.error('[system-health] error:', err?.message ?? err);
+      return res.status(500).json({ success: false, error: err?.message ?? 'exec error' });
+    }
+  });
+
+  // ── Superadmin: System Action (local exec — server runs on EC2) ──────────
+  app.post('/api/superadmin/system-action', async (req: Request, res: Response) => {
+    if (req.session?.user?.role !== 'superadmin') {
+      return res.status(403).json({ success: false, error: 'Forbidden' });
+    }
+
+    const { action } = req.body as { action?: string };
+    const ALLOWED_ACTIONS: Record<string, string> = {
+      'docker-prune':    'docker system prune -f 2>&1 && echo "OK"',
+      'restart-app':     'pm2 restart all 2>&1 && echo "OK"',
+      'clear-npm-cache': 'rm -rf /root/.npm/_cacache 2>&1 && echo "OK"',
+    };
+
+    if (!action || !ALLOWED_ACTIONS[action]) {
+      return res.status(400).json({
+        success: false,
+        error: `Unknown action. Allowed: ${Object.keys(ALLOWED_ACTIONS).join(', ')}`,
+      });
+    }
+
+    const { exec } = await import('child_process');
+
+    try {
+      const output = await new Promise<string>((resolve, reject) => {
+        exec(ALLOWED_ACTIONS[action], { timeout: 30000 }, (err, stdout, stderr) => {
+          if (err && !stdout) return reject(err);
+          resolve((stdout || stderr || '').trim());
+        });
+      });
+
+      return res.json({ success: true, output });
+
+    } catch (err: any) {
+      console.error('[system-action] error:', err?.message ?? err);
+      return res.status(500).json({ success: false, error: err?.message ?? 'exec error' });
+    }
+  });
+
+  // ── Superadmin: CPU live stream (SSE — push toutes les 3s) ──────────────
+  app.get('/api/superadmin/cpu-stream', (req: Request, res: Response) => {
+    if (req.session?.user?.role !== 'superadmin') {
+      return res.status(403).end();
+    }
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
+    const { exec } = require('child_process');
+    const send = () => {
+      exec(
+        "top -bn1 | grep 'Cpu(s)' | head -1 && free -m | grep Mem | awk '{print $2,$3}' && cat /proc/loadavg",
+        { timeout: 5000 },
+        (err: any, stdout: string) => {
+          if (err) return;
+          const lines = stdout.trim().split('\n');
+          const cpuLine = lines[0] ?? '';
+          const memLine = lines[1] ?? '';
+          const loadLine = lines[2] ?? '';
+          const user   = parseFloat(cpuLine.match(/(\d+[\.,]\d+)\s+us/)?.[1]?.replace(',', '.') ?? '0');
+          const sys    = parseFloat(cpuLine.match(/(\d+[\.,]\d+)\s+sy/)?.[1]?.replace(',', '.') ?? '0');
+          const idle   = parseFloat(cpuLine.match(/(\d+[\.,]\d+)\s+id/)?.[1]?.replace(',', '.') ?? '100');
+          const [memTotal, memUsed] = memLine.trim().split(' ').map(Number);
+          const [load1, load5] = loadLine.trim().split(' ');
+          const payload = JSON.stringify({
+            ts: Date.now(),
+            cpu: { user, sys, idle, used: Math.round((user + sys) * 10) / 10 },
+            mem: { total: memTotal ?? 0, used: memUsed ?? 0, pct: Math.round((memUsed ?? 0) / ((memTotal ?? 1) || 1) * 100) },
+            load: { m1: parseFloat(load1 ?? '0'), m5: parseFloat(load5 ?? '0') },
+          });
+          res.write(`data: ${payload}\n\n`);
+        }
+      );
+    };
+
+    send();
+    const interval = setInterval(send, 3000);
+    req.on('close', () => clearInterval(interval));
+  });
+
+  // Permissions utilisateur connecté (modules activés)
+  app.get('/api/auth/permissions', AuthController.requireAuth, (req: Request, res: Response) => {
+    const session = req.session as any;
+    const user = session?.user;
+    res.json({
+      success: true,
+      modulesEnabled: user?.modulesEnabled ?? ['cyber','data','amoa','formation-data','evaluation','playground'],
+      tokenQuota: user?.tokenQuota ?? 100000,
+      tokenUsedMonth: user?.tokenUsedMonth ?? 0,
+      subscriptionLabel: user?.subscriptionLabel ?? 'Gratuit',
+      role: user?.role ?? 'user',
+    });
+  });
 
   // Middleware pour protéger toutes les autres routes
   app.use('/api', (req: Request, res: Response, next: any) => {
-    // Exclure les routes d'authentification
-    if (req.path.startsWith('/auth/')) {
+    // Exclure les routes d'authentification et le portail client
+    if (req.path.startsWith('/auth/') || req.path.startsWith('/client/')) {
       return next();
     }
     return AuthController.requireAuth(req, res, next);
   });
-  
+
+  // ── Contrôle d'accès par module ─────────────────────────────────────────────
+  // Chaque préfixe d'API est lié à un module ; si l'utilisateur n'a pas le module
+  // dans modulesEnabled, la requête est rejetée avec 403.
+  const cyberGuard      = AuthController.requireModule('cyber');
+  const dataGuard       = AuthController.requireModule('data');
+  const amoaGuard       = AuthController.requireModule('amoa');
+  const formationGuard  = AuthController.requireModule('formation-data');
+  const evaluationGuard = AuthController.requireModule('evaluation');
+  const playgroundGuard = AuthController.requireModule('playground');
+
+  app.use('/api/cyber',              cyberGuard);
+  app.use('/api/cyber-expert',       cyberGuard);
+  app.use('/api/cyber-pulse',        cyberGuard);
+  app.use('/api/cyber-investigator', cyberGuard);
+  app.use('/api/cyberchaos',         cyberGuard);
+  app.use('/api/cyber-defense',      cyberGuard);
+
+  app.use('/api/data-ia',            dataGuard);
+  app.use('/api/data-academie',      dataGuard);
+
+  app.use('/api/amoa',               amoaGuard);
+
+  app.use('/api/formation',          formationGuard);
+
+  app.use('/api/evaluation',         evaluationGuard);
+
+  app.use('/api/playground',         playgroundGuard);
+  app.use('/api/module-generator',   playgroundGuard);
+  // ── Fin contrôle d'accès par module ─────────────────────────────────────────
+
+  // ── Contrôle du quota de tokens ──────────────────────────────────────────────
+  // Bloque les appels LLM si l'utilisateur a épuisé son quota mensuel.
+  // Exclut les admins/superadmins et les routes non-LLM (admin, auth, status).
+  const { checkTokenQuota } = await import('./services/llmTracker');
+  const LLM_PREFIXES = [
+    '/api/cyber', '/api/cyber-expert', '/api/cyber-pulse', '/api/cyber-investigator',
+    '/api/cyberchaos', '/api/cyber-defense', '/api/data-ia', '/api/data-academie',
+    '/api/amoa', '/api/formation', '/api/evaluation', '/api/playground', '/api/module-generator',
+    '/api/pentest',
+  ];
+  app.use(async (req: Request, res: Response, next: NextFunction) => {
+    const session = (req as any).session?.user;
+    if (!session) return next();
+    if (session.role === 'admin' || session.role === 'superadmin') return next();
+    const isLlmRoute = LLM_PREFIXES.some(p => req.path.startsWith(p));
+    if (!isLlmRoute) return next();
+    try {
+      const quota = await checkTokenQuota(session.id);
+      if (!quota.allowed) {
+        return res.status(429).json({
+          success: false,
+          quotaExceeded: true,
+          message: `Vous avez atteint votre quota de ${quota.tokenQuota.toLocaleString()} tokens pour ce mois. Contactez votre administrateur pour augmenter votre quota.`,
+          tokenUsedMonth: quota.tokenUsedMonth,
+          tokenQuota: quota.tokenQuota,
+        });
+      }
+    } catch (e) {
+      // Non bloquant — on laisse passer en cas d'erreur DB
+    }
+    next();
+  });
+  // ── Fin contrôle quota tokens ────────────────────────────────────────────────
+
   // Routes pour l'IA de pentest et les défis dynamiques
   const { generateChallenge, analyzeSolution, getCustomHint } = await import("./controllers/pentestAIController").then(module => module.default);
   
@@ -658,6 +996,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Enregistrer les routes pour le Centre de Crise
   app.use('/api/crisis-center', crisisCenterRoutes);
   app.use('/api/code', codeExecutionRoutes);
+  app.use('/api/formation', formationRoutes);
+  app.use('/api/evaluation', evaluationRoutes);
+  app.use('/api/client/auth', clientAuthRoutes);
+  app.use('/api/client/kpi', clientKpiRouter);
+  app.use('/api/client/admin', clientAdminRoutes);
+  app.use('/api/client/training', trainingRoutes);
+  app.use('/api/client/formation', formationRoutes);
+  app.use('/api/admin', clientManagementRoutes);
   
   // Routes pour l'exécution de code
   app.post('/api/code/execute/python', executePythonCode);
@@ -3005,11 +3351,14 @@ Reprenons depuis le début pour mieux explorer ce scénario dans le domaine "${s
       res.json({
         connectionStatus: openAIService.getConnectionStatus(),
         currentModel: openAIService.getCurrentModelName(),
+        currentModelKey: (openAIService as any).getCurrentModelKey?.() ?? 'standard',
         apiKeyType: openAIService.getCurrentApiKeyType(),
-        lastCheck: openAIService.getLastConnectionCheck() || Date.now()
+        lastCheck: openAIService.getLastConnectionCheck() || Date.now(),
+        availableModels: (openAIService as any).getAvailableModels?.() ?? [],
       });
     } catch (error) {
       console.error('Error checking API status:', error);
+      res.status(500).json({ connectionStatus: 'disconnected' });
     }
   });
 
@@ -3353,36 +3702,33 @@ Réponds directement sans introduction ni formule de politesse, comme si tu inte
   // API pour évaluer les décisions prises dans le module Cyber Defense
   app.post("/api/cyber-defense/evaluate-decision", evaluateDecision);
   
-  // API route pour basculer entre les clés API (Claude 3.5 Sonnet et Claude 3 Haiku)
+  // Switch modèle global : { model: 'standard' | 'eco' }
+  app.post('/api/openai/switch-model', (req: Request, res: Response) => {
+    try {
+      const { model } = req.body;
+      const ok = (openAIService as any).setModel?.(model);
+      if (!ok) {
+        return res.status(400).json({ status: 'error', message: `Modèle inconnu: ${model}` });
+      }
+      const catalog = (openAIService as any).getAvailableModels?.() ?? [];
+      const selected = catalog.find((m: any) => m.key === model);
+      console.log(`[Model switch] → ${model} (${selected?.modelId})`);
+      res.json({ status: 'success', model, label: selected?.label, description: selected?.description });
+    } catch (error) {
+      console.error('Error switching model:', error);
+      res.status(500).json({ status: 'error', message: 'Failed to switch model' });
+    }
+  });
+
+  // Compatibilité ancienne route (primary/secondary → standard/eco)
   app.post('/api/cyber/switch-api-key', (req: Request, res: Response) => {
     try {
       const { keyType } = req.body;
-      
-      if (keyType !== 'primary' && keyType !== 'secondary') {
-        return res.status(400).json({
-          status: 'error',
-          message: 'Invalid key type. Must be "primary" or "secondary"'
-        });
-      }
-      
-      // Basculer réellement vers le type de clé demandé
-      openAIService.switchApiKey(keyType);
-      
-      // Récupérer le nom du modèle en fonction du type de clé
-      const modelName = 'Gemini FYNE';
-      console.log(`Switched API key to ${keyType} (${modelName})`);
-      
-      res.json({
-        status: 'success',
-        currentApiKey: keyType,
-        modelName: modelName
-      });
+      const model = keyType === 'secondary' ? 'eco' : 'standard';
+      (openAIService as any).setModel?.(model);
+      res.json({ status: 'success', currentApiKey: keyType, modelName: openAIService.getCurrentModelName() });
     } catch (error) {
-      console.error('Error switching API key:', error);
-      res.status(500).json({
-        status: 'error',
-        message: 'Failed to switch API key'
-      });
+      res.status(500).json({ status: 'error', message: 'Failed to switch API key' });
     }
   });
 
@@ -5660,6 +6006,77 @@ Niveau ${levelDesc}. Contexte français réaliste. Pour visual.type utilise: ema
     }
   });
 
+  // PUT /api/studio/training/:id — Sauvegarde les modifications de l'éditeur
+  app.put("/api/studio/training/:id", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { title, tagline, content } = req.body;
+      if (!content && !title && !tagline) return res.status(400).json({ error: 'Aucune modification fournie' });
+      const updated = await storage.updateGeneratedTraining(id, {
+        ...(title !== undefined && { title }),
+        ...(tagline !== undefined && { tagline }),
+        ...(content !== undefined && { content }),
+      });
+      if (!updated) return res.status(404).json({ error: 'Formation introuvable' });
+      return res.json({ success: true, training: updated });
+    } catch (error) {
+      console.error('[Studio] Erreur mise à jour formation:', error);
+      return res.status(500).json({ error: 'Erreur lors de la sauvegarde' });
+    }
+  });
+
+  // POST /api/studio/improve-slide — Enrichit un slide ciblé avec l'IA (~300 tokens)
+  app.post("/api/studio/improve-slide", async (req: Request, res: Response) => {
+    try {
+      const { slide, lessonTitle, instruction } = req.body;
+      if (!slide || !slide.type) return res.status(400).json({ error: 'Slide manquant' });
+
+      const typeInstructions: Record<string, string> = {
+        theorie: 'Enrichis le contenu (2-3 phrases supplémentaires), améliore les points clés, rends l\'exemple plus concret.',
+        pratique: 'Rends le contexte plus réaliste et immersif, enrichis la réponse avec plus de bonnes pratiques.',
+        'fill-blank': 'Améliore la phrase à trous pour qu\'elle soit plus pédagogique et mémorable.',
+        'vrai-faux': 'Améliore les explications des affirmations pour qu\'elles soient plus claires et instructives.',
+        intro: 'Rends l\'accroche plus percutante et les objectifs plus précis.',
+        conclusion: 'Rends les points à retenir plus impactants et le message final plus motivant.',
+      };
+
+      const prompt = `Formation: "${lessonTitle || 'Formation'}". Type de slide: ${slide.type}.
+${instruction ? `Instruction spécifique: ${instruction}` : typeInstructions[slide.type] || 'Améliore ce slide.'}
+
+Slide actuel:
+${JSON.stringify(slide, null, 2)}
+
+Réponds UNIQUEMENT avec le slide amélioré en JSON valide, même structure, sans markdown.`;
+
+      const raw = await openAIService.getChatCompletion([
+        { role: 'user', content: prompt }
+      ], 0.7, 1200);
+
+      const clean = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const start = clean.indexOf('{');
+      const end = clean.lastIndexOf('}');
+      if (start === -1 || end === -1) return res.status(500).json({ error: 'Réponse IA invalide' });
+      const improved = JSON.parse(clean.slice(start, end + 1));
+      return res.json({ slide: { ...improved, id: slide.id, type: slide.type } });
+    } catch (error) {
+      console.error('[Studio] Erreur amélioration slide:', error);
+      return res.status(500).json({ error: 'Erreur lors de l\'amélioration' });
+    }
+  });
+
+  // DELETE /api/studio/trainings/all — Vide toute la bibliothèque (admin)
+  app.delete("/api/studio/trainings/all", async (req: Request, res: Response) => {
+    try {
+      const { db } = await import('./db');
+      const { generatedTrainings } = await import('../shared/schema');
+      await db.delete(generatedTrainings);
+      res.json({ success: true, message: 'Bibliothèque vidée' });
+    } catch (error) {
+      console.error('[Studio] Erreur vidage bibliothèque:', error);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
   // POST /api/studio/evaluate-response — Évalue une réponse libre via l'IA
   app.post("/api/studio/evaluate-response", async (req: Request, res: Response) => {
     try {
@@ -6565,175 +6982,32 @@ Réponds UNIQUEMENT avec ce JSON (sans markdown) :
     }
   });
 
-  // POST /api/studio/generate-lesson-from-prompt — Génère une leçon interactive en slides depuis un pitch texte
+  // POST /api/studio/generate-lesson-from-prompt — Pipeline robuste slide-par-slide + Zod + retry
   app.post("/api/studio/generate-lesson-from-prompt", async (req: Request, res: Response) => {
     try {
-      const { pitch, domain, audience, difficulty, duration } = req.body;
+      const { pitch, domain, audience, difficulty } = req.body;
       if (!pitch) return res.status(400).json({ error: 'Le pitch est requis' });
 
-      const audienceLabels: Record<string, string> = {
-        grand_public: 'grand public sans expertise particulière',
-        managers: 'managers et responsables d\'équipe',
-        experts: 'experts techniques',
-        rh: 'équipes RH et formation',
-        dirigeants: 'dirigeants et membres du COMEX',
-        commercial: 'équipes commerciales',
-      };
-
-      const difficultyLabels: Record<string, string> = {
-        debutant: 'Débutant — notions fondamentales, vocabulaire de base, exemples simples, défis accessibles',
-        intermediaire: 'Intermédiaire — concepts métier, cas pratiques réalistes, défis stimulants',
-        expert: 'Expert — enjeux avancés, cas complexes, subtilités techniques, défis exigeants',
-      };
-
-      const grandPublicBlock = audience === 'grand_public' ? `
-MODE GRAND PUBLIC — VULGARISATION EXTRÊME OBLIGATOIRE :
-- Tu t'adresses à quelqu'un qui n'a JAMAIS entendu ces termes. Zéro jargon sans explication immédiate.
-- Chaque concept DOIT avoir une métaphore de la vie courante (cuisine, sport, courses, voiture, famille, téléphone, argent, maison, météo).
-- Utilise systématiquement "c'est comme si..." ou "imagine que..." pour ancrer chaque notion.
-- Phrases courtes. Vocabulaire simple. Exemples du quotidien UNIQUEMENT.
-- Les mises en pratique : situations de la vie de tous les jours, pas professionnelles (ex: gérer ses mots de passe comme ses clés de maison).
-- Le QCM : questions formulées simplement, sans termes techniques, distracteurs plausibles mais faciles à démêler avec du bon sens.
-` : '';
-
-      const prompt = `Tu es un expert en ingénierie pédagogique. Crée une leçon interactive complète en format slides à partir du besoin suivant.
-
-BESOIN : ${pitch}
-${domain ? `DOMAINE : ${domain}` : ''}
-PUBLIC CIBLE : ${audienceLabels[audience] || audience || 'grand public'}
-NIVEAU DE DIFFICULTÉ : ${difficultyLabels[difficulty] || difficultyLabels['intermediaire']}
-${duration ? `DURÉE CIBLE : ${duration} minutes` : ''}
-${grandPublicBlock}
-RÈGLES OBLIGATOIRES :
-1. Génère une leçon de 13 à 15 slides : intro + 5-6 paires [théorie + pratique/fill-blank/vrai-faux] + conclusion
-2. ALTERNE : intro → théorie → [pratique OU fill-blank OU vrai-faux] → théorie → ... → conclusion — avec OBLIGATOIREMENT au minimum 1 slide "fill-blank" et 1 slide "vrai-faux" parmi les slides de pratique
-3. THÉORIE : explique des concepts RÉELS et précis liés au besoin (définitions, mécanismes, chiffres, procédures, bonnes pratiques)
-4. PRATIQUE : formule chaque exercice comme un DÉFI engageant avec un niveau (Débutant/Intermédiaire/Expert) — situation réaliste, question ouverte stimulante
-5. Contenu riche, pédagogique et adapté au public cible — utilise des exemples concrets et percutants
-6. Chaque slide "theorie" : titre (du concept exact), contenu (4-5 phrases d'explication), pointsCles (3 bullet points essentiels), exemple (2-3 phrases)
-7. Chaque slide "pratique" : titre avec niveau ex "Défi Intermédiaire : [nom]", contexte (situation 3-4 phrases immersive), question (défi concret stimulant), indice (conseil), reponse (réponse complète 3-4 phrases)
-8. Chaque slide "fill-blank" (TEXTE À TROUS) : titre accrocheur, instruction courte, phrase avec 2-3 mots-clés remplacés par [mot], tableau mots (les mots attendus dans l'ordre), explication pédagogique. IMPORTANT : utilise [crochets] dans la phrase pour marquer chaque blanc.
-9. Chaque slide "vrai-faux" : titre, affirmations (tableau de 3-4 objets {texte, reponse:true/false, explication}) — affirmations stimulantes qui challengent les préconçus, réponses variées (pas que du vrai ou que du faux)
-10. Génère aussi un QCM de 10 questions variées qui testent la compréhension des concepts couverts dans les slides
-11. Chaque question QCM : question claire et précise, 4 choix (A/B/C/D) dont 1 seul correct, bonneReponse (index 0-3), explication motivante de la bonne réponse
-
-Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
-{
-  "title": "Titre de la leçon",
-  "subtitle": "Sous-titre pédagogique — angle en moins de 12 mots",
-  "description": "Résumé de ce que cette leçon enseigne — 2 phrases",
-  "slides": [
-    {
-      "id": 1,
-      "type": "intro",
-      "titre": "Titre accrocheur de l'introduction",
-      "contenu": "Accroche et présentation du sujet — pourquoi c'est crucial — 2-3 phrases percutantes",
-      "objectifs": ["Objectif 1 avec verbe d'action", "Objectif 2", "Objectif 3", "Objectif 4"]
-    },
-    {
-      "id": 2,
-      "type": "theorie",
-      "titre": "Nom exact du concept 1",
-      "contenu": "Explication précise et détaillée — 4-5 phrases riches",
-      "pointsCles": ["Point clé essentiel 1", "Point clé 2", "Point clé 3"],
-      "exemple": "Exemple concret ou cas d'usage professionnel — 2-3 phrases"
-    },
-    {
-      "id": 3,
-      "type": "pratique",
-      "titre": "Exercice : Appliquer [concept 1]",
-      "contexte": "Situation professionnelle réaliste — personnage + contexte + défi — 3-4 phrases",
-      "question": "Question ouverte ou défi concret posé au participant",
-      "indice": "Piste de réflexion pour guider sans donner la réponse",
-      "reponse": "Réponse idéale et complète — 3-4 phrases avec les bonnes pratiques"
-    },
-    { "id": 4, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    {
-      "id": 5,
-      "type": "fill-blank",
-      "titre": "Complète la définition",
-      "instruction": "Remplis les blancs avec les bons termes :",
-      "phrase": "Le [concept clé 1] consiste à [action principale] afin de [objectif].",
-      "mots": ["concept clé 1", "action principale", "objectif"],
-      "explication": "Explication pédagogique du concept illustré par la phrase — 2-3 phrases."
-    },
-    { "id": 6, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    {
-      "id": 7,
-      "type": "vrai-faux",
-      "titre": "Vrai ou Faux ?",
-      "affirmations": [
-        { "texte": "Affirmation vraie sur un concept de la leçon.", "reponse": true, "explication": "Explication courte — pourquoi c'est vrai." },
-        { "texte": "Idée reçue fausse que les apprenants pourraient croire.", "reponse": false, "explication": "Explication courte — pourquoi c'est faux." },
-        { "texte": "Autre affirmation à évaluer.", "reponse": true, "explication": "Explication courte." },
-        { "texte": "Autre idée reçue à challenger.", "reponse": false, "explication": "Explication courte." }
-      ]
-    },
-    { "id": 8, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    { "id": 9, "type": "pratique", "titre": "Défi Expert : ...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
-    { "id": 10, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    { "id": 11, "type": "pratique", "titre": "Défi Intermédiaire : ...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
-    {
-      "id": 12,
-      "type": "conclusion",
-      "titre": "Ce qu'il faut retenir",
-      "points": ["Enseignement clé 1", "Enseignement clé 2", "Enseignement clé 3", "Enseignement clé 4", "Enseignement clé 5"],
-      "message": "Message de clôture motivant et actionnable — 2 phrases"
-    }
-  ],
-  "qcm": [
-    {
-      "id": 1,
-      "question": "Question sur un concept clé de la leçon ?",
-      "choix": ["A. Premier choix", "B. Deuxième choix", "C. Troisième choix", "D. Quatrième choix"],
-      "bonneReponse": 0,
-      "explication": "Explication motivante de pourquoi c'est la bonne réponse — 1-2 phrases"
-    },
-    { "id": 2, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 2, "explication": "..." },
-    { "id": 3, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." },
-    { "id": 4, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 3, "explication": "..." },
-    { "id": 5, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 0, "explication": "..." },
-    { "id": 6, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." },
-    { "id": 7, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 2, "explication": "..." },
-    { "id": 8, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 0, "explication": "..." },
-    { "id": 9, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 3, "explication": "..." },
-    { "id": 10, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." }
-  ]
-}`;
-
-      const parseJsonSafely = (str: string) => {
-        try {
-          const clean = str.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-          const start = clean.indexOf('{');
-          const end = clean.lastIndexOf('}');
-          if (start === -1 || end === -1) return null;
-          const fixed = clean.slice(start, end + 1).replace(/[\r\n]+/g, ' ');
-          return JSON.parse(fixed);
-        } catch { return null; }
-      };
-
+      // Cache DB — évite de régénérer si même pitch/contexte récent
       const lessonCacheKey = `${pitch.trim()}|${audience || 'grand_public'}|${difficulty || 'intermediaire'}|${domain || ''}`;
       const { getCached: getLessonCache, setCached: setLessonCache } = await import('./services/dbCacheService');
       const cachedLesson = await getLessonCache(lessonCacheKey, 'lesson');
       if (cachedLesson) {
-        const lesson = parseJsonSafely(cachedLesson);
-        if (lesson) {
-          console.log('[Lesson] Cache DB hit');
-          return res.json({ lesson, id: `cached-${Date.now()}`, fromCache: true });
-        }
+        try {
+          const lesson = JSON.parse(cachedLesson);
+          if (lesson?.slides?.length >= 3) {
+            console.log('[Lesson] Cache DB hit');
+            return res.json({ lesson, id: `cached-${Date.now()}`, fromCache: true });
+          }
+        } catch {}
       }
 
-      const aiResponse = await openAIService.getChatCompletion([
-        { role: 'user', content: prompt }
-      ], 0.65, 16000);
+      // Pipeline robuste
+      const { generateLesson } = await import('./services/lessonGenerator');
+      const lesson = await generateLesson({ pitch, domain, audience, difficulty });
 
-      const lesson = parseJsonSafely(aiResponse);
-      if (!lesson || !lesson.slides || !Array.isArray(lesson.slides) || lesson.slides.length < 3) {
-        console.warn('[Lesson IA] Parsing échoué:', aiResponse.slice(0, 500));
-        return res.status(500).json({ error: 'Impossible de générer la leçon. Réessayez.' });
-      }
-
-      await setLessonCache(lessonCacheKey, 'lesson', aiResponse, 30);
+      // Mise en cache
+      await setLessonCache(lessonCacheKey, 'lesson', JSON.stringify(lesson), 30).catch(() => {});
 
       const id = uuidv4();
       await storage.saveGeneratedTraining({
@@ -6741,7 +7015,7 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
         title: lesson.title || 'Leçon interactive',
         tagline: lesson.subtitle || '',
         source: 'lesson',
-        sourceInfo: { pitch: pitch.slice(0, 200), domain, slideCount: lesson.slides.length },
+        sourceInfo: { pitch: pitch.slice(0, 200), domain, slideCount: lesson.slides.length, score: lesson._meta?.score },
         audience: audience || 'grand_public',
         gamificationLevel: 'medium',
         content: lesson,
@@ -6835,10 +7109,11 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
 
   app.post("/api/studio/generate-lesson", uploadLessonMiddleware, async (req: Request, res: Response) => {
     try {
-      const { title, audience } = req.body;
+      const { title, audience, difficulty } = req.body;
       const files = req.files as Express.Multer.File[] || [];
       if (files.length === 0) return res.status(400).json({ error: 'Au moins un fichier est requis' });
 
+      // Extraction texte (inchangée — fiable)
       const extractTextFromFile = async (f: Express.Multer.File): Promise<string> => {
         const ext = f.originalname.split('.').pop()?.toLowerCase() || '';
         try {
@@ -6869,167 +7144,25 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
         } catch (e) {
           console.warn(`[Lesson] Extraction échouée pour ${f.originalname}:`, e);
         }
-        return `[Fichier: ${f.originalname}]`;
+        return '';
       };
 
       const extractedTexts = await Promise.all(files.map(async f => {
         const text = await extractTextFromFile(f);
-        return `=== FICHIER : ${f.originalname} (${(f.size / 1024).toFixed(0)} Ko) ===\n${text}`;
+        return `=== ${f.originalname} ===\n${text}`;
       }));
-      const filesSummary = extractedTexts.join('\n\n').slice(0, 25000);
-      const audienceLabel = ({ grand_public: 'grand public', managers: 'managers', experts: 'experts', rh: 'équipes RH', dirigeants: 'dirigeants' } as any)[audience] || 'professionnels';
+      const sourceContext = extractedTexts.join('\n\n').slice(0, 25000);
 
-      const grandPublicBlockDocs = audience === 'grand_public' ? `
-MODE GRAND PUBLIC — VULGARISATION EXTRÊME OBLIGATOIRE :
-- Tu t'adresses à quelqu'un qui n'a JAMAIS entendu ces termes. Zéro jargon sans explication immédiate.
-- Chaque concept DOIT avoir une métaphore de la vie courante (cuisine, sport, courses, voiture, famille, téléphone, argent, maison, météo).
-- Utilise systématiquement "c'est comme si..." ou "imagine que..." pour ancrer chaque notion.
-- Phrases courtes. Vocabulaire simple. Exemples du quotidien UNIQUEMENT.
-- Les mises en pratique : situations de la vie de tous les jours, pas professionnelles.
-- Le QCM : questions formulées simplement, sans termes techniques.
-` : '';
-
-      const prompt = `Tu es un expert en ingénierie pédagogique spécialisé dans les leçons interactives. Crée une leçon complète basée STRICTEMENT sur le contenu des documents fournis.
-
-FICHIERS FOURNIS :
-${filesSummary}
-
-PUBLIC CIBLE : ${audienceLabel}
-${title ? `TITRE SOUHAITÉ : "${title}"` : ''}
-${grandPublicBlockDocs}
-RÈGLES OBLIGATOIRES :
-1. Génère une leçon de 13 à 15 slides : intro + 5-6 paires [théorie + pratique/fill-blank/vrai-faux] + conclusion
-2. ALTERNE : intro → théorie → [pratique OU fill-blank OU vrai-faux] → théorie → ... → conclusion — avec OBLIGATOIREMENT au minimum 1 slide "fill-blank" et 1 slide "vrai-faux" parmi les slides d'exercice
-3. THÉORIE : explique des concepts RÉELS et précis tirés du document (définitions, mécanismes, chiffres, procédures)
-4. PRATIQUE : formule chaque exercice comme un DÉFI engageant avec un niveau (Débutant/Intermédiaire/Expert) — situation réaliste et immersive liée au concept précédent
-5. Contenu FIDÈLE au document — ne pas inventer — utilise les termes exacts du document
-6. Chaque slide "theorie" : titre (du concept exact), contenu (4-5 phrases d'explication), pointsCles (3 bullet points essentiels), exemple (2-3 phrases)
-7. Chaque slide "pratique" : titre avec niveau ex "Défi Débutant : [nom]", contexte (situation 3-4 phrases immersive), question (défi concret stimulant), indice (conseil), reponse (réponse complète 3-4 phrases)
-8. Chaque slide "fill-blank" (TEXTE À TROUS) : titre accrocheur, instruction courte, phrase tirée du contenu du document avec 2-3 mots-clés remplacés par [mot] en crochets, tableau mots (les mots attendus dans l'ordre), explication pédagogique
-9. Chaque slide "vrai-faux" : titre, affirmations (tableau de 3-4 objets {texte, reponse:true/false, explication}) — affirmations basées sur le contenu du document, réponses variées
-10. Génère aussi un QCM de 10 questions variées qui testent la compréhension des concepts couverts dans les slides
-11. Chaque question QCM : question claire et précise, 4 choix (A/B/C/D) dont 1 seul correct, bonneReponse (index 0-3), explication motivante de la bonne réponse
-
-Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdown) :
-{
-  "title": "Titre de la leçon",
-  "subtitle": "Sous-titre pédagogique — angle en moins de 12 mots",
-  "description": "Résumé de ce que cette leçon enseigne — 2 phrases",
-  "slides": [
-    {
-      "id": 1,
-      "type": "intro",
-      "titre": "Titre accrocheur de l'introduction",
-      "contenu": "Accroche et présentation du sujet — pourquoi c'est crucial — 2-3 phrases percutantes",
-      "objectifs": ["Objectif 1 avec verbe d'action", "Objectif 2", "Objectif 3", "Objectif 4"]
-    },
-    {
-      "id": 2,
-      "type": "theorie",
-      "titre": "Nom exact du concept 1",
-      "contenu": "Explication précise et détaillée — 4-5 phrases riches tirées du document",
-      "pointsCles": ["Point clé essentiel 1", "Point clé 2", "Point clé 3"],
-      "exemple": "Exemple concret ou cas d'usage professionnel — 2-3 phrases"
-    },
-    {
-      "id": 3,
-      "type": "pratique",
-      "titre": "Exercice : Appliquer [concept 1]",
-      "contexte": "Situation professionnelle réaliste — personnage + contexte + défi — 3-4 phrases",
-      "question": "Question ouverte ou défi concret posé au participant",
-      "indice": "Piste de réflexion pour guider sans donner la réponse",
-      "reponse": "Réponse idéale et complète — 3-4 phrases avec les bonnes pratiques"
-    },
-    {
-      "id": 4,
-      "type": "theorie",
-      "titre": "Nom exact du concept 2",
-      "contenu": "...",
-      "pointsCles": ["...", "...", "..."],
-      "exemple": "..."
-    },
-    {
-      "id": 5,
-      "type": "pratique",
-      "titre": "Exercice : Appliquer [concept 2]",
-      "contexte": "...",
-      "question": "...",
-      "indice": "...",
-      "reponse": "..."
-    },
-    {
-      "id": 6,
-      "type": "fill-blank",
-      "titre": "Complète la définition",
-      "instruction": "Remplis les blancs avec les bons termes tirés du document :",
-      "phrase": "Le [concept clé] permet de [action] grâce à [mécanisme].",
-      "mots": ["concept clé", "action", "mécanisme"],
-      "explication": "Explication pédagogique du concept — 2-3 phrases."
-    },
-    { "id": 7, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    {
-      "id": 8,
-      "type": "vrai-faux",
-      "titre": "Vrai ou Faux ?",
-      "affirmations": [
-        { "texte": "Affirmation vraie tirée du document.", "reponse": true, "explication": "Explication courte." },
-        { "texte": "Idée reçue fausse à corriger.", "reponse": false, "explication": "Explication courte." },
-        { "texte": "Autre affirmation à évaluer.", "reponse": true, "explication": "Explication courte." },
-        { "texte": "Autre idée reçue.", "reponse": false, "explication": "Explication courte." }
-      ]
-    },
-    { "id": 9, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    { "id": 10, "type": "pratique", "titre": "Défi Expert : ...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
-    { "id": 11, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    { "id": 12, "type": "pratique", "titre": "Défi Intermédiaire : ...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
-    {
-      "id": 13,
-      "type": "conclusion",
-      "titre": "Ce qu'il faut retenir",
-      "points": ["Enseignement clé 1", "Enseignement clé 2", "Enseignement clé 3", "Enseignement clé 4", "Enseignement clé 5"],
-      "message": "Message de clôture motivant et actionnable — 2 phrases"
-    }
-  ],
-  "qcm": [
-    {
-      "id": 1,
-      "question": "Question sur un concept clé de la leçon ?",
-      "choix": ["A. Premier choix", "B. Deuxième choix", "C. Troisième choix", "D. Quatrième choix"],
-      "bonneReponse": 0,
-      "explication": "Explication motivante de pourquoi c'est la bonne réponse — 1-2 phrases"
-    },
-    { "id": 2, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 2, "explication": "..." },
-    { "id": 3, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." },
-    { "id": 4, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 3, "explication": "..." },
-    { "id": 5, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 0, "explication": "..." },
-    { "id": 6, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." },
-    { "id": 7, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 2, "explication": "..." },
-    { "id": 8, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 0, "explication": "..." },
-    { "id": 9, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 3, "explication": "..." },
-    { "id": 10, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." }
-  ]
-}`;
-
-      const aiResponse = await openAIService.getChatCompletion([
-        { role: 'user', content: prompt }
-      ], 0.6, 16000);
-
-      const parseJsonSafely = (str: string) => {
-        try {
-          const clean = str.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-          const start = clean.indexOf('{');
-          const end = clean.lastIndexOf('}');
-          if (start === -1 || end === -1) return null;
-          const fixed = clean.slice(start, end + 1).replace(/[\r\n]+/g, ' ');
-          return JSON.parse(fixed);
-        } catch { return null; }
-      };
-
-      const lesson = parseJsonSafely(aiResponse);
-      if (!lesson || !lesson.slides || !Array.isArray(lesson.slides) || lesson.slides.length < 3) {
-        console.warn('[Lesson] Parsing échoué:', aiResponse.slice(0, 500));
-        return res.status(500).json({ error: 'Impossible de générer la leçon. Réessayez.' });
+      if (sourceContext.trim().length < 80) {
+        return res.status(400).json({ error: 'Impossible d\'extraire du texte de vos fichiers. Vérifiez que les fichiers contiennent du texte lisible.' });
       }
+
+      // Pitch déduit du titre ou du contenu extrait
+      const pitch = title || `Formation basée sur : ${files.map(f => f.originalname).join(', ')}`;
+
+      // Pipeline robuste — même moteur que le mode prompt, enrichi du contexte source
+      const { generateLesson } = await import('./services/lessonGenerator');
+      const lesson = await generateLesson({ pitch, audience, difficulty, sourceContext });
 
       const id = uuidv4();
       await storage.saveGeneratedTraining({
@@ -7037,7 +7170,7 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
         title: lesson.title || 'Leçon interactive',
         tagline: lesson.subtitle || '',
         source: 'lesson',
-        sourceInfo: { files: files.map(f => f.originalname), slideCount: lesson.slides.length },
+        sourceInfo: { files: files.map(f => f.originalname), slideCount: lesson.slides.length, score: lesson._meta?.score },
         audience: audience || 'grand_public',
         gamificationLevel: 'medium',
         content: lesson,
@@ -7047,6 +7180,793 @@ Réponds UNIQUEMENT avec ce JSON valide (sans texte avant ni après, sans markdo
     } catch (error: any) {
       console.error('[Studio Lesson] Erreur:', error?.message || error);
       res.status(500).json({ error: 'Erreur lors de la génération de la leçon. Réessayez.' });
+    }
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // STUDIO V2 — Moteur de génération unifié (brief complet + documents)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // Extraction documentaire puissante (PDF + Word uniquement)
+  const extractDocumentText = async (f: Express.Multer.File): Promise<{ text: string; structure: string[]; charCount: number }> => {
+    const ext = f.originalname.split('.').pop()?.toLowerCase() || '';
+    let raw = '';
+    const sections: string[] = [];
+
+    try {
+      if (ext === 'pdf') {
+        const pdfParse = (await import('pdf-parse')).default;
+        const result = await pdfParse(f.buffer, {
+          pagerender: (pageData: any) => {
+            return pageData.getTextContent().then((tc: any) => {
+              let last = '';
+              let text = '';
+              for (const item of tc.items) {
+                const str = (item as any).str;
+                if (str.trim()) {
+                  if (last && (item as any).transform?.[5] !== undefined) {
+                    text += str + ' ';
+                  } else {
+                    text += '\n' + str + ' ';
+                  }
+                  last = str;
+                }
+              }
+              return text;
+            });
+          }
+        });
+        raw = result.text || '';
+        // Détection des sections par heuristique (lignes courtes en majuscules ou numérotées)
+        const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+        for (const line of lines) {
+          if (line.length < 80 && (line === line.toUpperCase() || /^[0-9]+[\.\)]\s/.test(line) || /^#{1,3}\s/.test(line))) {
+            sections.push(line);
+          }
+        }
+      } else if (ext === 'docx' || ext === 'doc') {
+        const mammoth = await import('mammoth');
+        // Extraction avec HTML pour conserver titres/listes
+        const htmlResult = await mammoth.convertToHtml({ buffer: f.buffer });
+        const html = htmlResult.value;
+        // Extraire les titres comme sections
+        const headingMatches = html.matchAll(/<h[1-3][^>]*>(.*?)<\/h[1-3]>/gi);
+        for (const m of headingMatches) {
+          sections.push(m[1].replace(/<[^>]+>/g, '').trim());
+        }
+        // Texte brut propre depuis HTML
+        raw = html
+          .replace(/<h[1-3][^>]*>/gi, '\n\n### ')
+          .replace(/<\/h[1-3]>/gi, '\n')
+          .replace(/<li[^>]*>/gi, '\n- ')
+          .replace(/<\/li>/gi, '')
+          .replace(/<p[^>]*>/gi, '\n')
+          .replace(/<[^>]+>/g, '')
+          .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ')
+          .replace(/\n{3,}/g, '\n\n')
+          .trim();
+      }
+    } catch (e) {
+      console.warn(`[Studio V2] Extraction échouée pour ${f.originalname}:`, e);
+      raw = `[Contenu non extractible: ${f.originalname}]`;
+    }
+
+    // Chunking intelligent : si > 60k chars, résumer par sections
+    const MAX_CHARS = 60000;
+    let finalText = raw;
+    if (raw.length > MAX_CHARS) {
+      // Garder les 20k premiers + 20k du milieu + 20k de la fin
+      const third = Math.floor(raw.length / 3);
+      finalText = raw.slice(0, 20000) + '\n\n[...]\n\n' + raw.slice(third, third + 20000) + '\n\n[...]\n\n' + raw.slice(-20000);
+    }
+
+    return { text: finalText, structure: sections.slice(0, 20), charCount: raw.length };
+  };
+
+  // Multer pour studio v2 (PDF + Word uniquement)
+  const multerV2 = (await import('multer')).default;
+  const uploadStudioV2 = multerV2({
+    storage: multerV2.memoryStorage(),
+    limits: { fileSize: 50 * 1024 * 1024, files: 3 },
+    fileFilter: (_req, file, cb) => {
+      const ext = file.originalname.split('.').pop()?.toLowerCase() || '';
+      if (['pdf', 'doc', 'docx'].includes(ext)) cb(null, true);
+      else cb(new Error('Seuls les fichiers PDF et Word sont acceptés'));
+    },
+  }).array('files', 3);
+
+  // POST /api/studio/v2/generate — Génération unifiée (brief + fichiers optionnels)
+  app.post("/api/studio/v2/generate", (req, res, next) => {
+    uploadStudioV2(req, res, (err) => {
+      if (err) return res.status(400).json({ error: err.message });
+      next();
+    });
+  }, async (req: Request, res: Response) => {
+    try {
+      const {
+        title, description, audience, level, sector, internalContext, deliveryMode,
+        format, style, gamification, language
+      } = req.body;
+
+      if (!title && !description) {
+        return res.status(400).json({ error: 'Un titre ou une description est requis' });
+      }
+
+      const files = req.files as Express.Multer.File[] || [];
+
+      // ── Extraction documentaire ──
+      let docsContext = '';
+      let docsStructure: string[] = [];
+      if (files.length > 0) {
+        const extracted = await Promise.all(files.map(f => extractDocumentText(f)));
+        docsContext = extracted.map((e, i) =>
+          `=== DOCUMENT ${i + 1} : ${files[i].originalname} (${(e.charCount / 1000).toFixed(0)}k caractères) ===\n` +
+          (e.structure.length > 0 ? `Sections détectées: ${e.structure.join(' | ')}\n\n` : '') +
+          e.text
+        ).join('\n\n---\n\n');
+        docsStructure = extracted.flatMap(e => e.structure);
+      }
+
+      // ── Paramètres pédagogiques ──
+      const audienceLabels: Record<string, string> = {
+        all: 'tous niveaux (accessibilité maximale)',
+        junior: 'profils juniors et débutants',
+        senior: 'professionnels expérimentés',
+        manager: 'managers et responsables d\'équipe',
+        executive: 'dirigeants et membres du COMEX',
+      };
+      const levelLabels: Record<string, string> = {
+        beginner: 'débutant — vocabulaire simple, concepts fondamentaux, pas de prérequis',
+        intermediate: 'intermédiaire — cas pratiques métier, approfondissement',
+        expert: 'expert — enjeux avancés, nuances, défis exigeants',
+      };
+      const styleLabels: Record<string, string> = {
+        case_study: 'orienté cas pratiques et mises en situation réelles',
+        structured: 'structuré et théorique, progression logique',
+        mixed: 'mixte — alternance théorie courte et pratique intensive',
+        scenario: 'orienté scénarios immersifs et récits professionnels',
+      };
+      const gamifLabels: Record<string, string> = {
+        none: 'aucune gamification — format sérieux et sobre',
+        light: 'gamification légère — points de progression',
+        moderate: 'gamification modérée — badges, niveaux, score',
+        high: 'gamification intense — défis, streaks, classements',
+      };
+      const deliveryLabels: Record<string, string> = {
+        self: 'AUTOFORMATION : le participant apprend seul, à son rythme. Inclure des exercices interactifs avec feedback immédiat, des évaluations auto-corrigées et des explications détaillées pour chaque réponse.',
+        trainer: 'PRÉSENTIEL : support animé par un formateur. Inclure des activités de groupe, des questions de discussion, des exercices à faire en binôme ou équipe, et des points de débrief formateur.',
+      };
+
+      const isFromDocs = docsContext.length > 100;
+      const langInstruction = language === 'en' ? 'Generate ALL content in English.' : 'Génère tout le contenu en français.';
+
+      // ── Prompt système ──
+      const systemPrompt = `Tu es un expert senior en ingénierie pédagogique avec 20 ans d'expérience en conception de formations professionnelles. Tu crées des formations de haute qualité, précises, engageantes et immédiatement utilisables. Tu respectes scrupuleusement les instructions données et génères UNIQUEMENT du JSON valide sans aucun texte avant ou après.`;
+
+      // ── Prompt utilisateur ──
+      const userPrompt = `Crée une formation professionnelle complète selon ce brief client.
+
+═══ BRIEF CLIENT ═══
+Titre / Sujet : ${title || 'À définir selon le contenu'}
+${description ? `Description / Objectif : ${description}` : ''}
+Public cible : ${audienceLabels[audience] || audience || 'professionnels'}
+Niveau : ${levelLabels[level] || level || 'intermédiaire'}
+Secteur / Domaine : ${sector || 'non précisé'}
+${internalContext ? `Contexte et problématiques internes : ${internalContext}` : ''}
+Mode de délivrance : ${deliveryLabels[deliveryMode] || deliveryMode || deliveryLabels['self']}
+Durée cible : ${format === '15' ? '15 minutes (micro learning rapide)' : format === '45' ? '45 minutes (module complet)' : format === '90' ? '90 minutes (parcours approfondi)' : '30 minutes (micro learning standard)'}
+Style pédagogique : ${styleLabels[style] || style || styleLabels['mixed']}
+Gamification : ${gamifLabels[gamification] || gamification || gamifLabels['light']}
+Langue : ${langInstruction}
+${isFromDocs ? `\nSources documentaires détectées : ${docsStructure.length > 0 ? docsStructure.slice(0, 10).join(', ') : 'structure libre'}` : ''}
+
+${isFromDocs ? `═══ CONTENU DES DOCUMENTS SOURCE ═══\n${docsContext.slice(0, 55000)}\n\n` : ''}
+═══ INSTRUCTIONS DE GÉNÉRATION ═══
+${isFromDocs ? '- Tout le contenu doit être FIDÈLE aux documents fournis — ne pas inventer de faits.\n- Les situations et QCM doivent être directement inspirés du contenu documentaire.' : '- Génère un contenu précis, concret et immédiatement applicable dans un contexte professionnel réel.'}
+- Génère EXACTEMENT 7 situations professionnelles distinctes couvrant 7 angles différents du sujet.
+- Génère EXACTEMENT 10 questions QCM variées (définitions, cas pratiques, erreurs courantes, bonnes pratiques, synthèse).
+- Chaque situation nomme un personnage (prénom + fonction précise) et décrit un contexte en 4-5 phrases riches.
+- Le champ "attendu" liste 4-5 points clés structurés que le participant doit maîtriser.
+- Les explications QCM sont développées avec du contexte concret (2-3 phrases minimum).
+- Respecte STRICTEMENT le mode de délivrance (${deliveryMode === 'trainer' ? 'présentiel' : 'autoformation'}).${deliveryMode === 'trainer' ? `
+- MODE PRÉSENTIEL : chaque situation représente une SLIDE de formation. Le champ "trainerNote" doit contenir :
+  1. Un titre de slide court (ex: "Slide : La règle des 3 clics")
+  2. Une animation suggérée pour le formateur (ex: "Demandez au groupe de voter à main levée")
+  3. Une question de débrief ouverte (ex: "Quelle a été votre pire expérience avec ce type de situation ?")
+  4. Une activité groupe optionnelle (ex: "Atelier : 10 min en binômes pour tester le scénario")
+  Le champ "situation" devient la description de la slide (ce qui est projeté).
+  Le champ "attendu" liste les points à faire ressortir lors du débrief animé.` : ''}
+- Adapte la complexité au niveau "${level || 'intermediate'}".
+
+Réponds UNIQUEMENT avec ce JSON valide (zéro texte avant ou après, zéro markdown) :
+{
+  "title": "Titre précis et accrocheur",
+  "tagline": "Sous-titre — angle unique en moins de 12 mots",
+  "deliveryMode": "${deliveryMode || 'self'}",
+  "objectives": [
+    "Objectif 1 — verbe d'action + résultat mesurable",
+    "Objectif 2",
+    "Objectif 3",
+    "Objectif 4",
+    "Objectif 5"
+  ],
+  "modules": [
+    { "title": "Titre du module", "duration": "10 min", "type": "Théorie | Pratique | Évaluation" }
+  ],
+  "situations": [
+    {
+      "id": 1,
+      "category": "Catégorie thématique — aspect spécifique du sujet",
+      "title": "Titre court et accrocheur",
+      "contexte": "Fait clé, règle, chiffre ou principe fondamental (1-2 phrases)",
+      "situation": "Prénom + fonction + contexte professionnel détaillé + défi concret (4-5 phrases riches)",
+      "attendu": "1. Point clé attendu\\n2. Point clé attendu\\n3. Point clé attendu\\n4. Point clé attendu",
+      "trainerNote": "${deliveryMode === 'trainer' ? 'Slide : [titre] | Animation : [suggérée] | Débrief : [question ouverte] | Activité : [optionnel]' : ''}"
+    }
+  ],
+  "qcm": [
+    {
+      "question": "Question précise et bien formulée ?",
+      "options": [
+        { "text": "Option A", "correct": false },
+        { "text": "Option B", "correct": true },
+        { "text": "Option C", "correct": false },
+        { "text": "Option D", "correct": false }
+      ],
+      "explanation": "Explication développée avec contexte concret — 2-3 phrases"
+    }
+  ],
+  "gamification": {
+    "points": 500,
+    "badge": "Expert",
+    "levels": ["Novice", "Praticien", "Expert"]
+  }
+}`;
+
+      const aiResponse = await openAIService.getChatCompletion([
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ], 0.6, 14000);
+
+      // Parsing JSON robuste avec retry
+      const parseRobust = (str: string): any => {
+        const attempts = [
+          () => JSON.parse(str),
+          () => { const c = str.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim(); return JSON.parse(c); },
+          () => { const s = str.indexOf('{'); const e = str.lastIndexOf('}'); if (s === -1 || e === -1) return null; return JSON.parse(str.slice(s, e + 1)); },
+          () => { const s = str.indexOf('{'); const e = str.lastIndexOf('}'); if (s === -1 || e === -1) return null; return JSON.parse(str.slice(s, e + 1).replace(/[\x00-\x1F\x7F]/g, ' ')); },
+        ];
+        for (const attempt of attempts) {
+          try { const r = attempt(); if (r && typeof r === 'object') return r; } catch {}
+        }
+        return null;
+      };
+
+      let training = parseRobust(aiResponse);
+
+      // Retry si parsing échoue
+      if (!training || !training.situations || !Array.isArray(training.situations)) {
+        console.warn('[Studio V2] Premier parsing échoué, retry...');
+        const retryResponse = await openAIService.getChatCompletion([
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+          { role: 'assistant', content: aiResponse },
+          { role: 'user', content: 'Ta réponse contient du texte hors JSON. Réponds UNIQUEMENT avec le JSON valide demandé, sans aucun autre texte.' },
+        ], 0.3, 14000);
+        training = parseRobust(retryResponse);
+      }
+
+      if (!training) {
+        return res.status(500).json({ error: 'Impossible de générer la formation. Réessayez.' });
+      }
+
+      // Normaliser les QCM (format legacy → nouveau format)
+      if (training.qcm && Array.isArray(training.qcm)) {
+        training.qcm = training.qcm.map((q: any) => {
+          if (q.options && Array.isArray(q.options) && typeof q.options[0] === 'string') {
+            return {
+              ...q,
+              options: q.options.map((opt: string, i: number) => ({
+                text: opt,
+                correct: i === (q.bonneReponse ?? q.correct ?? 0),
+              })),
+            };
+          }
+          return q;
+        });
+      }
+
+      const id = uuidv4();
+      await storage.saveGeneratedTraining({
+        id,
+        title: training.title || title || 'Formation générée',
+        tagline: training.tagline || '',
+        source: isFromDocs ? 'documents' : 'prompt',
+        sourceInfo: {
+          title, description, audience, level, sector, deliveryMode, format, style, gamification,
+          files: files.map(f => ({ name: f.originalname, size: f.size })),
+        },
+        audience: audience || 'all',
+        gamificationLevel: gamification || 'light',
+        content: training,
+      });
+
+      res.json({ training, id });
+    } catch (error: any) {
+      console.error('[Studio V2] Erreur génération:', error?.message || error);
+      res.status(500).json({ error: 'Erreur lors de la génération. Réessayez.' });
+    }
+  });
+
+  // POST /api/studio/v2/chat — Chatbot IA libre pour collecter le brief
+  app.post("/api/studio/v2/chat", async (req: Request, res: Response) => {
+    try {
+      const { messages, brief, systemOverride } = req.body;
+      if (!messages) return res.status(400).json({ error: 'messages requis' });
+
+      // systemOverride permet au client d'injecter un prompt système différent (ex: générateur v2)
+      if (systemOverride) {
+        const aiResponse = await openAIService.getChatCompletion(
+          [{ role: 'system', content: systemOverride }, ...messages],
+          0.7, 800
+        );
+        return res.json({ message: aiResponse, briefReady: false });
+      }
+
+      const system = `Tu es un expert en ingénierie pédagogique et en conception de formations professionnelles. Tu aides à co-créer une formation sur mesure.
+
+TON RÔLE : Mener une vraie conversation intelligente pour comprendre précisément le besoin. Tu n'es PAS un formulaire avec des cases à cocher. Tu es un expert qui pose les bonnes questions, rebondit sur les réponses, creuse là où c'est nécessaire.
+
+CE QUE TU DOIS DÉCOUVRIR (naturellement, dans l'ordre logique) :
+1. Le sujet exact et son périmètre
+2. Le public cible (métier, niveau, secteur d'activité — transport, énergie, banque, santé, conseil, etc.)
+3. Le niveau de maîtrise actuel du public sur ce sujet
+4. Les objectifs concrets (ce qu'ils doivent savoir faire à la fin)
+5. Les cas d'usage réels, les erreurs fréquentes, les situations typiques
+6. Le mode (autoformation ou présentiel) et la durée souhaitée
+7. Le contexte spécifique (problème récent, enjeu business, contrainte)
+
+COMMENT CONVERSER :
+- Pose UNE question à la fois, bien formulée
+- Reformule et confirme ce que tu as compris avant d'avancer
+- Pose des questions de précision si la réponse est vague
+- Enrichis avec ce que tu sais du domaine ("Dans le secteur de l'énergie, j'imagine que...")
+- Quand tu as assez d'info, propose un récapitulatif structuré et demande validation
+
+QUAND TU AS TOUT : Réponds avec un JSON spécial dans ta réponse en marquant clairement la fin du brief :
+<<BRIEF_READY>>{"title":"...","audience":"...","level":"beginner|intermediate|advanced|expert","deliveryMode":"self|trainer","format":"15|30|45|90","sector":"...","internalContext":"..."}<<END_BRIEF>>
+
+Jusqu'à ce moment, réponds en texte naturel uniquement, PAS de JSON.
+
+Brief collecté jusqu'ici : ${JSON.stringify(brief || {})}`;
+
+      const aiResponse = await openAIService.getChatCompletion(
+        [{ role: 'system', content: system }, ...messages],
+        0.8, 1000
+      );
+
+      // Détecter si le brief est prêt
+      const briefMatch = aiResponse.match(/<<BRIEF_READY>>([\s\S]*?)<<END_BRIEF>>/);
+      if (briefMatch) {
+        try {
+          const briefData = JSON.parse(briefMatch[1]);
+          const cleanText = aiResponse.replace(/<<BRIEF_READY>>[\s\S]*?<<END_BRIEF>>/, '').trim();
+          return res.json({ message: cleanText, briefReady: true, brief: briefData });
+        } catch {}
+      }
+
+      return res.json({ message: aiResponse, briefReady: false });
+    } catch (error: any) {
+      console.error('[Studio Chat] Erreur:', error?.message);
+      res.status(500).json({ error: 'Erreur chatbot' });
+    }
+  });
+
+  // POST /api/studio/v2/cobuild — Génère UNE situation à la fois pour la co-construction
+  app.post("/api/studio/v2/cobuild", (req, res, next) => {
+    uploadStudioV2(req, res, (err) => {
+      if (err) return res.status(400).json({ error: err.message });
+      next();
+    });
+  }, async (req: Request, res: Response) => {
+    try {
+      const {
+        title, audience, level, deliveryMode, format, sector,
+        internalContext, language, situationIndex, previousSituations
+      } = req.body;
+
+      if (!title) return res.status(400).json({ error: 'Titre requis' });
+
+      // ── Mode leçon globale ────────────────────────────────────────────────
+      const { mode } = req.body;
+      if (mode === 'global-lesson') {
+        const sysMsg = { role: 'system' as const, content: 'Tu es un expert pédagogue et vulgarisateur. Tu écris des leçons complètes, rédigées en prose, accessibles et engageantes. Réponds uniquement en JSON valide, sans markdown.' };
+
+        const audienceStr = ({ all: 'tous les collaborateurs', managers: 'les managers', technical: 'les techniciens et développeurs', sales: 'les commerciaux', newcomers: 'les nouveaux arrivants', executives: 'les dirigeants' } as any)[audience] || audience || 'des professionnels';
+        const levelStr = ({ beginner: 'débutant (aucune connaissance préalable)', intermediate: 'intermédiaire', advanced: 'avancé', expert: 'expert' } as any)[level] || 'intermédiaire';
+        const sectorStr = sector ? `dans le secteur ${sector}` : '';
+
+        const lessonPrompt = `Génère une leçon théorique complète sur "${title}" pour ${audienceStr} de niveau ${levelStr}${sectorStr ? ', ' + sectorStr : ''}.
+
+La leçon doit être une VRAIE LEÇON RÉDIGÉE — pas des bullet points, mais de vrais paragraphes explicatifs, clairs et engageants, comme un professeur expert qui explique à des adultes.
+
+Structure exacte : 6 slides dans cet ordre :
+
+SLIDE 1 — type "hook" : L'accroche — pourquoi ce sujet change tout pour ce public.
+- "body": UN paragraphe de 3-4 phrases percutantes. Commence par un fait marquant ou une situation concrète que ce public vit. Explique l'enjeu réel.
+
+SLIDE 2 — type "concept" : Les fondamentaux — le concept central expliqué de zéro.
+- "body": UN paragraphe de 4-5 phrases. Définit clairement le concept, sans jargon ou en expliquant chaque terme technique. Donne le "comment ça marche" en termes simples.
+
+SLIDE 3 — type "deep-dive" : Pour aller plus loin — les mécanismes importants à connaître.
+- "body": UN paragraphe de 4-5 phrases. Approfondissement : les nuances, les cas particuliers, ce qu'il faut vraiment comprendre pour ne pas se tromper.
+
+SLIDE 4 — type "real-world" : Dans la vraie vie${sectorStr ? ' ' + sectorStr : ''} — comment ça se passe concrètement.
+- "body": UN paragraphe de 4-5 phrases. Exemple réel et spécifique au secteur${sector ? ` "${sector}"` : ''}. Nomme une entreprise, une situation, un résultat.
+
+SLIDE 5 — type "pitfalls" : Les erreurs à éviter — ce que les débutants font systématiquement mal.
+- "body": UN paragraphe de 3-4 phrases. Les 2-3 erreurs les plus fréquentes, pourquoi elles arrivent, comment les éviter.
+
+SLIDE 6 — type "quiz" : Vérification de compréhension.
+- "question": Une question ouverte sur un point fondamental de la leçon.
+- "options": 3 options (une seule correcte), chacune avec un "feedback" explicatif de 1-2 phrases.
+
+Réponds UNIQUEMENT en JSON :
+{"title":"<titre accrocheur>","subtitle":"<sous-titre qui donne envie>","slides":[
+{"type":"hook","title":"<titre slide 1>","body":"<paragraphe rédigé>"},
+{"type":"concept","title":"<titre slide 2>","body":"<paragraphe rédigé>"},
+{"type":"deep-dive","title":"<titre slide 3>","body":"<paragraphe rédigé>"},
+{"type":"real-world","title":"<titre slide 4>","body":"<paragraphe rédigé>"},
+{"type":"pitfalls","title":"<titre slide 5>","body":"<paragraphe rédigé>"},
+{"type":"quiz","title":"Vérification","question":"<question>","options":[{"text":"<option>","correct":false,"feedback":"<explication>"},{"text":"<option correcte>","correct":true,"feedback":"<explication>"},{"text":"<option>","correct":false,"feedback":"<explication>"}]}
+]}`;
+
+        const raw = await openAIService.getChatCompletion([sysMsg, { role: 'user', content: lessonPrompt }], 0.75, 6000);
+        const parseJ = (s: string) => {
+          try { return JSON.parse(s); } catch {}
+          try { const c = s.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim(); const i = c.indexOf('{'); const j = c.lastIndexOf('}'); return i !== -1 ? JSON.parse(c.slice(i, j + 1)) : null; } catch {}
+          return null;
+        };
+        const lesson = parseJ(raw);
+        console.log('[Cobuild global-lesson] ok:', !!lesson, '| slides:', lesson?.slides?.length, '| first type:', lesson?.slides?.[0]?.type);
+        return res.json({ lesson });
+      }
+
+      const idx = parseInt(situationIndex || '0');
+      const prevSits: any[] = previousSituations ? JSON.parse(previousSituations) : [];
+      const files = req.files as Express.Multer.File[] || [];
+
+      let docsContext = '';
+      if (files.length > 0) {
+        const extracted = await Promise.all(files.map(f => extractDocumentText(f)));
+        docsContext = extracted.map((e, i) => `=== Document ${i + 1} ===\n${e.text}`).join('\n\n').slice(0, 30000);
+      }
+
+      const audienceLabels: Record<string, string> = { all: 'tous les collaborateurs', managers: 'managers', technical: 'techniciens/développeurs', sales: 'commerciaux', newcomers: 'nouveaux arrivants', executives: 'dirigeants' };
+      const levelLabels: Record<string, string> = { beginner: 'débutant', intermediate: 'intermédiaire', advanced: 'avancé', expert: 'expert' };
+
+      const usedTypes = prevSits.map(s => s.interactionType);
+      const availableTypes = ['free-text', 'qcm', 'fill-blank', 'checkbox', 'sql-console', 'python-console', 'cyber-terminal'];
+
+      // Suggérer un type d'interaction intelligent selon le domaine et l'index
+      const text = (title + ' ' + (sector || '') + ' ' + (internalContext || '')).toLowerCase();
+      let suggestedType = 'free-text';
+      if (/sql|base de données|requête|mysql|postgresql|data/i.test(text) && !usedTypes.includes('sql-console')) suggestedType = 'sql-console';
+      else if (/python|pandas|numpy|script|code|algorithme/i.test(text) && !usedTypes.includes('python-console')) suggestedType = 'python-console';
+      else if (/cyber|phishing|sécurité|terminal|linux|bash|ssh|nmap/i.test(text) && !usedTypes.includes('cyber-terminal')) suggestedType = 'cyber-terminal';
+      else if (idx === 0) suggestedType = 'free-text';
+      else if (idx === 1) suggestedType = 'fill-blank';
+      else if (idx === 2) suggestedType = 'checkbox';
+      else if (idx % 3 === 0) suggestedType = 'qcm';
+      else suggestedType = availableTypes[idx % availableTypes.length];
+
+      const isTrainer = deliveryMode === 'trainer';
+
+      const prompt = `Tu es un expert en ingénierie pédagogique. Génère UNE SEULE situation professionnelle pour une formation.
+
+BRIEF :
+- Sujet : ${title}
+- Public : ${audienceLabels[audience] || audience || 'professionnels'}
+- Niveau : ${levelLabels[level] || level || 'intermédiaire'}
+- Mode : ${isTrainer ? 'présentiel avec formateur' : 'autoformation'}
+- Durée : ${format || '30'} minutes
+${sector ? `- Secteur : ${sector}` : ''}
+${internalContext ? `- Contexte interne : ${internalContext}` : ''}
+${docsContext ? `\nSOURCE DOCUMENTAIRE :\n${docsContext.slice(0, 15000)}` : ''}
+
+SITUATIONS DÉJÀ CONSTRUITES (${prevSits.length}) :
+${prevSits.length > 0 ? prevSits.map((s, i) => `${i + 1}. "${s.title}" [${s.interactionType}] — ${s.category}`).join('\n') : 'Aucune — c\'est la première'}
+
+INSTRUCTIONS :
+- Cette situation est la n°${idx + 1}
+- Type d'interaction SUGGÉRÉ : ${suggestedType}
+- Choisir une CATÉGORIE différente des situations précédentes
+- Contexte professionnel réaliste avec un prénom et une fonction
+- Le type d'interaction doit être cohérent avec le contenu
+
+${suggestedType === 'sql-console' ? `Pour le type sql-console :
+- situation : décrit le problème à résoudre avec SQL (contexte métier réel)
+- attendu : la ou les requêtes SQL attendues
+- interactionConfig.starterCode : une requête SQL de départ partielle à compléter
+- interactionConfig.schema : les tables disponibles (ex: "users(id, name, email), orders(id, user_id, amount, date)")
+- interactionConfig.hint : un indice optionnel` : ''}
+${suggestedType === 'python-console' ? `Pour le type python-console :
+- situation : le problème à résoudre en Python
+- attendu : la logique Python attendue
+- interactionConfig.starterCode : code Python de départ à compléter
+- interactionConfig.hint : indice optionnel` : ''}
+${suggestedType === 'cyber-terminal' ? `Pour le type cyber-terminal :
+- situation : scénario cyber avec commandes terminal
+- attendu : les commandes et actions attendues
+- interactionConfig.starterCode : premières commandes déjà exécutées (contexte)
+- interactionConfig.hint : indice optionnel` : ''}
+${suggestedType === 'fill-blank' ? `Pour le type fill-blank :
+- situation : une phrase ou un texte avec des BLANCS marqués [___]
+- attendu : les mots/valeurs attendus dans l'ordre des blancs
+- interactionConfig.blanks : ["réponse1", "réponse2"]` : ''}
+${suggestedType === 'checkbox' ? `Pour le type checkbox :
+- situation : une question avec plusieurs propositions
+- attendu : liste les bonnes réponses
+- interactionConfig.options : [{"text": "...", "correct": true/false}, ...]` : ''}
+${suggestedType === 'qcm' ? `Pour le type qcm :
+- situation : la question QCM
+- attendu : explication de la bonne réponse
+- interactionConfig.options : [{"text": "...", "correct": true/false}, ...]
+- interactionConfig.explanation : explication développée` : ''}
+
+Réponds UNIQUEMENT avec ce JSON (sans markdown) :
+{
+  "id": ${idx + 1},
+  "category": "Catégorie thématique précise",
+  "title": "Titre court et accrocheur",
+  "contexte": "Fait clé ou règle fondamentale en 1-2 phrases",
+  "situation": "Situation détaillée avec personnage et contexte professionnel réel (4-5 phrases)",
+  "attendu": "Ce que le participant doit produire ou maîtriser",
+  "interactionType": "${suggestedType}",
+  "interactionConfig": {},
+  ${isTrainer ? `"trainerNote": "Animation suggérée | Question de débrief | Activité groupe optionnelle",` : ''}
+  "status": "pending"
+}`;
+
+      const aiResponse = await openAIService.getChatCompletion([
+        { role: 'system', content: 'Tu es un expert en ingénierie pédagogique. Réponds uniquement en JSON valide, sans markdown, sans texte avant ou après.' },
+        { role: 'user', content: prompt },
+      ], 0.7, 3000);
+
+      const parse = (s: string) => {
+        try { return JSON.parse(s); } catch {}
+        try { const c = s.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim(); const i = c.indexOf('{'); const j = c.lastIndexOf('}'); return i !== -1 ? JSON.parse(c.slice(i, j + 1)) : null; } catch {}
+        return null;
+      };
+
+      const situation = parse(aiResponse);
+      if (!situation) return res.status(500).json({ error: 'Parsing JSON échoué' });
+
+      res.json({ situation });
+    } catch (error: any) {
+      console.error('[Studio Cobuild] Erreur:', error?.message);
+      res.status(500).json({ error: 'Erreur lors de la génération de la situation' });
+    }
+  });
+
+  // POST /api/studio/v2/finalize — Finalise la formation cobuild (ajoute QCM + sauvegarde)
+  app.post("/api/studio/v2/finalize", (req, res, next) => {
+    uploadStudioV2(req, res, (err) => {
+      if (err) return res.status(400).json({ error: err.message });
+      next();
+    });
+  }, async (req: Request, res: Response) => {
+    try {
+      const { title, audience, level, deliveryMode, format, sector, internalContext, language, situations: situationsJson } = req.body;
+      if (!title || !situationsJson) return res.status(400).json({ error: 'Titre et situations requis' });
+
+      const situations = JSON.parse(situationsJson);
+      const nbQcm = Math.max(3, Math.min(10, Math.floor(situations.length * 1.5)));
+
+      const parseJson = (s: string) => {
+        try { return JSON.parse(s); } catch {}
+        try {
+          const c = s.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+          const i = c.indexOf('{'); const j = c.lastIndexOf('}');
+          return i !== -1 ? JSON.parse(c.slice(i, j + 1).replace(/[\x00-\x1F\x7F]/g, ' ')) : null;
+        } catch {}
+        return null;
+      };
+
+      const context = `Formation : "${title}" | Public : ${audience || 'professionnel'} | Niveau : ${level || 'intermédiaire'} | Secteur : ${sector || 'général'}`;
+
+      // ── Appel 1 : métadonnées + QCM ──────────────────────────────────────────
+      const promptMeta = `Tu es expert en ingénierie pédagogique. Génère les métadonnées et QCM pour cette formation.
+
+${context}
+
+SITUATIONS : ${situations.map((s: any, i: number) => `${i + 1}. ${s.title}`).join(' | ')}
+
+Réponds UNIQUEMENT en JSON valide (sans markdown) :
+{"tagline":"<sous-titre accrocheur max 12 mots spécifique à ${title}>","objectives":["<objectif Bloom 1 spécifique>","<objectif 2>","<objectif 3>","<objectif 4>"],"qcm":[${Array.from({length: nbQcm}).map(() => `{"question":"<question spécifique à ${title}>","options":[{"text":"<option>","correct":false},{"text":"<option correcte>","correct":true},{"text":"<option>","correct":false},{"text":"<option>","correct":false}],"explanation":"<explication 2-3 phrases>"}`).join(',')}]}`;
+
+      // ── Appel 2 : leçon globale ───────────────────────────────────────────────
+      const promptGlobal = `Tu es expert en pédagogie et vulgarisation. Génère une leçon introductive sur "${title}" pour ${audience || 'des professionnels'} de niveau ${level || 'intermédiaire'}.
+
+La leçon doit comprendre exactement 5 slides dans cet ordre :
+1. type "why-it-matters" — Pourquoi ${title} est crucial pour ${audience || 'ce public'} ? (3 blocs : accroche, chiffre/fait réel, impact concret)
+2. type "concept" — Le concept central de ${title} expliqué sans jargon (3 blocs : définition simple, ce que ça signifie en pratique, ce que ce n'est PAS)
+3. type "analogy" — Une analogie du quotidien pour rendre ${title} évident (3 blocs : l'analogie, le lien avec ${title}, la leçon)
+4. type "example" — Un exemple réel concret du secteur ${sector || 'professionnel'} (3 blocs : la situation, ce qui s'est passé, la leçon)
+5. type "quick-check" — Question de compréhension (3 options, une correcte, feedbacks)
+
+Réponds UNIQUEMENT en JSON valide (sans markdown) :
+{"title":"<titre accrocheur pour intro ${title}>","subtitle":"<sous-titre>","slides":[{"type":"why-it-matters","title":"<titre>","blocks":["<bloc 1>","<bloc 2>","<bloc 3>"]},{"type":"concept","title":"<titre>","blocks":["<bloc 1>","<bloc 2>","<bloc 3>"]},{"type":"analogy","title":"<titre>","blocks":["<bloc 1>","<bloc 2>","<bloc 3>"]},{"type":"example","title":"<titre>","blocks":["<bloc 1>","<bloc 2>","<bloc 3>"]},{"type":"quick-check","title":"<titre>","question":"<question>","options":[{"text":"<option>","correct":false,"feedback":"<feedback>"},{"text":"<option correcte>","correct":true,"feedback":"<feedback>"},{"text":"<option>","correct":false,"feedback":"<feedback>"}]}]}`;
+
+      // ── Appel 3 : mini-leçons par situation ───────────────────────────────────
+      const promptMini = `Tu es expert en pédagogie. Génère une mini-leçon (3 slides) pour chacune des ${situations.length} situations de la formation "${title}".
+
+${situations.map((s: any, i: number) => `SITUATION ${i + 1}: "${s.title}" — ${s.category}\n${s.situation?.slice(0, 150)}`).join('\n\n')}
+
+Pour chaque situation, génère 3 slides :
+- Slide 1 type "concept" : Le savoir-faire clé pour réussir CETTE situation (3 blocs : règle principale, pourquoi c'est important, erreur à éviter)
+- Slide 2 type "example" : Exemple directement lié à cette situation (3 blocs : contexte similaire, indices, bonne démarche)
+- Slide 3 type "quick-check" : Question liée à cette situation (3 options, une correcte, feedbacks)
+
+Réponds UNIQUEMENT en JSON valide (sans markdown) :
+{"miniLessons":[${situations.map((s: any) => `{"title":"<titre mini-leçon pour ${s.title.slice(0,30)}>","slides":[{"type":"concept","title":"<titre>","blocks":["<bloc 1>","<bloc 2>","<bloc 3>"]},{"type":"example","title":"<titre>","blocks":["<bloc 1>","<bloc 2>","<bloc 3>"]},{"type":"quick-check","title":"<titre>","question":"<question>","options":[{"text":"<option>","correct":false,"feedback":"<feedback>"},{"text":"<option correcte>","correct":true,"feedback":"<feedback>"},{"text":"<option>","correct":false,"feedback":"<feedback>"}]}]}`).join(',')}]}`;
+
+      const sysMsg = { role: 'system' as const, content: 'Tu es expert en ingénierie pédagogique. Réponds uniquement en JSON valide, sans markdown, sans commentaire. Remplace TOUS les placeholders entre <> par du vrai contenu spécifique.' };
+
+      const [metaRaw, globalRaw, miniRaw] = await Promise.all([
+        openAIService.getChatCompletion([sysMsg, { role: 'user', content: promptMeta }], 0.7, 6000),
+        openAIService.getChatCompletion([sysMsg, { role: 'user', content: promptGlobal }], 0.7, 4000),
+        openAIService.getChatCompletion([sysMsg, { role: 'user', content: promptMini }], 0.7, 6000),
+      ]);
+
+      const metaData = parseJson(metaRaw);
+      const globalLesson = parseJson(globalRaw);
+      const miniData = parseJson(miniRaw);
+
+      console.log('[Finalize] meta ok:', !!metaData, '| global ok:', !!globalLesson, '| mini ok:', !!miniData);
+      if (globalLesson) console.log('[Finalize] globalLesson.slides:', globalLesson.slides?.length, '| first slide type:', globalLesson.slides?.[0]?.type);
+
+      const situationsWithLessons = situations.map((s: any, i: number) => ({
+        id: s.id,
+        category: s.category,
+        title: s.title,
+        contexte: s.contexte,
+        situation: s.situation,
+        attendu: s.attendu,
+        interactionType: s.interactionType || 'free-text',
+        interactionConfig: s.interactionConfig || null,
+        trainerNote: s.trainerNote || '',
+        miniLesson: miniData?.miniLessons?.[i] || null,
+      }));
+
+      const training = {
+        title,
+        tagline: metaData?.tagline || title,
+        deliveryMode: deliveryMode || 'self',
+        objectives: metaData?.objectives || [],
+        modules: [{ title: 'Module 1', duration: `${format || 30} min`, type: 'Pratique' }],
+        globalLesson: globalLesson || null,
+        situations: situationsWithLessons,
+        qcm: metaData?.qcm || [],
+        gamification: { points: 500, badge: 'Expert', levels: ['Novice', 'Praticien', 'Expert'] },
+      };
+
+      if (!training) return res.status(500).json({ error: 'Génération échouée' });
+
+      const id = uuidv4();
+      await storage.saveGeneratedTraining({
+        id, title: training.title || title, tagline: training.tagline || '',
+        source: 'cobuild',
+        sourceInfo: { title, audience, level, deliveryMode, format, sector },
+        audience: audience || 'all', gamificationLevel: 'light',
+        content: training,
+      });
+
+      res.json({ id, training });
+    } catch (error: any) {
+      console.error('[Studio Finalize] Erreur:', error?.message);
+      res.status(500).json({ error: 'Erreur lors de la finalisation' });
+    }
+  });
+
+  // POST /api/studio/v2/adjust — Ajustement IA d'une formation existante
+  app.post("/api/studio/v2/adjust", async (req: Request, res: Response) => {
+    try {
+      const { trainingId, instruction, targetSection } = req.body;
+      if (!trainingId || !instruction) {
+        return res.status(400).json({ error: 'trainingId et instruction requis' });
+      }
+
+      const record = await storage.getGeneratedTraining(trainingId);
+      if (!record) return res.status(404).json({ error: 'Formation introuvable' });
+
+      const training = record.content as any;
+
+      const sectionContext = targetSection === 'situations'
+        ? `SITUATIONS ACTUELLES :\n${JSON.stringify(training.situations?.slice(0, 3), null, 2)}\n...(${training.situations?.length} situations au total)`
+        : targetSection === 'qcm'
+        ? `QCM ACTUELS :\n${JSON.stringify(training.qcm?.slice(0, 3), null, 2)}\n...(${training.qcm?.length} questions au total)`
+        : `FORMATION COMPLÈTE : "${training.title}" — ${training.situations?.length} situations, ${training.qcm?.length} questions QCM`;
+
+      const prompt = `Tu es un expert en ingénierie pédagogique. Tu dois ajuster une formation existante selon une demande précise.
+
+DEMANDE D'AJUSTEMENT : ${instruction}
+SECTION CIBLÉE : ${targetSection || 'formation complète'}
+${sectionContext}
+
+TITRE FORMATION : ${training.title}
+OBJECTIFS : ${training.objectives?.join(', ')}
+MODE : ${training.deliveryMode || 'autoformation'}
+
+Applique l'ajustement demandé et retourne UNIQUEMENT le JSON modifié de la section "${targetSection || 'training'}" (pas la formation complète, juste la section modifiée).
+
+Si targetSection est "situations" → retourne { "situations": [...] }
+Si targetSection est "qcm" → retourne { "qcm": [...] }
+Si targetSection est "objectives" → retourne { "objectives": [...], "title": "...", "tagline": "..." }
+Sinon → retourne la formation complète modifiée avec le même schéma JSON.`;
+
+      const aiResponse = await openAIService.getChatCompletion([
+        { role: 'user', content: prompt }
+      ], 0.65, 10000);
+
+      const parseRobust = (str: string): any => {
+        try { return JSON.parse(str); } catch {}
+        try {
+          const c = str.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+          const s = c.indexOf('{'); const e = c.lastIndexOf('}');
+          if (s !== -1 && e !== -1) return JSON.parse(c.slice(s, e + 1).replace(/[\x00-\x1F\x7F]/g, ' '));
+        } catch {}
+        return null;
+      };
+
+      const patch = parseRobust(aiResponse);
+      if (!patch) return res.status(500).json({ error: 'Impossible d\'ajuster. Réessayez.' });
+
+      // Merger le patch dans la formation existante
+      const updated = { ...training, ...patch };
+
+      await storage.saveGeneratedTraining({
+        id: trainingId,
+        title: updated.title || record.title,
+        tagline: updated.tagline || record.tagline,
+        source: record.source,
+        sourceInfo: record.sourceInfo as any,
+        audience: record.audience,
+        gamificationLevel: record.gamificationLevel,
+        content: updated,
+      });
+
+      res.json({ success: true, training: updated, patch });
+    } catch (error: any) {
+      console.error('[Studio V2] Erreur ajustement:', error?.message || error);
+      res.status(500).json({ error: 'Erreur lors de l\'ajustement. Réessayez.' });
+    }
+  });
+
+  // POST /api/studio/v2/save — Sauvegarde manuelle d'une formation modifiée
+  app.post("/api/studio/v2/save", async (req: Request, res: Response) => {
+    try {
+      const { trainingId, training } = req.body;
+      if (!trainingId || !training) return res.status(400).json({ error: 'trainingId et training requis' });
+
+      const existing = await storage.getGeneratedTraining(trainingId);
+      if (!existing) return res.status(404).json({ error: 'Formation introuvable' });
+
+      await storage.saveGeneratedTraining({
+        id: trainingId,
+        title: training.title || existing.title,
+        tagline: training.tagline || existing.tagline,
+        source: existing.source,
+        sourceInfo: existing.sourceInfo as any,
+        audience: existing.audience,
+        gamificationLevel: existing.gamificationLevel,
+        content: training,
+      });
+
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[Studio V2] Erreur sauvegarde:', error?.message || error);
+      res.status(500).json({ error: 'Erreur lors de la sauvegarde.' });
     }
   });
 

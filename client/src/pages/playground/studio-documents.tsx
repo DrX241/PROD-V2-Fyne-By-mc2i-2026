@@ -117,7 +117,7 @@ export default function StudioDocuments() {
   const [previewData, setPreviewData] = useState<ExtractPreviewResult | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
 
-  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 Mo
+  const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
   const addFiles = useCallback((newFiles: FileList | null) => {
     if (!newFiles) return;
@@ -144,7 +144,6 @@ export default function StudioDocuments() {
     setStep('generating');
     setGenStep(0);
 
-    // Lesson mode: call lesson endpoint and redirect to lesson player
     if (outputMode === 'lecon') {
       const steps = LESSON_STEPS;
       const interval = setInterval(() => setGenStep(prev => prev < steps.length - 1 ? prev + 1 : prev), 1000);
@@ -220,8 +219,6 @@ export default function StudioDocuments() {
     setStep('upload');
   };
 
-  const steps = outputMode === 'lecon' ? LESSON_STEPS : importMode === 'url' ? URL_STEPS : FILE_STEPS;
-
   return (
     <div className="min-h-screen bg-white flex flex-col" style={{ color: DARK }}>
       {/* Header */}
@@ -251,7 +248,6 @@ export default function StudioDocuments() {
       <main className="flex-1 pt-14">
         <AnimatePresence mode="wait">
 
-          {/* ═══ UPLOAD ══════════════════════════════════════════════════════ */}
           {step === 'upload' && (
             <motion.div key="upload" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
               className="min-h-screen flex flex-col justify-center px-6 lg:px-16 py-16">
@@ -266,7 +262,6 @@ export default function StudioDocuments() {
                 </h1>
                 <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
 
-                {/* Info leçon */}
                 <div className="mb-6">
                   <div className="flex items-center gap-2 px-3 py-2" style={{ background: `${PINK}08`, border: `1px solid ${PINK}30` }}>
                     <Layers size={14} style={{ color: PINK }} />
@@ -274,7 +269,6 @@ export default function StudioDocuments() {
                   </div>
                 </div>
 
-                {/* ── FICHIERS ── */}
                 {importMode === 'files' && (
                   <>
                     <div ref={dropRef} onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
@@ -311,7 +305,6 @@ export default function StudioDocuments() {
                   </>
                 )}
 
-                {/* ── URL ── */}
                 {importMode === 'url' && (
                   <div className="space-y-8">
                     <div>
@@ -336,7 +329,6 @@ export default function StudioDocuments() {
                         </p>
                       )}
                     </div>
-
                     <div>
                       <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
                         Profondeur du crawl
@@ -352,7 +344,6 @@ export default function StudioDocuments() {
                         ))}
                       </div>
                     </div>
-
                     <div className="border-l-2 pl-4 py-2" style={{ borderColor: BLUE }}>
                       <p className="text-xs font-bold text-gray-700 mb-1">Comment fonctionne le crawl ?</p>
                       <ul className="text-xs text-gray-500 space-y-0.5">
@@ -383,7 +374,6 @@ export default function StudioDocuments() {
             </motion.div>
           )}
 
-          {/* ═══ PREVIEW EXTRACTION ════════════════════════════════════════ */}
           {step === 'preview' && previewData && (
             <motion.div key="preview" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
               className="min-h-screen flex flex-col justify-center px-6 lg:px-16 py-16">
@@ -397,7 +387,6 @@ export default function StudioDocuments() {
                 </h1>
                 <div className="w-16 h-1 mb-8" style={{ background: BLUE }} />
 
-                {/* Bilan qualité global */}
                 {(() => {
                   const q = QUALITY_META[previewData.overallQuality];
                   return (
@@ -410,12 +399,12 @@ export default function StudioDocuments() {
                         </div>
                         {previewData.overallQuality === 'unreadable' && (
                           <p className="text-xs text-gray-600 mt-1">
-                            Aucun texte n'a pu être extrait. Le document est peut-être un scan image, chiffré, ou dans un format non supporté. La génération risque d'être vide ou hors sujet.
+                            Aucun texte n'a pu être extrait. Le document est peut-être un scan image, chiffré, ou dans un format non supporté.
                           </p>
                         )}
                         {previewData.overallQuality === 'low' && (
                           <p className="text-xs text-gray-600 mt-1">
-                            Peu de texte extrait — le PDF est peut-être un scan ou contient surtout des images. Le module pourrait manquer de contenu.
+                            Peu de texte extrait — le PDF est peut-être un scan ou contient surtout des images.
                           </p>
                         )}
                         {(previewData.overallQuality === 'ok' || previewData.overallQuality === 'good') && (
@@ -428,7 +417,6 @@ export default function StudioDocuments() {
                   );
                 })()}
 
-                {/* Bilan par fichier */}
                 <div className="space-y-2 mb-6">
                   {previewData.files.map((f, i) => {
                     const q = QUALITY_META[f.quality];
@@ -448,7 +436,6 @@ export default function StudioDocuments() {
                   })}
                 </div>
 
-                {/* Aperçu texte extrait */}
                 <div className="mb-8">
                   <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-1.5">
                     <ScanLine size={13} /> Aperçu du texte extrait
@@ -480,7 +467,6 @@ export default function StudioDocuments() {
             </motion.div>
           )}
 
-          {/* ═══ CONFIG ══════════════════════════════════════════════════════ */}
           {step === 'config' && (
             <motion.div key="config" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
               className="min-h-screen flex flex-col justify-center px-6 lg:px-16 py-16">
@@ -495,7 +481,6 @@ export default function StudioDocuments() {
                 <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
 
                 <div className="space-y-8">
-                  {/* Source recap */}
                   <div className="border border-gray-100 p-4 bg-gray-50">
                     <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Source</div>
                     {importMode === 'url' ? (
@@ -515,7 +500,6 @@ export default function StudioDocuments() {
                     ) : <p className="text-xs text-gray-500 italic">Génération depuis le sujet demandé</p>}
                   </div>
 
-                  {/* Titre */}
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                       Titre de la formation (optionnel)
@@ -526,7 +510,6 @@ export default function StudioDocuments() {
                       style={{ color: DARK }} />
                   </div>
 
-                  {/* Public */}
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">Public cible</label>
                     <div className="grid grid-cols-3 gap-2">
@@ -540,22 +523,21 @@ export default function StudioDocuments() {
                     </div>
                   </div>
 
-                  {/* Gamification — masquée en mode leçon */}
                   {outputMode !== 'lecon' && (
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">Gamification</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {GAMIFICATION.map(g => (
-                        <button key={g.value} onClick={() => setGamification(g.value)}
-                          className="text-center border px-4 py-5 transition-all"
-                          style={{ borderColor: gamification === g.value ? BLUE : '#e5e7eb', background: gamification === g.value ? `${BLUE}08` : 'white' }}>
-                          <div className="text-3xl mb-1.5">{g.icon}</div>
-                          <div className="text-sm font-bold" style={{ color: gamification === g.value ? BLUE : DARK }}>{g.label}</div>
-                          <div className="text-xs text-gray-500">{g.sub}</div>
-                        </button>
-                      ))}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">Gamification</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {GAMIFICATION.map(g => (
+                          <button key={g.value} onClick={() => setGamification(g.value)}
+                            className="text-center border px-4 py-5 transition-all"
+                            style={{ borderColor: gamification === g.value ? BLUE : '#e5e7eb', background: gamification === g.value ? `${BLUE}08` : 'white' }}>
+                            <div className="text-3xl mb-1.5">{g.icon}</div>
+                            <div className="text-sm font-bold" style={{ color: gamification === g.value ? BLUE : DARK }}>{g.label}</div>
+                            <div className="text-xs text-gray-500">{g.sub}</div>
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
                   )}
 
                   <button onClick={generate}
@@ -568,14 +550,12 @@ export default function StudioDocuments() {
             </motion.div>
           )}
 
-          {/* ═══ GÉNÉRATION ═══════════════════════════════════════════════════ */}
           {step === 'generating' && (
             <motion.div key="generating" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <AgentLoadingScreen mode="docs" />
             </motion.div>
           )}
 
-          {/* ═══ RÉSULTAT ═══════════════════════════════════════════════════ */}
           {step === 'result' && result && (
             <motion.div key="result" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               className="min-h-screen px-6 lg:px-16 py-12">
@@ -594,7 +574,6 @@ export default function StudioDocuments() {
                 <div className="w-16 h-1 mb-10" style={{ background: PINK }} />
 
                 <div className="space-y-8">
-                  {/* Objectifs */}
                   <div className="border border-gray-200 p-6">
                     <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4 flex items-center gap-2">
                       <Target size={14} /> Objectifs d'apprentissage
@@ -609,7 +588,6 @@ export default function StudioDocuments() {
                     </ul>
                   </div>
 
-                  {/* Parcours */}
                   <div className="border border-gray-200 p-6">
                     <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4 flex items-center gap-2">
                       <BookOpen size={14} /> Structure du parcours
@@ -628,122 +606,20 @@ export default function StudioDocuments() {
                     </div>
                   </div>
 
-                  {/* Mise en situation — Aperçu de la 1ère situation */}
-                  {(() => {
-                    const allSituations = result.situations || result.scenarios?.map((s: any) => ({ ...s, attendu: s.reflexe })) || [];
-                    const preview = allSituations[0] || (result.scenario ? { title: 'Mise en situation', category: 'Scénario', situation: result.scenario.situation, attendu: '' } : null);
-                    if (!preview) return null;
-                    return (
-                      <div className="border border-gray-200 p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
-                            <Play size={14} /> Aperçu — Mise en situation 1 sur {allSituations.length || 1}
-                          </div>
-                          {preview.category && (
-                            <span className="text-xs px-2 py-0.5 font-bold" style={{ background: `${BLUE}12`, color: BLUE }}>
-                              {preview.category}
-                            </span>
-                          )}
-                        </div>
-                        {preview.title && (
-                          <p className="font-bold text-sm mb-3" style={{ color: DARK }}>{preview.title}</p>
-                        )}
-                        {preview.contexte && (
-                          <div className="border-l-2 pl-3 mb-3 text-xs text-gray-500 py-1" style={{ borderColor: BLUE }}>{preview.contexte}</div>
-                        )}
-                        <div className="border border-gray-200 p-4 mb-4 bg-white">
-                          <p className="text-sm leading-relaxed" style={{ color: DARK }}>{preview.situation}</p>
-                        </div>
-                        {preview.attendu && (
-                          <div className="border p-4 flex items-start gap-3"
-                            style={{ borderColor: `${BLUE}30`, background: `${BLUE}06` }}>
-                            <div className="text-xs font-bold uppercase tracking-wider flex-shrink-0 mt-0.5" style={{ color: BLUE }}>Attendu</div>
-                            <p className="text-xs leading-relaxed text-gray-600">{preview.attendu}</p>
-                          </div>
-                        )}
-                        {allSituations.length > 1 && (
-                          <p className="text-xs text-gray-400 mt-4 text-center">
-                            + {allSituations.length - 1} autre{allSituations.length > 2 ? 's' : ''} situation{allSituations.length > 2 ? 's' : ''} dans le player
-                          </p>
-                        )}
+                  {trainingId && (
+                    <div className="border border-gray-200 p-6 bg-gray-50">
+                      <div className="mb-4">
+                        <div className="font-bold text-sm" style={{ color: DARK }}>Votre formation est prête</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Basée sur votre contenu original</div>
                       </div>
-                    );
-                  })()}
-
-                  {/* QCM */}
-                  <div className="border border-gray-200 p-6">
-                    <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-5 flex items-center gap-2">
-                      <HelpCircle size={14} /> QCM — Exemples
-                    </div>
-                    {result.qcm?.slice(0, 2).map((q, qi) => (
-                      <div key={qi} className="mb-6 last:mb-0">
-                        <p className="font-bold text-sm mb-3" style={{ color: DARK }}>{qi + 1}. {q.question}</p>
-                        <div className="space-y-2">
-                          {q.options?.map((opt, oi) => (
-                            <button key={oi} className="w-full text-left border px-4 py-3 text-xs transition-all hover:border-gray-400"
-                              style={{ borderColor: '#e5e7eb', background: 'white', color: DARK }}>
-                              {opt.text}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Gamification */}
-                  {result.gamification && (
-                    <div className="border border-gray-200 p-6">
-                      <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4 flex items-center gap-2">
-                        <Trophy size={14} /> Gamification
-                      </div>
-                      <div className="grid grid-cols-3 gap-3 mb-4">
-                        {[
-                          { val: result.gamification.points, sub: 'points max' },
-                          { val: result.gamification.badge, sub: 'badge final' },
-                          { val: result.gamification.levels?.length, sub: 'niveaux' },
-                        ].map((item, i) => (
-                          <div key={i} className="border border-gray-100 p-4 text-center bg-gray-50">
-                            <div className="text-2xl font-black mb-1" style={{ color: BLUE }}>{item.val}</div>
-                            <div className="text-xs text-gray-500">{item.sub}</div>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {result.gamification.levels?.map((level: any, i: number) => (
-                          <span key={i} className="px-3 py-1 text-xs font-bold" style={{ background: `${BLUE}12`, color: BLUE }}>
-                            <Star size={10} className="inline mr-1" />
-                            {typeof level === 'string' ? level : level.name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* CTA */}
-                  <div className="border border-gray-200 p-6 bg-gray-50">
-                    <div className="mb-4">
-                      <div className="font-bold text-sm" style={{ color: DARK }}>Votre formation est prête</div>
-                      <div className="text-xs text-gray-500 mt-0.5">
-                        {importMode === 'url'
-                          ? (() => { try { return `Basée sur ${new URL(url).hostname}`; } catch { return 'Basée sur votre URL'; } })()
-                          : 'Basée sur votre contenu original'}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 flex-wrap">
-                      {trainingId && (
-                        <button
-                          onClick={() => setLocation(`/playground/player/${trainingId}`)}
-                          className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity"
-                          style={{ background: PINK }}>
-                          <Play size={18} /> Lancer la formation
-                        </button>
-                      )}
-                      <button className="inline-flex items-center gap-2 px-6 py-3 font-bold text-sm border-2 hover:opacity-80 transition-opacity"
-                        style={{ borderColor: BLUE, color: BLUE }}>
-                        <MessageSquare size={16} /> Affiner avec l'IA
+                      <button
+                        onClick={() => setLocation(`/playground/player/${trainingId}`)}
+                        className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity"
+                        style={{ background: PINK }}>
+                        <Play size={18} /> Lancer la formation
                       </button>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </motion.div>

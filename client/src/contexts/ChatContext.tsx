@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, QuotaExceededError } from "@/lib/queryClient";
 import type {
   ChatContextType,
   ChatMessage,
@@ -1057,21 +1057,23 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Error sending message:', error);
 
-      // Détermine le message d'erreur détaillé
-      let errorDetail = "";
-      if (error instanceof Error) {
-        errorDetail = error.message;
-      } else if (typeof error === 'object' && error !== null) {
-        errorDetail = JSON.stringify(error);
-      } else {
-        errorDetail = String(error);
+      // Message quota épuisé
+      if (error instanceof QuotaExceededError) {
+        const quotaMessage: ChatMessage = {
+          id: uuidv4(),
+          type: "bot",
+          content: `⚠️ **Quota de tokens épuisé**\n\n${error.message}`,
+          timestamp: Date.now()
+        };
+        setMessages(prev => [...prev, quotaMessage]);
+        setIsTyping(false);
+        return;
       }
 
-      // Message d'erreur plus informatif
       const errorMessage: ChatMessage = {
         id: uuidv4(),
         type: "bot",
-        content: "Je suis désolé, une erreur s'est produite lors du traitement de votre message. Cela peut être dû à une interruption de la connexion à l'API Azure OpenAI.\n\nVeuillez vérifier que l'indicateur FYNE est vert (connecté) et réessayer. Si le problème persiste, veuillez contacter l'administrateur système.",
+        content: "Je suis désolé, une erreur s'est produite lors du traitement de votre message. Cela peut être dû à une interruption de la connexion à l'API.\n\nVeuillez vérifier que l'indicateur FYNE est vert (connecté) et réessayer. Si le problème persiste, veuillez contacter l'administrateur système.",
         timestamp: Date.now()
       };
 

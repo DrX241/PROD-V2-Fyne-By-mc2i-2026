@@ -10,7 +10,7 @@ app.use(express.urlencoded({ extended: false }));
 // Middleware pour forcer le Content-Type JSON pour les routes API
 app.use('/api', (req, res, next) => {
   // S'assurer que toutes les réponses API sont en JSON
-  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
   next();
 });
 
@@ -47,8 +47,45 @@ app.use((req, res, next) => {
 (async () => {
   // Mapper les variables d'environnement
   mapEnvironmentVariables();
-  
+
+  // Migration auto: créer les tables si elles n'existent pas
+  try {
+    const { pool } = await import('./db');
+    await pool.query(`
+      DO $$ BEGIN CREATE TYPE difficulty_level AS ENUM('beginner','intermediate','advanced'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+      DO $$ BEGIN CREATE TYPE gamification_level AS ENUM('aucun','leger','modere','eleve','intense'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+      DO $$ BEGIN CREATE TYPE learning_style AS ENUM('reading','interactive','mixed'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+      CREATE TABLE IF NOT EXISTS custom_modules (
+        id serial PRIMARY KEY,
+        user_id varchar(255) NOT NULL,
+        user_name varchar(255) NOT NULL,
+        name varchar(255) NOT NULL,
+        domain varchar(100) NOT NULL,
+        description text NOT NULL,
+        iam_name varchar(255) NOT NULL,
+        display_order integer DEFAULT 100,
+        difficulty difficulty_level DEFAULT 'intermediate',
+        topics text[] NOT NULL DEFAULT '{}',
+        gamification_level gamification_level DEFAULT 'leger',
+        learning_style learning_style DEFAULT 'mixed',
+        include_trainer_module boolean DEFAULT true,
+        include_ops_module boolean DEFAULT true,
+        include_test_module boolean DEFAULT true,
+        include_ascension_module boolean DEFAULT true,
+        module_data jsonb NOT NULL,
+        icon_path text DEFAULT '/assets/icons/default-module.svg',
+        is_active boolean DEFAULT true,
+        created_at timestamp DEFAULT now(),
+        updated_at timestamp DEFAULT now()
+      );
+    `);
+    console.log('[boot] custom_modules table ready');
+  } catch (e: any) {
+    console.error('[boot] migration warning:', e.message);
+  }
+
   const server = await registerRoutes(app);
+
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -69,11 +106,8 @@ app.use((req, res, next) => {
   }
 
   const port = parseInt(process.env.PORT || '5000');
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port} at http://0.0.0.0:${port}`);
+  const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1';
+  server.listen({ port, host }, () => {
+    log(`serving on port ${port} at http://${host}:${port}`);
   });
 })();

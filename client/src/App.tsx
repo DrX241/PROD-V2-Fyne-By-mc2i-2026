@@ -2,6 +2,7 @@ import { Switch, Route, useLocation, Link } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
+import { QuotaToast } from "@/components/QuotaToast";
 import { Button } from "@/components/ui/button";
 import React, { Suspense, lazy, startTransition, useEffect } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
@@ -22,6 +23,7 @@ declare global {
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import CyberHomePage from "@/pages/CyberHomePage";
+import PortalSelection from "@/pages/portal-selection";
 import ModulesPage from "@/pages/modules";
 import CyberModeSelection from "@/pages/cyber-mode-selection";
 import CyberAgentPage from "@/pages/cyber-agent";
@@ -29,12 +31,11 @@ import CyberAgentPage from "@/pages/cyber-agent";
 import CyberAgentRedirectPage from "./pages/cyber/cyber-agent-redirect";
 import CyberAgentNewPage from "./pages/cyber/cyber-agent-new";
 // Import des pages de modules
-import DataIaModeSelection from "./pages/data-ia-mode-selection";
-import AmoaModeSelectionNew from "./pages/amoa-mode-selection-new";
-import ModuleGenerator from "./pages/playground/module-generator";
+import TrainingPlayer from "./pages/playground/player";
+import ModuleGeneratorNew from "./pages/playground/module-generator-new";
+import ModuleDetail from "./pages/playground/module/index";
 import StudioIA from "./pages/playground/studio-ia";
 import StudioDocuments from "./pages/playground/studio-documents";
-import TrainingPlayer from "./pages/playground/player";
 import LessonPlayer from "./pages/playground/lesson-player";
 
 // Import des pages de la nouvelle interface cyber V3
@@ -52,6 +53,22 @@ import CrisisBriefing from "./pages/cyber/crisis-management/briefing";
 import ComexTrainingPage from "./pages/cyber/comex-training";
 import PentestLab from "./pages/cyber/pentest-lab";
 import ProfilPro from "./pages/cyber/profil-pro";
+import DataChoicePage from "./pages/cyber/formation-data";
+import FormationPython from "./pages/cyber/formation-python";
+import FormationSQL from "./pages/cyber/formation";
+import FormationExcel from "./pages/cyber/formation-excel";
+import DataIaModeSelection from "./pages/data-ia-mode-selection";
+import EvaluationPage from "./pages/evaluation";
+import SuperAdminPage from "./pages/superadmin";
+import ClientLoginPage from "./pages/client-portal/login";
+import ClientAccueilPage from "./pages/client-portal/accueil";
+import ClientGestionPage from "./pages/client-portal/gestion";
+import ClientPlayerPage from "./pages/client-portal/player";
+import ClientMesFormationsPage from "./pages/client-portal/mes-formations";
+import ClientDataChoicePage from "./pages/client-portal/data-choice";
+import ClientDataSqlPage from "./pages/client-portal/data-sql";
+import ClientDataPythonPage from "./pages/client-portal/data-python";
+import ClientDataExcelPage from "./pages/client-portal/data-excel";
 
 // Import des modules de la Cyber Académie - importés dynamiquement avec lazy pour améliorer les performances
 const IntroductionCybersecurite = lazy(() => import("./pages/cyber/learning-center/modules/intro-cybersecurite/index"));
@@ -76,6 +93,7 @@ const MotDePasse = lazy(() => import("./pages/cyber/learning-center/modules/mot-
 const DevSecOps = lazy(() => import("./pages/cyber/learning-center/modules/devsecops/index"));
 const GouvernanceCyber = lazy(() => import("./pages/cyber/learning-center/modules/gouvernance-cyber/index"));
 // Import des pages AMOA
+const AdminPage = lazy(() => import("./pages/admin"));
 import SasAcademie from "./pages/amoa/sas-academie";
 import AmoaRoleplay from "./pages/amoa/roleplay/index";
 import AmoaAcademie from "./pages/amoa/academie/index";
@@ -103,8 +121,20 @@ function AppContent() {
       <TutorialProvider>
             <div>
               <Switch>
+                {/* Route admin — accessible si rôle admin OU superadmin */}
+                {(user?.role === 'admin' || user?.role === 'superadmin') && (
+                  <Route path="/admin">
+                    {() => (
+                      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Chargement...</div>}>
+                        <AdminPage />
+                      </Suspense>
+                    )}
+                  </Route>
+                )}
+
                 {/* Routes publiques */}
-                <Route path="/" component={CyberHomePage} />
+                <Route path="/" component={PortalSelection} />
+                <Route path="/home" component={CyberHomePage} />
                 <Route path="/home-classic" component={Home} />
                 <Route path="/modules" component={ModulesPage} />
                 
@@ -281,111 +311,6 @@ function AppContent() {
                   )}
                 </Route>
                 
-                <Route path="/data-ia" component={DataIaModeSelection} />
-                <Route path="/marketplace">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement de la marketplace...</div>}>
-                      {React.createElement(lazy(() => import("./pages/marketplace")))}
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/amoa-mode-selection-new">
-                  {() => (
-                    <AmoaModeSelectionNew />
-                  )}
-                </Route>
-                <Route path="/data-ia/sas-academie">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      {React.createElement(lazy(() => import("./pages/data-ia/sas-academie")))}
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/data-ia/expert-learning">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      {React.createElement(lazy(() => import("./pages/data-ia/expert-learning")))}
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/data-ia/data-studio">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      {React.createElement(lazy(() => import("./pages/data-ia/data-studio")))}
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/data-ia/roleplay">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      {React.createElement(lazy(() => import("./pages/data-ia/roleplay")))}
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/data-ia/roleplay/read-me-if-you-can">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      {React.createElement(lazy(() => import("./pages/data-ia/read-me-if-you-can")))}
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/data-ia/roleplay/ia-lab-trainer">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      {React.createElement(lazy(() => import("./pages/data-ia/ia-lab-trainer")))}
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/data-ia/roleplay/data-analyst">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      {React.createElement(lazy(() => import("./pages/data-ia/roleplay/data-analyst")))}
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/data-ia/roleplay/ai-engineer">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      {React.createElement(lazy(() => import("./pages/data-ia/roleplay/ai-engineer")))}
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/data-ia/roleplay/monsieur-tout-le-monde">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      {React.createElement(lazy(() => import("./pages/data-ia/roleplay/monsieur-tout-le-monde")))}
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/data-ia/data-ia-academy">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      {React.createElement(lazy(() => import("./pages/data-ia/data-ia-academy")))}
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/data-ia/read-me-if-you-can">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      {React.createElement(lazy(() => import("./pages/data-ia/read-me-if-you-can")))}
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/data-ia/ia-lab-trainer">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      {React.createElement(lazy(() => import("./pages/data-ia/ia-lab-trainer")))}
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/data-ia/data-challenge">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      {React.createElement(lazy(() => import("./pages/data-ia/data-challenge")))}
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/amoa/new" component={AmoaModeSelectionNew} />
                 <Route path="/amoa/sas-academie" component={SasAcademie} />
                 <Route path="/amoa/roleplay" component={AmoaRoleplay} />
                 <Route path="/amoa/academie" component={AmoaAcademie} />
@@ -421,15 +346,69 @@ function AppContent() {
                 <Route path="/amoa/interview-simulation" component={InterviewSimulation} />
                 <Route path="/amoa/prospect-pulse" component={ProspectPulse} />
                 <Route path="/amoa/expert-learning" component={AmoaExpertLearning} />
-                <Route path="/playground/module-generator" component={ModuleGenerator} />
+                {/* Routes formation data */}
+                <Route path="/cyber/formation-data" component={DataChoicePage} />
+                <Route path="/cyber/formation/python" component={FormationPython} />
+                <Route path="/cyber/formation/excel" component={FormationExcel} />
+                <Route path="/cyber/formation" component={FormationSQL} />
+                {/* Routes data-ia */}
+                <Route path="/data-ia" component={DataIaModeSelection} />
+                <Route path="/data-ia/sas-academie">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/sas-academie")))}</Suspense>)}
+                </Route>
+                <Route path="/data-ia/expert-learning">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/expert-learning")))}</Suspense>)}
+                </Route>
+                <Route path="/data-ia/data-studio">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/data-studio")))}</Suspense>)}
+                </Route>
+                <Route path="/data-ia/roleplay">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/roleplay")))}</Suspense>)}
+                </Route>
+                <Route path="/data-ia/roleplay/read-me-if-you-can">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/read-me-if-you-can")))}</Suspense>)}
+                </Route>
+                <Route path="/data-ia/roleplay/ia-lab-trainer">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/ia-lab-trainer")))}</Suspense>)}
+                </Route>
+                <Route path="/data-ia/roleplay/data-analyst">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/roleplay/data-analyst")))}</Suspense>)}
+                </Route>
+                <Route path="/data-ia/roleplay/ai-engineer">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/roleplay/ai-engineer")))}</Suspense>)}
+                </Route>
+                <Route path="/data-ia/roleplay/monsieur-tout-le-monde">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/roleplay/monsieur-tout-le-monde")))}</Suspense>)}
+                </Route>
+                <Route path="/data-ia/data-ia-academy">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/data-ia-academy")))}</Suspense>)}
+                </Route>
+                <Route path="/data-ia/read-me-if-you-can">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/read-me-if-you-can")))}</Suspense>)}
+                </Route>
+                <Route path="/data-ia/ia-lab-trainer">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/ia-lab-trainer")))}</Suspense>)}
+                </Route>
+                <Route path="/data-ia/data-challenge">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/data-challenge")))}</Suspense>)}
+                </Route>
+                {/* Route évaluation */}
+                <Route path="/evaluation" component={EvaluationPage} />
+                {/* Route super admin */}
+                {user?.role === 'superadmin' && (
+                  <Route path="/superadmin" component={SuperAdminPage} />
+                )}
+<Route path="/playground/module-generator" component={ModuleGeneratorNew} />
+                <Route path="/playground/module/:id" component={ModuleDetail} />
+                <Route path="/playground/player/:id" component={TrainingPlayer} />
                 <Route path="/playground/studio-ia" component={StudioIA} />
                 <Route path="/playground/studio-documents" component={StudioDocuments} />
-                <Route path="/playground/player/:id" component={TrainingPlayer} />
                 <Route path="/playground/lesson/:id" component={LessonPlayer} />
                 {/* Route par défaut (404) */}
                 <Route component={NotFound} />
               </Switch>
               <Toaster />
+              <QuotaToast />
             </div>
           </TutorialProvider>
         </ChatProvider>
@@ -440,9 +419,23 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
+        <Switch>
+          <Route path="/portail-client" component={ClientLoginPage} />
+          <Route path="/portail-client/login" component={ClientLoginPage} />
+          <Route path="/portail-client/accueil" component={ClientAccueilPage} />
+          <Route path="/portail-client/gestion" component={ClientGestionPage} />
+          <Route path="/portail-client/mes-formations" component={ClientMesFormationsPage} />
+          <Route path="/portail-client/formation/:pathId" component={ClientPlayerPage} />
+          <Route path="/portail-client/data" component={ClientDataChoicePage} />
+          <Route path="/portail-client/data/sql" component={ClientDataSqlPage} />
+          <Route path="/portail-client/data/python" component={ClientDataPythonPage} />
+          <Route path="/portail-client/data/excel" component={ClientDataExcelPage} />
+          <Route>
+            <AuthProvider>
+              <AppContent />
+            </AuthProvider>
+          </Route>
+        </Switch>
       </ThemeProvider>
     </QueryClientProvider>
   );

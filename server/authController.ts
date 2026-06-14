@@ -44,7 +44,11 @@ export class AuthController {
         id: user.id,
         username: user.username,
         role: user.role,
-        isActive: user.isActive
+        isActive: user.isActive,
+        modulesEnabled: (user as any).modulesEnabled ?? ['cyber','data','amoa','formation-data','evaluation','playground'],
+        tokenQuota: (user as any).tokenQuota ?? 100000,
+        tokenUsedMonth: (user as any).tokenUsedMonth ?? 0,
+        subscriptionLabel: (user as any).subscriptionLabel ?? 'Gratuit',
       };
 
       res.json({
@@ -56,7 +60,10 @@ export class AuthController {
           role: user.role,
           firstName: user.firstName,
           lastName: user.lastName,
-          email: user.email
+          email: user.email,
+          modulesEnabled: (user as any).modulesEnabled ?? ['cyber','data','amoa','formation-data','evaluation','playground'],
+          tokenQuota: (user as any).tokenQuota ?? 100000,
+          subscriptionLabel: (user as any).subscriptionLabel ?? 'Gratuit',
         }
       });
 
@@ -122,6 +129,16 @@ export class AuthController {
         });
       }
 
+      // Rafraîchir la session avec les dernières valeurs DB
+      (req.session as any).user = {
+        ...(req.session as any).user,
+        role: user.role,
+        modulesEnabled: (user as any).modulesEnabled ?? ['cyber','data','amoa','formation-data','evaluation','playground'],
+        tokenQuota: (user as any).tokenQuota ?? 100000,
+        tokenUsedMonth: (user as any).tokenUsedMonth ?? 0,
+        subscriptionLabel: (user as any).subscriptionLabel ?? 'Gratuit',
+      };
+
       res.json({
         success: true,
         authenticated: true,
@@ -131,7 +148,11 @@ export class AuthController {
           role: user.role,
           firstName: user.firstName,
           lastName: user.lastName,
-          email: user.email
+          email: user.email,
+          modulesEnabled: (user as any).modulesEnabled ?? ['cyber','data','amoa','formation-data','evaluation','playground'],
+          tokenQuota: (user as any).tokenQuota ?? 100000,
+          tokenUsedMonth: (user as any).tokenUsedMonth ?? 0,
+          subscriptionLabel: (user as any).subscriptionLabel ?? 'Gratuit',
         }
       });
 
@@ -158,17 +179,37 @@ export class AuthController {
     next();
   }
 
-  // Middleware pour vérifier le rôle admin
+  // Middleware pour vérifier le rôle admin (admin et superadmin autorisés)
   static requireAdmin(req: Request, res: Response, next: any) {
     const session = req.session as any;
-    
-    if (!session.user || session.user.role !== 'admin') {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Accès administrateur requis' 
+    const role = session.user?.role;
+
+    if (!session.user || (role !== 'admin' && role !== 'superadmin')) {
+      return res.status(403).json({
+        success: false,
+        message: 'Accès administrateur requis'
       });
     }
-    
+
     next();
+  }
+
+  // Factory: middleware qui vérifie que l'utilisateur a accès au module demandé
+  static requireModule(moduleId: string) {
+    return (req: Request, res: Response, next: any) => {
+      const session = req.session as any;
+      if (!session.user) {
+        return res.status(401).json({ success: false, message: 'Authentification requise' });
+      }
+      // superadmin et admin ont accès à tout
+      if (session.user.role === 'superadmin' || session.user.role === 'admin') {
+        return next();
+      }
+      const enabled: string[] = session.user.modulesEnabled ?? ['cyber','data','amoa','formation-data','evaluation','playground'];
+      if (!enabled.includes(moduleId)) {
+        return res.status(403).json({ success: false, message: `Accès au module "${moduleId}" non autorisé. Vérifiez votre abonnement.` });
+      }
+      next();
+    };
   }
 }

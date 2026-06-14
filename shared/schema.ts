@@ -116,9 +116,16 @@ export const users = pgTable("users", {
   lastName: varchar("last_name", { length: 255 }),
   bio: text("bio"),
   profileImageUrl: varchar("profile_image_url", { length: 255 }),
-  role: varchar("role", { length: 50 }).default("user").notNull(), // 'user' ou 'admin'
+  role: varchar("role", { length: 50 }).default("user").notNull(), // 'user' | 'admin' | 'superadmin'
   isActive: boolean("is_active").default(true).notNull(),
   lastLogin: timestamp("last_login"),
+  // Abonnement & modules
+  modulesEnabled: jsonb("modules_enabled").default(["cyber","data","amoa","formation-data","evaluation","playground"]),
+  tokenQuota: integer("token_quota").default(100000),
+  tokenUsedMonth: integer("token_used_month").default(0),
+  tokenResetAt: timestamp("token_reset_at"),
+  subscriptionLabel: varchar("subscription_label", { length: 100 }).default("Gratuit"),
+  subscriptionExpiresAt: timestamp("subscription_expires_at"),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -352,3 +359,82 @@ export const llmCache = pgTable('llm_cache', {
 }, (table) => [index('IDX_llm_cache_key').on(table.cacheKey)]);
 
 export type LlmCache = typeof llmCache.$inferSelect;
+
+// ─── SUIVI CONSOMMATION LLM ──────────────────────────────────────────────────
+export const llmUsage = pgTable('llm_usage', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull(),
+  username: varchar('username', { length: 255 }).notNull(),
+  model: varchar('model', { length: 100 }).notNull(),
+  feature: varchar('feature', { length: 100 }).notNull(),
+  promptTokens: integer('prompt_tokens').notNull().default(0),
+  completionTokens: integer('completion_tokens').notNull().default(0),
+  totalTokens: integer('total_tokens').notNull().default(0),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => [
+  index('IDX_llm_usage_user').on(table.userId),
+  index('IDX_llm_usage_date').on(table.createdAt),
+]);
+
+export type LlmUsage = typeof llmUsage.$inferSelect;
+
+// ─── CONFIGURATION SSO ───────────────────────────────────────────────────────
+export const ssoConfig = pgTable('sso_config', {
+  id: serial('id').primaryKey(),
+  provider: varchar('provider', { length: 50 }).notNull().default('azure'),
+  clientId: varchar('client_id', { length: 255 }).notNull(),
+  clientSecret: varchar('client_secret', { length: 512 }).notNull(),
+  tenantId: varchar('tenant_id', { length: 255 }),
+  discoveryUrl: varchar('discovery_url', { length: 512 }),
+  callbackUrl: varchar('callback_url', { length: 512 }).notNull(),
+  isEnabled: boolean('is_enabled').notNull().default(false),
+  allowedDomains: text('allowed_domains').array().notNull().default([]),
+  autoCreateUsers: boolean('auto_create_users').notNull().default(true),
+  defaultRole: varchar('default_role', { length: 50 }).notNull().default('user'),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export type SsoConfig = typeof ssoConfig.$inferSelect;
+
+// ─── PORTAIL CLIENT — Entreprises et utilisateurs ────────────────────────────
+
+export const clientCompanies = pgTable('client_companies', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  slug: varchar('slug', { length: 100 }).unique().notNull(),
+  isActive: boolean('is_active').notNull().default(true),
+  createdBy: integer('created_by').references(() => users.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const clientUsers = pgTable('client_users', {
+  id: serial('id').primaryKey(),
+  companyId: integer('company_id').references(() => clientCompanies.id).notNull(),
+  email: varchar('email', { length: 255 }).unique().notNull(),
+  password: varchar('password', { length: 255 }).notNull(),
+  firstName: varchar('first_name', { length: 255 }),
+  lastName: varchar('last_name', { length: 255 }),
+  role: varchar('role', { length: 20 }).notNull().default('user'), // 'admin' | 'user'
+  isActive: boolean('is_active').notNull().default(true),
+  score: integer('score').notNull().default(0),
+  exercicesRealises: integer('exercices_realises').notNull().default(0),
+  tauxReussite: integer('taux_reussite').notNull().default(0),
+  niveau: varchar('niveau', { length: 50 }).notNull().default('Novice'),
+  badges: integer('badges').notNull().default(0),
+  lastLogin: timestamp('last_login'),
+  createdBy: integer('created_by').references(() => users.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const insertClientCompanySchema = createInsertSchema(clientCompanies)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+
+export const insertClientUserSchema = createInsertSchema(clientUsers)
+  .omit({ id: true, createdAt: true, updatedAt: true, lastLogin: true });
+
+export type ClientCompany = typeof clientCompanies.$inferSelect;
+export type ClientUser = typeof clientUsers.$inferSelect;
+export type InsertClientCompany = z.infer<typeof insertClientCompanySchema>;
+export type InsertClientUser = z.infer<typeof insertClientUserSchema>;

@@ -1,7 +1,29 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+export class QuotaExceededError extends Error {
+  public readonly tokenUsedMonth: number;
+  public readonly tokenQuota: number;
+  constructor(message: string, tokenUsedMonth: number, tokenQuota: number) {
+    super(message);
+    this.name = 'QuotaExceededError';
+    this.tokenUsedMonth = tokenUsedMonth;
+    this.tokenQuota = tokenQuota;
+  }
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
+    // Quota exceeded — parse structured JSON to give UI a rich error
+    if (res.status === 429) {
+      try {
+        const data = await res.clone().json();
+        if (data?.quotaExceeded) {
+          throw new QuotaExceededError(data.message, data.tokenUsedMonth ?? 0, data.tokenQuota ?? 0);
+        }
+      } catch (e) {
+        if (e instanceof QuotaExceededError) throw e;
+      }
+    }
     const text = (await res.text()) || res.statusText;
     throw new Error(`${res.status}: ${text}`);
   }
@@ -12,7 +34,6 @@ export async function apiRequest<T = any>(
   options?: RequestInit,
 ): Promise<T> {
   try {
-    // Gérer les erreurs de réseau
     let res;
     try {
       res = await fetch(url, {

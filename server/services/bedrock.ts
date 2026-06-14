@@ -1,5 +1,13 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
 import { ChatCompletionRequestMessage } from "./openAiTypes";
+import { trackLlmUsage } from "./llmTracker";
+import { getLlmContext } from "./llmContext";
+
+export interface LlmTrackingCtx {
+  userId: number;
+  username: string;
+  feature: string;
+}
 
 interface BedrockConfig {
   region: string;
@@ -31,49 +39,34 @@ class BedrockService {
   constructor() {
     console.log("Initializing Amazon Bedrock Service with configuration from secrets");
 
-    const awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID || "";
-    const awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY || "";
-    const awsRegion = process.env.AWS_REGION || "us-east-1";
-    
-    const primaryModelId = process.env.BEDROCK_PRIMARY_MODEL_ID || "anthropic.claude-3-5-sonnet-20241022-v2:0";
-    const secondaryModelId = process.env.BEDROCK_SECONDARY_MODEL_ID || "anthropic.claude-3-haiku-20240307-v1:0";
+    const awsRegion = process.env.AWS_REGION || "eu-west-3";
 
-    console.log(`AWS Access Key: ***${awsAccessKeyId ? awsAccessKeyId.slice(-5) : "non définie"}`);
+    // Use eu. inference profile IDs required for eu-west-3
+    const primaryModelId = process.env.BEDROCK_PRIMARY_MODEL_ID || "eu.anthropic.claude-sonnet-4-5-20250929-v1:0";
+    const secondaryModelId = process.env.BEDROCK_SECONDARY_MODEL_ID || "eu.anthropic.claude-haiku-4-5-20251001-v1:0";
+
     console.log(`AWS Region: ${awsRegion}`);
     console.log(`Primary Model ID: ${primaryModelId}`);
     console.log(`Secondary Model ID: ${secondaryModelId}`);
 
-    if (!awsAccessKeyId) {
-      console.error("ERREUR: Aucune clé d'accès AWS fournie (AWS_ACCESS_KEY_ID)");
-    }
-
-    if (!awsSecretAccessKey) {
-      console.error("ERREUR: Aucune clé secrète AWS fournie (AWS_SECRET_ACCESS_KEY)");
-    }
-
     this.primaryConfig = {
       region: awsRegion,
-      accessKeyId: awsAccessKeyId,
-      secretAccessKey: awsSecretAccessKey,
+      accessKeyId: "",
+      secretAccessKey: "",
       modelId: primaryModelId,
       modelName: this.getModelDisplayName(primaryModelId)
     };
 
     this.secondaryConfig = {
       region: awsRegion,
-      accessKeyId: awsAccessKeyId,
-      secretAccessKey: awsSecretAccessKey,
+      accessKeyId: "",
+      secretAccessKey: "",
       modelId: secondaryModelId,
       modelName: this.getModelDisplayName(secondaryModelId)
     };
 
-    const clientConfig = {
-      region: awsRegion,
-      credentials: {
-        accessKeyId: awsAccessKeyId,
-        secretAccessKey: awsSecretAccessKey
-      }
-    };
+    // No explicit credentials — use IAM instance profile on EC2
+    const clientConfig = { region: awsRegion };
 
     this.primaryClient = new BedrockRuntimeClient(clientConfig);
     this.secondaryClient = new BedrockRuntimeClient(clientConfig);
@@ -86,6 +79,8 @@ class BedrockService {
   }
 
   private getModelDisplayName(modelId: string): string {
+    if (modelId.includes('claude-sonnet-4-5')) return 'Claude Sonnet 4.5';
+    if (modelId.includes('claude-haiku-4-5')) return 'Claude Haiku 4.5';
     if (modelId.includes('claude-3-5-sonnet')) return 'Claude 3.5 Sonnet';
     if (modelId.includes('claude-3-sonnet')) return 'Claude 3 Sonnet';
     if (modelId.includes('claude-3-haiku')) return 'Claude 3 Haiku';
@@ -179,12 +174,23 @@ class BedrockService {
     temperature: number = 0.7,
     maxTokens: number = 2000,
     usePrimaryModel: boolean = false,
-    options: { responseFormat?: string } = {}
+    options: { responseFormat?: string; trackingCtx?: LlmTrackingCtx } = {}
   ): Promise<string> {
     const config = usePrimaryModel ? this.primaryConfig : this.secondaryConfig;
     const client = usePrimaryModel ? this.primaryClient : this.secondaryClient;
-    
     return this.invokeModel(client, config, messages, temperature, maxTokens, options);
+  }
+
+  // Méthode avec tracking explicite — à utiliser dans les controllers
+  async getChatCompletionTracked(
+    messages: ChatCompletionRequestMessage[],
+    trackingCtx: LlmTrackingCtx,
+    options: { temperature?: number; maxTokens?: number; usePrimaryModel?: boolean; responseFormat?: string } = {}
+  ): Promise<string> {
+    const { temperature = 0.7, maxTokens = 2000, usePrimaryModel = false, responseFormat } = options;
+    const config = usePrimaryModel ? this.primaryConfig : this.secondaryConfig;
+    const client = usePrimaryModel ? this.primaryClient : this.secondaryClient;
+    return this.invokeModel(client, config, messages, temperature, maxTokens, { responseFormat, trackingCtx });
   }
 
   async getChatCompletion(
@@ -243,7 +249,7 @@ class BedrockService {
     messages: ChatCompletionRequestMessage[],
     temperature: number,
     maxTokens: number,
-    options: { responseFormat?: string } = {}
+    options: { responseFormat?: string; trackingCtx?: LlmTrackingCtx } = {}
   ): Promise<string> {
     try {
       console.log(`Making Bedrock API request with model: ${config.modelId}`);
@@ -322,6 +328,29 @@ class BedrockService {
       if (content) {
         this.connectionStatus = 'connected';
         this.lastConnectionCheck = Date.now();
+
+        // Track token usage — explicit ctx or fallback to AsyncLocalStorage
+        const trackCtx = options.trackingCtx ?? getLlmContext();
+        console.log('[llm-track] ctx:', trackCtx ? `${trackCtx.username}/${trackCtx.feature}` : 'none');
+        console.log('[llm-track] responseBody keys:', Object.keys(responseBody));
+        if (trackCtx) {
+          // Bedrock InvokeModel: usage peut être dans responseBody ou dans response headers
+          const usage = responseBody.usage ?? responseBody['amazon-bedrock-invocationMetrics'] ?? {};
+          const promptTokens = usage.input_tokens ?? usage.inputTokenCount ?? usage.prompt_tokens ?? 0;
+          const completionTokens = usage.output_tokens ?? usage.outputTokenCount ?? usage.completion_tokens ?? 0;
+          const total = promptTokens + completionTokens;
+          console.log('[llm-track] tokens:', { promptTokens, completionTokens, total, usage });
+          trackLlmUsage({
+            userId: trackCtx.userId,
+            username: trackCtx.username,
+            model: config.modelName,
+            feature: trackCtx.feature,
+            promptTokens,
+            completionTokens,
+            totalTokens: total > 0 ? total : 1, // au minimum 1 pour signaler l'appel
+          });
+        }
+
         return content;
       } else {
         throw new Error("Invalid response format from Amazon Bedrock API");

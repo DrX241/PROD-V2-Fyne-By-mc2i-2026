@@ -1,4 +1,7 @@
+import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
 import { ChatCompletionRequestMessage } from "./openAiTypes";
+import { trackLlmUsage } from "./llmTracker";
+import { getLlmContext } from "./llmContext";
 
 interface CachedResponse {
   content: string;
@@ -7,12 +10,25 @@ interface CachedResponse {
 
 export type ApiKeyType = 'primary' | 'secondary';
 
-const GATEWAY_URL = process.env.AI_GATEWAY_URL || "https://aigateway.mc2i-lab.fr/v1";
-const GATEWAY_KEY = process.env.AI_GATEWAY_API_KEY || "";
-const GEMINI_KEY = process.env.GEMINI_API_KEY || "";
-const PRIMARY_MODEL = process.env.AI_PRIMARY_MODEL || "gemini-2.5-flash";
-const SECONDARY_MODEL = process.env.AI_SECONDARY_MODEL || "gemini-2.5-flash";
-const USE_GEMINI_DIRECT = !GATEWAY_KEY && !!GEMINI_KEY;
+// ─── Modèles Bedrock ──────────────────────────────────────────────────────────
+const BEDROCK_REGION = process.env.AWS_REGION || "eu-west-3";
+
+// Seul Haiku 4.5 est souscrit dans ce compte — Sonnet nécessite AWS Marketplace (NOT_AVAILABLE)
+const HAIKU_MODEL = process.env.BEDROCK_MODEL || "eu.anthropic.claude-haiku-4-5-20251001-v1:0";
+
+export const MODEL_CATALOG = [
+  {
+    key: 'standard',
+    label: 'Claude Haiku 4.5',
+    description: 'Modèle actif — rapide et efficace',
+    modelId: HAIKU_MODEL,
+    eco: false,
+  },
+];
+
+const BEDROCK_MODELS = [HAIKU_MODEL];
+
+const bedrockClient = new BedrockRuntimeClient({ region: BEDROCK_REGION });
 
 class GeminiService {
   private responseCache: Map<string, CachedResponse> = new Map();
@@ -20,31 +36,21 @@ class GeminiService {
   private connectionStatus: 'connected' | 'disconnected' | 'reconnecting' = 'disconnected';
   private lastConnectionCheck: number = 0;
   private readonly CONNECTION_CHECK_INTERVAL = 1000 * 60 * 5;
-  private currentConfig: ApiKeyType = 'secondary';
+  private currentConfig: ApiKeyType = 'primary';
+  private activeModelIdx: number = 0;
+  // Choix utilisateur global : 0 = standard, 1 = éco
+  private preferredModelIdx: number = 0;
 
   constructor() {
-    if (USE_GEMINI_DIRECT) {
-      console.log("Initializing Gemini Direct Service (fallback)");
-      console.log(`Gemini API Key: ***${GEMINI_KEY.slice(-5)}`);
-    } else {
-      console.log("Initializing AI Gateway Service");
-      console.log(`Gateway URL: ${GATEWAY_URL}`);
-      console.log(`API Key: ***${GATEWAY_KEY ? GATEWAY_KEY.slice(-5) : "non définie"}`);
-    }
-    console.log(`Primary model: ${PRIMARY_MODEL}`);
-
-    if (!GATEWAY_KEY && !GEMINI_KEY) {
-      console.warn("Aucune clé IA configurée — fonctionnalité IA désactivée");
-    }
-
+    console.log("Initializing AI Service — Bedrock");
+    console.log(`Models: ${BEDROCK_MODELS.join(' → ')} | Region: ${BEDROCK_REGION}`);
     this.checkConnection();
     this.startPeriodicConnectionCheck();
   }
 
   private startPeriodicConnectionCheck(): void {
     setInterval(() => {
-      const now = Date.now();
-      if (now - this.lastConnectionCheck >= this.CONNECTION_CHECK_INTERVAL) {
+      if (Date.now() - this.lastConnectionCheck >= this.CONNECTION_CHECK_INTERVAL) {
         this.checkConnection();
       }
     }, this.CONNECTION_CHECK_INTERVAL);
@@ -52,234 +58,173 @@ class GeminiService {
 
   switchApiKey(type: ApiKeyType): void {
     this.currentConfig = type;
+    this.preferredModelIdx = type === 'secondary' ? 1 : 0;
     this.responseCache.clear();
     this.lastConnectionCheck = 0;
   }
 
-  getCurrentConfig(): any {
-    return this.currentConfig;
+  setModel(modelKey: string): boolean {
+    const idx = MODEL_CATALOG.findIndex(m => m.key === modelKey);
+    if (idx === -1) return false;
+    this.preferredModelIdx = idx;
+    this.currentConfig = idx === 0 ? 'primary' : 'secondary';
+    this.responseCache.clear();
+    return true;
   }
 
-  async checkConnection(): Promise<boolean> {
-    if (!GATEWAY_KEY && !GEMINI_KEY) {
-      this.connectionStatus = 'disconnected';
-      return false;
-    }
-    try {
-      const now = Date.now();
-      if (now - this.lastConnectionCheck < this.CONNECTION_CHECK_INTERVAL && this.connectionStatus === 'connected') {
-        return true;
-      }
-
-      const url = USE_GEMINI_DIRECT
-        ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`
-        : `${GATEWAY_URL}/chat/completions`;
-
-      const headers: any = { 'Content-Type': 'application/json' };
-      let body: any;
-
-      if (USE_GEMINI_DIRECT) {
-        headers['x-goog-api-key'] = GEMINI_KEY;
-        body = { contents: [{ parts: [{ text: "Hello" }] }], generationConfig: { maxOutputTokens: 5 } };
-      } else {
-        headers['Authorization'] = `Bearer ${GATEWAY_KEY}`;
-        headers['x-litellm-tags'] = 'FYNE';
-        body = { model: PRIMARY_MODEL, messages: [{ role: "user", content: "Hello" }], max_tokens: 5 };
-      }
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(body),
-        signal: AbortSignal.timeout(10000),
-      });
-
-      if (response.ok) {
-        this.connectionStatus = 'connected';
-        this.lastConnectionCheck = Date.now();
-        console.log("AI connection successful");
-        return true;
-      } else {
-        const err = await response.text();
-        console.error("AI connection check failed:", err);
-        this.connectionStatus = 'disconnected';
-        return false;
-      }
-    } catch (error) {
-      console.error("Error checking AI connection:", error);
-      this.connectionStatus = 'disconnected';
-      return false;
-    }
-  }
-
+  getAvailableModels() { return MODEL_CATALOG; }
+  getCurrentModelKey(): string { return MODEL_CATALOG[this.preferredModelIdx]?.key ?? 'standard'; }
+  getCurrentConfig(): any { return this.currentConfig; }
   getConnectionStatus(): string { return this.connectionStatus; }
   getLastConnectionCheck(): number { return this.lastConnectionCheck; }
   getCurrentApiKeyType(): ApiKeyType { return this.currentConfig; }
-  getCurrentModelName(): string { return PRIMARY_MODEL; }
-  getModelName(): string { return PRIMARY_MODEL; }
+  getCurrentModelName(): string { return MODEL_CATALOG[this.preferredModelIdx]?.label ?? BEDROCK_MODELS[this.activeModelIdx]; }
+  getModelName(): string { return this.getCurrentModelName(); }
+
+  async checkConnection(): Promise<boolean> {
+    const now = Date.now();
+    const recentlyChecked = (now - this.lastConnectionCheck) < this.CONNECTION_CHECK_INTERVAL;
+    if (recentlyChecked && this.connectionStatus === 'connected') {
+      return true;
+    }
+
+    for (let idx = 0; idx < BEDROCK_MODELS.length; idx++) {
+      try {
+        await this.callBedrock([{ role: "user", content: "Hi" }], 0, 5, BEDROCK_MODELS[idx]);
+        this.connectionStatus = 'connected';
+        this.lastConnectionCheck = now;
+        this.activeModelIdx = idx;
+        console.log(`AI connection (Bedrock) OK — ${BEDROCK_MODELS[idx]}`);
+        return true;
+      } catch (err: any) {
+        console.warn(`Bedrock connection check failed (${BEDROCK_MODELS[idx]}): ${err?.message}`);
+      }
+    }
+
+    this.connectionStatus = 'disconnected';
+    this.lastConnectionCheck = now;
+    return false;
+  }
 
   async forceReconnect(): Promise<boolean> {
     this.connectionStatus = 'reconnecting';
     this.lastConnectionCheck = 0;
-    return await this.checkConnection();
+    return this.checkConnection();
   }
 
-  private async callGateway(
+  // ─── Appel Bedrock (Anthropic Messages API) avec retry sur throttling ────────
+  private async callBedrock(
+    messages: ChatCompletionRequestMessage[],
+    temperature: number,
+    maxTokens: number,
+    modelId: string,
+    retries = 2,
+  ): Promise<{ text: string; promptTokens: number; completionTokens: number }> {
+    const system = messages.filter(m => m.role === 'system').map(m => m.content).join('\n');
+    const convo = messages
+      .filter(m => m.role !== 'system')
+      .map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }));
+
+    if (convo.length === 0) convo.push({ role: 'user', content: 'Bonjour' });
+
+    const body: any = {
+      anthropic_version: "bedrock-2023-05-31",
+      max_tokens: maxTokens,
+      temperature,
+      messages: convo,
+    };
+    if (system) body.system = system;
+
+    const cmd = new InvokeModelCommand({
+      modelId,
+      contentType: "application/json",
+      accept: "application/json",
+      body: JSON.stringify(body),
+    });
+
+    let lastErr: any;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const res = await bedrockClient.send(cmd);
+        const decoded = JSON.parse(new TextDecoder().decode(res.body));
+        const text = decoded?.content?.[0]?.text;
+        if (!text) throw new Error("Réponse vide depuis Bedrock");
+        return {
+          text,
+          promptTokens: decoded?.usage?.input_tokens ?? 0,
+          completionTokens: decoded?.usage?.output_tokens ?? 0,
+        };
+      } catch (err: any) {
+        lastErr = err;
+        const isThrottle = err?.name === 'ThrottlingException' || err?.message?.includes('throttl');
+        if (isThrottle && attempt < retries) {
+          const wait = 3000 * (attempt + 1);
+          console.warn(`[Bedrock] Throttling sur ${modelId} — retry dans ${wait}ms (tentative ${attempt + 1}/${retries})`);
+          await new Promise(r => setTimeout(r, wait));
+          continue;
+        }
+        throw err;
+      }
+    }
+    throw lastErr;
+  }
+
+  // ─── Appel avec fallback : Bedrock Sonnet → Bedrock Haiku ───────────────────
+  private async callWithFallback(
     messages: ChatCompletionRequestMessage[],
     temperature: number,
     maxTokens: number,
     responseFormat?: string,
-    model?: string
+    preferredModelIdx?: number,
   ): Promise<string> {
-    if (!GATEWAY_KEY && !GEMINI_KEY) {
-      throw new Error("Aucune clé IA configurée (AI_GATEWAY_API_KEY ou GEMINI_API_KEY)");
-    }
+    const jsonMessages = responseFormat === 'json_object'
+      ? [...messages, { role: 'user' as const, content: 'Réponds uniquement avec du JSON valide, sans markdown ni explications.' }]
+      : messages;
 
-    const targetModel = model || PRIMARY_MODEL;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 90000);
+    let lastError: Error | undefined;
+    const startIdx = preferredModelIdx ?? this.preferredModelIdx;
 
-    try {
-      let text: string;
+    for (let i = 0; i < BEDROCK_MODELS.length; i++) {
+      const idx = (startIdx + i) % BEDROCK_MODELS.length;
+      const modelId = BEDROCK_MODELS[idx];
+      // Haiku 4.5 : limite stricte 4096 tokens output
+      const bedrockMaxTokens = Math.min(maxTokens, 4000);
 
-      if (USE_GEMINI_DIRECT) {
-        console.log(`[Gemini Direct] Appel modèle: ${targetModel}, temp=${temperature}, max_tokens=${maxTokens}`);
-
-        const geminiContents: any[] = [];
-        let systemInstruction = "";
-        for (const msg of messages) {
-          if (msg.role === 'system') {
-            systemInstruction += (systemInstruction ? "\n" : "") + msg.content;
-          } else {
-            geminiContents.push({
-              role: msg.role === 'assistant' ? 'model' : 'user',
-              parts: [{ text: msg.content }],
-            });
-          }
-        }
-        if (geminiContents.length === 0) {
-          geminiContents.push({ role: 'user', parts: [{ text: 'Bonjour' }] });
-        }
-
-        const generationConfig: any = { temperature, maxOutputTokens: maxTokens };
-        if (responseFormat === 'json_object') generationConfig.responseMimeType = 'application/json';
-        if (targetModel.includes('2.5')) generationConfig.thinkingConfig = { thinkingBudget: 0 };
-
-        const requestBody: any = { contents: geminiContents, generationConfig };
-        if (systemInstruction) requestBody.systemInstruction = { parts: [{ text: systemInstruction }] };
-
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': GEMINI_KEY },
-            body: JSON.stringify(requestBody),
-            signal: controller.signal,
-          }
+      try {
+        console.log(`[Bedrock] Appel modèle: ${modelId}, temp=${temperature}, max_tokens=${bedrockMaxTokens}`);
+        const { text, promptTokens, completionTokens } = await this.callBedrock(
+          jsonMessages, temperature, bedrockMaxTokens, modelId
         );
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          const errorData = await response.text();
-          throw new Error(`Gemini HTTP ${response.status}: ${errorData.slice(0, 300)}`);
-        }
-
-        const data = await response.json();
-        text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) throw new Error("Réponse vide ou format inattendu depuis Gemini");
-
-      } else {
-        console.log(`[AI Gateway] Appel modèle: ${targetModel}, temp=${temperature}, max_tokens=${maxTokens}`);
-
-        const requestBody: any = { model: targetModel, messages, temperature, max_tokens: maxTokens };
-        if (responseFormat === 'json_object') requestBody.response_format = { type: "json_object" };
-
-        let gatewaySuccess = false;
-        if (GATEWAY_KEY) {
-          try {
-            const response = await fetch(`${GATEWAY_URL}/chat/completions`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${GATEWAY_KEY}`,
-                'x-litellm-tags': 'FYNE',
-              },
-              body: JSON.stringify(requestBody),
-              signal: AbortSignal.timeout(80000),
-            });
-
-            if (response.ok) {
-              const data = await response.json();
-              text = data?.choices?.[0]?.message?.content;
-              if (text) gatewaySuccess = true;
-            }
-          } catch (gatewayErr) {
-            console.warn(`[AI Gateway] Inaccessible, bascule sur Gemini direct:`, (gatewayErr as any)?.cause?.code || gatewayErr);
-          }
-        }
-
-        // Fallback vers Gemini direct si la gateway a échoué
-        if (!gatewaySuccess) {
-          if (!GEMINI_KEY) throw new Error("AI Gateway inaccessible et GEMINI_API_KEY non configurée");
-
-          console.log(`[Gemini Direct Fallback] Appel modèle: ${targetModel}, temp=${temperature}, max_tokens=${maxTokens}`);
-
-          const geminiContents: any[] = [];
-          let systemInstruction = "";
-          for (const msg of messages) {
-            if (msg.role === 'system') {
-              systemInstruction += (systemInstruction ? "\n" : "") + msg.content;
-            } else {
-              geminiContents.push({
-                role: msg.role === 'assistant' ? 'model' : 'user',
-                parts: [{ text: msg.content }],
-              });
-            }
-          }
-          if (geminiContents.length === 0) {
-            geminiContents.push({ role: 'user', parts: [{ text: 'Bonjour' }] });
-          }
-
-          const generationConfig: any = { temperature, maxOutputTokens: maxTokens };
-          if (responseFormat === 'json_object') generationConfig.responseMimeType = 'application/json';
-          if (targetModel.includes('2.5')) generationConfig.thinkingConfig = { thinkingBudget: 0 };
-
-          const fallbackBody: any = { contents: geminiContents, generationConfig };
-          if (systemInstruction) fallbackBody.systemInstruction = { parts: [{ text: systemInstruction }] };
-
-          const fallbackResponse = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'x-goog-api-key': GEMINI_KEY },
-              body: JSON.stringify(fallbackBody),
-              signal: controller.signal,
-            }
-          );
-          clearTimeout(timeoutId);
-
-          if (!fallbackResponse.ok) {
-            const errorData = await fallbackResponse.text();
-            throw new Error(`Gemini Direct HTTP ${fallbackResponse.status}: ${errorData.slice(0, 300)}`);
-          }
-
-          const fallbackData = await fallbackResponse.json();
-          text = fallbackData?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (!text) throw new Error("Réponse vide ou format inattendu depuis Gemini Direct");
-        } else {
-          clearTimeout(timeoutId);
-        }
+        this.activeModelIdx = idx;
+        this.connectionStatus = 'connected';
+        this.lastConnectionCheck = Date.now();
+        this.trackUsage(promptTokens, completionTokens, modelId);
+        return text;
+      } catch (err: any) {
+        console.warn(`[Bedrock] ${modelId} échoué: ${err?.message} (code: ${err?.name || err?.code || 'unknown'}) — essai modèle suivant`);
+        lastError = err;
       }
-
-      this.connectionStatus = 'connected';
-      this.lastConnectionCheck = Date.now();
-      return text;
-    } catch (error: any) {
-      clearTimeout(timeoutId);
-      this.connectionStatus = 'disconnected';
-      throw error;
     }
+
+    this.connectionStatus = 'disconnected';
+    throw new Error(`Tous les modèles Bedrock ont échoué. Dernier: ${lastError?.message}`);
   }
+
+  private trackUsage(promptTokens: number, completionTokens: number, model: string): void {
+    const ctx = getLlmContext();
+    if (!ctx) return;
+    trackLlmUsage({
+      userId: ctx.userId,
+      username: ctx.username,
+      model,
+      feature: ctx.feature,
+      promptTokens,
+      completionTokens,
+      totalTokens: promptTokens + completionTokens,
+    });
+  }
+
+  // ─── API publique (inchangée pour compatibilité) ──────────────────────────────
 
   async getChatCompletion(
     messages: ChatCompletionRequestMessage[],
@@ -308,8 +253,8 @@ class GeminiService {
     maxTokensOrOptions?: number | { responseFormat?: string },
     options?: { responseFormat?: string }
   ): Promise<string> {
-    let temperature: number = 0.7;
-    let actualMaxTokens: number = 2000;
+    let temperature = 0.7;
+    let actualMaxTokens = 2000;
     let responseFormat: string | undefined;
     let useSecondary = false;
 
@@ -332,8 +277,9 @@ class GeminiService {
       responseFormat = responseFormat ?? options?.responseFormat;
     }
 
-    const model = useSecondary ? SECONDARY_MODEL : PRIMARY_MODEL;
-    return this.callGateway(messages, temperature, actualMaxTokens, responseFormat, model);
+    // useSecondary → commence par le modèle secondaire (idx 1)
+    const startIdx = useSecondary ? 1 : 0;
+    return this.callWithFallback(messages, temperature, actualMaxTokens, responseFormat, startIdx);
   }
 
   async getChatCompletionWithModel(
@@ -343,12 +289,12 @@ class GeminiService {
     usePrimaryModel: boolean = false,
     options: { responseFormat?: string } = {}
   ): Promise<string> {
-    const model = usePrimaryModel ? PRIMARY_MODEL : SECONDARY_MODEL;
-    return this.callGateway(messages, temperature, maxTokens, options.responseFormat, model);
+    const startIdx = usePrimaryModel ? 0 : 1;
+    return this.callWithFallback(messages, temperature, maxTokens, options.responseFormat, startIdx);
   }
 
   private getCacheKey(messages: ChatCompletionRequestMessage[], temperature: number, maxTokens: number): string {
-    return JSON.stringify({ messages, temperature, maxTokens, model: PRIMARY_MODEL });
+    return JSON.stringify({ messages, temperature, maxTokens, model: BEDROCK_MODELS[0] });
   }
 
   async getChatCompletionWithCache(
@@ -395,35 +341,27 @@ class GeminiService {
     }
 
     const cacheKey = this.getCacheKey(messages, actualTemperature, actualMaxTokens);
-    const cachedResponse = this.responseCache.get(cacheKey);
-    if (cachedResponse && (Date.now() - cachedResponse.timestamp) < this.CACHE_TTL) {
+    const cached = this.responseCache.get(cacheKey);
+    if (cached && (Date.now() - cached.timestamp) < this.CACHE_TTL) {
       console.log("Using cached response");
-      return cachedResponse.content;
+      return cached.content;
     }
 
-    const content = await this.callGateway(messages, actualTemperature, actualMaxTokens, responseFormat);
+    const content = await this.callWithFallback(messages, actualTemperature, actualMaxTokens, responseFormat);
     this.responseCache.set(cacheKey, { content, timestamp: Date.now() });
     return content;
   }
 
   async getChatCompletionSecondary(options: {
-    messages: {role: string, content: string}[];
+    messages: { role: string, content: string }[];
     temperature?: number;
     max_tokens?: number;
   }) {
     const messages: ChatCompletionRequestMessage[] = options.messages.map(m => ({
       role: m.role as 'system' | 'user' | 'assistant',
-      content: m.content
+      content: m.content,
     }));
-
-    const content = await this.callGateway(
-      messages,
-      options.temperature ?? 0.7,
-      options.max_tokens ?? 2000,
-      undefined,
-      SECONDARY_MODEL
-    );
-
+    const content = await this.callWithFallback(messages, options.temperature ?? 0.7, options.max_tokens ?? 2000, undefined, 1);
     return { choices: [{ message: { content } }] };
   }
 
@@ -432,7 +370,6 @@ class GeminiService {
     responseStyle?: string;
   } = {}): Promise<string> {
     const { difficultyLevel = "Intermédiaire", responseStyle = "Professionnel" } = configParams;
-
     let systemPrompt = `
 # I AM CYBER - ASSISTANT DE CYBERSÉCURITÉ
 Version 2.0 - Avril 2025
@@ -453,23 +390,19 @@ Tu es I AM CYBER, un assistant spécialisé en cybersécurité conçu pour forme
 3. Fournis des exemples concrets ou des cas d'usage
 4. Si pertinent, suggère des ressources ou des étapes supplémentaires
 `;
-
     systemPrompt += `\n\n# CONFIGURATION ACTUELLE:`;
     systemPrompt += `\n- Niveau de difficulté: ${difficultyLevel}`;
     systemPrompt += `\n- Style de réponse: ${responseStyle}`;
-
     if (difficultyLevel === "Débutant") {
       systemPrompt += `\n\nComme il s'agit d'un niveau débutant, utilisez un langage accessible, évitez le jargon technique trop complexe et fournissez plus d'explications pour les concepts clés.`;
     } else if (difficultyLevel === "Expert") {
       systemPrompt += `\n\nComme il s'agit d'un niveau expert, utilisez une terminologie technique précise et supposez que l'utilisateur a une bonne compréhension des concepts de cybersécurité. Proposez des défis plus complexes.`;
     }
-
     if (responseStyle === "Détaillé et pédagogique") {
       systemPrompt += `\n\nAdoptez un style détaillé et pédagogique. Fournissez des explications complètes et contextuelles.`;
     } else if (responseStyle === "Concis et direct") {
       systemPrompt += `\n\nAdoptez un style concis et direct. Allez droit au but et évitez les détails superflus.`;
     }
-
     return systemPrompt;
   }
 
@@ -505,7 +438,6 @@ Tu es ${name}, ${description}. Tu es spécialisé dans le domaine: ${domain}.
 - Ta personnalité est: ${personality}
 - Ton style de réponse est: ${responseStyle}
 `;
-
     if (domain && domain !== "général") {
       systemPrompt += `\n## SPÉCIALISATION DANS LE DOMAINE: ${domain.toUpperCase()}`;
       systemPrompt += `\nEn tant qu'expert en ${domain}, tu dois:`;
@@ -514,55 +446,33 @@ Tu es ${name}, ${description}. Tu es spécialisé dans le domaine: ${domain}.
       systemPrompt += `\n- Faire référence aux bonnes pratiques et tendances actuelles du secteur`;
       systemPrompt += `\n- Citer des exemples pertinents pour illustrer tes réponses`;
     }
-
     systemPrompt += `\n\n## PERSONNALITÉ: ${personality.toUpperCase()}`;
     switch (personality.toLowerCase()) {
-      case "amical":
-        systemPrompt += `\nAdopte un ton chaleureux et conversationnel.`;
-        break;
-      case "formel":
-        systemPrompt += `\nAdopte un ton soutenu et professionnel.`;
-        break;
-      case "pédagogique":
-        systemPrompt += `\nAdopte une approche explicative et didactique.`;
-        break;
-      case "inspirant":
-        systemPrompt += `\nAdopte un style motivant et énergique.`;
-        break;
-      case "analytique":
-        systemPrompt += `\nAdopte une approche méthodique et factuelle.`;
-        break;
-      default:
-        systemPrompt += `\nAdopte un ton professionnel mais accessible.`;
+      case "amical": systemPrompt += `\nAdopte un ton chaleureux et conversationnel.`; break;
+      case "formel": systemPrompt += `\nAdopte un ton soutenu et professionnel.`; break;
+      case "pédagogique": systemPrompt += `\nAdopte une approche explicative et didactique.`; break;
+      case "inspirant": systemPrompt += `\nAdopte un style motivant et énergique.`; break;
+      case "analytique": systemPrompt += `\nAdopte une approche méthodique et factuelle.`; break;
+      default: systemPrompt += `\nAdopte un ton professionnel mais accessible.`;
     }
-
     if (gamificationLevel && gamificationLevel !== "none") {
       systemPrompt += `\n\n## NIVEAU DE GAMIFICATION: ${gamificationLevel.toUpperCase()}`;
       switch (gamificationLevel) {
-        case "low":
-          systemPrompt += `\nIntègre occasionnellement des éléments ludiques.`;
-          break;
-        case "medium":
-          systemPrompt += `\nIntègre régulièrement des défis et quiz.`;
-          break;
-        case "high":
-          systemPrompt += `\nIntègre systématiquement une approche fortement gamifiée.`;
-          break;
+        case "low": systemPrompt += `\nIntègre occasionnellement des éléments ludiques.`; break;
+        case "medium": systemPrompt += `\nIntègre régulièrement des défis et quiz.`; break;
+        case "high": systemPrompt += `\nIntègre systématiquement une approche fortement gamifiée.`; break;
       }
     }
-
     if (additionalInfo && additionalInfo.trim().length > 0) {
       systemPrompt += `\n\n## INSTRUCTIONS SUPPLÉMENTAIRES`;
       systemPrompt += `\n${additionalInfo.trim()}`;
     }
-
     systemPrompt += `\n\n## FORMAT ET COMPORTEMENT GÉNÉRAL`;
     systemPrompt += `\n- N'utilise pas de formatage markdown (pas d'astérisques, de dièses, etc.)`;
     systemPrompt += `\n- Réponds toujours de manière directe et pertinente aux questions`;
     systemPrompt += `\n- Adapte ton niveau de détail au contexte de la conversation`;
     systemPrompt += `\n- Sois précis et factuel, évite les généralisations`;
     systemPrompt += `\n- Si tu ne connais pas la réponse, admets-le clairement`;
-
     return systemPrompt;
   }
 }

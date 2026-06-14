@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Shield } from 'lucide-react';
+import { Loader2, Shield, Building2 } from 'lucide-react';
 
 interface LoginFormProps {
   onLogin: (user: any) => void;
@@ -15,6 +15,13 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [ssoEnabled, setSsoEnabled] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/auth/sso-status').then(r => r.json()).then(d => {
+      if (d.enabled) setSsoEnabled(true);
+    }).catch(() => {});
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,9 +95,9 @@ export function LoginForm({ onLogin }: LoginFormProps) {
               </Alert>
             )}
 
-            <Button 
-              type="submit" 
-              className="w-full" 
+            <Button
+              type="submit"
+              className="w-full"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -103,6 +110,23 @@ export function LoginForm({ onLogin }: LoginFormProps) {
               )}
             </Button>
           </form>
+
+          {ssoEnabled && (
+            <>
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200" /></div>
+                <div className="relative flex justify-center text-xs text-gray-400 uppercase"><span className="bg-white px-2">ou</span></div>
+              </div>
+              <Button
+                variant="outline"
+                className="w-full flex items-center gap-2"
+                onClick={() => window.location.href = '/auth/sso/login'}
+              >
+                <Building2 className="h-4 w-4" />
+                Connexion avec le compte entreprise (SSO)
+              </Button>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

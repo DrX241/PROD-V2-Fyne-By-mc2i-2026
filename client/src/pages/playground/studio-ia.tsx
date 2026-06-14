@@ -25,18 +25,18 @@ const DOMAIN_PROMPTS: Record<string, string> = {
 };
 
 const DOMAINS: { value: string; label: string; icon: LucideIcon }[] = [
-  { value: 'cybersecurite', label: 'Cybersécurité',   icon: Shield },
-  { value: 'rgpd',          label: 'RGPD & Données',  icon: Lock },
-  { value: 'excel_data',    label: 'Excel & Data',    icon: BarChart2 },
-  { value: 'management',    label: 'Management',       icon: Target },
-  { value: 'rh',            label: 'RH & Formation',  icon: Users },
-  { value: 'finance',       label: 'Finance',          icon: TrendingUp },
-  { value: 'commerce',      label: 'Commerce & Vente', icon: ShoppingBag },
-  { value: 'it',            label: 'IT & Systèmes',   icon: Monitor },
-  { value: 'qualite',       label: 'Qualité & Process',icon: Settings2 },
-  { value: 'communication', label: 'Communication',    icon: MessageSquare },
-  { value: 'sante',         label: 'Santé & Sécurité', icon: Heart },
-  { value: 'autre',         label: 'Autre',            icon: PenLine },
+  { value: 'cybersecurite', label: 'Cybersécurité',    icon: Shield },
+  { value: 'rgpd',          label: 'RGPD & Données',   icon: Lock },
+  { value: 'excel_data',    label: 'Excel & Data',     icon: BarChart2 },
+  { value: 'management',    label: 'Management',        icon: Target },
+  { value: 'rh',            label: 'RH & Formation',   icon: Users },
+  { value: 'finance',       label: 'Finance',           icon: TrendingUp },
+  { value: 'commerce',      label: 'Commerce & Vente',  icon: ShoppingBag },
+  { value: 'it',            label: 'IT & Systèmes',    icon: Monitor },
+  { value: 'qualite',       label: 'Qualité & Process', icon: Settings2 },
+  { value: 'communication', label: 'Communication',     icon: MessageSquare },
+  { value: 'sante',         label: 'Santé & Sécurité',  icon: Heart },
+  { value: 'autre',         label: 'Autre',             icon: PenLine },
 ];
 
 const AUDIENCES = [
@@ -62,12 +62,12 @@ const DURATIONS = [
 ];
 
 const SLIDE_TYPE_LABELS: Record<string, { label: string; color: string }> = {
-  intro:       { label: 'Intro',        color: BLUE },
-  theorie:     { label: 'Théorie',      color: '#7c3aed' },
-  pratique:    { label: 'Pratique',     color: '#059669' },
-  'fill-blank':{ label: 'Texte à trous',color: '#d97706' },
-  'vrai-faux': { label: 'Vrai / Faux',  color: '#dc2626' },
-  conclusion:  { label: 'Conclusion',   color: DARK },
+  intro:       { label: 'Intro',         color: BLUE },
+  theorie:     { label: 'Théorie',       color: '#7c3aed' },
+  pratique:    { label: 'Pratique',      color: '#059669' },
+  'fill-blank':{ label: 'Texte à trous', color: '#d97706' },
+  'vrai-faux': { label: 'Vrai / Faux',   color: '#dc2626' },
+  conclusion:  { label: 'Conclusion',    color: DARK },
 };
 
 interface PlanItem { index: number; type: string; titre: string; }
@@ -88,7 +88,6 @@ export default function StudioIA() {
   const [planPreview, setPlanPreview] = useState<PlanPreview | null>(null);
 
   const domainValue = domainKey === 'autre' ? customDomain : (DOMAINS.find(d => d.value === domainKey)?.label || '');
-
   const progress = step === 'pitch' ? 25 : step === 'config' ? 50 : step === 'plan' ? 75 : 100;
 
   const goToPlan = async () => {
@@ -170,7 +169,6 @@ export default function StudioIA() {
       <main className="flex-1 pt-14">
         <AnimatePresence mode="wait">
 
-          {/* ═══ PITCH ═══════════════════════════════════════════════════════ */}
           {step === 'pitch' && (
             <motion.div key="pitch" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
               className="min-h-screen flex flex-col justify-center px-6 lg:px-16 py-16">
@@ -186,7 +184,6 @@ export default function StudioIA() {
                 <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
 
                 <div className="space-y-8">
-                  {/* Pitch */}
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                       Votre besoin de formation *
@@ -201,7 +198,6 @@ export default function StudioIA() {
                     <p className="text-xs text-gray-400 mt-1">{pitch.length} / 500 caractères</p>
                   </div>
 
-                  {/* Domain tiles */}
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
                       Domaine <span className="text-gray-400 font-normal normal-case">(optionnel)</span>
@@ -234,7 +230,6 @@ export default function StudioIA() {
                       ))}
                     </div>
 
-                    {/* Free text when "Autre" is selected */}
                     {domainKey === 'autre' && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-3">
                         <input
@@ -269,7 +264,6 @@ export default function StudioIA() {
             </motion.div>
           )}
 
-          {/* ═══ CONFIG ═══════════════════════════════════════════════════════ */}
           {step === 'config' && (
             <motion.div key="config" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
               className="min-h-screen flex flex-col justify-center px-6 lg:px-16 py-16">
@@ -284,7 +278,6 @@ export default function StudioIA() {
                 <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
 
                 <div className="space-y-10">
-                  {/* Recap pitch */}
                   <div className="border border-gray-100 p-4 bg-gray-50 flex items-start gap-3">
                     <div className="flex-1">
                       <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Votre besoin</div>
@@ -296,7 +289,6 @@ export default function StudioIA() {
                     </button>
                   </div>
 
-                  {/* Public */}
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
                       Public cible
@@ -316,7 +308,6 @@ export default function StudioIA() {
                     </div>
                   </div>
 
-                  {/* Niveau de difficulté */}
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
                       Niveau de difficulté
@@ -336,7 +327,6 @@ export default function StudioIA() {
                     </div>
                   </div>
 
-                  {/* Durée */}
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
                       Durée souhaitée
@@ -368,7 +358,6 @@ export default function StudioIA() {
             </motion.div>
           )}
 
-          {/* ═══ PLAN PREVIEW ════════════════════════════════════════════════ */}
           {step === 'plan' && (
             <motion.div key="plan" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
               className="min-h-screen flex flex-col justify-center px-6 lg:px-16 py-16">
@@ -397,7 +386,6 @@ export default function StudioIA() {
                     <p className="text-base text-gray-500 mb-2">{planPreview.subtitle}</p>
                     <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
 
-                    {/* Plan slides */}
                     <div className="space-y-2 mb-8">
                       {planPreview.plan.map((item, i) => {
                         const typeInfo = SLIDE_TYPE_LABELS[item.type] || { label: item.type, color: DARK };
@@ -441,7 +429,6 @@ export default function StudioIA() {
             </motion.div>
           )}
 
-          {/* ═══ GÉNÉRATION ═══════════════════════════════════════════════════ */}
           {step === 'generating' && (
             <motion.div key="generating" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <AgentLoadingScreen mode="prompt" />

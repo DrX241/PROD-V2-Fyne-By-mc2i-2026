@@ -1,7 +1,0 @@
-    phishingIndicators: [
-      'Domaine non officiel (microsoft-verify.com)',
-      'URL de redirection suspecte (ms-office365-verify.com)',
-      'Menace de suspension de compte',
-      'Design imitant les emails Microsoft',
-      'Manque de details precis'
-    ]

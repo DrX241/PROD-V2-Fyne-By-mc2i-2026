@@ -238,8 +238,5 @@ export async function getOrGenerateChallenge(
   return generateChallenge(language, difficulty);
 }
 
-// Démarrer le préchargement des défis périodiquement
-setInterval(preloadChallenges, 5 * 60 * 1000); // Toutes les 5 minutes
-
-// Précharger les défis au démarrage
-setTimeout(preloadChallenges, 10000); // 10 secondes après le démarrage
+// Préchargement uniquement au démarrage — pas de polling permanent (économie CPU)
+setTimeout(preloadChallenges, 10000);

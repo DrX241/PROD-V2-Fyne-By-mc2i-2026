@@ -4,11 +4,11 @@ import { motion } from 'framer-motion';
 import CyberButton from '@/components/CyberButton';
 import { useChatContext } from "@/contexts/ChatContext";
 import { useTheme } from "@/contexts/ThemeContext";
-// Le contexte GptModel a été temporairement retiré
+import { useAuth } from "@/hooks/useAuth";
 
-import { 
-  RocketIcon, 
-  Zap, 
+import {
+  RocketIcon,
+  Zap,
   Globe,
   Share2,
   Users,
@@ -17,15 +17,19 @@ import {
   ChevronRight,
   Power,
   Check,
-  ShoppingCart
+  Settings,
+  Lock,
 } from 'lucide-react';
 import mcLogoPath from "@assets/mc2i.png";
 import fyneCharacterPath from "../assets/fyne-character.png";
 import { Switch } from "@/components/ui/switch";
+import { ModelSelector } from "@/components/ModelSelector";
+import { UserSubscriptionBadge } from "@/components/UserSubscriptionBadge";
 
-// Interface pour les modules
 interface Module {
   id: string;
+  // Key used in modulesEnabled array (may differ from display id)
+  moduleKey: string;
   title: string;
   description: string;
   icon: React.ReactNode;
@@ -41,44 +45,28 @@ const CyberHomePage: React.FC = () => {
   const [, setLocation] = useLocation();
   const { userName } = useChatContext();
   const { themeMode, setThemeMode } = useTheme();
+  const { user } = useAuth();
   const [hoveredModule, setHoveredModule] = useState<string | null>(null);
   const pageRef = useRef<HTMLDivElement>(null);
-  
-  // Force le thème futuriste pour cette page
+
   useEffect(() => {
     const previousTheme = themeMode;
     setThemeMode('futuristic');
-    
-    // Empêcher le défilement automatique en maintenant la position en haut
     window.scrollTo(0, 0);
-    
-    // Empêcher le défilement automatique
-    const preventScroll = () => {
-      window.scrollTo(0, 0);
-    };
-    
-    // Ajouter un gestionnaire d'événement pour empêcher le défilement initial
+    const preventScroll = () => { window.scrollTo(0, 0); };
     window.addEventListener('scroll', preventScroll, { passive: false });
-    
-    // Supprimer le gestionnaire après un court délai pour permettre le défilement normal ensuite
-    const timer = setTimeout(() => {
-      window.removeEventListener('scroll', preventScroll);
-    }, 1000); // Délai de 1 seconde
-    
+    const timer = setTimeout(() => { window.removeEventListener('scroll', preventScroll); }, 1000);
     return () => {
-      // Nettoyer les événements et timers
       window.removeEventListener('scroll', preventScroll);
       clearTimeout(timer);
-      
-      // Restore le thème précédent quand on quitte la page
       setThemeMode(previousTheme);
     };
   }, []);
 
-  // Liste des modules principaux
   const modules: Module[] = [
     {
       id: 'cyber',
+      moduleKey: 'cyber',
       title: 'I AM CYBER',
       description: 'Plongez au cœur des enjeux de la cyber avec des simulations réalistes',
       icon: <div className="w-5 h-5 bg-indigo-500"></div>,
@@ -89,8 +77,9 @@ const CyberHomePage: React.FC = () => {
     },
     {
       id: 'data',
+      moduleKey: 'data',
       title: 'I AM DATA & IA',
-      description: 'Maîtrisez les technologies d\'analyse de données et d\'intelligence artificielle',
+      description: 'Maîtrisez les concepts de data science et d\'intelligence artificielle à travers des simulations pratiques.',
       icon: <div className="w-5 h-5 bg-purple-500"></div>,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
@@ -98,45 +87,47 @@ const CyberHomePage: React.FC = () => {
       route: '/data-ia'
     },
     {
-      id: 'mc2i',
-      title: 'I AM mc2i',
-      description: 'Développez vos compétences en assistance à maîtrise d\'ouvrage',
-      icon: <div className="w-5 h-5 bg-emerald-500"></div>,
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-100',
-      accentColor: 'border-emerald-500',
-      route: '/amoa-mode-selection-new'
-    },
-    {
       id: 'si-champion',
+      moduleKey: 'evaluation',
       title: 'I AM SI CHAMPION',
       description: 'Pilotez vos campagnes d\'évaluation et faites passer vos tests dans un espace dédié',
       icon: <div className="w-5 h-5 bg-amber-500"></div>,
       color: 'text-amber-600',
       bgColor: 'bg-amber-100',
       accentColor: 'border-amber-500',
-      route: 'https://v2fynebymc2i.vercel.app/evaluation',
-      external: true
+      route: '/evaluation'
     },
     {
-      id: 'generator',
-      title: 'SOYEZ QUI VOUS VOULEZ',
-      description: 'Créez vos propres modules de formation personnalisés',
+      id: 'formation-data',
+      moduleKey: 'formation-data',
+      title: 'FORMATION DATA',
+      description: 'SQL, Python, Excel — parcours progressifs avec sandbox réelle et coach IA.',
+      icon: <div className="w-5 h-5 bg-[#006a9e]"></div>,
+      color: 'text-[#006a9e]',
+      bgColor: 'bg-[#006a9e]/10',
+      accentColor: 'border-[#006a9e]',
+      route: '/cyber/formation-data'
+    },
+    {
+      id: 'module-generator',
+      moduleKey: 'playground',
+      title: 'Soyez qui vous voulez',
+      description: 'Créez votre propre parcours d\'apprentissage personnalisé avec notre IA générative.',
       icon: <div className="w-5 h-5 bg-rose-500"></div>,
       color: 'text-rose-600',
       bgColor: 'bg-rose-100',
       accentColor: 'border-rose-500',
-      route: '/playground/module-generator',
-      comingSoon: false
-    }
+      route: '/playground/module-generator'
+    },
   ];
 
-  // Mode ÉCO temporairement simulé avec un état local
-  const [isEcoMode, setIsEcoMode] = useState(false);
+  // Determine which modules the current user can access
+  const userModules: string[] = user?.modulesEnabled ?? ['cyber','data','amoa','formation-data','evaluation','playground'];
+  const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
+  const hasAccess = (moduleKey: string) => isAdmin || userModules.includes(moduleKey);
 
-  const toggleEcoMode = () => {
-    setIsEcoMode(!isEcoMode);
-  };
+  const [isEcoMode, setIsEcoMode] = useState(false);
+  const toggleEcoMode = () => { setIsEcoMode(!isEcoMode); };
 
   return (
     <div ref={pageRef} className="min-h-screen bg-white text-[#061019]">
@@ -149,33 +140,38 @@ const CyberHomePage: React.FC = () => {
               <div className="h-5 w-px bg-gray-300"></div>
               <span className="text-xl font-bold text-[#006a9e]">FYNE</span>
             </div>
-            
             <div className="flex items-center gap-5">
-              <Link href="/marketplace">
-                <motion.button
-                  className="px-4 py-2 bg-gradient-to-r from-[#006a9e] to-[#0085c7] hover:from-[#0085c7] hover:to-[#006a9e] text-white rounded-md text-sm font-semibold shadow-md transition-all duration-300 flex items-center"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+              <UserSubscriptionBadge />
+              <ModelSelector />
+              {(user?.role === 'admin' || user?.role === 'superadmin') && (
+                <button
+                  onClick={() => setLocation('/admin')}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#006a9e] border border-[#006a9e]/30 rounded-lg hover:bg-[#006a9e]/5 transition-colors"
                 >
-                  <ShoppingCart className="mr-2 h-4 w-4" />
-                  Marketplace
-                </motion.button>
-              </Link>
-              <div className="flex items-center gap-2">
-                {/* L'indicateur a été supprimé à la demande de l'utilisateur */}
-              </div>
+                  <Settings className="h-3.5 w-3.5" />
+                  Administration
+                </button>
+              )}
+              {user?.role === 'superadmin' && (
+                <button
+                  onClick={() => setLocation('/superadmin')}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-600 border border-amber-500/30 rounded-lg hover:bg-amber-500/5 transition-colors"
+                >
+                  <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm1 11H9v-2h2v2zm0-4H9V7h2v4z"/></svg>
+                  Super Admin
+                </button>
+              )}
             </div>
           </div>
         </div>
       </header>
-      
+
       <main className="relative">
-        {/* Contenu principal */}
+        {/* Hero */}
         <section className="relative z-10 min-h-screen flex items-center justify-center pt-28 pb-32">
           <div className="container mx-auto px-8 flex flex-col md:flex-row items-center">
-            {/* Character à droite en desktop */}
             <div className="hidden md:block absolute right-0 bottom-0 z-10">
-              <motion.img 
+              <motion.img
                 src={fyneCharacterPath}
                 alt="FYNE Character"
                 className="object-contain relative z-20"
@@ -186,7 +182,7 @@ const CyberHomePage: React.FC = () => {
               />
             </div>
 
-            <motion.div 
+            <motion.div
               className="max-w-5xl mx-auto text-center relative z-20"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -198,23 +194,18 @@ const CyberHomePage: React.FC = () => {
                 <span className="text-[#dd0061]">N</span><span className="text-[#006a9e]">ext </span>
                 <span className="text-[#dd0061]">E</span><span className="text-[#006a9e]">xperience</span>
               </h1>
-              
               <div className="w-32 h-1 bg-[#006a9e] mx-auto mb-12"></div>
-              
               <h2 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
                 <span className="text-gray-900">Améliorez </span>
                 <span className="text-[#006a9e]">votre expertise</span>
               </h2>
-              
               <h2 className="text-5xl md:text-7xl font-bold mb-12 tracking-tight">
                 <span className="text-gray-900">avec </span>
                 <span className="text-[#006a9e]">FYNE</span>
               </h2>
-              
               <p className="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed max-w-3xl mx-auto">
                 Découvrez une nouvelle dimension d'apprentissage interactif avec nos modules IA innovants qui s'adaptent parfaitement à votre progression.
               </p>
-              
               <div className="flex flex-col items-center justify-center mt-10 gap-2">
                 <motion.button
                   onClick={() => document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' })}
@@ -238,7 +229,7 @@ const CyberHomePage: React.FC = () => {
             </motion.div>
           </div>
         </section>
-        
+
         {/* Section Modules */}
         <section id="modules" className="relative z-20 py-24 bg-gray-50">
           <div className="container mx-auto px-8">
@@ -250,67 +241,66 @@ const CyberHomePage: React.FC = () => {
                 Explorez nos modules spécialisés conçus pour développer vos compétences dans des domaines stratégiques.
               </p>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5 mx-auto max-w-7xl">
-              {modules.map((module) => (
-                <motion.div 
-                  key={module.id}
-                  className={`bg-white rounded-3xl overflow-hidden shadow-lg transition-all duration-300
-                    ${module.id === 'cyber' ? 'border-t-8 border-t-indigo-500' : ''}
-                    ${module.id === 'data' ? 'border-t-8 border-t-purple-500' : ''}
-                    ${module.id === 'mc2i' ? 'border-t-8 border-t-emerald-500' : ''}
-                    ${module.id === 'generator' ? 'border-t-8 border-t-rose-500' : ''}
-                    ${module.id === 'si-champion' ? 'border-t-8 border-t-amber-500' : ''}`
-                  }
-                  onMouseEnter={() => setHoveredModule(module.id)}
-                  onMouseLeave={() => setHoveredModule(null)}
-                  whileHover={{ y: -10, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  onClick={() => {
-                    if (module.comingSoon) return;
-                    if (module.external) {
-                      window.open(module.route, '_blank', 'noopener,noreferrer');
-                    } else {
-                      setLocation(module.route);
-                    }
-                  }}
-                  style={{ cursor: module.comingSoon ? 'default' : 'pointer' }}
-                >
-                  <div className="p-6">
-                    <div 
-                      className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 
-                        ${module.bgColor}`
-                      }
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mx-auto max-w-5xl">
+              {modules.map((module, i) => {
+                const accessible = hasAccess(module.moduleKey);
+                const accentHex =
+                  module.id === 'cyber'       ? '#6366f1' :
+                  module.id === 'data'        ? '#a855f7' :
+                  module.id === 'mc2i'        ? '#10b981' :
+                  module.id === 'si-champion' ? '#f59e0b' :
+                  module.id === 'generator'   ? '#f43f5e' :
+                  '#006a9e';
+
+                return (
+                  <motion.div
+                    key={module.id}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.05 }}
+                    onClick={() => {
+                      if (!accessible) return;
+                      if (module.external) window.open(module.route, '_blank', 'noopener,noreferrer');
+                      else setLocation(module.route);
+                    }}
+                    className={`group relative flex items-center gap-5 px-6 py-5 rounded-xl transition-all duration-200
+                      ${accessible
+                        ? 'bg-white hover:bg-white cursor-pointer hover:shadow-md'
+                        : 'bg-gray-50/60 cursor-not-allowed opacity-60'
+                      }`}
+                    style={{ borderLeft: `3px solid ${accessible ? accentHex : '#d1d5db'}` }}
+                  >
+                    {/* Color dot */}
+                    <div
+                      className="w-10 h-10 rounded-lg flex-shrink-0 flex items-center justify-center"
+                      style={{ backgroundColor: `${accentHex}18` }}
                     >
-                      <div>
-                        {module.icon}
+                      <div className="w-4 h-4 rounded-sm" style={{ backgroundColor: accentHex }} />
+                    </div>
+
+                    {/* Text */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-bold text-gray-900 truncate">{module.title}</h3>
+                        {!accessible && <Lock className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />}
                       </div>
+                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-2 leading-relaxed">{module.description}</p>
                     </div>
-                    <h3 className="text-lg font-bold mb-3 text-gray-800">{module.title}</h3>
-                    <p className="text-sm text-gray-600 mb-4">{module.description}</p>
-                    <div className="flex items-center text-sm font-medium">
-                      {module.comingSoon ? (
-                        <span className="text-gray-500 flex items-center">
-                          Sur devis
-                        </span>
-                      ) : (
-                        <>
-                          <span className={module.color}>
-                            Explorer
-                          </span>
-                          <ChevronRight className={`ml-1 w-4 h-4 ${module.color}`} />
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+
+                    {/* Arrow */}
+                    {accessible && (
+                      <ChevronRight
+                        className="w-4 h-4 flex-shrink-0 text-gray-300 group-hover:text-gray-500 group-hover:translate-x-0.5 transition-all duration-200"
+                      />
+                    )}
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </section>
-        
+
         {/* Footer */}
         <footer className="relative z-20 py-12 border-t border-gray-200 bg-white">
           <div className="container mx-auto px-8">
@@ -319,28 +309,22 @@ const CyberHomePage: React.FC = () => {
                 <div className="flex items-center gap-2 mb-4">
                   <img src={mcLogoPath} alt="mc2i" className="h-8 w-auto" />
                   <div className="h-5 w-px bg-gray-300"></div>
-                  <div className="text-xl font-bold text-[#006a9e]">
-                    FYNE
-                  </div>
+                  <div className="text-xl font-bold text-[#006a9e]">FYNE</div>
                 </div>
                 <p className="text-gray-600 text-sm">
                   Propulsez votre formation avec notre plateforme IA de simulation immersive.
                 </p>
               </div>
-              
               <div>
                 <h4 className="text-[#006a9e] font-bold mb-4 text-sm uppercase tracking-wider">Modules</h4>
                 <ul className="space-y-2">
                   {modules.map(module => (
                     <li key={module.id}>
-                      <span className="text-gray-400 cursor-not-allowed text-sm">
-                        {module.title}
-                      </span>
+                      <span className="text-gray-400 cursor-not-allowed text-sm">{module.title}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-              
               <div>
                 <h4 className="text-[#006a9e] font-bold mb-4 text-sm uppercase tracking-wider">Ressources</h4>
                 <ul className="space-y-2">
@@ -350,27 +334,17 @@ const CyberHomePage: React.FC = () => {
                   <li><span className="text-gray-400 cursor-not-allowed text-sm">Support</span></li>
                 </ul>
               </div>
-              
               <div>
                 <h4 className="text-[#006a9e] font-bold mb-4 text-sm uppercase tracking-wider">Contact</h4>
                 <div className="flex items-center gap-4">
-                  <span className="text-gray-400 cursor-not-allowed">
-                    <Globe size={20} />
-                  </span>
-                  <span className="text-gray-400 cursor-not-allowed">
-                    <Share2 size={20} />
-                  </span>
-                  <span className="text-gray-400 cursor-not-allowed">
-                    <Users size={20} />
-                  </span>
+                  <span className="text-gray-400 cursor-not-allowed"><Globe size={20} /></span>
+                  <span className="text-gray-400 cursor-not-allowed"><Share2 size={20} /></span>
+                  <span className="text-gray-400 cursor-not-allowed"><Users size={20} /></span>
                 </div>
               </div>
             </div>
-            
             <div className="mt-8 pt-8 border-t border-gray-200 text-center">
-              <p className="text-xs text-gray-500">
-                &copy; {new Date().getFullYear()} FYNE by mc2i. Tous droits réservés.
-              </p>
+              <p className="text-xs text-gray-500">&copy; {new Date().getFullYear()} FYNE by mc2i. Tous droits réservés.</p>
             </div>
           </div>
         </footer>

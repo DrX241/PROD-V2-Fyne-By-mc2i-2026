@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, ChevronRight, BookOpen, Zap, CheckCircle,
   Lightbulb, Target, ArrowLeft, Eye, EyeOff, Award, XCircle, HelpCircle,
-  Flame, PenLine, ToggleLeft, RefreshCw, AlertCircle
+  Flame, PenLine, ToggleLeft, RefreshCw, AlertCircle,
+  Edit3, Save, Plus, Trash2, GripVertical, Sparkles, X, ChevronDown, ChevronUp
 } from 'lucide-react';
 
 const BLUE = '#006a9e';
@@ -110,6 +111,112 @@ export default function LessonPlayer() {
   const [mgVFAnswers, setMgVFAnswers] = useState<(boolean | null)[]>([]);
   const [mgSubmitted, setMgSubmitted] = useState(false);
   const [mgXpEarned, setMgXpEarned] = useState<Set<number>>(new Set());
+
+  // ── Éditeur state ────────────────────────────────────────────────────────────
+  const [isEditing, setIsEditing] = useState(false);
+  const [editLesson, setEditLesson] = useState<Lesson | null>(null);
+  const [editSlideIdx, setEditSlideIdx] = useState(0);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [improvingSlide, setImprovingSlide] = useState(false);
+  const [improveInstruction, setImproveInstruction] = useState('');
+  const [showImproveBox, setShowImproveBox] = useState(false);
+  const [editTab, setEditTab] = useState<'slides' | 'qcm' | 'meta'>('slides');
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const startEditing = () => {
+    if (!lesson) return;
+    setEditLesson(JSON.parse(JSON.stringify(lesson)));
+    setEditSlideIdx(currentIdx);
+    setIsEditing(true);
+    setEditTab('slides');
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditLesson(null);
+    setSaveStatus('idle');
+  };
+
+  const saveEditing = async () => {
+    if (!editLesson) return;
+    setSaveStatus('saving');
+    try {
+      const res = await fetch(`/api/studio/training/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: editLesson.title, tagline: editLesson.subtitle, content: editLesson }),
+      });
+      if (!res.ok) throw new Error();
+      setLesson(editLesson);
+      setSaveStatus('saved');
+      setTimeout(() => { setSaveStatus('idle'); setIsEditing(false); setEditLesson(null); }, 1200);
+    } catch {
+      setSaveStatus('error');
+    }
+  };
+
+  const updateEditSlide = (patch: Partial<Slide>) => {
+    if (!editLesson) return;
+    const slides = editLesson.slides.map((s, i) => i === editSlideIdx ? { ...s, ...patch } as Slide : s);
+    setEditLesson({ ...editLesson, slides });
+  };
+
+  const addSlide = (type: Slide['type']) => {
+    if (!editLesson) return;
+    const newId = Math.max(0, ...editLesson.slides.map(s => s.id)) + 1;
+    const defaults: Record<string, any> = {
+      theorie: { id: newId, type: 'theorie', titre: 'Nouveau concept', contenu: '', pointsCles: ['', '', ''], exemple: '' },
+      pratique: { id: newId, type: 'pratique', titre: 'Exercice pratique', contexte: '', question: '', indice: '', reponse: '' },
+      'fill-blank': { id: newId, type: 'fill-blank', titre: 'Texte à trous', instruction: 'Remplis les blancs :', phrase: 'Le [A] permet de [B].', mots: ['A', 'B'], explication: '' },
+      'vrai-faux': { id: newId, type: 'vrai-faux', titre: 'Vrai ou Faux ?', affirmations: [{ texte: '', reponse: true, explication: '' }, { texte: '', reponse: false, explication: '' }] },
+      conclusion: { id: newId, type: 'conclusion', titre: 'Ce qu\'il faut retenir', points: ['', '', ''], message: '' },
+    };
+    const newSlide = defaults[type] || defaults['theorie'];
+    const slides = [...editLesson.slides, newSlide];
+    setEditLesson({ ...editLesson, slides });
+    setEditSlideIdx(slides.length - 1);
+  };
+
+  const removeSlide = (idx: number) => {
+    if (!editLesson || editLesson.slides.length <= 2) return;
+    const slides = editLesson.slides.filter((_, i) => i !== idx);
+    setEditLesson({ ...editLesson, slides });
+    setEditSlideIdx(Math.min(idx, slides.length - 1));
+  };
+
+  const moveSlide = (idx: number, dir: -1 | 1) => {
+    if (!editLesson) return;
+    const target = idx + dir;
+    if (target < 0 || target >= editLesson.slides.length) return;
+    const slides = [...editLesson.slides];
+    [slides[idx], slides[target]] = [slides[target], slides[idx]];
+    setEditLesson({ ...editLesson, slides });
+    setEditSlideIdx(target);
+  };
+
+  const improveSlide = async () => {
+    if (!editLesson || improvingSlide) return;
+    setImprovingSlide(true);
+    try {
+      const res = await fetch('/api/studio/improve-slide', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slide: editLesson.slides[editSlideIdx], lessonTitle: editLesson.title, instruction: improveInstruction }),
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      if (data.slide) updateEditSlide(data.slide);
+      setShowImproveBox(false);
+      setImproveInstruction('');
+    } catch { /* silence */ }
+    setImprovingSlide(false);
+  };
+
+  const updateQcm = (qIdx: number, patch: Partial<QcmQuestion>) => {
+    if (!editLesson) return;
+    const qcm = (editLesson.qcm || []).map((q, i) => i === qIdx ? { ...q, ...patch } : q);
+    setEditLesson({ ...editLesson, qcm });
+  };
 
   useEffect(() => {
     setMgSubmitted(false);
@@ -604,6 +711,358 @@ export default function LessonPlayer() {
     );
   }
 
+  // ── MODE ÉDITION ─────────────────────────────────────────────────────────────
+  if (isEditing && editLesson) {
+    const eSlide = editLesson.slides[editSlideIdx];
+    const slideTypeColor: Record<string, string> = { theorie: BLUE, pratique: PINK, 'fill-blank': PURPLE, 'vrai-faux': AMBER, intro: '#6b7280', conclusion: '#6b7280' };
+    const slideTypeLabel: Record<string, string> = { theorie: 'THÉORIE', pratique: 'PRATIQUE', 'fill-blank': 'TEXTE À TROUS', 'vrai-faux': 'VRAI/FAUX', intro: 'INTRO', conclusion: 'CONCLUSION' };
+
+    return (
+      <div style={{ minHeight: '100vh', background: '#f1f5f9', display: 'flex', flexDirection: 'column' }}>
+        <style>{`
+          @keyframes spin { to { transform: rotate(360deg); } }
+          .edit-input { width: 100%; padding: 10px 14px; border: 1.5px solid #e2e8f0; background: white; color: #1e293b; font-size: 14px; font-family: inherit; outline: none; resize: vertical; line-height: 1.6; transition: border-color .15s; }
+          .edit-input:focus { border-color: #006a9e; }
+          .edit-label { display: block; font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+          .edit-field { margin-bottom: 18px; }
+        `}</style>
+
+        {/* Header éditeur */}
+        <div style={{ background: DARK, padding: '0 24px', height: 56, display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 50, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+          <button onClick={cancelEditing} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+            <X size={16} /> Annuler
+          </button>
+          <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.1)' }} />
+          <div style={{ flex: 1 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase' }}>Mode édition</span>
+            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginLeft: 12 }}>{editLesson.title}</span>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {['slides', 'qcm', 'meta'].map(tab => (
+              <button key={tab} onClick={() => setEditTab(tab as any)}
+                style={{ padding: '6px 14px', border: 'none', background: editTab === tab ? 'rgba(255,255,255,0.12)' : 'transparent', color: editTab === tab ? 'white' : 'rgba(255,255,255,0.45)', cursor: 'pointer', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>
+                {tab === 'slides' ? 'Slides' : tab === 'qcm' ? 'QCM' : 'Infos'}
+              </button>
+            ))}
+          </div>
+          <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.1)' }} />
+          <button onClick={saveEditing} disabled={saveStatus === 'saving'}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 20px', border: 'none', background: saveStatus === 'saved' ? GREEN : saveStatus === 'error' ? RED : BLUE, color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>
+            {saveStatus === 'saving' ? <div style={{ width: 14, height: 14, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> : <Save size={14} />}
+            {saveStatus === 'saving' ? 'Sauvegarde...' : saveStatus === 'saved' ? '✓ Sauvegardé' : saveStatus === 'error' ? 'Erreur' : 'Sauvegarder'}
+          </button>
+        </div>
+
+        {/* Corps éditeur — onglet Slides */}
+        {editTab === 'slides' && (
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '260px 1fr', height: 'calc(100vh - 56px)' }}>
+
+            {/* Sidebar — liste des slides */}
+            <div style={{ background: 'white', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+              <div style={{ padding: '16px', borderBottom: '1px solid #f1f5f9' }}>
+                <p style={{ margin: '0 0 10px', fontSize: 11, fontWeight: 700, color: '#94a3b8', letterSpacing: 1.5, textTransform: 'uppercase' }}>Slides ({editLesson.slides.length})</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {(['theorie', 'pratique', 'fill-blank', 'vrai-faux', 'conclusion'] as const).map(t => (
+                    <button key={t} onClick={() => addSlide(t)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', border: `1px solid ${slideTypeColor[t]}40`, background: `${slideTypeColor[t]}08`, color: slideTypeColor[t], cursor: 'pointer', fontSize: 10, fontWeight: 700, letterSpacing: 0.5 }}>
+                      <Plus size={10} /> {slideTypeLabel[t].split(' ')[0]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
+                {editLesson.slides.map((s, i) => {
+                  const color = slideTypeColor[s.type] || '#6b7280';
+                  const label = slideTypeLabel[s.type] || s.type;
+                  return (
+                    <div key={i} onClick={() => setEditSlideIdx(i)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 10px', marginBottom: 4, background: i === editSlideIdx ? `${color}12` : 'transparent', border: `1.5px solid ${i === editSlideIdx ? color : 'transparent'}`, cursor: 'pointer', transition: 'all .15s' }}>
+                      <GripVertical size={14} style={{ color: '#cbd5e1', flexShrink: 0 }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ margin: 0, fontSize: 10, fontWeight: 800, color, letterSpacing: 1, textTransform: 'uppercase' }}>{label}</p>
+                        <p style={{ margin: 0, fontSize: 12, color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 1 }}>{(s as any).titre || '—'}</p>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flexShrink: 0 }}>
+                        <button onClick={e => { e.stopPropagation(); moveSlide(i, -1); }} disabled={i === 0}
+                          style={{ padding: '1px 4px', border: 'none', background: 'transparent', cursor: i === 0 ? 'not-allowed' : 'pointer', opacity: i === 0 ? 0.3 : 0.6, color: '#475569' }}>
+                          <ChevronUp size={12} />
+                        </button>
+                        <button onClick={e => { e.stopPropagation(); moveSlide(i, 1); }} disabled={i === editLesson.slides.length - 1}
+                          style={{ padding: '1px 4px', border: 'none', background: 'transparent', cursor: i === editLesson.slides.length - 1 ? 'not-allowed' : 'pointer', opacity: i === editLesson.slides.length - 1 ? 0.3 : 0.6, color: '#475569' }}>
+                          <ChevronDown size={12} />
+                        </button>
+                      </div>
+                      {editLesson.slides.length > 2 && (
+                        <button onClick={e => { e.stopPropagation(); removeSlide(i); }}
+                          style={{ padding: '3px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#94a3b8', flexShrink: 0 }}>
+                          <Trash2 size={12} />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Formulaire d'édition du slide sélectionné */}
+            <div style={{ overflowY: 'auto', padding: '28px 36px' }}>
+              {eSlide && (
+                <div>
+                  {/* En-tête du formulaire */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <span style={{ padding: '4px 12px', background: `${slideTypeColor[eSlide.type]}15`, color: slideTypeColor[eSlide.type], fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase' }}>
+                        {slideTypeLabel[eSlide.type] || eSlide.type}
+                      </span>
+                      <span style={{ fontSize: 12, color: '#94a3b8' }}>Slide {editSlideIdx + 1} / {editLesson.slides.length}</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button onClick={() => setShowImproveBox(s => !s)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', border: `1.5px solid ${BLUE}40`, background: showImproveBox ? `${BLUE}10` : 'white', color: BLUE, cursor: 'pointer', fontWeight: 700, fontSize: 12 }}>
+                        <Sparkles size={13} /> Améliorer avec l'IA
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Boîte IA */}
+                  <AnimatePresence>
+                    {showImproveBox && (
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ marginBottom: 20, overflow: 'hidden' }}>
+                        <div style={{ padding: '16px', background: `${BLUE}06`, border: `1.5px solid ${BLUE}25`, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                          <textarea value={improveInstruction} onChange={e => setImproveInstruction(e.target.value)}
+                            placeholder="Instruction optionnelle : ex. 'Ajoute un exemple avec le RGPD', 'Rends le défi plus difficile'..."
+                            className="edit-input" rows={2}
+                            style={{ flex: 1, resize: 'none', border: `1.5px solid ${BLUE}30`, padding: '8px 12px', fontSize: 13 }} />
+                          <button onClick={improveSlide} disabled={improvingSlide}
+                            style={{ padding: '9px 18px', border: 'none', background: BLUE, color: 'white', cursor: improvingSlide ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            {improvingSlide ? <div style={{ width: 13, height: 13, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> : <Sparkles size={13} />}
+                            {improvingSlide ? 'En cours...' : 'Lancer'}
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Champ titre commun */}
+                  {(eSlide as any).titre !== undefined && (
+                    <div className="edit-field">
+                      <label className="edit-label">Titre</label>
+                      <input className="edit-input" value={(eSlide as any).titre || ''} onChange={e => updateEditSlide({ titre: e.target.value } as any)} style={{ height: 42 }} />
+                    </div>
+                  )}
+
+                  {/* INTRO */}
+                  {eSlide.type === 'intro' && (
+                    <>
+                      <div className="edit-field">
+                        <label className="edit-label">Contenu / accroche</label>
+                        <textarea className="edit-input" rows={4} value={(eSlide as SlideIntro).contenu} onChange={e => updateEditSlide({ contenu: e.target.value } as any)} />
+                      </div>
+                      <div className="edit-field">
+                        <label className="edit-label">Objectifs (un par ligne)</label>
+                        <textarea className="edit-input" rows={5} value={(eSlide as SlideIntro).objectifs?.join('\n') || ''}
+                          onChange={e => updateEditSlide({ objectifs: e.target.value.split('\n') } as any)} />
+                      </div>
+                    </>
+                  )}
+
+                  {/* THÉORIE */}
+                  {eSlide.type === 'theorie' && (
+                    <>
+                      <div className="edit-field">
+                        <label className="edit-label">Contenu principal</label>
+                        <textarea className="edit-input" rows={5} value={(eSlide as SlideTheorie).contenu} onChange={e => updateEditSlide({ contenu: e.target.value } as any)} />
+                      </div>
+                      <div className="edit-field">
+                        <label className="edit-label">Points clés (un par ligne)</label>
+                        <textarea className="edit-input" rows={4} value={(eSlide as SlideTheorie).pointsCles?.join('\n') || ''}
+                          onChange={e => updateEditSlide({ pointsCles: e.target.value.split('\n') } as any)} />
+                      </div>
+                      <div className="edit-field">
+                        <label className="edit-label">Exemple concret</label>
+                        <textarea className="edit-input" rows={3} value={(eSlide as SlideTheorie).exemple} onChange={e => updateEditSlide({ exemple: e.target.value } as any)} />
+                      </div>
+                    </>
+                  )}
+
+                  {/* PRATIQUE */}
+                  {eSlide.type === 'pratique' && (
+                    <>
+                      <div className="edit-field">
+                        <label className="edit-label">Contexte / mise en situation</label>
+                        <textarea className="edit-input" rows={4} value={(eSlide as SlidePratique).contexte} onChange={e => updateEditSlide({ contexte: e.target.value } as any)} />
+                      </div>
+                      <div className="edit-field">
+                        <label className="edit-label">Question / défi</label>
+                        <textarea className="edit-input" rows={2} value={(eSlide as SlidePratique).question} onChange={e => updateEditSlide({ question: e.target.value } as any)} />
+                      </div>
+                      <div className="edit-field">
+                        <label className="edit-label">Indice</label>
+                        <textarea className="edit-input" rows={2} value={(eSlide as SlidePratique).indice} onChange={e => updateEditSlide({ indice: e.target.value } as any)} />
+                      </div>
+                      <div className="edit-field">
+                        <label className="edit-label">Réponse idéale</label>
+                        <textarea className="edit-input" rows={4} value={(eSlide as SlidePratique).reponse} onChange={e => updateEditSlide({ reponse: e.target.value } as any)} />
+                      </div>
+                    </>
+                  )}
+
+                  {/* FILL-BLANK */}
+                  {eSlide.type === 'fill-blank' && (
+                    <>
+                      <div className="edit-field">
+                        <label className="edit-label">Instruction</label>
+                        <input className="edit-input" value={(eSlide as SlideFillBlank).instruction || ''} onChange={e => updateEditSlide({ instruction: e.target.value } as any)} style={{ height: 42 }} />
+                      </div>
+                      <div className="edit-field">
+                        <label className="edit-label">Phrase (use [MOT] pour les blancs)</label>
+                        <textarea className="edit-input" rows={3} value={(eSlide as SlideFillBlank).phrase} onChange={e => updateEditSlide({ phrase: e.target.value } as any)} />
+                        <p style={{ margin: '6px 0 0', fontSize: 11, color: '#94a3b8' }}>Ex: «Le [chiffrement] protège les [données] personnelles.»</p>
+                      </div>
+                      <div className="edit-field">
+                        <label className="edit-label">Mots attendus dans l'ordre (un par ligne)</label>
+                        <textarea className="edit-input" rows={3} value={(eSlide as SlideFillBlank).mots?.join('\n') || ''}
+                          onChange={e => updateEditSlide({ mots: e.target.value.split('\n').filter(Boolean) } as any)} />
+                      </div>
+                      <div className="edit-field">
+                        <label className="edit-label">Explication pédagogique</label>
+                        <textarea className="edit-input" rows={3} value={(eSlide as SlideFillBlank).explication} onChange={e => updateEditSlide({ explication: e.target.value } as any)} />
+                      </div>
+                    </>
+                  )}
+
+                  {/* VRAI-FAUX */}
+                  {eSlide.type === 'vrai-faux' && (
+                    <div className="edit-field">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                        <label className="edit-label" style={{ margin: 0 }}>Affirmations</label>
+                        <button onClick={() => updateEditSlide({ affirmations: [...(eSlide as SlideVraiFaux).affirmations, { texte: '', reponse: true, explication: '' }] } as any)}
+                          style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', border: `1px solid ${AMBER}40`, background: 'transparent', color: AMBER, cursor: 'pointer', fontSize: 11, fontWeight: 700 }}>
+                          <Plus size={11} /> Ajouter
+                        </button>
+                      </div>
+                      {(eSlide as SlideVraiFaux).affirmations.map((aff, ai) => (
+                        <div key={ai} style={{ padding: '14px 16px', background: 'white', border: '1.5px solid #e2e8f0', marginBottom: 10 }}>
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 8 }}>
+                            <textarea className="edit-input" rows={2} value={aff.texte}
+                              onChange={e => { const a = [...(eSlide as SlideVraiFaux).affirmations]; a[ai] = { ...a[ai], texte: e.target.value }; updateEditSlide({ affirmations: a } as any); }}
+                              style={{ flex: 1 }} placeholder="Affirmation..." />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+                              {[true, false].map(val => (
+                                <button key={String(val)} onClick={() => { const a = [...(eSlide as SlideVraiFaux).affirmations]; a[ai] = { ...a[ai], reponse: val }; updateEditSlide({ affirmations: a } as any); }}
+                                  style={{ padding: '5px 12px', border: `1.5px solid ${aff.reponse === val ? (val ? GREEN : RED) : '#e2e8f0'}`, background: aff.reponse === val ? (val ? `${GREEN}15` : `${RED}10`) : 'transparent', color: aff.reponse === val ? (val ? GREEN : RED) : '#94a3b8', cursor: 'pointer', fontWeight: 700, fontSize: 12 }}>
+                                  {val ? 'VRAI' : 'FAUX'}
+                                </button>
+                              ))}
+                              {(eSlide as SlideVraiFaux).affirmations.length > 2 && (
+                                <button onClick={() => { const a = (eSlide as SlideVraiFaux).affirmations.filter((_, j) => j !== ai); updateEditSlide({ affirmations: a } as any); }}
+                                  style={{ padding: '5px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#94a3b8' }}>
+                                  <Trash2 size={13} />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          <input className="edit-input" value={aff.explication} placeholder="Explication..."
+                            onChange={e => { const a = [...(eSlide as SlideVraiFaux).affirmations]; a[ai] = { ...a[ai], explication: e.target.value }; updateEditSlide({ affirmations: a } as any); }}
+                            style={{ height: 38, fontSize: 13 }} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* CONCLUSION */}
+                  {eSlide.type === 'conclusion' && (
+                    <>
+                      <div className="edit-field">
+                        <label className="edit-label">Points à retenir (un par ligne)</label>
+                        <textarea className="edit-input" rows={5} value={(eSlide as SlideConclusion).points?.join('\n') || ''}
+                          onChange={e => updateEditSlide({ points: e.target.value.split('\n') } as any)} />
+                      </div>
+                      <div className="edit-field">
+                        <label className="edit-label">Message de clôture</label>
+                        <textarea className="edit-input" rows={3} value={(eSlide as SlideConclusion).message} onChange={e => updateEditSlide({ message: e.target.value } as any)} />
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Onglet QCM */}
+        {editTab === 'qcm' && (
+          <div style={{ flex: 1, overflowY: 'auto', padding: '28px 36px', maxWidth: 800, margin: '0 auto', width: '100%' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: DARK }}>Questions QCM ({editLesson.qcm?.length || 0})</h2>
+              <button onClick={() => {
+                const newQ: QcmQuestion = { id: (editLesson.qcm?.length || 0) + 1, question: '', choix: ['A. ', 'B. ', 'C. ', 'D. '], bonneReponse: 0, explication: '' };
+                setEditLesson({ ...editLesson, qcm: [...(editLesson.qcm || []), newQ] });
+              }}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', border: `1.5px solid ${PINK}40`, background: 'white', color: PINK, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>
+                <Plus size={14} /> Ajouter une question
+              </button>
+            </div>
+            {(editLesson.qcm || []).map((q, qi) => (
+              <div key={qi} style={{ background: 'white', border: '1.5px solid #e2e8f0', padding: '20px', marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: PINK, letterSpacing: 1.5, textTransform: 'uppercase' }}>Question {qi + 1}</span>
+                  {(editLesson.qcm || []).length > 1 && (
+                    <button onClick={() => setEditLesson({ ...editLesson, qcm: (editLesson.qcm || []).filter((_, j) => j !== qi) })}
+                      style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#94a3b8' }}>
+                      <Trash2 size={15} />
+                    </button>
+                  )}
+                </div>
+                <div className="edit-field">
+                  <label className="edit-label">Question</label>
+                  <textarea className="edit-input" rows={2} value={q.question} onChange={e => updateQcm(qi, { question: e.target.value })} />
+                </div>
+                <div className="edit-field">
+                  <label className="edit-label">Choix (A / B / C / D)</label>
+                  {q.choix.map((c, ci) => (
+                    <div key={ci} style={{ display: 'flex', gap: 8, marginBottom: 6, alignItems: 'center' }}>
+                      <button onClick={() => updateQcm(qi, { bonneReponse: ci })}
+                        style={{ width: 28, height: 28, border: `2px solid ${q.bonneReponse === ci ? GREEN : '#e2e8f0'}`, background: q.bonneReponse === ci ? `${GREEN}15` : 'transparent', color: q.bonneReponse === ci ? GREEN : '#94a3b8', cursor: 'pointer', fontWeight: 800, fontSize: 12, flexShrink: 0 }}>
+                        {'ABCD'[ci]}
+                      </button>
+                      <input className="edit-input" value={c} onChange={e => { const nc = [...q.choix]; nc[ci] = e.target.value; updateQcm(qi, { choix: nc }); }}
+                        style={{ height: 38 }} placeholder={`Choix ${' ABCD'[ci + 1]}...`} />
+                    </div>
+                  ))}
+                  <p style={{ margin: '4px 0 0', fontSize: 11, color: '#94a3b8' }}>Clique sur la lettre pour marquer la bonne réponse (en vert)</p>
+                </div>
+                <div className="edit-field" style={{ marginBottom: 0 }}>
+                  <label className="edit-label">Explication</label>
+                  <textarea className="edit-input" rows={2} value={q.explication} onChange={e => updateQcm(qi, { explication: e.target.value })} />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Onglet Infos générales */}
+        {editTab === 'meta' && (
+          <div style={{ flex: 1, overflowY: 'auto', padding: '28px 36px', maxWidth: 640, margin: '0 auto', width: '100%' }}>
+            <h2 style={{ margin: '0 0 24px', fontSize: 18, fontWeight: 700, color: DARK }}>Informations générales</h2>
+            <div className="edit-field">
+              <label className="edit-label">Titre de la formation</label>
+              <input className="edit-input" value={editLesson.title} onChange={e => setEditLesson({ ...editLesson, title: e.target.value })} style={{ height: 44, fontSize: 16 }} />
+            </div>
+            <div className="edit-field">
+              <label className="edit-label">Sous-titre / accroche</label>
+              <input className="edit-input" value={editLesson.subtitle} onChange={e => setEditLesson({ ...editLesson, subtitle: e.target.value })} style={{ height: 42 }} />
+            </div>
+            <div className="edit-field">
+              <label className="edit-label">Description</label>
+              <textarea className="edit-input" rows={4} value={editLesson.description} onChange={e => setEditLesson({ ...editLesson, description: e.target.value })} />
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   // ── SLIDES PHASE ────────────────────────────────────────────────────────────
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', flexDirection: 'column', position: 'relative' }}>
@@ -639,6 +1098,10 @@ export default function LessonPlayer() {
           </span>
         )}
         <span style={{ fontSize: 13, color: '#6b7280', whiteSpace: 'nowrap' }}>{currentIdx + 1} / {total}</span>
+        <button onClick={startEditing}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', border: `1.5px solid ${BLUE}30`, background: 'white', color: BLUE, cursor: 'pointer', fontWeight: 600, fontSize: 12 }}>
+          <Edit3 size={13} /> Éditer
+        </button>
       </div>
 
       {/* Progress bar */}

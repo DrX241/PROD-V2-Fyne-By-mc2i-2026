@@ -2,6 +2,12 @@ var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
+  get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
+}) : x)(function(x) {
+  if (typeof require !== "undefined") return require.apply(this, arguments);
+  throw Error('Dynamic require of "' + x + '" is not supported');
+});
 var __esm = (fn, res) => function __init() {
   return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
 };
@@ -9,11 +15,11 @@ var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
-var __copyProps = (to, from, except, desc4) => {
+var __copyProps = (to, from, except, desc6) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
       if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc4 = __getOwnPropDesc(from, key)) || desc4.enumerable });
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc6 = __getOwnPropDesc(from, key)) || desc6.enumerable });
   }
   return to;
 };
@@ -34,6 +40,8 @@ __export(schema_exports, {
   assistantDomainEnum: () => assistantDomainEnum,
   assistantPersonalityEnum: () => assistantPersonalityEnum,
   assistantTemplates: () => assistantTemplates,
+  clientCompanies: () => clientCompanies,
+  clientUsers: () => clientUsers,
   customAssistants: () => customAssistants,
   customModules: () => customModules,
   difficultyLevelEnum: () => difficultyLevelEnum,
@@ -41,6 +49,8 @@ __export(schema_exports, {
   generatedTrainings: () => generatedTrainings,
   insertAssistantConversationSchema: () => insertAssistantConversationSchema,
   insertAssistantTemplateSchema: () => insertAssistantTemplateSchema,
+  insertClientCompanySchema: () => insertClientCompanySchema,
+  insertClientUserSchema: () => insertClientUserSchema,
   insertCustomAssistantSchema: () => insertCustomAssistantSchema,
   insertCustomModuleSchema: () => insertCustomModuleSchema,
   insertGeneratedTrainingSchema: () => insertGeneratedTrainingSchema,
@@ -51,8 +61,10 @@ __export(schema_exports, {
   investigationProgress: () => investigationProgress,
   learningStyleEnum: () => learningStyleEnum,
   llmCache: () => llmCache,
+  llmUsage: () => llmUsage,
   sessions: () => sessions,
   shareAccessEnum: () => shareAccessEnum,
+  ssoConfig: () => ssoConfig,
   userLearningProgress: () => userLearningProgress,
   userProfiles: () => userProfiles,
   users: () => users
@@ -60,7 +72,7 @@ __export(schema_exports, {
 import { pgTable, text, serial, integer, boolean, timestamp, varchar, jsonb, pgEnum, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-var assistantPersonalityEnum, assistantDomainEnum, gamificationLevelEnum, shareAccessEnum, difficultyLevelEnum, learningStyleEnum, userLearningProgress, investigationProgress, customModules, insertUserLearningProgressSchema, insertInvestigationProgressSchema, users, insertUserSchema, userProfiles, customAssistants, assistantConversations, assistantTemplates, VALID_DOMAINS, VALID_PERSONALITIES, VALID_GAMIFICATION_LEVELS, VALID_AVATAR_STYLES, VALID_AVATAR_COLORS, VALID_SHARE_ACCESS, VALID_DIFFICULTY_LEVELS, VALID_LEARNING_STYLES, insertUserProfileSchema, insertCustomAssistantSchema, insertAssistantConversationSchema, insertAssistantTemplateSchema, insertCustomModuleSchema, generatedTrainings, insertGeneratedTrainingSchema, sessions, llmCache;
+var assistantPersonalityEnum, assistantDomainEnum, gamificationLevelEnum, shareAccessEnum, difficultyLevelEnum, learningStyleEnum, userLearningProgress, investigationProgress, customModules, insertUserLearningProgressSchema, insertInvestigationProgressSchema, users, insertUserSchema, userProfiles, customAssistants, assistantConversations, assistantTemplates, VALID_DOMAINS, VALID_PERSONALITIES, VALID_GAMIFICATION_LEVELS, VALID_AVATAR_STYLES, VALID_AVATAR_COLORS, VALID_SHARE_ACCESS, VALID_DIFFICULTY_LEVELS, VALID_LEARNING_STYLES, insertUserProfileSchema, insertCustomAssistantSchema, insertAssistantConversationSchema, insertAssistantTemplateSchema, insertCustomModuleSchema, generatedTrainings, insertGeneratedTrainingSchema, sessions, llmCache, llmUsage, ssoConfig, clientCompanies, clientUsers, insertClientCompanySchema, insertClientUserSchema;
 var init_schema = __esm({
   "shared/schema.ts"() {
     "use strict";
@@ -188,9 +200,16 @@ var init_schema = __esm({
       bio: text("bio"),
       profileImageUrl: varchar("profile_image_url", { length: 255 }),
       role: varchar("role", { length: 50 }).default("user").notNull(),
-      // 'user' ou 'admin'
+      // 'user' | 'admin' | 'superadmin'
       isActive: boolean("is_active").default(true).notNull(),
       lastLogin: timestamp("last_login"),
+      // Abonnement & modules
+      modulesEnabled: jsonb("modules_enabled").default(["cyber", "data", "amoa", "formation-data", "evaluation", "playground"]),
+      tokenQuota: integer("token_quota").default(1e5),
+      tokenUsedMonth: integer("token_used_month").default(0),
+      tokenResetAt: timestamp("token_reset_at"),
+      subscriptionLabel: varchar("subscription_label", { length: 100 }).default("Gratuit"),
+      subscriptionExpiresAt: timestamp("subscription_expires_at"),
       createdAt: timestamp("created_at").defaultNow(),
       updatedAt: timestamp("updated_at").defaultNow()
     });
@@ -361,10 +380,74 @@ var init_schema = __esm({
       updatedAt: timestamp("updated_at").notNull().defaultNow(),
       expiresAt: timestamp("expires_at")
     }, (table) => [index("IDX_llm_cache_key").on(table.cacheKey)]);
+    llmUsage = pgTable("llm_usage", {
+      id: serial("id").primaryKey(),
+      userId: integer("user_id").notNull(),
+      username: varchar("username", { length: 255 }).notNull(),
+      model: varchar("model", { length: 100 }).notNull(),
+      feature: varchar("feature", { length: 100 }).notNull(),
+      promptTokens: integer("prompt_tokens").notNull().default(0),
+      completionTokens: integer("completion_tokens").notNull().default(0),
+      totalTokens: integer("total_tokens").notNull().default(0),
+      createdAt: timestamp("created_at").notNull().defaultNow()
+    }, (table) => [
+      index("IDX_llm_usage_user").on(table.userId),
+      index("IDX_llm_usage_date").on(table.createdAt)
+    ]);
+    ssoConfig = pgTable("sso_config", {
+      id: serial("id").primaryKey(),
+      provider: varchar("provider", { length: 50 }).notNull().default("azure"),
+      clientId: varchar("client_id", { length: 255 }).notNull(),
+      clientSecret: varchar("client_secret", { length: 512 }).notNull(),
+      tenantId: varchar("tenant_id", { length: 255 }),
+      discoveryUrl: varchar("discovery_url", { length: 512 }),
+      callbackUrl: varchar("callback_url", { length: 512 }).notNull(),
+      isEnabled: boolean("is_enabled").notNull().default(false),
+      allowedDomains: text("allowed_domains").array().notNull().default([]),
+      autoCreateUsers: boolean("auto_create_users").notNull().default(true),
+      defaultRole: varchar("default_role", { length: 50 }).notNull().default("user"),
+      updatedAt: timestamp("updated_at").notNull().defaultNow()
+    });
+    clientCompanies = pgTable("client_companies", {
+      id: serial("id").primaryKey(),
+      name: varchar("name", { length: 255 }).notNull(),
+      slug: varchar("slug", { length: 100 }).unique().notNull(),
+      isActive: boolean("is_active").notNull().default(true),
+      createdBy: integer("created_by").references(() => users.id),
+      createdAt: timestamp("created_at").notNull().defaultNow(),
+      updatedAt: timestamp("updated_at").notNull().defaultNow()
+    });
+    clientUsers = pgTable("client_users", {
+      id: serial("id").primaryKey(),
+      companyId: integer("company_id").references(() => clientCompanies.id).notNull(),
+      email: varchar("email", { length: 255 }).unique().notNull(),
+      password: varchar("password", { length: 255 }).notNull(),
+      firstName: varchar("first_name", { length: 255 }),
+      lastName: varchar("last_name", { length: 255 }),
+      role: varchar("role", { length: 20 }).notNull().default("user"),
+      // 'admin' | 'user'
+      isActive: boolean("is_active").notNull().default(true),
+      score: integer("score").notNull().default(0),
+      exercicesRealises: integer("exercices_realises").notNull().default(0),
+      tauxReussite: integer("taux_reussite").notNull().default(0),
+      niveau: varchar("niveau", { length: 50 }).notNull().default("Novice"),
+      badges: integer("badges").notNull().default(0),
+      lastLogin: timestamp("last_login"),
+      createdBy: integer("created_by").references(() => users.id),
+      createdAt: timestamp("created_at").notNull().defaultNow(),
+      updatedAt: timestamp("updated_at").notNull().defaultNow()
+    });
+    insertClientCompanySchema = createInsertSchema(clientCompanies).omit({ id: true, createdAt: true, updatedAt: true });
+    insertClientUserSchema = createInsertSchema(clientUsers).omit({ id: true, createdAt: true, updatedAt: true, lastLogin: true });
   }
 });
 
 // server/db.ts
+var db_exports = {};
+__export(db_exports, {
+  db: () => db,
+  pool: () => pool
+});
 import pg from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 var pool, db;
@@ -385,99 +468,232 @@ var init_db = __esm({
   }
 });
 
+// server/storage.ts
+import { eq, desc } from "drizzle-orm";
+import session from "express-session";
+import MemoryStore from "memorystore";
+var DatabaseStorage, storage;
+var init_storage = __esm({
+  "server/storage.ts"() {
+    "use strict";
+    init_schema();
+    init_db();
+    DatabaseStorage = class {
+      sessionStore;
+      constructor() {
+        const MemoryStoreWithSession = MemoryStore(session);
+        this.sessionStore = new MemoryStoreWithSession({
+          checkPeriod: 864e5
+          // Nettoyage des sessions expirées une fois par jour
+        });
+      }
+      async getUser(id) {
+        const [user] = await db.select().from(users).where(eq(users.id, id));
+        return user;
+      }
+      async getUserByUsername(username) {
+        const [user] = await db.select().from(users).where(eq(users.username, username));
+        return user;
+      }
+      async createUser(insertUser) {
+        const { id, ...userData } = insertUser;
+        const [user] = await db.insert(users).values(userData).returning();
+        return user;
+      }
+      async upsertUser(userData) {
+        if (userData.id) {
+          const [existingUser] = await db.select().from(users).where(eq(users.id, userData.id));
+          if (existingUser) {
+            const [updatedUser] = await db.update(users).set({
+              ...userData,
+              updatedAt: /* @__PURE__ */ new Date()
+            }).where(eq(users.id, userData.id)).returning();
+            return updatedUser;
+          }
+        }
+        return this.createUser(userData);
+      }
+      async updateUserLastLogin(id) {
+        await db.update(users).set({
+          lastLogin: /* @__PURE__ */ new Date(),
+          updatedAt: /* @__PURE__ */ new Date()
+        }).where(eq(users.id, id));
+      }
+      async incrementTokenUsage(userId, tokens) {
+        const [user] = await db.select().from(users).where(eq(users.id, userId));
+        if (!user) return { tokenUsedMonth: 0, tokenQuota: 1e5, tokenResetAt: null };
+        const now = /* @__PURE__ */ new Date();
+        const resetAt = user.tokenResetAt;
+        const needsReset = !resetAt || now.getMonth() !== new Date(resetAt).getMonth() || now.getFullYear() !== new Date(resetAt).getFullYear();
+        const newUsed = needsReset ? tokens : (user.tokenUsedMonth ?? 0) + tokens;
+        await db.update(users).set({
+          tokenUsedMonth: newUsed,
+          tokenResetAt: needsReset ? now : resetAt,
+          updatedAt: now
+        }).where(eq(users.id, userId));
+        return {
+          tokenUsedMonth: newUsed,
+          tokenQuota: user.tokenQuota ?? 1e5,
+          tokenResetAt: needsReset ? now : resetAt
+        };
+      }
+      async saveGeneratedTraining(t) {
+        const [record] = await db.insert(generatedTrainings).values(t).returning();
+        return record;
+      }
+      async getGeneratedTraining(id) {
+        const [record] = await db.select().from(generatedTrainings).where(eq(generatedTrainings.id, id));
+        return record;
+      }
+      async listGeneratedTrainings(limit = 20) {
+        return db.select().from(generatedTrainings).orderBy(desc(generatedTrainings.createdAt)).limit(limit);
+      }
+      async deleteGeneratedTraining(id) {
+        await db.delete(generatedTrainings).where(eq(generatedTrainings.id, id));
+      }
+      async updateGeneratedTraining(id, patch) {
+        const [record] = await db.update(generatedTrainings).set({ ...patch }).where(eq(generatedTrainings.id, id)).returning();
+        return record;
+      }
+    };
+    storage = new DatabaseStorage();
+  }
+});
+
+// server/services/llmContext.ts
+import { AsyncLocalStorage } from "async_hooks";
+function getLlmContext() {
+  return llmContextStore.getStore();
+}
+var llmContextStore;
+var init_llmContext = __esm({
+  "server/services/llmContext.ts"() {
+    "use strict";
+    llmContextStore = new AsyncLocalStorage();
+  }
+});
+
+// server/services/llmTracker.ts
+var llmTracker_exports = {};
+__export(llmTracker_exports, {
+  checkTokenQuota: () => checkTokenQuota,
+  trackLlmUsage: () => trackLlmUsage
+});
+import { eq as eq3 } from "drizzle-orm";
+async function checkTokenQuota(userId) {
+  try {
+    const [user] = await db.select().from(users).where(eq3(users.id, userId));
+    if (!user) return { allowed: true, tokenUsedMonth: 0, tokenQuota: 1e5 };
+    const quota = user.tokenQuota ?? 1e5;
+    const used = user.tokenUsedMonth ?? 0;
+    if (quota === 0) return { allowed: true, tokenUsedMonth: used, tokenQuota: 0 };
+    return { allowed: used < quota, tokenUsedMonth: used, tokenQuota: quota };
+  } catch (e) {
+    console.warn("[llmTracker] Erreur v\xE9rification quota:", e);
+    return { allowed: true, tokenUsedMonth: 0, tokenQuota: 1e5 };
+  }
+}
+async function trackLlmUsage(params) {
+  const total = params.totalTokens ?? (params.promptTokens ?? 0) + (params.completionTokens ?? 0);
+  try {
+    await db.insert(llmUsage).values({
+      userId: params.userId,
+      username: params.username,
+      model: params.model,
+      feature: params.feature,
+      promptTokens: params.promptTokens ?? 0,
+      completionTokens: params.completionTokens ?? 0,
+      totalTokens: total
+    });
+  } catch (e) {
+    console.warn("[llmTracker] Erreur enregistrement usage:", e);
+  }
+  try {
+    const state = await storage.incrementTokenUsage(params.userId, total);
+    const ctx = getLlmContext();
+    if (ctx?.session?.user) {
+      ctx.session.user.tokenUsedMonth = state.tokenUsedMonth;
+    }
+  } catch (e) {
+    console.warn("[llmTracker] Erreur incr\xE9ment quota:", e);
+  }
+}
+var init_llmTracker = __esm({
+  "server/services/llmTracker.ts"() {
+    "use strict";
+    init_db();
+    init_schema();
+    init_storage();
+    init_llmContext();
+  }
+});
+
 // server/services/gemini.ts
-var GATEWAY_URL, GATEWAY_KEY, GEMINI_KEY, PRIMARY_MODEL, SECONDARY_MODEL, USE_GEMINI_DIRECT, GeminiService, geminiService, openAIService;
+import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
+var BEDROCK_REGION, HAIKU_MODEL, MODEL_CATALOG, BEDROCK_MODELS, bedrockClient, GeminiService, geminiService, openAIService;
 var init_gemini = __esm({
   "server/services/gemini.ts"() {
     "use strict";
-    GATEWAY_URL = process.env.AI_GATEWAY_URL || "https://aigateway.mc2i-lab.fr/v1";
-    GATEWAY_KEY = process.env.AI_GATEWAY_API_KEY || "";
-    GEMINI_KEY = process.env.GEMINI_API_KEY || "";
-    PRIMARY_MODEL = process.env.AI_PRIMARY_MODEL || "gemini-2.5-flash";
-    SECONDARY_MODEL = process.env.AI_SECONDARY_MODEL || "gemini-2.5-flash";
-    USE_GEMINI_DIRECT = !GATEWAY_KEY && !!GEMINI_KEY;
+    init_llmTracker();
+    init_llmContext();
+    BEDROCK_REGION = process.env.AWS_REGION || "eu-west-3";
+    HAIKU_MODEL = process.env.BEDROCK_MODEL || "eu.anthropic.claude-haiku-4-5-20251001-v1:0";
+    MODEL_CATALOG = [
+      {
+        key: "standard",
+        label: "Claude Haiku 4.5",
+        description: "Mod\xE8le actif \u2014 rapide et efficace",
+        modelId: HAIKU_MODEL,
+        eco: false
+      }
+    ];
+    BEDROCK_MODELS = [HAIKU_MODEL];
+    bedrockClient = new BedrockRuntimeClient({ region: BEDROCK_REGION });
     GeminiService = class {
       responseCache = /* @__PURE__ */ new Map();
       CACHE_TTL = 1e3 * 60 * 60;
       connectionStatus = "disconnected";
       lastConnectionCheck = 0;
       CONNECTION_CHECK_INTERVAL = 1e3 * 60 * 5;
-      currentConfig = "secondary";
+      currentConfig = "primary";
+      activeModelIdx = 0;
+      // Choix utilisateur global : 0 = standard, 1 = éco
+      preferredModelIdx = 0;
       constructor() {
-        if (USE_GEMINI_DIRECT) {
-          console.log("Initializing Gemini Direct Service (fallback)");
-          console.log(`Gemini API Key: ***${GEMINI_KEY.slice(-5)}`);
-        } else {
-          console.log("Initializing AI Gateway Service");
-          console.log(`Gateway URL: ${GATEWAY_URL}`);
-          console.log(`API Key: ***${GATEWAY_KEY ? GATEWAY_KEY.slice(-5) : "non d\xE9finie"}`);
-        }
-        console.log(`Primary model: ${PRIMARY_MODEL}`);
-        if (!GATEWAY_KEY && !GEMINI_KEY) {
-          console.warn("Aucune cl\xE9 IA configur\xE9e \u2014 fonctionnalit\xE9 IA d\xE9sactiv\xE9e");
-        }
+        console.log("Initializing AI Service \u2014 Bedrock");
+        console.log(`Models: ${BEDROCK_MODELS.join(" \u2192 ")} | Region: ${BEDROCK_REGION}`);
         this.checkConnection();
         this.startPeriodicConnectionCheck();
       }
       startPeriodicConnectionCheck() {
         setInterval(() => {
-          const now = Date.now();
-          if (now - this.lastConnectionCheck >= this.CONNECTION_CHECK_INTERVAL) {
+          if (Date.now() - this.lastConnectionCheck >= this.CONNECTION_CHECK_INTERVAL) {
             this.checkConnection();
           }
         }, this.CONNECTION_CHECK_INTERVAL);
       }
       switchApiKey(type) {
         this.currentConfig = type;
+        this.preferredModelIdx = type === "secondary" ? 1 : 0;
         this.responseCache.clear();
         this.lastConnectionCheck = 0;
       }
+      setModel(modelKey) {
+        const idx = MODEL_CATALOG.findIndex((m) => m.key === modelKey);
+        if (idx === -1) return false;
+        this.preferredModelIdx = idx;
+        this.currentConfig = idx === 0 ? "primary" : "secondary";
+        this.responseCache.clear();
+        return true;
+      }
+      getAvailableModels() {
+        return MODEL_CATALOG;
+      }
+      getCurrentModelKey() {
+        return MODEL_CATALOG[this.preferredModelIdx]?.key ?? "standard";
+      }
       getCurrentConfig() {
         return this.currentConfig;
-      }
-      async checkConnection() {
-        if (!GATEWAY_KEY && !GEMINI_KEY) {
-          this.connectionStatus = "disconnected";
-          return false;
-        }
-        try {
-          const now = Date.now();
-          if (now - this.lastConnectionCheck < this.CONNECTION_CHECK_INTERVAL && this.connectionStatus === "connected") {
-            return true;
-          }
-          const url = USE_GEMINI_DIRECT ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent` : `${GATEWAY_URL}/chat/completions`;
-          const headers = { "Content-Type": "application/json" };
-          let body;
-          if (USE_GEMINI_DIRECT) {
-            headers["x-goog-api-key"] = GEMINI_KEY;
-            body = { contents: [{ parts: [{ text: "Hello" }] }], generationConfig: { maxOutputTokens: 5 } };
-          } else {
-            headers["Authorization"] = `Bearer ${GATEWAY_KEY}`;
-            headers["x-litellm-tags"] = "FYNE";
-            body = { model: PRIMARY_MODEL, messages: [{ role: "user", content: "Hello" }], max_tokens: 5 };
-          }
-          const response = await fetch(url, {
-            method: "POST",
-            headers,
-            body: JSON.stringify(body),
-            signal: AbortSignal.timeout(1e4)
-          });
-          if (response.ok) {
-            this.connectionStatus = "connected";
-            this.lastConnectionCheck = Date.now();
-            console.log("AI connection successful");
-            return true;
-          } else {
-            const err = await response.text();
-            console.error("AI connection check failed:", err);
-            this.connectionStatus = "disconnected";
-            return false;
-          }
-        } catch (error) {
-          console.error("Error checking AI connection:", error);
-          this.connectionStatus = "disconnected";
-          return false;
-        }
       }
       getConnectionStatus() {
         return this.connectionStatus;
@@ -489,95 +705,124 @@ var init_gemini = __esm({
         return this.currentConfig;
       }
       getCurrentModelName() {
-        return PRIMARY_MODEL;
+        return MODEL_CATALOG[this.preferredModelIdx]?.label ?? BEDROCK_MODELS[this.activeModelIdx];
       }
       getModelName() {
-        return PRIMARY_MODEL;
+        return this.getCurrentModelName();
+      }
+      async checkConnection() {
+        const now = Date.now();
+        const recentlyChecked = now - this.lastConnectionCheck < this.CONNECTION_CHECK_INTERVAL;
+        if (recentlyChecked && this.connectionStatus === "connected") {
+          return true;
+        }
+        for (let idx = 0; idx < BEDROCK_MODELS.length; idx++) {
+          try {
+            await this.callBedrock([{ role: "user", content: "Hi" }], 0, 5, BEDROCK_MODELS[idx]);
+            this.connectionStatus = "connected";
+            this.lastConnectionCheck = now;
+            this.activeModelIdx = idx;
+            console.log(`AI connection (Bedrock) OK \u2014 ${BEDROCK_MODELS[idx]}`);
+            return true;
+          } catch (err) {
+            console.warn(`Bedrock connection check failed (${BEDROCK_MODELS[idx]}): ${err?.message}`);
+          }
+        }
+        this.connectionStatus = "disconnected";
+        this.lastConnectionCheck = now;
+        return false;
       }
       async forceReconnect() {
         this.connectionStatus = "reconnecting";
         this.lastConnectionCheck = 0;
-        return await this.checkConnection();
+        return this.checkConnection();
       }
-      async callGateway(messages, temperature, maxTokens, responseFormat, model) {
-        if (!GATEWAY_KEY && !GEMINI_KEY) {
-          throw new Error("Aucune cl\xE9 IA configur\xE9e (AI_GATEWAY_API_KEY ou GEMINI_API_KEY)");
-        }
-        const targetModel = model || PRIMARY_MODEL;
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 9e4);
-        try {
-          let text2;
-          if (USE_GEMINI_DIRECT) {
-            console.log(`[Gemini Direct] Appel mod\xE8le: ${targetModel}, temp=${temperature}, max_tokens=${maxTokens}`);
-            const geminiContents = [];
-            let systemInstruction = "";
-            for (const msg of messages) {
-              if (msg.role === "system") {
-                systemInstruction += (systemInstruction ? "\n" : "") + msg.content;
-              } else {
-                geminiContents.push({
-                  role: msg.role === "assistant" ? "model" : "user",
-                  parts: [{ text: msg.content }]
-                });
-              }
+      // ─── Appel Bedrock (Anthropic Messages API) avec retry sur throttling ────────
+      async callBedrock(messages, temperature, maxTokens, modelId, retries = 2) {
+        const system = messages.filter((m) => m.role === "system").map((m) => m.content).join("\n");
+        const convo = messages.filter((m) => m.role !== "system").map((m) => ({ role: m.role, content: m.content }));
+        if (convo.length === 0) convo.push({ role: "user", content: "Bonjour" });
+        const body = {
+          anthropic_version: "bedrock-2023-05-31",
+          max_tokens: maxTokens,
+          temperature,
+          messages: convo
+        };
+        if (system) body.system = system;
+        const cmd = new InvokeModelCommand({
+          modelId,
+          contentType: "application/json",
+          accept: "application/json",
+          body: JSON.stringify(body)
+        });
+        let lastErr;
+        for (let attempt = 0; attempt <= retries; attempt++) {
+          try {
+            const res = await bedrockClient.send(cmd);
+            const decoded = JSON.parse(new TextDecoder().decode(res.body));
+            const text2 = decoded?.content?.[0]?.text;
+            if (!text2) throw new Error("R\xE9ponse vide depuis Bedrock");
+            return {
+              text: text2,
+              promptTokens: decoded?.usage?.input_tokens ?? 0,
+              completionTokens: decoded?.usage?.output_tokens ?? 0
+            };
+          } catch (err) {
+            lastErr = err;
+            const isThrottle = err?.name === "ThrottlingException" || err?.message?.includes("throttl");
+            if (isThrottle && attempt < retries) {
+              const wait = 3e3 * (attempt + 1);
+              console.warn(`[Bedrock] Throttling sur ${modelId} \u2014 retry dans ${wait}ms (tentative ${attempt + 1}/${retries})`);
+              await new Promise((r) => setTimeout(r, wait));
+              continue;
             }
-            if (geminiContents.length === 0) {
-              geminiContents.push({ role: "user", parts: [{ text: "Bonjour" }] });
-            }
-            const generationConfig = { temperature, maxOutputTokens: maxTokens };
-            if (responseFormat === "json_object") generationConfig.responseMimeType = "application/json";
-            if (targetModel.includes("2.5")) generationConfig.thinkingConfig = { thinkingBudget: 0 };
-            const requestBody = { contents: geminiContents, generationConfig };
-            if (systemInstruction) requestBody.systemInstruction = { parts: [{ text: systemInstruction }] };
-            const response = await fetch(
-              `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`,
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_KEY },
-                body: JSON.stringify(requestBody),
-                signal: controller.signal
-              }
-            );
-            clearTimeout(timeoutId);
-            if (!response.ok) {
-              const errorData = await response.text();
-              throw new Error(`Gemini HTTP ${response.status}: ${errorData.slice(0, 300)}`);
-            }
-            const data = await response.json();
-            text2 = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (!text2) throw new Error("R\xE9ponse vide ou format inattendu depuis Gemini");
-          } else {
-            console.log(`[AI Gateway] Appel mod\xE8le: ${targetModel}, temp=${temperature}, max_tokens=${maxTokens}`);
-            const requestBody = { model: targetModel, messages, temperature, max_tokens: maxTokens };
-            if (responseFormat === "json_object") requestBody.response_format = { type: "json_object" };
-            const response = await fetch(`${GATEWAY_URL}/chat/completions`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${GATEWAY_KEY}`,
-                "x-litellm-tags": "FYNE"
-              },
-              body: JSON.stringify(requestBody),
-              signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            if (!response.ok) {
-              const errorData = await response.text();
-              throw new Error(`Gateway HTTP ${response.status}: ${errorData.slice(0, 300)}`);
-            }
-            const data = await response.json();
-            text2 = data?.choices?.[0]?.message?.content;
-            if (!text2) throw new Error("R\xE9ponse vide ou format inattendu depuis la gateway");
+            throw err;
           }
-          this.connectionStatus = "connected";
-          this.lastConnectionCheck = Date.now();
-          return text2;
-        } catch (error) {
-          clearTimeout(timeoutId);
-          this.connectionStatus = "disconnected";
-          throw error;
         }
+        throw lastErr;
+      }
+      // ─── Appel avec fallback : Bedrock Sonnet → Bedrock Haiku ───────────────────
+      async callWithFallback(messages, temperature, maxTokens, responseFormat, preferredModelIdx) {
+        const jsonMessages = responseFormat === "json_object" ? [...messages, { role: "user", content: "R\xE9ponds uniquement avec du JSON valide, sans markdown ni explications." }] : messages;
+        let lastError;
+        const startIdx = preferredModelIdx ?? this.preferredModelIdx;
+        for (let i = 0; i < BEDROCK_MODELS.length; i++) {
+          const idx = (startIdx + i) % BEDROCK_MODELS.length;
+          const modelId = BEDROCK_MODELS[idx];
+          const bedrockMaxTokens = Math.min(maxTokens, 4e3);
+          try {
+            console.log(`[Bedrock] Appel mod\xE8le: ${modelId}, temp=${temperature}, max_tokens=${bedrockMaxTokens}`);
+            const { text: text2, promptTokens, completionTokens } = await this.callBedrock(
+              jsonMessages,
+              temperature,
+              bedrockMaxTokens,
+              modelId
+            );
+            this.activeModelIdx = idx;
+            this.connectionStatus = "connected";
+            this.lastConnectionCheck = Date.now();
+            this.trackUsage(promptTokens, completionTokens, modelId);
+            return text2;
+          } catch (err) {
+            console.warn(`[Bedrock] ${modelId} \xE9chou\xE9: ${err?.message} (code: ${err?.name || err?.code || "unknown"}) \u2014 essai mod\xE8le suivant`);
+            lastError = err;
+          }
+        }
+        this.connectionStatus = "disconnected";
+        throw new Error(`Tous les mod\xE8les Bedrock ont \xE9chou\xE9. Dernier: ${lastError?.message}`);
+      }
+      trackUsage(promptTokens, completionTokens, model) {
+        const ctx = getLlmContext();
+        if (!ctx) return;
+        trackLlmUsage({
+          userId: ctx.userId,
+          username: ctx.username,
+          model,
+          feature: ctx.feature,
+          promptTokens,
+          completionTokens,
+          totalTokens: promptTokens + completionTokens
+        });
       }
       async getChatCompletion(messages, temperatureOrUseSecondary, maxTokensOrTemperature, maxTokensOrOptions, options) {
         let temperature = 0.7;
@@ -602,15 +847,15 @@ var init_gemini = __esm({
           }
           responseFormat = responseFormat ?? options?.responseFormat;
         }
-        const model = useSecondary ? SECONDARY_MODEL : PRIMARY_MODEL;
-        return this.callGateway(messages, temperature, actualMaxTokens, responseFormat, model);
+        const startIdx = useSecondary ? 1 : 0;
+        return this.callWithFallback(messages, temperature, actualMaxTokens, responseFormat, startIdx);
       }
       async getChatCompletionWithModel(messages, temperature = 0.7, maxTokens = 2e3, usePrimaryModel = false, options = {}) {
-        const model = usePrimaryModel ? PRIMARY_MODEL : SECONDARY_MODEL;
-        return this.callGateway(messages, temperature, maxTokens, options.responseFormat, model);
+        const startIdx = usePrimaryModel ? 0 : 1;
+        return this.callWithFallback(messages, temperature, maxTokens, options.responseFormat, startIdx);
       }
       getCacheKey(messages, temperature, maxTokens) {
-        return JSON.stringify({ messages, temperature, maxTokens, model: PRIMARY_MODEL });
+        return JSON.stringify({ messages, temperature, maxTokens, model: BEDROCK_MODELS[0] });
       }
       async getChatCompletionWithCache(messagesOrOptions, temperature = 0.7, maxTokens = 2e3, useSecondaryKey = false) {
         let messages;
@@ -626,12 +871,12 @@ var init_gemini = __esm({
           messages = messagesOrOptions;
         }
         const cacheKey = this.getCacheKey(messages, actualTemperature, actualMaxTokens);
-        const cachedResponse = this.responseCache.get(cacheKey);
-        if (cachedResponse && Date.now() - cachedResponse.timestamp < this.CACHE_TTL) {
+        const cached = this.responseCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
           console.log("Using cached response");
-          return cachedResponse.content;
+          return cached.content;
         }
-        const content = await this.callGateway(messages, actualTemperature, actualMaxTokens, responseFormat);
+        const content = await this.callWithFallback(messages, actualTemperature, actualMaxTokens, responseFormat);
         this.responseCache.set(cacheKey, { content, timestamp: Date.now() });
         return content;
       }
@@ -640,13 +885,7 @@ var init_gemini = __esm({
           role: m.role,
           content: m.content
         }));
-        const content = await this.callGateway(
-          messages,
-          options.temperature ?? 0.7,
-          options.max_tokens ?? 2e3,
-          void 0,
-          SECONDARY_MODEL
-        );
+        const content = await this.callWithFallback(messages, options.temperature ?? 0.7, options.max_tokens ?? 2e3, void 0, 1);
         return { choices: [{ message: { content } }] };
       }
       async generateSystemPrompt(configParams = {}) {
@@ -1189,7 +1428,7 @@ __export(dbCacheService_exports, {
   setCached: () => setCached
 });
 import { createHash } from "crypto";
-import { eq as eq3 } from "drizzle-orm";
+import { eq as eq5 } from "drizzle-orm";
 function hashKey(prompt, domain) {
   return createHash("sha256").update(`${domain}:${prompt}`).digest("hex").slice(0, 64);
 }
@@ -1201,12 +1440,12 @@ async function getCached(prompt, domain) {
     return mem.response;
   }
   try {
-    const rows = await db.select().from(llmCache).where(eq3(llmCache.cacheKey, key)).limit(1);
+    const rows = await db.select().from(llmCache).where(eq5(llmCache.cacheKey, key)).limit(1);
     if (rows.length > 0) {
       const row = rows[0];
       if (!row.expiresAt || row.expiresAt.getTime() > now) {
         memoryCache.set(key, { response: row.response, expiresAt: row.expiresAt?.getTime() ?? null });
-        db.update(llmCache).set({ hits: row.hits + 1, updatedAt: /* @__PURE__ */ new Date() }).where(eq3(llmCache.cacheKey, key)).catch(() => {
+        db.update(llmCache).set({ hits: row.hits + 1, updatedAt: /* @__PURE__ */ new Date() }).where(eq5(llmCache.cacheKey, key)).catch(() => {
         });
         return row.response;
       }
@@ -1690,17 +1929,17 @@ var init_cacheService = __esm({
        * @returns Nombre d'entrées supprimées
        */
       invalidateDomain(domain) {
-        let count = 0;
+        let count2 = 0;
         for (const [key, entry] of this.cache.entries()) {
           if (entry.domain === domain) {
             this.cache.delete(key);
-            count++;
+            count2++;
           }
         }
         this.domainEntryCounts[domain] = 0;
         this.domainHitCounts[domain] = 0;
         this.addLog("invalidate", domain);
-        return count;
+        return count2;
       }
       /**
        * Vide le cache entièrement
@@ -1751,7 +1990,7 @@ var init_cacheService = __esm({
        */
       getStats() {
         const totalEntries = this.cache.size;
-        const totalHits = Object.values(this.domainHitCounts).reduce((sum, count) => sum + count, 0);
+        const totalHits = Object.values(this.domainHitCounts).reduce((sum, count2) => sum + count2, 0);
         const topQueries = Array.from(this.cache.values()).sort((a, b) => b.hits - a.hits).slice(0, 10).map((entry) => ({
           query: entry.query,
           domain: entry.domain,
@@ -2617,86 +2856,352 @@ var init_iaLabChallengeController = __esm({
   }
 });
 
+// server/services/lessonGenerator.ts
+var lessonGenerator_exports = {};
+__export(lessonGenerator_exports, {
+  generateLesson: () => generateLesson
+});
+import { z as z2 } from "zod";
+function slidePrompt(type, id, topic, audienceLabel, difficultyLabel, grandPublicBlock, sourceContext) {
+  const contextBlock = sourceContext ? `
+CONTENU SOURCE (base-toi STRICTEMENT sur ce contenu, ne pas inventer) :
+${sourceContext.slice(0, 1500)}
+` : "";
+  const base = `G\xE9n\xE8re un slide JSON pour une formation sur "${topic}".
+PUBLIC: ${audienceLabel}
+NIVEAU: ${difficultyLabel}
+${grandPublicBlock}${contextBlock}SLIDE ID: ${id}
+TYPE: ${type}
+R\xE9ponds UNIQUEMENT avec le JSON du slide, sans markdown.`;
+  const templates = {
+    intro: `${base}
+FORMAT EXACT:
+{"id":${id},"type":"intro","titre":"...","contenu":"...","objectifs":["...","...","..."]}`,
+    theorie: `${base}
+FORMAT EXACT:
+{"id":${id},"type":"theorie","titre":"...","contenu":"...","pointsCles":["...","...","..."],"exemple":"..."}`,
+    pratique: `${base}
+FORMAT EXACT:
+{"id":${id},"type":"pratique","titre":"...","contexte":"...","question":"...","indice":"...","reponse":"..."}`,
+    "fill-blank": `${base}
+FORMAT EXACT (utilise des crochets [A] [B] [C] dans la phrase pour marquer les blancs):
+{"id":${id},"type":"fill-blank","titre":"Compl\xE8te la d\xE9finition","instruction":"Remplis les blancs :","phrase":"Le [A] permet de [B] gr\xE2ce \xE0 [C].","mots":["A_valeur","B_valeur","C_valeur"],"explication":"..."}`,
+    "vrai-faux": `${base}
+FORMAT EXACT (mix \xE9quilibr\xE9 vrai/faux):
+{"id":${id},"type":"vrai-faux","titre":"Vrai ou Faux ?","affirmations":[{"texte":"...","reponse":true,"explication":"..."},{"texte":"...","reponse":false,"explication":"..."},{"texte":"...","reponse":true,"explication":"..."},{"texte":"...","reponse":false,"explication":"..."}]}`,
+    conclusion: `${base}
+FORMAT EXACT:
+{"id":${id},"type":"conclusion","titre":"Ce qu'il faut retenir","points":["...","...","...","..."],"message":"..."}`
+  };
+  return templates[type];
+}
+function qcmPrompt(topic, audienceLabel, difficultyLabel, grandPublicBlock, sourceContext) {
+  const contextBlock = sourceContext ? `CONTENU SOURCE (base les questions sur ce contenu) :
+${sourceContext.slice(0, 1500)}
+` : "";
+  return `G\xE9n\xE8re un QCM de 5 questions sur "${topic}".
+PUBLIC: ${audienceLabel}
+NIVEAU: ${difficultyLabel}
+${grandPublicBlock}${contextBlock}
+R\xE9ponds UNIQUEMENT avec le JSON du tableau, sans markdown.
+FORMAT EXACT:
+[
+{"id":1,"question":"...","choix":["A. ...","B. ...","C. ...","D. ..."],"bonneReponse":0,"explication":"..."},
+{"id":2,"question":"...","choix":["A. ...","B. ...","C. ...","D. ..."],"bonneReponse":2,"explication":"..."},
+{"id":3,"question":"...","choix":["A. ...","B. ...","C. ...","D. ..."],"bonneReponse":1,"explication":"..."},
+{"id":4,"question":"...","choix":["A. ...","B. ...","C. ...","D. ..."],"bonneReponse":3,"explication":"..."},
+{"id":5,"question":"...","choix":["A. ...","B. ...","C. ...","D. ..."],"bonneReponse":0,"explication":"..."}
+]`;
+}
+function skeletonPrompt(pitch, domain, audienceLabel, difficultyLabel, sourceContext) {
+  const contextBlock = sourceContext ? `
+CONTENU SOURCE :
+${sourceContext.slice(0, 800)}
+` : "";
+  return `Tu es expert en ing\xE9nierie p\xE9dagogique. G\xE9n\xE8re le squelette d'une formation sur ce besoin.
+BESOIN: ${pitch}${domain ? `
+DOMAINE: ${domain}` : ""}${contextBlock}
+PUBLIC: ${audienceLabel}
+NIVEAU: ${difficultyLabel}
+R\xE9ponds UNIQUEMENT avec ce JSON (sans markdown) :
+{"title":"...","subtitle":"...","description":"..."}`;
+}
+function splitContextIntoChunks(context, n) {
+  const maxTotal = 1e4;
+  const trimmed = context.slice(0, maxTotal);
+  const chunkSize = Math.ceil(trimmed.length / n);
+  const chunks = [];
+  let start = 0;
+  while (start < trimmed.length && chunks.length < n) {
+    let end = Math.min(start + chunkSize, trimmed.length);
+    const lastPeriod = trimmed.lastIndexOf(".", end);
+    if (lastPeriod > start + chunkSize * 0.5) end = lastPeriod + 1;
+    chunks.push(trimmed.slice(start, end).trim());
+    start = end;
+  }
+  while (chunks.length < n) chunks.push(chunks[chunks.length - 1] || "");
+  return chunks;
+}
+function parseJson(raw) {
+  try {
+    const clean = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const arrStart = clean.indexOf("[");
+    const objStart = clean.indexOf("{");
+    let start;
+    if (arrStart !== -1 && (objStart === -1 || arrStart < objStart)) {
+      start = arrStart;
+      const end = clean.lastIndexOf("]");
+      return JSON.parse(end !== -1 ? clean.slice(start, end + 1) : clean.slice(start));
+    } else {
+      start = objStart;
+      if (start === -1) return null;
+      const end = clean.lastIndexOf("}");
+      return JSON.parse(end !== -1 ? clean.slice(start, end + 1) : clean.slice(start));
+    }
+  } catch {
+    return null;
+  }
+}
+function validateSlide(slide, type) {
+  const schemas = {
+    intro: SlideIntroSchema,
+    theorie: SlideTheorieSchema,
+    pratique: SlidePratiqueSchema,
+    "fill-blank": SlideFillBlankSchema,
+    "vrai-faux": SlideVraiFauxSchema,
+    conclusion: SlideConclusionSchema
+  };
+  return schemas[type].safeParse(slide).success;
+}
+function scoreLesson(slides, qcm) {
+  let score = 0;
+  const maxPerSlide = 10;
+  for (const slide of slides) {
+    let s = 0;
+    if (slide.titre && slide.titre.length > 5) s += 2;
+    const text2 = JSON.stringify(slide);
+    if (text2.length > 150) s += 3;
+    if (text2.length > 300) s += 3;
+    if (Array.isArray(slide.pointsCles || slide.objectifs || slide.points || slide.affirmations || slide.mots)) s += 2;
+    score += Math.min(s, maxPerSlide);
+  }
+  for (const q of qcm) {
+    if (q.question && q.choix?.length === 4 && typeof q.bonneReponse === "number") score += 2;
+  }
+  const maxScore = slides.length * maxPerSlide + 10;
+  return Math.round(score / maxScore * 100);
+}
+async function generateSlide(type, id, topic, audienceLabel, difficultyLabel, grandPublicBlock, sourceContext, maxRetries = 2) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const prompt = slidePrompt(type, id, topic, audienceLabel, difficultyLabel, grandPublicBlock, sourceContext);
+      const raw = await openAIService.getChatCompletion(
+        [{ role: "user", content: prompt }],
+        0.6,
+        800
+      );
+      const parsed = parseJson(raw);
+      if (parsed && validateSlide({ ...parsed, id, type }, type)) {
+        return { ...parsed, id, type };
+      }
+      if (parsed) {
+        console.warn(`[LessonGen] Slide ${id} (${type}) invalide Zod \u2014 tentative ${attempt + 1}`);
+      }
+    } catch (err) {
+      console.warn(`[LessonGen] Slide ${id} (${type}) erreur: ${err?.message} \u2014 tentative ${attempt + 1}`);
+    }
+  }
+  return buildFallbackSlide(type, id, topic);
+}
+function buildFallbackSlide(type, id, topic) {
+  const fallbacks = {
+    intro: { id, type: "intro", titre: `Introduction \u2014 ${topic}`, contenu: `Ce module vous guide \xE0 travers les concepts essentiels de "${topic}". \xC0 la fin, vous serez capable d'appliquer ces notions concr\xE8tement.`, objectifs: ["Comprendre les fondamentaux", "Identifier les enjeux cl\xE9s", "Appliquer les bonnes pratiques"] },
+    theorie: { id, type: "theorie", titre: `Concepts cl\xE9s`, contenu: `Les principes fondamentaux de "${topic}" reposent sur une compr\xE9hension claire des m\xE9canismes en jeu.`, pointsCles: ["Ma\xEEtriser le vocabulaire de base", "Comprendre le fonctionnement", "Identifier les cas d'usage"], exemple: `Exemple concret : appliquer ces notions dans votre contexte professionnel quotidien.` },
+    pratique: { id, type: "pratique", titre: `Mise en pratique`, contexte: `Vous \xEAtes confront\xE9 \xE0 une situation professionnelle li\xE9e \xE0 "${topic}".`, question: `Comment aborderiez-vous ce d\xE9fi dans votre contexte ?`, indice: `Pensez aux concepts vus dans la partie th\xE9orie.`, reponse: `La bonne approche consiste \xE0 appliquer les principes fondamentaux tout en adaptant aux sp\xE9cificit\xE9s du contexte.` },
+    "fill-blank": { id, type: "fill-blank", titre: "Compl\xE8te la d\xE9finition", instruction: "Remplis les blancs :", phrase: "Le [A] permet de [B] gr\xE2ce \xE0 [C].", mots: ["principe cl\xE9", "atteindre l'objectif", "une m\xE9thode adapt\xE9e"], explication: `Ces trois \xE9l\xE9ments forment le c\u0153ur de la compr\xE9hension de "${topic}".` },
+    "vrai-faux": { id, type: "vrai-faux", titre: "Vrai ou Faux ?", affirmations: [{ texte: `La ma\xEEtrise de "${topic}" est utile en contexte professionnel.`, reponse: true, explication: "Oui, ces comp\xE9tences sont directement applicables." }, { texte: `Il suffit de lire une fois pour ma\xEEtriser ce sujet.`, reponse: false, explication: "La pratique r\xE9guli\xE8re est indispensable." }, { texte: "Les exemples concrets facilitent la compr\xE9hension.", reponse: true, explication: "L'ancrage dans des cas r\xE9els acc\xE9l\xE8re l'apprentissage." }, { texte: "Ce sujet ne concerne que les experts.", reponse: false, explication: "Ces notions sont accessibles \xE0 tous les niveaux." }] },
+    conclusion: { id, type: "conclusion", titre: "Ce qu'il faut retenir", points: ["Les fondamentaux sont maintenant acquis", "La pratique r\xE9guli\xE8re consolide les apprentissages", "Appliquez ces notions d\xE8s demain dans votre contexte", "Continuez \xE0 approfondir avec des ressources compl\xE9mentaires"], message: `Bravo ! Vous avez compl\xE9t\xE9 ce module sur "${topic}". Mettez ces acquis en pratique d\xE8s aujourd'hui.` }
+  };
+  return fallbacks[type];
+}
+async function generateQcm(topic, audienceLabel, difficultyLabel, grandPublicBlock, sourceContext, maxRetries = 2) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const prompt = qcmPrompt(topic, audienceLabel, difficultyLabel, grandPublicBlock, sourceContext);
+      const raw = await openAIService.getChatCompletion(
+        [{ role: "user", content: prompt }],
+        0.6,
+        1200
+      );
+      const parsed = parseJson(raw);
+      const result = QcmSchema.safeParse(parsed);
+      if (result.success) return result.data;
+      if (parsed && Array.isArray(parsed) && parsed.length >= 3) {
+        const valid = parsed.filter((q) => QcmQuestionSchema.safeParse(q).success);
+        if (valid.length >= 3) return valid;
+      }
+    } catch (err) {
+      console.warn(`[LessonGen] QCM erreur tentative ${attempt + 1}: ${err?.message}`);
+    }
+  }
+  return buildFallbackQcm(topic);
+}
+function buildFallbackQcm(topic) {
+  return [
+    { id: 1, question: `Quel est l'objectif principal de "${topic}" ?`, choix: ["A. Am\xE9liorer les comp\xE9tences", "B. R\xE9duire les co\xFBts", "C. Augmenter la complexit\xE9", "D. \xC9viter les responsabilit\xE9s"], bonneReponse: 0, explication: "La mont\xE9e en comp\xE9tences est l'objectif central de toute formation." },
+    { id: 2, question: "Quelle est la meilleure fa\xE7on d'ancrer un apprentissage ?", choix: ["A. Lire une seule fois", "B. M\xE9moriser sans pratiquer", "C. Pratiquer r\xE9guli\xE8rement", "D. \xC9viter les exemples"], bonneReponse: 2, explication: "La pratique r\xE9guli\xE8re est le levier le plus efficace de l'apprentissage durable." },
+    { id: 3, question: "Qu'est-ce qui diff\xE9rencie un expert d'un d\xE9butant ?", choix: ["A. L'acc\xE8s aux ressources", "B. L'exp\xE9rience et la pratique accumul\xE9es", "C. La chance", "D. L'outil utilis\xE9"], bonneReponse: 1, explication: "L'expertise se construit par l'exp\xE9rience et la pratique r\xE9guli\xE8re sur le temps." },
+    { id: 4, question: "Comment valider ses acquis sur ce sujet ?", choix: ["A. En ignorant les retours", "B. En \xE9vitant les mises en pratique", "C. En testant dans un contexte r\xE9el", "D. En attendant"], bonneReponse: 2, explication: "La validation des acquis passe par l'application en contexte r\xE9el." },
+    { id: 5, question: "Quelle attitude adopter face \xE0 une difficult\xE9 ?", choix: ["A. Abandonner imm\xE9diatement", "B. Chercher de l'aide et persister", "C. Ignorer le probl\xE8me", "D. Bl\xE2mer les outils"], bonneReponse: 1, explication: "La pers\xE9v\xE9rance et la recherche de soutien sont cl\xE9s dans tout apprentissage." }
+  ];
+}
+async function generateLesson(input, globalMaxAttempts = 2) {
+  const { pitch, domain, audience = "grand_public", difficulty = "intermediaire", sourceContext } = input;
+  const audienceLabel = AUDIENCE_LABELS[audience] || audience;
+  const difficultyLabel = DIFFICULTY_LABELS[difficulty] || DIFFICULTY_LABELS["intermediaire"];
+  const grandPublicBlock = audience === "grand_public" ? "MODE GRAND PUBLIC : vulgarisation extr\xEAme, m\xE9taphores du quotidien, z\xE9ro jargon sans explication." : "";
+  const topic = domain ? `${pitch} (domaine: ${domain})` : pitch;
+  const contextChunks = sourceContext ? splitContextIntoChunks(sourceContext, 7) : [];
+  for (let attempt = 1; attempt <= globalMaxAttempts; attempt++) {
+    console.log(`[LessonGen] Tentative globale ${attempt}/${globalMaxAttempts} \u2014 "${pitch.slice(0, 60)}"${sourceContext ? " [avec contexte source]" : ""}`);
+    let skeleton = { title: pitch.slice(0, 60), subtitle: "", description: "" };
+    try {
+      const skRaw = await openAIService.getChatCompletion(
+        [{ role: "user", content: skeletonPrompt(pitch, domain, audienceLabel, difficultyLabel, sourceContext ? sourceContext.slice(0, 800) : void 0) }],
+        0.5,
+        400
+      );
+      const skParsed = parseJson(skRaw);
+      if (skParsed?.title) skeleton = { title: skParsed.title, subtitle: skParsed.subtitle || "", description: skParsed.description || "" };
+    } catch (err) {
+      console.warn(`[LessonGen] Squelette \xE9chou\xE9: ${err?.message}`);
+    }
+    const [slidesResults, qcm] = await Promise.all([
+      Promise.all(
+        SLIDE_PLAN.map(
+          ({ id, type }, idx) => generateSlide(type, id, topic, audienceLabel, difficultyLabel, grandPublicBlock, contextChunks[idx])
+        )
+      ),
+      generateQcm(topic, audienceLabel, difficultyLabel, grandPublicBlock, sourceContext ? sourceContext.slice(0, 1500) : void 0)
+    ]);
+    const score = scoreLesson(slidesResults, qcm);
+    console.log(`[LessonGen] Score qualit\xE9: ${score}/100 (tentative ${attempt})`);
+    if (score >= 55 || attempt === globalMaxAttempts) {
+      return {
+        ...skeleton,
+        slides: slidesResults,
+        qcm,
+        _meta: { score, attempts: attempt, generatedAt: (/* @__PURE__ */ new Date()).toISOString() }
+      };
+    }
+    console.warn(`[LessonGen] Score insuffisant (${score} < 55) \u2014 relance globale`);
+  }
+  throw new Error("G\xE9n\xE9ration impossible apr\xE8s toutes les tentatives");
+}
+var SlideIntroSchema, SlideTheorieSchema, SlidePratiqueSchema, SlideFillBlankSchema, SlideVraiFauxSchema, SlideConclusionSchema, QcmQuestionSchema, QcmSchema, SLIDE_PLAN, AUDIENCE_LABELS, DIFFICULTY_LABELS;
+var init_lessonGenerator = __esm({
+  "server/services/lessonGenerator.ts"() {
+    "use strict";
+    init_gemini();
+    SlideIntroSchema = z2.object({
+      id: z2.number(),
+      type: z2.literal("intro"),
+      titre: z2.string().min(3),
+      contenu: z2.string().min(20),
+      objectifs: z2.array(z2.string().min(5)).min(2).max(5)
+    });
+    SlideTheorieSchema = z2.object({
+      id: z2.number(),
+      type: z2.literal("theorie"),
+      titre: z2.string().min(3),
+      contenu: z2.string().min(30),
+      pointsCles: z2.array(z2.string().min(5)).min(2).max(6),
+      exemple: z2.string().min(10)
+    });
+    SlidePratiqueSchema = z2.object({
+      id: z2.number(),
+      type: z2.literal("pratique"),
+      titre: z2.string().min(3),
+      contexte: z2.string().min(20),
+      question: z2.string().min(10),
+      indice: z2.string().min(5),
+      reponse: z2.string().min(10)
+    });
+    SlideFillBlankSchema = z2.object({
+      id: z2.number(),
+      type: z2.literal("fill-blank"),
+      titre: z2.string(),
+      instruction: z2.string(),
+      phrase: z2.string().min(10),
+      mots: z2.array(z2.string()).min(2).max(5),
+      explication: z2.string().min(10)
+    });
+    SlideVraiFauxSchema = z2.object({
+      id: z2.number(),
+      type: z2.literal("vrai-faux"),
+      titre: z2.string(),
+      affirmations: z2.array(z2.object({
+        texte: z2.string().min(10),
+        reponse: z2.boolean(),
+        explication: z2.string().min(10)
+      })).min(3).max(5)
+    });
+    SlideConclusionSchema = z2.object({
+      id: z2.number(),
+      type: z2.literal("conclusion"),
+      titre: z2.string(),
+      points: z2.array(z2.string().min(5)).min(3).max(6),
+      message: z2.string().min(10)
+    });
+    QcmQuestionSchema = z2.object({
+      id: z2.number(),
+      question: z2.string().min(10),
+      choix: z2.array(z2.string().min(2)).length(4),
+      bonneReponse: z2.number().min(0).max(3),
+      explication: z2.string().min(10)
+    });
+    QcmSchema = z2.array(QcmQuestionSchema).min(3).max(7);
+    SLIDE_PLAN = [
+      { id: 1, type: "intro" },
+      { id: 2, type: "theorie" },
+      { id: 3, type: "pratique" },
+      { id: 4, type: "fill-blank" },
+      { id: 5, type: "vrai-faux" },
+      { id: 6, type: "theorie" },
+      { id: 7, type: "conclusion" }
+    ];
+    AUDIENCE_LABELS = {
+      grand_public: "grand public sans expertise particuli\xE8re",
+      managers: "managers et responsables d'\xE9quipe",
+      experts: "experts techniques",
+      rh: "\xE9quipes RH et formation",
+      dirigeants: "dirigeants et membres du COMEX",
+      commercial: "\xE9quipes commerciales"
+    };
+    DIFFICULTY_LABELS = {
+      debutant: "D\xE9butant \u2014 notions fondamentales, vocabulaire de base, exemples simples",
+      intermediaire: "Interm\xE9diaire \u2014 concepts m\xE9tier, cas pratiques r\xE9alistes",
+      expert: "Expert \u2014 enjeux avanc\xE9s, cas complexes, subtilit\xE9s techniques"
+    };
+  }
+});
+
 // server/index.ts
 import express6 from "express";
 
 // server/routes.ts
+init_storage();
+init_db();
 import express4 from "express";
 import { createServer } from "http";
-
-// server/storage.ts
-init_schema();
-init_db();
-import { eq, desc } from "drizzle-orm";
-import session from "express-session";
-import MemoryStore from "memorystore";
-var DatabaseStorage = class {
-  sessionStore;
-  constructor() {
-    const MemoryStoreWithSession = MemoryStore(session);
-    this.sessionStore = new MemoryStoreWithSession({
-      checkPeriod: 864e5
-      // Nettoyage des sessions expirées une fois par jour
-    });
-  }
-  async getUser(id) {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
-  }
-  async getUserByUsername(username) {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user;
-  }
-  async createUser(insertUser) {
-    const { id, ...userData } = insertUser;
-    const [user] = await db.insert(users).values(userData).returning();
-    return user;
-  }
-  async upsertUser(userData) {
-    if (userData.id) {
-      const [existingUser] = await db.select().from(users).where(eq(users.id, userData.id));
-      if (existingUser) {
-        const [updatedUser] = await db.update(users).set({
-          ...userData,
-          updatedAt: /* @__PURE__ */ new Date()
-        }).where(eq(users.id, userData.id)).returning();
-        return updatedUser;
-      }
-    }
-    return this.createUser(userData);
-  }
-  async updateUserLastLogin(id) {
-    await db.update(users).set({
-      lastLogin: /* @__PURE__ */ new Date(),
-      updatedAt: /* @__PURE__ */ new Date()
-    }).where(eq(users.id, id));
-  }
-  async saveGeneratedTraining(t) {
-    const [record] = await db.insert(generatedTrainings).values(t).returning();
-    return record;
-  }
-  async getGeneratedTraining(id) {
-    const [record] = await db.select().from(generatedTrainings).where(eq(generatedTrainings.id, id));
-    return record;
-  }
-  async listGeneratedTrainings(limit = 20) {
-    return db.select().from(generatedTrainings).orderBy(desc(generatedTrainings.createdAt)).limit(limit);
-  }
-  async deleteGeneratedTraining(id) {
-    await db.delete(generatedTrainings).where(eq(generatedTrainings.id, id));
-  }
-};
-var storage = new DatabaseStorage();
-
-// server/routes.ts
-init_db();
-import path5 from "path";
+import path7 from "path";
 import { fileURLToPath as fileURLToPath3 } from "url";
-import { v4 as uuidv48 } from "uuid";
+import { v4 as uuidv49 } from "uuid";
 import session2 from "express-session";
 import connectPg from "connect-pg-simple";
 
 // server/authController.ts
+init_storage();
 import bcrypt from "bcryptjs";
 var AuthController = class {
   // Connexion utilisateur
@@ -2728,7 +3233,11 @@ var AuthController = class {
         id: user.id,
         username: user.username,
         role: user.role,
-        isActive: user.isActive
+        isActive: user.isActive,
+        modulesEnabled: user.modulesEnabled ?? ["cyber", "data", "amoa", "formation-data", "evaluation", "playground"],
+        tokenQuota: user.tokenQuota ?? 1e5,
+        tokenUsedMonth: user.tokenUsedMonth ?? 0,
+        subscriptionLabel: user.subscriptionLabel ?? "Gratuit"
       };
       res.json({
         success: true,
@@ -2739,7 +3248,10 @@ var AuthController = class {
           role: user.role,
           firstName: user.firstName,
           lastName: user.lastName,
-          email: user.email
+          email: user.email,
+          modulesEnabled: user.modulesEnabled ?? ["cyber", "data", "amoa", "formation-data", "evaluation", "playground"],
+          tokenQuota: user.tokenQuota ?? 1e5,
+          subscriptionLabel: user.subscriptionLabel ?? "Gratuit"
         }
       });
     } catch (error) {
@@ -2796,6 +3308,14 @@ var AuthController = class {
           message: "Session invalide"
         });
       }
+      req.session.user = {
+        ...req.session.user,
+        role: user.role,
+        modulesEnabled: user.modulesEnabled ?? ["cyber", "data", "amoa", "formation-data", "evaluation", "playground"],
+        tokenQuota: user.tokenQuota ?? 1e5,
+        tokenUsedMonth: user.tokenUsedMonth ?? 0,
+        subscriptionLabel: user.subscriptionLabel ?? "Gratuit"
+      };
       res.json({
         success: true,
         authenticated: true,
@@ -2805,7 +3325,11 @@ var AuthController = class {
           role: user.role,
           firstName: user.firstName,
           lastName: user.lastName,
-          email: user.email
+          email: user.email,
+          modulesEnabled: user.modulesEnabled ?? ["cyber", "data", "amoa", "formation-data", "evaluation", "playground"],
+          tokenQuota: user.tokenQuota ?? 1e5,
+          tokenUsedMonth: user.tokenUsedMonth ?? 0,
+          subscriptionLabel: user.subscriptionLabel ?? "Gratuit"
         }
       });
     } catch (error) {
@@ -2827,16 +3351,277 @@ var AuthController = class {
     }
     next();
   }
-  // Middleware pour vérifier le rôle admin
+  // Middleware pour vérifier le rôle admin (admin et superadmin autorisés)
   static requireAdmin(req, res, next) {
     const session3 = req.session;
-    if (!session3.user || session3.user.role !== "admin") {
+    const role = session3.user?.role;
+    if (!session3.user || role !== "admin" && role !== "superadmin") {
       return res.status(403).json({
         success: false,
         message: "Acc\xE8s administrateur requis"
       });
     }
     next();
+  }
+  // Factory: middleware qui vérifie que l'utilisateur a accès au module demandé
+  static requireModule(moduleId) {
+    return (req, res, next) => {
+      const session3 = req.session;
+      if (!session3.user) {
+        return res.status(401).json({ success: false, message: "Authentification requise" });
+      }
+      if (session3.user.role === "superadmin" || session3.user.role === "admin") {
+        return next();
+      }
+      const enabled = session3.user.modulesEnabled ?? ["cyber", "data", "amoa", "formation-data", "evaluation", "playground"];
+      if (!enabled.includes(moduleId)) {
+        return res.status(403).json({ success: false, message: `Acc\xE8s au module "${moduleId}" non autoris\xE9. V\xE9rifiez votre abonnement.` });
+      }
+      next();
+    };
+  }
+};
+
+// server/middleware/llmTrackingMiddleware.ts
+init_llmContext();
+function featureFromPath(path10) {
+  const p = path10.replace(/^\/api\//, "").split("/")[0];
+  const map = {
+    "cyber-expert": "Cyber Expert",
+    "cyber-investigator": "Cyber Investigator",
+    "cyber-learning": "Cyber Learning",
+    "cyber-glossary": "Cyber Glossaire",
+    "cyber-defense": "Cyber Defense",
+    "cyber-crisis": "Cyber Crisis",
+    "cyber-agent": "Cyber Agent",
+    "cyber-ascension": "Cyber Ascension",
+    "cyber-fiche": "Cyber Fiche",
+    "cyber-forge": "Cyber Forge",
+    "cyber-interview": "Cyber Interview",
+    "cyber-pulse": "Cyber Pulse",
+    "cyber-snake": "Cyber Snake",
+    "cyber-tools": "Cyber Tools",
+    "cyber-test": "Cyber Test Tech",
+    "interview-simulation": "Interview Simulation",
+    "amoa": "AMOA",
+    "amoa-expert": "AMOA Expert",
+    "amoa-reflex": "AMOA Reflex",
+    "amoa-scenario": "AMOA Scenario",
+    "amoa-question": "AMOA Questions",
+    "amoa-livrables": "AMOA Livrables",
+    "adaptive-quiz": "Adaptive Quiz",
+    "mcai-learning": "MCAI Learning",
+    "module-generator": "Module Generator",
+    "tool-generator": "Tool Generator",
+    "code-generator": "Code Generator",
+    "code-execution": "Code Execution",
+    "crisis-management": "Crisis Management",
+    "crisis-center": "Crisis Center",
+    "immersive-crisis": "Immersive Crisis",
+    "investigation": "Investigation",
+    "brain-hacker": "Brain Hacker",
+    "custom-assistants": "Custom Assistants",
+    "prospect-pulse": "Prospect Pulse",
+    "data-ia-academy": "Data IA Academy",
+    "ia-lab": "IA Lab",
+    "imposteur": "Imposteur",
+    "crypto-lock": "Crypto Lock",
+    "firewall": "Firewall Tactique",
+    "synthese-entretien": "Synth\xE8se Entretien",
+    "dynamic-challenge": "Dynamic Challenge",
+    "studio": "Studio \u2014 Micro-learning",
+    "openai": "Statut IA",
+    "admin": "Administration",
+    "auth": "Authentification"
+  };
+  return map[p] ?? (p ? p.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "Inconnu");
+}
+function llmTrackingMiddleware(req, res, next) {
+  const session3 = req.session;
+  const userId = session3?.user?.id;
+  const username = session3?.user?.username;
+  if (!userId || !username) {
+    return next();
+  }
+  const feature = featureFromPath(req.path);
+  llmContextStore.run({ userId, username, feature, session: req.session }, () => next());
+}
+
+// server/ssoController.ts
+init_db();
+init_schema();
+import { eq as eq2 } from "drizzle-orm";
+import bcrypt2 from "bcryptjs";
+import * as openidClient from "openid-client";
+var configCache = null;
+async function getSsoConfig() {
+  if (configCache && configCache.expiresAt > Date.now()) return configCache.data;
+  const [cfg] = await db.select().from(ssoConfig).limit(1);
+  configCache = { data: cfg ?? null, expiresAt: Date.now() + 5 * 6e4 };
+  return configCache.data;
+}
+function clearConfigCache() {
+  configCache = null;
+}
+var SsoAdminController = class {
+  static async getConfig(req, res) {
+    try {
+      const cfg = await getSsoConfig();
+      if (!cfg) return res.json({ success: true, config: null });
+      const { clientSecret: _, ...safe } = cfg;
+      res.json({ success: true, config: { ...safe, clientSecret: cfg.clientSecret ? "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" : "" } });
+    } catch (e) {
+      res.status(500).json({ success: false, message: "Erreur serveur" });
+    }
+  }
+  static async saveConfig(req, res) {
+    try {
+      const {
+        provider,
+        clientId,
+        clientSecret,
+        tenantId,
+        discoveryUrl,
+        callbackUrl,
+        isEnabled,
+        allowedDomains,
+        autoCreateUsers,
+        defaultRole
+      } = req.body;
+      if (!clientId || !callbackUrl) {
+        return res.status(400).json({ success: false, message: "clientId et callbackUrl requis" });
+      }
+      const existing = await db.select({ id: ssoConfig.id }).from(ssoConfig).limit(1);
+      const secret = clientSecret === "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" ? void 0 : clientSecret;
+      if (existing.length > 0) {
+        const update = {
+          provider: provider || "azure",
+          clientId,
+          tenantId: tenantId || null,
+          discoveryUrl: discoveryUrl || null,
+          callbackUrl,
+          isEnabled: !!isEnabled,
+          allowedDomains: Array.isArray(allowedDomains) ? allowedDomains : [],
+          autoCreateUsers: autoCreateUsers !== false,
+          defaultRole: defaultRole || "user",
+          updatedAt: /* @__PURE__ */ new Date()
+        };
+        if (secret) update.clientSecret = secret;
+        await db.update(ssoConfig).set(update).where(eq2(ssoConfig.id, existing[0].id));
+      } else {
+        await db.insert(ssoConfig).values({
+          provider: provider || "azure",
+          clientId,
+          clientSecret: secret || "",
+          tenantId: tenantId || null,
+          discoveryUrl: discoveryUrl || null,
+          callbackUrl,
+          isEnabled: !!isEnabled,
+          allowedDomains: Array.isArray(allowedDomains) ? allowedDomains : [],
+          autoCreateUsers: autoCreateUsers !== false,
+          defaultRole: defaultRole || "user"
+        });
+      }
+      clearConfigCache();
+      res.json({ success: true, message: "Configuration SSO enregistr\xE9e" });
+    } catch (e) {
+      console.error("Erreur saveConfig SSO:", e);
+      res.status(500).json({ success: false, message: "Erreur serveur" });
+    }
+  }
+  static async testConfig(req, res) {
+    try {
+      const cfg = await getSsoConfig();
+      if (!cfg) return res.status(400).json({ success: false, message: "Aucune configuration SSO" });
+      let discoveryUrl = cfg.discoveryUrl;
+      if (!discoveryUrl && cfg.provider === "azure" && cfg.tenantId) {
+        discoveryUrl = `https://login.microsoftonline.com/${cfg.tenantId}/v2.0/.well-known/openid-configuration`;
+      }
+      if (!discoveryUrl) return res.status(400).json({ success: false, message: "URL de d\xE9couverte manquante" });
+      const serverConfig = await openidClient.discovery(new URL(discoveryUrl), cfg.clientId, cfg.clientSecret);
+      res.json({ success: true, message: "Connexion au fournisseur OIDC r\xE9ussie", issuer: serverConfig.serverMetadata().issuer });
+    } catch (e) {
+      res.status(400).json({ success: false, message: `Erreur test SSO: ${e.message}` });
+    }
+  }
+};
+var pendingStates = /* @__PURE__ */ new Map();
+var SsoAuthController = class {
+  static async initiateLogin(req, res) {
+    try {
+      const cfg = await getSsoConfig();
+      if (!cfg?.isEnabled) return res.status(503).json({ success: false, message: "SSO non activ\xE9" });
+      let discoveryUrl = cfg.discoveryUrl;
+      if (!discoveryUrl && cfg.provider === "azure" && cfg.tenantId) {
+        discoveryUrl = `https://login.microsoftonline.com/${cfg.tenantId}/v2.0/.well-known/openid-configuration`;
+      }
+      const serverConfig = await openidClient.discovery(new URL(discoveryUrl), cfg.clientId, cfg.clientSecret);
+      const codeVerifier = openidClient.randomPKCECodeVerifier();
+      const codeChallenge = await openidClient.calculatePKCECodeChallenge(codeVerifier);
+      const state = openidClient.randomState();
+      pendingStates.set(state, { codeVerifier, expiresAt: Date.now() + 10 * 6e4 });
+      const authUrl = openidClient.buildAuthorizationUrl(serverConfig, {
+        redirect_uri: cfg.callbackUrl,
+        scope: "openid email profile",
+        code_challenge: codeChallenge,
+        code_challenge_method: "S256",
+        state
+      });
+      res.redirect(authUrl.href);
+    } catch (e) {
+      console.error("Erreur SSO initiate:", e);
+      res.redirect("/?error=sso_error");
+    }
+  }
+  static async handleCallback(req, res) {
+    try {
+      const cfg = await getSsoConfig();
+      if (!cfg?.isEnabled) return res.redirect("/?error=sso_disabled");
+      let discoveryUrl = cfg.discoveryUrl;
+      if (!discoveryUrl && cfg.provider === "azure" && cfg.tenantId) {
+        discoveryUrl = `https://login.microsoftonline.com/${cfg.tenantId}/v2.0/.well-known/openid-configuration`;
+      }
+      const state = req.query.state;
+      const pending = pendingStates.get(state);
+      if (!pending || pending.expiresAt < Date.now()) return res.redirect("/?error=sso_state_invalid");
+      pendingStates.delete(state);
+      const serverConfig = await openidClient.discovery(new URL(discoveryUrl), cfg.clientId, cfg.clientSecret);
+      const tokens = await openidClient.authorizationCodeGrant(serverConfig, new URL(req.url, `${req.protocol}://${req.hostname}`), {
+        pkceCodeVerifier: pending.codeVerifier,
+        expectedState: state
+      });
+      const claims = tokens.claims();
+      const email = claims?.email || claims?.preferred_username || "";
+      const name = claims?.name || "";
+      if (!email) return res.redirect("/?error=sso_no_email");
+      if (cfg.allowedDomains.length > 0) {
+        const domain = email.split("@")[1];
+        if (!cfg.allowedDomains.includes(domain)) return res.redirect("/?error=sso_domain_not_allowed");
+      }
+      let user = (await db.select().from(users).where(eq2(users.email, email)).limit(1))[0];
+      if (!user) {
+        if (!cfg.autoCreateUsers) return res.redirect("/?error=sso_user_not_found");
+        const parts = name.split(" ");
+        const randomPwd = await bcrypt2.hash(Math.random().toString(36), 10);
+        user = (await db.insert(users).values({
+          username: email.split("@")[0].replace(/[^a-zA-Z0-9]/g, "_"),
+          email,
+          firstName: parts[0] || null,
+          lastName: parts.slice(1).join(" ") || null,
+          password: randomPwd,
+          role: cfg.defaultRole,
+          isActive: true
+        }).returning())[0];
+      }
+      if (!user.isActive) return res.redirect("/?error=sso_account_disabled");
+      req.session.user = { id: user.id, username: user.username, role: user.role, email: user.email };
+      await new Promise((resolve, reject) => req.session.save((err) => err ? reject(err) : resolve()));
+      await db.update(users).set({ lastLogin: /* @__PURE__ */ new Date() }).where(eq2(users.id, user.id));
+      res.redirect("/");
+    } catch (e) {
+      console.error("Erreur SSO callback:", e);
+      res.redirect("/?error=sso_callback_error");
+    }
   }
 };
 
@@ -4906,6 +5691,2245 @@ router7.post("/execute", async (req, res) => {
   });
 });
 var codeExecutionRoutes_default = router7;
+
+// server/routes/formationRoutes.ts
+import { Router as Router5 } from "express";
+
+// server/services/bedrock.ts
+init_llmTracker();
+init_llmContext();
+import { BedrockRuntimeClient as BedrockRuntimeClient2, InvokeModelCommand as InvokeModelCommand2 } from "@aws-sdk/client-bedrock-runtime";
+var BedrockService = class {
+  primaryConfig;
+  secondaryConfig;
+  primaryClient;
+  secondaryClient;
+  currentConfig = "secondary";
+  responseCache = /* @__PURE__ */ new Map();
+  CACHE_TTL = 1e3 * 60 * 60;
+  connectionStatus = "disconnected";
+  lastConnectionCheck = 0;
+  CONNECTION_CHECK_INTERVAL = 1e3 * 60 * 5;
+  constructor() {
+    console.log("Initializing Amazon Bedrock Service with configuration from secrets");
+    const awsRegion = process.env.AWS_REGION || "eu-west-3";
+    const primaryModelId = process.env.BEDROCK_PRIMARY_MODEL_ID || "eu.anthropic.claude-sonnet-4-5-20250929-v1:0";
+    const secondaryModelId = process.env.BEDROCK_SECONDARY_MODEL_ID || "eu.anthropic.claude-haiku-4-5-20251001-v1:0";
+    console.log(`AWS Region: ${awsRegion}`);
+    console.log(`Primary Model ID: ${primaryModelId}`);
+    console.log(`Secondary Model ID: ${secondaryModelId}`);
+    this.primaryConfig = {
+      region: awsRegion,
+      accessKeyId: "",
+      secretAccessKey: "",
+      modelId: primaryModelId,
+      modelName: this.getModelDisplayName(primaryModelId)
+    };
+    this.secondaryConfig = {
+      region: awsRegion,
+      accessKeyId: "",
+      secretAccessKey: "",
+      modelId: secondaryModelId,
+      modelName: this.getModelDisplayName(secondaryModelId)
+    };
+    const clientConfig = { region: awsRegion };
+    this.primaryClient = new BedrockRuntimeClient2(clientConfig);
+    this.secondaryClient = new BedrockRuntimeClient2(clientConfig);
+    console.log(`Amazon Bedrock Service initialized with primary model: ${this.primaryConfig.modelName}`);
+    console.log(`Amazon Bedrock Service initialized with secondary model: ${this.secondaryConfig.modelName}`);
+    this.checkConnection();
+    this.startPeriodicConnectionCheck();
+  }
+  getModelDisplayName(modelId) {
+    if (modelId.includes("claude-sonnet-4-5")) return "Claude Sonnet 4.5";
+    if (modelId.includes("claude-haiku-4-5")) return "Claude Haiku 4.5";
+    if (modelId.includes("claude-3-5-sonnet")) return "Claude 3.5 Sonnet";
+    if (modelId.includes("claude-3-sonnet")) return "Claude 3 Sonnet";
+    if (modelId.includes("claude-3-haiku")) return "Claude 3 Haiku";
+    if (modelId.includes("claude-3-opus")) return "Claude 3 Opus";
+    if (modelId.includes("llama3")) return "Llama 3";
+    if (modelId.includes("titan")) return "Amazon Titan";
+    if (modelId.includes("mistral")) return "Mistral";
+    return modelId;
+  }
+  startPeriodicConnectionCheck() {
+    setInterval(() => {
+      console.log("Performing periodic connection check to Amazon Bedrock...");
+      this.checkConnection();
+    }, this.CONNECTION_CHECK_INTERVAL);
+  }
+  switchApiKey(type) {
+    this.currentConfig = type;
+    this.responseCache.clear();
+    this.lastConnectionCheck = 0;
+    console.log(`Switched to ${type} model (${this.getCurrentConfig().modelName})`);
+  }
+  getCurrentConfig() {
+    return this.currentConfig === "primary" ? this.primaryConfig : this.secondaryConfig;
+  }
+  getCurrentClient() {
+    return this.currentConfig === "primary" ? this.primaryClient : this.secondaryClient;
+  }
+  formatMessagesForClaude(messages) {
+    let systemPrompt = "";
+    const formattedMessages = [];
+    for (const msg of messages) {
+      if (msg.role === "system") {
+        systemPrompt += (systemPrompt ? "\n" : "") + msg.content;
+      } else {
+        formattedMessages.push({
+          role: msg.role === "assistant" ? "assistant" : "user",
+          content: msg.content
+        });
+      }
+    }
+    if (formattedMessages.length === 0) {
+      formattedMessages.push({ role: "user", content: "Hello" });
+    }
+    if (formattedMessages[0].role === "assistant") {
+      formattedMessages.unshift({ role: "user", content: "Continue the conversation." });
+    }
+    return { system: systemPrompt, messages: formattedMessages };
+  }
+  formatMessagesForLlama(messages) {
+    let prompt = "";
+    for (const msg of messages) {
+      if (msg.role === "system") {
+        prompt += `<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+${msg.content}<|eot_id|>`;
+      } else if (msg.role === "user") {
+        prompt += `<|start_header_id|>user<|end_header_id|>
+${msg.content}<|eot_id|>`;
+      } else if (msg.role === "assistant") {
+        prompt += `<|start_header_id|>assistant<|end_header_id|>
+${msg.content}<|eot_id|>`;
+      }
+    }
+    prompt += `<|start_header_id|>assistant<|end_header_id|>
+`;
+    return prompt;
+  }
+  formatMessagesForTitan(messages) {
+    let prompt = "";
+    for (const msg of messages) {
+      if (msg.role === "system") {
+        prompt += `System: ${msg.content}
+
+`;
+      } else if (msg.role === "user") {
+        prompt += `User: ${msg.content}
+
+`;
+      } else if (msg.role === "assistant") {
+        prompt += `Bot: ${msg.content}
+
+`;
+      }
+    }
+    prompt += "Bot: ";
+    return prompt;
+  }
+  async getChatCompletionWithModel(messages, temperature = 0.7, maxTokens = 2e3, usePrimaryModel = false, options = {}) {
+    const config = usePrimaryModel ? this.primaryConfig : this.secondaryConfig;
+    const client = usePrimaryModel ? this.primaryClient : this.secondaryClient;
+    return this.invokeModel(client, config, messages, temperature, maxTokens, options);
+  }
+  // Méthode avec tracking explicite — à utiliser dans les controllers
+  async getChatCompletionTracked(messages, trackingCtx, options = {}) {
+    const { temperature = 0.7, maxTokens = 2e3, usePrimaryModel = false, responseFormat } = options;
+    const config = usePrimaryModel ? this.primaryConfig : this.secondaryConfig;
+    const client = usePrimaryModel ? this.primaryClient : this.secondaryClient;
+    return this.invokeModel(client, config, messages, temperature, maxTokens, { responseFormat, trackingCtx });
+  }
+  async getChatCompletion(messages, temperatureOrUseSecondary, maxTokensOrTemperature, maxTokensOrOptions, options) {
+    let useSecondaryKey = false;
+    let temperature = 0.7;
+    let actualMaxTokens = 2e3;
+    let responseFormat;
+    if (typeof temperatureOrUseSecondary === "boolean") {
+      useSecondaryKey = temperatureOrUseSecondary;
+      temperature = typeof maxTokensOrTemperature === "number" ? maxTokensOrTemperature : 0.7;
+      actualMaxTokens = typeof maxTokensOrOptions === "number" ? maxTokensOrOptions : 2e3;
+      responseFormat = options?.responseFormat;
+    } else {
+      temperature = typeof temperatureOrUseSecondary === "number" ? temperatureOrUseSecondary : 0.7;
+      actualMaxTokens = typeof maxTokensOrTemperature === "number" ? maxTokensOrTemperature : 2e3;
+      if (typeof maxTokensOrOptions === "object") {
+        responseFormat = maxTokensOrOptions?.responseFormat;
+      }
+    }
+    if (useSecondaryKey) {
+      this.currentConfig = "secondary";
+    }
+    const config = this.getCurrentConfig();
+    const client = this.getCurrentClient();
+    return this.invokeModel(client, config, messages, temperature, actualMaxTokens, { responseFormat });
+  }
+  async invokeModel(client, config, messages, temperature, maxTokens, options = {}) {
+    try {
+      console.log(`Making Bedrock API request with model: ${config.modelId}`);
+      console.log(`Request parameters: temperature=${temperature}, max_tokens=${maxTokens}`);
+      console.log(`Nombre de messages: ${messages.length}, Premier role: ${messages[0]?.role}`);
+      let requestBody;
+      if (config.modelId.includes("anthropic.claude")) {
+        const { system, messages: formattedMessages } = this.formatMessagesForClaude(messages);
+        requestBody = {
+          anthropic_version: "bedrock-2023-05-31",
+          max_tokens: maxTokens,
+          temperature,
+          messages: formattedMessages,
+          ...system && { system }
+        };
+      } else if (config.modelId.includes("meta.llama")) {
+        const prompt = this.formatMessagesForLlama(messages);
+        requestBody = {
+          prompt,
+          max_gen_len: maxTokens,
+          temperature
+        };
+      } else if (config.modelId.includes("amazon.titan")) {
+        const prompt = this.formatMessagesForTitan(messages);
+        requestBody = {
+          inputText: prompt,
+          textGenerationConfig: {
+            maxTokenCount: maxTokens,
+            temperature
+          }
+        };
+      } else if (config.modelId.includes("mistral")) {
+        const prompt = messages.map((m) => m.content).join("\n");
+        requestBody = {
+          prompt: `<s>[INST] ${prompt} [/INST]`,
+          max_tokens: maxTokens,
+          temperature
+        };
+      } else {
+        const { system, messages: formattedMessages } = this.formatMessagesForClaude(messages);
+        requestBody = {
+          anthropic_version: "bedrock-2023-05-31",
+          max_tokens: maxTokens,
+          temperature,
+          messages: formattedMessages,
+          ...system && { system }
+        };
+      }
+      const command = new InvokeModelCommand2({
+        modelId: config.modelId,
+        contentType: "application/json",
+        accept: "application/json",
+        body: JSON.stringify(requestBody)
+      });
+      const response = await client.send(command);
+      const responseBody = JSON.parse(new TextDecoder().decode(response.body));
+      let content;
+      if (config.modelId.includes("anthropic.claude")) {
+        content = responseBody.content?.[0]?.text || "";
+      } else if (config.modelId.includes("meta.llama")) {
+        content = responseBody.generation || "";
+      } else if (config.modelId.includes("amazon.titan")) {
+        content = responseBody.results?.[0]?.outputText || "";
+      } else if (config.modelId.includes("mistral")) {
+        content = responseBody.outputs?.[0]?.text || "";
+      } else {
+        content = responseBody.content?.[0]?.text || responseBody.generation || "";
+      }
+      if (content) {
+        this.connectionStatus = "connected";
+        this.lastConnectionCheck = Date.now();
+        const trackCtx = options.trackingCtx ?? getLlmContext();
+        console.log("[llm-track] ctx:", trackCtx ? `${trackCtx.username}/${trackCtx.feature}` : "none");
+        console.log("[llm-track] responseBody keys:", Object.keys(responseBody));
+        if (trackCtx) {
+          const usage = responseBody.usage ?? responseBody["amazon-bedrock-invocationMetrics"] ?? {};
+          const promptTokens = usage.input_tokens ?? usage.inputTokenCount ?? usage.prompt_tokens ?? 0;
+          const completionTokens = usage.output_tokens ?? usage.outputTokenCount ?? usage.completion_tokens ?? 0;
+          const total = promptTokens + completionTokens;
+          console.log("[llm-track] tokens:", { promptTokens, completionTokens, total, usage });
+          trackLlmUsage({
+            userId: trackCtx.userId,
+            username: trackCtx.username,
+            model: config.modelName,
+            feature: trackCtx.feature,
+            promptTokens,
+            completionTokens,
+            totalTokens: total > 0 ? total : 1
+            // au minimum 1 pour signaler l'appel
+          });
+        }
+        return content;
+      } else {
+        throw new Error("Invalid response format from Amazon Bedrock API");
+      }
+    } catch (error) {
+      console.error("Error calling Amazon Bedrock API:", error);
+      this.connectionStatus = "disconnected";
+      throw error;
+    }
+  }
+  async checkConnection() {
+    try {
+      const now = Date.now();
+      if (now - this.lastConnectionCheck < this.CONNECTION_CHECK_INTERVAL) {
+        return this.connectionStatus === "connected";
+      }
+      this.lastConnectionCheck = now;
+      const config = this.getCurrentConfig();
+      const client = this.getCurrentClient();
+      const testMessages = [
+        { role: "user", content: "Hello" }
+      ];
+      await this.invokeModel(client, config, testMessages, 0, 10, {});
+      console.log(`Connection to Amazon Bedrock successful with model: ${config.modelName}`);
+      this.connectionStatus = "connected";
+      return true;
+    } catch (error) {
+      console.error("Error checking connection to Amazon Bedrock:", error);
+      this.connectionStatus = "disconnected";
+      return false;
+    }
+  }
+  getConnectionStatus() {
+    return this.connectionStatus;
+  }
+  getLastConnectionCheck() {
+    return this.lastConnectionCheck;
+  }
+  getCurrentApiKeyType() {
+    return this.currentConfig;
+  }
+  getCurrentModelName() {
+    return this.getCurrentConfig().modelName;
+  }
+  async forceReconnect() {
+    console.log("Force reconnection requested");
+    this.connectionStatus = "reconnecting";
+    this.lastConnectionCheck = 0;
+    return await this.checkConnection();
+  }
+  getCacheKey(messages, temperature, maxTokens) {
+    return JSON.stringify({ messages, temperature, maxTokens, model: this.getCurrentConfig().modelId });
+  }
+  async getChatCompletionWithCache(messagesOrOptions, temperature = 0.7, maxTokens = 2e3, useSecondaryKey = false) {
+    let messages;
+    let actualTemperature = temperature;
+    let actualMaxTokens = maxTokens;
+    let actualUseSecondaryKey = useSecondaryKey;
+    let responseFormat;
+    if (!Array.isArray(messagesOrOptions)) {
+      messages = messagesOrOptions.messages;
+      actualTemperature = messagesOrOptions.temperature ?? 0.7;
+      actualMaxTokens = messagesOrOptions.maxTokens ?? 2e3;
+      actualUseSecondaryKey = messagesOrOptions.useSecondaryKey ?? false;
+      responseFormat = messagesOrOptions.responseFormat;
+    } else {
+      messages = messagesOrOptions;
+    }
+    const cacheKey = this.getCacheKey(messages, actualTemperature, actualMaxTokens);
+    const cachedResponse = this.responseCache.get(cacheKey);
+    if (cachedResponse && Date.now() - cachedResponse.timestamp < this.CACHE_TTL) {
+      console.log("Using cached response");
+      return cachedResponse.content;
+    }
+    const content = await this.getChatCompletion(
+      messages,
+      actualUseSecondaryKey,
+      actualTemperature,
+      actualMaxTokens,
+      { responseFormat }
+    );
+    this.responseCache.set(cacheKey, {
+      content,
+      timestamp: Date.now()
+    });
+    return content;
+  }
+  async getChatCompletionSecondary(options) {
+    const messages = options.messages.map((m) => ({
+      role: m.role,
+      content: m.content
+    }));
+    const content = await this.invokeModel(
+      this.secondaryClient,
+      this.secondaryConfig,
+      messages,
+      options.temperature ?? 0.7,
+      options.max_tokens ?? 2e3,
+      {}
+    );
+    return {
+      choices: [{
+        message: {
+          content
+        }
+      }]
+    };
+  }
+};
+var bedrockService = new BedrockService();
+
+// server/routes/formationRoutes.ts
+import { exec as exec2 } from "child_process";
+import { promisify } from "util";
+import * as fs2 from "fs";
+import * as path2 from "path";
+import * as os2 from "os";
+import { v4 as uuidv42 } from "uuid";
+var execAsync = promisify(exec2);
+var router8 = Router5();
+var sessions2 = {};
+function makeSessionId() {
+  return uuidv42();
+}
+function levelFromScore(score, total) {
+  const pct = score / total;
+  if (pct >= 0.875) return { level: "expert", levelLabel: "Expert" };
+  if (pct >= 0.625) return { level: "avance", levelLabel: "Avanc\xE9" };
+  if (pct >= 0.375) return { level: "intermediaire", levelLabel: "Interm\xE9diaire" };
+  return { level: "debutant", levelLabel: "D\xE9butant" };
+}
+async function askClaude(systemPrompt, userPrompt) {
+  return bedrockService.getChatCompletion(
+    [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt }
+    ],
+    0.7,
+    1500
+  );
+}
+router8.post("/sql/start", async (req, res) => {
+  try {
+    const { firstName } = req.body;
+    if (!firstName) return res.status(400).json({ success: false, message: "Pr\xE9nom requis." });
+    const sessionId = makeSessionId();
+    sessions2[sessionId] = { firstName, type: "sql", level: "intermediaire", scenariosCompleted: 0, createdAt: Date.now() };
+    const questionsRaw = await askClaude(
+      "Tu es un expert SQL p\xE9dagogue. Tu g\xE9n\xE8res des QCMs rigoureux sur SQL (SELECT, WHERE, JOIN, GROUP BY, agr\xE9gats). R\xE9ponds UNIQUEMENT en JSON valide.",
+      `G\xE9n\xE8re 8 questions QCM sur SQL pour \xE9valuer le niveau de ${firstName}. Chaque question doit avoir 4 options. Format JSON strict :
+{"questions": [{"id": "q1", "question": "...", "options": ["A", "B", "C", "D"]}]}`
+    );
+    let questions;
+    try {
+      const match = questionsRaw.match(/\{[\s\S]*\}/);
+      questions = JSON.parse(match[0]).questions;
+    } catch {
+      questions = SQL_FALLBACK_QUESTIONS;
+    }
+    res.json({
+      success: true,
+      sessionId,
+      welcomeMessage: `Bienvenue ${firstName} ! Commen\xE7ons par \xE9valuer ton niveau SQL avec 8 questions.`,
+      questions
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router8.post("/sql/quiz/submit", async (req, res) => {
+  try {
+    const { sessionId, answers } = req.body;
+    const session3 = sessions2[sessionId];
+    if (!session3) return res.status(404).json({ success: false, message: "Session introuvable." });
+    const correctAnswers = {
+      q1: 1,
+      q2: 0,
+      q3: 2,
+      q4: 1,
+      q5: 2,
+      q6: 3,
+      q7: 0,
+      q8: 1
+    };
+    let score = 0;
+    const corrections = [];
+    const answerMap = answers || {};
+    SQL_FALLBACK_QUESTIONS.forEach((q) => {
+      const userIndex = answerMap[q.id] ?? -1;
+      const correctIndex = correctAnswers[q.id] ?? 0;
+      const isCorrect = userIndex === correctIndex;
+      if (isCorrect) score++;
+      corrections.push({
+        id: q.id,
+        question: q.question,
+        options: q.options,
+        userIndex,
+        correctIndex,
+        isCorrect,
+        explanation: SQL_EXPLANATIONS[q.id] || "Voir la documentation SQL."
+      });
+    });
+    const total = SQL_FALLBACK_QUESTIONS.length;
+    const { level, levelLabel } = levelFromScore(score, total);
+    session3.level = level;
+    const scenario = await generateSqlScenario(level, session3.firstName);
+    res.json({ success: true, score, total, level, levelLabel, corrections, scenario });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router8.post("/sql/sandbox", async (req, res) => {
+  try {
+    const { query } = req.body;
+    if (!query) return res.status(400).json({ success: false, message: "Requ\xEAte SQL vide." });
+    const pythonCode = `
+import sqlite3, json, sys
+
+conn = sqlite3.connect(':memory:')
+c = conn.cursor()
+
+# Seed tables
+c.executescript("""
+CREATE TABLE users (id INTEGER, username TEXT, email TEXT, role TEXT, is_active INTEGER);
+CREATE TABLE sessions (id INTEGER, user_id INTEGER, started_at TEXT, device TEXT, country TEXT, status TEXT);
+CREATE TABLE orders (id INTEGER, user_id INTEGER, amount REAL, status TEXT, created_at TEXT);
+CREATE TABLE products (id INTEGER, product_name TEXT, category TEXT, stock_quantity INTEGER, unit_price REAL, is_active INTEGER);
+CREATE TABLE failed_logins (id INTEGER, user_id INTEGER, ip TEXT, attempted_at TEXT);
+
+INSERT INTO users VALUES (1,'alice','alice@co.fr','admin',1),(2,'bob','bob@co.fr','user',1),(3,'charlie','charlie@co.fr','user',0),(4,'diane','diane@co.fr','user',1),(5,'eric','eric@co.fr','admin',1);
+INSERT INTO sessions VALUES (1,1,'2024-01-10','mobile','FR','active'),(2,2,'2024-01-11','desktop','US','closed'),(3,3,'2024-01-12','mobile','DE','active'),(4,1,'2024-01-13','desktop','FR','closed'),(5,4,'2024-01-14','mobile','FR','active');
+INSERT INTO orders VALUES (1,1,150.0,'paid','2024-01-05'),(2,2,85.5,'pending','2024-01-06'),(3,1,320.0,'paid','2024-01-07'),(4,3,45.0,'cancelled','2024-01-08'),(5,4,210.0,'paid','2024-01-09');
+INSERT INTO products VALUES (1,'Laptop','electronique',10,999.0,1),(2,'T-shirt','vetements',50,25.0,1),(3,'Casque','electronique',5,149.0,1),(4,'Jean','vetements',30,60.0,0),(5,'Souris','electronique',20,35.0,1);
+INSERT INTO failed_logins VALUES (1,3,'192.168.1.1','2024-01-10 08:00'),(2,3,'192.168.1.1','2024-01-10 08:01'),(3,2,'10.0.0.5','2024-01-11 14:00'),(4,3,'192.168.1.1','2024-01-10 08:02');
+""")
+
+try:
+    c.execute(${JSON.stringify(query)})
+    rows = c.fetchall()
+    cols = [d[0] for d in c.description] if c.description else []
+    result = {"success": True, "columns": cols, "rows": [dict(zip(cols, r)) for r in rows], "rowCount": len(rows), "durationMs": 12}
+except Exception as e:
+    result = {"success": False, "message": str(e)}
+
+print(json.dumps(result))
+conn.close()
+`;
+    const tmpFile = path2.join(os2.tmpdir(), `sql_${Date.now()}.py`);
+    fs2.writeFileSync(tmpFile, pythonCode);
+    try {
+      const { stdout } = await execAsync(`python3 "${tmpFile}"`, { timeout: 8e3 });
+      const parsed = JSON.parse(stdout.trim());
+      res.json(parsed);
+    } catch (e) {
+      res.json({ success: false, message: e.message || "Erreur d'ex\xE9cution." });
+    } finally {
+      fs2.unlinkSync(tmpFile);
+    }
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router8.post("/sql/assistant", async (req, res) => {
+  try {
+    const { sessionId, userQuestion, currentQuery, lastExecution } = req.body;
+    const session3 = sessions2[sessionId];
+    const firstName = session3?.firstName || "apprenant";
+    const reply = await askClaude(
+      `Tu es un coach SQL expert et bienveillant. Tu aides ${firstName} \xE0 progresser. Niveau : ${session3?.level || "interm\xE9diaire"}. R\xC8GLES ABSOLUES : ne jamais donner une requ\xEAte SQL compl\xE8te en r\xE9ponse directe. Guide par des indices, questions, explications. Sois encourageant. R\xE9ponds en fran\xE7ais en 2-4 phrases max.`,
+      `Question : ${userQuestion}
+Requ\xEAte actuelle : ${currentQuery || "aucune"}
+Dernier r\xE9sultat : ${JSON.stringify(lastExecution) || "aucun"}`
+    );
+    res.json({ success: true, assistantMessage: reply });
+  } catch (e) {
+    res.status(500).json({ success: false, assistantMessage: "Coach indisponible momentan\xE9ment." });
+  }
+});
+router8.post("/sql/next-scenario", async (req, res) => {
+  try {
+    const { sessionId, scenariosCompleted } = req.body;
+    const session3 = sessions2[sessionId];
+    if (!session3) return res.status(404).json({ success: false, message: "Session introuvable." });
+    session3.scenariosCompleted = scenariosCompleted + 1;
+    const scenario = await generateSqlScenario(session3.level, session3.firstName, scenariosCompleted + 1);
+    const { level, levelLabel } = levelFromScore(Math.min(scenariosCompleted + 1, 3), 4);
+    res.json({ success: true, scenario, level: session3.level, levelLabel });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router8.post("/sql/summary", async (req, res) => {
+  try {
+    const { sessionId, scenariosCompleted, scenarioTitles } = req.body;
+    const session3 = sessions2[sessionId];
+    const firstName = session3?.firstName || "apprenant";
+    const summary = await askClaude(
+      "Tu g\xE9n\xE8res un bilan de fin de formation SQL personnalis\xE9, encourageant et concret. 3-4 phrases max.",
+      `G\xE9n\xE8re un bilan pour ${firstName} qui a compl\xE9t\xE9 ${scenariosCompleted} sc\xE9nario(s) SQL : ${(scenarioTitles || []).join(", ")}. Niveau atteint : ${session3?.level || "interm\xE9diaire"}.`
+    );
+    res.json({ success: true, summary });
+  } catch (e) {
+    res.status(500).json({ success: true, summary: `Bravo ! Tu as compl\xE9t\xE9 ${req.body.scenariosCompleted || 0} sc\xE9nario(s) SQL.` });
+  }
+});
+router8.post("/python/start", async (req, res) => {
+  try {
+    const { firstName } = req.body;
+    if (!firstName) return res.status(400).json({ success: false, message: "Pr\xE9nom requis." });
+    const sessionId = makeSessionId();
+    sessions2[sessionId] = { firstName, type: "python", level: "intermediaire", scenariosCompleted: 0, createdAt: Date.now() };
+    const questionsRaw = await askClaude(
+      "Tu es un expert Python/pandas p\xE9dagogue. Tu g\xE9n\xE8res des QCMs sur pandas (filtrage, groupby, merge, apply). R\xE9ponds UNIQUEMENT en JSON valide.",
+      `G\xE9n\xE8re 8 questions QCM sur Python/pandas pour ${firstName}. Format JSON strict :
+{"questions": [{"id": "q1", "question": "...", "options": ["A", "B", "C", "D"]}]}`
+    );
+    let questions;
+    try {
+      const match = questionsRaw.match(/\{[\s\S]*\}/);
+      questions = JSON.parse(match[0]).questions;
+    } catch {
+      questions = PYTHON_FALLBACK_QUESTIONS;
+    }
+    res.json({
+      success: true,
+      sessionId,
+      welcomeMessage: `Bienvenue ${firstName} ! \xC9valuons ton niveau Python/pandas avec 8 questions.`,
+      questions
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router8.post("/python/quiz/submit", async (req, res) => {
+  try {
+    const { sessionId, answers } = req.body;
+    const session3 = sessions2[sessionId];
+    if (!session3) return res.status(404).json({ success: false, message: "Session introuvable." });
+    const correctAnswers = {
+      q1: 0,
+      q2: 1,
+      q3: 2,
+      q4: 0,
+      q5: 3,
+      q6: 1,
+      q7: 2,
+      q8: 0
+    };
+    let score = 0;
+    const corrections = [];
+    const answerMap = answers || {};
+    PYTHON_FALLBACK_QUESTIONS.forEach((q) => {
+      const userIndex = answerMap[q.id] ?? -1;
+      const correctIndex = correctAnswers[q.id] ?? 0;
+      const isCorrect = userIndex === correctIndex;
+      if (isCorrect) score++;
+      corrections.push({ id: q.id, question: q.question, options: q.options, userIndex, correctIndex, isCorrect, explanation: PYTHON_EXPLANATIONS[q.id] || "" });
+    });
+    const total = PYTHON_FALLBACK_QUESTIONS.length;
+    const { level, levelLabel } = levelFromScore(score, total);
+    session3.level = level;
+    const scenario = await generatePythonScenario(level, session3.firstName);
+    res.json({ success: true, score, total, level, levelLabel, corrections, scenario });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router8.post("/python/sandbox", async (req, res) => {
+  try {
+    const { code } = req.body;
+    if (!code) return res.status(400).json({ success: false, message: "Code vide." });
+    const tmpFile = path2.join(os2.tmpdir(), `py_${Date.now()}.py`);
+    fs2.writeFileSync(tmpFile, code);
+    const start = Date.now();
+    try {
+      const { stdout, stderr } = await execAsync(`python3 "${tmpFile}"`, { timeout: 1e4 });
+      res.json({ success: true, stdout: stdout.trim(), stderr: stderr.trim(), durationMs: Date.now() - start });
+    } catch (e) {
+      res.json({ success: false, stdout: "", stderr: e.stderr || e.message, durationMs: Date.now() - start });
+    } finally {
+      fs2.unlinkSync(tmpFile);
+    }
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router8.post("/python/assistant", async (req, res) => {
+  try {
+    const { sessionId, userQuestion, currentCode, lastOutput } = req.body;
+    const session3 = sessions2[sessionId];
+    const firstName = session3?.firstName || "apprenant";
+    const reply = await askClaude(
+      `Tu es un coach Python/pandas expert et bienveillant. Tu aides ${firstName}. R\xC8GLES : ne jamais donner le code complet. Guide par des indices. R\xE9ponds en fran\xE7ais en 2-4 phrases max.`,
+      `Question : ${userQuestion}
+Code actuel : ${currentCode || "aucun"}
+Dernier output : ${lastOutput || "aucun"}`
+    );
+    res.json({ success: true, assistantMessage: reply });
+  } catch (e) {
+    res.status(500).json({ success: false, assistantMessage: "Coach indisponible." });
+  }
+});
+router8.post("/python/next-scenario", async (req, res) => {
+  try {
+    const { sessionId, scenariosCompleted } = req.body;
+    const session3 = sessions2[sessionId];
+    if (!session3) return res.status(404).json({ success: false, message: "Session introuvable." });
+    session3.scenariosCompleted = scenariosCompleted + 1;
+    const scenario = await generatePythonScenario(session3.level, session3.firstName, scenariosCompleted + 1);
+    res.json({ success: true, scenario, level: session3.level, levelLabel: session3.level });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router8.post("/python/summary", async (req, res) => {
+  try {
+    const { sessionId, scenariosCompleted } = req.body;
+    const session3 = sessions2[sessionId];
+    const firstName = session3?.firstName || "apprenant";
+    const summary = await askClaude(
+      "Tu g\xE9n\xE8res un bilan de fin de formation Python/pandas. 3-4 phrases encourageantes et concr\xE8tes.",
+      `Bilan pour ${firstName}, ${scenariosCompleted} sc\xE9nario(s) compl\xE9t\xE9(s). Niveau : ${session3?.level || "interm\xE9diaire"}.`
+    );
+    res.json({ success: true, summary });
+  } catch (e) {
+    res.status(500).json({ success: true, summary: `Bravo ! Tu as compl\xE9t\xE9 ${req.body.scenariosCompleted || 0} sc\xE9nario(s) Python.` });
+  }
+});
+router8.post("/excel/scenarios", async (req, res) => {
+  try {
+    const { sessionId, firstName } = req.body;
+    if (firstName && !sessions2[sessionId]) {
+      sessions2[sessionId] = { firstName, type: "excel", level: "intermediaire", scenariosCompleted: 0, createdAt: Date.now() };
+    }
+    const session3 = sessions2[sessionId];
+    const name = session3?.firstName || firstName || "apprenant";
+    const raw = await askClaude(
+      "Tu g\xE9n\xE8res des exercices Excel pratiques avec des donn\xE9es r\xE9alistes. R\xE9ponds UNIQUEMENT en JSON valide.",
+      `G\xE9n\xE8re 4 exercices Excel progressifs pour ${name} sur : SUM, IF, COUNTIF, SUMIF, VLOOKUP. Chaque exercice a un titre, une instruction, un indice, et la formule solution. Format JSON :
+{"exercises": [{"id": 1, "title": "...", "instruction": "...", "hint": "...", "solution": "=...", "explanation": "..."}]}`
+    );
+    let exercises;
+    try {
+      const match = raw.match(/\{[\s\S]*\}/);
+      exercises = JSON.parse(match[0]).exercises;
+    } catch {
+      exercises = EXCEL_FALLBACK_EXERCISES;
+    }
+    res.json({ success: true, exercises });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router8.post("/excel/assistant", async (req, res) => {
+  try {
+    const { sessionId, userQuestion, currentFormula, exerciseContext } = req.body;
+    const session3 = sessions2[sessionId];
+    const firstName = session3?.firstName || "apprenant";
+    const reply = await askClaude(
+      `Tu es un coach Excel expert. Tu aides ${firstName}. R\xC8GLES : ne jamais donner la formule compl\xE8te directement. Guide par indices. R\xE9ponds en fran\xE7ais en 2-3 phrases max.`,
+      `Question : ${userQuestion}
+Formule actuelle : ${currentFormula || "aucune"}
+Contexte : ${exerciseContext || ""}`
+    );
+    res.json({ success: true, assistantMessage: reply });
+  } catch (e) {
+    res.status(500).json({ success: false, assistantMessage: "Coach indisponible." });
+  }
+});
+router8.post("/excel/summary", async (req, res) => {
+  try {
+    const { sessionId, exercisesCompleted } = req.body;
+    const session3 = sessions2[sessionId];
+    const firstName = session3?.firstName || "apprenant";
+    const summary = await askClaude(
+      "Tu g\xE9n\xE8res un bilan de fin de formation Excel. 3-4 phrases encourageantes.",
+      `Bilan pour ${firstName}, ${exercisesCompleted} exercice(s) Excel compl\xE9t\xE9(s).`
+    );
+    res.json({ success: true, summary });
+  } catch (e) {
+    res.status(500).json({ success: true, summary: `Bravo ! Tu as compl\xE9t\xE9 ${req.body.exercisesCompleted || 0} exercice(s) Excel.` });
+  }
+});
+async function generateSqlScenario(level, firstName, index2 = 0) {
+  try {
+    const raw = await askClaude(
+      "Tu g\xE9n\xE8res des sc\xE9narios SQL r\xE9alistes bas\xE9s sur des tables users, sessions, orders, products, failed_logins. R\xE9ponds UNIQUEMENT en JSON valide.",
+      `G\xE9n\xE8re un sc\xE9nario SQL de niveau ${level} (sc\xE9nario n\xB0${index2 + 1}) pour ${firstName}. Format JSON :
+{"title": "...", "context": "...", "goal": "...", "hint": "...", "successCriteria": ["crit\xE8re1", "crit\xE8re2"]}`
+    );
+    const match = raw.match(/\{[\s\S]*\}/);
+    return JSON.parse(match[0]);
+  } catch {
+    return SQL_FALLBACK_SCENARIOS[index2 % SQL_FALLBACK_SCENARIOS.length];
+  }
+}
+async function generatePythonScenario(level, firstName, index2 = 0) {
+  try {
+    const raw = await askClaude(
+      "Tu g\xE9n\xE8res des sc\xE9narios Python/pandas r\xE9alistes. R\xE9ponds UNIQUEMENT en JSON valide.",
+      `G\xE9n\xE8re un sc\xE9nario pandas de niveau ${level} (n\xB0${index2 + 1}) pour ${firstName}. Format JSON :
+{"title": "...", "context": "...", "goal": "...", "starterCode": "import pandas as pd\\n\\n# ...", "hint": "...", "successCriteria": ["crit\xE8re1"]}`
+    );
+    const match = raw.match(/\{[\s\S]*\}/);
+    return JSON.parse(match[0]);
+  } catch {
+    return PYTHON_FALLBACK_SCENARIOS[index2 % PYTHON_FALLBACK_SCENARIOS.length];
+  }
+}
+var SQL_FALLBACK_QUESTIONS = [
+  { id: "q1", question: "Quelle clause SQL filtre les lignes ?", options: ["GROUP BY", "WHERE", "HAVING", "ORDER BY"] },
+  { id: "q2", question: "INNER JOIN retourne :", options: ["Toutes les lignes de la table gauche", "Uniquement les lignes avec correspondance dans les deux tables", "Toutes les lignes des deux tables", "Aucune ligne"] },
+  { id: "q3", question: "Quelle fonction compte les lignes ?", options: ["SUM()", "TOTAL()", "COUNT()", "NUMBER()"] },
+  { id: "q4", question: "SELECT * FROM users WHERE age > 30 retourne :", options: ["Tous les utilisateurs", "Les utilisateurs de plus de 30 ans", "Les 30 premiers utilisateurs", "Erreur SQL"] },
+  { id: "q5", question: "HAVING filtre :", options: ["Les lignes avant agr\xE9gation", "Les colonnes", "Les groupes apr\xE8s agr\xE9gation", "Les tables"] },
+  { id: "q6", question: "ORDER BY salaire DESC trie :", options: ["Par ordre alphab\xE9tique", "Du plus petit au plus grand", "Par d\xE9faut", "Du plus grand au plus petit"] },
+  { id: "q7", question: "LEFT JOIN inclut :", options: ["Toutes les lignes de la table gauche", "Uniquement les correspondances", "Toutes les lignes de la table droite", "Aucune ligne"] },
+  { id: "q8", question: "AVG() calcule :", options: ["La somme", "La moyenne", "Le maximum", "Le minimum"] }
+];
+var SQL_EXPLANATIONS = {
+  q1: "WHERE filtre les lignes avant agr\xE9gation. HAVING filtre apr\xE8s GROUP BY.",
+  q2: "INNER JOIN = intersection : seulement les lignes pr\xE9sentes dans les deux tables.",
+  q3: "COUNT(*) compte toutes les lignes, COUNT(col) exclut les NULL.",
+  q4: "WHERE age > 30 filtre et retourne uniquement les lignes o\xF9 age est sup\xE9rieur \xE0 30.",
+  q5: "HAVING s'applique apr\xE8s GROUP BY pour filtrer des groupes agr\xE9g\xE9s.",
+  q6: "DESC = d\xE9croissant (du plus grand au plus petit). ASC = croissant (d\xE9faut).",
+  q7: "LEFT JOIN garde toutes les lignes de la table gauche, NULL si pas de correspondance \xE0 droite.",
+  q8: "AVG() calcule la moyenne arithm\xE9tique d'une colonne num\xE9rique."
+};
+var SQL_FALLBACK_SCENARIOS = [
+  { title: "Utilisateurs inactifs", context: "L'\xE9quipe s\xE9curit\xE9 veut identifier les comptes inactifs.", goal: "Lister les usernames des utilisateurs dont is_active = 0.", hint: "Utilisez WHERE is_active = 0", successCriteria: ["SELECT avec FROM users", "WHERE is_active = 0"] },
+  { title: "Commandes pay\xE9es", context: "La finance veut le total des commandes pay\xE9es.", goal: 'Calculer la somme des montants des commandes avec status = "paid".', hint: 'Utilisez SUM(amount) avec WHERE status = "paid"', successCriteria: ["SUM(amount)", "WHERE status"] },
+  { title: "Connexions par pays", context: "L'\xE9quipe analytics veut voir les connexions par pays.", goal: "Compter les sessions group\xE9es par pays, tri\xE9es par nombre d\xE9croissant.", hint: "GROUP BY country, COUNT(*), ORDER BY DESC", successCriteria: ["GROUP BY country", "COUNT(*)"] }
+];
+var PYTHON_FALLBACK_QUESTIONS = [
+  { id: "q1", question: "Comment importer pandas ?", options: ["import pandas as pd", "from pandas import *", "import pd", "load pandas"] },
+  { id: "q2", question: 'df[df["age"] > 30] retourne :', options: ["Erreur", "Les lignes o\xF9 age > 30", "Une colonne", "La somme des ages"] },
+  { id: "q3", question: 'df.groupby("dept")["salaire"].mean() calcule :', options: ["La somme par dept", "Le max par dept", "La moyenne de salaire par dept", "Le min par dept"] },
+  { id: "q4", question: 'pd.merge(df1, df2, on="id") est \xE9quivalent \xE0 :', options: ["INNER JOIN SQL", "LEFT JOIN SQL", "UNION SQL", "CROSS JOIN SQL"] },
+  { id: "q5", question: 'df["col"].apply(lambda x: x*2) :', options: ["Filtre les valeurs", "Trie la colonne", "Compte les valeurs", "Applique une fonction \xE0 chaque valeur"] },
+  { id: "q6", question: "df.dropna() :", options: ["Remplace les NaN par 0", "Supprime les lignes avec NaN", "Cr\xE9e une copie", "Trie les donn\xE9es"] },
+  { id: "q7", question: 'df.sort_values("col", ascending=False) :', options: ["Filtre les valeurs", "Trie par ordre croissant", "Trie du plus grand au plus petit", "Groupe les donn\xE9es"] },
+  { id: "q8", question: 'df["col"].value_counts() :', options: ["Compte les occurrences de chaque valeur", "Somme les valeurs", "Calcule la moyenne", "Retourne les valeurs uniques"] }
+];
+var PYTHON_EXPLANATIONS = {
+  q1: `La convention universelle est "import pandas as pd". L'alias pd est standard.`,
+  q2: "df[condition] filtre le DataFrame et retourne les lignes o\xF9 la condition est vraie.",
+  q3: "groupby().mean() calcule la moyenne de la colonne pour chaque groupe.",
+  q4: "pd.merge avec on= correspond \xE0 un INNER JOIN SQL sur la cl\xE9 sp\xE9cifi\xE9e.",
+  q5: "apply(lambda) applique une fonction \xE0 chaque \xE9l\xE9ment de la Series.",
+  q6: "dropna() supprime toutes les lignes contenant au moins une valeur NaN.",
+  q7: "ascending=False trie du plus grand au plus petit (ordre d\xE9croissant).",
+  q8: "value_counts() retourne le nombre d'occurrences de chaque valeur unique."
+};
+var PYTHON_FALLBACK_SCENARIOS = [
+  { title: "Analyse des ventes", context: "Tu es data analyst dans une entreprise e-commerce.", goal: "Filtrer les commandes sup\xE9rieures \xE0 100\u20AC et calculer la moyenne.", starterCode: 'import pandas as pd\n\ndata = {"id": [1,2,3,4,5], "montant": [50, 150, 200, 80, 300], "status": ["paid","paid","pending","paid","paid"]}\ndf = pd.DataFrame(data)\n\n# Filtre les commandes > 100\u20AC\n', hint: 'Utilisez df[df["montant"] > 100]', successCriteria: ["Filtrage > 100", "mean() ou average"] },
+  { title: "Groupby d\xE9partement", context: "RH veut le salaire moyen par d\xE9partement.", goal: "Calculer le salaire moyen par d\xE9partement avec groupby.", starterCode: 'import pandas as pd\n\ndata = {"dept": ["IT","RH","IT","Finance","RH"], "salaire": [65000, 42000, 72000, 58000, 38000]}\ndf = pd.DataFrame(data)\n\n# Salaire moyen par d\xE9partement\n', hint: 'df.groupby("dept")["salaire"].mean()', successCriteria: ['groupby("dept")', "mean()"] }
+];
+var EXCEL_FALLBACK_EXERCISES = [
+  { id: 1, title: "Total des ventes", instruction: "Calculez la somme de la colonne C (C2:C11)", hint: "Utilisez la fonction SUM", solution: "=SUM(C2:C11)", explanation: "SUM additionne toutes les valeurs de la plage sp\xE9cifi\xE9e." },
+  { id: 2, title: "Ventes IT uniquement", instruction: "Additionnez les ventes (col C) uniquement pour le d\xE9partement IT (col A)", hint: 'SUMIF avec la plage A2:A11, crit\xE8re "IT", somme C2:C11', solution: '=SUMIF(A2:A11,"IT",C2:C11)', explanation: "SUMIF additionne selon une condition dans une autre colonne." },
+  { id: 3, title: "Compte Marketing", instruction: "Comptez combien d'employ\xE9s sont dans le d\xE9partement Marketing", hint: 'COUNTIF sur la colonne A avec crit\xE8re "Marketing"', solution: '=COUNTIF(A2:A11,"Marketing")', explanation: "COUNTIF compte les cellules correspondant au crit\xE8re." },
+  { id: 4, title: "Cat\xE9goriser les ventes", instruction: 'Affichez "Top" si la vente en C2 d\xE9passe 70000, sinon "Standard"', hint: 'IF(C2>70000,"Top","Standard")', solution: '=IF(C2>70000,"Top","Standard")', explanation: "IF \xE9value une condition et retourne l'une ou l'autre valeur." }
+];
+var formationRoutes_default = router8;
+
+// server/routes/clientAuthRoutes.ts
+init_db();
+import { Router as Router6 } from "express";
+import bcrypt3 from "bcryptjs";
+var router9 = Router6();
+router9.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: "Email et mot de passe requis" });
+    }
+    const result = await pool.query(
+      `SELECT cu.*, cc.name as company_name, cc.slug as company_slug
+       FROM client_users cu
+       JOIN client_companies cc ON cc.id = cu.company_id
+       WHERE cu.email = $1 AND cu.is_active = true AND cc.is_active = true`,
+      [email.toLowerCase().trim()]
+    );
+    if (result.rows.length === 0) {
+      return res.status(401).json({ success: false, message: "Identifiants invalides" });
+    }
+    const user = result.rows[0];
+    const valid = await bcrypt3.compare(password, user.password);
+    if (!valid) {
+      return res.status(401).json({ success: false, message: "Identifiants invalides" });
+    }
+    await pool.query("UPDATE client_users SET last_login = NOW() WHERE id = $1", [user.id]);
+    req.session.clientUser = {
+      id: user.id,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      role: user.role,
+      companyId: user.company_id,
+      companyName: user.company_name,
+      companySlug: user.company_slug
+    };
+    await new Promise(
+      (resolve, reject) => req.session.save((err) => err ? reject(err) : resolve())
+    );
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        role: user.role,
+        companyName: user.company_name
+      }
+    });
+  } catch (err) {
+    console.error("[client-auth] login error:", err);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+router9.post("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) console.error("[client-auth] logout error:", err);
+    res.clearCookie("connect.sid");
+    res.json({ success: true });
+  });
+});
+router9.get("/check", async (req, res) => {
+  const clientUser = req.session.clientUser;
+  if (!clientUser) {
+    return res.status(401).json({ success: false, authenticated: false });
+  }
+  try {
+    const result = await pool.query(
+      `SELECT cu.id, cu.first_name, cu.last_name, cu.email, cu.role, cu.is_active,
+              cu.score, cu.exercices_realises, cu.taux_reussite, cu.niveau, cu.badges,
+              cu.modules_enabled AS modules_enabled_user,
+              cc.name as company_name, cc.slug as company_slug, cc.modules_enabled AS modules_enabled_company
+       FROM client_users cu
+       JOIN client_companies cc ON cc.id = cu.company_id
+       WHERE cu.id = $1`,
+      [clientUser.id]
+    );
+    if (result.rows.length === 0 || !result.rows[0].is_active) {
+      req.session.destroy(() => {
+      });
+      return res.status(401).json({ success: false, authenticated: false });
+    }
+    const u = result.rows[0];
+    const rankResult = await pool.query(
+      "SELECT COUNT(*) as cnt FROM client_users WHERE score > $1",
+      [u.score ?? 0]
+    );
+    const classement = parseInt(rankResult.rows[0].cnt) + 1;
+    const companyModules = u.modules_enabled_company ?? [];
+    const userModules = u.modules_enabled_user ?? companyModules;
+    const effectiveModules = userModules.filter((m) => companyModules.includes(m));
+    const freshUser = {
+      id: u.id,
+      email: u.email,
+      firstName: u.first_name,
+      lastName: u.last_name,
+      role: u.role,
+      companyId: clientUser.companyId,
+      companyName: u.company_name,
+      companySlug: u.company_slug,
+      score: u.score ?? 0,
+      exercicesRealises: u.exercices_realises ?? 0,
+      tauxReussite: u.taux_reussite ?? 0,
+      niveau: u.niveau ?? "Novice",
+      badges: u.badges ?? 0,
+      classement,
+      modulesEnabled: effectiveModules
+    };
+    res.json({ success: true, authenticated: true, user: freshUser });
+  } catch (err) {
+    console.error("[client-auth] check error:", err);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+function requireClientAuth(req, res, next) {
+  if (!req.session.clientUser) {
+    return res.status(401).json({ success: false, message: "Authentification client requise" });
+  }
+  next();
+}
+var clientAuthRoutes_default = router9;
+var clientKpiRouter = Router6();
+clientKpiRouter.patch("/me", requireClientAuth, async (req, res) => {
+  const clientUser = req.session.clientUser;
+  req.params.id = String(clientUser.id);
+  return kpiPatchHandler(req, res);
+});
+async function kpiPatchHandler(req, res) {
+  const ALLOWED = ["exercices_realises", "score", "taux_reussite", "niveau", "badges"];
+  const updates = {};
+  for (const key of ALLOWED) {
+    if (key in req.body) updates[key] = req.body[key];
+  }
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({ success: false, message: "Aucune mise \xE0 jour" });
+  }
+  try {
+    const userId = parseInt(req.params.id);
+    const setClauses = Object.keys(updates).map((k, i) => `${k} = $${i + 2}`).join(", ");
+    const values = [userId, ...Object.values(updates)];
+    await pool.query(`UPDATE client_users SET ${setClauses} WHERE id = $1`, values);
+    const rank = await pool.query(
+      "SELECT COUNT(*) as cnt FROM client_users WHERE score > $1",
+      [updates.score ?? 0]
+    );
+    const classement = parseInt(rank.rows[0].cnt) + 1;
+    res.json({ success: true, classement });
+  } catch (err) {
+    console.error("[client-kpi] patch error:", err);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+}
+clientKpiRouter.patch("/:id", requireClientAuth, async (req, res) => {
+  const clientUser = req.session.clientUser;
+  if (clientUser.id !== parseInt(req.params.id)) {
+    return res.status(403).json({ success: false, message: "Interdit" });
+  }
+  return kpiPatchHandler(req, res);
+});
+
+// server/routes/clientManagementRoutes.ts
+init_db();
+import { Router as Router7 } from "express";
+import bcrypt4 from "bcryptjs";
+var router10 = Router7();
+function requireSuperAdmin(req, res, next) {
+  const user = req.session.user;
+  if (!user || user.role !== "superadmin") {
+    return res.status(403).json({ success: false, message: "Acc\xE8s r\xE9serv\xE9 au super administrateur" });
+  }
+  next();
+}
+router10.use(requireSuperAdmin);
+router10.get("/client-companies", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT cc.*,
+        COUNT(cu.id) FILTER (WHERE cu.is_active) AS active_users,
+        COUNT(cu.id) AS total_users
+      FROM client_companies cc
+      LEFT JOIN client_users cu ON cu.company_id = cc.id
+      GROUP BY cc.id
+      ORDER BY cc.created_at DESC
+    `);
+    res.json({ success: true, companies: result.rows });
+  } catch (err) {
+    console.error("[mgmt] list companies error:", err);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+router10.post("/client-companies", async (req, res) => {
+  const { name } = req.body;
+  if (!name?.trim()) {
+    return res.status(400).json({ success: false, message: "Nom requis" });
+  }
+  const slug = name.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const createdBy = req.session.user?.id ?? null;
+  try {
+    const result = await pool.query(
+      `INSERT INTO client_companies (name, slug, is_active, created_by)
+       VALUES ($1, $2, true, $3) RETURNING *`,
+      [name.trim(), slug, createdBy]
+    );
+    res.json({ success: true, company: result.rows[0] });
+  } catch (err) {
+    if (err.code === "23505") {
+      return res.status(409).json({ success: false, message: "Ce nom (ou slug) existe d\xE9j\xE0" });
+    }
+    console.error("[mgmt] create company error:", err);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+router10.patch("/client-companies/:id/toggle", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `UPDATE client_companies SET is_active = NOT is_active, updated_at = NOW()
+       WHERE id = $1 RETURNING is_active`,
+      [req.params.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ success: false });
+    res.json({ success: true, isActive: result.rows[0].is_active });
+  } catch (err) {
+    console.error("[mgmt] toggle company error:", err);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+router10.delete("/client-companies/:id", async (req, res) => {
+  try {
+    await pool.query("DELETE FROM client_users WHERE company_id = $1", [req.params.id]);
+    await pool.query("DELETE FROM client_companies WHERE id = $1", [req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("[mgmt] delete company error:", err);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+router10.get("/client-users", async (req, res) => {
+  const { companyId } = req.query;
+  if (!companyId) return res.status(400).json({ success: false, message: "companyId requis" });
+  try {
+    const result = await pool.query(
+      `SELECT id, company_id, email, first_name, last_name, role, is_active,
+              score, exercices_realises, taux_reussite, niveau, badges, last_login, created_at,
+              token_quota, token_used_month, modules_enabled
+       FROM client_users WHERE company_id = $1 ORDER BY created_at DESC`,
+      [companyId]
+    );
+    res.json({ success: true, users: result.rows });
+  } catch (err) {
+    console.error("[mgmt] list users error:", err);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+router10.post("/client-users", async (req, res) => {
+  const { companyId, email, password, firstName, lastName, role } = req.body;
+  if (!companyId || !email || !password) {
+    return res.status(400).json({ success: false, message: "companyId, email et mot de passe requis" });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ success: false, message: "Mot de passe trop court (min 6 caract\xE8res)" });
+  }
+  const createdBy = req.session.user?.id ?? null;
+  try {
+    const hash = await bcrypt4.hash(password, 10);
+    const result = await pool.query(
+      `INSERT INTO client_users (company_id, email, password, first_name, last_name, role, is_active, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, true, $7) RETURNING id, company_id, email, first_name, last_name, role, is_active, created_at`,
+      [companyId, email.toLowerCase().trim(), hash, firstName?.trim() || null, lastName?.trim() || null, role || "user", createdBy]
+    );
+    res.json({ success: true, user: result.rows[0] });
+  } catch (err) {
+    if (err.code === "23505") {
+      return res.status(409).json({ success: false, message: "Cet email existe d\xE9j\xE0" });
+    }
+    console.error("[mgmt] create user error:", err);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+router10.patch("/client-users/:id/toggle", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `UPDATE client_users SET is_active = NOT is_active, updated_at = NOW()
+       WHERE id = $1 RETURNING is_active`,
+      [req.params.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ success: false });
+    res.json({ success: true, isActive: result.rows[0].is_active });
+  } catch (err) {
+    console.error("[mgmt] toggle user error:", err);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+router10.post("/client-users/:id/reset-password", async (req, res) => {
+  const { newPassword } = req.body;
+  if (!newPassword || newPassword.length < 6) {
+    return res.status(400).json({ success: false, message: "Mot de passe trop court" });
+  }
+  try {
+    const hash = await bcrypt4.hash(newPassword, 10);
+    const result = await pool.query(
+      "UPDATE client_users SET password = $1, updated_at = NOW() WHERE id = $2 RETURNING id",
+      [hash, req.params.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ success: false });
+    res.json({ success: true });
+  } catch (err) {
+    console.error("[mgmt] reset password error:", err);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+router10.delete("/client-users/:id", async (req, res) => {
+  try {
+    await pool.query("DELETE FROM client_users WHERE id = $1", [req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("[mgmt] delete user error:", err);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+router10.patch("/client-companies/:id/config", async (req, res) => {
+  const { modules_enabled, token_quota } = req.body;
+  try {
+    const result = await pool.query(
+      `UPDATE client_companies SET modules_enabled = $1, token_quota = $2, updated_at = NOW()
+       WHERE id = $3 RETURNING *`,
+      [modules_enabled, token_quota, req.params.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ success: false });
+    res.json({ success: true, company: result.rows[0] });
+  } catch (err) {
+    console.error("[mgmt] config company error:", err);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+var clientManagementRoutes_default = router10;
+
+// server/routes/clientAdminRoutes.ts
+init_db();
+import { Router as Router8 } from "express";
+var router11 = Router8();
+function requireClientAdmin(req, res, next) {
+  const cu = req.session.clientUser;
+  if (!cu || cu.role !== "admin") {
+    return res.status(403).json({ success: false, message: "R\xE9serv\xE9 \xE0 l'admin client" });
+  }
+  next();
+}
+router11.get("/users", requireClientAuth, requireClientAdmin, async (req, res) => {
+  const cu = req.session.clientUser;
+  try {
+    const result = await pool.query(
+      `SELECT id, email, first_name, last_name, role, is_active,
+              score, niveau, token_quota, token_used_month, last_login, modules_enabled
+       FROM client_users WHERE company_id = $1 ORDER BY created_at DESC`,
+      [cu.companyId]
+    );
+    const comp = await pool.query(
+      "SELECT token_quota, token_used_month, modules_enabled FROM client_companies WHERE id = $1",
+      [cu.companyId]
+    );
+    res.json({ success: true, users: result.rows, company: comp.rows[0] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+router11.patch("/users/:id/quota", requireClientAuth, requireClientAdmin, async (req, res) => {
+  const cu = req.session.clientUser;
+  const { token_quota } = req.body;
+  try {
+    const check = await pool.query("SELECT company_id FROM client_users WHERE id = $1", [req.params.id]);
+    if (check.rows.length === 0 || check.rows[0].company_id !== cu.companyId) {
+      return res.status(403).json({ success: false, message: "Interdit" });
+    }
+    await pool.query("UPDATE client_users SET token_quota = $1 WHERE id = $2", [token_quota, req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+router11.patch("/users/:id/modules", requireClientAuth, requireClientAdmin, async (req, res) => {
+  const cu = req.session.clientUser;
+  const { modules_enabled } = req.body;
+  try {
+    const check = await pool.query("SELECT company_id FROM client_users WHERE id = $1", [req.params.id]);
+    if (check.rows.length === 0 || check.rows[0].company_id !== cu.companyId) {
+      return res.status(403).json({ success: false, message: "Interdit" });
+    }
+    const comp = await pool.query("SELECT modules_enabled FROM client_companies WHERE id = $1", [cu.companyId]);
+    const allowed = comp.rows[0]?.modules_enabled ?? [];
+    const filtered = modules_enabled === null ? null : modules_enabled.filter((m) => allowed.includes(m));
+    await pool.query("UPDATE client_users SET modules_enabled = $1 WHERE id = $2", [filtered, req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+router11.patch("/users/:id/toggle", requireClientAuth, requireClientAdmin, async (req, res) => {
+  const cu = req.session.clientUser;
+  try {
+    const check = await pool.query("SELECT company_id FROM client_users WHERE id = $1", [req.params.id]);
+    if (check.rows.length === 0 || check.rows[0].company_id !== cu.companyId) {
+      return res.status(403).json({ success: false, message: "Interdit" });
+    }
+    const result = await pool.query(
+      "UPDATE client_users SET is_active = NOT is_active WHERE id = $1 RETURNING is_active",
+      [req.params.id]
+    );
+    res.json({ success: true, isActive: result.rows[0].is_active });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+var clientAdminRoutes_default = router11;
+
+// server/routes/trainingRoutes.ts
+init_db();
+import { Router as Router9 } from "express";
+var router12 = Router9();
+function requireClientAdmin2(req, res, next) {
+  const cu = req.session.clientUser;
+  if (!cu || cu.role !== "admin") {
+    return res.status(403).json({ success: false, message: "R\xE9serv\xE9 \xE0 l'admin client" });
+  }
+  next();
+}
+router12.get("/paths", requireClientAuth, async (req, res) => {
+  const cu = req.session.clientUser;
+  try {
+    const paths = await pool.query(
+      `SELECT tp.*,
+        COUNT(tm.id) AS module_count,
+        (
+          SELECT COUNT(*) FROM training_assignments ta
+          WHERE ta.path_id = tp.id AND ta.user_id = $2
+        ) AS is_assigned
+       FROM training_paths tp
+       LEFT JOIN training_modules tm ON tm.path_id = tp.id
+       WHERE tp.company_id = $1
+       GROUP BY tp.id
+       ORDER BY tp.created_at DESC`,
+      [cu.companyId, cu.id]
+    );
+    res.json({ success: true, paths: paths.rows });
+  } catch (err) {
+    console.error("[training] list paths:", err);
+    res.status(500).json({ success: false });
+  }
+});
+router12.get("/paths/:id", requireClientAuth, async (req, res) => {
+  const cu = req.session.clientUser;
+  try {
+    const pathResult = await pool.query(
+      "SELECT * FROM training_paths WHERE id = $1 AND company_id = $2",
+      [req.params.id, cu.companyId]
+    );
+    if (pathResult.rows.length === 0) return res.status(404).json({ success: false });
+    const modules = await pool.query(
+      "SELECT * FROM training_modules WHERE path_id = $1 ORDER BY position ASC",
+      [req.params.id]
+    );
+    const progress = await pool.query(
+      "SELECT * FROM training_progress WHERE path_id = $1 AND user_id = $2",
+      [req.params.id, cu.id]
+    );
+    const cert = await pool.query(
+      "SELECT * FROM training_certifications WHERE path_id = $1 AND user_id = $2",
+      [req.params.id, cu.id]
+    );
+    res.json({
+      success: true,
+      path: pathResult.rows[0],
+      modules: modules.rows,
+      progress: progress.rows,
+      certification: cert.rows[0] ?? null
+    });
+  } catch (err) {
+    console.error("[training] get path:", err);
+    res.status(500).json({ success: false });
+  }
+});
+router12.post("/paths", requireClientAuth, requireClientAdmin2, async (req, res) => {
+  const cu = req.session.clientUser;
+  const { title, description, cover_color, cover_emoji, is_mandatory, certification_min_score, estimated_minutes, tags } = req.body;
+  if (!title?.trim()) return res.status(400).json({ success: false, message: "Titre requis" });
+  try {
+    const result = await pool.query(
+      `INSERT INTO training_paths
+        (company_id, created_by, title, description, cover_color, cover_emoji, is_mandatory, certification_min_score, estimated_minutes, tags, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'draft')
+       RETURNING *`,
+      [cu.companyId, cu.id, title.trim(), description || null, cover_color || "#246f9f", cover_emoji || "\u{1F393}", is_mandatory ?? false, certification_min_score ?? 70, estimated_minutes ?? 30, tags ?? []]
+    );
+    res.json({ success: true, path: result.rows[0] });
+  } catch (err) {
+    console.error("[training] create path:", err);
+    res.status(500).json({ success: false });
+  }
+});
+router12.patch("/paths/:id", requireClientAuth, requireClientAdmin2, async (req, res) => {
+  const cu = req.session.clientUser;
+  const allowed = ["title", "description", "cover_color", "cover_emoji", "is_mandatory", "certification_min_score", "estimated_minutes", "tags", "status"];
+  const updates = {};
+  for (const k of allowed) {
+    if (k in req.body) updates[k] = req.body[k];
+  }
+  if (Object.keys(updates).length === 0) return res.status(400).json({ success: false });
+  try {
+    const check = await pool.query("SELECT id FROM training_paths WHERE id = $1 AND company_id = $2", [req.params.id, cu.companyId]);
+    if (check.rows.length === 0) return res.status(404).json({ success: false });
+    const setClauses = Object.keys(updates).map((k, i) => `${k} = $${i + 2}`).join(", ");
+    const values = [req.params.id, ...Object.values(updates)];
+    const result = await pool.query(
+      `UPDATE training_paths SET ${setClauses}, updated_at = NOW() WHERE id = $1 RETURNING *`,
+      values
+    );
+    res.json({ success: true, path: result.rows[0] });
+  } catch (err) {
+    console.error("[training] update path:", err);
+    res.status(500).json({ success: false });
+  }
+});
+router12.delete("/paths/:id", requireClientAuth, requireClientAdmin2, async (req, res) => {
+  const cu = req.session.clientUser;
+  try {
+    const check = await pool.query("SELECT id FROM training_paths WHERE id = $1 AND company_id = $2", [req.params.id, cu.companyId]);
+    if (check.rows.length === 0) return res.status(404).json({ success: false });
+    await pool.query("DELETE FROM training_paths WHERE id = $1", [req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("[training] delete path:", err);
+    res.status(500).json({ success: false });
+  }
+});
+router12.post("/paths/:pathId/modules", requireClientAuth, requireClientAdmin2, async (req, res) => {
+  const cu = req.session.clientUser;
+  const { type, title, content, is_certification } = req.body;
+  if (!type || !title) return res.status(400).json({ success: false, message: "type et title requis" });
+  try {
+    const check = await pool.query("SELECT id FROM training_paths WHERE id = $1 AND company_id = $2", [req.params.pathId, cu.companyId]);
+    if (check.rows.length === 0) return res.status(404).json({ success: false });
+    const pos = await pool.query("SELECT COALESCE(MAX(position), -1) + 1 AS pos FROM training_modules WHERE path_id = $1", [req.params.pathId]);
+    const result = await pool.query(
+      `INSERT INTO training_modules (path_id, position, type, title, content, is_certification)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [req.params.pathId, pos.rows[0].pos, type, title, content ?? {}, is_certification ?? false]
+    );
+    res.json({ success: true, module: result.rows[0] });
+  } catch (err) {
+    console.error("[training] create module:", err);
+    res.status(500).json({ success: false });
+  }
+});
+router12.patch("/modules/:id", requireClientAuth, requireClientAdmin2, async (req, res) => {
+  const cu = req.session.clientUser;
+  const allowed = ["title", "content", "position", "type", "is_certification"];
+  const updates = {};
+  for (const k of allowed) {
+    if (k in req.body) updates[k] = req.body[k];
+  }
+  if (Object.keys(updates).length === 0) return res.status(400).json({ success: false });
+  try {
+    const check = await pool.query(
+      `SELECT tm.id FROM training_modules tm
+       JOIN training_paths tp ON tp.id = tm.path_id
+       WHERE tm.id = $1 AND tp.company_id = $2`,
+      [req.params.id, cu.companyId]
+    );
+    if (check.rows.length === 0) return res.status(404).json({ success: false });
+    const setClauses = Object.keys(updates).map((k, i) => `${k} = $${i + 2}`).join(", ");
+    const values = [req.params.id, ...Object.values(updates)];
+    const result = await pool.query(
+      `UPDATE training_modules SET ${setClauses}, updated_at = NOW() WHERE id = $1 RETURNING *`,
+      values
+    );
+    res.json({ success: true, module: result.rows[0] });
+  } catch (err) {
+    console.error("[training] update module:", err);
+    res.status(500).json({ success: false });
+  }
+});
+router12.delete("/modules/:id", requireClientAuth, requireClientAdmin2, async (req, res) => {
+  const cu = req.session.clientUser;
+  try {
+    const check = await pool.query(
+      `SELECT tm.id FROM training_modules tm
+       JOIN training_paths tp ON tp.id = tm.path_id
+       WHERE tm.id = $1 AND tp.company_id = $2`,
+      [req.params.id, cu.companyId]
+    );
+    if (check.rows.length === 0) return res.status(404).json({ success: false });
+    await pool.query("DELETE FROM training_modules WHERE id = $1", [req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false });
+  }
+});
+router12.patch("/paths/:pathId/reorder", requireClientAuth, requireClientAdmin2, async (req, res) => {
+  const cu = req.session.clientUser;
+  const { order } = req.body;
+  if (!Array.isArray(order)) return res.status(400).json({ success: false });
+  try {
+    const check = await pool.query("SELECT id FROM training_paths WHERE id = $1 AND company_id = $2", [req.params.pathId, cu.companyId]);
+    if (check.rows.length === 0) return res.status(404).json({ success: false });
+    for (let i = 0; i < order.length; i++) {
+      await pool.query("UPDATE training_modules SET position = $1 WHERE id = $2 AND path_id = $3", [i, order[i], req.params.pathId]);
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false });
+  }
+});
+router12.post("/ai/generate", requireClientAuth, requireClientAdmin2, async (req, res) => {
+  const cu = req.session.clientUser;
+  const { type, topic, context, language = "fr" } = req.body;
+  if (!type || !topic) return res.status(400).json({ success: false, message: "type et topic requis" });
+  const prompts = {
+    cours: `Tu es un expert p\xE9dagogue senior sp\xE9cialis\xE9 en formation professionnelle en entreprise. Cr\xE9e un cours COMPLET, D\xC9TAILL\xC9 et ENGAGEANT sur : "${topic}".
+${context ? `Contexte et public cible : ${context}` : ""}
+
+EXIGENCES P\xC9DAGOGIQUES OBLIGATOIRES :
+- Introduction captivante qui explique POURQUOI ce sujet est important concr\xE8tement
+- 4 \xE0 5 sections substantielles (minimum 200 mots chacune), chacune avec une progression logique
+- Chaque section doit inclure : d\xE9finition/concept, explications d\xE9taill\xE9es, exemples concrets tir\xE9s du monde professionnel, cas d'usage r\xE9els
+- Des analogies et m\xE9taphores pour rendre les concepts abstraits accessibles
+- Des "tips d'expert" ou "pi\xE8ges \xE0 \xE9viter" dans chaque section
+- Un r\xE9sum\xE9 des points cl\xE9s \xE0 la fin de chaque section
+- Conclusion avec les takeaways essentiels et la synth\xE8se
+
+Retourne UNIQUEMENT un JSON valide avec cette structure exacte (sans markdown, sans backticks) :
+{
+  "title": "Titre accrocheur du cours",
+  "summary": "Introduction captivante en 3-4 phrases qui explique l'importance du sujet et ce que l'apprenant va ma\xEEtriser",
+  "objective": "\xC0 la fin de ce cours, vous serez capable de... (objectif p\xE9dagogique mesurable)",
+  "sections": [
+    {
+      "heading": "Titre clair et descriptif de la section",
+      "body": "Contenu tr\xE8s d\xE9taill\xE9 de la section. Minimum 200 mots. Inclure : d\xE9finitions pr\xE9cises, explications approfondies, contexte professionnel, m\xE9canismes de fonctionnement. Utiliser des paragraphes distincts s\xE9par\xE9s par \\n\\n pour a\xE9rer la lecture.",
+      "example": "Exemple concret et d\xE9taill\xE9 tir\xE9 d'une situation professionnelle r\xE9elle, avec tous les d\xE9tails n\xE9cessaires \xE0 la compr\xE9hension",
+      "tip": "Conseil d'expert ou erreur fr\xE9quente \xE0 \xE9viter, bas\xE9 sur la pratique terrain",
+      "key_points": ["Point cl\xE9 synth\xE9tique 1", "Point cl\xE9 synth\xE9tique 2", "Point cl\xE9 synth\xE9tique 3"]
+    }
+  ],
+  "key_concepts": ["Concept fondamental 1", "Concept fondamental 2", "Concept fondamental 3", "Concept fondamental 4"],
+  "takeaways": ["Ce qu'il faut retenir 1", "Ce qu'il faut retenir 2", "Ce qu'il faut retenir 3"],
+  "estimated_minutes": 20
+}`,
+    qcm: `Tu es un expert p\xE9dagogue. Cr\xE9e un QCM de 7 questions RIGOUREUSES et FORMATRICES sur : "${topic}".
+${context ? `Contexte : ${context}` : ""}
+
+EXIGENCES :
+- Questions progressives : commencer par les fondamentaux, finir par la compr\xE9hension approfondie
+- Propositions plausibles (les mauvaises r\xE9ponses doivent \xEAtre des erreurs fr\xE9quentes, pas absurdes)
+- Explications d\xE9taill\xE9es qui APPRENNENT quelque chose (pas juste "c'est la bonne r\xE9ponse")
+- Couvrir diff\xE9rents niveaux de Bloom : m\xE9morisation, compr\xE9hension, application
+
+Retourne UNIQUEMENT un JSON valide (sans markdown) :
+{
+  "title": "Titre du QCM",
+  "instructions": "Lisez attentivement chaque question. Une seule r\xE9ponse correcte par question.",
+  "questions": [
+    {
+      "question": "Question claire et pr\xE9cise",
+      "options": ["Option A (plausible)", "Option B (plausible)", "Option C (plausible)", "Option D (plausible)"],
+      "correct_index": 0,
+      "explanation": "Explication compl\xE8te qui r\xE9explique le concept, pr\xE9cise pourquoi c'est correct ET pourquoi les autres options sont incorrectes. Minimum 2 phrases."
+    }
+  ],
+  "passing_score": 70
+}`,
+    texte_a_trous: `Tu es un expert p\xE9dagogue. Cr\xE9e un exercice de texte \xE0 compl\xE9ter sur : "${topic}".
+${context ? `Contexte : ${context}` : ""}
+
+EXIGENCES :
+- Texte coh\xE9rent et informatif (pas juste des phrases isol\xE9es)
+- 5 \xE0 7 blancs sur des termes vraiment importants (pas des mots vides)
+- Les indices doivent aider sans donner la r\xE9ponse
+
+Retourne UNIQUEMENT un JSON valide (sans markdown) :
+{
+  "title": "Titre de l'exercice",
+  "instructions": "Compl\xE9tez le texte en ins\xE9rant les termes appropri\xE9s dans chaque espace. Concentrez-vous sur les concepts cl\xE9s.",
+  "text_with_blanks": "Texte complet et informatif avec [BLANK_1], [BLANK_2], etc. plac\xE9s aux endroits strat\xE9giques. Le texte doit avoir du sens m\xEAme sans les blancs.",
+  "blanks": [
+    {"id": "BLANK_1", "answer": "terme exact attendu", "hint": "Indice utile sans trahir la r\xE9ponse"}
+  ],
+  "context": "Explication du contexte p\xE9dagogique"
+}`,
+    exercice_libre: `Tu es un expert en formation professionnelle. Cr\xE9e un exercice pratique R\xC9ALISTE et CHALLENGEANT sur : "${topic}".
+${context ? `Contexte et public : ${context}` : ""}
+
+EXIGENCES :
+- Sc\xE9nario professionnel concret et cr\xE9dible, ancr\xE9 dans la r\xE9alit\xE9 d'entreprise
+- Plusieurs t\xE2ches progressives (du plus simple au plus complexe)
+- Crit\xE8res d'\xE9valuation objectifs et mesurables
+- Exemple de r\xE9ponse compl\xE8te et d\xE9taill\xE9e qui montre le niveau attendu
+
+Retourne UNIQUEMENT un JSON valide (sans markdown) :
+{
+  "title": "Titre de l'exercice",
+  "scenario": "Description d\xE9taill\xE9e du contexte professionnel : entreprise, secteur, probl\xE8me rencontr\xE9, enjeux. Minimum 5 phrases pour bien planter le d\xE9cor.",
+  "instructions": "Instructions claires et pr\xE9cises pour guider l'apprenant \xE9tape par \xE9tape",
+  "tasks": ["T\xE2che 1 bien d\xE9taill\xE9e avec ce qui est attendu pr\xE9cis\xE9ment", "T\xE2che 2", "T\xE2che 3"],
+  "evaluation_criteria": ["Crit\xE8re mesurable 1", "Crit\xE8re mesurable 2", "Crit\xE8re mesurable 3"],
+  "example_solution": "R\xE9ponse mod\xE8le compl\xE8te et d\xE9taill\xE9e qui montre le niveau de qualit\xE9 attendu. Doit \xEAtre suffisamment d\xE9velopp\xE9e pour servir de r\xE9f\xE9rence.",
+  "coach_brief": "Brief pour le coach IA : comment aider l'apprenant sur cet exercice, quels sont les concepts \xE0 revoir si l'apprenant bloque, suggestions de pistes sans donner la solution"
+}`,
+    roleplay: `Tu es un expert en p\xE9dagogie par simulation. Cr\xE9e un sc\xE9nario de roleplay IA immersif sur : "${topic}".
+${context ? `Contexte et public : ${context}` : ""}
+
+EXIGENCES :
+- Personnage IA avec une personnalit\xE9 forte et coh\xE9rente
+- Sc\xE9nario professionnel r\xE9aliste avec des enjeux clairs
+- Prompt syst\xE8me d\xE9taill\xE9 pour que l'IA reste dans son r\xF4le
+- Objectifs p\xE9dagogiques mesurables
+
+Retourne UNIQUEMENT un JSON valide (sans markdown) :
+{
+  "title": "Titre du roleplay",
+  "scenario": "Description compl\xE8te et immersive du contexte de simulation. Inclure : lieu, moment, enjeux, historique de la situation. Minimum 4 phrases.",
+  "context_briefing": "Ce que l'apprenant doit savoir avant de commencer : son r\xF4le, sa mission, les informations \xE0 sa disposition",
+  "ai_persona": {
+    "name": "Pr\xE9nom Nom du personnage",
+    "role": "Titre/fonction pr\xE9cis",
+    "personality": "Description d\xE9taill\xE9e de la personnalit\xE9, du style de communication, des tics de langage, des r\xE9actions \xE9motionnelles",
+    "system_prompt": "Tu joues le r\xF4le de [nom], [r\xF4le]. [Description personnalit\xE9 d\xE9taill\xE9e]. Dans cette simulation : [contexte exact]. Ton objectif : [ce que ce personnage cherche \xE0 obtenir]. Reste ABSOLUMENT dans ton r\xF4le. R\xE9ponds de mani\xE8re r\xE9aliste \xE0 [situation]. Si l'apprenant fait des erreurs, r\xE9agis comme le ferait vraiment ce personnage. Pose des questions de suivi pertinentes."
+  },
+  "learner_role": "R\xF4le pr\xE9cis de l'apprenant avec sa mission et ses objectifs",
+  "objectives": ["Objectif p\xE9dagogique mesurable 1", "Objectif p\xE9dagogique mesurable 2", "Objectif p\xE9dagogique mesurable 3"],
+  "evaluation_criteria": ["Crit\xE8re d'\xE9valuation 1", "Crit\xE8re d'\xE9valuation 2"],
+  "opening_message": "Premier message du personnage IA pour lancer la simulation de fa\xE7on naturelle et immersive"
+}`
+  };
+  const prompt = prompts[type];
+  if (!prompt) return res.status(400).json({ success: false, message: "Type invalide" });
+  try {
+    const raw = await bedrockService.getChatCompletionWithModel(
+      [{ role: "user", content: prompt }],
+      0.6,
+      4e3,
+      true
+    );
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("No JSON in response");
+    const content = JSON.parse(jsonMatch[0]);
+    res.json({ success: true, content });
+  } catch (err) {
+    console.error("[training] ai generate:", err);
+    res.status(500).json({ success: false, message: "Erreur g\xE9n\xE9ration IA" });
+  }
+});
+router12.post("/ai/generate-plan", async (req, res) => {
+  const { subject, audience, difficulty, language = "fr" } = req.body;
+  if (!subject?.trim()) return res.status(400).json({ success: false, message: "subject requis" });
+  const prompt = `Tu es un expert p\xE9dagogue. G\xE9n\xE8re un plan de parcours de formation sur : "${subject}".
+Public : ${audience || "professionnels"} \u2014 Niveau : ${difficulty || "interm\xE9diaire"} \u2014 Langue : ${language}
+
+Le plan doit contenir entre 5 et 8 blocs p\xE9dagogiques vari\xE9s.
+Types disponibles : "intro", "theorie", "pratique", "fill-blank", "vrai-faux", "conclusion"
+- intro : toujours en premier
+- conclusion : toujours en dernier
+- Alterner theorie, pratique, fill-blank, vrai-faux entre les deux
+- Maximum 2 blocs "theorie" cons\xE9cutifs
+
+Retourne UNIQUEMENT ce JSON valide (sans markdown) :
+{
+  "title": "Titre accrocheur du parcours (max 8 mots)",
+  "description": "Description en 1 phrase de ce que l'apprenant va ma\xEEtriser",
+  "blocks": [
+    { "position": 0, "type": "intro", "title": "Titre court et pr\xE9cis du bloc" },
+    { "position": 1, "type": "theorie", "title": "..." },
+    ...
+  ]
+}`;
+  try {
+    const raw = await bedrockService.getChatCompletionWithModel(
+      [{ role: "user", content: prompt }],
+      0.7,
+      1500,
+      false
+    );
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("No JSON");
+    const plan = JSON.parse(jsonMatch[0]);
+    res.json({ success: true, plan });
+  } catch (err) {
+    console.error("[training] generate-plan:", err);
+    res.status(500).json({ success: false, message: "Erreur g\xE9n\xE9ration plan" });
+  }
+});
+router12.post("/ai/generate-block", async (req, res) => {
+  const { subject, block, planContext, previousAnswers } = req.body;
+  if (!subject || !block) return res.status(400).json({ success: false, message: "subject et block requis" });
+  const adaptContext = previousAnswers?.length ? `
+L'apprenant a eu des difficult\xE9s sur : ${previousAnswers.filter((a) => !a.correct).map((a) => a.topic).join(", ")}. Adapte le contenu en cons\xE9quence.` : "";
+  const prompts = {
+    intro: `Tu es un expert p\xE9dagogue. G\xE9n\xE8re le bloc d'introduction pour le parcours "${subject}".
+Titre du bloc : "${block.title}"
+Plan complet du parcours : ${JSON.stringify(planContext)}${adaptContext}
+
+Retourne UNIQUEMENT ce JSON (sans markdown) :
+{
+  "type": "intro",
+  "titre": "${block.title}",
+  "contenu": "Accroche percutante en 3-4 phrases qui explique POURQUOI ce sujet est crucial aujourd'hui",
+  "objectifs": ["Objectif 1 mesurable", "Objectif 2 mesurable", "Objectif 3 mesurable"]
+}`,
+    theorie: `Tu es un expert p\xE9dagogue. G\xE9n\xE8re un bloc th\xE9orique DENSE et RICHE pour le parcours "${subject}".
+Titre du bloc : "${block.title}"${adaptContext}
+
+Retourne UNIQUEMENT ce JSON (sans markdown) :
+{
+  "type": "theorie",
+  "titre": "${block.title}",
+  "contenu": "Explication compl\xE8te et d\xE9taill\xE9e du concept. Minimum 150 mots. Paragraphes s\xE9par\xE9s par \\n\\n.",
+  "pointsCles": ["Point cl\xE9 1 avec chiffre ou fait concret", "Point cl\xE9 2", "Point cl\xE9 3", "Point cl\xE9 4"],
+  "exemple": "Exemple concret et d\xE9taill\xE9 issu du monde professionnel r\xE9el. Minimum 3 phrases."
+}`,
+    pratique: `Tu es un expert p\xE9dagogue. G\xE9n\xE8re un bloc de mise en situation immersive pour le parcours "${subject}".
+Titre du bloc : "${block.title}"${adaptContext}
+
+Retourne UNIQUEMENT ce JSON (sans markdown) :
+{
+  "type": "pratique",
+  "titre": "${block.title}",
+  "contexte": "Sc\xE9nario professionnel r\xE9aliste et d\xE9taill\xE9. Entreprise nomm\xE9e, personnes nomm\xE9es, enjeux concrets. Minimum 4 phrases.",
+  "question": "Le d\xE9fi pos\xE9 \xE0 l'apprenant \u2014 question ouverte qui n\xE9cessite r\xE9flexion",
+  "indice": "Indice utile sans donner la r\xE9ponse directement",
+  "reponse": "R\xE9ponse experte compl\xE8te et argument\xE9e. Minimum 100 mots."
+}`,
+    "fill-blank": `Tu es un expert p\xE9dagogue. G\xE9n\xE8re un exercice de texte \xE0 trous pour le parcours "${subject}".
+Titre du bloc : "${block.title}"${adaptContext}
+
+Retourne UNIQUEMENT ce JSON (sans markdown) :
+{
+  "type": "fill-blank",
+  "titre": "${block.title}",
+  "instruction": "Compl\xE9tez le texte avec les termes appropri\xE9s",
+  "phrase": "Texte informatif avec [mot1], [mot2], [mot3], [mot4] plac\xE9s sur des termes cl\xE9s importants. Le texte doit faire 3-5 phrases et avoir du sens m\xEAme sans les mots.",
+  "mots": ["mot1", "mot2", "mot3", "mot4"],
+  "explication": "Explication p\xE9dagogique des termes attendus et leur importance dans le contexte"
+}`,
+    "vrai-faux": `Tu es un expert p\xE9dagogue. G\xE9n\xE8re un exercice Vrai/Faux challengeant pour le parcours "${subject}".
+Titre du bloc : "${block.title}"${adaptContext}
+
+Retourne UNIQUEMENT ce JSON (sans markdown) :
+{
+  "type": "vrai-faux",
+  "titre": "${block.title}",
+  "affirmations": [
+    { "texte": "Affirmation 1 \u2014 ni trop \xE9vidente ni trop obscure", "reponse": true, "explication": "Explication p\xE9dagogique compl\xE8te de pourquoi c'est vrai" },
+    { "texte": "Affirmation 2 \u2014 id\xE9e re\xE7ue fr\xE9quente", "reponse": false, "explication": "Explication de pourquoi c'est faux et quelle est la r\xE9alit\xE9" },
+    { "texte": "Affirmation 3", "reponse": true, "explication": "..." },
+    { "texte": "Affirmation 4 \u2014 pi\xE8ge classique", "reponse": false, "explication": "..." }
+  ]
+}`,
+    conclusion: `Tu es un expert p\xE9dagogue. G\xE9n\xE8re le bloc de conclusion pour le parcours "${subject}".
+Titre du bloc : "${block.title}"
+Plan complet suivi : ${JSON.stringify(planContext)}${adaptContext}
+
+Retourne UNIQUEMENT ce JSON (sans markdown) :
+{
+  "type": "conclusion",
+  "titre": "${block.title}",
+  "points": ["R\xE9capitulatif point cl\xE9 1 appris", "R\xE9capitulatif point cl\xE9 2 appris", "R\xE9capitulatif point cl\xE9 3 appris", "R\xE9capitulatif point cl\xE9 4 appris"],
+  "message": "Message de cl\xF4ture motivant et personnalis\xE9 qui donne envie d'aller plus loin",
+  "qcm": [
+    { "question": "Question QCM 1 sur le contenu du parcours", "choix": ["A", "B", "C", "D"], "bonneReponse": 0, "explication": "Explication compl\xE8te" },
+    { "question": "Question QCM 2", "choix": ["A", "B", "C", "D"], "bonneReponse": 1, "explication": "..." },
+    { "question": "Question QCM 3", "choix": ["A", "B", "C", "D"], "bonneReponse": 2, "explication": "..." },
+    { "question": "Question QCM 4", "choix": ["A", "B", "C", "D"], "bonneReponse": 0, "explication": "..." },
+    { "question": "Question QCM 5", "choix": ["A", "B", "C", "D"], "bonneReponse": 3, "explication": "..." }
+  ]
+}`
+  };
+  const prompt = prompts[block.type];
+  if (!prompt) return res.status(400).json({ success: false, message: `Type de bloc inconnu: ${block.type}` });
+  try {
+    const raw = await bedrockService.getChatCompletionWithModel(
+      [{ role: "user", content: prompt }],
+      0.7,
+      3e3,
+      false
+    );
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("No JSON");
+    const blockContent = JSON.parse(jsonMatch[0]);
+    res.json({ success: true, block: blockContent });
+  } catch (err) {
+    console.error("[training] generate-block:", err);
+    res.status(500).json({ success: false, message: "Erreur g\xE9n\xE9ration bloc" });
+  }
+});
+router12.post("/paths/:pathId/assign", requireClientAuth, requireClientAdmin2, async (req, res) => {
+  const cu = req.session.clientUser;
+  const { user_ids, due_date, is_mandatory } = req.body;
+  if (!Array.isArray(user_ids) || user_ids.length === 0) return res.status(400).json({ success: false });
+  try {
+    const check = await pool.query("SELECT id FROM training_paths WHERE id = $1 AND company_id = $2", [req.params.pathId, cu.companyId]);
+    if (check.rows.length === 0) return res.status(404).json({ success: false });
+    for (const uid of user_ids) {
+      await pool.query(
+        `INSERT INTO training_assignments (path_id, user_id, assigned_by, due_date, is_mandatory)
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (path_id, user_id) DO UPDATE SET due_date = $4, is_mandatory = $5`,
+        [req.params.pathId, uid, cu.id, due_date ?? null, is_mandatory ?? false]
+      );
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error("[training] assign:", err);
+    res.status(500).json({ success: false });
+  }
+});
+router12.post("/progress", requireClientAuth, async (req, res) => {
+  const cu = req.session.clientUser;
+  const { path_id, module_id, status, score, answers } = req.body;
+  if (!path_id || !module_id) return res.status(400).json({ success: false });
+  try {
+    const result = await pool.query(
+      `INSERT INTO training_progress (path_id, user_id, module_id, status, score, answers, started_at, completed_at)
+       VALUES ($1, $2, $3, $4, $5, $6,
+         CASE WHEN $4 IN ('in_progress', 'completed') THEN COALESCE(
+           (SELECT started_at FROM training_progress WHERE path_id=$1 AND user_id=$2 AND module_id=$3), NOW()
+         ) ELSE NULL END,
+         CASE WHEN $4 = 'completed' THEN NOW() ELSE NULL END
+       )
+       ON CONFLICT (path_id, user_id, module_id) DO UPDATE
+       SET status = $4, score = COALESCE($5, training_progress.score),
+           answers = COALESCE($6, training_progress.answers),
+           completed_at = CASE WHEN $4 = 'completed' THEN NOW() ELSE training_progress.completed_at END
+       RETURNING *`,
+      [path_id, cu.id, module_id, status, score ?? null, answers ? JSON.stringify(answers) : null]
+    );
+    res.json({ success: true, progress: result.rows[0] });
+  } catch (err) {
+    console.error("[training] progress:", err);
+    res.status(500).json({ success: false });
+  }
+});
+router12.post("/certify", requireClientAuth, async (req, res) => {
+  const cu = req.session.clientUser;
+  const { path_id, answers } = req.body;
+  if (!path_id || !Array.isArray(answers)) return res.status(400).json({ success: false });
+  try {
+    const pathResult = await pool.query(
+      "SELECT * FROM training_paths WHERE id = $1 AND company_id = $2",
+      [path_id, cu.companyId]
+    );
+    if (pathResult.rows.length === 0) return res.status(404).json({ success: false });
+    const path10 = pathResult.rows[0];
+    const certModule = await pool.query(
+      "SELECT * FROM training_modules WHERE path_id = $1 AND is_certification = true ORDER BY position DESC LIMIT 1",
+      [path_id]
+    );
+    if (certModule.rows.length === 0) return res.status(400).json({ success: false, message: "Pas de module de certification" });
+    const questions = certModule.rows[0].content?.questions ?? [];
+    let correct = 0;
+    for (let i = 0; i < questions.length; i++) {
+      if (answers[i] === questions[i].correct_index) correct++;
+    }
+    const score = questions.length > 0 ? Math.round(correct / questions.length * 100) : 0;
+    const passed = score >= (path10.certification_min_score ?? 70);
+    const result = await pool.query(
+      `INSERT INTO training_certifications (path_id, user_id, score, passed, answers)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (path_id, user_id) DO UPDATE
+       SET score = $3, passed = $4, answers = $5, certified_at = NOW()
+       RETURNING *`,
+      [path_id, cu.id, score, passed, JSON.stringify(answers)]
+    );
+    await pool.query(
+      `INSERT INTO training_progress (path_id, user_id, module_id, status, score, answers, started_at, completed_at)
+       VALUES ($1, $2, $3, 'completed', $4, $5, NOW(), NOW())
+       ON CONFLICT (path_id, user_id, module_id) DO UPDATE
+       SET status = 'completed', score = $4, completed_at = NOW()`,
+      [path_id, cu.id, certModule.rows[0].id, score, JSON.stringify(answers)]
+    );
+    res.json({ success: true, certification: result.rows[0], score, passed, correct, total: questions.length });
+  } catch (err) {
+    console.error("[training] certify:", err);
+    res.status(500).json({ success: false });
+  }
+});
+router12.get("/my", requireClientAuth, async (req, res) => {
+  const cu = req.session.clientUser;
+  try {
+    const result = await pool.query(
+      `SELECT tp.*, ta.due_date, ta.is_mandatory AS assignment_mandatory,
+        COUNT(DISTINCT tm.id) AS module_count,
+        COUNT(DISTINCT tpg.module_id) FILTER (WHERE tpg.status = 'completed') AS completed_count,
+        tc.passed AS certified, tc.score AS cert_score
+       FROM training_assignments ta
+       JOIN training_paths tp ON tp.id = ta.path_id
+       LEFT JOIN training_modules tm ON tm.path_id = tp.id
+       LEFT JOIN training_progress tpg ON tpg.path_id = tp.id AND tpg.user_id = ta.user_id
+       LEFT JOIN training_certifications tc ON tc.path_id = tp.id AND tc.user_id = ta.user_id
+       WHERE ta.user_id = $1 AND tp.status = 'published'
+       GROUP BY tp.id, ta.due_date, ta.is_mandatory, tc.passed, tc.score
+       ORDER BY ta.assigned_at DESC`,
+      [cu.id]
+    );
+    res.json({ success: true, trainings: result.rows });
+  } catch (err) {
+    console.error("[training] my:", err);
+    res.status(500).json({ success: false });
+  }
+});
+router12.post("/ai/chat", requireClientAuth, async (req, res) => {
+  const { messages } = req.body;
+  if (!Array.isArray(messages) || messages.length === 0) return res.status(400).json({ success: false });
+  try {
+    const reply = await bedrockService.getChatCompletion(messages, false, 0.8, 1e3);
+    res.json({ success: true, reply });
+  } catch (err) {
+    console.error("[training] ai chat:", err);
+    res.status(500).json({ success: false, message: "Erreur IA" });
+  }
+});
+router12.get("/attestation/:pathId", requireClientAuth, async (req, res) => {
+  const cu = req.session.clientUser;
+  try {
+    const certResult = await pool.query(
+      `SELECT tc.*, tp.title as path_title, tp.cover_emoji,
+              cu.first_name, cu.last_name, cu.email,
+              cc.name as company_name
+       FROM training_certifications tc
+       JOIN training_paths tp ON tp.id = tc.path_id
+       JOIN client_users cu ON cu.id = tc.user_id
+       JOIN client_companies cc ON cc.id = cu.company_id
+       WHERE tc.path_id = $1 AND tc.user_id = $2 AND tc.passed = true`,
+      [req.params.pathId, cu.id]
+    );
+    if (certResult.rows.length === 0) {
+      return res.status(404).json({ success: false, message: "Certification non trouv\xE9e ou non obtenue" });
+    }
+    const cert = certResult.rows[0];
+    const certDate = new Date(cert.certified_at).toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" });
+    const html = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px; }
+  .cert { background: #0d1117; border: 2px solid #246f9f; border-radius: 16px; width: 800px; padding: 60px; position: relative; overflow: hidden; }
+  .cert::before { content: ''; position: absolute; top: -80px; right: -80px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, #246f9f22 0%, transparent 70%); }
+  .cert::after { content: ''; position: absolute; bottom: -60px; left: -60px; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, #e5007e15 0%, transparent 70%); }
+  .logo { font-family: 'DM Mono', monospace; font-size: 13px; color: #246f9f; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 48px; }
+  .label { font-size: 11px; font-family: 'DM Mono', monospace; color: #475569; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
+  .title { font-size: 13px; color: #64748b; margin-bottom: 48px; }
+  .name { font-size: 42px; font-weight: 800; color: #f1f5f9; margin-bottom: 8px; }
+  .company { font-size: 16px; color: #64748b; margin-bottom: 48px; }
+  .course-label { font-size: 11px; font-family: 'DM Mono', monospace; color: #475569; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .course { font-size: 22px; font-weight: 700; color: #246f9f; margin-bottom: 48px; }
+  .meta { display: flex; gap: 40px; margin-bottom: 48px; }
+  .meta-item { }
+  .meta-val { font-size: 24px; font-weight: 800; color: #00c781; }
+  .meta-lbl { font-size: 11px; font-family: 'DM Mono', monospace; color: #475569; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .date { font-size: 13px; color: #475569; }
+  .badge { display: inline-flex; align-items: center; gap: 8px; background: #00c78115; border: 1px solid #00c781; border-radius: 6px; padding: 8px 16px; color: #00c781; font-weight: 700; font-size: 14px; margin-bottom: 32px; }
+  .divider { height: 1px; background: #1e2d3d; margin: 32px 0; }
+  @media print { body { background: white; } .cert { border-color: #246f9f; } }
+</style>
+</head>
+<body>
+<div class="cert">
+  <div class="logo">FYNE \u2014 Formation professionnelle</div>
+  <div class="label">Certificat d'ach\xE8vement</div>
+  <div class="title">Ce document certifie que</div>
+  <div class="name">${cert.first_name} ${cert.last_name}</div>
+  <div class="company">${cert.company_name}</div>
+  <div class="course-label">A compl\xE9t\xE9 avec succ\xE8s la formation</div>
+  <div class="course">${cert.cover_emoji} ${cert.path_title}</div>
+  <div class="badge">\u2713 Certification obtenue</div>
+  <div class="meta">
+    <div class="meta-item">
+      <div class="meta-val">${cert.score}%</div>
+      <div class="meta-lbl">Score obtenu</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-val">100%</div>
+      <div class="meta-lbl">Modules compl\xE9t\xE9s</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="date">D\xE9livr\xE9 le ${certDate}</div>
+</div>
+<script>window.onload = () => window.print();</script>
+</body>
+</html>`;
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  } catch (err) {
+    console.error("[training] attestation:", err);
+    res.status(500).json({ success: false });
+  }
+});
+var trainingRoutes_default = router12;
+
+// server/routes/evaluationRoutes.ts
+import { Router as Router10 } from "express";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify as promisify2 } from "util";
+import pg2 from "pg";
+import { exec as exec3 } from "child_process";
+import { promisify as promisifyUtil } from "util";
+import * as fs3 from "fs";
+import * as path3 from "path";
+import * as os3 from "os";
+var { Pool } = pg2;
+var router13 = Router10();
+var scryptAsync = promisify2(scrypt);
+var KEYLEN = 64;
+var pool2 = null;
+function getPool() {
+  if (!pool2) {
+    pool2 = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      max: 5,
+      idleTimeoutMillis: 3e4,
+      connectionTimeoutMillis: 5e3
+    });
+    pool2.on("error", (err) => console.error("[evaluation-pool]", err.message));
+  }
+  return pool2;
+}
+async function dbQuery(sql5, params = []) {
+  const client = await getPool().connect();
+  try {
+    return await client.query(sql5, params);
+  } finally {
+    client.release();
+  }
+}
+async function hashPassword(plain) {
+  const salt = randomBytes(16).toString("hex");
+  const buf = await scryptAsync(plain, salt, KEYLEN);
+  return `${salt}:${buf.toString("hex")}`;
+}
+async function verifyPassword(plain, stored) {
+  const [salt, hash] = stored.split(":");
+  if (!salt || !hash) return false;
+  const buf = await scryptAsync(plain, salt, KEYLEN);
+  const storedBuf = Buffer.from(hash, "hex");
+  if (buf.length !== storedBuf.length) return false;
+  return timingSafeEqual(buf, storedBuf);
+}
+function normType(v) {
+  const s = String(v || "").trim().toLowerCase();
+  if (s === "python") return "python";
+  if (s === "qcm") return "qcm";
+  if (s === "english") return "english";
+  return "sql";
+}
+function normTests(v, fallback) {
+  const raw = Array.isArray(v) ? v : typeof v === "string" ? v.split(",") : [];
+  const mapped = raw.map(normType).filter((i, idx, arr) => arr.indexOf(i) === idx);
+  if (mapped.length > 0) return mapped;
+  if (fallback != null) return [normType(fallback)];
+  return ["sql"];
+}
+router13.post("/recruiter/register", async (req, res) => {
+  try {
+    const { name, password } = req.body;
+    if (!name?.trim() || !password?.trim())
+      return res.status(400).json({ success: false, message: "Nom et mot de passe requis." });
+    const id = "rec_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const hashed = await hashPassword(password.trim());
+    const { rows } = await dbQuery(
+      `INSERT INTO sql_challenge_recruiters (id, name, password) VALUES ($1, $2, $3) RETURNING id, name`,
+      [id, name.trim(), hashed]
+    );
+    res.status(201).json({ success: true, recruiter: rows[0] });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router13.post("/recruiter/login", async (req, res) => {
+  try {
+    const { recruiterId, password } = req.body;
+    if (!recruiterId?.trim() || !password?.trim())
+      return res.status(400).json({ success: false, message: "Identifiant et mot de passe requis." });
+    const { rows } = await dbQuery(
+      `SELECT id, name, password FROM sql_challenge_recruiters WHERE id = $1`,
+      [recruiterId.trim()]
+    );
+    const ok = rows[0] && await verifyPassword(password.trim(), rows[0].password);
+    if (!ok) return res.status(403).json({ success: false, message: "Identifiants incorrects." });
+    res.json({ success: true, recruiter: { id: rows[0].id, name: rows[0].name } });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router13.get("/recruiter/candidates", async (req, res) => {
+  try {
+    const recruiterId = String(req.query.recruiterId || "").trim();
+    if (!recruiterId) return res.status(400).json({ success: false, message: "recruiterId requis." });
+    const { rows: rec } = await dbQuery(`SELECT id FROM sql_challenge_recruiters WHERE id = $1`, [recruiterId]);
+    if (!rec[0]) return res.status(403).json({ success: false, message: "Recruteur inconnu." });
+    const { rows } = await dbQuery(
+      `SELECT * FROM sql_challenge_candidates WHERE recruiter_id = $1 ORDER BY created_at DESC`,
+      [recruiterId]
+    );
+    res.json({
+      success: true,
+      candidates: rows.map((c) => ({
+        id: c.id,
+        name: c.name,
+        assigned_tests: normTests(c.assigned_tests, c.challenge_type),
+        challenge_type: normTests(c.assigned_tests, c.challenge_type)[0],
+        access_granted: c.access_granted,
+        created_at: c.created_at
+      }))
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router13.post("/recruiter/candidates", async (req, res) => {
+  try {
+    const { recruiterId, id, name, password, assignedTests, challengeType } = req.body;
+    const at = normTests(assignedTests, challengeType);
+    const ct = at[0];
+    if (!recruiterId || !id || !name || !password)
+      return res.status(400).json({ success: false, message: "recruiterId, id, name et password requis." });
+    const { rows: rec } = await dbQuery(`SELECT id FROM sql_challenge_recruiters WHERE id = $1`, [recruiterId]);
+    if (!rec[0]) return res.status(403).json({ success: false, message: "Recruteur inconnu." });
+    const { rows: existing } = await dbQuery(`SELECT id FROM sql_challenge_candidates WHERE id = $1`, [id.toLowerCase()]);
+    if (existing[0]) return res.status(409).json({ success: false, message: `L'identifiant "${id}" est d\xE9j\xE0 utilis\xE9.` });
+    const hashed = await hashPassword(password);
+    const { rows } = await dbQuery(
+      `INSERT INTO sql_challenge_candidates (id, name, password, recruiter_id, challenge_type, assigned_tests, access_granted)
+       VALUES ($1,$2,$3,$4,$5,$6::jsonb,false) RETURNING *`,
+      [id.toLowerCase(), name, hashed, recruiterId, ct, JSON.stringify(at)]
+    );
+    const c = rows[0];
+    res.status(201).json({
+      success: true,
+      candidate: { id: c.id, name: c.name, challenge_type: ct, assigned_tests: at, access_granted: c.access_granted, created_at: c.created_at }
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router13.patch("/recruiter/candidates/:id/access", async (req, res) => {
+  try {
+    const candidateId = req.params.id;
+    const { recruiterId, accessGranted } = req.body;
+    const { rows } = await dbQuery(
+      `UPDATE sql_challenge_candidates SET access_granted = $1 WHERE id = $2 AND recruiter_id = $3 RETURNING *`,
+      [!!accessGranted, candidateId, recruiterId]
+    );
+    if (!rows[0]) return res.status(404).json({ success: false, message: "Candidat introuvable." });
+    res.json({ success: true, candidate: rows[0] });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router13.patch("/recruiter/candidates/:id/environment", async (req, res) => {
+  try {
+    const candidateId = req.params.id;
+    const { recruiterId, assignedTests } = req.body;
+    if (!recruiterId) return res.status(400).json({ success: false, message: "recruiterId requis." });
+    const at = normTests(assignedTests);
+    const { rows } = await dbQuery(
+      `UPDATE sql_challenge_candidates SET assigned_tests = $1::jsonb, challenge_type = $2 WHERE id = $3 AND recruiter_id = $4 RETURNING *`,
+      [JSON.stringify(at), at[0], candidateId, recruiterId]
+    );
+    if (!rows[0]) return res.status(404).json({ success: false, message: "Candidat introuvable." });
+    res.json({ success: true, candidate: rows[0] });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router13.delete("/recruiter/candidates/:id", async (req, res) => {
+  try {
+    const { recruiterId } = req.body;
+    await dbQuery(`DELETE FROM sql_challenge_candidates WHERE id = $1 AND recruiter_id = $2`, [req.params.id, recruiterId]);
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router13.get("/recruiter/results", async (req, res) => {
+  try {
+    const recruiterId = String(req.query.recruiterId || "").trim();
+    if (!recruiterId) return res.status(400).json({ success: false, message: "recruiterId requis." });
+    const { rows } = await dbQuery(
+      `SELECT r.* FROM sql_challenge_results r
+       INNER JOIN sql_challenge_candidates c ON c.id = r.candidate_id
+       WHERE r.recruiter_id = $1 ORDER BY r.submitted_at DESC, r.id DESC`,
+      [recruiterId]
+    );
+    res.json({ success: true, results: rows });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router13.post("/candidate/login", async (req, res) => {
+  try {
+    const { candidateId, password } = req.body;
+    if (!candidateId?.trim() || !password?.trim())
+      return res.status(400).json({ success: false, message: "Identifiant et mot de passe requis." });
+    const { rows } = await dbQuery(`SELECT * FROM sql_challenge_candidates WHERE id = $1`, [candidateId.trim().toLowerCase()]);
+    const cand = rows[0];
+    const ok = cand && await verifyPassword(password.trim(), cand.password);
+    if (!ok) return res.status(401).json({ success: false, message: "Identifiants invalides." });
+    if (!cand.access_granted)
+      return res.status(403).json({ success: false, message: "Acc\xE8s non autoris\xE9. Votre recruteur ne vous a pas encore donn\xE9 acc\xE8s \xE0 ce test." });
+    res.json({
+      success: true,
+      candidate: {
+        id: cand.id,
+        name: cand.name,
+        recruiterId: cand.recruiter_id,
+        challengeType: normType(cand.challenge_type),
+        assignedTests: normTests(cand.assigned_tests, cand.challenge_type)
+      }
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router13.post("/sql-sandbox", async (req, res) => {
+  const startedAt = Date.now();
+  const rawQuery = typeof req.body?.query === "string" ? req.body.query.trim() : "";
+  if (!rawQuery) return res.status(400).json({ success: false, message: "Requ\xEAte SQL requise." });
+  const normalized = rawQuery.replace(/^\s*(--[^\n]*\n\s*)+/, "").trim().toLowerCase();
+  if (!normalized.startsWith("select") && !normalized.startsWith("with"))
+    return res.status(400).json({ success: false, message: "Seules les requ\xEAtes SELECT / WITH sont autoris\xE9es." });
+  const client = await getPool().connect();
+  try {
+    await client.query("BEGIN");
+    await client.query(`CREATE TEMP TABLE users (id INT PRIMARY KEY, username TEXT NOT NULL, email TEXT NOT NULL, role TEXT NOT NULL, is_active BOOLEAN NOT NULL) ON COMMIT DROP`);
+    await client.query(`CREATE TEMP TABLE failed_logins (id INT PRIMARY KEY, user_id INT NULL, ip TEXT NOT NULL, attempted_at TIMESTAMP NOT NULL) ON COMMIT DROP`);
+    await client.query(`CREATE TEMP TABLE firewall_events (id INT PRIMARY KEY, src_ip TEXT NOT NULL, action TEXT NOT NULL, happened_at TIMESTAMP NOT NULL) ON COMMIT DROP`);
+    await client.query(`CREATE TEMP TABLE vulnerabilities (id INT PRIMARY KEY, cve_id TEXT NOT NULL, host TEXT NOT NULL, severity TEXT NOT NULL, status TEXT NOT NULL, discovered_at TIMESTAMP NOT NULL) ON COMMIT DROP`);
+    await client.query(`INSERT INTO users VALUES (1,'admin.root','root@mc2i.local','admin',true),(2,'admin.soc','soc@mc2i.local','admin',true),(3,'analyst.jade','jade@mc2i.local','analyst',true),(4,'ops.ken','ken@mc2i.local','operator',false),(5,'dev.ana','ana@mc2i.local','developer',true)`);
+    await client.query(`INSERT INTO failed_logins VALUES (1,1,'192.168.10.7',NOW()-INTERVAL '30 hours'),(2,1,'10.0.0.12',NOW()-INTERVAL '5 hours'),(3,2,'10.0.0.12',NOW()-INTERVAL '4 hours'),(4,2,'10.0.0.12',NOW()-INTERVAL '3 hours'),(5,3,'172.16.1.20',NOW()-INTERVAL '2 hours'),(6,3,'172.16.1.20',NOW()-INTERVAL '90 minutes'),(7,3,'172.16.1.20',NOW()-INTERVAL '75 minutes'),(8,NULL,'203.0.113.8',NOW()-INTERVAL '40 minutes'),(9,1,'203.0.113.8',NOW()-INTERVAL '20 minutes'),(10,5,'198.51.100.4',NOW()-INTERVAL '10 minutes')`);
+    await client.query(`INSERT INTO firewall_events VALUES (1,'10.0.0.12','BLOCK',NOW()-INTERVAL '3 hours'),(2,'10.0.0.12','DROP',NOW()-INTERVAL '2 hours'),(3,'172.16.1.20','ALLOW',NOW()-INTERVAL '2 hours'),(4,'203.0.113.8','BLOCK',NOW()-INTERVAL '30 minutes'),(5,'198.51.100.4','ALLOW',NOW()-INTERVAL '10 minutes')`);
+    await client.query(`INSERT INTO vulnerabilities VALUES (1,'CVE-2024-0001','srv-app-01','critical','open',NOW()-INTERVAL '10 days'),(2,'CVE-2024-0002','srv-app-01','high','open',NOW()-INTERVAL '8 days'),(3,'CVE-2024-0003','srv-app-02','critical','open',NOW()-INTERVAL '6 days'),(4,'CVE-2024-0004','srv-app-02','medium','open',NOW()-INTERVAL '5 days'),(5,'CVE-2024-0005','srv-db-01','critical','patched',NOW()-INTERVAL '12 days'),(6,'CVE-2024-0006','srv-db-01','high','open',NOW()-INTERVAL '4 days'),(7,'CVE-2024-0007','srv-web-01','critical','open',NOW()-INTERVAL '2 days'),(8,'CVE-2024-0008','srv-web-01','high','open',NOW()-INTERVAL '36 hours')`);
+    const result = await client.query(rawQuery);
+    await client.query("ROLLBACK");
+    const columns = result.fields?.map((f) => f.name) ?? [];
+    res.json({ success: true, columns, rows: result.rows ?? [], rowCount: result.rowCount ?? 0, durationMs: Date.now() - startedAt });
+  } catch (error) {
+    try {
+      await client.query("ROLLBACK");
+    } catch {
+    }
+    res.status(400).json({ success: false, message: error?.message || "Erreur SQL.", durationMs: Date.now() - startedAt });
+  } finally {
+    client.release();
+  }
+});
+router13.post("/results", async (req, res) => {
+  try {
+    const { candidateId, recruiterId, score, totalExercises, timeSeconds, exercisesDetail, earlyQuit, challengeType } = req.body;
+    if (!candidateId || !recruiterId)
+      return res.status(400).json({ success: false, message: "candidateId et recruiterId requis." });
+    const normCandId = String(candidateId).trim().toLowerCase();
+    const normRecId = String(recruiterId).trim();
+    const { rows: cands } = await dbQuery(
+      `SELECT * FROM sql_challenge_candidates WHERE id = $1 AND recruiter_id = $2`,
+      [normCandId, normRecId]
+    );
+    if (!cands[0]) return res.status(404).json({ success: false, message: "Candidat introuvable." });
+    const assignedTests = normTests(cands[0].assigned_tests, cands[0].challenge_type);
+    const requestedType = normType(challengeType);
+    const ct = assignedTests.includes(requestedType) ? requestedType : assignedTests[0];
+    await dbQuery(
+      `INSERT INTO sql_challenge_results (candidate_id, candidate_name, recruiter_id, challenge_type, score, total_exercises, time_seconds, exercises_detail, early_quit)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+      [normCandId, cands[0].name, normRecId, ct, score ?? 0, totalExercises ?? 15, timeSeconds ?? 0, JSON.stringify(exercisesDetail ?? []), !!earlyQuit]
+    );
+    const remainingTests = assignedTests.filter((t) => t !== ct);
+    await dbQuery(
+      `UPDATE sql_challenge_candidates SET assigned_tests = $1::jsonb, access_granted = CASE WHEN $2 = 0 THEN false ELSE access_granted END WHERE id = $3 AND recruiter_id = $4`,
+      [JSON.stringify(remainingTests), remainingTests.length, normCandId, normRecId]
+    );
+    res.json({ success: true, message: "R\xE9sultats enregistr\xE9s.", remainingTests });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+var execAsync2 = promisifyUtil(exec3);
+router13.post("/python-sandbox", async (req, res) => {
+  const { code } = req.body;
+  if (!code) return res.status(400).json({ success: false, message: "Code vide." });
+  const tmpFile = path3.join(os3.tmpdir(), `eval_py_${Date.now()}.py`);
+  fs3.writeFileSync(tmpFile, code);
+  const start = Date.now();
+  try {
+    const { stdout, stderr } = await execAsync2(`python3 "${tmpFile}"`, { timeout: 1e4 });
+    res.json({ success: true, output: stdout.trim(), stderr: stderr.trim(), durationMs: Date.now() - start });
+  } catch (e) {
+    res.json({ success: false, output: "", stderr: e.stderr || e.message, durationMs: Date.now() - start });
+  } finally {
+    try {
+      fs3.unlinkSync(tmpFile);
+    } catch {
+    }
+  }
+});
+var evaluationRoutes_default = router13;
 
 // server/cyberInterviewTestController.ts
 init_openai();
@@ -7550,7 +10574,7 @@ INSTRUCTIONS IMPORTANTES:
 // server/userLearningController.ts
 init_db();
 init_schema();
-import { eq as eq2, and } from "drizzle-orm";
+import { eq as eq4, and } from "drizzle-orm";
 async function getUserProgress(req, res) {
   try {
     const { userId, moduleId } = req.params;
@@ -7559,8 +10583,8 @@ async function getUserProgress(req, res) {
     }
     const progress = await db.select().from(userLearningProgress).where(
       and(
-        eq2(userLearningProgress.userId, userId),
-        eq2(userLearningProgress.moduleId, moduleId)
+        eq4(userLearningProgress.userId, userId),
+        eq4(userLearningProgress.moduleId, moduleId)
       )
     );
     if (progress.length === 0) {
@@ -7595,8 +10619,8 @@ async function saveUserProgress(req, res) {
     }
     const existingProgress = await db.select().from(userLearningProgress).where(
       and(
-        eq2(userLearningProgress.userId, userId),
-        eq2(userLearningProgress.moduleId, moduleId)
+        eq4(userLearningProgress.userId, userId),
+        eq4(userLearningProgress.moduleId, moduleId)
       )
     );
     let result;
@@ -7611,8 +10635,8 @@ async function saveUserProgress(req, res) {
         lastUpdated: /* @__PURE__ */ new Date()
       }).where(
         and(
-          eq2(userLearningProgress.userId, userId),
-          eq2(userLearningProgress.moduleId, moduleId)
+          eq4(userLearningProgress.userId, userId),
+          eq4(userLearningProgress.moduleId, moduleId)
         )
       ).returning();
     } else {
@@ -7641,7 +10665,7 @@ async function saveUserProgress(req, res) {
 }
 
 // server/cyberDefenseController.ts
-import { v4 as uuidv42 } from "uuid";
+import { v4 as uuidv43 } from "uuid";
 async function handleCyberDefenseChat(req, res) {
   try {
     const {
@@ -9478,19 +12502,19 @@ CONSIGNES ESSENTIELLES:
 }
 
 // server/impostorService.ts
-import fs2 from "fs";
-import path2 from "path";
+import fs4 from "fs";
+import path4 from "path";
 import { fileURLToPath } from "url";
 var __filename = fileURLToPath(import.meta.url);
-var __dirname = path2.dirname(__filename);
-var DATA_FILE_PATH = path2.join(__dirname, "data", "impostor-scenarios.json");
+var __dirname = path4.dirname(__filename);
+var DATA_FILE_PATH = path4.join(__dirname, "data", "impostor-scenarios.json");
 function getAllScenarios() {
   try {
-    if (!fs2.existsSync(DATA_FILE_PATH)) {
+    if (!fs4.existsSync(DATA_FILE_PATH)) {
       console.warn(`Le fichier de sc\xE9narios n'existe pas \xE0 l'emplacement: ${DATA_FILE_PATH}`);
       return [];
     }
-    const rawData = fs2.readFileSync(DATA_FILE_PATH, "utf8");
+    const rawData = fs4.readFileSync(DATA_FILE_PATH, "utf8");
     const data = JSON.parse(rawData);
     return data.scenarios;
   } catch (error) {
@@ -9498,30 +12522,30 @@ function getAllScenarios() {
     return [];
   }
 }
-function getRandomScenarios(count) {
+function getRandomScenarios(count2) {
   const allScenarios = getAllScenarios();
-  if (allScenarios.length <= count) {
+  if (allScenarios.length <= count2) {
     return allScenarios;
   }
   const shuffled = [...allScenarios].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
+  return shuffled.slice(0, count2);
 }
 function getScenarioById2(id) {
   const allScenarios = getAllScenarios();
   return allScenarios.find((scenario) => scenario.id === id) || null;
 }
-function getScenariosByDifficulty(difficulty, count) {
+function getScenariosByDifficulty(difficulty, count2) {
   const allScenarios = getAllScenarios();
   const filteredScenarios = allScenarios.filter(
     (scenario) => scenario.difficulty.toLowerCase() === difficulty.toLowerCase()
   );
-  if (filteredScenarios.length <= count) {
+  if (filteredScenarios.length <= count2) {
     return filteredScenarios;
   }
   const shuffled = [...filteredScenarios].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
+  return shuffled.slice(0, count2);
 }
-if (!fs2.existsSync(DATA_FILE_PATH)) {
+if (!fs4.existsSync(DATA_FILE_PATH)) {
   console.info("Le fichier de sc\xE9narios n'existe pas encore. Il sera cr\xE9\xE9 s\xE9par\xE9ment avec les sc\xE9narios pr\xE9-g\xE9n\xE9r\xE9s.");
 }
 
@@ -10611,8 +13635,8 @@ Important: Ne pas r\xE9v\xE9ler directement la r\xE9ponse. L'indice doit oriente
 }
 async function generateFullQuiz(req, res) {
   try {
-    const { category = "all", difficulty = "interm\xE9diaire", count = 5 } = req.body;
-    const questionCount = Math.min(Math.max(1, count), 10);
+    const { category = "all", difficulty = "interm\xE9diaire", count: count2 = 5 } = req.body;
+    const questionCount = Math.min(Math.max(1, count2), 10);
     const categoryMap = {
       "all": "tous les domaines de cybers\xE9curit\xE9",
       "threats": "menaces et attaques informatiques",
@@ -10690,11 +13714,11 @@ IMPORTANT: Retourne UNIQUEMENT le JSON valide, sans texte suppl\xE9mentaire.`;
 
 // server/cyberExpertController.ts
 init_openai();
-import { v4 as uuidv43 } from "uuid";
+import { v4 as uuidv44 } from "uuid";
 var expertSessions = /* @__PURE__ */ new Map();
 async function initCyberExpertSession(req, res) {
   try {
-    const userId = uuidv43();
+    const userId = uuidv44();
     const session3 = {
       userId,
       messages: [],
@@ -12256,14 +15280,14 @@ IMPORTANT:
 
 // server/cyberPulseGameController.ts
 init_openai();
-import { v4 as uuidv44 } from "uuid";
+import { v4 as uuidv45 } from "uuid";
 var cyberPulseSessions = /* @__PURE__ */ new Map();
 var INACTIVITY_REMINDER_THRESHOLD = 3e4;
 var INACTIVITY_CLOSE_THRESHOLD = 18e4;
 async function initCyberPulseSession(req, res) {
   try {
-    const userId = req.body.userId || uuidv44();
-    const sessionId = uuidv44();
+    const userId = req.body.userId || uuidv45();
+    const sessionId = uuidv45();
     const visualStyle = req.body.visualStyle || "futuristic";
     const playerName = req.body.playerName;
     const focusArea = req.body.focusArea;
@@ -13892,7 +16916,7 @@ var SimpleCacheService = class {
    */
   getStats() {
     const totalEntries = this.cache.size;
-    const totalHits = Object.values(this.domainHitCounts).reduce((sum, count) => sum + count, 0);
+    const totalHits = Object.values(this.domainHitCounts).reduce((sum, count2) => sum + count2, 0);
     const topQueries = Array.from(this.cache.values()).sort((a, b) => b.hits - a.hits).slice(0, 10).map((entry) => ({
       query: entry.query || entry.key,
       domain: entry.domain,
@@ -13912,25 +16936,25 @@ var simpleCacheService = new SimpleCacheService();
 
 // server/services/codeSandboxService.ts
 import { VM } from "vm2";
-import { exec as exec2 } from "child_process";
-import * as fs3 from "fs";
-import * as path3 from "path";
+import { exec as exec4 } from "child_process";
+import * as fs5 from "fs";
+import * as path5 from "path";
 import * as util from "util";
-import * as os2 from "os";
-import { v4 as uuidv45 } from "uuid";
-var execPromise = util.promisify(exec2);
-var writeFilePromise = util.promisify(fs3.writeFile);
-var mkdirPromise = util.promisify(fs3.mkdir);
-var unlinkPromise = util.promisify(fs3.unlink);
-var rmdirPromise = util.promisify(fs3.rmdir);
+import * as os4 from "os";
+import { v4 as uuidv46 } from "uuid";
+var execPromise = util.promisify(exec4);
+var writeFilePromise = util.promisify(fs5.writeFile);
+var mkdirPromise = util.promisify(fs5.mkdir);
+var unlinkPromise = util.promisify(fs5.unlink);
+var rmdirPromise = util.promisify(fs5.rmdir);
 var CodeSandboxService = class {
   tempDir;
   timeout = 1e4;
   // 10 secondes par défaut
   constructor() {
-    this.tempDir = path3.join(os2.tmpdir(), "mc2i-code-sandbox");
-    if (!fs3.existsSync(this.tempDir)) {
-      fs3.mkdirSync(this.tempDir, { recursive: true });
+    this.tempDir = path5.join(os4.tmpdir(), "mc2i-code-sandbox");
+    if (!fs5.existsSync(this.tempDir)) {
+      fs5.mkdirSync(this.tempDir, { recursive: true });
     }
   }
   /**
@@ -14112,8 +17136,8 @@ var CodeSandboxService = class {
    */
   async executePython(code) {
     const startTime = Date.now();
-    const fileId = uuidv45();
-    const tempFilePath = path3.join(this.tempDir, `${fileId}.py`);
+    const fileId = uuidv46();
+    const tempFilePath = path5.join(this.tempDir, `${fileId}.py`);
     try {
       await writeFilePromise(tempFilePath, code);
       const pythonPath = "/nix/store/wqhkxzzlaswkj3gimqign99sshvllcg6-python-wrapped-0.1.0/bin/python3.11";
@@ -14148,9 +17172,9 @@ var CodeSandboxService = class {
    */
   async executeTypeScript(code) {
     const startTime = Date.now();
-    const fileId = uuidv45();
-    const tempDirPath = path3.join(this.tempDir, fileId);
-    const tempFilePath = path3.join(tempDirPath, "index.ts");
+    const fileId = uuidv46();
+    const tempDirPath = path5.join(this.tempDir, fileId);
+    const tempFilePath = path5.join(tempDirPath, "index.ts");
     try {
       await mkdirPromise(tempDirPath, { recursive: true });
       await writeFilePromise(tempFilePath, code);
@@ -14983,7 +18007,7 @@ async function getCodeGenerationHistory(req, res) {
 }
 async function generatePromptExamples(req, res) {
   try {
-    const { language = "general", count = 3 } = req.body;
+    const { language = "general", count: count2 = 3 } = req.body;
     const userId = req.headers["x-user-id"] ? parseInt(req.headers["x-user-id"]) : void 0;
     const key = `user:${userId || "anonymous"}`;
     const allowed = await rateLimiterService.check(key, "developement");
@@ -14994,13 +18018,13 @@ async function generatePromptExamples(req, res) {
         // Attendre 60 secondes par défaut
       });
     }
-    const cacheKey = `prompt_examples_${language}_${count}`;
+    const cacheKey = `prompt_examples_${language}_${count2}`;
     const cachedExamples = await simpleCacheService.get(cacheKey, "prompt_examples");
     if (cachedExamples) {
       await simpleCacheService.logCacheHit("prompt_examples", "Exemples de prompts");
       return res.json({ examples: JSON.parse(cachedExamples) });
     }
-    const systemPrompt = `Tu es un expert en programmation et en g\xE9n\xE9ration de code, sp\xE9cialis\xE9 dans Python, SQL et les formules Excel. G\xE9n\xE8re ${count} id\xE9es de projets ou de fonctionnalit\xE9s de code que quelqu'un pourrait vouloir impl\xE9menter.`;
+    const systemPrompt = `Tu es un expert en programmation et en g\xE9n\xE9ration de code, sp\xE9cialis\xE9 dans Python, SQL et les formules Excel. G\xE9n\xE8re ${count2} id\xE9es de projets ou de fonctionnalit\xE9s de code que quelqu'un pourrait vouloir impl\xE9menter.`;
     let userPrompt = "";
     if (language === "python") {
       userPrompt = `G\xE9n\xE8re des id\xE9es cr\xE9atives et pratiques pour des scripts Python, en te concentrant sur l'analyse de donn\xE9es, l'automatisation, les algorithmes, et la science des donn\xE9es.`;
@@ -15254,13 +18278,13 @@ ${code}` }
 init_openai();
 async function generateCyberPractices(req, res) {
   try {
-    const count = parseInt(req.query.count) || 10;
+    const count2 = parseInt(req.query.count) || 10;
     const systemPrompt = `Tu es un expert en cybers\xE9curit\xE9. G\xE9n\xE8re un ensemble de pratiques de cybers\xE9curit\xE9, 
     comprenant \xE0 la fois de bonnes et de mauvaises pratiques. 
     Pour chaque \xE9l\xE9ment, fournis le texte (court, max 6 mots), indique s'il s'agit d'une bonne pratique (true) 
     ou d'une mauvaise pratique (false), et une br\xE8ve explication (maximum 20 mots) sur pourquoi c'est une bonne ou 
     mauvaise pratique. R\xE9ponds UNIQUEMENT avec un tableau JSON sans aucun texte avant ou apr\xE8s.`;
-    const userPrompt = `G\xE9n\xE8re exactement ${count} pratiques de cybers\xE9curit\xE9 al\xE9atoires, 
+    const userPrompt = `G\xE9n\xE8re exactement ${count2} pratiques de cybers\xE9curit\xE9 al\xE9atoires, 
     avec exactement 50% de bonnes pratiques (isGood: true) et 50% de mauvaises pratiques (isGood: false). 
     
     Format attendu pour chaque pratique:
@@ -16388,10 +19412,10 @@ init_gemini();
 init_dbCacheService();
 init_db();
 init_schema();
-import { eq as eq4 } from "drizzle-orm";
+import { eq as eq6 } from "drizzle-orm";
 async function getCustomModules(req, res) {
   try {
-    const modules = await db.select().from(customModules).where(eq4(customModules.isActive, true)).orderBy(customModules.displayOrder);
+    const modules = await db.select().from(customModules).where(eq6(customModules.isActive, true)).orderBy(customModules.displayOrder);
     console.log("Modules r\xE9cup\xE9r\xE9s:", modules);
     return res.status(200).json({
       success: true,
@@ -16414,7 +19438,7 @@ async function getCustomModuleById(req, res) {
         message: "ID de module invalide"
       });
     }
-    const [module] = await db.select().from(customModules).where(eq4(customModules.id, moduleId));
+    const [module] = await db.select().from(customModules).where(eq6(customModules.id, moduleId));
     if (!module) {
       return res.status(404).json({
         success: false,
@@ -16442,7 +19466,7 @@ async function deleteCustomModule(req, res) {
         message: "ID de module invalide"
       });
     }
-    const [module] = await db.select().from(customModules).where(eq4(customModules.id, moduleId));
+    const [module] = await db.select().from(customModules).where(eq6(customModules.id, moduleId));
     if (!module) {
       return res.status(404).json({
         success: false,
@@ -16455,7 +19479,7 @@ async function deleteCustomModule(req, res) {
         message: "Impossible de supprimer un module syst\xE8me. Seuls les modules personnalis\xE9s peuvent \xEAtre supprim\xE9s."
       });
     }
-    await db.delete(customModules).where(eq4(customModules.id, moduleId));
+    await db.delete(customModules).where(eq6(customModules.id, moduleId));
     return res.json({
       success: true,
       message: "Module supprim\xE9 avec succ\xE8s"
@@ -16473,7 +19497,7 @@ async function deleteCustomModule(req, res) {
 init_openai();
 init_db();
 init_schema();
-import { eq as eq5, desc as desc3 } from "drizzle-orm";
+import { eq as eq7, desc as desc3 } from "drizzle-orm";
 async function generateModule(req, res) {
   try {
     const moduleConfig = req.body;
@@ -16746,8 +19770,8 @@ async function saveCustomModule(req, res) {
       };
       await db.update(customModules).set({
         moduleData: updatedModuleData
-      }).where(eq5(customModules.id, createdModule.id));
-      const updatedModule = await db.select().from(customModules).where(eq5(customModules.id, createdModule.id)).then((results) => results[0]);
+      }).where(eq7(customModules.id, createdModule.id));
+      const updatedModule = await db.select().from(customModules).where(eq7(customModules.id, createdModule.id)).then((results) => results[0]);
       return res.json({
         success: true,
         module: updatedModule
@@ -16798,7 +19822,7 @@ function getIconComponent(domain) {
 init_openai();
 init_db();
 init_schema();
-import { eq as eq6, and as and2 } from "drizzle-orm";
+import { eq as eq8, and as and2 } from "drizzle-orm";
 async function generateInvestigationNotes(req, res) {
   try {
     const { prompt, evidences, suspects, currentLevel } = req.body;
@@ -17193,8 +20217,8 @@ async function generateInvestigationScenario(req, res) {
 init_db();
 init_schema();
 init_openai();
-import { eq as eq7, and as and3 } from "drizzle-orm";
-import { v4 as uuidv46 } from "uuid";
+import { eq as eq9, and as and3 } from "drizzle-orm";
+import { v4 as uuidv47 } from "uuid";
 async function getInvestigationProgress(req, res) {
   try {
     const { userId, gameId, sessionId } = req.params;
@@ -17203,8 +20227,8 @@ async function getInvestigationProgress(req, res) {
     }
     let query = db.select().from(investigationProgress).where(
       and3(
-        eq7(investigationProgress.userId, userId),
-        eq7(investigationProgress.gameId, gameId)
+        eq9(investigationProgress.userId, userId),
+        eq9(investigationProgress.gameId, gameId)
       )
     );
     if (sessionId) {
@@ -17236,7 +20260,7 @@ async function getInvestigationProgress(req, res) {
           completedScenarios: [],
           attempts: 0,
           lastFeedback: {},
-          sessionId: sessionId || uuidv46()
+          sessionId: sessionId || uuidv47()
         }
       });
     }
@@ -17265,9 +20289,9 @@ async function saveInvestigationProgress(req, res) {
     }
     const existingProgress = await db.select().from(investigationProgress).where(
       and3(
-        eq7(investigationProgress.userId, userId),
-        eq7(investigationProgress.gameId, gameId),
-        eq7(investigationProgress.sessionId, sessionId)
+        eq9(investigationProgress.userId, userId),
+        eq9(investigationProgress.gameId, gameId),
+        eq9(investigationProgress.sessionId, sessionId)
       )
     );
     let result;
@@ -17282,9 +20306,9 @@ async function saveInvestigationProgress(req, res) {
         lastUpdated: /* @__PURE__ */ new Date()
       }).where(
         and3(
-          eq7(investigationProgress.userId, userId),
-          eq7(investigationProgress.gameId, gameId),
-          eq7(investigationProgress.sessionId, sessionId)
+          eq9(investigationProgress.userId, userId),
+          eq9(investigationProgress.gameId, gameId),
+          eq9(investigationProgress.sessionId, sessionId)
         )
       ).returning();
     } else {
@@ -17415,9 +20439,9 @@ async function evaluateUserNotes(req, res) {
     }
     const existingProgress = await db.select().from(investigationProgress).where(
       and3(
-        eq7(investigationProgress.userId, userId),
-        eq7(investigationProgress.gameId, gameId),
-        eq7(investigationProgress.sessionId, sessionId)
+        eq9(investigationProgress.userId, userId),
+        eq9(investigationProgress.gameId, gameId),
+        eq9(investigationProgress.sessionId, sessionId)
       )
     );
     if (existingProgress.length > 0) {
@@ -17429,9 +20453,9 @@ async function evaluateUserNotes(req, res) {
         lastUpdated: /* @__PURE__ */ new Date()
       }).where(
         and3(
-          eq7(investigationProgress.userId, userId),
-          eq7(investigationProgress.gameId, gameId),
-          eq7(investigationProgress.sessionId, sessionId)
+          eq9(investigationProgress.userId, userId),
+          eq9(investigationProgress.gameId, gameId),
+          eq9(investigationProgress.sessionId, sessionId)
         )
       );
     } else {
@@ -17905,8 +20929,8 @@ ${description}`;
 // server/userController.ts
 init_db();
 init_schema();
-import { eq as eq8 } from "drizzle-orm";
-import { v4 as uuidv47 } from "uuid";
+import { eq as eq10 } from "drizzle-orm";
+import { v4 as uuidv48 } from "uuid";
 async function getOrCreateUser(req, res) {
   try {
     const { username } = req.body;
@@ -17916,7 +20940,7 @@ async function getOrCreateUser(req, res) {
         error: "Nom d'utilisateur requis"
       });
     }
-    const existingUser = await db.select({ id: users.id }).from(users).where(eq8(users.username, username)).limit(1);
+    const existingUser = await db.select({ id: users.id }).from(users).where(eq10(users.username, username)).limit(1);
     if (existingUser.length > 0) {
       return res.json({
         success: true,
@@ -17928,7 +20952,7 @@ async function getOrCreateUser(req, res) {
       username,
       // Utiliser un mot de passe par défaut sécurisé pour la démo
       // En production, il faudrait utiliser un système d'authentification complet
-      password: uuidv47()
+      password: uuidv48()
       // Mot de passe aléatoire pour chaque utilisateur
     }).returning({ id: users.id });
     return res.status(201).json({
@@ -17956,7 +20980,7 @@ async function getUserById(req, res) {
     const user = await db.select({
       id: users.id,
       username: users.username
-    }).from(users).where(eq8(users.id, Number(userId))).limit(1);
+    }).from(users).where(eq10(users.id, Number(userId))).limit(1);
     if (!user.length) {
       return res.status(404).json({
         success: false,
@@ -17975,6 +20999,552 @@ async function getUserById(req, res) {
     });
   }
 }
+
+// server/adminController.ts
+init_storage();
+init_db();
+init_schema();
+import bcrypt5 from "bcryptjs";
+import { desc as desc4, count, sql as sql3, gte } from "drizzle-orm";
+
+// server/services/userReportService.ts
+init_db();
+init_schema();
+import PDFDocument from "pdfkit";
+import { eq as eq11 } from "drizzle-orm";
+async function generateUserReport(userId, res) {
+  const [userRow] = await db.select().from(users).where(eq11(users.id, userId)).limit(1);
+  if (!userRow) throw new Error("Utilisateur non trouv\xE9");
+  const [learningRows, investigationRows] = await Promise.all([
+    db.select().from(userLearningProgress).where(eq11(userLearningProgress.userId, String(userId))),
+    db.select().from(investigationProgress).where(eq11(investigationProgress.userId, String(userId)))
+  ]);
+  const fullName = [userRow.firstName, userRow.lastName].filter(Boolean).join(" ") || userRow.username;
+  const now = /* @__PURE__ */ new Date();
+  const dateStr = now.toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
+  const doc = new PDFDocument({ margin: 50, size: "A4" });
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `attachment; filename="rapport-${userRow.username}-${now.getTime()}.pdf"`);
+  res.setHeader("Cache-Control", "no-store");
+  doc.pipe(res);
+  doc.rect(0, 0, doc.page.width, 90).fill("#006a9e");
+  doc.fillColor("white").fontSize(24).font("Helvetica-Bold").text("FYNE", 50, 28);
+  doc.fontSize(11).font("Helvetica").text("Rapport de progression utilisateur", 50, 56);
+  doc.text(dateStr, doc.page.width - 160, 56, { width: 110, align: "right" });
+  doc.fillColor("#111827").fontSize(18).font("Helvetica-Bold").text(fullName, 50, 110);
+  doc.fontSize(11).font("Helvetica").fillColor("#6b7280").text(`@${userRow.username}`, 50, 132).text(userRow.email || "", 50, 148);
+  const badgeY = 110;
+  const roleColor = userRow.role === "admin" ? "#dd0061" : "#006a9e";
+  const roleLabel = userRow.role === "admin" ? "Administrateur" : "Utilisateur";
+  doc.roundedRect(doc.page.width - 160, badgeY, 110, 22, 11).fill(roleColor + "20");
+  doc.fillColor(roleColor).fontSize(10).font("Helvetica-Bold").text(roleLabel, doc.page.width - 160, badgeY + 6, { width: 110, align: "center" });
+  doc.moveTo(50, 180).lineTo(doc.page.width - 50, 180).strokeColor("#e5e7eb").lineWidth(1).stroke();
+  let y = 200;
+  doc.fillColor("#006a9e").fontSize(13).font("Helvetica-Bold").text("Informations du compte", 50, y);
+  y += 22;
+  const infoFields = [
+    ["Statut", userRow.isActive ? "Actif" : "Inactif"],
+    ["Membre depuis", userRow.createdAt ? new Date(userRow.createdAt).toLocaleDateString("fr-FR") : "\u2014"],
+    ["Derni\xE8re connexion", userRow.lastLogin ? new Date(userRow.lastLogin).toLocaleDateString("fr-FR") : "Jamais"],
+    ["Email", userRow.email || "\u2014"]
+  ];
+  for (const [label, value] of infoFields) {
+    doc.fillColor("#6b7280").font("Helvetica").fontSize(10).text(label, 50, y, { width: 140 });
+    doc.fillColor("#111827").font("Helvetica-Bold").fontSize(10).text(value, 200, y);
+    y += 18;
+  }
+  y += 15;
+  doc.moveTo(50, y).lineTo(doc.page.width - 50, y).strokeColor("#e5e7eb").lineWidth(1).stroke();
+  y += 20;
+  doc.fillColor("#006a9e").fontSize(13).font("Helvetica-Bold").text("Parcours d'apprentissage", 50, y);
+  y += 8;
+  doc.fillColor("#6b7280").fontSize(10).font("Helvetica").text(`${learningRows.length} module${learningRows.length > 1 ? "s" : ""} suivi${learningRows.length > 1 ? "s" : ""}`, 50, y + 14);
+  y += 32;
+  if (learningRows.length === 0) {
+    doc.fillColor("#9ca3af").fontSize(10).font("Helvetica").text("Aucun module suivi pour l'instant.", 50, y);
+    y += 25;
+  } else {
+    for (const row of learningRows) {
+      if (y > doc.page.height - 100) {
+        doc.addPage();
+        y = 50;
+      }
+      doc.roundedRect(50, y, doc.page.width - 100, 46, 6).fill("#f9fafb");
+      doc.fillColor("#111827").font("Helvetica-Bold").fontSize(11).text(row.moduleId, 65, y + 8, { width: 280 });
+      doc.fillColor("#006a9e").font("Helvetica-Bold").fontSize(10).text(`Niveau ${row.level}`, 65, y + 24);
+      doc.fillColor("#6b7280").font("Helvetica").fontSize(10).text(`${row.xp} XP`, 140, y + 24);
+      doc.fillColor("#374151").font("Helvetica").fontSize(10).text(row.rank, 195, y + 24);
+      const updated = new Date(row.lastUpdated).toLocaleDateString("fr-FR");
+      doc.fillColor("#9ca3af").font("Helvetica").fontSize(9).text(updated, doc.page.width - 110, y + 28, { width: 60, align: "right" });
+      y += 56;
+    }
+  }
+  y += 5;
+  doc.moveTo(50, y).lineTo(doc.page.width - 50, y).strokeColor("#e5e7eb").lineWidth(1).stroke();
+  y += 20;
+  doc.fillColor("#006a9e").fontSize(13).font("Helvetica-Bold").text("Investigations & Challenges", 50, y);
+  y += 8;
+  doc.fillColor("#6b7280").fontSize(10).font("Helvetica").text(`${investigationRows.length} sc\xE9nario${investigationRows.length > 1 ? "s" : ""} jou\xE9${investigationRows.length > 1 ? "s" : ""}`, 50, y + 14);
+  y += 32;
+  if (investigationRows.length === 0) {
+    doc.fillColor("#9ca3af").fontSize(10).font("Helvetica").text("Aucune investigation pour l'instant.", 50, y);
+    y += 25;
+  } else {
+    for (const row of investigationRows.slice(0, 10)) {
+      if (y > doc.page.height - 100) {
+        doc.addPage();
+        y = 50;
+      }
+      doc.roundedRect(50, y, doc.page.width - 100, 46, 6).fill("#f9fafb");
+      doc.fillColor("#111827").font("Helvetica-Bold").fontSize(11).text(row.gameId, 65, y + 8, { width: 260 });
+      doc.fillColor("#dd0061").font("Helvetica-Bold").fontSize(10).text(`Score: ${row.bestScore}`, 65, y + 24);
+      doc.fillColor("#6b7280").font("Helvetica").fontSize(10).text(`${row.attempts} tentative${row.attempts > 1 ? "s" : ""}`, 150, y + 24);
+      doc.fillColor("#374151").font("Helvetica").fontSize(10).text(row.currentLevel, 240, y + 24);
+      y += 56;
+    }
+  }
+  doc.moveTo(50, doc.page.height - 60).lineTo(doc.page.width - 50, doc.page.height - 60).strokeColor("#e5e7eb").lineWidth(1).stroke();
+  doc.fillColor("#9ca3af").fontSize(9).font("Helvetica").text("G\xE9n\xE9r\xE9 par FYNE \xB7 Plateforme mc2i \xB7 " + dateStr, 50, doc.page.height - 45, {
+    width: doc.page.width - 100,
+    align: "center"
+  });
+  doc.end();
+}
+
+// server/adminController.ts
+var AdminController = class {
+  // Liste tous les utilisateurs (sauf l'admin courant)
+  static async listUsers(req, res) {
+    try {
+      const allUsers = await db.select({
+        id: users.id,
+        username: users.username,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        role: users.role,
+        isActive: users.isActive,
+        lastLogin: users.lastLogin,
+        createdAt: users.createdAt,
+        modulesEnabled: users.modulesEnabled
+      }).from(users).orderBy(desc4(users.createdAt));
+      res.json({ success: true, users: allUsers });
+    } catch (error) {
+      console.error("Erreur listUsers:", error);
+      res.status(500).json({ success: false, message: "Erreur serveur" });
+    }
+  }
+  // Crée un nouvel utilisateur
+  static async createUser(req, res) {
+    try {
+      const { username, password, email, firstName, lastName, role } = req.body;
+      if (!username || !password) {
+        return res.status(400).json({ success: false, message: "Username et mot de passe requis" });
+      }
+      const existing = await storage.getUserByUsername(username);
+      if (existing) {
+        return res.status(409).json({ success: false, message: "Ce nom d'utilisateur existe d\xE9j\xE0" });
+      }
+      const hashedPassword = await bcrypt5.hash(password, 10);
+      const user = await storage.createUser({
+        username,
+        password: hashedPassword,
+        email: email || null,
+        firstName: firstName || null,
+        lastName: lastName || null,
+        role: role === "admin" ? "admin" : "user",
+        isActive: true
+      });
+      res.json({
+        success: true,
+        message: "Utilisateur cr\xE9\xE9 avec succ\xE8s",
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          role: user.role
+        }
+      });
+    } catch (error) {
+      console.error("Erreur createUser:", error);
+      res.status(500).json({ success: false, message: "Erreur serveur" });
+    }
+  }
+  // Active ou désactive un compte
+  static async toggleUser(req, res) {
+    try {
+      const userId = parseInt(req.params.id);
+      const session3 = req.session;
+      if (userId === session3.user.id) {
+        return res.status(400).json({ success: false, message: "Impossible de modifier votre propre compte" });
+      }
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ success: false, message: "Utilisateur non trouv\xE9" });
+      }
+      const { eq: eq14 } = await import("drizzle-orm");
+      await db.update(users).set({ isActive: !user.isActive, updatedAt: /* @__PURE__ */ new Date() }).where(eq14(users.id, userId));
+      res.json({ success: true, isActive: !user.isActive });
+    } catch (error) {
+      console.error("Erreur toggleUser:", error);
+      res.status(500).json({ success: false, message: "Erreur serveur" });
+    }
+  }
+  // Réinitialise le mot de passe d'un utilisateur
+  static async resetPassword(req, res) {
+    try {
+      const userId = parseInt(req.params.id);
+      const { newPassword } = req.body;
+      if (!newPassword || newPassword.length < 6) {
+        return res.status(400).json({ success: false, message: "Mot de passe trop court (6 caract\xE8res min)" });
+      }
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ success: false, message: "Utilisateur non trouv\xE9" });
+      }
+      const { eq: eq14 } = await import("drizzle-orm");
+      const hashedPassword = await bcrypt5.hash(newPassword, 10);
+      await db.update(users).set({ password: hashedPassword, updatedAt: /* @__PURE__ */ new Date() }).where(eq14(users.id, userId));
+      res.json({ success: true, message: "Mot de passe r\xE9initialis\xE9" });
+    } catch (error) {
+      console.error("Erreur resetPassword:", error);
+      res.status(500).json({ success: false, message: "Erreur serveur" });
+    }
+  }
+  // Supprime un utilisateur
+  static async deleteUser(req, res) {
+    try {
+      const userId = parseInt(req.params.id);
+      const session3 = req.session;
+      if (userId === session3.user.id) {
+        return res.status(400).json({ success: false, message: "Impossible de supprimer votre propre compte" });
+      }
+      const { eq: eq14 } = await import("drizzle-orm");
+      await db.delete(users).where(eq14(users.id, userId));
+      res.json({ success: true, message: "Utilisateur supprim\xE9" });
+    } catch (error) {
+      console.error("Erreur deleteUser:", error);
+      res.status(500).json({ success: false, message: "Erreur serveur" });
+    }
+  }
+  // Génère un rapport PDF pour un utilisateur
+  static async exportUserPDF(req, res) {
+    try {
+      const userId = parseInt(req.params.id);
+      await generateUserReport(userId, res);
+    } catch (error) {
+      console.error("Erreur exportUserPDF:", error);
+      if (!res.headersSent) {
+        res.status(500).json({ success: false, message: error.message || "Erreur serveur" });
+      }
+    }
+  }
+  // Consommation LLM par utilisateur
+  static async getLlmUsage(req, res) {
+    try {
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 864e5);
+      const usageByUser = await db.execute(sql3`
+        SELECT
+          user_id,
+          username,
+          COUNT(*) AS requests,
+          SUM(total_tokens) AS total_tokens,
+          SUM(prompt_tokens) AS prompt_tokens,
+          SUM(completion_tokens) AS completion_tokens,
+          MAX(created_at) AS last_used,
+          STRING_AGG(DISTINCT model, ', ') AS models_used
+        FROM llm_usage
+        WHERE created_at >= ${thirtyDaysAgo}
+        GROUP BY user_id, username
+        ORDER BY total_tokens DESC
+        LIMIT 50
+      `);
+      const usageByFeature = await db.execute(sql3`
+        SELECT
+          feature,
+          COUNT(*) AS requests,
+          SUM(total_tokens) AS total_tokens,
+          SUM(prompt_tokens) AS prompt_tokens,
+          SUM(completion_tokens) AS completion_tokens,
+          STRING_AGG(DISTINCT model, ', ') AS models_used
+        FROM llm_usage
+        WHERE created_at >= ${thirtyDaysAgo}
+        GROUP BY feature
+        ORDER BY total_tokens DESC
+        LIMIT 20
+      `);
+      const usageByModel = await db.execute(sql3`
+        SELECT
+          model,
+          COUNT(*) AS requests,
+          SUM(total_tokens) AS total_tokens,
+          SUM(prompt_tokens) AS prompt_tokens,
+          SUM(completion_tokens) AS completion_tokens,
+          COUNT(DISTINCT user_id) AS unique_users
+        FROM llm_usage
+        WHERE created_at >= ${thirtyDaysAgo}
+        GROUP BY model
+        ORDER BY total_tokens DESC
+      `);
+      const totalTokens30d = await db.execute(sql3`
+        SELECT COALESCE(SUM(total_tokens), 0) AS total FROM llm_usage WHERE created_at >= ${thirtyDaysAgo}
+      `);
+      res.json({
+        success: true,
+        usageByUser: usageByUser.rows ?? [],
+        usageByFeature: usageByFeature.rows ?? [],
+        usageByModel: usageByModel.rows ?? [],
+        totalTokens30d: Number((totalTokens30d.rows ?? [])[0]?.total ?? 0)
+      });
+    } catch (error) {
+      console.error("Erreur getLlmUsage:", error);
+      res.status(500).json({ success: false, message: "Erreur serveur" });
+    }
+  }
+  // Statistiques d'utilisation pour le dashboard admin
+  static async getStats(req, res) {
+    try {
+      const now = /* @__PURE__ */ new Date();
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 864e5);
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 864e5);
+      const [
+        totalUsersRes,
+        activeUsersRes,
+        adminUsersRes,
+        recentLoginsRes,
+        newUsersRes,
+        learningProgressRes,
+        investigationRes,
+        cacheHitsRes,
+        recentUsersRes
+      ] = await Promise.all([
+        db.select({ count: count() }).from(users),
+        db.select({ count: count() }).from(users).where(sql3`${users.isActive} = true`),
+        db.select({ count: count() }).from(users).where(sql3`${users.role} = 'admin'`),
+        db.select({ count: count() }).from(users).where(gte(users.lastLogin, thirtyDaysAgo)),
+        db.select({ count: count() }).from(users).where(gte(users.createdAt, thirtyDaysAgo)),
+        db.select({ count: count() }).from(userLearningProgress),
+        db.select({ count: count() }).from(investigationProgress),
+        db.select({ total: sql3`COALESCE(SUM(${llmCache.hits}), 0)` }).from(llmCache),
+        db.select({
+          id: users.id,
+          username: users.username,
+          email: users.email,
+          role: users.role,
+          lastLogin: users.lastLogin,
+          createdAt: users.createdAt
+        }).from(users).orderBy(desc4(users.lastLogin)).limit(5)
+      ]);
+      const signupsByMonth = await db.execute(sql3`
+        SELECT
+          TO_CHAR(created_at, 'Mon YYYY') AS month,
+          DATE_TRUNC('month', created_at) AS month_date,
+          COUNT(*) AS count
+        FROM users
+        WHERE created_at >= NOW() - INTERVAL '6 months'
+        GROUP BY month, month_date
+        ORDER BY month_date ASC
+      `);
+      res.json({
+        success: true,
+        stats: {
+          totalUsers: Number(totalUsersRes[0].count),
+          activeUsers: Number(activeUsersRes[0].count),
+          adminUsers: Number(adminUsersRes[0].count),
+          recentLogins30d: Number(recentLoginsRes[0].count),
+          newUsers30d: Number(newUsersRes[0].count),
+          newUsers7d: 0,
+          learningProgressRecords: Number(learningProgressRes[0].count),
+          investigationRecords: Number(investigationRes[0].count),
+          cacheHitsTotal: Number(cacheHitsRes[0].total),
+          recentUsers: recentUsersRes,
+          signupsByMonth: signupsByMonth.rows ?? []
+        }
+      });
+    } catch (error) {
+      console.error("Erreur getStats:", error);
+      res.status(500).json({ success: false, message: "Erreur serveur" });
+    }
+  }
+};
+
+// server/superAdminController.ts
+init_db();
+init_schema();
+import { eq as eq13, desc as desc5, sql as sql4 } from "drizzle-orm";
+import bcrypt6 from "bcryptjs";
+var ALL_MODULES = [
+  { id: "cyber", label: "I AM CYBER" },
+  { id: "data", label: "I AM DATA & IA" },
+  { id: "amoa", label: "I AM mc2i (AMOA)" },
+  { id: "formation-data", label: "FORMATION DATA" },
+  { id: "evaluation", label: "MODE \xC9VALUATION" },
+  { id: "playground", label: "PLAYGROUND / G\xC9N\xC9RATEUR" }
+];
+function requireSuperAdmin2(req, res) {
+  const session3 = req.session;
+  if (session3?.user?.role !== "superadmin") {
+    res.status(403).json({ success: false, message: "Acc\xE8s r\xE9serv\xE9 au super administrateur." });
+    return false;
+  }
+  return true;
+}
+var SuperAdminController = class {
+  // GET /api/superadmin/users — liste complète avec abonnements
+  static async listUsers(req, res) {
+    if (!requireSuperAdmin2(req, res)) return;
+    try {
+      const allUsers = await db.select({
+        id: users.id,
+        username: users.username,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        role: users.role,
+        isActive: users.isActive,
+        lastLogin: users.lastLogin,
+        createdAt: users.createdAt,
+        modulesEnabled: users.modulesEnabled,
+        tokenQuota: users.tokenQuota,
+        tokenUsedMonth: users.tokenUsedMonth,
+        tokenResetAt: users.tokenResetAt,
+        subscriptionLabel: users.subscriptionLabel,
+        subscriptionExpiresAt: users.subscriptionExpiresAt
+      }).from(users).orderBy(desc5(users.createdAt));
+      res.json({ success: true, users: allUsers, allModules: ALL_MODULES });
+    } catch (e) {
+      res.status(500).json({ success: false, message: e.message });
+    }
+  }
+  // PATCH /api/superadmin/users/:id/role — changer le rôle
+  static async updateRole(req, res) {
+    if (!requireSuperAdmin2(req, res)) return;
+    try {
+      const userId = parseInt(req.params.id);
+      const session3 = req.session;
+      if (userId === session3.user.id)
+        return res.status(400).json({ success: false, message: "Impossible de modifier votre propre r\xF4le." });
+      const { role } = req.body;
+      if (!["user", "admin", "superadmin"].includes(role))
+        return res.status(400).json({ success: false, message: "R\xF4le invalide." });
+      await db.update(users).set({ role, updatedAt: /* @__PURE__ */ new Date() }).where(eq13(users.id, userId));
+      res.json({ success: true, message: `R\xF4le mis \xE0 jour : ${role}` });
+    } catch (e) {
+      res.status(500).json({ success: false, message: e.message });
+    }
+  }
+  // PATCH /api/superadmin/users/:id/subscription — modules, quota, abonnement
+  static async updateSubscription(req, res) {
+    if (!requireSuperAdmin2(req, res)) return;
+    try {
+      const userId = parseInt(req.params.id);
+      const { modulesEnabled, tokenQuota, subscriptionLabel, subscriptionExpiresAt } = req.body;
+      const patch = { updatedAt: /* @__PURE__ */ new Date() };
+      if (Array.isArray(modulesEnabled)) patch.modulesEnabled = modulesEnabled;
+      if (typeof tokenQuota === "number") patch.tokenQuota = tokenQuota;
+      if (subscriptionLabel != null) patch.subscriptionLabel = subscriptionLabel;
+      if (subscriptionExpiresAt != null) patch.subscriptionExpiresAt = subscriptionExpiresAt ? new Date(subscriptionExpiresAt) : null;
+      await db.update(users).set(patch).where(eq13(users.id, userId));
+      res.json({ success: true, message: "Abonnement mis \xE0 jour." });
+    } catch (e) {
+      res.status(500).json({ success: false, message: e.message });
+    }
+  }
+  // POST /api/superadmin/users/:id/reset-tokens — remet le compteur à 0
+  static async resetTokens(req, res) {
+    if (!requireSuperAdmin2(req, res)) return;
+    try {
+      const userId = parseInt(req.params.id);
+      await db.update(users).set({
+        tokenUsedMonth: 0,
+        tokenResetAt: /* @__PURE__ */ new Date(),
+        updatedAt: /* @__PURE__ */ new Date()
+      }).where(eq13(users.id, userId));
+      res.json({ success: true, message: "Compteur de tokens r\xE9initialis\xE9." });
+    } catch (e) {
+      res.status(500).json({ success: false, message: e.message });
+    }
+  }
+  // PATCH /api/superadmin/users/:id/toggle — activer/désactiver
+  static async toggleUser(req, res) {
+    if (!requireSuperAdmin2(req, res)) return;
+    try {
+      const userId = parseInt(req.params.id);
+      const session3 = req.session;
+      if (userId === session3.user.id)
+        return res.status(400).json({ success: false, message: "Impossible de modifier votre propre compte." });
+      const [user] = await db.select({ isActive: users.isActive }).from(users).where(eq13(users.id, userId));
+      if (!user) return res.status(404).json({ success: false, message: "Utilisateur introuvable." });
+      await db.update(users).set({ isActive: !user.isActive, updatedAt: /* @__PURE__ */ new Date() }).where(eq13(users.id, userId));
+      res.json({ success: true, isActive: !user.isActive });
+    } catch (e) {
+      res.status(500).json({ success: false, message: e.message });
+    }
+  }
+  // DELETE /api/superadmin/users/:id
+  static async deleteUser(req, res) {
+    if (!requireSuperAdmin2(req, res)) return;
+    try {
+      const userId = parseInt(req.params.id);
+      const session3 = req.session;
+      if (userId === session3.user.id)
+        return res.status(400).json({ success: false, message: "Impossible de supprimer votre propre compte." });
+      await db.delete(users).where(eq13(users.id, userId));
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ success: false, message: e.message });
+    }
+  }
+  // POST /api/superadmin/users — créer un utilisateur
+  static async createUser(req, res) {
+    if (!requireSuperAdmin2(req, res)) return;
+    try {
+      const { username, password, email, firstName, lastName, role, modulesEnabled, tokenQuota, subscriptionLabel } = req.body;
+      if (!username || !password)
+        return res.status(400).json({ success: false, message: "Username et mot de passe requis." });
+      const hashed = await bcrypt6.hash(password, 10);
+      const [user] = await db.insert(users).values({
+        username,
+        password: hashed,
+        email: email || null,
+        firstName: firstName || null,
+        lastName: lastName || null,
+        role: ["user", "admin", "superadmin"].includes(role) ? role : "user",
+        isActive: true,
+        modulesEnabled: Array.isArray(modulesEnabled) ? modulesEnabled : ALL_MODULES.map((m) => m.id),
+        tokenQuota: typeof tokenQuota === "number" ? tokenQuota : 1e5,
+        tokenUsedMonth: 0,
+        subscriptionLabel: subscriptionLabel || "Gratuit"
+      }).returning();
+      res.status(201).json({ success: true, user: { id: user.id, username: user.username, role: user.role } });
+    } catch (e) {
+      if (e.code === "23505") return res.status(409).json({ success: false, message: "Ce nom d'utilisateur existe d\xE9j\xE0." });
+      res.status(500).json({ success: false, message: e.message });
+    }
+  }
+  // GET /api/superadmin/token-stats — consommation tokens par user ce mois
+  static async tokenStats(req, res) {
+    if (!requireSuperAdmin2(req, res)) return;
+    try {
+      const startOfMonth = /* @__PURE__ */ new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      const stats = await db.execute(sql4`
+        SELECT
+          u.id, u.username, u.email,
+          u.token_quota, u.token_used_month, u.subscription_label,
+          COALESCE(SUM(l.total_tokens), 0) AS tokens_this_month
+        FROM users u
+        LEFT JOIN llm_usage l ON l.user_id = u.id AND l.created_at >= ${startOfMonth}
+        GROUP BY u.id, u.username, u.email, u.token_quota, u.token_used_month, u.subscription_label
+        ORDER BY tokens_this_month DESC
+      `);
+      res.json({ success: true, stats: stats.rows });
+    } catch (e) {
+      res.status(500).json({ success: false, message: e.message });
+    }
+  }
+};
 
 // server/amoaReflexTestController.ts
 init_openai();
@@ -18273,10 +21843,10 @@ var AMOA_CATEGORIES = [
 ];
 async function generateAmoaQuestions(req, res) {
   try {
-    const count = Math.min(parseInt(req.query.count) || 5, 5);
+    const count2 = Math.min(parseInt(req.query.count) || 5, 5);
     const systemPrompt = `Tu es un expert en Assistance \xE0 Ma\xEEtrise d'Ouvrage (AMOA) charg\xE9 de cr\xE9er des questions pour \xE9valuer les comp\xE9tences AMOA.
     
-G\xE9n\xE8re ${count} questions UNIQUES et DIFF\xC9RENTES de type QCM avec 4 r\xE9ponses possibles dont une seule est correcte.
+G\xE9n\xE8re ${count2} questions UNIQUES et DIFF\xC9RENTES de type QCM avec 4 r\xE9ponses possibles dont une seule est correcte.
 
 Pour chaque question:
 1. La question doit \xEAtre clairement formul\xE9e et pertinente pour \xE9valuer un profil AMOA
@@ -18309,7 +21879,7 @@ Format pr\xE9cis \xE0 respecter (JSON) :
 ]
 
 Assure-toi que chaque question couvre une probl\xE9matique diff\xE9rente en AMOA.`;
-    const userPrompt = `G\xE9n\xE8re ${count} questions distinctes pour \xE9valuer les comp\xE9tences d'un AMOA.`;
+    const userPrompt = `G\xE9n\xE8re ${count2} questions distinctes pour \xE9valuer les comp\xE9tences d'un AMOA.`;
     const response = await openAIService.getChatCompletion(
       [
         { role: "system", content: systemPrompt },
@@ -18351,7 +21921,7 @@ Assure-toi que chaque question couvre une probl\xE9matique diff\xE9rente en AMOA
       });
       return res.status(200).json({
         success: true,
-        questions: questions.slice(0, count)
+        questions: questions.slice(0, count2)
       });
     } catch (jsonError) {
       console.error("Erreur de parsing JSON:", jsonError);
@@ -18715,9 +22285,9 @@ var dataAcademieController_default = {
 // server/controllers/codeExecutionController.ts
 init_openai();
 init_db();
-import { exec as exec3 } from "child_process";
-import * as fs4 from "fs";
-import * as path4 from "path";
+import { exec as exec5 } from "child_process";
+import * as fs6 from "fs";
+import * as path6 from "path";
 import * as crypto2 from "crypto";
 import { fileURLToPath as fileURLToPath2 } from "url";
 import { dirname } from "path";
@@ -18728,22 +22298,22 @@ async function executePythonCode(req, res) {
   if (!code) {
     return res.status(400).json({ error: "Le code est requis" });
   }
-  if (!sessions2[sessionId]) {
-    sessions2[sessionId] = {
+  if (!sessions3[sessionId]) {
+    sessions3[sessionId] = {
       python: {},
       sql: { tempTables: [] }
     };
   }
   try {
     const fileId = crypto2.randomBytes(16).toString("hex");
-    const tempFilePath = path4.join(__dirname2, `../temp/code_${fileId}.py`);
-    const outputFilePath = path4.join(__dirname2, `../temp/output_${fileId}.txt`);
-    const sessionFilePath = path4.join(__dirname2, `../temp/session_${sessionId}.json`);
-    const tempDir = path4.join(__dirname2, "../temp");
-    if (!fs4.existsSync(tempDir)) {
-      fs4.mkdirSync(tempDir, { recursive: true });
+    const tempFilePath = path6.join(__dirname2, `../temp/code_${fileId}.py`);
+    const outputFilePath = path6.join(__dirname2, `../temp/output_${fileId}.txt`);
+    const sessionFilePath = path6.join(__dirname2, `../temp/session_${sessionId}.json`);
+    const tempDir = path6.join(__dirname2, "../temp");
+    if (!fs6.existsSync(tempDir)) {
+      fs6.mkdirSync(tempDir, { recursive: true });
     }
-    fs4.writeFileSync(sessionFilePath, JSON.stringify(sessions2[sessionId].python));
+    fs6.writeFileSync(sessionFilePath, JSON.stringify(sessions3[sessionId].python));
     const sessionCode = `
 import json
 import os
@@ -18809,20 +22379,20 @@ try:
 except Exception as e:
     print(f"Erreur lors de la sauvegarde de session: {str(e)}")
 `;
-    fs4.writeFileSync(tempFilePath, sessionCode);
+    fs6.writeFileSync(tempFilePath, sessionCode);
     const command = `python3 ${tempFilePath} > ${outputFilePath} 2>&1`;
-    exec3(command, { timeout: 1e4 }, async (error, stdout, stderr) => {
-      const output = fs4.existsSync(outputFilePath) ? fs4.readFileSync(outputFilePath, "utf8") : error ? error.message : "Aucune sortie";
-      if (fs4.existsSync(sessionFilePath)) {
+    exec5(command, { timeout: 1e4 }, async (error, stdout, stderr) => {
+      const output = fs6.existsSync(outputFilePath) ? fs6.readFileSync(outputFilePath, "utf8") : error ? error.message : "Aucune sortie";
+      if (fs6.existsSync(sessionFilePath)) {
         try {
-          const sessionData = JSON.parse(fs4.readFileSync(sessionFilePath, "utf8"));
-          sessions2[sessionId].python = sessionData;
+          const sessionData = JSON.parse(fs6.readFileSync(sessionFilePath, "utf8"));
+          sessions3[sessionId].python = sessionData;
         } catch (sessionError) {
           console.error("Erreur lors de la lecture des donn\xE9es de session:", sessionError);
         }
       }
-      if (fs4.existsSync(tempFilePath)) fs4.unlinkSync(tempFilePath);
-      if (fs4.existsSync(outputFilePath)) fs4.unlinkSync(outputFilePath);
+      if (fs6.existsSync(tempFilePath)) fs6.unlinkSync(tempFilePath);
+      if (fs6.existsSync(outputFilePath)) fs6.unlinkSync(outputFilePath);
       if (error && error.killed) {
         return res.status(400).json({
           result: "Ex\xE9cution interrompue : le d\xE9lai maximum a \xE9t\xE9 d\xE9pass\xE9 (10 secondes)",
@@ -18835,14 +22405,14 @@ except Exception as e:
           result: output,
           analysis,
           error: !!error,
-          sessionVariables: Object.keys(sessions2[sessionId].python).length > 0 ? `Variables sauvegard\xE9es: ${Object.keys(sessions2[sessionId].python).join(", ")}` : null
+          sessionVariables: Object.keys(sessions3[sessionId].python).length > 0 ? `Variables sauvegard\xE9es: ${Object.keys(sessions3[sessionId].python).join(", ")}` : null
         });
       } catch (analysisError) {
         return res.json({
           result: output,
           analysis: "L'analyse IA n'est pas disponible pour le moment.",
           error: !!error,
-          sessionVariables: Object.keys(sessions2[sessionId].python).length > 0 ? `Variables sauvegard\xE9es: ${Object.keys(sessions2[sessionId].python).join(", ")}` : null
+          sessionVariables: Object.keys(sessions3[sessionId].python).length > 0 ? `Variables sauvegard\xE9es: ${Object.keys(sessions3[sessionId].python).join(", ")}` : null
         });
       }
     });
@@ -18854,7 +22424,7 @@ except Exception as e:
     });
   }
 }
-var sessions2 = {};
+var sessions3 = {};
 async function resetSessionVariables(req, res) {
   const { sessionId, language } = req.body;
   if (!sessionId) {
@@ -18864,23 +22434,23 @@ async function resetSessionVariables(req, res) {
     });
   }
   try {
-    if (!sessions2[sessionId]) {
+    if (!sessions3[sessionId]) {
       return res.status(200).json({
         success: true,
         message: "Aucune session \xE0 r\xE9initialiser"
       });
     }
     if (language === "python" || !language) {
-      sessions2[sessionId].python = {};
-      const sessionFilePath = path4.join(__dirname2, `../temp/session_${sessionId}.json`);
-      if (fs4.existsSync(sessionFilePath)) {
-        fs4.unlinkSync(sessionFilePath);
+      sessions3[sessionId].python = {};
+      const sessionFilePath = path6.join(__dirname2, `../temp/session_${sessionId}.json`);
+      if (fs6.existsSync(sessionFilePath)) {
+        fs6.unlinkSync(sessionFilePath);
       }
     }
     if (language === "sql" || !language) {
       const client = await pool.connect();
       try {
-        const tempTables = sessions2[sessionId].sql.tempTables;
+        const tempTables = sessions3[sessionId].sql.tempTables;
         const schemaName = `session_${sessionId.replace(/[^a-zA-Z0-9]/g, "_")}`;
         for (const tableName of tempTables) {
           try {
@@ -18889,7 +22459,7 @@ async function resetSessionVariables(req, res) {
             console.error(`Erreur lors de la suppression de la table ${tableName}:`, error);
           }
         }
-        sessions2[sessionId].sql.tempTables = [];
+        sessions3[sessionId].sql.tempTables = [];
       } catch (error) {
         console.error("Erreur lors de la r\xE9initialisation des tables SQL:", error);
       } finally {
@@ -18913,8 +22483,8 @@ async function executeSQLCode(req, res) {
   if (!code) {
     return res.status(400).json({ error: "Le code est requis" });
   }
-  if (!sessions2[sessionId]) {
-    sessions2[sessionId] = {
+  if (!sessions3[sessionId]) {
+    sessions3[sessionId] = {
       python: {},
       sql: { tempTables: [] }
     };
@@ -18932,7 +22502,7 @@ async function executeSQLCode(req, res) {
       const tableNameMatch = sqlQuery.toLowerCase().match(/create\s+table\s+(?:if\s+not\s+exists\s+)?([a-zA-Z0-9_]+)/i);
       if (tableNameMatch && tableNameMatch[1]) {
         const tableName = tableNameMatch[1];
-        sessions2[sessionId].sql.tempTables.push(tableName);
+        sessions3[sessionId].sql.tempTables.push(tableName);
       }
     }
     const queryResult = await client.query(sqlQuery);
@@ -19038,7 +22608,7 @@ var EXERCISE_TYPES = [
 ];
 var CACHE_EXPIRY3 = 30 * 60 * 1e3;
 var questionCaches = [];
-function generateFallbackQuestions(category, difficulty, count, exerciseType) {
+function generateFallbackQuestions(category, difficulty, count2, exerciseType) {
   const questionType = exerciseType || "mcq";
   let fallbackQuestions = [];
   if (questionType === "code") {
@@ -19378,7 +22948,7 @@ public class PasswordHasher {
       }
     ];
   }
-  return fallbackQuestions.slice(0, Math.max(5, count));
+  return fallbackQuestions.slice(0, Math.max(5, count2));
 }
 function getCachedQuestions(category, difficulty, exerciseType) {
   const cache = questionCaches.find(
@@ -19420,7 +22990,7 @@ IMPORTANT: Ta r\xE9ponse doit \xEAtre un JSON valide et bien format\xE9. Assure-
 }
 async function generateQuestions(req, res) {
   try {
-    const { category, difficulty, exerciseType, count = 10 } = req.body;
+    const { category, difficulty, exerciseType, count: count2 = 10 } = req.body;
     if (!category || !difficulty) {
       return res.status(400).json({
         success: false,
@@ -19437,7 +23007,7 @@ async function generateQuestions(req, res) {
     if (cachedQuestions.length > 0) {
       return res.status(200).json({
         success: true,
-        questions: cachedQuestions.slice(0, count),
+        questions: cachedQuestions.slice(0, count2),
         fromCache: true
       });
     }
@@ -19451,7 +23021,7 @@ async function generateQuestions(req, res) {
     }
     const systemPrompt = `Tu es un \xE9valuateur technique senior en cybers\xE9curit\xE9 extr\xEAmement exigeant, sp\xE9cialis\xE9 dans la conception de tests techniques de haut niveau pour \xE9valuer rigoureusement les comp\xE9tences des professionnels.
 
-G\xE9n\xE8re ${count} questions techniques pointues dans la cat\xE9gorie "${categoryInfo.name}" avec un niveau de difficult\xE9 "${difficultyInfo.name}".
+G\xE9n\xE8re ${count2} questions techniques pointues dans la cat\xE9gorie "${categoryInfo.name}" avec un niveau de difficult\xE9 "${difficultyInfo.name}".
 Ces questions doivent \xEAtre SANS CONCESSION, tr\xE8s pr\xE9cises et permettre d'\xE9valuer avec rigueur et objectivit\xE9 les connaissances et comp\xE9tences r\xE9elles attendues d'un professionnel de la cybers\xE9curit\xE9.
 
 DIRECTIVE CRUCIALE: Les questions doivent \xEAtre significativement plus difficiles et techniques que celles g\xE9n\xE9ralement trouv\xE9es dans les certifications standard. Elles doivent tester la profondeur technique r\xE9elle et l'exp\xE9rience pratique, pas seulement les connaissances th\xE9oriques ou superficielles.
@@ -19574,12 +23144,12 @@ IMPORTANT:
           questions = JSON.parse(jsonStr);
         } catch (parseError) {
           console.error("Erreur de parsing JSON, utilisation de questions de secours:", parseError);
-          questions = generateFallbackQuestions(category, difficulty, count, exerciseType);
+          questions = generateFallbackQuestions(category, difficulty, count2, exerciseType);
         }
       } catch (jsonFixError) {
         console.error("Erreur lors de la r\xE9paration du JSON:", jsonFixError);
         console.error("JSON probl\xE9matique:", jsonStr);
-        questions = generateFallbackQuestions(category, difficulty, count, exerciseType);
+        questions = generateFallbackQuestions(category, difficulty, count2, exerciseType);
       }
       if (!Array.isArray(questions) || questions.length === 0) {
         throw new Error("Invalid response format");
@@ -20149,7 +23719,7 @@ EXIGENCES CRITIQUES:
 
 // server/routes.ts
 var __filename3 = fileURLToPath3(import.meta.url);
-var __dirname3 = path5.dirname(__filename3);
+var __dirname3 = path7.dirname(__filename3);
 function getUserRoleDescription(roleId) {
   switch (roleId) {
     case "rssi":
@@ -20435,25 +24005,300 @@ async function registerRoutes(app2) {
       pool,
       createTableIfMissing: true
     }),
+    name: "fyne.sid",
     secret: process.env.SESSION_SECRET || "votre-secret-session-ultra-securise-changez-moi",
     resave: false,
     saveUninitialized: false,
     cookie: {
       secure: false,
-      // Mettre à true en production avec HTTPS
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1e3
-      // 7 jours
     }
   }));
+  app2.use("/api/client", session2({
+    store: new pgSession({
+      pool,
+      createTableIfMissing: true
+    }),
+    name: "fyne.client.sid",
+    secret: process.env.SESSION_SECRET || "votre-secret-session-ultra-securise-changez-moi",
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1e3
+    }
+  }));
+  app2.use("/api", llmTrackingMiddleware);
   app2.post("/api/auth/login", AuthController.login);
   app2.post("/api/auth/logout", AuthController.logout);
   app2.get("/api/auth/check", AuthController.checkAuth);
+  app2.get("/api/auth/sso-status", async (_req, res) => {
+    try {
+      const { db: _db } = await Promise.resolve().then(() => (init_db(), db_exports));
+      const { ssoConfig: ssoTable } = await Promise.resolve().then(() => (init_schema(), schema_exports));
+      const [cfg] = await _db.select({ isEnabled: ssoTable.isEnabled }).from(ssoTable).limit(1);
+      res.json({ enabled: cfg?.isEnabled ?? false });
+    } catch {
+      res.json({ enabled: false });
+    }
+  });
+  app2.get("/api/admin/users", AuthController.requireAuth, AuthController.requireAdmin, AdminController.listUsers);
+  app2.post("/api/admin/users", AuthController.requireAuth, AuthController.requireAdmin, AdminController.createUser);
+  app2.patch("/api/admin/users/:id/toggle", AuthController.requireAuth, AuthController.requireAdmin, AdminController.toggleUser);
+  app2.post("/api/admin/users/:id/reset-password", AuthController.requireAuth, AuthController.requireAdmin, AdminController.resetPassword);
+  app2.delete("/api/admin/users/:id", AuthController.requireAuth, AuthController.requireAdmin, AdminController.deleteUser);
+  app2.get("/api/admin/stats", AuthController.requireAuth, AuthController.requireAdmin, AdminController.getStats);
+  app2.get("/api/admin/users/:id/report", AuthController.requireAuth, AuthController.requireAdmin, AdminController.exportUserPDF);
+  app2.get("/api/admin/llm-usage", AuthController.requireAuth, AuthController.requireAdmin, AdminController.getLlmUsage);
+  app2.patch("/api/admin/users/:id/modules", AuthController.requireAuth, AuthController.requireAdmin, async (req, res) => {
+    const adminUser = req.session.user;
+    const { modulesEnabled } = req.body;
+    try {
+      const adminModules = adminUser?.modulesEnabled ?? [];
+      const filtered = Array.isArray(modulesEnabled) ? modulesEnabled.filter((m) => adminModules.includes(m)) : null;
+      const result = await pool.query(
+        `UPDATE users SET modules_enabled = $1, updated_at = NOW() WHERE id = $2 RETURNING id`,
+        [filtered, req.params.id]
+      );
+      if (result.rows.length === 0) return res.status(404).json({ success: false, message: "Utilisateur introuvable" });
+      res.json({ success: true });
+    } catch (err) {
+      console.error("[admin] patch modules error:", err);
+      res.status(500).json({ success: false, message: "Erreur serveur" });
+    }
+  });
+  app2.get("/auth/sso/login", SsoAuthController.initiateLogin);
+  app2.get("/auth/sso/callback", SsoAuthController.handleCallback);
+  app2.get("/api/admin/sso", AuthController.requireAuth, AuthController.requireAdmin, SsoAdminController.getConfig);
+  app2.post("/api/admin/sso", AuthController.requireAuth, AuthController.requireAdmin, SsoAdminController.saveConfig);
+  app2.post("/api/admin/sso/test", AuthController.requireAuth, AuthController.requireAdmin, SsoAdminController.testConfig);
+  app2.get("/api/superadmin/users", AuthController.requireAuth, SuperAdminController.listUsers);
+  app2.post("/api/superadmin/users", AuthController.requireAuth, SuperAdminController.createUser);
+  app2.patch("/api/superadmin/users/:id/role", AuthController.requireAuth, SuperAdminController.updateRole);
+  app2.patch("/api/superadmin/users/:id/subscription", AuthController.requireAuth, SuperAdminController.updateSubscription);
+  app2.post("/api/superadmin/users/:id/reset-tokens", AuthController.requireAuth, SuperAdminController.resetTokens);
+  app2.patch("/api/superadmin/users/:id/toggle", AuthController.requireAuth, SuperAdminController.toggleUser);
+  app2.delete("/api/superadmin/users/:id", AuthController.requireAuth, SuperAdminController.deleteUser);
+  app2.get("/api/superadmin/token-stats", AuthController.requireAuth, SuperAdminController.tokenStats);
+  app2.get("/api/superadmin/system-health", async (req, res) => {
+    if (req.session?.user?.role !== "superadmin") {
+      return res.status(403).json({ success: false, error: "Forbidden" });
+    }
+    const { exec: exec6 } = await import("child_process");
+    const execAsync3 = (cmd) => new Promise((resolve) => {
+      exec6(cmd, { timeout: 1e4 }, (err, stdout, stderr) => {
+        resolve((stdout || stderr || "").trim());
+      });
+    });
+    try {
+      const [diskOut, memOut, cpuOut, dockerOut, uptimeOut, appOut, npmOut] = await Promise.all([
+        execAsync3("df -h / | tail -1"),
+        execAsync3("free -m | grep Mem"),
+        execAsync3("top -bn1 | grep 'Cpu(s)' | head -1"),
+        execAsync3("docker system df 2>/dev/null || echo 'docker-unavailable'"),
+        execAsync3("uptime"),
+        execAsync3("docker ps --format '{{.Names}}	{{.Status}}	{{.Image}}' 2>/dev/null || pm2 list 2>/dev/null || echo 'no-containers'"),
+        execAsync3("du -sh /root/.npm 2>/dev/null || echo '0	-'")
+      ]);
+      const diskParts = diskOut.trim().split(/\s+/);
+      const disk = {
+        total: diskParts[1] ?? "",
+        used: diskParts[2] ?? "",
+        avail: diskParts[3] ?? "",
+        usedPct: parseInt((diskParts[4] ?? "0").replace("%", ""), 10)
+      };
+      const memParts = memOut.trim().split(/\s+/);
+      const memTotal = parseInt(memParts[1] ?? "0", 10);
+      const memUsed = parseInt(memParts[2] ?? "0", 10);
+      const memory = {
+        total: memTotal,
+        used: memUsed,
+        free: parseInt(memParts[3] ?? "0", 10),
+        usedPct: Math.round(memUsed / (memTotal || 1) * 100)
+      };
+      const cpuUser = parseFloat(cpuOut.match(/(\d+[\.,]\d+)\s+us/)?.[1]?.replace(",", ".") ?? "0");
+      const cpuSystem = parseFloat(cpuOut.match(/(\d+[\.,]\d+)\s+sy/)?.[1]?.replace(",", ".") ?? "0");
+      const cpuIdle = parseFloat(cpuOut.match(/(\d+[\.,]\d+)\s+id/)?.[1]?.replace(",", ".") ?? "0");
+      const cpu = { user: cpuUser, system: cpuSystem, idle: cpuIdle };
+      const dockerLines = dockerOut.split("\n").filter((l) => l && !l.startsWith("TYPE") && !l.includes("docker-unavailable"));
+      const dockerMap = {};
+      for (const dl of dockerLines) {
+        const parts = dl.trim().split(/\s{2,}/);
+        if (parts[0]) dockerMap[parts[0].toLowerCase()] = parts[2] ?? "0B";
+      }
+      const docker = {
+        images: dockerMap["images"] ?? "0B",
+        containers: dockerMap["containers"] ?? "0B",
+        buildCache: dockerMap["build cache"] ?? "0B"
+      };
+      const appLines = appOut.split("\n").filter(Boolean).filter((l) => !l.includes("no-containers"));
+      const app3 = appLines.map((l) => {
+        const [name, status, image] = l.split("	");
+        return { name: name ?? l, status: status ?? "running", image: image ?? "" };
+      });
+      const npmCache = npmOut.split("	")[0].trim();
+      return res.json({
+        success: true,
+        disk,
+        memory,
+        cpu,
+        docker,
+        uptime: uptimeOut,
+        app: app3,
+        npmCache,
+        checkedAt: (/* @__PURE__ */ new Date()).toISOString()
+      });
+    } catch (err) {
+      console.error("[system-health] error:", err?.message ?? err);
+      return res.status(500).json({ success: false, error: err?.message ?? "exec error" });
+    }
+  });
+  app2.post("/api/superadmin/system-action", async (req, res) => {
+    if (req.session?.user?.role !== "superadmin") {
+      return res.status(403).json({ success: false, error: "Forbidden" });
+    }
+    const { action } = req.body;
+    const ALLOWED_ACTIONS = {
+      "docker-prune": 'docker system prune -f 2>&1 && echo "OK"',
+      "restart-app": 'pm2 restart all 2>&1 && echo "OK"',
+      "clear-npm-cache": 'rm -rf /root/.npm/_cacache 2>&1 && echo "OK"'
+    };
+    if (!action || !ALLOWED_ACTIONS[action]) {
+      return res.status(400).json({
+        success: false,
+        error: `Unknown action. Allowed: ${Object.keys(ALLOWED_ACTIONS).join(", ")}`
+      });
+    }
+    const { exec: exec6 } = await import("child_process");
+    try {
+      const output = await new Promise((resolve, reject) => {
+        exec6(ALLOWED_ACTIONS[action], { timeout: 3e4 }, (err, stdout, stderr) => {
+          if (err && !stdout) return reject(err);
+          resolve((stdout || stderr || "").trim());
+        });
+      });
+      return res.json({ success: true, output });
+    } catch (err) {
+      console.error("[system-action] error:", err?.message ?? err);
+      return res.status(500).json({ success: false, error: err?.message ?? "exec error" });
+    }
+  });
+  app2.get("/api/superadmin/cpu-stream", (req, res) => {
+    if (req.session?.user?.role !== "superadmin") {
+      return res.status(403).end();
+    }
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+    const { exec: exec6 } = __require("child_process");
+    const send = () => {
+      exec6(
+        "top -bn1 | grep 'Cpu(s)' | head -1 && free -m | grep Mem | awk '{print $2,$3}' && cat /proc/loadavg",
+        { timeout: 5e3 },
+        (err, stdout) => {
+          if (err) return;
+          const lines = stdout.trim().split("\n");
+          const cpuLine = lines[0] ?? "";
+          const memLine = lines[1] ?? "";
+          const loadLine = lines[2] ?? "";
+          const user = parseFloat(cpuLine.match(/(\d+[\.,]\d+)\s+us/)?.[1]?.replace(",", ".") ?? "0");
+          const sys = parseFloat(cpuLine.match(/(\d+[\.,]\d+)\s+sy/)?.[1]?.replace(",", ".") ?? "0");
+          const idle = parseFloat(cpuLine.match(/(\d+[\.,]\d+)\s+id/)?.[1]?.replace(",", ".") ?? "100");
+          const [memTotal, memUsed] = memLine.trim().split(" ").map(Number);
+          const [load1, load5] = loadLine.trim().split(" ");
+          const payload = JSON.stringify({
+            ts: Date.now(),
+            cpu: { user, sys, idle, used: Math.round((user + sys) * 10) / 10 },
+            mem: { total: memTotal ?? 0, used: memUsed ?? 0, pct: Math.round((memUsed ?? 0) / ((memTotal ?? 1) || 1) * 100) },
+            load: { m1: parseFloat(load1 ?? "0"), m5: parseFloat(load5 ?? "0") }
+          });
+          res.write(`data: ${payload}
+
+`);
+        }
+      );
+    };
+    send();
+    const interval = setInterval(send, 3e3);
+    req.on("close", () => clearInterval(interval));
+  });
+  app2.get("/api/auth/permissions", AuthController.requireAuth, (req, res) => {
+    const session3 = req.session;
+    const user = session3?.user;
+    res.json({
+      success: true,
+      modulesEnabled: user?.modulesEnabled ?? ["cyber", "data", "amoa", "formation-data", "evaluation", "playground"],
+      tokenQuota: user?.tokenQuota ?? 1e5,
+      tokenUsedMonth: user?.tokenUsedMonth ?? 0,
+      subscriptionLabel: user?.subscriptionLabel ?? "Gratuit",
+      role: user?.role ?? "user"
+    });
+  });
   app2.use("/api", (req, res, next) => {
-    if (req.path.startsWith("/auth/")) {
+    if (req.path.startsWith("/auth/") || req.path.startsWith("/client/")) {
       return next();
     }
     return AuthController.requireAuth(req, res, next);
+  });
+  const cyberGuard = AuthController.requireModule("cyber");
+  const dataGuard = AuthController.requireModule("data");
+  const amoaGuard = AuthController.requireModule("amoa");
+  const formationGuard = AuthController.requireModule("formation-data");
+  const evaluationGuard = AuthController.requireModule("evaluation");
+  const playgroundGuard = AuthController.requireModule("playground");
+  app2.use("/api/cyber", cyberGuard);
+  app2.use("/api/cyber-expert", cyberGuard);
+  app2.use("/api/cyber-pulse", cyberGuard);
+  app2.use("/api/cyber-investigator", cyberGuard);
+  app2.use("/api/cyberchaos", cyberGuard);
+  app2.use("/api/cyber-defense", cyberGuard);
+  app2.use("/api/data-ia", dataGuard);
+  app2.use("/api/data-academie", dataGuard);
+  app2.use("/api/amoa", amoaGuard);
+  app2.use("/api/formation", formationGuard);
+  app2.use("/api/evaluation", evaluationGuard);
+  app2.use("/api/playground", playgroundGuard);
+  app2.use("/api/module-generator", playgroundGuard);
+  const { checkTokenQuota: checkTokenQuota2 } = await Promise.resolve().then(() => (init_llmTracker(), llmTracker_exports));
+  const LLM_PREFIXES = [
+    "/api/cyber",
+    "/api/cyber-expert",
+    "/api/cyber-pulse",
+    "/api/cyber-investigator",
+    "/api/cyberchaos",
+    "/api/cyber-defense",
+    "/api/data-ia",
+    "/api/data-academie",
+    "/api/amoa",
+    "/api/formation",
+    "/api/evaluation",
+    "/api/playground",
+    "/api/module-generator",
+    "/api/pentest"
+  ];
+  app2.use(async (req, res, next) => {
+    const session3 = req.session?.user;
+    if (!session3) return next();
+    if (session3.role === "admin" || session3.role === "superadmin") return next();
+    const isLlmRoute = LLM_PREFIXES.some((p) => req.path.startsWith(p));
+    if (!isLlmRoute) return next();
+    try {
+      const quota = await checkTokenQuota2(session3.id);
+      if (!quota.allowed) {
+        return res.status(429).json({
+          success: false,
+          quotaExceeded: true,
+          message: `Vous avez atteint votre quota de ${quota.tokenQuota.toLocaleString()} tokens pour ce mois. Contactez votre administrateur pour augmenter votre quota.`,
+          tokenUsedMonth: quota.tokenUsedMonth,
+          tokenQuota: quota.tokenQuota
+        });
+      }
+    } catch (e) {
+    }
+    next();
   });
   const { generateChallenge: generateChallenge3, analyzeSolution: analyzeSolution2, getCustomHint: getCustomHint2 } = await Promise.resolve().then(() => (init_pentestAIController(), pentestAIController_exports)).then((module) => module.default);
   app2.post("/api/pentest/generate-challenge", (req, res) => generateChallenge3(req, res));
@@ -20547,7 +24392,7 @@ async function registerRoutes(app2) {
   app2.post("/api/code-generator/suggest-language-framework", (req, res) => {
     suggestLanguageAndFramework(req, res);
   });
-  app2.use("/attachments", express4.static(path5.join(__dirname3, "public/attachments")));
+  app2.use("/attachments", express4.static(path7.join(__dirname3, "public/attachments")));
   app2.use("/api/attachments", attachmentRoutes_default);
   app2.use("/api/ai", cyberForgeRoutes_default);
   app2.use("/api/cyber/tools", cyberToolsRoutes_default);
@@ -20555,6 +24400,14 @@ async function registerRoutes(app2) {
   app2.use("/api/audio", audioRoutes_default);
   app2.use("/api/crisis-center", crisisCenterRoutes_default);
   app2.use("/api/code", codeExecutionRoutes_default);
+  app2.use("/api/formation", formationRoutes_default);
+  app2.use("/api/evaluation", evaluationRoutes_default);
+  app2.use("/api/client/auth", clientAuthRoutes_default);
+  app2.use("/api/client/kpi", clientKpiRouter);
+  app2.use("/api/client/admin", clientAdminRoutes_default);
+  app2.use("/api/client/training", trainingRoutes_default);
+  app2.use("/api/client/formation", formationRoutes_default);
+  app2.use("/api/admin", clientManagementRoutes_default);
   app2.post("/api/code/execute/python", executePythonCode);
   app2.post("/api/code/execute/sql", executeSQLCode);
   app2.post("/api/code/session/reset", resetSessionVariables);
@@ -20738,7 +24591,7 @@ async function registerRoutes(app2) {
   app2.get("/api/attachments/test", async (req, res) => {
     try {
       const userRole = req.query.role || "rssi";
-      const sessionId = "test-session-" + uuidv48();
+      const sessionId = "test-session-" + uuidv49();
       const domain = "Cybers\xE9curit\xE9";
       const scenarioTitle = "Gestion de crise cyber";
       const attachment = createAttachmentWithHiddenPassword(
@@ -21399,7 +25252,7 @@ R\xC8GLES DE FORMATAGE \xC0 RESPECTER:
         console.error("Erreur lors de la g\xE9n\xE9ration de la pi\xE8ce jointe:", error);
       }
       const email = {
-        id: uuidv48(),
+        id: uuidv49(),
         from: scenarioContacts[0],
         // Utiliser le premier contact de la liste (le contact principal du scénario)
         to: `${userName}@mc2i.fr`,
@@ -21837,9 +25690,9 @@ R\xC8GLES DE FORMATAGE \xC0 RESPECTER:
           });
           let minResponses = Infinity;
           for (const contact of availableContacts) {
-            const count = contactResponseCount[contact.name] || 0;
-            if (count < minResponses) {
-              minResponses = count;
+            const count2 = contactResponseCount[contact.name] || 0;
+            if (count2 < minResponses) {
+              minResponses = count2;
               respondingContact = contact;
             }
           }
@@ -22116,7 +25969,7 @@ Adapte toujours ton style de communication \xE0 ton r\xF4le (${respondingContact
           if (jsonResponse && jsonResponse.type === "decision" && jsonResponse.options && Array.isArray(jsonResponse.options)) {
             isCrisisDecision = true;
             decisionContent = {
-              id: uuidv48(),
+              id: uuidv49(),
               situation: jsonResponse.situation,
               context: jsonResponse.context,
               historicalFacts: jsonResponse.historicalFacts,
@@ -22304,11 +26157,14 @@ Reprenons depuis le d\xE9but pour mieux explorer ce sc\xE9nario dans le domaine 
       res.json({
         connectionStatus: openAIService.getConnectionStatus(),
         currentModel: openAIService.getCurrentModelName(),
+        currentModelKey: openAIService.getCurrentModelKey?.() ?? "standard",
         apiKeyType: openAIService.getCurrentApiKeyType(),
-        lastCheck: openAIService.getLastConnectionCheck() || Date.now()
+        lastCheck: openAIService.getLastConnectionCheck() || Date.now(),
+        availableModels: openAIService.getAvailableModels?.() ?? []
       });
     } catch (error) {
       console.error("Error checking API status:", error);
+      res.status(500).json({ connectionStatus: "disconnected" });
     }
   });
   app2.get("/api/gemini/status", async (req, res) => {
@@ -22579,29 +26435,30 @@ R\xE9ponds directement sans introduction ni formule de politesse, comme si tu in
     }
   });
   app2.post("/api/cyber-defense/evaluate-decision", evaluateDecision2);
+  app2.post("/api/openai/switch-model", (req, res) => {
+    try {
+      const { model } = req.body;
+      const ok = openAIService.setModel?.(model);
+      if (!ok) {
+        return res.status(400).json({ status: "error", message: `Mod\xE8le inconnu: ${model}` });
+      }
+      const catalog = openAIService.getAvailableModels?.() ?? [];
+      const selected = catalog.find((m) => m.key === model);
+      console.log(`[Model switch] \u2192 ${model} (${selected?.modelId})`);
+      res.json({ status: "success", model, label: selected?.label, description: selected?.description });
+    } catch (error) {
+      console.error("Error switching model:", error);
+      res.status(500).json({ status: "error", message: "Failed to switch model" });
+    }
+  });
   app2.post("/api/cyber/switch-api-key", (req, res) => {
     try {
       const { keyType } = req.body;
-      if (keyType !== "primary" && keyType !== "secondary") {
-        return res.status(400).json({
-          status: "error",
-          message: 'Invalid key type. Must be "primary" or "secondary"'
-        });
-      }
-      openAIService.switchApiKey(keyType);
-      const modelName = "Gemini FYNE";
-      console.log(`Switched API key to ${keyType} (${modelName})`);
-      res.json({
-        status: "success",
-        currentApiKey: keyType,
-        modelName
-      });
+      const model = keyType === "secondary" ? "eco" : "standard";
+      openAIService.setModel?.(model);
+      res.json({ status: "success", currentApiKey: keyType, modelName: openAIService.getCurrentModelName() });
     } catch (error) {
-      console.error("Error switching API key:", error);
-      res.status(500).json({
-        status: "error",
-        message: "Failed to switch API key"
-      });
+      res.status(500).json({ status: "error", message: "Failed to switch API key" });
     }
   });
   app2.post("/api/cyber/simple-chat", async (req, res) => {
@@ -22903,8 +26760,8 @@ R\xE9ponds directement \xE0 la premi\xE8re personne comme si tu \xE9tais ${super
   });
   app2.get("/api/amoa/scenarios", (req, res) => {
     try {
-      const count = parseInt(req.query.count) || 6;
-      const scenarios = getRandomScenarios(count);
+      const count2 = parseInt(req.query.count) || 6;
+      const scenarios = getRandomScenarios(count2);
       res.json({
         scenarios,
         fromCache: false,
@@ -22921,11 +26778,11 @@ R\xE9ponds directement \xE0 la premi\xE8re personne comme si tu \xE9tais ${super
   app2.get("/api/amoa/scenarios/:difficulty", (req, res) => {
     try {
       const { difficulty } = req.params;
-      const count = parseInt(req.query.count) || 6;
+      const count2 = parseInt(req.query.count) || 6;
       if (!["facile", "moyen", "difficile"].includes(difficulty)) {
         return res.status(400).json({ error: "Niveau de difficult\xE9 invalide" });
       }
-      const scenarios = getScenariosByDifficulty(difficulty, count);
+      const scenarios = getScenariosByDifficulty(difficulty, count2);
       res.json({
         scenarios,
         difficulty,
@@ -23004,7 +26861,7 @@ R\xE9ponds directement \xE0 la premi\xE8re personne comme si tu \xE9tais ${super
       if (!role || !level || !userName) {
         return res.status(400).json({ error: "Param\xE8tres manquants (r\xF4le, niveau ou nom d'utilisateur)" });
       }
-      const sessionId = uuidv48();
+      const sessionId = uuidv49();
       const session3 = {
         id: sessionId,
         role,
@@ -23032,7 +26889,7 @@ R\xE9ponds directement \xE0 la premi\xE8re personne comme si tu \xE9tais ${super
       if (!userRole || !domain || !userName) {
         return res.status(400).json({ error: "Param\xE8tres manquants (r\xF4le, domaine ou nom d'utilisateur)" });
       }
-      const briefId = uuidv48();
+      const briefId = uuidv49();
       const today = /* @__PURE__ */ new Date();
       const formattedDate = today.toLocaleDateString("fr-FR", {
         day: "2-digit",
@@ -23276,7 +27133,7 @@ ${companyName || "mc2i"}`,
       }
     ];
     const decision = {
-      id: uuidv48(),
+      id: uuidv49(),
       situation,
       context,
       historicalFacts,
@@ -24463,6 +28320,67 @@ Niveau ${levelDesc}. Contexte fran\xE7ais r\xE9aliste. Pour visual.type utilise:
       res.status(500).json({ error: "Erreur lors de la suppression" });
     }
   });
+  app2.put("/api/studio/training/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { title, tagline, content } = req.body;
+      if (!content && !title && !tagline) return res.status(400).json({ error: "Aucune modification fournie" });
+      const updated = await storage.updateGeneratedTraining(id, {
+        ...title !== void 0 && { title },
+        ...tagline !== void 0 && { tagline },
+        ...content !== void 0 && { content }
+      });
+      if (!updated) return res.status(404).json({ error: "Formation introuvable" });
+      return res.json({ success: true, training: updated });
+    } catch (error) {
+      console.error("[Studio] Erreur mise \xE0 jour formation:", error);
+      return res.status(500).json({ error: "Erreur lors de la sauvegarde" });
+    }
+  });
+  app2.post("/api/studio/improve-slide", async (req, res) => {
+    try {
+      const { slide, lessonTitle, instruction } = req.body;
+      if (!slide || !slide.type) return res.status(400).json({ error: "Slide manquant" });
+      const typeInstructions = {
+        theorie: "Enrichis le contenu (2-3 phrases suppl\xE9mentaires), am\xE9liore les points cl\xE9s, rends l'exemple plus concret.",
+        pratique: "Rends le contexte plus r\xE9aliste et immersif, enrichis la r\xE9ponse avec plus de bonnes pratiques.",
+        "fill-blank": "Am\xE9liore la phrase \xE0 trous pour qu'elle soit plus p\xE9dagogique et m\xE9morable.",
+        "vrai-faux": "Am\xE9liore les explications des affirmations pour qu'elles soient plus claires et instructives.",
+        intro: "Rends l'accroche plus percutante et les objectifs plus pr\xE9cis.",
+        conclusion: "Rends les points \xE0 retenir plus impactants et le message final plus motivant."
+      };
+      const prompt = `Formation: "${lessonTitle || "Formation"}". Type de slide: ${slide.type}.
+${instruction ? `Instruction sp\xE9cifique: ${instruction}` : typeInstructions[slide.type] || "Am\xE9liore ce slide."}
+
+Slide actuel:
+${JSON.stringify(slide, null, 2)}
+
+R\xE9ponds UNIQUEMENT avec le slide am\xE9lior\xE9 en JSON valide, m\xEAme structure, sans markdown.`;
+      const raw = await openAIService.getChatCompletion([
+        { role: "user", content: prompt }
+      ], 0.7, 1200);
+      const clean = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      const start = clean.indexOf("{");
+      const end = clean.lastIndexOf("}");
+      if (start === -1 || end === -1) return res.status(500).json({ error: "R\xE9ponse IA invalide" });
+      const improved = JSON.parse(clean.slice(start, end + 1));
+      return res.json({ slide: { ...improved, id: slide.id, type: slide.type } });
+    } catch (error) {
+      console.error("[Studio] Erreur am\xE9lioration slide:", error);
+      return res.status(500).json({ error: "Erreur lors de l'am\xE9lioration" });
+    }
+  });
+  app2.delete("/api/studio/trainings/all", async (req, res) => {
+    try {
+      const { db: db2 } = await Promise.resolve().then(() => (init_db(), db_exports));
+      const { generatedTrainings: generatedTrainings2 } = await Promise.resolve().then(() => (init_schema(), schema_exports));
+      await db2.delete(generatedTrainings2);
+      res.json({ success: true, message: "Biblioth\xE8que vid\xE9e" });
+    } catch (error) {
+      console.error("[Studio] Erreur vidage biblioth\xE8que:", error);
+      res.status(500).json({ error: "Erreur serveur" });
+    }
+  });
   app2.post("/api/studio/evaluate-response", async (req, res) => {
     try {
       const { situation, contexte, attendu, reponse } = req.body;
@@ -24759,7 +28677,7 @@ ${TRAINING_JSON_SCHEMA}`;
       } else if (!training.situations && training.scenario) {
         training.situations = [{ id: 1, category: "Mise en situation", title: "Situation", contexte: "", situation: training.scenario?.situation || "", attendu: "Appliquez les bonnes pratiques professionnelles." }];
       }
-      const id = uuidv48();
+      const id = uuidv49();
       await storage.saveGeneratedTraining({
         id,
         title: training.title || "Formation g\xE9n\xE9r\xE9e",
@@ -24870,7 +28788,7 @@ ${TRAINING_JSON_SCHEMA}`;
       } else if (!training.situations && training.scenario) {
         training.situations = [{ id: 1, category: "Mise en situation", title: "Situation", contexte: "", situation: training.scenario?.situation || "", attendu: "Appliquez les bonnes pratiques professionnelles." }];
       }
-      const id = uuidv48();
+      const id = uuidv49();
       await storage.saveGeneratedTraining({
         id,
         title: training.title || "Formation depuis documents",
@@ -25038,9 +28956,9 @@ ${mainText2.slice(0, 6e3)}`
           const arr = Array.isArray(items) ? items : [items];
           return arr.slice(0, 25).map((item) => {
             const t = item.title?._ || item.title || "";
-            const desc4 = item.description?._ || item.description || item.summary?._ || item.summary || "";
+            const desc6 = item.description?._ || item.description || item.summary?._ || item.summary || "";
             const contentEncoded = item["content:encoded"]?._ || item["content:encoded"] || "";
-            const $ = cheerio.load(contentEncoded || desc4);
+            const $ = cheerio.load(contentEncoded || desc6);
             const text2 = $.text().replace(/\s+/g, " ").trim().slice(0, 600);
             return `### ${t}
 ${text2}`;
@@ -25057,8 +28975,8 @@ ${text2}`;
           for (const m of matches) sitemapUrls2.push(m[1].trim());
         }
         const commonPaths = ["/sitemap.xml", "/sitemap_index.xml", "/sitemap-index.xml", "/sitemap/sitemap.xml", "/wp-sitemap.xml", "/post-sitemap.xml", "/page-sitemap.xml", "/sitemap1.xml"];
-        for (const path8 of commonPaths) {
-          if (!sitemapUrls2.some((u) => u.includes(path8))) sitemapUrls2.push(`${baseOrigin}${path8}`);
+        for (const path10 of commonPaths) {
+          if (!sitemapUrls2.some((u) => u.includes(path10))) sitemapUrls2.push(`${baseOrigin}${path10}`);
         }
         const allUrls = [];
         for (const sitemapUrl of sitemapUrls2.slice(0, 6)) {
@@ -25080,8 +28998,8 @@ ${text2}`;
             }
           }
         });
-        ["/feed", "/rss", "/feed.xml", "/rss.xml", "/atom.xml", "/blog/feed", "/news/feed"].forEach((path8) => {
-          feedUrls2.push(`${baseOrigin}${path8}`);
+        ["/feed", "/rss", "/feed.xml", "/rss.xml", "/atom.xml", "/blog/feed", "/news/feed"].forEach((path10) => {
+          feedUrls2.push(`${baseOrigin}${path10}`);
         });
         return [...new Set(feedUrls2)].slice(0, 4);
       };
@@ -25117,11 +29035,11 @@ ${mainText}`);
         const scored = sitemapUrls.filter((u) => !visited.has(u)).map((u) => {
           let score = 100;
           try {
-            const path8 = new URL(u).pathname;
-            score -= path8.split("/").filter(Boolean).length * 5;
-            if (path8.match(/\d{4}\/\d{2}\/\d{2}/)) score -= 30;
-            if (path8.match(/\/(tag|category|author|page|wp-json|feed|amp)\//i)) score -= 25;
-            if (path8.match(/\/(about|service|produit|product|solution|offre|expertise|formation|guide|docs?|blog|news)\//i)) score += 20;
+            const path10 = new URL(u).pathname;
+            score -= path10.split("/").filter(Boolean).length * 5;
+            if (path10.match(/\d{4}\/\d{2}\/\d{2}/)) score -= 30;
+            if (path10.match(/\/(tag|category|author|page|wp-json|feed|amp)\//i)) score -= 25;
+            if (path10.match(/\/(about|service|produit|product|solution|offre|expertise|formation|guide|docs?|blog|news)\//i)) score += 20;
           } catch {
           }
           return { url: u, score };
@@ -25226,7 +29144,7 @@ ${TRAINING_JSON_SCHEMA}`;
       } else if (!training.situations && training.scenario) {
         training.situations = [{ id: 1, category: "Mise en situation", title: "Situation", contexte: "", situation: training.scenario?.situation || "", attendu: "Appliquez les bonnes pratiques professionnelles." }];
       }
-      const id = uuidv48();
+      const id = uuidv49();
       await storage.saveGeneratedTraining({
         id,
         title: training.title || "Formation depuis site web",
@@ -25305,172 +29223,32 @@ R\xE9ponds UNIQUEMENT avec ce JSON (sans markdown) :
   });
   app2.post("/api/studio/generate-lesson-from-prompt", async (req, res) => {
     try {
-      const { pitch, domain, audience, difficulty, duration } = req.body;
+      const { pitch, domain, audience, difficulty } = req.body;
       if (!pitch) return res.status(400).json({ error: "Le pitch est requis" });
-      const audienceLabels = {
-        grand_public: "grand public sans expertise particuli\xE8re",
-        managers: "managers et responsables d'\xE9quipe",
-        experts: "experts techniques",
-        rh: "\xE9quipes RH et formation",
-        dirigeants: "dirigeants et membres du COMEX",
-        commercial: "\xE9quipes commerciales"
-      };
-      const difficultyLabels = {
-        debutant: "D\xE9butant \u2014 notions fondamentales, vocabulaire de base, exemples simples, d\xE9fis accessibles",
-        intermediaire: "Interm\xE9diaire \u2014 concepts m\xE9tier, cas pratiques r\xE9alistes, d\xE9fis stimulants",
-        expert: "Expert \u2014 enjeux avanc\xE9s, cas complexes, subtilit\xE9s techniques, d\xE9fis exigeants"
-      };
-      const grandPublicBlock = audience === "grand_public" ? `
-MODE GRAND PUBLIC \u2014 VULGARISATION EXTR\xCAME OBLIGATOIRE :
-- Tu t'adresses \xE0 quelqu'un qui n'a JAMAIS entendu ces termes. Z\xE9ro jargon sans explication imm\xE9diate.
-- Chaque concept DOIT avoir une m\xE9taphore de la vie courante (cuisine, sport, courses, voiture, famille, t\xE9l\xE9phone, argent, maison, m\xE9t\xE9o).
-- Utilise syst\xE9matiquement "c'est comme si..." ou "imagine que..." pour ancrer chaque notion.
-- Phrases courtes. Vocabulaire simple. Exemples du quotidien UNIQUEMENT.
-- Les mises en pratique : situations de la vie de tous les jours, pas professionnelles (ex: g\xE9rer ses mots de passe comme ses cl\xE9s de maison).
-- Le QCM : questions formul\xE9es simplement, sans termes techniques, distracteurs plausibles mais faciles \xE0 d\xE9m\xEAler avec du bon sens.
-` : "";
-      const prompt = `Tu es un expert en ing\xE9nierie p\xE9dagogique. Cr\xE9e une le\xE7on interactive compl\xE8te en format slides \xE0 partir du besoin suivant.
-
-BESOIN : ${pitch}
-${domain ? `DOMAINE : ${domain}` : ""}
-PUBLIC CIBLE : ${audienceLabels[audience] || audience || "grand public"}
-NIVEAU DE DIFFICULT\xC9 : ${difficultyLabels[difficulty] || difficultyLabels["intermediaire"]}
-${duration ? `DUR\xC9E CIBLE : ${duration} minutes` : ""}
-${grandPublicBlock}
-R\xC8GLES OBLIGATOIRES :
-1. G\xE9n\xE8re une le\xE7on de 13 \xE0 15 slides : intro + 5-6 paires [th\xE9orie + pratique/fill-blank/vrai-faux] + conclusion
-2. ALTERNE : intro \u2192 th\xE9orie \u2192 [pratique OU fill-blank OU vrai-faux] \u2192 th\xE9orie \u2192 ... \u2192 conclusion \u2014 avec OBLIGATOIREMENT au minimum 1 slide "fill-blank" et 1 slide "vrai-faux" parmi les slides de pratique
-3. TH\xC9ORIE : explique des concepts R\xC9ELS et pr\xE9cis li\xE9s au besoin (d\xE9finitions, m\xE9canismes, chiffres, proc\xE9dures, bonnes pratiques)
-4. PRATIQUE : formule chaque exercice comme un D\xC9FI engageant avec un niveau (D\xE9butant/Interm\xE9diaire/Expert) \u2014 situation r\xE9aliste, question ouverte stimulante
-5. Contenu riche, p\xE9dagogique et adapt\xE9 au public cible \u2014 utilise des exemples concrets et percutants
-6. Chaque slide "theorie" : titre (du concept exact), contenu (4-5 phrases d'explication), pointsCles (3 bullet points essentiels), exemple (2-3 phrases)
-7. Chaque slide "pratique" : titre avec niveau ex "D\xE9fi Interm\xE9diaire : [nom]", contexte (situation 3-4 phrases immersive), question (d\xE9fi concret stimulant), indice (conseil), reponse (r\xE9ponse compl\xE8te 3-4 phrases)
-8. Chaque slide "fill-blank" (TEXTE \xC0 TROUS) : titre accrocheur, instruction courte, phrase avec 2-3 mots-cl\xE9s remplac\xE9s par [mot], tableau mots (les mots attendus dans l'ordre), explication p\xE9dagogique. IMPORTANT : utilise [crochets] dans la phrase pour marquer chaque blanc.
-9. Chaque slide "vrai-faux" : titre, affirmations (tableau de 3-4 objets {texte, reponse:true/false, explication}) \u2014 affirmations stimulantes qui challengent les pr\xE9con\xE7us, r\xE9ponses vari\xE9es (pas que du vrai ou que du faux)
-10. G\xE9n\xE8re aussi un QCM de 10 questions vari\xE9es qui testent la compr\xE9hension des concepts couverts dans les slides
-11. Chaque question QCM : question claire et pr\xE9cise, 4 choix (A/B/C/D) dont 1 seul correct, bonneReponse (index 0-3), explication motivante de la bonne r\xE9ponse
-
-R\xE9ponds UNIQUEMENT avec ce JSON valide (sans texte avant ni apr\xE8s, sans markdown) :
-{
-  "title": "Titre de la le\xE7on",
-  "subtitle": "Sous-titre p\xE9dagogique \u2014 angle en moins de 12 mots",
-  "description": "R\xE9sum\xE9 de ce que cette le\xE7on enseigne \u2014 2 phrases",
-  "slides": [
-    {
-      "id": 1,
-      "type": "intro",
-      "titre": "Titre accrocheur de l'introduction",
-      "contenu": "Accroche et pr\xE9sentation du sujet \u2014 pourquoi c'est crucial \u2014 2-3 phrases percutantes",
-      "objectifs": ["Objectif 1 avec verbe d'action", "Objectif 2", "Objectif 3", "Objectif 4"]
-    },
-    {
-      "id": 2,
-      "type": "theorie",
-      "titre": "Nom exact du concept 1",
-      "contenu": "Explication pr\xE9cise et d\xE9taill\xE9e \u2014 4-5 phrases riches",
-      "pointsCles": ["Point cl\xE9 essentiel 1", "Point cl\xE9 2", "Point cl\xE9 3"],
-      "exemple": "Exemple concret ou cas d'usage professionnel \u2014 2-3 phrases"
-    },
-    {
-      "id": 3,
-      "type": "pratique",
-      "titre": "Exercice : Appliquer [concept 1]",
-      "contexte": "Situation professionnelle r\xE9aliste \u2014 personnage + contexte + d\xE9fi \u2014 3-4 phrases",
-      "question": "Question ouverte ou d\xE9fi concret pos\xE9 au participant",
-      "indice": "Piste de r\xE9flexion pour guider sans donner la r\xE9ponse",
-      "reponse": "R\xE9ponse id\xE9ale et compl\xE8te \u2014 3-4 phrases avec les bonnes pratiques"
-    },
-    { "id": 4, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    {
-      "id": 5,
-      "type": "fill-blank",
-      "titre": "Compl\xE8te la d\xE9finition",
-      "instruction": "Remplis les blancs avec les bons termes :",
-      "phrase": "Le [concept cl\xE9 1] consiste \xE0 [action principale] afin de [objectif].",
-      "mots": ["concept cl\xE9 1", "action principale", "objectif"],
-      "explication": "Explication p\xE9dagogique du concept illustr\xE9 par la phrase \u2014 2-3 phrases."
-    },
-    { "id": 6, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    {
-      "id": 7,
-      "type": "vrai-faux",
-      "titre": "Vrai ou Faux ?",
-      "affirmations": [
-        { "texte": "Affirmation vraie sur un concept de la le\xE7on.", "reponse": true, "explication": "Explication courte \u2014 pourquoi c'est vrai." },
-        { "texte": "Id\xE9e re\xE7ue fausse que les apprenants pourraient croire.", "reponse": false, "explication": "Explication courte \u2014 pourquoi c'est faux." },
-        { "texte": "Autre affirmation \xE0 \xE9valuer.", "reponse": true, "explication": "Explication courte." },
-        { "texte": "Autre id\xE9e re\xE7ue \xE0 challenger.", "reponse": false, "explication": "Explication courte." }
-      ]
-    },
-    { "id": 8, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    { "id": 9, "type": "pratique", "titre": "D\xE9fi Expert : ...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
-    { "id": 10, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    { "id": 11, "type": "pratique", "titre": "D\xE9fi Interm\xE9diaire : ...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
-    {
-      "id": 12,
-      "type": "conclusion",
-      "titre": "Ce qu'il faut retenir",
-      "points": ["Enseignement cl\xE9 1", "Enseignement cl\xE9 2", "Enseignement cl\xE9 3", "Enseignement cl\xE9 4", "Enseignement cl\xE9 5"],
-      "message": "Message de cl\xF4ture motivant et actionnable \u2014 2 phrases"
-    }
-  ],
-  "qcm": [
-    {
-      "id": 1,
-      "question": "Question sur un concept cl\xE9 de la le\xE7on ?",
-      "choix": ["A. Premier choix", "B. Deuxi\xE8me choix", "C. Troisi\xE8me choix", "D. Quatri\xE8me choix"],
-      "bonneReponse": 0,
-      "explication": "Explication motivante de pourquoi c'est la bonne r\xE9ponse \u2014 1-2 phrases"
-    },
-    { "id": 2, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 2, "explication": "..." },
-    { "id": 3, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." },
-    { "id": 4, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 3, "explication": "..." },
-    { "id": 5, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 0, "explication": "..." },
-    { "id": 6, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." },
-    { "id": 7, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 2, "explication": "..." },
-    { "id": 8, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 0, "explication": "..." },
-    { "id": 9, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 3, "explication": "..." },
-    { "id": 10, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." }
-  ]
-}`;
-      const parseJsonSafely = (str) => {
-        try {
-          const clean = str.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-          const start = clean.indexOf("{");
-          const end = clean.lastIndexOf("}");
-          if (start === -1 || end === -1) return null;
-          const fixed = clean.slice(start, end + 1).replace(/[\r\n]+/g, " ");
-          return JSON.parse(fixed);
-        } catch {
-          return null;
-        }
-      };
       const lessonCacheKey = `${pitch.trim()}|${audience || "grand_public"}|${difficulty || "intermediaire"}|${domain || ""}`;
       const { getCached: getLessonCache, setCached: setLessonCache } = await Promise.resolve().then(() => (init_dbCacheService(), dbCacheService_exports));
       const cachedLesson = await getLessonCache(lessonCacheKey, "lesson");
       if (cachedLesson) {
-        const lesson2 = parseJsonSafely(cachedLesson);
-        if (lesson2) {
-          console.log("[Lesson] Cache DB hit");
-          return res.json({ lesson: lesson2, id: `cached-${Date.now()}`, fromCache: true });
+        try {
+          const lesson2 = JSON.parse(cachedLesson);
+          if (lesson2?.slides?.length >= 3) {
+            console.log("[Lesson] Cache DB hit");
+            return res.json({ lesson: lesson2, id: `cached-${Date.now()}`, fromCache: true });
+          }
+        } catch {
         }
       }
-      const aiResponse = await openAIService.getChatCompletion([
-        { role: "user", content: prompt }
-      ], 0.65, 16e3);
-      const lesson = parseJsonSafely(aiResponse);
-      if (!lesson || !lesson.slides || !Array.isArray(lesson.slides) || lesson.slides.length < 3) {
-        console.warn("[Lesson IA] Parsing \xE9chou\xE9:", aiResponse.slice(0, 500));
-        return res.status(500).json({ error: "Impossible de g\xE9n\xE9rer la le\xE7on. R\xE9essayez." });
-      }
-      await setLessonCache(lessonCacheKey, "lesson", aiResponse, 30);
-      const id = uuidv48();
+      const { generateLesson: generateLesson2 } = await Promise.resolve().then(() => (init_lessonGenerator(), lessonGenerator_exports));
+      const lesson = await generateLesson2({ pitch, domain, audience, difficulty });
+      await setLessonCache(lessonCacheKey, "lesson", JSON.stringify(lesson), 30).catch(() => {
+      });
+      const id = uuidv49();
       await storage.saveGeneratedTraining({
         id,
         title: lesson.title || "Le\xE7on interactive",
         tagline: lesson.subtitle || "",
         source: "lesson",
-        sourceInfo: { pitch: pitch.slice(0, 200), domain, slideCount: lesson.slides.length },
+        sourceInfo: { pitch: pitch.slice(0, 200), domain, slideCount: lesson.slides.length, score: lesson._meta?.score },
         audience: audience || "grand_public",
         gamificationLevel: "medium",
         content: lesson
@@ -25551,7 +29329,7 @@ R\xE9ponds UNIQUEMENT avec ce JSON valide (sans texte avant ni apr\xE8s, sans ma
   };
   app2.post("/api/studio/generate-lesson", uploadLessonMiddleware, async (req, res) => {
     try {
-      const { title, audience } = req.body;
+      const { title, audience, difficulty } = req.body;
       const files = req.files || [];
       if (files.length === 0) return res.status(400).json({ error: "Au moins un fichier est requis" });
       const extractTextFromFile = async (f) => {
@@ -25584,171 +29362,27 @@ R\xE9ponds UNIQUEMENT avec ce JSON valide (sans texte avant ni apr\xE8s, sans ma
         } catch (e) {
           console.warn(`[Lesson] Extraction \xE9chou\xE9e pour ${f.originalname}:`, e);
         }
-        return `[Fichier: ${f.originalname}]`;
+        return "";
       };
       const extractedTexts = await Promise.all(files.map(async (f) => {
         const text2 = await extractTextFromFile(f);
-        return `=== FICHIER : ${f.originalname} (${(f.size / 1024).toFixed(0)} Ko) ===
+        return `=== ${f.originalname} ===
 ${text2}`;
       }));
-      const filesSummary = extractedTexts.join("\n\n").slice(0, 25e3);
-      const audienceLabel = { grand_public: "grand public", managers: "managers", experts: "experts", rh: "\xE9quipes RH", dirigeants: "dirigeants" }[audience] || "professionnels";
-      const grandPublicBlockDocs = audience === "grand_public" ? `
-MODE GRAND PUBLIC \u2014 VULGARISATION EXTR\xCAME OBLIGATOIRE :
-- Tu t'adresses \xE0 quelqu'un qui n'a JAMAIS entendu ces termes. Z\xE9ro jargon sans explication imm\xE9diate.
-- Chaque concept DOIT avoir une m\xE9taphore de la vie courante (cuisine, sport, courses, voiture, famille, t\xE9l\xE9phone, argent, maison, m\xE9t\xE9o).
-- Utilise syst\xE9matiquement "c'est comme si..." ou "imagine que..." pour ancrer chaque notion.
-- Phrases courtes. Vocabulaire simple. Exemples du quotidien UNIQUEMENT.
-- Les mises en pratique : situations de la vie de tous les jours, pas professionnelles.
-- Le QCM : questions formul\xE9es simplement, sans termes techniques.
-` : "";
-      const prompt = `Tu es un expert en ing\xE9nierie p\xE9dagogique sp\xE9cialis\xE9 dans les le\xE7ons interactives. Cr\xE9e une le\xE7on compl\xE8te bas\xE9e STRICTEMENT sur le contenu des documents fournis.
-
-FICHIERS FOURNIS :
-${filesSummary}
-
-PUBLIC CIBLE : ${audienceLabel}
-${title ? `TITRE SOUHAIT\xC9 : "${title}"` : ""}
-${grandPublicBlockDocs}
-R\xC8GLES OBLIGATOIRES :
-1. G\xE9n\xE8re une le\xE7on de 13 \xE0 15 slides : intro + 5-6 paires [th\xE9orie + pratique/fill-blank/vrai-faux] + conclusion
-2. ALTERNE : intro \u2192 th\xE9orie \u2192 [pratique OU fill-blank OU vrai-faux] \u2192 th\xE9orie \u2192 ... \u2192 conclusion \u2014 avec OBLIGATOIREMENT au minimum 1 slide "fill-blank" et 1 slide "vrai-faux" parmi les slides d'exercice
-3. TH\xC9ORIE : explique des concepts R\xC9ELS et pr\xE9cis tir\xE9s du document (d\xE9finitions, m\xE9canismes, chiffres, proc\xE9dures)
-4. PRATIQUE : formule chaque exercice comme un D\xC9FI engageant avec un niveau (D\xE9butant/Interm\xE9diaire/Expert) \u2014 situation r\xE9aliste et immersive li\xE9e au concept pr\xE9c\xE9dent
-5. Contenu FID\xC8LE au document \u2014 ne pas inventer \u2014 utilise les termes exacts du document
-6. Chaque slide "theorie" : titre (du concept exact), contenu (4-5 phrases d'explication), pointsCles (3 bullet points essentiels), exemple (2-3 phrases)
-7. Chaque slide "pratique" : titre avec niveau ex "D\xE9fi D\xE9butant : [nom]", contexte (situation 3-4 phrases immersive), question (d\xE9fi concret stimulant), indice (conseil), reponse (r\xE9ponse compl\xE8te 3-4 phrases)
-8. Chaque slide "fill-blank" (TEXTE \xC0 TROUS) : titre accrocheur, instruction courte, phrase tir\xE9e du contenu du document avec 2-3 mots-cl\xE9s remplac\xE9s par [mot] en crochets, tableau mots (les mots attendus dans l'ordre), explication p\xE9dagogique
-9. Chaque slide "vrai-faux" : titre, affirmations (tableau de 3-4 objets {texte, reponse:true/false, explication}) \u2014 affirmations bas\xE9es sur le contenu du document, r\xE9ponses vari\xE9es
-10. G\xE9n\xE8re aussi un QCM de 10 questions vari\xE9es qui testent la compr\xE9hension des concepts couverts dans les slides
-11. Chaque question QCM : question claire et pr\xE9cise, 4 choix (A/B/C/D) dont 1 seul correct, bonneReponse (index 0-3), explication motivante de la bonne r\xE9ponse
-
-R\xE9ponds UNIQUEMENT avec ce JSON valide (sans texte avant ni apr\xE8s, sans markdown) :
-{
-  "title": "Titre de la le\xE7on",
-  "subtitle": "Sous-titre p\xE9dagogique \u2014 angle en moins de 12 mots",
-  "description": "R\xE9sum\xE9 de ce que cette le\xE7on enseigne \u2014 2 phrases",
-  "slides": [
-    {
-      "id": 1,
-      "type": "intro",
-      "titre": "Titre accrocheur de l'introduction",
-      "contenu": "Accroche et pr\xE9sentation du sujet \u2014 pourquoi c'est crucial \u2014 2-3 phrases percutantes",
-      "objectifs": ["Objectif 1 avec verbe d'action", "Objectif 2", "Objectif 3", "Objectif 4"]
-    },
-    {
-      "id": 2,
-      "type": "theorie",
-      "titre": "Nom exact du concept 1",
-      "contenu": "Explication pr\xE9cise et d\xE9taill\xE9e \u2014 4-5 phrases riches tir\xE9es du document",
-      "pointsCles": ["Point cl\xE9 essentiel 1", "Point cl\xE9 2", "Point cl\xE9 3"],
-      "exemple": "Exemple concret ou cas d'usage professionnel \u2014 2-3 phrases"
-    },
-    {
-      "id": 3,
-      "type": "pratique",
-      "titre": "Exercice : Appliquer [concept 1]",
-      "contexte": "Situation professionnelle r\xE9aliste \u2014 personnage + contexte + d\xE9fi \u2014 3-4 phrases",
-      "question": "Question ouverte ou d\xE9fi concret pos\xE9 au participant",
-      "indice": "Piste de r\xE9flexion pour guider sans donner la r\xE9ponse",
-      "reponse": "R\xE9ponse id\xE9ale et compl\xE8te \u2014 3-4 phrases avec les bonnes pratiques"
-    },
-    {
-      "id": 4,
-      "type": "theorie",
-      "titre": "Nom exact du concept 2",
-      "contenu": "...",
-      "pointsCles": ["...", "...", "..."],
-      "exemple": "..."
-    },
-    {
-      "id": 5,
-      "type": "pratique",
-      "titre": "Exercice : Appliquer [concept 2]",
-      "contexte": "...",
-      "question": "...",
-      "indice": "...",
-      "reponse": "..."
-    },
-    {
-      "id": 6,
-      "type": "fill-blank",
-      "titre": "Compl\xE8te la d\xE9finition",
-      "instruction": "Remplis les blancs avec les bons termes tir\xE9s du document :",
-      "phrase": "Le [concept cl\xE9] permet de [action] gr\xE2ce \xE0 [m\xE9canisme].",
-      "mots": ["concept cl\xE9", "action", "m\xE9canisme"],
-      "explication": "Explication p\xE9dagogique du concept \u2014 2-3 phrases."
-    },
-    { "id": 7, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    {
-      "id": 8,
-      "type": "vrai-faux",
-      "titre": "Vrai ou Faux ?",
-      "affirmations": [
-        { "texte": "Affirmation vraie tir\xE9e du document.", "reponse": true, "explication": "Explication courte." },
-        { "texte": "Id\xE9e re\xE7ue fausse \xE0 corriger.", "reponse": false, "explication": "Explication courte." },
-        { "texte": "Autre affirmation \xE0 \xE9valuer.", "reponse": true, "explication": "Explication courte." },
-        { "texte": "Autre id\xE9e re\xE7ue.", "reponse": false, "explication": "Explication courte." }
-      ]
-    },
-    { "id": 9, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    { "id": 10, "type": "pratique", "titre": "D\xE9fi Expert : ...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
-    { "id": 11, "type": "theorie", "titre": "...", "contenu": "...", "pointsCles": ["..."], "exemple": "..." },
-    { "id": 12, "type": "pratique", "titre": "D\xE9fi Interm\xE9diaire : ...", "contexte": "...", "question": "...", "indice": "...", "reponse": "..." },
-    {
-      "id": 13,
-      "type": "conclusion",
-      "titre": "Ce qu'il faut retenir",
-      "points": ["Enseignement cl\xE9 1", "Enseignement cl\xE9 2", "Enseignement cl\xE9 3", "Enseignement cl\xE9 4", "Enseignement cl\xE9 5"],
-      "message": "Message de cl\xF4ture motivant et actionnable \u2014 2 phrases"
-    }
-  ],
-  "qcm": [
-    {
-      "id": 1,
-      "question": "Question sur un concept cl\xE9 de la le\xE7on ?",
-      "choix": ["A. Premier choix", "B. Deuxi\xE8me choix", "C. Troisi\xE8me choix", "D. Quatri\xE8me choix"],
-      "bonneReponse": 0,
-      "explication": "Explication motivante de pourquoi c'est la bonne r\xE9ponse \u2014 1-2 phrases"
-    },
-    { "id": 2, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 2, "explication": "..." },
-    { "id": 3, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." },
-    { "id": 4, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 3, "explication": "..." },
-    { "id": 5, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 0, "explication": "..." },
-    { "id": 6, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." },
-    { "id": 7, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 2, "explication": "..." },
-    { "id": 8, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 0, "explication": "..." },
-    { "id": 9, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 3, "explication": "..." },
-    { "id": 10, "question": "...", "choix": ["A. ...", "B. ...", "C. ...", "D. ..."], "bonneReponse": 1, "explication": "..." }
-  ]
-}`;
-      const aiResponse = await openAIService.getChatCompletion([
-        { role: "user", content: prompt }
-      ], 0.6, 16e3);
-      const parseJsonSafely = (str) => {
-        try {
-          const clean = str.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-          const start = clean.indexOf("{");
-          const end = clean.lastIndexOf("}");
-          if (start === -1 || end === -1) return null;
-          const fixed = clean.slice(start, end + 1).replace(/[\r\n]+/g, " ");
-          return JSON.parse(fixed);
-        } catch {
-          return null;
-        }
-      };
-      const lesson = parseJsonSafely(aiResponse);
-      if (!lesson || !lesson.slides || !Array.isArray(lesson.slides) || lesson.slides.length < 3) {
-        console.warn("[Lesson] Parsing \xE9chou\xE9:", aiResponse.slice(0, 500));
-        return res.status(500).json({ error: "Impossible de g\xE9n\xE9rer la le\xE7on. R\xE9essayez." });
+      const sourceContext = extractedTexts.join("\n\n").slice(0, 25e3);
+      if (sourceContext.trim().length < 80) {
+        return res.status(400).json({ error: "Impossible d'extraire du texte de vos fichiers. V\xE9rifiez que les fichiers contiennent du texte lisible." });
       }
-      const id = uuidv48();
+      const pitch = title || `Formation bas\xE9e sur : ${files.map((f) => f.originalname).join(", ")}`;
+      const { generateLesson: generateLesson2 } = await Promise.resolve().then(() => (init_lessonGenerator(), lessonGenerator_exports));
+      const lesson = await generateLesson2({ pitch, audience, difficulty, sourceContext });
+      const id = uuidv49();
       await storage.saveGeneratedTraining({
         id,
         title: lesson.title || "Le\xE7on interactive",
         tagline: lesson.subtitle || "",
         source: "lesson",
-        sourceInfo: { files: files.map((f) => f.originalname), slideCount: lesson.slides.length },
+        sourceInfo: { files: files.map((f) => f.originalname), slideCount: lesson.slides.length, score: lesson._meta?.score },
         audience: audience || "grand_public",
         gamificationLevel: "medium",
         content: lesson
@@ -25759,20 +29393,775 @@ R\xE9ponds UNIQUEMENT avec ce JSON valide (sans texte avant ni apr\xE8s, sans ma
       res.status(500).json({ error: "Erreur lors de la g\xE9n\xE9ration de la le\xE7on. R\xE9essayez." });
     }
   });
+  const extractDocumentText = async (f) => {
+    const ext = f.originalname.split(".").pop()?.toLowerCase() || "";
+    let raw = "";
+    const sections = [];
+    try {
+      if (ext === "pdf") {
+        const pdfParse = (await import("pdf-parse")).default;
+        const result = await pdfParse(f.buffer, {
+          pagerender: (pageData) => {
+            return pageData.getTextContent().then((tc) => {
+              let last = "";
+              let text2 = "";
+              for (const item of tc.items) {
+                const str = item.str;
+                if (str.trim()) {
+                  if (last && item.transform?.[5] !== void 0) {
+                    text2 += str + " ";
+                  } else {
+                    text2 += "\n" + str + " ";
+                  }
+                  last = str;
+                }
+              }
+              return text2;
+            });
+          }
+        });
+        raw = result.text || "";
+        const lines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
+        for (const line of lines) {
+          if (line.length < 80 && (line === line.toUpperCase() || /^[0-9]+[\.\)]\s/.test(line) || /^#{1,3}\s/.test(line))) {
+            sections.push(line);
+          }
+        }
+      } else if (ext === "docx" || ext === "doc") {
+        const mammoth = await import("mammoth");
+        const htmlResult = await mammoth.convertToHtml({ buffer: f.buffer });
+        const html = htmlResult.value;
+        const headingMatches = html.matchAll(/<h[1-3][^>]*>(.*?)<\/h[1-3]>/gi);
+        for (const m of headingMatches) {
+          sections.push(m[1].replace(/<[^>]+>/g, "").trim());
+        }
+        raw = html.replace(/<h[1-3][^>]*>/gi, "\n\n### ").replace(/<\/h[1-3]>/gi, "\n").replace(/<li[^>]*>/gi, "\n- ").replace(/<\/li>/gi, "").replace(/<p[^>]*>/gi, "\n").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ").replace(/\n{3,}/g, "\n\n").trim();
+      }
+    } catch (e) {
+      console.warn(`[Studio V2] Extraction \xE9chou\xE9e pour ${f.originalname}:`, e);
+      raw = `[Contenu non extractible: ${f.originalname}]`;
+    }
+    const MAX_CHARS = 6e4;
+    let finalText = raw;
+    if (raw.length > MAX_CHARS) {
+      const third = Math.floor(raw.length / 3);
+      finalText = raw.slice(0, 2e4) + "\n\n[...]\n\n" + raw.slice(third, third + 2e4) + "\n\n[...]\n\n" + raw.slice(-2e4);
+    }
+    return { text: finalText, structure: sections.slice(0, 20), charCount: raw.length };
+  };
+  const multerV2 = (await import("multer")).default;
+  const uploadStudioV2 = multerV2({
+    storage: multerV2.memoryStorage(),
+    limits: { fileSize: 50 * 1024 * 1024, files: 3 },
+    fileFilter: (_req, file, cb) => {
+      const ext = file.originalname.split(".").pop()?.toLowerCase() || "";
+      if (["pdf", "doc", "docx"].includes(ext)) cb(null, true);
+      else cb(new Error("Seuls les fichiers PDF et Word sont accept\xE9s"));
+    }
+  }).array("files", 3);
+  app2.post("/api/studio/v2/generate", (req, res, next) => {
+    uploadStudioV2(req, res, (err) => {
+      if (err) return res.status(400).json({ error: err.message });
+      next();
+    });
+  }, async (req, res) => {
+    try {
+      const {
+        title,
+        description,
+        audience,
+        level,
+        sector,
+        internalContext,
+        deliveryMode,
+        format,
+        style,
+        gamification,
+        language
+      } = req.body;
+      if (!title && !description) {
+        return res.status(400).json({ error: "Un titre ou une description est requis" });
+      }
+      const files = req.files || [];
+      let docsContext = "";
+      let docsStructure = [];
+      if (files.length > 0) {
+        const extracted = await Promise.all(files.map((f) => extractDocumentText(f)));
+        docsContext = extracted.map(
+          (e, i) => `=== DOCUMENT ${i + 1} : ${files[i].originalname} (${(e.charCount / 1e3).toFixed(0)}k caract\xE8res) ===
+` + (e.structure.length > 0 ? `Sections d\xE9tect\xE9es: ${e.structure.join(" | ")}
+
+` : "") + e.text
+        ).join("\n\n---\n\n");
+        docsStructure = extracted.flatMap((e) => e.structure);
+      }
+      const audienceLabels = {
+        all: "tous niveaux (accessibilit\xE9 maximale)",
+        junior: "profils juniors et d\xE9butants",
+        senior: "professionnels exp\xE9riment\xE9s",
+        manager: "managers et responsables d'\xE9quipe",
+        executive: "dirigeants et membres du COMEX"
+      };
+      const levelLabels = {
+        beginner: "d\xE9butant \u2014 vocabulaire simple, concepts fondamentaux, pas de pr\xE9requis",
+        intermediate: "interm\xE9diaire \u2014 cas pratiques m\xE9tier, approfondissement",
+        expert: "expert \u2014 enjeux avanc\xE9s, nuances, d\xE9fis exigeants"
+      };
+      const styleLabels = {
+        case_study: "orient\xE9 cas pratiques et mises en situation r\xE9elles",
+        structured: "structur\xE9 et th\xE9orique, progression logique",
+        mixed: "mixte \u2014 alternance th\xE9orie courte et pratique intensive",
+        scenario: "orient\xE9 sc\xE9narios immersifs et r\xE9cits professionnels"
+      };
+      const gamifLabels = {
+        none: "aucune gamification \u2014 format s\xE9rieux et sobre",
+        light: "gamification l\xE9g\xE8re \u2014 points de progression",
+        moderate: "gamification mod\xE9r\xE9e \u2014 badges, niveaux, score",
+        high: "gamification intense \u2014 d\xE9fis, streaks, classements"
+      };
+      const deliveryLabels = {
+        self: "AUTOFORMATION : le participant apprend seul, \xE0 son rythme. Inclure des exercices interactifs avec feedback imm\xE9diat, des \xE9valuations auto-corrig\xE9es et des explications d\xE9taill\xE9es pour chaque r\xE9ponse.",
+        trainer: "PR\xC9SENTIEL : support anim\xE9 par un formateur. Inclure des activit\xE9s de groupe, des questions de discussion, des exercices \xE0 faire en bin\xF4me ou \xE9quipe, et des points de d\xE9brief formateur."
+      };
+      const isFromDocs = docsContext.length > 100;
+      const langInstruction = language === "en" ? "Generate ALL content in English." : "G\xE9n\xE8re tout le contenu en fran\xE7ais.";
+      const systemPrompt = `Tu es un expert senior en ing\xE9nierie p\xE9dagogique avec 20 ans d'exp\xE9rience en conception de formations professionnelles. Tu cr\xE9es des formations de haute qualit\xE9, pr\xE9cises, engageantes et imm\xE9diatement utilisables. Tu respectes scrupuleusement les instructions donn\xE9es et g\xE9n\xE8res UNIQUEMENT du JSON valide sans aucun texte avant ou apr\xE8s.`;
+      const userPrompt = `Cr\xE9e une formation professionnelle compl\xE8te selon ce brief client.
+
+\u2550\u2550\u2550 BRIEF CLIENT \u2550\u2550\u2550
+Titre / Sujet : ${title || "\xC0 d\xE9finir selon le contenu"}
+${description ? `Description / Objectif : ${description}` : ""}
+Public cible : ${audienceLabels[audience] || audience || "professionnels"}
+Niveau : ${levelLabels[level] || level || "interm\xE9diaire"}
+Secteur / Domaine : ${sector || "non pr\xE9cis\xE9"}
+${internalContext ? `Contexte et probl\xE9matiques internes : ${internalContext}` : ""}
+Mode de d\xE9livrance : ${deliveryLabels[deliveryMode] || deliveryMode || deliveryLabels["self"]}
+Dur\xE9e cible : ${format === "15" ? "15 minutes (micro learning rapide)" : format === "45" ? "45 minutes (module complet)" : format === "90" ? "90 minutes (parcours approfondi)" : "30 minutes (micro learning standard)"}
+Style p\xE9dagogique : ${styleLabels[style] || style || styleLabels["mixed"]}
+Gamification : ${gamifLabels[gamification] || gamification || gamifLabels["light"]}
+Langue : ${langInstruction}
+${isFromDocs ? `
+Sources documentaires d\xE9tect\xE9es : ${docsStructure.length > 0 ? docsStructure.slice(0, 10).join(", ") : "structure libre"}` : ""}
+
+${isFromDocs ? `\u2550\u2550\u2550 CONTENU DES DOCUMENTS SOURCE \u2550\u2550\u2550
+${docsContext.slice(0, 55e3)}
+
+` : ""}
+\u2550\u2550\u2550 INSTRUCTIONS DE G\xC9N\xC9RATION \u2550\u2550\u2550
+${isFromDocs ? "- Tout le contenu doit \xEAtre FID\xC8LE aux documents fournis \u2014 ne pas inventer de faits.\n- Les situations et QCM doivent \xEAtre directement inspir\xE9s du contenu documentaire." : "- G\xE9n\xE8re un contenu pr\xE9cis, concret et imm\xE9diatement applicable dans un contexte professionnel r\xE9el."}
+- G\xE9n\xE8re EXACTEMENT 7 situations professionnelles distinctes couvrant 7 angles diff\xE9rents du sujet.
+- G\xE9n\xE8re EXACTEMENT 10 questions QCM vari\xE9es (d\xE9finitions, cas pratiques, erreurs courantes, bonnes pratiques, synth\xE8se).
+- Chaque situation nomme un personnage (pr\xE9nom + fonction pr\xE9cise) et d\xE9crit un contexte en 4-5 phrases riches.
+- Le champ "attendu" liste 4-5 points cl\xE9s structur\xE9s que le participant doit ma\xEEtriser.
+- Les explications QCM sont d\xE9velopp\xE9es avec du contexte concret (2-3 phrases minimum).
+- Respecte STRICTEMENT le mode de d\xE9livrance (${deliveryMode === "trainer" ? "pr\xE9sentiel" : "autoformation"}).${deliveryMode === "trainer" ? `
+- MODE PR\xC9SENTIEL : chaque situation repr\xE9sente une SLIDE de formation. Le champ "trainerNote" doit contenir :
+  1. Un titre de slide court (ex: "Slide : La r\xE8gle des 3 clics")
+  2. Une animation sugg\xE9r\xE9e pour le formateur (ex: "Demandez au groupe de voter \xE0 main lev\xE9e")
+  3. Une question de d\xE9brief ouverte (ex: "Quelle a \xE9t\xE9 votre pire exp\xE9rience avec ce type de situation ?")
+  4. Une activit\xE9 groupe optionnelle (ex: "Atelier : 10 min en bin\xF4mes pour tester le sc\xE9nario")
+  Le champ "situation" devient la description de la slide (ce qui est projet\xE9).
+  Le champ "attendu" liste les points \xE0 faire ressortir lors du d\xE9brief anim\xE9.` : ""}
+- Adapte la complexit\xE9 au niveau "${level || "intermediate"}".
+
+R\xE9ponds UNIQUEMENT avec ce JSON valide (z\xE9ro texte avant ou apr\xE8s, z\xE9ro markdown) :
+{
+  "title": "Titre pr\xE9cis et accrocheur",
+  "tagline": "Sous-titre \u2014 angle unique en moins de 12 mots",
+  "deliveryMode": "${deliveryMode || "self"}",
+  "objectives": [
+    "Objectif 1 \u2014 verbe d'action + r\xE9sultat mesurable",
+    "Objectif 2",
+    "Objectif 3",
+    "Objectif 4",
+    "Objectif 5"
+  ],
+  "modules": [
+    { "title": "Titre du module", "duration": "10 min", "type": "Th\xE9orie | Pratique | \xC9valuation" }
+  ],
+  "situations": [
+    {
+      "id": 1,
+      "category": "Cat\xE9gorie th\xE9matique \u2014 aspect sp\xE9cifique du sujet",
+      "title": "Titre court et accrocheur",
+      "contexte": "Fait cl\xE9, r\xE8gle, chiffre ou principe fondamental (1-2 phrases)",
+      "situation": "Pr\xE9nom + fonction + contexte professionnel d\xE9taill\xE9 + d\xE9fi concret (4-5 phrases riches)",
+      "attendu": "1. Point cl\xE9 attendu\\n2. Point cl\xE9 attendu\\n3. Point cl\xE9 attendu\\n4. Point cl\xE9 attendu",
+      "trainerNote": "${deliveryMode === "trainer" ? "Slide : [titre] | Animation : [sugg\xE9r\xE9e] | D\xE9brief : [question ouverte] | Activit\xE9 : [optionnel]" : ""}"
+    }
+  ],
+  "qcm": [
+    {
+      "question": "Question pr\xE9cise et bien formul\xE9e ?",
+      "options": [
+        { "text": "Option A", "correct": false },
+        { "text": "Option B", "correct": true },
+        { "text": "Option C", "correct": false },
+        { "text": "Option D", "correct": false }
+      ],
+      "explanation": "Explication d\xE9velopp\xE9e avec contexte concret \u2014 2-3 phrases"
+    }
+  ],
+  "gamification": {
+    "points": 500,
+    "badge": "Expert",
+    "levels": ["Novice", "Praticien", "Expert"]
+  }
+}`;
+      const aiResponse = await openAIService.getChatCompletion([
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ], 0.6, 14e3);
+      const parseRobust = (str) => {
+        const attempts = [
+          () => JSON.parse(str),
+          () => {
+            const c = str.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+            return JSON.parse(c);
+          },
+          () => {
+            const s = str.indexOf("{");
+            const e = str.lastIndexOf("}");
+            if (s === -1 || e === -1) return null;
+            return JSON.parse(str.slice(s, e + 1));
+          },
+          () => {
+            const s = str.indexOf("{");
+            const e = str.lastIndexOf("}");
+            if (s === -1 || e === -1) return null;
+            return JSON.parse(str.slice(s, e + 1).replace(/[\x00-\x1F\x7F]/g, " "));
+          }
+        ];
+        for (const attempt of attempts) {
+          try {
+            const r = attempt();
+            if (r && typeof r === "object") return r;
+          } catch {
+          }
+        }
+        return null;
+      };
+      let training = parseRobust(aiResponse);
+      if (!training || !training.situations || !Array.isArray(training.situations)) {
+        console.warn("[Studio V2] Premier parsing \xE9chou\xE9, retry...");
+        const retryResponse = await openAIService.getChatCompletion([
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+          { role: "assistant", content: aiResponse },
+          { role: "user", content: "Ta r\xE9ponse contient du texte hors JSON. R\xE9ponds UNIQUEMENT avec le JSON valide demand\xE9, sans aucun autre texte." }
+        ], 0.3, 14e3);
+        training = parseRobust(retryResponse);
+      }
+      if (!training) {
+        return res.status(500).json({ error: "Impossible de g\xE9n\xE9rer la formation. R\xE9essayez." });
+      }
+      if (training.qcm && Array.isArray(training.qcm)) {
+        training.qcm = training.qcm.map((q) => {
+          if (q.options && Array.isArray(q.options) && typeof q.options[0] === "string") {
+            return {
+              ...q,
+              options: q.options.map((opt, i) => ({
+                text: opt,
+                correct: i === (q.bonneReponse ?? q.correct ?? 0)
+              }))
+            };
+          }
+          return q;
+        });
+      }
+      const id = uuidv49();
+      await storage.saveGeneratedTraining({
+        id,
+        title: training.title || title || "Formation g\xE9n\xE9r\xE9e",
+        tagline: training.tagline || "",
+        source: isFromDocs ? "documents" : "prompt",
+        sourceInfo: {
+          title,
+          description,
+          audience,
+          level,
+          sector,
+          deliveryMode,
+          format,
+          style,
+          gamification,
+          files: files.map((f) => ({ name: f.originalname, size: f.size }))
+        },
+        audience: audience || "all",
+        gamificationLevel: gamification || "light",
+        content: training
+      });
+      res.json({ training, id });
+    } catch (error) {
+      console.error("[Studio V2] Erreur g\xE9n\xE9ration:", error?.message || error);
+      res.status(500).json({ error: "Erreur lors de la g\xE9n\xE9ration. R\xE9essayez." });
+    }
+  });
+  app2.post("/api/studio/v2/chat", async (req, res) => {
+    try {
+      const { messages, brief, systemOverride } = req.body;
+      if (!messages) return res.status(400).json({ error: "messages requis" });
+      if (systemOverride) {
+        const aiResponse2 = await openAIService.getChatCompletion(
+          [{ role: "system", content: systemOverride }, ...messages],
+          0.7,
+          800
+        );
+        return res.json({ message: aiResponse2, briefReady: false });
+      }
+      const system = `Tu es un expert en ing\xE9nierie p\xE9dagogique et en conception de formations professionnelles. Tu aides \xE0 co-cr\xE9er une formation sur mesure.
+
+TON R\xD4LE : Mener une vraie conversation intelligente pour comprendre pr\xE9cis\xE9ment le besoin. Tu n'es PAS un formulaire avec des cases \xE0 cocher. Tu es un expert qui pose les bonnes questions, rebondit sur les r\xE9ponses, creuse l\xE0 o\xF9 c'est n\xE9cessaire.
+
+CE QUE TU DOIS D\xC9COUVRIR (naturellement, dans l'ordre logique) :
+1. Le sujet exact et son p\xE9rim\xE8tre
+2. Le public cible (m\xE9tier, niveau, secteur d'activit\xE9 \u2014 transport, \xE9nergie, banque, sant\xE9, conseil, etc.)
+3. Le niveau de ma\xEEtrise actuel du public sur ce sujet
+4. Les objectifs concrets (ce qu'ils doivent savoir faire \xE0 la fin)
+5. Les cas d'usage r\xE9els, les erreurs fr\xE9quentes, les situations typiques
+6. Le mode (autoformation ou pr\xE9sentiel) et la dur\xE9e souhait\xE9e
+7. Le contexte sp\xE9cifique (probl\xE8me r\xE9cent, enjeu business, contrainte)
+
+COMMENT CONVERSER :
+- Pose UNE question \xE0 la fois, bien formul\xE9e
+- Reformule et confirme ce que tu as compris avant d'avancer
+- Pose des questions de pr\xE9cision si la r\xE9ponse est vague
+- Enrichis avec ce que tu sais du domaine ("Dans le secteur de l'\xE9nergie, j'imagine que...")
+- Quand tu as assez d'info, propose un r\xE9capitulatif structur\xE9 et demande validation
+
+QUAND TU AS TOUT : R\xE9ponds avec un JSON sp\xE9cial dans ta r\xE9ponse en marquant clairement la fin du brief :
+<<BRIEF_READY>>{"title":"...","audience":"...","level":"beginner|intermediate|advanced|expert","deliveryMode":"self|trainer","format":"15|30|45|90","sector":"...","internalContext":"..."}<<END_BRIEF>>
+
+Jusqu'\xE0 ce moment, r\xE9ponds en texte naturel uniquement, PAS de JSON.
+
+Brief collect\xE9 jusqu'ici : ${JSON.stringify(brief || {})}`;
+      const aiResponse = await openAIService.getChatCompletion(
+        [{ role: "system", content: system }, ...messages],
+        0.8,
+        1e3
+      );
+      const briefMatch = aiResponse.match(/<<BRIEF_READY>>([\s\S]*?)<<END_BRIEF>>/);
+      if (briefMatch) {
+        try {
+          const briefData = JSON.parse(briefMatch[1]);
+          const cleanText = aiResponse.replace(/<<BRIEF_READY>>[\s\S]*?<<END_BRIEF>>/, "").trim();
+          return res.json({ message: cleanText, briefReady: true, brief: briefData });
+        } catch {
+        }
+      }
+      return res.json({ message: aiResponse, briefReady: false });
+    } catch (error) {
+      console.error("[Studio Chat] Erreur:", error?.message);
+      res.status(500).json({ error: "Erreur chatbot" });
+    }
+  });
+  app2.post("/api/studio/v2/cobuild", (req, res, next) => {
+    uploadStudioV2(req, res, (err) => {
+      if (err) return res.status(400).json({ error: err.message });
+      next();
+    });
+  }, async (req, res) => {
+    try {
+      const {
+        title,
+        audience,
+        level,
+        deliveryMode,
+        format,
+        sector,
+        internalContext,
+        language,
+        situationIndex,
+        previousSituations
+      } = req.body;
+      if (!title) return res.status(400).json({ error: "Titre requis" });
+      const { mode } = req.body;
+      if (mode === "global-lesson") {
+        const sysMsg = { role: "system", content: "Tu es un expert p\xE9dagogue et vulgarisateur. Tu \xE9cris des le\xE7ons compl\xE8tes, r\xE9dig\xE9es en prose, accessibles et engageantes. R\xE9ponds uniquement en JSON valide, sans markdown." };
+        const audienceStr = { all: "tous les collaborateurs", managers: "les managers", technical: "les techniciens et d\xE9veloppeurs", sales: "les commerciaux", newcomers: "les nouveaux arrivants", executives: "les dirigeants" }[audience] || audience || "des professionnels";
+        const levelStr = { beginner: "d\xE9butant (aucune connaissance pr\xE9alable)", intermediate: "interm\xE9diaire", advanced: "avanc\xE9", expert: "expert" }[level] || "interm\xE9diaire";
+        const sectorStr = sector ? `dans le secteur ${sector}` : "";
+        const lessonPrompt = `G\xE9n\xE8re une le\xE7on th\xE9orique compl\xE8te sur "${title}" pour ${audienceStr} de niveau ${levelStr}${sectorStr ? ", " + sectorStr : ""}.
+
+La le\xE7on doit \xEAtre une VRAIE LE\xC7ON R\xC9DIG\xC9E \u2014 pas des bullet points, mais de vrais paragraphes explicatifs, clairs et engageants, comme un professeur expert qui explique \xE0 des adultes.
+
+Structure exacte : 6 slides dans cet ordre :
+
+SLIDE 1 \u2014 type "hook" : L'accroche \u2014 pourquoi ce sujet change tout pour ce public.
+- "body": UN paragraphe de 3-4 phrases percutantes. Commence par un fait marquant ou une situation concr\xE8te que ce public vit. Explique l'enjeu r\xE9el.
+
+SLIDE 2 \u2014 type "concept" : Les fondamentaux \u2014 le concept central expliqu\xE9 de z\xE9ro.
+- "body": UN paragraphe de 4-5 phrases. D\xE9finit clairement le concept, sans jargon ou en expliquant chaque terme technique. Donne le "comment \xE7a marche" en termes simples.
+
+SLIDE 3 \u2014 type "deep-dive" : Pour aller plus loin \u2014 les m\xE9canismes importants \xE0 conna\xEEtre.
+- "body": UN paragraphe de 4-5 phrases. Approfondissement : les nuances, les cas particuliers, ce qu'il faut vraiment comprendre pour ne pas se tromper.
+
+SLIDE 4 \u2014 type "real-world" : Dans la vraie vie${sectorStr ? " " + sectorStr : ""} \u2014 comment \xE7a se passe concr\xE8tement.
+- "body": UN paragraphe de 4-5 phrases. Exemple r\xE9el et sp\xE9cifique au secteur${sector ? ` "${sector}"` : ""}. Nomme une entreprise, une situation, un r\xE9sultat.
+
+SLIDE 5 \u2014 type "pitfalls" : Les erreurs \xE0 \xE9viter \u2014 ce que les d\xE9butants font syst\xE9matiquement mal.
+- "body": UN paragraphe de 3-4 phrases. Les 2-3 erreurs les plus fr\xE9quentes, pourquoi elles arrivent, comment les \xE9viter.
+
+SLIDE 6 \u2014 type "quiz" : V\xE9rification de compr\xE9hension.
+- "question": Une question ouverte sur un point fondamental de la le\xE7on.
+- "options": 3 options (une seule correcte), chacune avec un "feedback" explicatif de 1-2 phrases.
+
+R\xE9ponds UNIQUEMENT en JSON :
+{"title":"<titre accrocheur>","subtitle":"<sous-titre qui donne envie>","slides":[
+{"type":"hook","title":"<titre slide 1>","body":"<paragraphe r\xE9dig\xE9>"},
+{"type":"concept","title":"<titre slide 2>","body":"<paragraphe r\xE9dig\xE9>"},
+{"type":"deep-dive","title":"<titre slide 3>","body":"<paragraphe r\xE9dig\xE9>"},
+{"type":"real-world","title":"<titre slide 4>","body":"<paragraphe r\xE9dig\xE9>"},
+{"type":"pitfalls","title":"<titre slide 5>","body":"<paragraphe r\xE9dig\xE9>"},
+{"type":"quiz","title":"V\xE9rification","question":"<question>","options":[{"text":"<option>","correct":false,"feedback":"<explication>"},{"text":"<option correcte>","correct":true,"feedback":"<explication>"},{"text":"<option>","correct":false,"feedback":"<explication>"}]}
+]}`;
+        const raw = await openAIService.getChatCompletion([sysMsg, { role: "user", content: lessonPrompt }], 0.75, 6e3);
+        const parseJ = (s) => {
+          try {
+            return JSON.parse(s);
+          } catch {
+          }
+          try {
+            const c = s.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+            const i = c.indexOf("{");
+            const j = c.lastIndexOf("}");
+            return i !== -1 ? JSON.parse(c.slice(i, j + 1)) : null;
+          } catch {
+          }
+          return null;
+        };
+        const lesson = parseJ(raw);
+        console.log("[Cobuild global-lesson] ok:", !!lesson, "| slides:", lesson?.slides?.length, "| first type:", lesson?.slides?.[0]?.type);
+        return res.json({ lesson });
+      }
+      const idx = parseInt(situationIndex || "0");
+      const prevSits = previousSituations ? JSON.parse(previousSituations) : [];
+      const files = req.files || [];
+      let docsContext = "";
+      if (files.length > 0) {
+        const extracted = await Promise.all(files.map((f) => extractDocumentText(f)));
+        docsContext = extracted.map((e, i) => `=== Document ${i + 1} ===
+${e.text}`).join("\n\n").slice(0, 3e4);
+      }
+      const audienceLabels = { all: "tous les collaborateurs", managers: "managers", technical: "techniciens/d\xE9veloppeurs", sales: "commerciaux", newcomers: "nouveaux arrivants", executives: "dirigeants" };
+      const levelLabels = { beginner: "d\xE9butant", intermediate: "interm\xE9diaire", advanced: "avanc\xE9", expert: "expert" };
+      const usedTypes = prevSits.map((s) => s.interactionType);
+      const availableTypes = ["free-text", "qcm", "fill-blank", "checkbox", "sql-console", "python-console", "cyber-terminal"];
+      const text2 = (title + " " + (sector || "") + " " + (internalContext || "")).toLowerCase();
+      let suggestedType = "free-text";
+      if (/sql|base de données|requête|mysql|postgresql|data/i.test(text2) && !usedTypes.includes("sql-console")) suggestedType = "sql-console";
+      else if (/python|pandas|numpy|script|code|algorithme/i.test(text2) && !usedTypes.includes("python-console")) suggestedType = "python-console";
+      else if (/cyber|phishing|sécurité|terminal|linux|bash|ssh|nmap/i.test(text2) && !usedTypes.includes("cyber-terminal")) suggestedType = "cyber-terminal";
+      else if (idx === 0) suggestedType = "free-text";
+      else if (idx === 1) suggestedType = "fill-blank";
+      else if (idx === 2) suggestedType = "checkbox";
+      else if (idx % 3 === 0) suggestedType = "qcm";
+      else suggestedType = availableTypes[idx % availableTypes.length];
+      const isTrainer = deliveryMode === "trainer";
+      const prompt = `Tu es un expert en ing\xE9nierie p\xE9dagogique. G\xE9n\xE8re UNE SEULE situation professionnelle pour une formation.
+
+BRIEF :
+- Sujet : ${title}
+- Public : ${audienceLabels[audience] || audience || "professionnels"}
+- Niveau : ${levelLabels[level] || level || "interm\xE9diaire"}
+- Mode : ${isTrainer ? "pr\xE9sentiel avec formateur" : "autoformation"}
+- Dur\xE9e : ${format || "30"} minutes
+${sector ? `- Secteur : ${sector}` : ""}
+${internalContext ? `- Contexte interne : ${internalContext}` : ""}
+${docsContext ? `
+SOURCE DOCUMENTAIRE :
+${docsContext.slice(0, 15e3)}` : ""}
+
+SITUATIONS D\xC9J\xC0 CONSTRUITES (${prevSits.length}) :
+${prevSits.length > 0 ? prevSits.map((s, i) => `${i + 1}. "${s.title}" [${s.interactionType}] \u2014 ${s.category}`).join("\n") : "Aucune \u2014 c'est la premi\xE8re"}
+
+INSTRUCTIONS :
+- Cette situation est la n\xB0${idx + 1}
+- Type d'interaction SUGG\xC9R\xC9 : ${suggestedType}
+- Choisir une CAT\xC9GORIE diff\xE9rente des situations pr\xE9c\xE9dentes
+- Contexte professionnel r\xE9aliste avec un pr\xE9nom et une fonction
+- Le type d'interaction doit \xEAtre coh\xE9rent avec le contenu
+
+${suggestedType === "sql-console" ? `Pour le type sql-console :
+- situation : d\xE9crit le probl\xE8me \xE0 r\xE9soudre avec SQL (contexte m\xE9tier r\xE9el)
+- attendu : la ou les requ\xEAtes SQL attendues
+- interactionConfig.starterCode : une requ\xEAte SQL de d\xE9part partielle \xE0 compl\xE9ter
+- interactionConfig.schema : les tables disponibles (ex: "users(id, name, email), orders(id, user_id, amount, date)")
+- interactionConfig.hint : un indice optionnel` : ""}
+${suggestedType === "python-console" ? `Pour le type python-console :
+- situation : le probl\xE8me \xE0 r\xE9soudre en Python
+- attendu : la logique Python attendue
+- interactionConfig.starterCode : code Python de d\xE9part \xE0 compl\xE9ter
+- interactionConfig.hint : indice optionnel` : ""}
+${suggestedType === "cyber-terminal" ? `Pour le type cyber-terminal :
+- situation : sc\xE9nario cyber avec commandes terminal
+- attendu : les commandes et actions attendues
+- interactionConfig.starterCode : premi\xE8res commandes d\xE9j\xE0 ex\xE9cut\xE9es (contexte)
+- interactionConfig.hint : indice optionnel` : ""}
+${suggestedType === "fill-blank" ? `Pour le type fill-blank :
+- situation : une phrase ou un texte avec des BLANCS marqu\xE9s [___]
+- attendu : les mots/valeurs attendus dans l'ordre des blancs
+- interactionConfig.blanks : ["r\xE9ponse1", "r\xE9ponse2"]` : ""}
+${suggestedType === "checkbox" ? `Pour le type checkbox :
+- situation : une question avec plusieurs propositions
+- attendu : liste les bonnes r\xE9ponses
+- interactionConfig.options : [{"text": "...", "correct": true/false}, ...]` : ""}
+${suggestedType === "qcm" ? `Pour le type qcm :
+- situation : la question QCM
+- attendu : explication de la bonne r\xE9ponse
+- interactionConfig.options : [{"text": "...", "correct": true/false}, ...]
+- interactionConfig.explanation : explication d\xE9velopp\xE9e` : ""}
+
+R\xE9ponds UNIQUEMENT avec ce JSON (sans markdown) :
+{
+  "id": ${idx + 1},
+  "category": "Cat\xE9gorie th\xE9matique pr\xE9cise",
+  "title": "Titre court et accrocheur",
+  "contexte": "Fait cl\xE9 ou r\xE8gle fondamentale en 1-2 phrases",
+  "situation": "Situation d\xE9taill\xE9e avec personnage et contexte professionnel r\xE9el (4-5 phrases)",
+  "attendu": "Ce que le participant doit produire ou ma\xEEtriser",
+  "interactionType": "${suggestedType}",
+  "interactionConfig": {},
+  ${isTrainer ? `"trainerNote": "Animation sugg\xE9r\xE9e | Question de d\xE9brief | Activit\xE9 groupe optionnelle",` : ""}
+  "status": "pending"
+}`;
+      const aiResponse = await openAIService.getChatCompletion([
+        { role: "system", content: "Tu es un expert en ing\xE9nierie p\xE9dagogique. R\xE9ponds uniquement en JSON valide, sans markdown, sans texte avant ou apr\xE8s." },
+        { role: "user", content: prompt }
+      ], 0.7, 3e3);
+      const parse = (s) => {
+        try {
+          return JSON.parse(s);
+        } catch {
+        }
+        try {
+          const c = s.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+          const i = c.indexOf("{");
+          const j = c.lastIndexOf("}");
+          return i !== -1 ? JSON.parse(c.slice(i, j + 1)) : null;
+        } catch {
+        }
+        return null;
+      };
+      const situation = parse(aiResponse);
+      if (!situation) return res.status(500).json({ error: "Parsing JSON \xE9chou\xE9" });
+      res.json({ situation });
+    } catch (error) {
+      console.error("[Studio Cobuild] Erreur:", error?.message);
+      res.status(500).json({ error: "Erreur lors de la g\xE9n\xE9ration de la situation" });
+    }
+  });
+  app2.post("/api/studio/v2/finalize", (req, res, next) => {
+    uploadStudioV2(req, res, (err) => {
+      if (err) return res.status(400).json({ error: err.message });
+      next();
+    });
+  }, async (req, res) => {
+    try {
+      const { title, audience, level, deliveryMode, format, sector, internalContext, language, situations: situationsJson } = req.body;
+      if (!title || !situationsJson) return res.status(400).json({ error: "Titre et situations requis" });
+      const situations = JSON.parse(situationsJson);
+      const nbQcm = Math.max(3, Math.min(10, Math.floor(situations.length * 1.5)));
+      const parseJson2 = (s) => {
+        try {
+          return JSON.parse(s);
+        } catch {
+        }
+        try {
+          const c = s.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+          const i = c.indexOf("{");
+          const j = c.lastIndexOf("}");
+          return i !== -1 ? JSON.parse(c.slice(i, j + 1).replace(/[\x00-\x1F\x7F]/g, " ")) : null;
+        } catch {
+        }
+        return null;
+      };
+      const context = `Formation : "${title}" | Public : ${audience || "professionnel"} | Niveau : ${level || "interm\xE9diaire"} | Secteur : ${sector || "g\xE9n\xE9ral"}`;
+      const promptMeta = `Tu es expert en ing\xE9nierie p\xE9dagogique. G\xE9n\xE8re les m\xE9tadonn\xE9es et QCM pour cette formation.
+
+${context}
+
+SITUATIONS : ${situations.map((s, i) => `${i + 1}. ${s.title}`).join(" | ")}
+
+R\xE9ponds UNIQUEMENT en JSON valide (sans markdown) :
+{"tagline":"<sous-titre accrocheur max 12 mots sp\xE9cifique \xE0 ${title}>","objectives":["<objectif Bloom 1 sp\xE9cifique>","<objectif 2>","<objectif 3>","<objectif 4>"],"qcm":[${Array.from({ length: nbQcm }).map(() => `{"question":"<question sp\xE9cifique \xE0 ${title}>","options":[{"text":"<option>","correct":false},{"text":"<option correcte>","correct":true},{"text":"<option>","correct":false},{"text":"<option>","correct":false}],"explanation":"<explication 2-3 phrases>"}`).join(",")}]}`;
+      const promptGlobal = `Tu es expert en p\xE9dagogie et vulgarisation. G\xE9n\xE8re une le\xE7on introductive sur "${title}" pour ${audience || "des professionnels"} de niveau ${level || "interm\xE9diaire"}.
+
+La le\xE7on doit comprendre exactement 5 slides dans cet ordre :
+1. type "why-it-matters" \u2014 Pourquoi ${title} est crucial pour ${audience || "ce public"} ? (3 blocs : accroche, chiffre/fait r\xE9el, impact concret)
+2. type "concept" \u2014 Le concept central de ${title} expliqu\xE9 sans jargon (3 blocs : d\xE9finition simple, ce que \xE7a signifie en pratique, ce que ce n'est PAS)
+3. type "analogy" \u2014 Une analogie du quotidien pour rendre ${title} \xE9vident (3 blocs : l'analogie, le lien avec ${title}, la le\xE7on)
+4. type "example" \u2014 Un exemple r\xE9el concret du secteur ${sector || "professionnel"} (3 blocs : la situation, ce qui s'est pass\xE9, la le\xE7on)
+5. type "quick-check" \u2014 Question de compr\xE9hension (3 options, une correcte, feedbacks)
+
+R\xE9ponds UNIQUEMENT en JSON valide (sans markdown) :
+{"title":"<titre accrocheur pour intro ${title}>","subtitle":"<sous-titre>","slides":[{"type":"why-it-matters","title":"<titre>","blocks":["<bloc 1>","<bloc 2>","<bloc 3>"]},{"type":"concept","title":"<titre>","blocks":["<bloc 1>","<bloc 2>","<bloc 3>"]},{"type":"analogy","title":"<titre>","blocks":["<bloc 1>","<bloc 2>","<bloc 3>"]},{"type":"example","title":"<titre>","blocks":["<bloc 1>","<bloc 2>","<bloc 3>"]},{"type":"quick-check","title":"<titre>","question":"<question>","options":[{"text":"<option>","correct":false,"feedback":"<feedback>"},{"text":"<option correcte>","correct":true,"feedback":"<feedback>"},{"text":"<option>","correct":false,"feedback":"<feedback>"}]}]}`;
+      const promptMini = `Tu es expert en p\xE9dagogie. G\xE9n\xE8re une mini-le\xE7on (3 slides) pour chacune des ${situations.length} situations de la formation "${title}".
+
+${situations.map((s, i) => `SITUATION ${i + 1}: "${s.title}" \u2014 ${s.category}
+${s.situation?.slice(0, 150)}`).join("\n\n")}
+
+Pour chaque situation, g\xE9n\xE8re 3 slides :
+- Slide 1 type "concept" : Le savoir-faire cl\xE9 pour r\xE9ussir CETTE situation (3 blocs : r\xE8gle principale, pourquoi c'est important, erreur \xE0 \xE9viter)
+- Slide 2 type "example" : Exemple directement li\xE9 \xE0 cette situation (3 blocs : contexte similaire, indices, bonne d\xE9marche)
+- Slide 3 type "quick-check" : Question li\xE9e \xE0 cette situation (3 options, une correcte, feedbacks)
+
+R\xE9ponds UNIQUEMENT en JSON valide (sans markdown) :
+{"miniLessons":[${situations.map((s) => `{"title":"<titre mini-le\xE7on pour ${s.title.slice(0, 30)}>","slides":[{"type":"concept","title":"<titre>","blocks":["<bloc 1>","<bloc 2>","<bloc 3>"]},{"type":"example","title":"<titre>","blocks":["<bloc 1>","<bloc 2>","<bloc 3>"]},{"type":"quick-check","title":"<titre>","question":"<question>","options":[{"text":"<option>","correct":false,"feedback":"<feedback>"},{"text":"<option correcte>","correct":true,"feedback":"<feedback>"},{"text":"<option>","correct":false,"feedback":"<feedback>"}]}]}`).join(",")}]}`;
+      const sysMsg = { role: "system", content: "Tu es expert en ing\xE9nierie p\xE9dagogique. R\xE9ponds uniquement en JSON valide, sans markdown, sans commentaire. Remplace TOUS les placeholders entre <> par du vrai contenu sp\xE9cifique." };
+      const [metaRaw, globalRaw, miniRaw] = await Promise.all([
+        openAIService.getChatCompletion([sysMsg, { role: "user", content: promptMeta }], 0.7, 6e3),
+        openAIService.getChatCompletion([sysMsg, { role: "user", content: promptGlobal }], 0.7, 4e3),
+        openAIService.getChatCompletion([sysMsg, { role: "user", content: promptMini }], 0.7, 6e3)
+      ]);
+      const metaData = parseJson2(metaRaw);
+      const globalLesson = parseJson2(globalRaw);
+      const miniData = parseJson2(miniRaw);
+      console.log("[Finalize] meta ok:", !!metaData, "| global ok:", !!globalLesson, "| mini ok:", !!miniData);
+      if (globalLesson) console.log("[Finalize] globalLesson.slides:", globalLesson.slides?.length, "| first slide type:", globalLesson.slides?.[0]?.type);
+      const situationsWithLessons = situations.map((s, i) => ({
+        id: s.id,
+        category: s.category,
+        title: s.title,
+        contexte: s.contexte,
+        situation: s.situation,
+        attendu: s.attendu,
+        interactionType: s.interactionType || "free-text",
+        interactionConfig: s.interactionConfig || null,
+        trainerNote: s.trainerNote || "",
+        miniLesson: miniData?.miniLessons?.[i] || null
+      }));
+      const training = {
+        title,
+        tagline: metaData?.tagline || title,
+        deliveryMode: deliveryMode || "self",
+        objectives: metaData?.objectives || [],
+        modules: [{ title: "Module 1", duration: `${format || 30} min`, type: "Pratique" }],
+        globalLesson: globalLesson || null,
+        situations: situationsWithLessons,
+        qcm: metaData?.qcm || [],
+        gamification: { points: 500, badge: "Expert", levels: ["Novice", "Praticien", "Expert"] }
+      };
+      if (!training) return res.status(500).json({ error: "G\xE9n\xE9ration \xE9chou\xE9e" });
+      const id = uuidv49();
+      await storage.saveGeneratedTraining({
+        id,
+        title: training.title || title,
+        tagline: training.tagline || "",
+        source: "cobuild",
+        sourceInfo: { title, audience, level, deliveryMode, format, sector },
+        audience: audience || "all",
+        gamificationLevel: "light",
+        content: training
+      });
+      res.json({ id, training });
+    } catch (error) {
+      console.error("[Studio Finalize] Erreur:", error?.message);
+      res.status(500).json({ error: "Erreur lors de la finalisation" });
+    }
+  });
+  app2.post("/api/studio/v2/adjust", async (req, res) => {
+    try {
+      const { trainingId, instruction, targetSection } = req.body;
+      if (!trainingId || !instruction) {
+        return res.status(400).json({ error: "trainingId et instruction requis" });
+      }
+      const record = await storage.getGeneratedTraining(trainingId);
+      if (!record) return res.status(404).json({ error: "Formation introuvable" });
+      const training = record.content;
+      const sectionContext = targetSection === "situations" ? `SITUATIONS ACTUELLES :
+${JSON.stringify(training.situations?.slice(0, 3), null, 2)}
+...(${training.situations?.length} situations au total)` : targetSection === "qcm" ? `QCM ACTUELS :
+${JSON.stringify(training.qcm?.slice(0, 3), null, 2)}
+...(${training.qcm?.length} questions au total)` : `FORMATION COMPL\xC8TE : "${training.title}" \u2014 ${training.situations?.length} situations, ${training.qcm?.length} questions QCM`;
+      const prompt = `Tu es un expert en ing\xE9nierie p\xE9dagogique. Tu dois ajuster une formation existante selon une demande pr\xE9cise.
+
+DEMANDE D'AJUSTEMENT : ${instruction}
+SECTION CIBL\xC9E : ${targetSection || "formation compl\xE8te"}
+${sectionContext}
+
+TITRE FORMATION : ${training.title}
+OBJECTIFS : ${training.objectives?.join(", ")}
+MODE : ${training.deliveryMode || "autoformation"}
+
+Applique l'ajustement demand\xE9 et retourne UNIQUEMENT le JSON modifi\xE9 de la section "${targetSection || "training"}" (pas la formation compl\xE8te, juste la section modifi\xE9e).
+
+Si targetSection est "situations" \u2192 retourne { "situations": [...] }
+Si targetSection est "qcm" \u2192 retourne { "qcm": [...] }
+Si targetSection est "objectives" \u2192 retourne { "objectives": [...], "title": "...", "tagline": "..." }
+Sinon \u2192 retourne la formation compl\xE8te modifi\xE9e avec le m\xEAme sch\xE9ma JSON.`;
+      const aiResponse = await openAIService.getChatCompletion([
+        { role: "user", content: prompt }
+      ], 0.65, 1e4);
+      const parseRobust = (str) => {
+        try {
+          return JSON.parse(str);
+        } catch {
+        }
+        try {
+          const c = str.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+          const s = c.indexOf("{");
+          const e = c.lastIndexOf("}");
+          if (s !== -1 && e !== -1) return JSON.parse(c.slice(s, e + 1).replace(/[\x00-\x1F\x7F]/g, " "));
+        } catch {
+        }
+        return null;
+      };
+      const patch = parseRobust(aiResponse);
+      if (!patch) return res.status(500).json({ error: "Impossible d'ajuster. R\xE9essayez." });
+      const updated = { ...training, ...patch };
+      await storage.saveGeneratedTraining({
+        id: trainingId,
+        title: updated.title || record.title,
+        tagline: updated.tagline || record.tagline,
+        source: record.source,
+        sourceInfo: record.sourceInfo,
+        audience: record.audience,
+        gamificationLevel: record.gamificationLevel,
+        content: updated
+      });
+      res.json({ success: true, training: updated, patch });
+    } catch (error) {
+      console.error("[Studio V2] Erreur ajustement:", error?.message || error);
+      res.status(500).json({ error: "Erreur lors de l'ajustement. R\xE9essayez." });
+    }
+  });
+  app2.post("/api/studio/v2/save", async (req, res) => {
+    try {
+      const { trainingId, training } = req.body;
+      if (!trainingId || !training) return res.status(400).json({ error: "trainingId et training requis" });
+      const existing = await storage.getGeneratedTraining(trainingId);
+      if (!existing) return res.status(404).json({ error: "Formation introuvable" });
+      await storage.saveGeneratedTraining({
+        id: trainingId,
+        title: training.title || existing.title,
+        tagline: training.tagline || existing.tagline,
+        source: existing.source,
+        sourceInfo: existing.sourceInfo,
+        audience: existing.audience,
+        gamificationLevel: existing.gamificationLevel,
+        content: training
+      });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[Studio V2] Erreur sauvegarde:", error?.message || error);
+      res.status(500).json({ error: "Erreur lors de la sauvegarde." });
+    }
+  });
   return createServer(app2);
 }
 
 // server/vite.ts
 import express5 from "express";
-import fs5 from "fs";
-import path7, { dirname as dirname3 } from "path";
+import fs7 from "fs";
+import path9, { dirname as dirname3 } from "path";
 import { fileURLToPath as fileURLToPath5 } from "url";
 import { createServer as createViteServer, createLogger } from "vite";
 
 // vite.config.ts
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import path6, { dirname as dirname2 } from "path";
+import path8, { dirname as dirname2 } from "path";
 import { fileURLToPath as fileURLToPath4 } from "url";
 var __filename4 = fileURLToPath4(import.meta.url);
 var __dirname4 = dirname2(__filename4);
@@ -25782,14 +30171,14 @@ var vite_config_default = defineConfig({
   ],
   resolve: {
     alias: {
-      "@": path6.resolve(__dirname4, "client", "src"),
-      "@shared": path6.resolve(__dirname4, "shared"),
-      "@assets": path6.resolve(__dirname4, "attached_assets")
+      "@": path8.resolve(__dirname4, "client", "src"),
+      "@shared": path8.resolve(__dirname4, "shared"),
+      "@assets": path8.resolve(__dirname4, "attached_assets")
     }
   },
-  root: path6.resolve(__dirname4, "client"),
+  root: path8.resolve(__dirname4, "client"),
   build: {
-    outDir: path6.resolve(__dirname4, "dist/public"),
+    outDir: path8.resolve(__dirname4, "dist/public"),
     emptyOutDir: true
   }
 });
@@ -25831,13 +30220,13 @@ async function setupVite(app2, server) {
   app2.use("*", async (req, res, next) => {
     const url = req.originalUrl;
     try {
-      const clientTemplate = path7.resolve(
+      const clientTemplate = path9.resolve(
         __dirname5,
         "..",
         "client",
         "index.html"
       );
-      let template = await fs5.promises.readFile(clientTemplate, "utf-8");
+      let template = await fs7.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`
@@ -25851,15 +30240,28 @@ async function setupVite(app2, server) {
   });
 }
 function serveStatic(app2) {
-  const distPath = path7.resolve(__dirname5, "public");
-  if (!fs5.existsSync(distPath)) {
+  const distPath = path9.resolve(__dirname5, "public");
+  if (!fs7.existsSync(distPath)) {
     throw new Error(
       `Could not find the build directory: ${distPath}, make sure to build the client first`
     );
   }
-  app2.use(express5.static(distPath));
+  app2.use(express5.static(distPath, {
+    maxAge: "1y",
+    immutable: true,
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith("index.html")) {
+        res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        res.setHeader("Pragma", "no-cache");
+        res.setHeader("Expires", "0");
+      }
+    }
+  }));
   app2.use("*", (_req, res) => {
-    res.sendFile(path7.resolve(distPath, "index.html"));
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+    res.sendFile(path9.resolve(distPath, "index.html"));
   });
 }
 
@@ -25878,12 +30280,12 @@ var app = express6();
 app.use(express6.json());
 app.use(express6.urlencoded({ extended: false }));
 app.use("/api", (req, res, next) => {
-  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
   next();
 });
 app.use((req, res, next) => {
   const start = Date.now();
-  const path8 = req.path;
+  const path10 = req.path;
   let capturedJsonResponse = void 0;
   const originalResJson = res.json;
   res.json = function(bodyJson, ...args) {
@@ -25892,8 +30294,8 @@ app.use((req, res, next) => {
   };
   res.on("finish", () => {
     const duration = Date.now() - start;
-    if (path8.startsWith("/api")) {
-      let logLine = `${req.method} ${path8} ${res.statusCode} in ${duration}ms`;
+    if (path10.startsWith("/api")) {
+      let logLine = `${req.method} ${path10} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
@@ -25907,6 +30309,40 @@ app.use((req, res, next) => {
 });
 (async () => {
   env_mapping_default();
+  try {
+    const { pool: pool3 } = await Promise.resolve().then(() => (init_db(), db_exports));
+    await pool3.query(`
+      DO $$ BEGIN CREATE TYPE difficulty_level AS ENUM('beginner','intermediate','advanced'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+      DO $$ BEGIN CREATE TYPE gamification_level AS ENUM('aucun','leger','modere','eleve','intense'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+      DO $$ BEGIN CREATE TYPE learning_style AS ENUM('reading','interactive','mixed'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+      CREATE TABLE IF NOT EXISTS custom_modules (
+        id serial PRIMARY KEY,
+        user_id varchar(255) NOT NULL,
+        user_name varchar(255) NOT NULL,
+        name varchar(255) NOT NULL,
+        domain varchar(100) NOT NULL,
+        description text NOT NULL,
+        iam_name varchar(255) NOT NULL,
+        display_order integer DEFAULT 100,
+        difficulty difficulty_level DEFAULT 'intermediate',
+        topics text[] NOT NULL DEFAULT '{}',
+        gamification_level gamification_level DEFAULT 'leger',
+        learning_style learning_style DEFAULT 'mixed',
+        include_trainer_module boolean DEFAULT true,
+        include_ops_module boolean DEFAULT true,
+        include_test_module boolean DEFAULT true,
+        include_ascension_module boolean DEFAULT true,
+        module_data jsonb NOT NULL,
+        icon_path text DEFAULT '/assets/icons/default-module.svg',
+        is_active boolean DEFAULT true,
+        created_at timestamp DEFAULT now(),
+        updated_at timestamp DEFAULT now()
+      );
+    `);
+    console.log("[boot] custom_modules table ready");
+  } catch (e) {
+    console.error("[boot] migration warning:", e.message);
+  }
   const server = await registerRoutes(app);
   app.use((err, _req, res, _next) => {
     const status = err.status || err.statusCode || 500;
@@ -25920,11 +30356,8 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
   const port = parseInt(process.env.PORT || "5000");
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true
-  }, () => {
-    log(`serving on port ${port} at http://0.0.0.0:${port}`);
+  const host = process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1";
+  server.listen({ port, host }, () => {
+    log(`serving on port ${port} at http://${host}:${port}`);
   });
 })();

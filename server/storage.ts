@@ -3,9 +3,15 @@ import {
   generatedTrainings, type GeneratedTraining, type InsertGeneratedTraining
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 import session from "express-session";
 import MemoryStore from "memorystore";
+
+export interface TokenState {
+  tokenUsedMonth: number;
+  tokenQuota: number;
+  tokenResetAt: Date | null;
+}
 
 // Interface pour les opérations de stockage CRUD
 export interface IStorage {
@@ -15,11 +21,13 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   upsertUser(user: InsertUser): Promise<User>;
   updateUserLastLogin(id: number): Promise<void>;
+  incrementTokenUsage(userId: number, tokens: number): Promise<TokenState>;
   // Studio — formations générées
   saveGeneratedTraining(training: InsertGeneratedTraining): Promise<GeneratedTraining>;
   getGeneratedTraining(id: string): Promise<GeneratedTraining | undefined>;
   listGeneratedTrainings(limit?: number): Promise<GeneratedTraining[]>;
   deleteGeneratedTraining(id: string): Promise<void>;
+  updateGeneratedTraining(id: string, patch: { title?: string; tagline?: string; content?: any }): Promise<GeneratedTraining | undefined>;
 }
 
 // Implémentation de la mémoire pour les tests et le développement
@@ -98,6 +106,20 @@ export class MemStorage implements IStorage {
       user.updatedAt = new Date();
       this.users.set(id, user);
     }
+  }
+
+  async incrementTokenUsage(userId: number, tokens: number): Promise<TokenState> {
+    const user = this.users.get(userId);
+    if (!user) return { tokenUsedMonth: 0, tokenQuota: 100000, tokenResetAt: null };
+    const now = new Date();
+    const resetAt = (user as any).tokenResetAt as Date | null;
+    const needsReset = !resetAt || now.getMonth() !== resetAt.getMonth() || now.getFullYear() !== resetAt.getFullYear();
+    const newUsed = needsReset ? tokens : ((user as any).tokenUsedMonth ?? 0) + tokens;
+    (user as any).tokenUsedMonth = newUsed;
+    (user as any).tokenResetAt = needsReset ? now : resetAt;
+    (user as any).updatedAt = now;
+    this.users.set(userId, user);
+    return { tokenUsedMonth: newUsed, tokenQuota: (user as any).tokenQuota ?? 100000, tokenResetAt: (user as any).tokenResetAt };
   }
 
   private trainings: Map<string, GeneratedTraining> = new Map();
@@ -193,6 +215,31 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id));
   }
 
+  async incrementTokenUsage(userId: number, tokens: number): Promise<TokenState> {
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    if (!user) return { tokenUsedMonth: 0, tokenQuota: 100000, tokenResetAt: null };
+
+    const now = new Date();
+    const resetAt = (user as any).tokenResetAt as Date | null;
+    const needsReset = !resetAt ||
+      now.getMonth() !== new Date(resetAt).getMonth() ||
+      now.getFullYear() !== new Date(resetAt).getFullYear();
+
+    const newUsed = needsReset ? tokens : ((user as any).tokenUsedMonth ?? 0) + tokens;
+
+    await db.update(users).set({
+      tokenUsedMonth: newUsed,
+      tokenResetAt: needsReset ? now : resetAt,
+      updatedAt: now,
+    } as any).where(eq(users.id, userId));
+
+    return {
+      tokenUsedMonth: newUsed,
+      tokenQuota: (user as any).tokenQuota ?? 100000,
+      tokenResetAt: needsReset ? now : resetAt,
+    };
+  }
+
   async saveGeneratedTraining(t: InsertGeneratedTraining): Promise<GeneratedTraining> {
     const [record] = await db
       .insert(generatedTrainings)
@@ -221,6 +268,15 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(generatedTrainings)
       .where(eq(generatedTrainings.id, id));
+  }
+
+  async updateGeneratedTraining(id: string, patch: { title?: string; tagline?: string; content?: any }): Promise<GeneratedTraining | undefined> {
+    const [record] = await db
+      .update(generatedTrainings)
+      .set({ ...patch })
+      .where(eq(generatedTrainings.id, id))
+      .returning();
+    return record;
   }
 }
 

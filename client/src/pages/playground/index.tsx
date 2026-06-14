@@ -154,18 +154,11 @@ const ModuleCard = ({ module }: { module: ModuleData }) => {
 
 // Page principale du Playground
 export default function PlaygroundPage() {
-  // Redirection immédiate vers le générateur de modules
   const [, navigate] = useLocation();
-  
+
   React.useEffect(() => {
-    navigate('/playground/module-generator');
+    navigate('/');
   }, [navigate]);
-  
-  // Page de chargement pendant la redirection
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
-      <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-      <p className="text-white ml-4">Redirection...</p>
-    </div>
-  );
+
+  return null;
 }

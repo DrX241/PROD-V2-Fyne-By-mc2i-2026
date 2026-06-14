@@ -256,10 +256,7 @@ setTimeout(() => {
   preloadChallenges();
 }, 15000); // 15 secondes après le démarrage
 
-// Précharger périodiquement de nouveaux défis
-setInterval(() => {
-  preloadChallenges();
-}, 10 * 60 * 1000); // Toutes les 10 minutes
+// Pas de polling permanent — le cache se remplit à la demande (économie CPU)
 
 export default {
   getChallenge,

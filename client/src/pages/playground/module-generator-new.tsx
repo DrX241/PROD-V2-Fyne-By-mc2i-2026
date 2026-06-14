@@ -1,617 +1,440 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter';
-import { 
-  ArrowLeft, 
-  PlusCircle, 
-  Check, 
-  Send, 
-  BookOpen, 
-  Terminal, 
-  PuzzleIcon, 
-  SettingsIcon,
-  Trophy,
-  Loader2,
-  Briefcase,
-  Lightbulb,
-  Sparkles,
-  Bot
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  ArrowLeft, Sparkles, Upload, ArrowRight,
+  BookOpen, Trash2, Play, Calendar, Library, CheckSquare, Square
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import HomeLayout from '@/components/layout/HomeLayout';
+import mcLogoPath from '@assets/mc2i.png';
 
-// Types pour le générateur de modules
-interface ModuleConfig {
-  name: string;
-  domain: string;
-  description: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  topics: string[];
-  gamificationLevel: 'aucun' | 'leger' | 'modere' | 'eleve' | 'intense';
-  learningStyle: 'interactive' | 'reading' | 'mixed';
-  additionalContext: string;
+const BLUE = '#006a9e';
+const PINK = '#dd0061';
+const DARK = '#061019';
+
+interface SavedTraining {
+  id: string;
+  title: string;
+  tagline: string;
+  source: string;
+  audience: string;
+  gamificationLevel: string;
+  createdAt: string;
 }
 
-// Composant principal du générateur de modules
+function formatDate(d: string) {
+  const date = new Date(d);
+  return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function sourceLabel(source: string) {
+  if (source === 'prompt') return 'IA from scratch';
+  if (source === 'documents') return 'Documents';
+  if (source === 'url') return 'URL / Site web';
+  if (source === 'lesson') return 'Micro Learning';
+  return source;
+}
+
+function playerRoute(training: SavedTraining) {
+  if (training.source === 'lesson') return `/playground/lesson/${training.id}`;
+  return `/playground/player/${training.id}`;
+}
+
 export default function ModuleGenerator() {
   const [, setLocation] = useLocation();
-  const { toast } = useToast();
-  
-  // État initial du formulaire
-  const [moduleConfig, setModuleConfig] = useState<ModuleConfig>({
-    name: '',
-    domain: '',
-    description: '',
-    difficulty: 'intermediate',
-    topics: [],
-    gamificationLevel: 'modere',
-    learningStyle: 'mixed',
-    additionalContext: '',
-  });
+  const [trainings, setTrainings] = useState<SavedTraining[]>([]);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; title: string } | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
-  // État pour le nouveau topic à ajouter
-  const [newTopic, setNewTopic] = useState('');
+  const loadTrainings = useCallback(() => {
+    fetch('/api/studio/trainings')
+      .then(r => r.json())
+      .then(data => setTrainings(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  }, []);
 
-  // État pour suivre la progression de la génération
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [generatedModules, setGeneratedModules] = useState<any>(null);
-  const [currentTab, setCurrentTab] = useState<string>('config');
+  useEffect(() => { loadTrainings(); }, [loadTrainings]);
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
-  // Gérer les changements de champs
-  const handleInputChange = (field: keyof ModuleConfig, value: any) => {
-    setModuleConfig(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  const handleDelete = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const training = trainings.find(t => t.id === id);
+    setDeleteConfirm({ id, title: training?.title || 'cette formation' });
   };
 
-  // Ajouter un nouveau topic
-  const addTopic = () => {
-    if (newTopic.trim() && !moduleConfig.topics.includes(newTopic.trim())) {
-      setModuleConfig(prev => ({
-        ...prev,
-        topics: [...prev.topics, newTopic.trim()]
-      }));
-      setNewTopic('');
-    }
-  };
-
-  // Supprimer un topic
-  const removeTopic = (topicToRemove: string) => {
-    setModuleConfig(prev => ({
-      ...prev,
-      topics: prev.topics.filter(topic => topic !== topicToRemove)
-    }));
-  };
-
-  // Générer le module
-  const generateModule = async () => {
-    if (!moduleConfig.name.trim() || !moduleConfig.description.trim() || !moduleConfig.domain.trim()) {
-      toast({
-        title: "Champs requis",
-        description: "Veuillez remplir tous les champs obligatoires (nom, domaine, description)",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsGenerating(true);
+  const confirmDelete = async () => {
+    if (!deleteConfirm) return;
+    const { id } = deleteConfirm;
+    setDeleteConfirm(null);
+    setDeleting(id);
     try {
-      const response = await fetch('/api/module-generator/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(moduleConfig),
-      });
+      await fetch(`/api/studio/training/${id}`, { method: 'DELETE' });
+      setTrainings(prev => prev.filter(t => t.id !== id));
+      setSelectedIds(prev => { const next = new Set(prev); next.delete(id); return next; });
+    } catch {}
+    setDeleting(null);
+  };
 
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la génération du module');
-      }
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
 
-      setGeneratedModules(data.modules);
-      setCurrentTab('preview');
-      toast({
-        title: "Génération réussie",
-        description: "Le module a été généré avec succès",
-      });
-    } catch (error) {
-      console.error('Erreur lors de la génération:', error);
-      toast({
-        title: "Erreur de génération",
-        description: error instanceof Error ? error.message : "Une erreur est survenue lors de la génération du module.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsGenerating(false);
+  const toggleSelectAll = () => {
+    if (selectedIds.size === trainings.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(trainings.map(t => t.id)));
     }
   };
 
-  // Sauvegarder le module généré
-  const saveModule = async () => {
-    if (!generatedModules) {
-      toast({
-        title: "Aucun module généré",
-        description: "Veuillez d'abord générer un module",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const moduleToSave = {
-        ...moduleConfig,
-        moduleData: generatedModules,
-        iamName: generatedModules.iamName || `I AM ${moduleConfig.domain.toUpperCase()}`,
-      };
-
-      const response = await fetch('/api/module-generator/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(moduleToSave),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la sauvegarde du module');
-      }
-
-      toast({
-        title: "Sauvegarde réussie",
-        description: "Le module a été sauvegardé avec succès",
-      });
-      
-      // Redirection vers la page d'accueil
-      setLocation('/');
-    } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error);
-      toast({
-        title: "Erreur de sauvegarde",
-        description: error instanceof Error ? error.message : "Une erreur est survenue lors de la sauvegarde du module.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSaving(false);
-    }
+  const confirmBulkDelete = async () => {
+    setBulkDeleteConfirm(false);
+    setBulkDeleting(true);
+    const ids = Array.from(selectedIds);
+    await Promise.all(ids.map(id => fetch(`/api/studio/training/${id}`, { method: 'DELETE' }).catch(() => {})));
+    setTrainings(prev => prev.filter(t => !ids.includes(t.id)));
+    setSelectedIds(new Set());
+    setBulkDeleting(false);
   };
+
+  const cards = [
+    {
+      id: 'ia',
+      badge: 'IA from scratch',
+      title: 'Générer à partir de votre prompt',
+      description: 'Décrivez votre besoin en quelques mots. L\'IA génère un micro learning interactif théorie/pratique avec un QCM de validation, adapté à votre public.',
+      bullets: [
+        'Pitchez votre besoin en langage naturel',
+        'Modules théorie alternés avec pratique',
+        'QCM de 5 questions à la fin',
+        'Prêt en moins de 60 secondes',
+      ],
+      color: PINK,
+      route: '/playground/studio-ia',
+    },
+    {
+      id: 'docs',
+      badge: 'Depuis vos documents',
+      title: 'Importer mes contenus',
+      description: 'Apportez vos supports existants — PDF, PowerPoint, Word. L\'IA les transforme en micro learning interactif théorie/pratique et QCM de validation.',
+      bullets: [
+        'PDF, PowerPoint, Word acceptés',
+        'Modules théorie alternés avec pratique',
+        'QCM de 5 questions à la fin',
+        'Contenu fidèle à vos documents',
+      ],
+      color: PINK,
+      route: '/playground/studio-documents',
+    },
+  ];
 
   return (
-    <HomeLayout>
-      <div className="container mx-auto py-6 px-4 md:px-6">
-        <div className="mb-6 flex items-center">
-          <Button onClick={() => setLocation('/')} variant="ghost" size="icon" className="mr-2">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-2xl font-bold">Générateur de modules I AM</h1>
+    <div className="min-h-screen bg-white flex flex-col" style={{ color: DARK }}>
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
+        <div className="h-0.5 w-full" style={{ background: `${BLUE}20` }}>
+          <div className="h-full w-full" style={{ background: PINK, width: '100%' }} />
         </div>
-        
-        {/* Navigation par onglets */}
-        <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="config">
-              <SettingsIcon className="mr-2 h-4 w-4" />
-              Configuration
-            </TabsTrigger>
-            <TabsTrigger value="preview" disabled={!generatedModules}>
-              <PuzzleIcon className="mr-2 h-4 w-4" />
-              Aperçu du module
-            </TabsTrigger>
-          </TabsList>
-          
-          {/* Onglet de configuration */}
-          <TabsContent value="config" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Informations de base</CardTitle>
-                <CardDescription>
-                  Définissez les caractéristiques de votre module "I AM [SUJET]"
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nom du module</Label>
-                  <Input 
-                    id="name" 
-                    placeholder="Ex: Cybersécurité Offensive" 
-                    value={moduleConfig.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="domain">Domaine principal (I AM ...)</Label>
-                  <Input 
-                    id="domain" 
-                    placeholder="Ex: CYBER OFFENSE" 
-                    value={moduleConfig.domain}
-                    onChange={(e) => handleInputChange('domain', e.target.value)}
-                  />
-                  <p className="text-xs text-gray-500">Ce sera le nom principal: "I AM {moduleConfig.domain || '[DOMAINE]'}"</p>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description et objectif du module</Label>
-                  <Textarea 
-                    id="description" 
-                    placeholder="Décrivez ce que l'utilisateur pourra apprendre avec ce module..." 
-                    value={moduleConfig.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    className="min-h-[100px]"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="difficulty">Niveau de difficulté</Label>
-                    <Select 
-                      value={moduleConfig.difficulty} 
-                      onValueChange={(value) => handleInputChange('difficulty', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez un niveau" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="beginner">Débutant</SelectItem>
-                        <SelectItem value="intermediate">Intermédiaire</SelectItem>
-                        <SelectItem value="advanced">Avancé</SelectItem>
-                      </SelectContent>
-                    </Select>
+        <div className="flex items-center justify-between px-5 py-3">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setLocation('/')} className="hover:opacity-60 transition-opacity">
+              <ArrowLeft size={18} style={{ color: BLUE }} />
+            </button>
+            <img src={mcLogoPath} alt="mc2i" className="h-7 w-auto" />
+            <div className="h-4 w-px bg-gray-200" />
+            <span className="font-bold text-sm" style={{ color: BLUE }}>FYNE</span>
+            <div className="h-4 w-px bg-gray-200 hidden sm:block" />
+            <span className="text-sm text-gray-500 font-medium hidden sm:block">Studio de Formation</span>
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1 pt-14">
+        <div className="max-w-5xl mx-auto px-6 lg:px-12 py-8 w-full">
+          {/* Titre */}
+          <div className="mb-6 flex items-center justify-between gap-8">
+            <div className="flex-shrink-0">
+              <div className="text-xs font-bold uppercase tracking-widest mb-2 px-3 py-1 inline-block"
+                style={{ background: `${BLUE}12`, color: BLUE }}>
+                Soyez qui vous voulez
+              </div>
+              <h1 className="text-4xl lg:text-5xl font-black tracking-tight leading-none">
+                <span style={{ color: PINK }}>Créez votre </span><span style={{ color: DARK }}>micro </span><span style={{ color: PINK }}>learning</span>
+              </h1>
+              <div className="w-16 h-1 mt-3" style={{ background: PINK }} />
+            </div>
+          </div>
+
+          {/* Cartes */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            {cards.map((card, idx) => (
+              <motion.div
+                key={card.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                whileHover={{ y: -2 }}
+                onClick={() => setLocation(card.route)}
+                className="cursor-pointer border border-gray-200 bg-white hover:border-gray-400 transition-all duration-200"
+              >
+                <div className="p-6 flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-4">
+                    <span className="text-xs font-bold uppercase tracking-widest px-2 py-1"
+                      style={{ background: `${card.color}12`, color: card.color }}>
+                      {card.badge}
+                    </span>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="gamificationLevel">Niveau de gamification</Label>
-                    <Select 
-                      value={moduleConfig.gamificationLevel} 
-                      onValueChange={(value) => handleInputChange('gamificationLevel', value as any)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez un niveau" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="aucun">Aucun</SelectItem>
-                        <SelectItem value="leger">Léger</SelectItem>
-                        <SelectItem value="modere">Modéré</SelectItem>
-                        <SelectItem value="eleve">Élevé</SelectItem>
-                        <SelectItem value="intense">Intense</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="learningStyle">Style d'apprentissage</Label>
-                  <Select 
-                    value={moduleConfig.learningStyle} 
-                    onValueChange={(value) => handleInputChange('learningStyle', value as any)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez un style" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="interactive">Interactif</SelectItem>
-                      <SelectItem value="reading">Lecture</SelectItem>
-                      <SelectItem value="mixed">Mixte</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Thèmes et contexte</CardTitle>
-                <CardDescription>
-                  Définissez les thèmes spécifiques à couvrir dans votre module
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Thèmes à couvrir</Label>
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {moduleConfig.topics.map((topic, index) => (
-                      <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                        {topic}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-4 w-4 p-0 ml-1 text-gray-500 hover:text-gray-800"
-                          onClick={() => removeTopic(topic)}
-                        >
-                          <span className="sr-only">Supprimer</span>
-                          ×
-                        </Button>
-                      </Badge>
+
+                  <h2 className="text-xl font-black mb-2" style={{ color: DARK }}>
+                    {card.title}
+                  </h2>
+                  <p className="text-sm text-gray-600 leading-relaxed mb-4 flex-grow">
+                    {card.description}
+                  </p>
+
+                  <ul className="space-y-1.5 mb-5">
+                    {card.bullets.map((b, i) => (
+                      <li key={i} className="flex items-center gap-2.5 text-sm text-gray-700">
+                        <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: card.color }} />
+                        {b}
+                      </li>
                     ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Ajoutez un thème..."
-                      value={newTopic}
-                      onChange={(e) => setNewTopic(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          addTopic();
-                        }
-                      }}
-                    />
-                    <Button onClick={addTopic} size="sm" className="shrink-0">
-                      <PlusCircle className="h-4 w-4 mr-1" />
-                      Ajouter
-                    </Button>
-                  </div>
+                  </ul>
+
+                  <button
+                    className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold hover:opacity-90 transition-opacity text-sm w-full justify-center"
+                    style={{ background: card.color }}
+                  >
+                    {card.id === 'ia' ? <Sparkles size={16} /> : <Upload size={16} />}
+                    {card.title}
+                    <ArrowRight size={16} />
+                  </button>
                 </div>
-                
+              </motion.div>
+            ))}
+          </div>
+
+          {/* ─── Bibliothèque de formations ──────────────────────────────────── */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Library size={18} style={{ color: PINK }} />
+                <h2 className="text-xl font-black" style={{ color: DARK }}>Modules sauvegardés</h2>
+              </div>
+              {trainings.length > 0 && (
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-bold px-2 py-1"
+                    style={{ background: `${BLUE}12`, color: BLUE }}>
+                    {trainings.length} formation{trainings.length > 1 ? 's' : ''}
+                  </span>
+                  <button
+                    onClick={toggleSelectAll}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-800 transition-colors"
+                  >
+                    {selectedIds.size === trainings.length
+                      ? <CheckSquare size={14} style={{ color: PINK }} />
+                      : <Square size={14} />}
+                    {selectedIds.size === trainings.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Bulk action bar */}
+            <AnimatePresence>
+              {selectedIds.size > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex items-center justify-between mb-3 px-4 py-3 border border-red-200"
+                  style={{ background: '#fef2f2' }}>
+                  <span className="text-sm font-semibold" style={{ color: '#991b1b' }}>
+                    {selectedIds.size} formation{selectedIds.size > 1 ? 's' : ''} sélectionnée{selectedIds.size > 1 ? 's' : ''}
+                  </span>
+                  <button
+                    onClick={() => setBulkDeleteConfirm(true)}
+                    disabled={bulkDeleting}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-white font-bold text-xs disabled:opacity-50"
+                    style={{ background: '#dc2626' }}>
+                    <Trash2 size={13} />
+                    {bulkDeleting ? 'Suppression...' : `Supprimer (${selectedIds.size})`}
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {trainings.length === 0 ? (
+              <div className="border border-dashed border-gray-200 p-12 text-center">
+                <BookOpen size={28} className="mx-auto mb-3 text-gray-300" />
+                <p className="text-sm text-gray-400">Aucune formation générée pour l'instant.</p>
+                <p className="text-xs text-gray-300 mt-1">Vos formations apparaîtront ici après génération.</p>
+              </div>
+            ) : (
+              <AnimatePresence>
                 <div className="space-y-2">
-                  <Label htmlFor="additionalContext">Contexte supplémentaire</Label>
-                  <Textarea 
-                    id="additionalContext" 
-                    placeholder="Informations additionnelles pour personnaliser le module..." 
-                    value={moduleConfig.additionalContext}
-                    onChange={(e) => handleInputChange('additionalContext', e.target.value)}
-                    className="min-h-[100px]"
-                  />
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button
-                  onClick={() => setLocation('/')}
-                  variant="outline"
-                >
-                  Annuler
-                </Button>
-                <Button
-                  onClick={generateModule}
-                  disabled={isGenerating}
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Génération en cours...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="mr-2 h-4 w-4" />
-                      Générer le module
-                    </>
-                  )}
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-          
-          {/* Onglet d'aperçu */}
-          <TabsContent value="preview" className="space-y-4">
-            {generatedModules && (
-              <>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-center text-2xl">
-                      {generatedModules.iamName || `I AM ${moduleConfig.domain.toUpperCase()}`}
-                    </CardTitle>
-                    <CardDescription className="text-center">
-                      {generatedModules.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6 text-gray-900">
-                    <div className="border rounded-lg p-4">
-                      <h3 className="text-lg font-semibold mb-2 text-gray-900">Structure du module</h3>
-                      <p className="text-sm text-gray-800">
-                        {generatedModules.contentStructure || "Structure non disponible"}
-                      </p>
-                    </div>
-                    
-                    <h3 className="text-lg font-semibold text-gray-900">Sections du module</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Section Se Former */}
-                      {generatedModules.seFormer && (
-                        <div className="border rounded-md overflow-hidden">
-                          <div className="bg-blue-50 px-4 py-2 font-medium flex items-center text-blue-700">
-                            <BookOpen className="h-5 w-5 mr-2 text-blue-600" />
-                            Se Former
-                          </div>
-                          <div className="p-4 space-y-2">
-                            <p className="text-sm text-gray-800">
-                              {generatedModules.seFormer.description || "Description non disponible"}
-                            </p>
-                            <div className="flex flex-wrap gap-1 mt-2 mb-3">
-                              {generatedModules.seFormer.features?.map((feature: string, index: number) => (
-                                <Badge key={index} variant="outline" className="bg-blue-50 text-blue-700">
-                                  {feature}
-                                </Badge>
-                              ))}
-                            </div>
-                            {generatedModules.seFormer.modules && (
-                              <div className="mt-3 border-t pt-3">
-                                <h5 className="text-xs font-semibold mb-2 text-gray-900">Modules de formation</h5>
-                                <ul className="text-xs space-y-1.5 text-gray-800">
-                                  {generatedModules.seFormer.modules.slice(0, 3).map((module: any, idx: number) => (
-                                    <li key={idx} className="flex items-start">
-                                      <Lightbulb className="h-3.5 w-3.5 text-blue-600 mr-1.5 mt-0.5 flex-shrink-0" />
-                                      <span>{module.title}</span>
-                                    </li>
-                                  ))}
-                                  {generatedModules.seFormer.modules.length > 3 && (
-                                    <li className="text-xs text-gray-600">+{generatedModules.seFormer.modules.length - 3} autres modules</li>
-                                  )}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Section S'Entraîner */}
-                      {generatedModules.sEntrainer && (
-                        <div className="border rounded-md overflow-hidden">
-                          <div className="bg-green-50 px-4 py-2 font-medium flex items-center text-green-700">
-                            <Terminal className="h-5 w-5 mr-2 text-green-600" />
-                            S'Entraîner
-                          </div>
-                          <div className="p-4 space-y-2">
-                            <p className="text-sm text-gray-800">
-                              {generatedModules.sEntrainer.description || "Description non disponible"}
-                            </p>
-                            <div className="flex flex-wrap gap-1 mt-2 mb-3">
-                              {generatedModules.sEntrainer.features?.map((feature: string, index: number) => (
-                                <Badge key={index} variant="outline" className="bg-green-50 text-green-700">
-                                  {feature}
-                                </Badge>
-                              ))}
-                            </div>
-                            {generatedModules.sEntrainer.exercices && (
-                              <div className="mt-3 border-t pt-3">
-                                <h5 className="text-xs font-semibold mb-2 text-gray-900">Exercices pratiques</h5>
-                                <ul className="text-xs space-y-1.5 text-gray-800">
-                                  {generatedModules.sEntrainer.exercices.slice(0, 3).map((exercice: any, idx: number) => (
-                                    <li key={idx} className="flex items-start">
-                                      <Briefcase className="h-3.5 w-3.5 text-green-600 mr-1.5 mt-0.5 flex-shrink-0" />
-                                      <span>{exercice.title}</span>
-                                    </li>
-                                  ))}
-                                  {generatedModules.sEntrainer.exercices.length > 3 && (
-                                    <li className="text-xs text-gray-600">+{generatedModules.sEntrainer.exercices.length - 3} autres exercices</li>
-                                  )}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Section S'Évaluer */}
-                      {generatedModules.sEvaluer && (
-                        <div className="border rounded-md overflow-hidden">
-                          <div className="bg-amber-50 px-4 py-2 font-medium flex items-center text-amber-700">
-                            <PuzzleIcon className="h-5 w-5 mr-2 text-amber-600" />
-                            S'Évaluer
-                          </div>
-                          <div className="p-4 space-y-2">
-                            <p className="text-sm text-gray-800">
-                              {generatedModules.sEvaluer.description || "Description non disponible"}
-                            </p>
-                            <div className="flex flex-wrap gap-1 mt-2 mb-3">
-                              {generatedModules.sEvaluer.features?.map((feature: string, index: number) => (
-                                <Badge key={index} variant="outline" className="bg-amber-50 text-amber-700">
-                                  {feature}
-                                </Badge>
-                              ))}
-                            </div>
-                            {generatedModules.sEvaluer.evaluations && (
-                              <div className="mt-3 border-t pt-3">
-                                <h5 className="text-xs font-semibold mb-2 text-gray-900">Méthodes d'évaluation</h5>
-                                <ul className="text-xs space-y-1.5 text-gray-800">
-                                  {generatedModules.sEvaluer.evaluations.slice(0, 3).map((evaluation: any, idx: number) => (
-                                    <li key={idx} className="flex items-start">
-                                      <Sparkles className="h-3.5 w-3.5 text-amber-600 mr-1.5 mt-0.5 flex-shrink-0" />
-                                      <span>{evaluation.title}</span>
-                                    </li>
-                                  ))}
-                                  {generatedModules.sEvaluer.evaluations.length > 3 && (
-                                    <li className="text-xs text-gray-600">+{generatedModules.sEvaluer.evaluations.length - 3} autres évaluations</li>
-                                  )}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Section Automatiser */}
-                      {generatedModules.automatiser && (
-                        <div className="border rounded-md overflow-hidden">
-                          <div className="bg-purple-50 px-4 py-2 font-medium flex items-center text-purple-700">
-                            <Bot className="h-5 w-5 mr-2 text-purple-600" />
-                            Automatiser
-                          </div>
-                          <div className="p-4 space-y-2">
-                            <p className="text-sm text-gray-800">
-                              {generatedModules.automatiser.description || "Description non disponible"}
-                            </p>
-                            <div className="flex flex-wrap gap-1 mt-2 mb-3">
-                              {generatedModules.automatiser.features?.map((feature: string, index: number) => (
-                                <Badge key={index} variant="outline" className="bg-purple-50 text-purple-700">
-                                  {feature}
-                                </Badge>
-                              ))}
-                            </div>
-                            {generatedModules.automatiser.outils && (
-                              <div className="mt-3 border-t pt-3">
-                                <h5 className="text-xs font-semibold mb-2 text-gray-900">Outils d'automatisation</h5>
-                                <ul className="text-xs space-y-1.5 text-gray-800">
-                                  {generatedModules.automatiser.outils.slice(0, 3).map((outil: any, idx: number) => (
-                                    <li key={idx} className="flex items-start">
-                                      <Trophy className="h-3.5 w-3.5 text-purple-600 mr-1.5 mt-0.5 flex-shrink-0" />
-                                      <span>{outil.title}</span>
-                                    </li>
-                                  ))}
-                                  {generatedModules.automatiser.outils.length > 3 && (
-                                    <li className="text-xs text-gray-600">+{generatedModules.automatiser.outils.length - 3} autres outils</li>
-                                  )}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="flex justify-between">
-                    <Button
-                      onClick={() => setCurrentTab('config')}
-                      variant="outline"
+                  {trainings.map((t, idx) => (
+                    <motion.div
+                      key={t.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ delay: idx * 0.04 }}
+                      className="border border-gray-200 bg-white hover:border-gray-400 transition-all duration-150 group"
                     >
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Retour
-                    </Button>
-                    <Button
-                      onClick={saveModule}
-                      disabled={isSaving}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      {isSaving ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Sauvegarde en cours...
-                        </>
-                      ) : (
-                        <>
-                          <Check className="mr-2 h-4 w-4" />
-                          Sauvegarder et publier
-                        </>
-                      )}
-                    </Button>
-                  </CardFooter>
-                </Card>
-                
-                <div className="mt-6 text-sm text-gray-800 bg-gray-100 p-4 rounded-md">
-                  <p>
-                    <strong className="text-gray-900">Note :</strong> Le module {generatedModules.iamName || `I AM ${moduleConfig.domain.toUpperCase()}`} 
-                    contient les sections Se former, S'entraîner, S'évaluer et Automatiser avec leur contenu généré par IA.
-                  </p>
-                  <p className="mt-2">
-                    Après avoir sauvegardé, le module sera disponible sur la page d'accueil.
-                  </p>
+                      <div className="flex items-center gap-4 px-5 py-4">
+                        {/* Checkbox */}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); toggleSelect(t.id); }}
+                          className="flex-shrink-0 text-gray-300 hover:text-gray-500 transition-colors"
+                          title="Sélectionner">
+                          {selectedIds.has(t.id)
+                            ? <CheckSquare size={18} style={{ color: PINK }} />
+                            : <Square size={18} />}
+                        </button>
+
+                        {/* Icon */}
+                        <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center border border-gray-100"
+                          style={{ background: `${BLUE}08`, color: BLUE }}>
+                          <BookOpen size={16} />
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <h3 className="font-bold text-sm truncate" style={{ color: DARK }}>{t.title}</h3>
+                          </div>
+                          {t.tagline && (
+                            <p className="text-xs text-gray-500 truncate">{t.tagline}</p>
+                          )}
+                          <div className="flex items-center gap-3 mt-1">
+                            <span className="text-xs font-medium px-1.5 py-0.5"
+                              style={{ background: `${BLUE}10`, color: BLUE }}>
+                              {sourceLabel(t.source)}
+                            </span>
+                            {t.createdAt && (
+                              <span className="text-xs text-gray-400 flex items-center gap-1">
+                                <Calendar size={10} /> {formatDate(t.createdAt)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <button
+                            onClick={() => setLocation(playerRoute(t))}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 text-white font-bold text-xs hover:opacity-90 transition-opacity"
+                            style={{ background: t.source === 'lesson' ? PINK : BLUE }}>
+                            <Play size={13} /> {t.source === 'lesson' ? 'Voir le module' : 'Jouer'}
+                          </button>
+                          <button
+                            onClick={(e) => handleDelete(t.id, e)}
+                            disabled={deleting === t.id}
+                            className="w-9 h-9 flex items-center justify-center border border-gray-200 hover:border-red-300 hover:text-red-500 transition-colors text-gray-400 disabled:opacity-40"
+                            title="Supprimer">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-              </>
+              </AnimatePresence>
             )}
-          </TabsContent>
-        </Tabs>
-      </div>
-    </HomeLayout>
+          </div>
+        </div>
+      </main>
+
+      {/* ── Modale bulk delete ── */}
+      <AnimatePresence>
+        {bulkDeleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setBulkDeleteConfirm(false)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(6,16,25,0.65)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+            <motion.div
+              initial={{ scale: 0.94, opacity: 0, y: 8 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.94, opacity: 0, y: 8 }}
+              transition={{ duration: 0.18 }}
+              onClick={e => e.stopPropagation()}
+              style={{ background: 'white', width: '100%', maxWidth: 440, padding: '32px 28px', position: 'relative' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: '#dc2626' }} />
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 20 }}>
+                <div style={{ width: 40, height: 40, background: '#fef2f2', border: '1px solid #fecaca', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Trash2 size={18} style={{ color: '#dc2626' }} />
+                </div>
+                <div>
+                  <p style={{ margin: '0 0 6px', fontSize: 16, fontWeight: 800, color: DARK }}>Supprimer {selectedIds.size} formation{selectedIds.size > 1 ? 's' : ''} ?</p>
+                  <p style={{ margin: 0, fontSize: 13, color: '#6b7280', lineHeight: 1.5 }}>
+                    Ces {selectedIds.size} formation{selectedIds.size > 1 ? 's' : ''} seront supprimées définitivement. Cette action est irréversible.
+                  </p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => setBulkDeleteConfirm(false)}
+                  style={{ padding: '10px 20px', border: '1px solid #e5e7eb', background: 'white', color: DARK, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
+                  Annuler
+                </button>
+                <button
+                  onClick={confirmBulkDelete}
+                  style={{ padding: '10px 24px', border: 'none', background: '#dc2626', color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Trash2 size={14} /> Supprimer tout
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Modale de confirmation de suppression ── */}
+      <AnimatePresence>
+        {deleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setDeleteConfirm(null)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(6,16,25,0.65)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+            <motion.div
+              initial={{ scale: 0.94, opacity: 0, y: 8 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.94, opacity: 0, y: 8 }}
+              transition={{ duration: 0.18 }}
+              onClick={e => e.stopPropagation()}
+              style={{ background: 'white', width: '100%', maxWidth: 420, padding: '32px 28px', position: 'relative' }}>
+              {/* Barre rouge en haut */}
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: '#dc2626' }} />
+
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 20 }}>
+                <div style={{ width: 40, height: 40, background: '#fef2f2', border: '1px solid #fecaca', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Trash2 size={18} style={{ color: '#dc2626' }} />
+                </div>
+                <div>
+                  <p style={{ margin: '0 0 6px', fontSize: 16, fontWeight: 800, color: DARK }}>Supprimer la formation ?</p>
+                  <p style={{ margin: 0, fontSize: 13, color: '#6b7280', lineHeight: 1.5 }}>
+                    <strong style={{ color: DARK }}>« {deleteConfirm.title} »</strong> sera supprimée définitivement. Cette action est irréversible.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => setDeleteConfirm(null)}
+                  style={{ padding: '10px 20px', border: '1px solid #e5e7eb', background: 'white', color: DARK, cursor: 'pointer', fontWeight: 600, fontSize: 14 }}>
+                  Annuler
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  style={{ padding: '10px 24px', border: 'none', background: '#dc2626', color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Trash2 size={14} /> Supprimer
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

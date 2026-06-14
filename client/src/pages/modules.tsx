@@ -110,17 +110,6 @@ export default function ModulesPage() {
       link: "/amoa",
       bgGradient: "bg-gradient-to-br from-blue-50 to-blue-100"
     },
-    {
-      id: "custom",
-      title: "Soyez qui vous voulez",
-      description: "Créez votre propre parcours d'apprentissage personnalisé adapté à vos besoins spécifiques avec notre technologie IA générative.",
-      icon: <Plus className="w-12 h-12 text-white" />,
-      iconBg: "bg-rose-600",
-      color: "border-rose-200 hover:shadow-xl hover:scale-105 hover:border-rose-300",
-      link: "/playground/module-generator",
-      bgGradient: "bg-gradient-to-br from-rose-50 to-rose-100",
-      comingSoon: false
-    }
   ];
 
   const features = [
@@ -436,7 +425,6 @@ export default function ModulesPage() {
               <h3 className="text-lg font-semibold mb-4">Modules</h3>
               <ul className="space-y-2">
                 <li><a href="/cyber" className="text-gray-400 hover:text-white transition-colors">I AM CYBER</a></li>
-                <li><a href="/data-ia" className="text-gray-400 hover:text-white transition-colors">I AM DATA & IA</a></li>
                 <li><a href="/amoa" className="text-gray-400 hover:text-white transition-colors">IAM mc2i</a></li>
                 <li><a href="/custom" className="text-gray-400 hover:text-white transition-colors">Parcours personnalisé</a></li>
               </ul>
