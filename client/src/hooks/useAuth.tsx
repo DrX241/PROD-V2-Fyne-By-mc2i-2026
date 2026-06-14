@@ -4,6 +4,7 @@ interface User {
   id: number;
   username: string;
   role: string;
+  permissions?: string[];
   firstName?: string;
   lastName?: string;
   email?: string;

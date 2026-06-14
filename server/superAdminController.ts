@@ -39,6 +39,7 @@ export class SuperAdminController {
         lastLogin: users.lastLogin,
         createdAt: users.createdAt,
         modulesEnabled: users.modulesEnabled,
+        permissions: users.permissions,
         tokenQuota: users.tokenQuota,
         tokenUsedMonth: users.tokenUsedMonth,
         tokenResetAt: users.tokenResetAt,
@@ -61,12 +62,18 @@ export class SuperAdminController {
       if (userId === session.user.id)
         return res.status(400).json({ success: false, message: 'Impossible de modifier votre propre rôle.' });
 
-      const { role } = req.body;
-      if (!['user', 'admin', 'superadmin'].includes(role))
-        return res.status(400).json({ success: false, message: 'Rôle invalide.' });
+      const { role, permissions } = req.body;
+      const patch: Record<string, any> = { updatedAt: new Date() };
 
-      await db.update(users).set({ role, updatedAt: new Date() }).where(eq(users.id, userId));
-      res.json({ success: true, message: `Rôle mis à jour : ${role}` });
+      if (role !== undefined) {
+        if (!['user', 'admin', 'superadmin'].includes(role))
+          return res.status(400).json({ success: false, message: 'Rôle invalide.' });
+        patch.role = role;
+      }
+      if (Array.isArray(permissions)) patch.permissions = permissions;
+
+      await db.update(users).set(patch).where(eq(users.id, userId));
+      res.json({ success: true, message: 'Utilisateur mis à jour.' });
     } catch (e: any) {
       res.status(500).json({ success: false, message: e.message });
     }

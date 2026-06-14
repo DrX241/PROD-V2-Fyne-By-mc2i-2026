@@ -42,6 +42,7 @@ interface UserRow {
   firstName: string | null;
   lastName: string | null;
   role: string;
+  permissions: string[];
   isActive: boolean;
   lastLogin: string | null;
   createdAt: string;
@@ -51,6 +52,10 @@ interface UserRow {
   subscriptionLabel: string;
   subscriptionExpiresAt: string | null;
 }
+
+const ALL_PERMISSIONS = [
+  { id: 'evaluateur', label: 'Évaluateur', desc: 'Accès direct à l\'espace évaluation', color: 'bg-green-500' },
+];
 
 type Tab = 'users' | 'subscriptions' | 'roles' | 'tokens' | 'clients' | 'system';
 
@@ -383,6 +388,16 @@ export default function SuperAdminPage() {
     try {
       await api(`/api/superadmin/users/${id}/role`, { method: 'PATCH', body: JSON.stringify({ role }) });
       notify(`Rôle mis à jour : ${role}`);
+      fetchUsers();
+    } catch (e: any) { notify(e.message, true); }
+  }
+
+  async function togglePermission(u: UserRow, permId: string) {
+    const current = u.permissions ?? [];
+    const updated = current.includes(permId) ? current.filter(p => p !== permId) : [...current, permId];
+    try {
+      await api(`/api/superadmin/users/${u.id}/role`, { method: 'PATCH', body: JSON.stringify({ permissions: updated }) });
+      notify(`Permission "${permId}" ${updated.includes(permId) ? 'ajoutée' : 'retirée'}`);
       fetchUsers();
     } catch (e: any) { notify(e.message, true); }
   }
@@ -761,14 +776,29 @@ export default function SuperAdminPage() {
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="flex gap-2">
+                            <div className="flex flex-wrap gap-2">
                               {ROLES.filter(r => r !== u.role).map(r => (
                                 <button key={r} onClick={() => updateRole(u.id, r)}
                                   className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all
-                                    ${r === 'superadmin' ? 'border-amber-500/40 text-amber-400 hover:bg-amber-500/10' : r === 'admin' ? 'border-blue-500/40 text-blue-400 hover:bg-blue-500/10' : 'border-white/20 text-gray-400 hover:bg-white/10'}`}>
+                                    ${r === 'superadmin' ? 'border-amber-500/40 text-amber-400 hover:bg-amber-500/10' : r === 'admin' ? 'border-blue-500/40 text-blue-400 hover:bg-blue-500/10' : r === 'evaluateur' ? 'border-green-500/40 text-green-400 hover:bg-green-500/10' : 'border-white/20 text-gray-400 hover:bg-white/10'}`}>
                                   {ROLE_ICON[r]} → {r}
                                 </button>
                               ))}
+                            </div>
+                            {/* Permissions cumulables */}
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                              {ALL_PERMISSIONS.map(p => {
+                                const has = (u.permissions ?? []).includes(p.id);
+                                return (
+                                  <button key={p.id} onClick={() => togglePermission(u, p.id)}
+                                    title={p.desc}
+                                    className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border transition-all ${has ? 'border-green-500/60 text-green-300 bg-green-500/15' : 'border-white/10 text-gray-600 hover:border-green-500/30 hover:text-green-500/70'}`}>
+                                    <UserCheck className="w-2.5 h-2.5" />
+                                    {p.label}
+                                    {has ? ' ✓' : ' +'}
+                                  </button>
+                                );
+                              })}
                             </div>
                           </td>
                         </tr>

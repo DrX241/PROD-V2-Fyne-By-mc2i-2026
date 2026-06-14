@@ -777,6 +777,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({
       success: true,
       modulesEnabled: user?.modulesEnabled ?? ['cyber','data','amoa','formation-data','evaluation','playground'],
+      permissions: user?.permissions ?? [],
       tokenQuota: user?.tokenQuota ?? 100000,
       tokenUsedMonth: user?.tokenUsedMonth ?? 0,
       subscriptionLabel: user?.subscriptionLabel ?? 'Gratuit',

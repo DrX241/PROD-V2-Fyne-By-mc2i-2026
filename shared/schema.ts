@@ -117,6 +117,7 @@ export const users = pgTable("users", {
   bio: text("bio"),
   profileImageUrl: varchar("profile_image_url", { length: 255 }),
   role: varchar("role", { length: 50 }).default("user").notNull(), // 'user' | 'admin' | 'superadmin'
+  permissions: jsonb("permissions").default([]), // ex: ['evaluateur', 'formation-data']
   isActive: boolean("is_active").default(true).notNull(),
   lastLogin: timestamp("last_login"),
   // Abonnement & modules

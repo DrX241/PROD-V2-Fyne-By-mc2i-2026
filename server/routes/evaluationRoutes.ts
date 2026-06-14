@@ -74,8 +74,9 @@ router.get('/recruiter/me', async (req, res) => {
   try {
     const sessionUser = (req.session as any)?.user;
     if (!sessionUser) return res.status(401).json({ success: false, message: 'Non connecté.' });
-    if (sessionUser.role !== 'evaluateur' && sessionUser.role !== 'admin' && sessionUser.role !== 'superadmin')
-      return res.status(403).json({ success: false, message: 'Rôle insuffisant.' });
+    const perms: string[] = Array.isArray(sessionUser.permissions) ? sessionUser.permissions : [];
+    const isEval = perms.includes('evaluateur') || sessionUser.role === 'evaluateur' || sessionUser.role === 'admin' || sessionUser.role === 'superadmin';
+    if (!isEval) return res.status(403).json({ success: false, message: 'Permission insuffisante.' });
 
     const recruiterId = `fyne_${sessionUser.username}`;
     const displayName = [sessionUser.firstName, sessionUser.lastName].filter(Boolean).join(' ') || sessionUser.username;
