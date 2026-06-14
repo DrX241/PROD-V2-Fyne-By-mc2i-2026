@@ -23,7 +23,6 @@ declare global {
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import CyberHomePage from "@/pages/CyberHomePage";
-import PortalSelection from "@/pages/portal-selection";
 import ModulesPage from "@/pages/modules";
 import CyberModeSelection from "@/pages/cyber-mode-selection";
 import CyberAgentPage from "@/pages/cyber-agent";
@@ -125,7 +124,7 @@ function AppContent() {
                 )}
 
                 {/* Routes publiques */}
-                <Route path="/" component={PortalSelection} />
+                <Route path="/" component={CyberHomePage} />
                 <Route path="/home" component={CyberHomePage} />
                 <Route path="/home-classic" component={Home} />
                 <Route path="/modules" component={ModulesPage} />
