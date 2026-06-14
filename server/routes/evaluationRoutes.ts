@@ -90,15 +90,14 @@ router.post('/recruiter/register', async (req, res) => {
 // POST /api/evaluation/recruiter/login
 router.post('/recruiter/login', async (req, res) => {
   try {
-    const { recruiterId, password } = req.body;
-    if (!recruiterId?.trim() || !password?.trim())
-      return res.status(400).json({ success: false, message: 'Identifiant et mot de passe requis.' });
+    const { recruiterId } = req.body;
+    if (!recruiterId?.trim())
+      return res.status(400).json({ success: false, message: 'Identifiant requis.' });
     const { rows } = await dbQuery(
-      `SELECT id, name, password FROM sql_challenge_recruiters WHERE id = $1`,
+      `SELECT id, name FROM sql_challenge_recruiters WHERE id = $1`,
       [recruiterId.trim()],
     );
-    const ok = rows[0] && await verifyPassword(password.trim(), rows[0].password);
-    if (!ok) return res.status(403).json({ success: false, message: 'Identifiants incorrects.' });
+    if (!rows[0]) return res.status(403).json({ success: false, message: 'Identifiant inconnu.' });
     res.json({ success: true, recruiter: { id: rows[0].id, name: rows[0].name } });
   } catch (e: any) {
     res.status(500).json({ success: false, message: e.message });

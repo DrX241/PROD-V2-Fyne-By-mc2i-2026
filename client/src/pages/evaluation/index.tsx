@@ -2515,26 +2515,25 @@ function EntryChoiceView({ onRecruiter, onCandidate }: { onRecruiter: () => void
   );
 }
 
-// Recruiter entry - connexion par identifiant + mot de passe
+// Recruiter entry - connexion par identifiant uniquement
 function RecruiterEntryView({ onEnter, onBack }: { onEnter: (r: RecruiterSession) => void; onBack: () => void }) {
-  const [recruiterId, setRecruiterId] = useState('compte_evaluateur');
-  const [password, setPassword] = useState('');
+  const [recruiterId, setRecruiterId] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const enter = async () => {
     setError('');
-    if (!recruiterId.trim() || !password.trim()) {
-      setError('Saisissez votre identifiant et votre mot de passe.');
+    if (!recruiterId.trim()) {
+      setError('Saisissez votre identifiant évaluateur.');
       return;
     }
     setLoading(true);
     try {
       const res = await apiRequest<{ success: boolean; message?: string; recruiter?: RecruiterSession }>('/api/evaluation/recruiter/login', {
-        method: 'POST', body: JSON.stringify({ recruiterId: recruiterId.trim(), password: password.trim() }),
+        method: 'POST', body: JSON.stringify({ recruiterId: recruiterId.trim() }),
       });
       if (res.success && res.recruiter) { saveRecruiter(res.recruiter); onEnter(res.recruiter); }
-      else setError(res.message || 'Erreur.');
+      else setError(res.message || 'Identifiant inconnu.');
     } catch (e: any) { setError(e.message || 'Erreur réseau.'); }
     finally { setLoading(false); }
   };
@@ -2549,33 +2548,22 @@ function RecruiterEntryView({ onEnter, onBack }: { onEnter: (r: RecruiterSession
           <div className="relative z-10 flex flex-col items-center px-8 py-10">
             <Users className="w-14 h-14 text-[#006a9e] mb-4 drop-shadow-lg" />
             <h2 className="text-2xl font-bold text-[#17324d] font-sans mb-2">Espace Évaluateur</h2>
-            <p className="text-base text-[#6f8398] font-sans mb-7 text-center">Connectez-vous pour retrouver votre historique.</p>
-            <div className="w-full mb-4">
+            <p className="text-base text-[#6f8398] font-sans mb-7 text-center">Saisissez votre identifiant pour accéder à votre tableau de bord.</p>
+            <div className="w-full mb-6">
               <label className="block text-sm font-semibold text-[#006a9e] mb-1 font-sans">Identifiant évaluateur</label>
               <input
                 type="text"
                 value={recruiterId}
                 onChange={e => setRecruiterId(e.target.value)}
                 onKeyDown={handleKey}
-                placeholder="compte_evaluateur"
+                placeholder="ex: eddy.missoni"
                 autoFocus
                 className="w-full bg-white/90 border border-[#d7e2ef] rounded-xl px-4 py-3 text-base text-[#17324d] placeholder:text-[#9aa8b8] font-mono outline-none focus:border-[#006a9e] focus:ring-2 focus:ring-[#006a9e]/20 transition-colors"
               />
             </div>
-            <div className="w-full mb-6">
-              <label className="block text-sm font-semibold text-[#006a9e] mb-1 font-sans">Mot de passe</label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                onKeyDown={handleKey}
-                placeholder="••••••••"
-                className="w-full bg-white/90 border border-[#d7e2ef] rounded-xl px-4 py-3 text-base text-[#17324d] placeholder:text-[#9aa8b8] font-mono outline-none focus:border-[#dd0061] focus:ring-2 focus:ring-[#dd0061]/20 transition-colors"
-              />
-            </div>
             {error && <ErrorMsg msg={error} />}
             <Btn onClick={enter} disabled={loading} className="w-full justify-center text-base font-semibold bg-[#006a9e] hover:bg-[#dd0061] transition-colors shadow-md mb-3">
-              {loading ? 'Connexion…' : 'Se connecter →'}
+              {loading ? 'Connexion…' : 'Accéder →'}
             </Btn>
             <div className="flex justify-center mt-2">
               <button type="button" onClick={onBack} className="inline-flex items-center justify-center rounded-xl border border-[#d7e2ef] bg-white/80 px-4 py-2 text-sm font-semibold text-[#4f6780] hover:text-[#dd0061] hover:border-[#006a9e] hover:bg-[#f7fbff] font-sans transition-colors shadow">← Retour</button>
