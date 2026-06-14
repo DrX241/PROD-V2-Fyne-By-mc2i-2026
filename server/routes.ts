@@ -603,11 +603,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
     try {
-      const [diskOut, memOut, cpuOut, dockerOut, uptimeOut, appOut, npmOut] = await Promise.all([
+      const [diskOut, memOut, cpuOut, dockerOut, dockerImgCount, uptimeOut, appOut, npmOut] = await Promise.all([
         execAsync("df -h / | tail -1"),
         execAsync("free -m | grep Mem"),
         execAsync("top -bn1 | grep 'Cpu(s)' | head -1"),
         execAsync("docker system df 2>/dev/null || echo 'docker-unavailable'"),
+        execAsync("docker images --format '{{.ID}}' 2>/dev/null | wc -l || echo '0'"),
         execAsync("uptime"),
         execAsync("docker ps --format '{{.Names}}\t{{.Status}}\t{{.Image}}' 2>/dev/null || pm2 list 2>/dev/null || echo 'no-containers'"),
         execAsync("du -sh /root/.npm 2>/dev/null || echo '0\t-'"),
@@ -648,6 +649,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       const docker = {
         images:     dockerMap['images']      ?? '0B',
+        imageCount: parseInt(dockerImgCount.trim(), 10) || 0,
         containers: dockerMap['containers']  ?? '0B',
         buildCache: dockerMap['build cache'] ?? '0B',
       };

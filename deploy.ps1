@@ -118,8 +118,11 @@ if (-not $SkipPush) {
     $ecrPassword = aws ecr get-login-password --profile $AWS_PROFILE --region $AWS_REGION
     if ($LASTEXITCODE -ne 0) { Write-Fail "Impossible de recuperer le token ECR" }
     $ecrRegistry = "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
-    $loginOut = $ecrPassword | docker login --username AWS --password-stdin $ecrRegistry 2>&1
+    $tokenFile = [System.IO.Path]::GetTempFileName()
+    [System.IO.File]::WriteAllText($tokenFile, $ecrPassword, (New-Object System.Text.UTF8Encoding $false))
+    $loginOut = cmd /c "type `"$tokenFile`" | docker login --username AWS --password-stdin $ecrRegistry" 2>&1
     $loginExit = $LASTEXITCODE
+    Remove-Item $tokenFile -Force -ErrorAction SilentlyContinue
     if ($loginExit -ne 0) { Write-Fail "ECR login echoue: $loginOut" }
     Write-OK "Connecte a ECR"
 
@@ -161,6 +164,7 @@ $deployScript = @(
     "rsync -a --delete `$TMPDIR/dist/ $APP_DIR/dist/",
     "rm -rf `$TMPDIR",
     "pm2 restart $PM2_APP --update-env",
+    "docker system prune -af 2>&1 | tail -3",
     "echo DEPLOY_OK"
 )
 Invoke-SSMCommand $deployScript | Out-Null

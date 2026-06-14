@@ -56,7 +56,7 @@ interface SystemHealth {
   disk: { used: string; total: string; usedPct: number; avail: string };
   memory: { total: number; used: number; free: number; usedPct: number };
   cpu: { user: number; system: number; idle: number };
-  docker: { images: string; containers: string; buildCache: string };
+  docker: { images: string; imageCount: number; containers: string; buildCache: string };
   uptime: string;
   app: { name: string; status: string; image: string }[];
   npmCache: string;
@@ -1112,20 +1112,37 @@ export default function SuperAdminPage() {
                             <div className="flex items-center gap-2 mb-3">
                               <Layers className="w-4 h-4 text-[#0057ff]" />
                               <span className="text-sm font-semibold text-gray-300">Docker</span>
-                              <span className="ml-auto text-xs text-gray-500">Images ECR uniquement</span>
+                              {systemHealth && (
+                                <span className={`ml-auto text-xs font-mono px-2 py-0.5 rounded-full ${systemHealth.docker.imageCount > 5 ? 'bg-amber-500/20 text-amber-400' : 'bg-white/10 text-gray-400'}`}>
+                                  {systemHealth.docker.imageCount} image{systemHealth.docker.imageCount > 1 ? 's' : ''}
+                                </span>
+                              )}
                             </div>
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                               {systemHealth && [
-                                { label: 'Images stockées', value: systemHealth.docker.images || '0' },
-                                { label: 'Containers actifs', value: '0 (app en PM2 direct)' },
-                                { label: 'Build cache', value: systemHealth.docker.buildCache || '0' },
+                                { label: 'Taille images', value: systemHealth.docker.images || '0B' },
+                                { label: 'Build cache', value: systemHealth.docker.buildCache || '0B' },
+                                { label: 'Conteneurs actifs', value: '0 — app PM2 direct' },
                               ].map(({ label, value }) => (
                                 <div key={label} className="flex justify-between text-xs">
                                   <span className="text-gray-500">{label}</span>
-                                  <span className="font-mono text-gray-400">{value}</span>
+                                  <span className="font-mono text-gray-300">{value}</span>
                                 </div>
                               ))}
                             </div>
+                            {systemHealth && systemHealth.docker.imageCount > 0 && (
+                              <button
+                                onClick={() => runSystemAction('docker-prune', 'Nettoyer Docker')}
+                                disabled={systemActionLoading !== null}
+                                className="mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-40"
+                                style={{ background: '#f59e0b20', color: '#f59e0b', border: '1px solid #f59e0b40' }}
+                              >
+                                {systemActionLoading === 'docker-prune'
+                                  ? <RefreshCw className="w-3 h-3 animate-spin" />
+                                  : <Trash2 className="w-3 h-3" />}
+                                Purger les images inutilisées
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
