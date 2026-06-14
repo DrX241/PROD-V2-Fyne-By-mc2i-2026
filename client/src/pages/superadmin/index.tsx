@@ -19,16 +19,18 @@ const ALL_MODULES = [
 ];
 
 const SUBSCRIPTION_LABELS = ['Gratuit', 'Starter', 'Pro', 'Enterprise', 'Illimité'];
-const ROLES = ['user', 'admin', 'superadmin'];
+const ROLES = ['user', 'evaluateur', 'admin', 'superadmin'];
 
 const ROLE_BADGE: Record<string, string> = {
   user: 'bg-gray-100 text-gray-700',
+  evaluateur: 'bg-green-100 text-green-700',
   admin: 'bg-blue-100 text-blue-700',
   superadmin: 'bg-amber-100 text-amber-700',
 };
 
 const ROLE_ICON: Record<string, React.ReactNode> = {
   user: <Users className="w-3 h-3" />,
+  evaluateur: <UserCheck className="w-3 h-3" />,
   admin: <Shield className="w-3 h-3" />,
   superadmin: <Crown className="w-3 h-3" />,
 };
@@ -779,6 +781,7 @@ export default function SuperAdminPage() {
                 <div className="mt-6 grid grid-cols-3 gap-4">
                   {[
                     { role: 'user', desc: 'Accès aux modules activés dans son abonnement. Pas d\'accès admin.', color: 'border-gray-500/30' },
+                    { role: 'evaluateur', desc: 'Accès direct à l\'espace évaluateur /evaluation sans saisir d\'identifiant. Crée automatiquement un compte évaluateur lié à son username.', color: 'border-green-500/30' },
                     { role: 'admin', desc: 'Gestion des utilisateurs, statistiques, LLM, SSO. Pas d\'accès super admin.', color: 'border-blue-500/30' },
                     { role: 'superadmin', desc: 'Accès total : rôles, abonnements, modules, quotas, tout. Vous.', color: 'border-amber-500/30' },
                   ].map(({ role, desc, color }) => (

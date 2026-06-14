@@ -69,6 +69,31 @@ function normTests(v: any, fallback?: any): string[] {
 // RECRUTEUR
 // ─────────────────────────────────────────────────────────────────────────────
 
+// GET /api/evaluation/recruiter/me — auto-login pour les utilisateurs avec role=evaluateur
+router.get('/recruiter/me', async (req, res) => {
+  try {
+    const sessionUser = (req.session as any)?.user;
+    if (!sessionUser) return res.status(401).json({ success: false, message: 'Non connecté.' });
+    if (sessionUser.role !== 'evaluateur' && sessionUser.role !== 'admin' && sessionUser.role !== 'superadmin')
+      return res.status(403).json({ success: false, message: 'Rôle insuffisant.' });
+
+    const recruiterId = `fyne_${sessionUser.username}`;
+    const displayName = [sessionUser.firstName, sessionUser.lastName].filter(Boolean).join(' ') || sessionUser.username;
+
+    // Crée le compte évaluateur s'il n'existe pas encore
+    const { rows } = await dbQuery(
+      `INSERT INTO sql_challenge_recruiters (id, name, password)
+       VALUES ($1, $2, '')
+       ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name
+       RETURNING id, name`,
+      [recruiterId, displayName],
+    );
+    res.json({ success: true, recruiter: { id: rows[0].id, name: rows[0].name } });
+  } catch (e: any) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
 // POST /api/evaluation/recruiter/register
 router.post('/recruiter/register', async (req, res) => {
   try {

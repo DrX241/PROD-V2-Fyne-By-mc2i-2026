@@ -3921,7 +3921,7 @@ export default function CodeChallengePage() {
     setView('entry-choice');
   };
 
-  // Restore sessions on mount
+  // Restore sessions on mount + auto-login évaluateur FYNE
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const entry = params.get('entry');
@@ -3943,17 +3943,26 @@ export default function CodeChallengePage() {
       return;
     }
 
-    if (entry === 'recruiter') {
-      setView('recruiter-entry');
-      return;
-    }
-
-    if (entry === 'candidate' || prefilledCandidateId) {
-      setView('candidate-login');
-      return;
-    }
-
-    setView('entry-choice');
+    // Auto-login si l'utilisateur FYNE a le rôle evaluateur/admin/superadmin
+    fetch('/api/evaluation/recruiter/me', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.success && data.recruiter) {
+          saveRecruiter(data.recruiter);
+          setRecruiter(data.recruiter);
+          setView('recruiter-dashboard');
+          return;
+        }
+        // Fallback : comportement normal
+        if (entry === 'recruiter') { setView('recruiter-entry'); return; }
+        if (entry === 'candidate' || prefilledCandidateId) { setView('candidate-login'); return; }
+        setView('entry-choice');
+      })
+      .catch(() => {
+        if (entry === 'recruiter') { setView('recruiter-entry'); return; }
+        if (entry === 'candidate' || prefilledCandidateId) { setView('candidate-login'); return; }
+        setView('entry-choice');
+      });
   }, []);
 
   const logoutRecruiter = () => {
