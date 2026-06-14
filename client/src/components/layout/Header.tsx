@@ -3,6 +3,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useLocation } from "wouter";
 import mclogo from "@/assets/mc2i.png";
 import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
+import { UserMenu } from "@/components/auth/UserMenu";
 
 // Fonction utilitaire pour extraire le prénom (dupliquée ici pour éviter les dépendances circulaires)
 const extractFirstName = (input: string): string => {
@@ -83,6 +84,7 @@ export default function Header({ isFeny = false }) {
               </span>
             </div>
           )}
+          <UserMenu />
         </div>
       </div>
     </header>

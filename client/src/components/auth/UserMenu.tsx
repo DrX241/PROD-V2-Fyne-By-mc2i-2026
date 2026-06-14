@@ -13,8 +13,9 @@ import { User, LogOut, Settings } from "lucide-react";
 export function UserMenu() {
   const { user } = useAuth();
 
-  const handleLogout = () => {
-    window.location.href = "/api/logout";
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    window.location.href = '/';
   };
 
   return (
