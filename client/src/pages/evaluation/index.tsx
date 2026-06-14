@@ -3457,47 +3457,13 @@ function CandidateTestView({ candidate, challengeType, onBackToSpace, onFinished
   const [submitted, setSubmitted] = useState(false);
   const [tutorialAccepted, setTutorialAccepted] = useState(false);
 
-  // ─── Chargement IA des questions depuis la banque Supabase ────────────────
-  const [aiQcmPool, setAiQcmPool] = useState<QcmExercise[] | null>(null);
-
-  useEffect(() => {
-    // Charger depuis la banque pour les types QCM (qcm, english, et enrichissement sql/python côté pool)
-    if (!['qcm', 'english', 'sql', 'python'].includes(challengeType)) return;
-    const type = challengeType;
-    const count = 16;
-    fetch('/api/challenge-questions/fetch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type, count }),
-    })
-      .then(r => r.ok ? r.json() : null)
-      .then((data: any) => {
-        if (data?.success && Array.isArray(data.questions) && data.questions.length >= 4) {
-          // Renuméroter proprement et mapper vers QcmExercise
-          const mapped: QcmExercise[] = data.questions.map((q: any, i: number) => ({
-            id: i + 1,
-            title: q.title ?? `Question ${i + 1}`,
-            difficulty: q.difficulty ?? 'débutant',
-            category: q.category ?? type,
-            problem: q.problem ?? '',
-            options: Array.isArray(q.options) ? q.options.slice(0, 4) : [],
-            correctOption: Number.isInteger(q.correctOption) ? q.correctOption : 0,
-            explanation: q.explanation ?? '',
-          }));
-          setAiQcmPool(mapped);
-        }
-      })
-      .catch(() => { /* fallback silencieux sur les hardcodés */ });
-  }, [challengeType]);
-
-  // Pour QCM et English, utiliser les questions IA quand disponibles (sinon hardcodées)
   const exercises = challengeType === 'python'
     ? PYTHON_EXERCISES
     : challengeType === 'qcm'
-      ? (aiQcmPool ?? QCM_EXERCISES)
+      ? QCM_EXERCISES
       : challengeType === 'english'
-        ? (aiQcmPool ?? ENGLISH_EXERCISES)
-      : EXERCISES;
+        ? ENGLISH_EXERCISES
+        : EXERCISES;
   const totalExercises = exercises.length;
 
   // Per-exercise tracking
