@@ -6439,7 +6439,8 @@ ${TRAINING_JSON_SCHEMA}`;
             return f.buffer.toString('utf-8').slice(0, 8000);
           }
           if (ext === 'pdf') {
-            const pdfParse = (await import('pdf-parse')).default;
+            const pdfMod = await import('pdf-parse');
+            const pdfParse = (pdfMod.default ?? pdfMod) as (buf: Buffer, opts?: any) => Promise<{ text: string }>;
             const result = await pdfParse(f.buffer);
             return (result.text || '').slice(0, 8000);
           }
@@ -7055,7 +7056,8 @@ Réponds UNIQUEMENT avec ce JSON (sans markdown) :
     try {
       if (ext === 'txt') return f.buffer.toString('utf-8').slice(0, 6000);
       if (ext === 'pdf') {
-        const pdfParse = (await import('pdf-parse')).default;
+        const pdfMod = await import('pdf-parse');
+        const pdfParse = (pdfMod.default ?? pdfMod) as (buf: Buffer, opts?: any) => Promise<{ text: string }>;
         const result = await pdfParse(f.buffer);
         return (result.text || '').slice(0, 6000);
       }
@@ -7130,7 +7132,8 @@ Réponds UNIQUEMENT avec ce JSON (sans markdown) :
         try {
           if (ext === 'txt') return f.buffer.toString('utf-8').slice(0, 12000);
           if (ext === 'pdf') {
-            const pdfParse = (await import('pdf-parse')).default;
+            const pdfMod = await import('pdf-parse');
+            const pdfParse = (pdfMod.default ?? pdfMod) as (buf: Buffer, opts?: any) => Promise<{ text: string }>;
             const result = await pdfParse(f.buffer);
             return (result.text || '').slice(0, 12000);
           }
@@ -7206,7 +7209,8 @@ Réponds UNIQUEMENT avec ce JSON (sans markdown) :
 
     try {
       if (ext === 'pdf') {
-        const pdfParse = (await import('pdf-parse')).default;
+        const pdfMod = await import('pdf-parse');
+        const pdfParse = (pdfMod.default ?? pdfMod) as (buf: Buffer, opts?: any) => Promise<{ text: string }>;
         const result = await pdfParse(f.buffer, {
           pagerender: (pageData: any) => {
             return pageData.getTextContent().then((tc: any) => {
