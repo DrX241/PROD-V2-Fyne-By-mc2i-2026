@@ -19,12 +19,14 @@ import {
   Check,
   Settings,
   Lock,
+  BarChart2,
 } from 'lucide-react';
 import mcLogoPath from "@assets/mc2i.png";
 import fyneCharacterPath from "../assets/fyne-character.png";
 import { Switch } from "@/components/ui/switch";
 import { ModelSelector } from "@/components/ModelSelector";
 import { UserSubscriptionBadge } from "@/components/UserSubscriptionBadge";
+import { UserMenu } from "@/components/auth/UserMenu";
 
 interface Module {
   id: string;
@@ -161,6 +163,14 @@ const CyberHomePage: React.FC = () => {
                   Super Admin
                 </button>
               )}
+              <button
+                onClick={() => setLocation('/mon-suivi')}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#006a9e] border border-[#006a9e]/30 rounded-lg hover:bg-[#006a9e]/5 transition-colors"
+              >
+                <BarChart2 className="h-3.5 w-3.5" />
+                Mon Suivi
+              </button>
+              <UserMenu />
             </div>
           </div>
         </div>
