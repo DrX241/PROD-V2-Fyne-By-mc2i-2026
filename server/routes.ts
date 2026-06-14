@@ -24,6 +24,7 @@ import audioRoutes from './routes/audioRoutes';
 import codeExecutionRoutes from './routes/codeExecutionRoutes';
 import formationRoutes from './routes/formationRoutes';
 import evaluationRoutes from './routes/evaluationRoutes';
+import companyRoutes from './routes/companyRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { evaluateInterviewTest, generateAdaptiveQuestion, generateInitialQuestion } from './cyberInterviewTestController';
 import { CyberScenario, CrisisDecisionContent, CrisisDecisionOption } from '../shared/types/cyber';
@@ -991,6 +992,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/code', codeExecutionRoutes);
   app.use('/api/formation', formationRoutes);
   app.use('/api/evaluation', evaluationRoutes);
+  app.use('/api/companies', companyRoutes);
   
   // Routes pour l'exécution de code
   app.post('/api/code/execute/python', executePythonCode);

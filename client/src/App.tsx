@@ -60,6 +60,7 @@ import FormationExcel from "./pages/cyber/formation-excel";
 import DataIaModeSelection from "./pages/data-ia-mode-selection";
 import EvaluationPage from "./pages/evaluation";
 import SuperAdminPage from "./pages/superadmin";
+import MonSuivi from "./pages/mon-suivi";
 
 // Import des modules de la Cyber Académie - importés dynamiquement avec lazy pour améliorer les performances
 const IntroductionCybersecurite = lazy(() => import("./pages/cyber/learning-center/modules/intro-cybersecurite/index"));
@@ -385,6 +386,7 @@ function AppContent() {
                 </Route>
                 {/* Route évaluation */}
                 <Route path="/evaluation" component={EvaluationPage} />
+                <Route path="/mon-suivi" component={MonSuivi} />
                 {/* Route super admin */}
                 {user?.role === 'superadmin' && (
                   <Route path="/superadmin" component={SuperAdminPage} />

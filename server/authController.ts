@@ -44,6 +44,7 @@ export class AuthController {
         id: user.id,
         username: user.username,
         role: user.role,
+        companyId: (user as any).companyId ?? null,
         permissions: (user as any).permissions ?? [],
         isActive: user.isActive,
         modulesEnabled: (user as any).modulesEnabled ?? ['cyber','data','amoa','formation-data','evaluation','playground'],
@@ -59,6 +60,7 @@ export class AuthController {
           id: user.id,
           username: user.username,
           role: user.role,
+          companyId: (user as any).companyId ?? null,
           permissions: (user as any).permissions ?? [],
           firstName: user.firstName,
           lastName: user.lastName,
@@ -66,6 +68,12 @@ export class AuthController {
           modulesEnabled: (user as any).modulesEnabled ?? ['cyber','data','amoa','formation-data','evaluation','playground'],
           tokenQuota: (user as any).tokenQuota ?? 100000,
           subscriptionLabel: (user as any).subscriptionLabel ?? 'Gratuit',
+          // KPI
+          score: (user as any).score ?? 0,
+          exercicesRealises: (user as any).exercicesRealises ?? 0,
+          tauxReussite: (user as any).tauxReussite ?? 0,
+          niveau: (user as any).niveau ?? 'Novice',
+          badges: (user as any).badges ?? 0,
         }
       });
 
@@ -135,6 +143,7 @@ export class AuthController {
       (req.session as any).user = {
         ...(req.session as any).user,
         role: user.role,
+        companyId: (user as any).companyId ?? null,
         modulesEnabled: (user as any).modulesEnabled ?? ['cyber','data','amoa','formation-data','evaluation','playground'],
         tokenQuota: (user as any).tokenQuota ?? 100000,
         tokenUsedMonth: (user as any).tokenUsedMonth ?? 0,
@@ -148,13 +157,20 @@ export class AuthController {
           id: user.id,
           username: user.username,
           role: user.role,
+          companyId: (user as any).companyId ?? null,
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
+          permissions: (user as any).permissions ?? [],
           modulesEnabled: (user as any).modulesEnabled ?? ['cyber','data','amoa','formation-data','evaluation','playground'],
           tokenQuota: (user as any).tokenQuota ?? 100000,
           tokenUsedMonth: (user as any).tokenUsedMonth ?? 0,
           subscriptionLabel: (user as any).subscriptionLabel ?? 'Gratuit',
+          score: (user as any).score ?? 0,
+          exercicesRealises: (user as any).exercicesRealises ?? 0,
+          tauxReussite: (user as any).tauxReussite ?? 0,
+          niveau: (user as any).niveau ?? 'Novice',
+          badges: (user as any).badges ?? 0,
         }
       });
 

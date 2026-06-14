@@ -106,6 +106,24 @@ export const insertInvestigationProgressSchema = createInsertSchema(investigatio
 export type InsertInvestigationProgress = z.infer<typeof insertInvestigationProgressSchema>;
 export type InvestigationProgress = typeof investigationProgress.$inferSelect;
 
+// ─── MULTI-TENANT — Companies ─────────────────────────────────────────────────
+
+export const companies = pgTable('companies', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  slug: varchar('slug', { length: 100 }).unique().notNull(),
+  logoUrl: text('logo_url'),
+  primaryColor: varchar('primary_color', { length: 7 }).default('#0057ff'),
+  secondaryColor: varchar('secondary_color', { length: 7 }).default('#10b981'),
+  modulesEnabled: jsonb('modules_enabled').default([]),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const insertCompanySchema = createInsertSchema(companies).omit({ id: true, createdAt: true });
+export type Company = typeof companies.$inferSelect;
+export type InsertCompany = z.infer<typeof insertCompanySchema>;
+
 // Table utilisateurs avec authentification
 export const users = pgTable("users", {
   id: serial("id").primaryKey().notNull(), // ID numérique auto-incrémenté
@@ -116,8 +134,9 @@ export const users = pgTable("users", {
   lastName: varchar("last_name", { length: 255 }),
   bio: text("bio"),
   profileImageUrl: varchar("profile_image_url", { length: 255 }),
-  role: varchar("role", { length: 50 }).default("user").notNull(), // 'user' | 'admin' | 'superadmin'
-  permissions: jsonb("permissions").default([]), // ex: ['evaluateur', 'formation-data']
+  role: varchar("role", { length: 50 }).default("user").notNull(), // 'superadmin' | 'admin' | 'maker' | 'user'
+  companyId: integer("company_id").references(() => companies.id),
+  permissions: jsonb("permissions").default([]),
   isActive: boolean("is_active").default(true).notNull(),
   lastLogin: timestamp("last_login"),
   // Abonnement & modules
@@ -127,6 +146,12 @@ export const users = pgTable("users", {
   tokenResetAt: timestamp("token_reset_at"),
   subscriptionLabel: varchar("subscription_label", { length: 100 }).default("Gratuit"),
   subscriptionExpiresAt: timestamp("subscription_expires_at"),
+  // KPI progression
+  score: integer("score").default(0),
+  exercicesRealises: integer("exercices_realises").default(0),
+  tauxReussite: integer("taux_reussite").default(0),
+  niveau: varchar("niveau", { length: 50 }).default("Novice"),
+  badges: integer("badges").default(0),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });

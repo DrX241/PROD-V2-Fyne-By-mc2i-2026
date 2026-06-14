@@ -8,10 +8,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
-import { User, LogOut, Settings } from "lucide-react";
+import { useLocation } from "wouter";
+import { User, LogOut, Settings, BarChart2 } from "lucide-react";
 
 export function UserMenu() {
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -37,6 +39,10 @@ export function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => setLocation('/mon-suivi')}>
+          <BarChart2 className="mr-2 h-4 w-4" />
+          <span>Mon Suivi</span>
+        </DropdownMenuItem>
         <DropdownMenuItem>
           <Settings className="mr-2 h-4 w-4" />
           <span>Préférences</span>
