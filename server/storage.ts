@@ -24,9 +24,9 @@ export interface IStorage {
   incrementTokenUsage(userId: number, tokens: number): Promise<TokenState>;
   // Studio — formations générées
   saveGeneratedTraining(training: InsertGeneratedTraining): Promise<GeneratedTraining>;
-  getGeneratedTraining(id: string): Promise<GeneratedTraining | undefined>;
-  listGeneratedTrainings(limit?: number): Promise<GeneratedTraining[]>;
-  deleteGeneratedTraining(id: string): Promise<void>;
+  getGeneratedTraining(id: string, scope?: string): Promise<GeneratedTraining | undefined>;
+  listGeneratedTrainings(limit?: number, scope?: string): Promise<GeneratedTraining[]>;
+  deleteGeneratedTraining(id: string, scope?: string): Promise<void>;
   updateGeneratedTraining(id: string, patch: { title?: string; tagline?: string; content?: any }): Promise<GeneratedTraining | undefined>;
 }
 
@@ -130,15 +130,24 @@ export class MemStorage implements IStorage {
     return record;
   }
 
-  async getGeneratedTraining(id: string): Promise<GeneratedTraining | undefined> {
-    return this.trainings.get(id);
+  async getGeneratedTraining(id: string, scope?: string): Promise<GeneratedTraining | undefined> {
+    const t = this.trainings.get(id);
+    if (!t) return undefined;
+    if (scope && t.scope !== scope) return undefined;
+    return t;
   }
 
-  async listGeneratedTrainings(limit = 20): Promise<GeneratedTraining[]> {
-    return Array.from(this.trainings.values()).slice(-limit).reverse();
+  async listGeneratedTrainings(limit = 20, scope?: string): Promise<GeneratedTraining[]> {
+    const all = Array.from(this.trainings.values());
+    const filtered = scope ? all.filter(t => t.scope === scope) : all;
+    return filtered.slice(-limit).reverse();
   }
 
-  async deleteGeneratedTraining(id: string): Promise<void> {
+  async deleteGeneratedTraining(id: string, scope?: string): Promise<void> {
+    if (scope) {
+      const t = this.trainings.get(id);
+      if (t && t.scope !== scope) return;
+    }
     this.trainings.delete(id);
   }
 }
@@ -248,26 +257,34 @@ export class DatabaseStorage implements IStorage {
     return record;
   }
 
-  async getGeneratedTraining(id: string): Promise<GeneratedTraining | undefined> {
+  async getGeneratedTraining(id: string, scope?: string): Promise<GeneratedTraining | undefined> {
+    const conditions = [eq(generatedTrainings.id, id)];
+    if (scope) conditions.push(eq(generatedTrainings.scope, scope));
     const [record] = await db
       .select()
       .from(generatedTrainings)
-      .where(eq(generatedTrainings.id, id));
+      .where(conditions.length === 1 ? conditions[0] : sql`${conditions[0]} AND ${conditions[1]}`);
     return record;
   }
 
-  async listGeneratedTrainings(limit = 20): Promise<GeneratedTraining[]> {
-    return db
+  async listGeneratedTrainings(limit = 20, scope?: string): Promise<GeneratedTraining[]> {
+    const query = db
       .select()
       .from(generatedTrainings)
       .orderBy(desc(generatedTrainings.createdAt))
       .limit(limit);
+    if (scope) {
+      return query.where(eq(generatedTrainings.scope, scope));
+    }
+    return query;
   }
 
-  async deleteGeneratedTraining(id: string): Promise<void> {
+  async deleteGeneratedTraining(id: string, scope?: string): Promise<void> {
+    const conditions = [eq(generatedTrainings.id, id)];
+    if (scope) conditions.push(eq(generatedTrainings.scope, scope));
     await db
       .delete(generatedTrainings)
-      .where(eq(generatedTrainings.id, id));
+      .where(conditions.length === 1 ? conditions[0] : sql`${conditions[0]} AND ${conditions[1]}`);
   }
 
   async updateGeneratedTraining(id: string, patch: { title?: string; tagline?: string; content?: any }): Promise<GeneratedTraining | undefined> {

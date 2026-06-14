@@ -325,6 +325,7 @@ export const generatedTrainings = pgTable('generated_trainings', {
   audience: varchar('audience', { length: 64 }).notNull().default('grand_public'),
   gamificationLevel: varchar('gamification_level', { length: 16 }).notNull().default('medium'),
   content: jsonb('content').notNull(),
+  scope: varchar('scope', { length: 255 }).notNull().default('internal'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 

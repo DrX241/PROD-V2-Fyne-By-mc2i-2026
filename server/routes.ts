@@ -27,6 +27,7 @@ import clientAuthRoutes, { clientKpiRouter } from './routes/clientAuthRoutes';
 import clientManagementRoutes from './routes/clientManagementRoutes';
 import clientAdminRoutes from './routes/clientAdminRoutes';
 import trainingRoutes from './routes/trainingRoutes';
+import clientStudioRoutes from './routes/clientStudioRoutes';
 import evaluationRoutes from './routes/evaluationRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { evaluateInterviewTest, generateAdaptiveQuestion, generateInitialQuestion } from './cyberInterviewTestController';
@@ -1015,6 +1016,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/client/kpi', clientKpiRouter);
   app.use('/api/client/admin', clientAdminRoutes);
   app.use('/api/client/training', trainingRoutes);
+  app.use('/api/client/studio', clientStudioRoutes);
   app.use('/api/client/formation', formationRoutes);
   app.use('/api/admin', clientManagementRoutes);
   
@@ -5986,7 +5988,7 @@ Niveau ${levelDesc}. Contexte français réaliste. Pour visual.type utilise: ema
     gamification: { points: 500, badge: '🏆', levels: ['Novice', 'Intermédiaire', 'Expert'] },
   });
 
-  // GET /api/studio/training/:id — Récupère une formation sauvegardée
+  // GET /api/studio/training/:id — Récupère une formation sauvegardée (interne ou client via player)
   app.get("/api/studio/training/:id", async (req: Request, res: Response) => {
     try {
       const training = await storage.getGeneratedTraining(req.params.id);
@@ -5998,20 +6000,20 @@ Niveau ${levelDesc}. Contexte français réaliste. Pour visual.type utilise: ema
     }
   });
 
-  // GET /api/studio/trainings — Liste des formations récentes
+  // GET /api/studio/trainings — Liste des formations FYNE internes
   app.get("/api/studio/trainings", async (req: Request, res: Response) => {
     try {
-      const trainings = await storage.listGeneratedTrainings(50);
+      const trainings = await storage.listGeneratedTrainings(50, 'internal');
       res.json(trainings);
     } catch (error) {
       res.status(500).json({ error: 'Erreur serveur' });
     }
   });
 
-  // DELETE /api/studio/training/:id — Supprime une formation
+  // DELETE /api/studio/training/:id — Supprime une formation FYNE interne
   app.delete("/api/studio/training/:id", async (req: Request, res: Response) => {
     try {
-      await storage.deleteGeneratedTraining(req.params.id);
+      await storage.deleteGeneratedTraining(req.params.id, 'internal');
       res.json({ success: true });
     } catch (error) {
       console.error('[Studio] Erreur suppression formation:', error);
@@ -6336,6 +6338,13 @@ RÉPONSE DU PARTICIPANT : ${reponse}
   }
 }`;
 
+  // Résout le scope d'une formation : companyId si session client authentifiée, sinon 'internal'
+  function resolveScope(req: Request): string {
+    const clientUser = (req.session as any).clientUser;
+    if (clientUser?.companyId) return clientUser.companyId;
+    return 'internal';
+  }
+
   // POST /api/studio/generate-from-prompt
   app.post("/api/studio/generate-from-prompt", async (req: Request, res: Response) => {
     try {
@@ -6408,6 +6417,7 @@ ${TRAINING_JSON_SCHEMA}`;
         audience: audience || 'grand_public',
         gamificationLevel: gamification || 'medium',
         content: training,
+        scope: resolveScope(req),
       });
 
       res.json({ training, id });
@@ -6536,6 +6546,7 @@ ${TRAINING_JSON_SCHEMA}`;
         audience: audience || 'grand_public',
         gamificationLevel: gamification || 'medium',
         content: training,
+        scope: resolveScope(req),
       });
 
       res.json({ training, id });
@@ -6915,6 +6926,7 @@ ${TRAINING_JSON_SCHEMA}`;
         id, title: training.title || 'Formation depuis site web', tagline: training.tagline || '',
         source: 'url', sourceInfo: { url, pagesVisited: visited.size, siteName },
         audience: audience || 'grand_public', gamificationLevel: gamification || 'medium', content: training,
+        scope: resolveScope(req),
       });
 
       res.json({ training, id, scrapeInfo: { pagesVisited: visited.size, totalChars, siteName: siteName.slice(0, 60) } });
@@ -7032,6 +7044,7 @@ Réponds UNIQUEMENT avec ce JSON (sans markdown) :
         audience: audience || 'grand_public',
         gamificationLevel: 'medium',
         content: lesson,
+        scope: resolveScope(req),
       });
 
       res.json({ lesson, id });
@@ -7187,6 +7200,7 @@ Réponds UNIQUEMENT avec ce JSON (sans markdown) :
         audience: audience || 'grand_public',
         gamificationLevel: 'medium',
         content: lesson,
+        scope: resolveScope(req),
       });
 
       res.json({ lesson, id });
@@ -7502,6 +7516,7 @@ Réponds UNIQUEMENT avec ce JSON valide (zéro texte avant ou après, zéro mark
         audience: audience || 'all',
         gamificationLevel: gamification || 'light',
         content: training,
+        scope: resolveScope(req),
       });
 
       res.json({ training, id });
@@ -7873,6 +7888,7 @@ Réponds UNIQUEMENT en JSON valide (sans markdown) :
         sourceInfo: { title, audience, level, deliveryMode, format, sector },
         audience: audience || 'all', gamificationLevel: 'light',
         content: training,
+        scope: resolveScope(req),
       });
 
       res.json({ id, training });
@@ -7947,6 +7963,7 @@ Sinon → retourne la formation complète modifiée avec le même schéma JSON.`
         audience: record.audience,
         gamificationLevel: record.gamificationLevel,
         content: updated,
+        scope: record.scope,
       });
 
       res.json({ success: true, training: updated, patch });
@@ -7974,6 +7991,7 @@ Sinon → retourne la formation complète modifiée avec le même schéma JSON.`
         audience: existing.audience,
         gamificationLevel: existing.gamificationLevel,
         content: training,
+        scope: existing.scope,
       });
 
       res.json({ success: true });
