@@ -484,9 +484,6 @@ export default function SuperAdminPage() {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-sm text-gray-400">{user?.username}</span>
-            <button onClick={() => window.open('/portail-client/login', '_blank')} className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-white/10 rounded-lg transition-colors">
-              <UserCog className="w-3.5 h-3.5" /> Portail client
-            </button>
             <button onClick={() => setLocation('/')} className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-white border border-white/10 rounded-lg transition-colors">
               <Home className="w-3.5 h-3.5" /> Accueil
             </button>

@@ -23,11 +23,6 @@ import crisisCenterRoutes from './routes/crisisCenterRoutes';
 import audioRoutes from './routes/audioRoutes';
 import codeExecutionRoutes from './routes/codeExecutionRoutes';
 import formationRoutes from './routes/formationRoutes';
-import clientAuthRoutes, { clientKpiRouter } from './routes/clientAuthRoutes';
-import clientManagementRoutes from './routes/clientManagementRoutes';
-import clientAdminRoutes from './routes/clientAdminRoutes';
-import trainingRoutes from './routes/trainingRoutes';
-import clientStudioRoutes from './routes/clientStudioRoutes';
 import evaluationRoutes from './routes/evaluationRoutes';
 import { createAttachmentWithHiddenPassword } from './services/attachmentService';
 import { evaluateInterviewTest, generateAdaptiveQuestion, generateInitialQuestion } from './cyberInterviewTestController';
@@ -509,22 +504,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }));
 
-  // Session dédiée portail client (cookie séparé)
-  app.use('/api/client', session({
-    store: new pgSession({
-      pool: pool,
-      createTableIfMissing: true,
-    }),
-    name: 'fyne.client.sid',
-    secret: process.env.SESSION_SECRET || 'votre-secret-session-ultra-securise-changez-moi',
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      secure: false,
-      httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    }
-  }));
 
   // Tracking LLM — injecte userId/feature dans AsyncLocalStorage pour chaque requête API
   app.use('/api', llmTrackingMiddleware);
@@ -791,7 +770,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware pour protéger toutes les autres routes
   app.use('/api', (req: Request, res: Response, next: any) => {
     // Exclure les routes d'authentification et le portail client
-    if (req.path.startsWith('/auth/') || req.path.startsWith('/client/')) {
+    if (req.path.startsWith('/auth/')) {
       return next();
     }
     return AuthController.requireAuth(req, res, next);
@@ -1012,13 +991,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/code', codeExecutionRoutes);
   app.use('/api/formation', formationRoutes);
   app.use('/api/evaluation', evaluationRoutes);
-  app.use('/api/client/auth', clientAuthRoutes);
-  app.use('/api/client/kpi', clientKpiRouter);
-  app.use('/api/client/admin', clientAdminRoutes);
-  app.use('/api/client/training', trainingRoutes);
-  app.use('/api/client/studio', clientStudioRoutes);
-  app.use('/api/client/formation', formationRoutes);
-  app.use('/api/admin', clientManagementRoutes);
   
   // Routes pour l'exécution de code
   app.post('/api/code/execute/python', executePythonCode);
@@ -6338,10 +6310,10 @@ RÉPONSE DU PARTICIPANT : ${reponse}
   }
 }`;
 
-  // Résout le scope d'une formation : companyId si session client authentifiée, sinon 'internal'
+  // Résout le scope d'une formation selon la company de l'utilisateur connecté
   function resolveScope(req: Request): string {
-    const clientUser = (req.session as any).clientUser;
-    if (clientUser?.companyId) return clientUser.companyId;
+    const user = (req.session as any).user;
+    if (user?.companyId) return String(user.companyId);
     return 'internal';
   }
 

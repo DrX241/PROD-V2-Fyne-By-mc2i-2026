@@ -47,33 +47,12 @@ export default function ModuleGenerator() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
-  const [clientContext, setClientContext] = useState<{ companyId: string; role: string } | null | undefined>(undefined);
-
-  // Résolution du contexte : portail client (admin/maker) ou FYNE interne
-  useEffect(() => {
-    fetch('/api/client/auth/check', { credentials: 'include' })
-      .then(r => r.json())
-      .then(d => {
-        if (d.authenticated && d.user?.companyId) {
-          setClientContext({ companyId: d.user.companyId, role: d.user.role });
-        } else {
-          setClientContext(null);
-        }
-      })
-      .catch(() => setClientContext(null));
-  }, []);
-
-  const apiBase = clientContext ? '/api/client/studio' : '/api/studio';
-  const canWrite = !clientContext || clientContext.role === 'admin' || clientContext.role === 'maker';
-
   const loadTrainings = useCallback(() => {
-    if (clientContext === undefined) return; // pas encore résolu
-    const base = clientContext ? '/api/client/studio' : '/api/studio';
-    fetch(`${base}/trainings`, { credentials: 'include' })
+    fetch('/api/studio/trainings')
       .then(r => r.json())
       .then(data => setTrainings(Array.isArray(data) ? data : []))
       .catch(() => {});
-  }, [clientContext]);
+  }, []);
 
   useEffect(() => { loadTrainings(); }, [loadTrainings]);
   useEffect(() => { window.scrollTo(0, 0); }, []);
@@ -90,7 +69,7 @@ export default function ModuleGenerator() {
     setDeleteConfirm(null);
     setDeleting(id);
     try {
-      await fetch(`${apiBase}/training/${id}`, { method: 'DELETE', credentials: 'include' });
+      await fetch(`/api/studio/training/${id}`, { method: 'DELETE' });
       setTrainings(prev => prev.filter(t => t.id !== id));
       setSelectedIds(prev => { const next = new Set(prev); next.delete(id); return next; });
     } catch {}
@@ -117,7 +96,7 @@ export default function ModuleGenerator() {
     setBulkDeleteConfirm(false);
     setBulkDeleting(true);
     const ids = Array.from(selectedIds);
-    await Promise.all(ids.map(id => fetch(`${apiBase}/training/${id}`, { method: 'DELETE', credentials: 'include' }).catch(() => {})));
+    await Promise.all(ids.map(id => fetch(`/api/studio/training/${id}`, { method: 'DELETE' }).catch(() => {})));
     setTrainings(prev => prev.filter(t => !ids.includes(t.id)));
     setSelectedIds(new Set());
     setBulkDeleting(false);

@@ -60,15 +60,6 @@ import FormationExcel from "./pages/cyber/formation-excel";
 import DataIaModeSelection from "./pages/data-ia-mode-selection";
 import EvaluationPage from "./pages/evaluation";
 import SuperAdminPage from "./pages/superadmin";
-import ClientLoginPage from "./pages/client-portal/login";
-import ClientAccueilPage from "./pages/client-portal/accueil";
-import ClientGestionPage from "./pages/client-portal/gestion";
-import ClientPlayerPage from "./pages/client-portal/player";
-import ClientMesFormationsPage from "./pages/client-portal/mes-formations";
-import ClientDataChoicePage from "./pages/client-portal/data-choice";
-import ClientDataSqlPage from "./pages/client-portal/data-sql";
-import ClientDataPythonPage from "./pages/client-portal/data-python";
-import ClientDataExcelPage from "./pages/client-portal/data-excel";
 
 // Import des modules de la Cyber Académie - importés dynamiquement avec lazy pour améliorer les performances
 const IntroductionCybersecurite = lazy(() => import("./pages/cyber/learning-center/modules/intro-cybersecurite/index"));
@@ -420,16 +411,6 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <Switch>
-          <Route path="/portail-client" component={ClientLoginPage} />
-          <Route path="/portail-client/login" component={ClientLoginPage} />
-          <Route path="/portail-client/accueil" component={ClientAccueilPage} />
-          <Route path="/portail-client/gestion" component={ClientGestionPage} />
-          <Route path="/portail-client/mes-formations" component={ClientMesFormationsPage} />
-          <Route path="/portail-client/formation/:pathId" component={ClientPlayerPage} />
-          <Route path="/portail-client/data" component={ClientDataChoicePage} />
-          <Route path="/portail-client/data/sql" component={ClientDataSqlPage} />
-          <Route path="/portail-client/data/python" component={ClientDataPythonPage} />
-          <Route path="/portail-client/data/excel" component={ClientDataExcelPage} />
           <Route>
             <AuthProvider>
               <AppContent />

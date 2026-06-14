@@ -132,65 +132,6 @@ export default function PortalSelection() {
             </div>
           </motion.a>
 
-          {/* Client portal */}
-          <motion.a
-            href="/portail-client"
-            whileHover={{ y: -4, scale: 1.01 }}
-            transition={{ duration: 0.2 }}
-            style={{
-              display: 'block', textDecoration: 'none',
-              background: D.card,
-              border: `1px solid ${D.border}`,
-              borderRadius: '12px',
-              padding: '36px 32px',
-              cursor: 'pointer',
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-          >
-            <div style={{
-              position: 'absolute', top: 0, left: 0, right: 0, height: '2px',
-              background: 'linear-gradient(90deg, #10b981, #34d399)',
-            }} />
-
-            <div style={{
-              width: '44px', height: '44px', borderRadius: '10px',
-              background: 'rgba(16,185,129,0.1)',
-              border: '1px solid rgba(16,185,129,0.2)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: '20px',
-              fontSize: '20px',
-            }}>
-              ✦
-            </div>
-
-            <h2 style={{ fontSize: '18px', fontWeight: 700, color: D.text, margin: '0 0 8px' }}>
-              Portail Client
-            </h2>
-            <p style={{ fontSize: '13px', color: D.sub, margin: '0 0 24px', lineHeight: 1.6 }}>
-              Créez et diffusez des formations interactives en quelques secondes grâce à l'IA. Accessible à tous.
-            </p>
-
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {['Studio IA', 'Formations', 'Partage', 'Analytics'].map(tag => (
-                <span key={tag} style={{
-                  fontSize: '11px', fontWeight: 500,
-                  color: '#10b981', background: 'rgba(16,185,129,0.08)',
-                  border: '1px solid rgba(16,185,129,0.15)',
-                  borderRadius: '4px', padding: '2px 8px',
-                }}>
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            <div style={{
-              marginTop: '28px', fontSize: '13px', fontWeight: 600,
-              color: '#10b981', display: 'flex', alignItems: 'center', gap: '6px',
-            }}>
-              Accéder <span style={{ fontSize: '16px' }}>→</span>
-            </div>
-          </motion.a>
         </div>
 
         {/* Footer */}

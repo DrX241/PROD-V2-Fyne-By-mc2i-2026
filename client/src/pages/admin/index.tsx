@@ -417,15 +417,6 @@ const AdminPage: React.FC = () => {
           >
             <ChevronLeft size={13} /> Retour à FYNE
           </button>
-          {user?.role === 'superadmin' && (
-            <button onClick={() => window.open('/portail-client/login', '_blank')}
-              style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 2, color: 'rgba(255,255,255,0.85)', fontSize: 12, cursor: 'pointer', fontFamily: font }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.2)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.12)')}
-            >
-              <UserCog size={13} /> Portail client
-            </button>
-          )}
           <button onClick={handleLogout}
             style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 2, color: 'rgba(255,255,255,0.65)', fontSize: 12, cursor: 'pointer', fontFamily: font }}
             onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.18)')}
