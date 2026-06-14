@@ -1,9 +1,10 @@
 import { useChatContext } from "@/contexts/ChatContext";
-import { useTheme } from "@/contexts/ThemeContext";
 import { useLocation } from "wouter";
 import mclogo from "@/assets/mc2i.png";
 import OpenAIStatusIndicator from '@/components/OpenAIStatusIndicator';
 import { UserMenu } from "@/components/auth/UserMenu";
+import { useAuth } from "@/hooks/useAuth";
+import { BarChart2 } from "lucide-react";
 
 // Fonction utilitaire pour extraire le prénom (dupliquée ici pour éviter les dépendances circulaires)
 const extractFirstName = (input: string): string => {
@@ -42,6 +43,8 @@ const extractFirstName = (input: string): string => {
 
 export default function Header({ isFeny = false }) {
   const { userName } = useChatContext();
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
   // Nous utilisons un thème futuriste par défaut
   const isFuturistic = true;
   
@@ -73,6 +76,39 @@ export default function Header({ isFeny = false }) {
             <OpenAIStatusIndicator position="in-header" showModelToggle={true} />
           </div>
           
+          {/* Bouton Mon Suivi */}
+          {user && (
+            <button
+              onClick={() => setLocation('/mon-suivi')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'rgba(0, 87, 255, 0.1)',
+                border: '1px solid rgba(0, 87, 255, 0.3)',
+                borderRadius: '8px',
+                padding: '5px 12px',
+                color: '#93c5fd',
+                fontSize: '12px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(0, 87, 255, 0.2)';
+                e.currentTarget.style.color = '#dbeafe';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(0, 87, 255, 0.1)';
+                e.currentTarget.style.color = '#93c5fd';
+              }}
+            >
+              <BarChart2 style={{ width: 14, height: 14 }} />
+              Mon Suivi
+            </button>
+          )}
+
           {/* Affichage de l'utilisateur existant */}
           {userName && (
             <div className="flex items-center gap-1 sm:gap-2 mr-1 sm:mr-2 md:mr-3">
