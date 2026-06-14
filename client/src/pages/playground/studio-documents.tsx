@@ -16,7 +16,7 @@ const BLUE = '#006a9e';
 const PINK = '#dd0061';
 const DARK = '#061019';
 
-const ACCEPTED = '.pdf,.pptx,.ppt,.docx,.doc,.txt';
+const ACCEPTED = '.docx,.doc,.txt';
 
 const FILE_ICONS: Record<string, React.ReactNode> = {
   pdf: <FileText size={16} style={{ color: '#ef4444' }} />,
@@ -129,7 +129,7 @@ export default function StudioDocuments() {
     const validType = all.filter(f => ['pdf', 'pptx', 'ppt', 'docx', 'doc', 'txt'].includes(f.name.split('.').pop()?.toLowerCase() || ''));
     const validSize = validType.filter(f => f.size <= MAX_FILE_SIZE);
     if (validType.length < all.filter(f => f.size <= MAX_FILE_SIZE).length) {
-      toast({ title: 'Fichiers non supportés', description: 'Seuls PDF, PowerPoint, Word et texte sont acceptés.', variant: 'destructive' });
+      toast({ title: 'Fichiers non supportés', description: 'Seuls Word et texte sont acceptés.', variant: 'destructive' });
     }
     setFiles(prev => { const names = new Set(prev.map(f => f.name)); return [...prev, ...validSize.filter(f => !names.has(f.name))].slice(0, 5); });
   }, [toast]);
@@ -265,7 +265,7 @@ export default function StudioDocuments() {
                 <div className="mb-6">
                   <div className="flex items-center gap-2 px-3 py-2" style={{ background: `${PINK}08`, border: `1px solid ${PINK}30` }}>
                     <Layers size={14} style={{ color: PINK }} />
-                    <p className="text-xs text-gray-600">Importez vos documents (PDF, PowerPoint, Word, TXT) — le micro learning sera généré en modules théorie/pratique</p>
+                    <p className="text-xs text-gray-600">Importez vos documents (Word, TXT) — le micro learning sera généré en modules théorie/pratique</p>
                   </div>
                 </div>
 
@@ -281,7 +281,7 @@ export default function StudioDocuments() {
                       <p className="font-bold text-sm mb-1" style={{ color: DARK }}>Glissez vos fichiers ici</p>
                       <p className="text-xs text-gray-500">ou cliquez pour parcourir</p>
                       <div className="flex items-center justify-center gap-2 mt-4">
-                        {['PDF', 'PowerPoint', 'Word', 'Texte'].map(f => (
+                        {['Word', 'Texte'].map(f => (
                           <span key={f} className="px-2 py-0.5 border border-gray-200 text-xs text-gray-500 bg-white">{f}</span>
                         ))}
                       </div>
