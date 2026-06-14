@@ -603,12 +603,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
     try {
-      const [diskOut, memOut, cpuOut, dockerOut, dockerImgCount, uptimeOut, appOut, npmOut] = await Promise.all([
+      const [diskOut, memOut, cpuOut, dockerOut, dockerImgList, uptimeOut, appOut, npmOut] = await Promise.all([
         execAsync("df -h / | tail -1"),
         execAsync("free -m | grep Mem"),
         execAsync("top -bn1 | grep 'Cpu(s)' | head -1"),
         execAsync("docker system df 2>/dev/null || echo 'docker-unavailable'"),
-        execAsync("docker images --format '{{.ID}}' 2>/dev/null | wc -l || echo '0'"),
+        execAsync("docker images --format '{{.Repository}}:{{.Tag}}\\t{{.Size}}\\t{{.CreatedAt}}\\t{{.ID}}' 2>/dev/null || echo ''"),
         execAsync("uptime"),
         execAsync("docker ps --format '{{.Names}}\t{{.Status}}\t{{.Image}}' 2>/dev/null || pm2 list 2>/dev/null || echo 'no-containers'"),
         execAsync("du -sh /root/.npm 2>/dev/null || echo '0\t-'"),
@@ -647,11 +647,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const parts = dl.trim().split(/\s{2,}/);
         if (parts[0]) dockerMap[parts[0].toLowerCase()] = parts[2] ?? '0B';
       }
+      const dockerImageList = dockerImgList
+        .split('\n')
+        .filter(Boolean)
+        .map(line => {
+          const [name, size, createdAt, id] = line.split('\t');
+          return { name: name ?? '', size: size ?? '', createdAt: createdAt ?? '', id: (id ?? '').slice(0, 12) };
+        });
       const docker = {
         images:     dockerMap['images']      ?? '0B',
-        imageCount: parseInt(dockerImgCount.trim(), 10) || 0,
+        imageCount: dockerImageList.length,
         containers: dockerMap['containers']  ?? '0B',
         buildCache: dockerMap['build cache'] ?? '0B',
+        imageList:  dockerImageList,
       };
 
       // App processes (docker ps or pm2)

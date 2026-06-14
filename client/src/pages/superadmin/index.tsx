@@ -56,7 +56,7 @@ interface SystemHealth {
   disk: { used: string; total: string; usedPct: number; avail: string };
   memory: { total: number; used: number; free: number; usedPct: number };
   cpu: { user: number; system: number; idle: number };
-  docker: { images: string; imageCount: number; containers: string; buildCache: string };
+  docker: { images: string; imageCount: number; containers: string; buildCache: string; imageList: { name: string; size: string; createdAt: string; id: string }[] };
   uptime: string;
   app: { name: string; status: string; image: string }[];
   npmCache: string;
@@ -97,6 +97,93 @@ async function api<T = any>(path: string, opts?: RequestInit): Promise<T> {
   const data = await r.json();
   if (!data.success) throw new Error(data.message || 'Erreur API');
   return data;
+}
+
+function DockerPanel({ systemHealth, systemActionLoading, runSystemAction }: {
+  systemHealth: SystemHealth | null;
+  systemActionLoading: string | null;
+  runSystemAction: (action: string, label: string) => void;
+}) {
+  const [expanded, setExpanded] = React.useState(false);
+  const images = systemHealth?.docker.imageList ?? [];
+  const count = systemHealth?.docker.imageCount ?? 0;
+  const isWarn = count > 3;
+
+  return (
+    <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-3">
+        <Layers className="w-4 h-4 text-[#0057ff]" />
+        <span className="text-sm font-semibold text-gray-300">Docker</span>
+        {systemHealth && (
+          <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${isWarn ? 'bg-amber-500/20 text-amber-400' : 'bg-white/10 text-gray-400'}`}>
+            {count} image{count !== 1 ? 's' : ''}
+          </span>
+        )}
+        {images.length > 0 && (
+          <button onClick={() => setExpanded(v => !v)} className="ml-auto text-xs text-gray-500 hover:text-gray-300 flex items-center gap-1 transition-colors">
+            {expanded ? 'Masquer' : 'Voir la liste'}
+            <ChevronRight className={`w-3 h-3 transition-transform ${expanded ? 'rotate-90' : ''}`} />
+          </button>
+        )}
+      </div>
+
+      {/* Stats */}
+      <div className="space-y-1.5 mb-3">
+        {systemHealth && [
+          { label: 'Taille images', value: systemHealth.docker.images || '0B' },
+          { label: 'Build cache', value: systemHealth.docker.buildCache || '0B' },
+          { label: 'Conteneurs actifs', value: '0 — app PM2 direct' },
+        ].map(({ label, value }) => (
+          <div key={label} className="flex justify-between text-xs">
+            <span className="text-gray-500">{label}</span>
+            <span className="font-mono text-gray-300">{value}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Image list */}
+      {expanded && images.length > 0 && (
+        <div className="mb-3 rounded-lg overflow-hidden border border-white/10">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="bg-white/5 text-gray-500">
+                <th className="text-left px-3 py-1.5 font-medium">Image</th>
+                <th className="text-right px-3 py-1.5 font-medium">Taille</th>
+                <th className="text-right px-3 py-1.5 font-medium hidden sm:table-cell">Créée</th>
+                <th className="text-right px-3 py-1.5 font-medium hidden sm:table-cell">ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              {images.map((img, i) => (
+                <tr key={img.id || i} className="border-t border-white/5 hover:bg-white/5 transition-colors">
+                  <td className="px-3 py-1.5 font-mono text-gray-300 max-w-[140px] truncate">{img.name}</td>
+                  <td className="px-3 py-1.5 font-mono text-right text-gray-400">{img.size}</td>
+                  <td className="px-3 py-1.5 text-right text-gray-500 hidden sm:table-cell whitespace-nowrap">{img.createdAt?.slice(0, 16) ?? ''}</td>
+                  <td className="px-3 py-1.5 font-mono text-right text-gray-600 hidden sm:table-cell">{img.id}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Purge button */}
+      {systemHealth && count > 0 && (
+        <button
+          onClick={() => runSystemAction('docker-prune', 'Nettoyer Docker')}
+          disabled={systemActionLoading !== null}
+          className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-40"
+          style={{ background: '#f59e0b20', color: '#f59e0b', border: '1px solid #f59e0b40' }}
+        >
+          {systemActionLoading === 'docker-prune'
+            ? <RefreshCw className="w-3 h-3 animate-spin" />
+            : <Trash2 className="w-3 h-3" />}
+          Purger les images inutilisées · libère ~{systemHealth.docker.images}
+        </button>
+      )}
+    </div>
+  );
 }
 
 export default function SuperAdminPage() {
@@ -1108,42 +1195,7 @@ export default function SuperAdminPage() {
                           </div>
 
                           {/* Docker */}
-                          <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <Layers className="w-4 h-4 text-[#0057ff]" />
-                              <span className="text-sm font-semibold text-gray-300">Docker</span>
-                              {systemHealth && (
-                                <span className={`ml-auto text-xs font-mono px-2 py-0.5 rounded-full ${systemHealth.docker.imageCount > 5 ? 'bg-amber-500/20 text-amber-400' : 'bg-white/10 text-gray-400'}`}>
-                                  {systemHealth.docker.imageCount} image{systemHealth.docker.imageCount > 1 ? 's' : ''}
-                                </span>
-                              )}
-                            </div>
-                            <div className="space-y-1.5">
-                              {systemHealth && [
-                                { label: 'Taille images', value: systemHealth.docker.images || '0B' },
-                                { label: 'Build cache', value: systemHealth.docker.buildCache || '0B' },
-                                { label: 'Conteneurs actifs', value: '0 — app PM2 direct' },
-                              ].map(({ label, value }) => (
-                                <div key={label} className="flex justify-between text-xs">
-                                  <span className="text-gray-500">{label}</span>
-                                  <span className="font-mono text-gray-300">{value}</span>
-                                </div>
-                              ))}
-                            </div>
-                            {systemHealth && systemHealth.docker.imageCount > 0 && (
-                              <button
-                                onClick={() => runSystemAction('docker-prune', 'Nettoyer Docker')}
-                                disabled={systemActionLoading !== null}
-                                className="mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-40"
-                                style={{ background: '#f59e0b20', color: '#f59e0b', border: '1px solid #f59e0b40' }}
-                              >
-                                {systemActionLoading === 'docker-prune'
-                                  ? <RefreshCw className="w-3 h-3 animate-spin" />
-                                  : <Trash2 className="w-3 h-3" />}
-                                Purger les images inutilisées
-                              </button>
-                            )}
-                          </div>
+                          <DockerPanel systemHealth={systemHealth} systemActionLoading={systemActionLoading} runSystemAction={runSystemAction} />
                         </div>
                       </div>
 
