@@ -135,210 +135,212 @@ export default function ModuleGenerator() {
   ];
 
   return (
-    <div className="min-h-screen bg-white flex flex-col" style={{ color: DARK }}>
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: 'white', color: DARK, overflow: 'hidden' }}>
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
-        <div className="h-0.5 w-full" style={{ background: `${BLUE}20` }}>
-          <div className="h-full w-full" style={{ background: PINK, width: '100%' }} />
-        </div>
-        <div className="flex items-center justify-between px-5 py-3">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setLocation('/')} className="hover:opacity-60 transition-opacity">
-              <ArrowLeft size={18} style={{ color: BLUE }} />
-            </button>
-            <img src={mcLogoPath} alt="mc2i" className="h-7 w-auto" />
-            <div className="h-4 w-px bg-gray-200" />
-            <span className="font-bold text-sm" style={{ color: BLUE }}>FYNE</span>
-            <div className="h-4 w-px bg-gray-200 hidden sm:block" />
-            <span className="text-sm text-gray-500 font-medium hidden sm:block">Studio de Formation</span>
-          </div>
+      <header style={{ flexShrink: 0, borderBottom: '1px solid #f3f4f6', zIndex: 50, background: 'white' }}>
+        <div style={{ height: 2, background: PINK }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px' }}>
+          <button onClick={() => setLocation('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
+            <ArrowLeft size={18} style={{ color: BLUE }} />
+          </button>
+          <img src={mcLogoPath} alt="mc2i" style={{ height: 28, width: 'auto' }} />
+          <div style={{ width: 1, height: 16, background: '#e5e7eb' }} />
+          <span style={{ fontWeight: 700, fontSize: 14, color: BLUE }}>FYNE</span>
+          <div style={{ width: 1, height: 16, background: '#e5e7eb' }} />
+          <span style={{ fontSize: 14, color: '#6b7280', fontWeight: 500 }}>Studio de Formation</span>
         </div>
       </header>
 
-      <main className="flex-1 pt-14">
-        <div className="max-w-5xl mx-auto px-6 lg:px-12 py-8 w-full">
+      {/* Body — 2 colonnes fixes sous le header */}
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+
+        {/* ── Colonne gauche : création (fixe, ne scrolle pas) ── */}
+        <div style={{
+          width: '38%',
+          minWidth: 300,
+          maxWidth: 480,
+          borderRight: '1px solid #f3f4f6',
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '32px 28px',
+          overflowY: 'auto',
+          flexShrink: 0,
+        }}>
           {/* Titre */}
-          <div className="mb-6 flex items-center justify-between gap-8">
-            <div className="flex-shrink-0">
-              <div className="text-xs font-bold uppercase tracking-widest mb-2 px-3 py-1 inline-block"
-                style={{ background: `${BLUE}12`, color: BLUE }}>
-                Soyez qui vous voulez
-              </div>
-              <h1 className="text-4xl lg:text-5xl font-black tracking-tight leading-none">
-                <span style={{ color: PINK }}>Créez votre </span><span style={{ color: DARK }}>micro </span><span style={{ color: PINK }}>learning</span>
-              </h1>
-              <div className="w-16 h-1 mt-3" style={{ background: PINK }} />
+          <div style={{ marginBottom: 28 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '3px 10px', background: `${BLUE}12`, color: BLUE, display: 'inline-block', marginBottom: 10 }}>
+              Studio
             </div>
+            <h1 style={{ fontSize: 28, fontWeight: 900, lineHeight: 1.1, margin: 0 }}>
+              <span style={{ color: PINK }}>Créez votre </span>
+              <span style={{ color: DARK }}>micro </span>
+              <span style={{ color: PINK }}>learning</span>
+            </h1>
+            <div style={{ width: 40, height: 3, background: PINK, marginTop: 10 }} />
           </div>
 
-          {/* Cartes */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+          {/* Cartes de création empilées */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {cards.map((card, idx) => (
               <motion.div
                 key={card.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
+                transition={{ delay: idx * 0.08 }}
                 whileHover={{ y: -2 }}
                 onClick={() => setLocation(card.route)}
-                className="cursor-pointer border border-gray-200 bg-white hover:border-gray-400 transition-all duration-200"
+                style={{ cursor: 'pointer', border: '1px solid #e5e7eb', background: 'white' }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = '#9ca3af')}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = '#e5e7eb')}
               >
-                <div className="p-6 flex flex-col h-full">
-                  <div className="flex items-start justify-between mb-4">
-                    <span className="text-xs font-bold uppercase tracking-widest px-2 py-1"
-                      style={{ background: `${card.color}12`, color: card.color }}>
-                      {card.badge}
-                    </span>
-                  </div>
-
-                  <h2 className="text-xl font-black mb-2" style={{ color: DARK }}>
+                <div style={{ padding: '20px 20px 16px' }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '2px 8px', background: `${card.color}12`, color: card.color }}>
+                    {card.badge}
+                  </span>
+                  <h2 style={{ fontSize: 15, fontWeight: 800, margin: '10px 0 6px', color: DARK }}>
                     {card.title}
                   </h2>
-                  <p className="text-sm text-gray-600 leading-relaxed mb-4 flex-grow">
+                  <p style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.55, margin: '0 0 12px' }}>
                     {card.description}
                   </p>
-
-                  <ul className="space-y-1.5 mb-5">
+                  <ul style={{ margin: '0 0 14px', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 5 }}>
                     {card.bullets.map((b, i) => (
-                      <li key={i} className="flex items-center gap-2.5 text-sm text-gray-700">
-                        <div className="w-1.5 h-1.5 flex-shrink-0" style={{ background: card.color }} />
+                      <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#374151' }}>
+                        <div style={{ width: 5, height: 5, flexShrink: 0, background: card.color }} />
                         {b}
                       </li>
                     ))}
                   </ul>
-
                   <button
-                    className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold hover:opacity-90 transition-opacity text-sm w-full justify-center"
-                    style={{ background: card.color }}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 0', background: card.color, color: 'white', fontWeight: 700, fontSize: 12, border: 'none', cursor: 'pointer', width: '100%', justifyContent: 'center' }}
                   >
-                    {card.id === 'ia' ? <Sparkles size={16} /> : <Upload size={16} />}
+                    {card.id === 'ia' ? <Sparkles size={14} /> : <Upload size={14} />}
                     {card.title}
-                    <ArrowRight size={16} />
+                    <ArrowRight size={14} />
                   </button>
                 </div>
               </motion.div>
             ))}
           </div>
+        </div>
 
-          {/* ─── Bibliothèque de formations ──────────────────────────────────── */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <Library size={18} style={{ color: PINK }} />
-                <h2 className="text-xl font-black" style={{ color: DARK }}>Modules sauvegardés</h2>
-              </div>
+        {/* ── Colonne droite : bibliothèque (scrollable) ── */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          {/* En-tête de la bibliothèque (fixe) */}
+          <div style={{ flexShrink: 0, padding: '20px 28px 16px', borderBottom: '1px solid #f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Library size={16} style={{ color: PINK }} />
+              <h2 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: DARK }}>Modules sauvegardés</h2>
               {trainings.length > 0 && (
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-bold px-2 py-1"
-                    style={{ background: `${BLUE}12`, color: BLUE }}>
-                    {trainings.length} formation{trainings.length > 1 ? 's' : ''}
-                  </span>
-                  <button
-                    onClick={toggleSelectAll}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-800 transition-colors"
-                  >
-                    {selectedIds.size === trainings.length
-                      ? <CheckSquare size={14} style={{ color: PINK }} />
-                      : <Square size={14} />}
-                    {selectedIds.size === trainings.length ? 'Tout désélectionner' : 'Tout sélectionner'}
-                  </button>
-                </div>
+                <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', background: `${BLUE}12`, color: BLUE }}>
+                  {trainings.length}
+                </span>
               )}
             </div>
+            {trainings.length > 0 && (
+              <button
+                onClick={toggleSelectAll}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                {selectedIds.size === trainings.length
+                  ? <CheckSquare size={14} style={{ color: PINK }} />
+                  : <Square size={14} />}
+                {selectedIds.size === trainings.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+              </button>
+            )}
+          </div>
 
-            {/* Bulk action bar */}
-            <AnimatePresence>
-              {selectedIds.size > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.15 }}
-                  className="flex items-center justify-between mb-3 px-4 py-3 border border-red-200"
-                  style={{ background: '#fef2f2' }}>
-                  <span className="text-sm font-semibold" style={{ color: '#991b1b' }}>
-                    {selectedIds.size} formation{selectedIds.size > 1 ? 's' : ''} sélectionnée{selectedIds.size > 1 ? 's' : ''}
-                  </span>
-                  <button
-                    onClick={() => setBulkDeleteConfirm(true)}
-                    disabled={bulkDeleting}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 text-white font-bold text-xs disabled:opacity-50"
-                    style={{ background: '#dc2626' }}>
-                    <Trash2 size={13} />
-                    {bulkDeleting ? 'Suppression...' : `Supprimer (${selectedIds.size})`}
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+          {/* Bulk action bar */}
+          <AnimatePresence>
+            {selectedIds.size > 0 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 28px', background: '#fef2f2', borderBottom: '1px solid #fecaca' }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#991b1b' }}>
+                  {selectedIds.size} formation{selectedIds.size > 1 ? 's' : ''} sélectionnée{selectedIds.size > 1 ? 's' : ''}
+                </span>
+                <button
+                  onClick={() => setBulkDeleteConfirm(true)}
+                  disabled={bulkDeleting}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 16px', background: '#dc2626', color: 'white', fontWeight: 700, fontSize: 12, border: 'none', cursor: 'pointer', opacity: bulkDeleting ? 0.5 : 1 }}>
+                  <Trash2 size={12} />
+                  {bulkDeleting ? 'Suppression...' : `Supprimer (${selectedIds.size})`}
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
+          {/* Liste scrollable */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 28px' }}>
             {trainings.length === 0 ? (
-              <div className="border border-dashed border-gray-200 p-12 text-center">
-                <BookOpen size={28} className="mx-auto mb-3 text-gray-300" />
-                <p className="text-sm text-gray-400">Aucune formation générée pour l'instant.</p>
-                <p className="text-xs text-gray-300 mt-1">Vos formations apparaîtront ici après génération.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 200 }}>
+                <BookOpen size={32} style={{ color: '#d1d5db', marginBottom: 12 }} />
+                <p style={{ fontSize: 14, color: '#9ca3af', margin: '0 0 4px' }}>Aucune formation générée pour l'instant.</p>
+                <p style={{ fontSize: 12, color: '#d1d5db', margin: 0 }}>Vos formations apparaîtront ici après génération.</p>
               </div>
             ) : (
               <AnimatePresence>
-                <div className="space-y-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {trainings.map((t, idx) => (
                     <motion.div
                       key={t.id}
-                      initial={{ opacity: 0, y: 8 }}
+                      initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ delay: idx * 0.04 }}
-                      className="border border-gray-200 bg-white hover:border-gray-400 transition-all duration-150 group"
+                      exit={{ opacity: 0, x: -16 }}
+                      transition={{ delay: idx * 0.03 }}
+                      style={{ border: '1px solid #e5e7eb', background: 'white' }}
+                      onMouseEnter={e => (e.currentTarget.style.borderColor = '#9ca3af')}
+                      onMouseLeave={e => (e.currentTarget.style.borderColor = '#e5e7eb')}
                     >
-                      <div className="flex items-center gap-4 px-5 py-4">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px' }}>
                         {/* Checkbox */}
                         <button
                           onClick={(e) => { e.stopPropagation(); toggleSelect(t.id); }}
-                          className="flex-shrink-0 text-gray-300 hover:text-gray-500 transition-colors"
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0, color: '#d1d5db' }}
                           title="Sélectionner">
                           {selectedIds.has(t.id)
-                            ? <CheckSquare size={18} style={{ color: PINK }} />
-                            : <Square size={18} />}
+                            ? <CheckSquare size={16} style={{ color: PINK }} />
+                            : <Square size={16} />}
                         </button>
 
                         {/* Icon */}
-                        <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center border border-gray-100"
-                          style={{ background: `${BLUE}08`, color: BLUE }}>
-                          <BookOpen size={16} />
+                        <div style={{ width: 36, height: 36, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #f3f4f6', background: `${BLUE}08`, color: BLUE }}>
+                          <BookOpen size={14} />
                         </div>
 
                         {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <h3 className="font-bold text-sm truncate" style={{ color: DARK }}>{t.title}</h3>
-                          </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <h3 style={{ fontSize: 13, fontWeight: 700, margin: '0 0 2px', color: DARK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.title}</h3>
                           {t.tagline && (
-                            <p className="text-xs text-gray-500 truncate">{t.tagline}</p>
+                            <p style={{ fontSize: 11, color: '#6b7280', margin: '0 0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.tagline}</p>
                           )}
-                          <div className="flex items-center gap-3 mt-1">
-                            <span className="text-xs font-medium px-1.5 py-0.5"
-                              style={{ background: `${BLUE}10`, color: BLUE }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <span style={{ fontSize: 10, fontWeight: 600, padding: '1px 6px', background: `${BLUE}10`, color: BLUE }}>
                               {sourceLabel(t.source)}
                             </span>
                             {t.createdAt && (
-                              <span className="text-xs text-gray-400 flex items-center gap-1">
-                                <Calendar size={10} /> {formatDate(t.createdAt)}
+                              <span style={{ fontSize: 10, color: '#9ca3af', display: 'flex', alignItems: 'center', gap: 3 }}>
+                                <Calendar size={9} /> {formatDate(t.createdAt)}
                               </span>
                             )}
                           </div>
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center gap-2 flex-shrink-0">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                           <button
                             onClick={() => setLocation(playerRoute(t))}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 text-white font-bold text-xs hover:opacity-90 transition-opacity"
-                            style={{ background: t.source === 'lesson' ? PINK : BLUE }}>
-                            <Play size={13} /> {t.source === 'lesson' ? 'Voir le module' : 'Jouer'}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: t.source === 'lesson' ? PINK : BLUE, color: 'white', fontWeight: 700, fontSize: 11, border: 'none', cursor: 'pointer' }}>
+                            <Play size={11} /> {t.source === 'lesson' ? 'Voir' : 'Jouer'}
                           </button>
                           <button
                             onClick={(e) => handleDelete(t.id, e)}
                             disabled={deleting === t.id}
-                            className="w-9 h-9 flex items-center justify-center border border-gray-200 hover:border-red-300 hover:text-red-500 transition-colors text-gray-400 disabled:opacity-40"
+                            style={{ width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', color: '#9ca3af', opacity: deleting === t.id ? 0.4 : 1 }}
+                            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#fca5a5'; (e.currentTarget as HTMLButtonElement).style.color = '#ef4444'; }}
+                            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#e5e7eb'; (e.currentTarget as HTMLButtonElement).style.color = '#9ca3af'; }}
                             title="Supprimer">
-                            <Trash2 size={14} />
+                            <Trash2 size={13} />
                           </button>
                         </div>
                       </div>
@@ -349,7 +351,7 @@ export default function ModuleGenerator() {
             )}
           </div>
         </div>
-      </main>
+      </div>
 
       {/* ── Modale bulk delete ── */}
       <AnimatePresence>
