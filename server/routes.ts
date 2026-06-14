@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
-const _require = createRequire(import.meta.url);
+const _require = createRequire(path.join(process.cwd(), 'package.json'));
 import { v4 as uuidv4 } from 'uuid';
 import session from "express-session";
 import connectPg from "connect-pg-simple";
