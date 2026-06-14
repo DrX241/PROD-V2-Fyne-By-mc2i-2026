@@ -12,6 +12,7 @@ const accordionItems = [
   { id: 4, moduleId: 'reglementaire', title: 'Espace Réglementaire',   gradient: 'linear-gradient(160deg, #1e293b 0%, #334155 50%, #64748b 100%)' },
   { id: 5, moduleId: 'personnalise',  title: 'Espace à personnaliser', gradient: 'linear-gradient(160deg, #78350f 0%, #d97706 50%, #fbbf24 100%)' },
   { id: 6, moduleId: 'evaluation',    title: 'Mode Évaluation',        gradient: 'linear-gradient(160deg, #7f1d1d 0%, #dc2626 50%, #fb7185 100%)' },
+  { id: 7, moduleId: 'studio',        title: 'Studio de Formation',    gradient: 'linear-gradient(160deg, #0c2461 0%, #0057ff 50%, #48dbfb 100%)' },
 ];
 
 const levels = ['Novice', 'Padawan', 'Chevalier', 'Maitre', 'Grand Maitre'];
@@ -250,10 +251,13 @@ export default function ClientAccueilPage() {
                   </span>
                   {index === activeIndex && !isLocked && (
                     <div
-                      onClick={() => { if (item.moduleId === 'data') setLocation('/portail-client/data'); }}
-                      style={{ position: 'absolute', bottom: 60, left: '50%', transform: 'translateX(-50%)', background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '6px 16px', fontSize: 12, color: 'white', fontWeight: 500, whiteSpace: 'nowrap', backdropFilter: 'blur(4px)', zIndex: 1, cursor: item.moduleId === 'data' ? 'pointer' : 'default' }}
+                      onClick={() => {
+                        if (item.moduleId === 'data') setLocation('/portail-client/data');
+                        else if (item.moduleId === 'studio') setLocation('/playground/module-generator');
+                      }}
+                      style={{ position: 'absolute', bottom: 60, left: '50%', transform: 'translateX(-50%)', background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '6px 16px', fontSize: 12, color: 'white', fontWeight: 500, whiteSpace: 'nowrap', backdropFilter: 'blur(4px)', zIndex: 1, cursor: (item.moduleId === 'data' || item.moduleId === 'studio') ? 'pointer' : 'default' }}
                     >
-                      {item.moduleId === 'data' ? '📊 Ouvrir l\'Espace Data' : 'Bientôt disponible'}
+                      {item.moduleId === 'data' ? '📊 Ouvrir l\'Espace Data' : item.moduleId === 'studio' ? '🎓 Ouvrir le Studio' : 'Bientôt disponible'}
                     </div>
                   )}
                 </div>

@@ -506,7 +506,6 @@ export default function Home() {
       accentColor: "bg-purple-500",
       linkTo: "/data-ia"
     },
-    // Le module Cyber Playground a été supprimé selon la demande
     {
       title: "Soyez qui vous voulez",
       description: "Créez votre propre parcours d'apprentissage personnalisé avec notre IA générative qui s'adapte à vos besoins spécifiques et objectifs professionnels.",
