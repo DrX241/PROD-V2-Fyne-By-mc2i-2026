@@ -4,6 +4,8 @@ import { storage } from "./storage";
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
+const _require = createRequire(import.meta.url);
 import { v4 as uuidv4 } from 'uuid';
 import session from "express-session";
 import connectPg from "connect-pg-simple";
@@ -6439,8 +6441,7 @@ ${TRAINING_JSON_SCHEMA}`;
             return f.buffer.toString('utf-8').slice(0, 8000);
           }
           if (ext === 'pdf') {
-            const pdfMod = await import('pdf-parse');
-            const pdfParse = (pdfMod.default ?? pdfMod) as (buf: Buffer, opts?: any) => Promise<{ text: string }>;
+            const pdfParse = _require('pdf-parse') as (buf: Buffer, opts?: any) => Promise<{ text: string }>;
             const result = await pdfParse(f.buffer);
             return (result.text || '').slice(0, 8000);
           }
@@ -7056,8 +7057,7 @@ Réponds UNIQUEMENT avec ce JSON (sans markdown) :
     try {
       if (ext === 'txt') return f.buffer.toString('utf-8').slice(0, 6000);
       if (ext === 'pdf') {
-        const pdfMod = await import('pdf-parse');
-        const pdfParse = (pdfMod.default ?? pdfMod) as (buf: Buffer, opts?: any) => Promise<{ text: string }>;
+        const pdfParse = _require('pdf-parse') as (buf: Buffer, opts?: any) => Promise<{ text: string }>;
         const result = await pdfParse(f.buffer);
         return (result.text || '').slice(0, 6000);
       }
@@ -7132,8 +7132,7 @@ Réponds UNIQUEMENT avec ce JSON (sans markdown) :
         try {
           if (ext === 'txt') return f.buffer.toString('utf-8').slice(0, 12000);
           if (ext === 'pdf') {
-            const pdfMod = await import('pdf-parse');
-            const pdfParse = (pdfMod.default ?? pdfMod) as (buf: Buffer, opts?: any) => Promise<{ text: string }>;
+            const pdfParse = _require('pdf-parse') as (buf: Buffer, opts?: any) => Promise<{ text: string }>;
             const result = await pdfParse(f.buffer);
             return (result.text || '').slice(0, 12000);
           }
@@ -7209,8 +7208,7 @@ Réponds UNIQUEMENT avec ce JSON (sans markdown) :
 
     try {
       if (ext === 'pdf') {
-        const pdfMod = await import('pdf-parse');
-        const pdfParse = (pdfMod.default ?? pdfMod) as (buf: Buffer, opts?: any) => Promise<{ text: string }>;
+        const pdfParse = _require('pdf-parse') as (buf: Buffer, opts?: any) => Promise<{ text: string }>;
         const result = await pdfParse(f.buffer, {
           pagerender: (pageData: any) => {
             return pageData.getTextContent().then((tc: any) => {
