@@ -37,7 +37,7 @@ import StudioDocuments from "./pages/playground/studio-documents";
 import LessonPlayer from "./pages/playground/lesson-player";
 
 // Import des pages de la nouvelle interface cyber V3
-import CyberV3 from "./pages/cyber";
+import CyberV3 from "./pages/cyber-v3";
 // Import des pages cyber
 import CyberRoleplay from "./pages/cyber/roleplay/index";
 import CyberLab from "./pages/cyber/cyber-lab/index";
