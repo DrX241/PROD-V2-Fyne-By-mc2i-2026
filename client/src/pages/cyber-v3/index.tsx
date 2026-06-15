@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
-import { 
-  HelpCircle, 
+import {
+  HelpCircle,
   ArrowRight,
   Shield,
   Terminal,
   Users,
   ZoomIn,
   ZoomOut,
+  BookOpen,
 } from 'lucide-react';
 import { IoHome, IoSchoolOutline } from 'react-icons/io5';
 import { BsShieldLock } from 'react-icons/bs';
