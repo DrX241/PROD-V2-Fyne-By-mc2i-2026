@@ -202,6 +202,61 @@ router.delete('/:id/users/:userId', requireAdminOrAbove, async (req: Request, re
   }
 });
 
+// GET /api/companies/leaderboard — classement global (superadmin) ou par company (admin)
+router.get('/leaderboard', requireAdminOrAbove, async (req: Request, res: Response) => {
+  const user = (req.session as any).user;
+  try {
+    let result;
+    if (user.role === 'superadmin') {
+      result = await pool.query(
+        `SELECT u.id, u.username, u.first_name, u.last_name, u.score,
+                u.niveau, u.badges, u.exercices_realises, u.taux_reussite,
+                c.name AS company_name
+         FROM users u
+         LEFT JOIN companies c ON u.company_id = c.id
+         WHERE u.is_active = true
+         ORDER BY u.score DESC, u.badges DESC
+         LIMIT 50`
+      );
+    } else {
+      result = await pool.query(
+        `SELECT id, username, first_name, last_name, score,
+                niveau, badges, exercices_realises, taux_reussite
+         FROM users
+         WHERE company_id = $1 AND is_active = true
+         ORDER BY score DESC, badges DESC
+         LIMIT 50`,
+        [user.companyId]
+      );
+    }
+    res.json({ success: true, leaderboard: result.rows });
+  } catch (err) {
+    console.error('[Leaderboard]:', err);
+    res.status(500).json({ success: false });
+  }
+});
+
+// GET /api/companies/team — classement de l'équipe pour l'utilisateur connecté
+router.get('/team', async (req: Request, res: Response) => {
+  const user = (req.session as any).user;
+  if (!user) return res.status(401).json({ success: false });
+  if (!user.companyId) return res.json({ success: true, team: [] });
+  try {
+    const result = await pool.query(
+      `SELECT id, username, first_name, last_name, score,
+              niveau, badges, exercices_realises, taux_reussite
+       FROM users
+       WHERE company_id = $1 AND is_active = true
+       ORDER BY score DESC, badges DESC`,
+      [user.companyId]
+    );
+    res.json({ success: true, team: result.rows });
+  } catch (err) {
+    console.error('[Team]:', err);
+    res.status(500).json({ success: false });
+  }
+});
+
 // PATCH /api/companies/kpi/me — mettre à jour ses propres KPI
 router.patch('/kpi/me', async (req: Request, res: Response) => {
   const user = (req.session as any).user;

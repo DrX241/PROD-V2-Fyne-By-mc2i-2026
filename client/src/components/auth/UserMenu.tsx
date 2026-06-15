@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
-import { LogOut, Settings, BarChart2, ChevronDown, ShieldCheck, Crown } from "lucide-react";
+import { LogOut, Settings, BarChart2, ChevronDown, ShieldCheck, Crown, Trophy } from "lucide-react";
 
 export function UserMenu() {
   const { user } = useAuth();
@@ -76,6 +76,13 @@ export function UserMenu() {
         {isAdmin && (
           <>
             <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => setLocation('/classement')}
+              className="cursor-pointer hover:bg-blue-50 hover:text-[#006a9e] focus:bg-blue-50 focus:text-[#006a9e]"
+            >
+              <Trophy className="mr-2 h-4 w-4" />
+              <span>Classement</span>
+            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => setLocation('/admin')}
               className="cursor-pointer hover:bg-blue-50 hover:text-[#006a9e] focus:bg-blue-50 focus:text-[#006a9e]"

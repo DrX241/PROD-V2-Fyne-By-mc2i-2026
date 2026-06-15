@@ -68,30 +68,45 @@ function AnimatedNumber({ value, suffix = '' }: { value: number; suffix?: string
   return <span ref={ref}>0{suffix}</span>;
 }
 
+interface TeamMember {
+  id: number;
+  username: string;
+  first_name: string;
+  last_name: string;
+  score: number;
+  niveau: string;
+  badges: number;
+  exercices_realises: number;
+}
+
 export default function MonSuivi() {
   const [, setLocation] = useLocation();
   const [kpi, setKpi] = useState<KpiData | null>(null);
+  const [team, setTeam] = useState<TeamMember[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/auth/check', { credentials: 'include' })
-      .then(r => r.json())
-      .then(d => {
-        if (!d.authenticated) { setLocation('/'); return; }
-        setKpi({
-          score: d.user.score ?? 0,
-          exercicesRealises: d.user.exercicesRealises ?? 0,
-          tauxReussite: d.user.tauxReussite ?? 0,
-          niveau: d.user.niveau ?? 'Novice',
-          badges: d.user.badges ?? 0,
-          username: d.user.username ?? '',
-          firstName: d.user.firstName ?? '',
-          lastName: d.user.lastName ?? '',
-          companyId: d.user.companyId ?? null,
-        });
-        setLoading(false);
-      })
-      .catch(() => setLocation('/'));
+    Promise.all([
+      fetch('/api/auth/check', { credentials: 'include' }).then(r => r.json()),
+      fetch('/api/companies/team', { credentials: 'include' }).then(r => r.json()),
+    ]).then(([d, teamData]) => {
+      if (!d.authenticated) { setLocation('/'); return; }
+      setCurrentUserId(d.user.id);
+      setKpi({
+        score: d.user.score ?? 0,
+        exercicesRealises: d.user.exercicesRealises ?? 0,
+        tauxReussite: d.user.tauxReussite ?? 0,
+        niveau: d.user.niveau ?? 'Novice',
+        badges: d.user.badges ?? 0,
+        username: d.user.username ?? '',
+        firstName: d.user.firstName ?? '',
+        lastName: d.user.lastName ?? '',
+        companyId: d.user.companyId ?? null,
+      });
+      if (teamData.success) setTeam(teamData.team);
+      setLoading(false);
+    }).catch(() => setLocation('/'));
   }, []);
 
   if (loading || !kpi) {
@@ -360,6 +375,59 @@ export default function MonSuivi() {
             );
           })}
         </motion.div>
+
+        {/* Section Équipe */}
+        {team.length > 1 && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} style={{ marginTop: 48 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+              <p style={{ margin: 0, fontSize: 11, fontFamily: FONT_MONO, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>Mon équipe</p>
+              <div style={{ flex: 1, height: 1, background: C.border }} />
+              <p style={{ margin: 0, fontSize: 11, fontFamily: FONT_MONO, color: C.muted, whiteSpace: 'nowrap' }}>{team.length} membres</p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {team.map((member, i) => {
+                const isMe = member.id === currentUserId;
+                const levelIdx = Math.max(0, levels.indexOf(member.niveau));
+                const color = levelColors[levelIdx];
+                const name = member.first_name
+                  ? `${member.first_name}${member.last_name ? ' ' + member.last_name : ''}`
+                  : member.username;
+                const initial = (member.first_name || member.username || '?').charAt(0).toUpperCase();
+                return (
+                  <div
+                    key={member.id}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 14,
+                      background: isMe ? C.accentLight : C.surface,
+                      border: `1px solid ${isMe ? C.accent + '40' : C.border}`,
+                      borderRadius: 12, padding: '12px 18px',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    <span style={{ width: 24, fontFamily: FONT_MONO, fontSize: 12, color: C.muted, textAlign: 'center', flexShrink: 0 }}>#{i + 1}</span>
+                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: isMe ? C.accent : C.border, display: 'flex', alignItems: 'center', justifyContent: 'center', color: isMe ? '#fff' : C.sub, fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
+                      {initial}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: C.text }}>
+                        {name}
+                        {isMe && <span style={{ fontSize: 10, color: C.accent, fontFamily: FONT_MONO, background: C.accentLight, border: `1px solid ${C.accent}30`, borderRadius: 4, padding: '1px 6px', marginLeft: 8 }}>Vous</span>}
+                      </p>
+                      <p style={{ margin: '2px 0 0', fontSize: 11, color: C.muted, fontFamily: FONT_MONO }}>{member.exercices_realises} exercices</p>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: `${color}10`, border: `1px solid ${color}25`, borderRadius: 6, padding: '2px 8px', color, flexShrink: 0 }}>
+                      {levelIcons[levelIdx]}
+                      <span style={{ fontSize: 11, fontWeight: 600, fontFamily: FONT_MONO }}>{member.niveau}</span>
+                    </div>
+                    <p style={{ margin: 0, fontFamily: FONT_DISPLAY, fontSize: 20, fontWeight: 800, color: isMe ? C.accent : C.text, letterSpacing: '-0.5px', flexShrink: 0, minWidth: 60, textAlign: 'right' }}>
+                      {member.score}<span style={{ fontSize: 11, color: C.muted, fontFamily: FONT_MONO, fontWeight: 400 }}> pts</span>
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
 
         {/* Footer */}
         <div style={{ marginTop: 64, paddingTop: 32, borderTop: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
