@@ -37,7 +37,7 @@ import StudioDocuments from "./pages/playground/studio-documents";
 import LessonPlayer from "./pages/playground/lesson-player";
 
 // Import des pages de la nouvelle interface cyber V3
-import CyberV3 from "./pages/cyber-v3";
+import CyberV3 from "./pages/cyber";
 // Import des pages cyber
 import CyberRoleplay from "./pages/cyber/roleplay/index";
 import CyberLab from "./pages/cyber/cyber-lab/index";
@@ -83,6 +83,8 @@ const NormesStandards = lazy(() => import("./pages/cyber/learning-center/modules
 const MotDePasse = lazy(() => import("./pages/cyber/learning-center/modules/mot-de-passe/index"));
 const DevSecOps = lazy(() => import("./pages/cyber/learning-center/modules/devsecops/index"));
 const GouvernanceCyber = lazy(() => import("./pages/cyber/learning-center/modules/gouvernance-cyber/index"));
+const GestionIdentites = lazy(() => import("./pages/cyber/learning-center/modules/gestion-identites/index"));
+const IntelligenceArtificielleSecurite = lazy(() => import("./pages/cyber/learning-center/modules/intelligence-artificielle-securite/index"));
 // Import des pages AMOA
 const AdminPage = lazy(() => import("./pages/admin"));
 import SasAcademie from "./pages/amoa/sas-academie";
@@ -299,7 +301,23 @@ function AppContent() {
                     </Suspense>
                   )}
                 </Route>
-                
+
+                <Route path="/cyber/learning-center/modules/gestion-identites">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      <GestionIdentites />
+                    </Suspense>
+                  )}
+                </Route>
+
+                <Route path="/cyber/learning-center/modules/intelligence-artificielle-securite">
+                  {(params) => (
+                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
+                      <IntelligenceArtificielleSecurite />
+                    </Suspense>
+                  )}
+                </Route>
+
                 <Route path="/amoa/sas-academie" component={SasAcademie} />
                 <Route path="/amoa/roleplay" component={AmoaRoleplay} />
                 <Route path="/amoa/academie" component={AmoaAcademie} />

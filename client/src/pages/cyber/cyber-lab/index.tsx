@@ -72,7 +72,7 @@ const CyberLab: React.FC = () => {
           variant="outline" 
           size="sm" 
           className="bg-black/50 border-cyan-800 text-cyan-400 hover:bg-black/70 hover:text-cyan-300 hover:border-cyan-500 transition-colors"
-          onClick={() => setLocation('/cyber-v3')}
+          onClick={() => setLocation('/cyber')}
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
           Retour vers I AM CYBER
