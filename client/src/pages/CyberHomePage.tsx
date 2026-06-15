@@ -17,9 +17,7 @@ import {
   ChevronRight,
   Power,
   Check,
-  Settings,
   Lock,
-  BarChart2,
 } from 'lucide-react';
 import mcLogoPath from "@assets/mc2i.png";
 import fyneCharacterPath from "../assets/fyne-character.png";
@@ -148,35 +146,6 @@ const CyberHomePage: React.FC = () => {
 
               {/* Divider */}
               <div className="h-5 w-px bg-gray-200 mx-1" />
-
-              {/* Mon Suivi */}
-              <button
-                onClick={() => setLocation('/mon-suivi')}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-[#006a9e] hover:bg-[#006a9e]/5 rounded-lg transition-all"
-              >
-                <BarChart2 className="h-3.5 w-3.5" />
-                Mon Suivi
-              </button>
-
-              {/* Admin */}
-              {(user?.role === 'admin' || user?.role === 'superadmin') && (
-                <button
-                  onClick={() => setLocation('/admin')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-[#006a9e] hover:bg-[#006a9e]/5 rounded-lg transition-all"
-                >
-                  <Settings className="h-3.5 w-3.5" />
-                  Admin
-                </button>
-              )}
-              {user?.role === 'superadmin' && (
-                <button
-                  onClick={() => setLocation('/superadmin')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-500 hover:bg-amber-50 rounded-lg transition-all"
-                >
-                  <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm1 11H9v-2h2v2zm0-4H9V7h2v4z"/></svg>
-                  Super Admin
-                </button>
-              )}
 
               {/* Divider */}
               <div className="h-5 w-px bg-gray-200 mx-1" />
