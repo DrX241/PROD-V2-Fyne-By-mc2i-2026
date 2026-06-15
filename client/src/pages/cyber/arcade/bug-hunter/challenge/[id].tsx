@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useKpi } from '@/hooks/useKpi';
 import { useParams, Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -283,6 +284,7 @@ app.get('/api/accounts/:accountId', authenticate, (req, res) => {
 export default function ChallengePage() {
   const { id } = useParams();
   const { toast } = useToast();
+  const { updateKpi } = useKpi();
   const [activeTab, setActiveTab] = useState('brief');
   const [showHint, setShowHint] = useState(false);
   const [currentHintIndex, setCurrentHintIndex] = useState(0);
@@ -384,6 +386,7 @@ export default function ChallengePage() {
       const data = await response.json();
 
       if (data.success) {
+        updateKpi({ scoreIncrement: 30, exerciceCompleted: true, reussite: true });
         toast({
           title: "Rapport soumis avec succès",
           description: "Votre rapport a été soumis et sera évalué prochainement.",

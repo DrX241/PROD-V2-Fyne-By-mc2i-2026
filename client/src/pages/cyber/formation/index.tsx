@@ -1,4 +1,5 @@
 ﻿import React, { useEffect, useMemo, useState } from 'react';
+import { useKpi } from '@/hooks/useKpi';
 import { motion } from 'framer-motion';
 import { Loader2, Sparkles, Send, Play, Database, ChevronRight, Trophy, CheckCircle2, BookOpen, Zap, GitBranch, Code2, ChevronLeft } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
@@ -548,6 +549,7 @@ const SQL_RECAP_CARDS: RecapCard[] = [
 ];
 
 export default function DataFormationPage() {
+  const { updateKpi } = useKpi();
   const [stage, setStage] = useState<Stage>('name');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -669,6 +671,8 @@ export default function DataFormationPage() {
       setCorrections(res.corrections);
       setScenario(res.scenario);
       setStage('results');
+      const reussi = res.score >= Math.ceil(res.total * 0.6);
+      updateKpi({ scoreIncrement: res.score * 5, exerciceCompleted: true, reussite: reussi });
     } catch (e: any) {
       setError(e?.message || 'Erreur à la soumission du QCM.');
     } finally {

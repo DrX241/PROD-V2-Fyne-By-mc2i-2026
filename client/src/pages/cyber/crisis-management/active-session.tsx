@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useParams } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
+import { useKpi } from '@/hooks/useKpi';
 import { apiRequest } from '@/lib/queryClient';
 import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion';
@@ -202,7 +203,8 @@ export default function ActiveCrisisSession() {
   const [, navigate] = useLocation();
   const { sessionId } = useParams();
   const { toast } = useToast();
-  
+  const { updateKpi } = useKpi();
+
   // États pour la gestion de session
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -546,13 +548,15 @@ export default function ActiveCrisisSession() {
         // Mettre à jour l'état de la session
         setSessionData(prevData => {
           if (!prevData) return null;
-          
+
           return {
             ...prevData,
             status: 'completed'
           };
         });
-        
+
+        updateKpi({ scoreIncrement: 50, exerciceCompleted: true, reussite: true });
+
         toast({
           title: "Session terminée",
           description: "La simulation de crise a été terminée",

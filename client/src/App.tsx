@@ -24,7 +24,6 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import CyberHomePage from "@/pages/CyberHomePage";
 import ModulesPage from "@/pages/modules";
-import CyberModeSelection from "@/pages/cyber-mode-selection";
 import CyberAgentPage from "@/pages/cyber-agent";
 // Utiliser les chemins relatifs pour les nouveaux composants
 import CyberAgentRedirectPage from "./pages/cyber/cyber-agent-redirect";
@@ -131,8 +130,6 @@ function AppContent() {
                 
                 {/* Routes des modules */}
                 <Route path="/cyber" component={CyberV3} />
-                <Route path="/cyber-v3" component={CyberV3} />
-                <Route path="/cyber-old" component={CyberModeSelection} />
                 <Route path="/cyber/roleplay" component={CyberRoleplay} />
                 <Route path="/cyber/cyber-lab" component={CyberLab} />
                 <Route path="/cyber/sas-academie" component={SasCyberAcademie} />
