@@ -181,27 +181,7 @@ const CyberHomePage: React.FC = () => {
               {/* Divider */}
               <div className="h-5 w-px bg-gray-200 mx-1" />
 
-              {/* Avatar + nom */}
-              <button
-                onClick={() => setLocation('/mon-suivi')}
-                className="flex items-center gap-2.5 pl-1 pr-3 py-1 rounded-xl hover:bg-gray-50 transition-all group"
-              >
-                <div className="h-8 w-8 rounded-full bg-[#006a9e] flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm">
-                  {user?.firstName
-                    ? user.firstName.charAt(0).toUpperCase()
-                    : user?.username?.charAt(0).toUpperCase() ?? 'U'}
-                </div>
-                <div className="flex flex-col items-start leading-tight">
-                  <span className="text-xs font-semibold text-slate-700 group-hover:text-[#006a9e] transition-colors">
-                    {user?.firstName
-                      ? `${user.firstName}${user.lastName ? ' ' + user.lastName : ''}`
-                      : user?.username ?? 'Utilisateur'}
-                  </span>
-                  <span className="text-[10px] text-slate-400 capitalize">{user?.role ?? 'user'}</span>
-                </div>
-              </button>
-
-              {/* Menu dropdown */}
+              {/* Avatar + nom + dropdown */}
               <UserMenu />
             </div>
           </div>

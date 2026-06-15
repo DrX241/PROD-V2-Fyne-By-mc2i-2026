@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
-import { User, LogOut, Settings, BarChart2 } from "lucide-react";
+import { LogOut, Settings, BarChart2, ChevronDown } from "lucide-react";
 
 export function UserMenu() {
   const { user } = useAuth();
@@ -20,19 +19,34 @@ export function UserMenu() {
     window.location.href = '/';
   };
 
+  const displayName = user?.firstName
+    ? `${user.firstName}${user.lastName ? ' ' + user.lastName : ''}`
+    : user?.username ?? 'Utilisateur';
+
+  const initial = user?.firstName
+    ? user.firstName.charAt(0).toUpperCase()
+    : user?.username?.charAt(0).toUpperCase() ?? 'U';
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="relative h-8 w-8 rounded-full">
-          <div className="flex h-full w-full items-center justify-center bg-primary text-primary-foreground rounded-full">
-            {user?.username ? user.username.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
+        <button className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-xl hover:bg-gray-100 transition-all group outline-none">
+          <div className="h-8 w-8 rounded-full bg-[#006a9e] flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm">
+            {initial}
           </div>
-        </Button>
+          <div className="flex flex-col items-start leading-tight">
+            <span className="text-xs font-semibold text-slate-700 group-hover:text-[#006a9e] transition-colors">
+              {displayName}
+            </span>
+            <span className="text-[10px] text-slate-400 capitalize">{user?.role ?? 'user'}</span>
+          </div>
+          <ChevronDown className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#006a9e] transition-colors" />
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user?.username || "Utilisateur"}</p>
+            <p className="text-sm font-medium leading-none">{displayName}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {user?.email || "Pas d'email"}
             </p>
