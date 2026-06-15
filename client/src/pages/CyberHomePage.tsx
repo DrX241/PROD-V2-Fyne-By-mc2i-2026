@@ -142,34 +142,66 @@ const CyberHomePage: React.FC = () => {
               <div className="h-5 w-px bg-gray-300"></div>
               <span className="text-xl font-bold text-[#006a9e]">FYNE</span>
             </div>
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-2">
+              {/* Subscription badge */}
               <UserSubscriptionBadge />
-              <ModelSelector />
+
+              {/* Divider */}
+              <div className="h-5 w-px bg-gray-200 mx-1" />
+
+              {/* Mon Suivi */}
+              <button
+                onClick={() => setLocation('/mon-suivi')}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-[#006a9e] hover:bg-[#006a9e]/5 rounded-lg transition-all"
+              >
+                <BarChart2 className="h-3.5 w-3.5" />
+                Mon Suivi
+              </button>
+
+              {/* Admin */}
               {(user?.role === 'admin' || user?.role === 'superadmin') && (
                 <button
                   onClick={() => setLocation('/admin')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#006a9e] border border-[#006a9e]/30 rounded-lg hover:bg-[#006a9e]/5 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-[#006a9e] hover:bg-[#006a9e]/5 rounded-lg transition-all"
                 >
                   <Settings className="h-3.5 w-3.5" />
-                  Administration
+                  Admin
                 </button>
               )}
               {user?.role === 'superadmin' && (
                 <button
                   onClick={() => setLocation('/superadmin')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-600 border border-amber-500/30 rounded-lg hover:bg-amber-500/5 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-500 hover:bg-amber-50 rounded-lg transition-all"
                 >
                   <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm1 11H9v-2h2v2zm0-4H9V7h2v4z"/></svg>
                   Super Admin
                 </button>
               )}
+
+              {/* Divider */}
+              <div className="h-5 w-px bg-gray-200 mx-1" />
+
+              {/* Avatar + nom */}
               <button
                 onClick={() => setLocation('/mon-suivi')}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#006a9e] border border-[#006a9e]/30 rounded-lg hover:bg-[#006a9e]/5 transition-colors"
+                className="flex items-center gap-2.5 pl-1 pr-3 py-1 rounded-xl hover:bg-gray-50 transition-all group"
               >
-                <BarChart2 className="h-3.5 w-3.5" />
-                Mon Suivi
+                <div className="h-8 w-8 rounded-full bg-[#006a9e] flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm">
+                  {user?.firstName
+                    ? user.firstName.charAt(0).toUpperCase()
+                    : user?.username?.charAt(0).toUpperCase() ?? 'U'}
+                </div>
+                <div className="flex flex-col items-start leading-tight">
+                  <span className="text-xs font-semibold text-slate-700 group-hover:text-[#006a9e] transition-colors">
+                    {user?.firstName
+                      ? `${user.firstName}${user.lastName ? ' ' + user.lastName : ''}`
+                      : user?.username ?? 'Utilisateur'}
+                  </span>
+                  <span className="text-[10px] text-slate-400 capitalize">{user?.role ?? 'user'}</span>
+                </div>
               </button>
+
+              {/* Menu dropdown */}
               <UserMenu />
             </div>
           </div>
