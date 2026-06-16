@@ -37,6 +37,8 @@ import CyberV3 from "./pages/cyber-v3";
 // Import des pages cyber
 import CyberRoleplay from "./pages/cyber/roleplay/index";
 import CyberLab from "./pages/cyber/cyber-lab/index";
+import CyberArcade from "./pages/cyber/arcade";
+import CyberSimulations from "./pages/cyber/simulations/index";
 import SasCyberAcademie from "./pages/cyber/sas-academie";
 import ExpertLearningPage from "./pages/cyber/expert-learning";
 import InterviewTestPage from "./pages/cyber/interview-test";
@@ -115,6 +117,29 @@ function AppContent() {
                 <Route path="/cyber/crisis-management" component={CrisisManagementPage} />
                 <Route path="/cyber/comex-training" component={ComexTrainingPage} />
                 <Route path="/cyber/pentest-lab" component={PentestLab} />
+                <Route path="/cyber/simulations" component={CyberSimulations} />
+                <Route path="/cyber/arcade" component={CyberArcade} />
+                <Route path="/cyber/arcade/cyber-escape">
+                  {() => (<Suspense fallback={<div className="p-12 text-center text-white">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/arcade/cyber-escape/index")))}</Suspense>)}
+                </Route>
+                <Route path="/cyber/arcade/bug-hunter/challenge/:id">
+                  {() => (<Suspense fallback={<div className="p-12 text-center text-white">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/arcade/bug-hunter/challenge/[id]")))}</Suspense>)}
+                </Route>
+                <Route path="/cyber/arcade/bug-hunter">
+                  {() => (<Suspense fallback={<div className="p-12 text-center text-white">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/arcade/bug-hunter/index")))}</Suspense>)}
+                </Route>
+                <Route path="/cyber/arcade/brain-hacker">
+                  {() => (<Suspense fallback={<div className="p-12 text-center text-white">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/arcade/brain-hacker/index")))}</Suspense>)}
+                </Route>
+                <Route path="/cyber/arcade/firewall-tactique">
+                  {() => (<Suspense fallback={<div className="p-12 text-center text-white">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/arcade/firewall-tactique/index")))}</Suspense>)}
+                </Route>
+                <Route path="/cyber/arcade/threat-intelligence">
+                  {() => (<Suspense fallback={<div className="p-12 text-center text-white">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/arcade/threat-intelligence/index")))}</Suspense>)}
+                </Route>
+                <Route path="/cyber/arcade/network-puzzle">
+                  {() => (<Suspense fallback={<div className="p-12 text-center text-white">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/arcade/network-puzzle")))}</Suspense>)}
+                </Route>
                 <Route path="/cyber/tools/assistant-cyber">
                   {(params) => (
                     <Suspense fallback={<div className="p-12 text-center">Chargement de l'assistant...</div>}>

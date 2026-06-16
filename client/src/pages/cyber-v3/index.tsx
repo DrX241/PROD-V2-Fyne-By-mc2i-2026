@@ -1,65 +1,155 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { motion } from 'framer-motion';
+import { motion, useAnimation, animate } from 'framer-motion';
 import {
   ArrowRight,
   Users,
+  GraduationCap,
+  Target,
+  Gamepad2,
+  FlaskConical,
+  TrendingUp,
+  Star,
+  ChevronRight,
+  Zap,
 } from 'lucide-react';
-import { IoHome, IoSchoolOutline } from 'react-icons/io5';
-import { BsShieldLock } from 'react-icons/bs';
-import { FiSun, FiMoon } from 'react-icons/fi';
 import { AiOutlineZoomIn, AiOutlineZoomOut } from 'react-icons/ai';
-
-// Arrière-plan optimisé en CSS pur pour un chargement rapide
+import { IoHome } from 'react-icons/io5';
 
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
-//import CyberScene from '@/components/CyberScene';
 import { useTutorial } from '@/contexts/TutorialContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/hooks/useAuth';
 import { DataButton } from '@/components/DataButton';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import HomeLayout from '@/components/layout/HomeLayout';
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger
-} from "@/components/ui/popover";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
+// ── Animated counter ──────────────────────────────────────────────────────────
+function AnimatedNumber({ target, suffix = '' }: { target: number; suffix?: string }) {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    const controls = animate(0, target, {
+      duration: 1.6,
+      ease: 'easeOut',
+      onUpdate: (v) => setDisplay(Math.round(v)),
+    });
+    return controls.stop;
+  }, [target]);
+  return <>{display}{suffix}</>;
+}
+
+// ── Level thresholds ──────────────────────────────────────────────────────────
+const LEVELS = [
+  { label: 'Novice',       min: 0,    max: 99,   color: '#94a3b8' },
+  { label: 'Padawan',      min: 100,  max: 299,  color: '#38bdf8' },
+  { label: 'Chevalier',    min: 300,  max: 599,  color: '#818cf8' },
+  { label: 'Maître',       min: 600,  max: 999,  color: '#f59e0b' },
+  { label: 'Grand Maître', min: 1000, max: 9999, color: '#ef4444' },
+];
+
+function getLevelInfo(score: number) {
+  return LEVELS.find(l => score >= l.min && score <= l.max) ?? LEVELS[0];
+}
+
+// ── Door config ───────────────────────────────────────────────────────────────
+const DOORS = [
+  {
+    id: 'decouvrir',
+    label: 'DÉCOUVRIR',
+    sub: 'Maîtrisez les fondamentaux',
+    cta: "J'explore l'académie",
+    route: '/cyber/sas-academie',
+    icon: GraduationCap,
+    accent: '#3b82f6',
+    glow: 'rgba(59,130,246,0.35)',
+    border: 'rgba(59,130,246,0.4)',
+    badge: '2 modes',
+    tags: ['Académie', 'Expert IA', 'Conversationnel'],
+    bg: 'radial-gradient(ellipse at 30% 30%, rgba(59,130,246,0.18) 0%, transparent 65%), linear-gradient(135deg, #0a1628 0%, #0f172a 100%)',
+  },
+  {
+    id: 'entrainer',
+    label: "S'ENTRAÎNER",
+    sub: 'Incarnez un rôle, affrontez des scénarios',
+    cta: "J'incarne un rôle",
+    route: '/cyber/roleplay',
+    icon: Target,
+    accent: '#8b5cf6',
+    glow: 'rgba(139,92,246,0.35)',
+    border: 'rgba(139,92,246,0.4)',
+    badge: '6 profils',
+    tags: ['RSSI', 'COMEX', 'Débutant', 'Pentest'],
+    bg: 'radial-gradient(ellipse at 70% 30%, rgba(139,92,246,0.18) 0%, transparent 65%), linear-gradient(135deg, #0f0a28 0%, #0f172a 100%)',
+  },
+  {
+    id: 'challenger',
+    label: 'SE CHALLENGER',
+    sub: 'Jeux, défis et scores en temps réel',
+    cta: 'Je relève le défi',
+    route: '/cyber/arcade',
+    icon: Gamepad2,
+    accent: '#f59e0b',
+    glow: 'rgba(245,158,11,0.35)',
+    border: 'rgba(245,158,11,0.4)',
+    badge: '5 jeux',
+    tags: ['Bug Hunter', 'Firewall', 'Brain Hacker', 'Escape'],
+    bg: 'radial-gradient(ellipse at 30% 70%, rgba(245,158,11,0.15) 0%, transparent 65%), linear-gradient(135deg, #180f00 0%, #0f172a 100%)',
+  },
+  {
+    id: 'simuler',
+    label: 'SIMULER',
+    sub: 'Gestion de crise, attaques réelles',
+    cta: 'Je simule une crise',
+    route: '/cyber/simulations',
+    icon: FlaskConical,
+    accent: '#ef4444',
+    glow: 'rgba(239,68,68,0.35)',
+    border: 'rgba(239,68,68,0.4)',
+    badge: '3 simulations',
+    tags: ['Crise cyber', 'Comex', 'Pentest Lab'],
+    bg: 'radial-gradient(ellipse at 70% 70%, rgba(239,68,68,0.15) 0%, transparent 65%), linear-gradient(135deg, #180008 0%, #0f172a 100%)',
+  },
+];
+
+// ── Main component ────────────────────────────────────────────────────────────
 export default function CyberV3() {
   const [, setLocation] = useLocation();
-  const { currentTour, setCurrentTour, startTutorial } = useTutorial();
+  const { } = useTutorial();
   const { themeMode, setThemeMode } = useTheme();
+  const { user } = useAuth();
+
   const [highContrastMode, setHighContrastMode] = useState(false);
   const [textSize, setTextSize] = useState(1);
   const [simplifiedUI, setSimplifiedUI] = useState(false);
   const [accessibilityPanelOpen, setAccessibilityPanelOpen] = useState(false);
-  
-  // Utilisation d'useEffect pour initialiser les paramètres depuis localStorage avec des clés globales
+  const [hoveredDoor, setHoveredDoor] = useState<string | null>(null);
+
+  const score = (user as any)?.kpi?.score ?? 0;
+  const niveau = (user as any)?.kpi?.niveau ?? 'Novice';
+  const levelInfo = getLevelInfo(score);
+  const nextLevel = LEVELS[LEVELS.findIndex(l => l.label === levelInfo.label) + 1];
+  const progressPct = nextLevel
+    ? Math.min(100, ((score - levelInfo.min) / (nextLevel.min - levelInfo.min)) * 100)
+    : 100;
+
   useEffect(() => {
-    // Utiliser des clés globales pour garantir la cohérence entre tous les modules
-    const storedTextSize = localStorage.getItem('accessibilityTextSize');
-    if (storedTextSize) {
-      setTextSize(parseFloat(storedTextSize));
-    }
-    
-    const storedHighContrastMode = localStorage.getItem('accessibilityHighContrastMode');
-    if (storedHighContrastMode) {
-      setHighContrastMode(storedHighContrastMode === 'true');
-    }
-    
-    const storedSimplifiedUI = localStorage.getItem('accessibilitySimplifiedUI');
-    if (storedSimplifiedUI) {
-      setSimplifiedUI(storedSimplifiedUI === 'true');
-    }
+    const s = localStorage.getItem('accessibilityTextSize');
+    if (s) setTextSize(parseFloat(s));
+    const hc = localStorage.getItem('accessibilityHighContrastMode');
+    if (hc) setHighContrastMode(hc === 'true');
+    const su = localStorage.getItem('accessibilitySimplifiedUI');
+    if (su) setSimplifiedUI(su === 'true');
   }, []);
-  
-  // Sauvegarde des préférences utilisateur avec des clés globales
+
   useEffect(() => {
-    // Utiliser des clés globales pour garantir la cohérence entre tous les modules
     localStorage.setItem('accessibilityTextSize', textSize.toString());
     localStorage.setItem('accessibilityHighContrastMode', highContrastMode.toString());
     localStorage.setItem('accessibilitySimplifiedUI', simplifiedUI.toString());
@@ -68,187 +158,135 @@ export default function CyberV3() {
   return (
     <HomeLayout>
       <Helmet>
-        <title>I AM CYBER | Nouvelle interface</title>
-        <style>
-          {`
-            @keyframes moveVertical {
-              0% { background-position-y: 0; }
-              100% { background-position-y: 100%; }
-            }
-          `}
-        </style>
+        <title>I AM CYBER | Univers Cybersécurité</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+        <style>{`
+          @keyframes glitch {
+            0%,100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
+            20%      { clip-path: inset(30% 0 50% 0); transform: translate(-3px,1px); }
+            40%      { clip-path: inset(60% 0 10% 0); transform: translate(3px,-1px); }
+            60%      { clip-path: inset(10% 0 70% 0); transform: translate(-2px,2px); }
+            80%      { clip-path: inset(80% 0 5%  0); transform: translate(2px,-2px); }
+          }
+          @keyframes pulse-live {
+            0%,100% { opacity:1; } 50% { opacity:0.3; }
+          }
+          @keyframes scanline {
+            0%   { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+          }
+          .glitch-base { position:relative; font-family:'Orbitron',monospace; }
+          .glitch-base::before,
+          .glitch-base::after {
+            content: attr(data-text);
+            position: absolute; inset: 0;
+            font-family: 'Orbitron', monospace;
+          }
+          .glitch-base::before {
+            color: #00f5ff;
+            animation: glitch 4s steps(1) infinite;
+            animation-delay: 0.5s;
+          }
+          .glitch-base::after {
+            color: #ff003c;
+            animation: glitch 4s steps(1) infinite;
+            animation-delay: 1s;
+          }
+          .door-card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+          .door-card:hover { transform: translateY(-6px) scale(1.015); }
+          .cyber-grid-bg {
+            background-image:
+              linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+          }
+          .scanline {
+            position:fixed; top:0; left:0; width:100%; height:3px;
+            background: linear-gradient(transparent, rgba(0,245,255,0.15), transparent);
+            animation: scanline 6s linear infinite;
+            pointer-events:none; z-index:1;
+          }
+        `}</style>
       </Helmet>
-      
-      <div className="min-h-screen relative"
-        style={{ 
-          fontSize: `${textSize}rem`
-        }}>
-        {/* Fond dynamique cybersécurité en CSS pur - Chargement instantané */}
-        <div className="absolute inset-0 z-0 overflow-hidden"> 
-          {/* Arrière-plan de base avec dégradé plus visible et dynamique */}
-          <div 
-            className="absolute inset-0" 
-            style={{
-              backgroundColor: highContrastMode ? '#000000' : simplifiedUI ? '#091428' : 'transparent',
-              backgroundImage: highContrastMode || simplifiedUI 
-                ? 'none' 
-                : 'linear-gradient(135deg, #000c29 0%, #0a2342 100%)'
-            }}
-          ></div>
-          
-          {/* Grille de sécurité numérique - Motif hexagonal */}
-          {!highContrastMode && !simplifiedUI && (
-            <div 
-              className="absolute inset-0 opacity-40" 
-              style={{
-                backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'40\' viewBox=\'0 0 24 24\'%3E%3Cpath fill=\'%230ea5e9\' fill-opacity=\'0.15\' d=\'M12,4.5C7,4.5,2.73,7.61,1,12c1.73,4.39,6,7.5,11,7.5s9.27-3.11,11-7.5C21.27,7.61,17,4.5,12,4.5z M12,17c-2.76,0-5-2.24-5-5s2.24-5,5-5,5,2.24,5,5S14.76,17,12,17z M12,9c-1.66,0-3,1.34-3,3s1.34,3,3,3,3-1.34,3-3S13.66,9,12,9z\'/%3E%3C/svg%3E")',
-                backgroundSize: '40px 40px'
-              }}
-            ></div>
-          )}
-          
-          {/* Circuit board effect - Lignes verticales et horizontales */}
-          {!highContrastMode && !simplifiedUI && (
-            <div className="absolute inset-0 opacity-20">
-              <div className="absolute w-full h-full" style={{ 
-                backgroundImage: 'linear-gradient(90deg, rgba(56,189,248,0.1) 1px, transparent 1px), linear-gradient(180deg, rgba(56,189,248,0.1) 1px, transparent 1px)',
-                backgroundSize: '20px 20px'
-              }}></div>
-            </div>
-          )}
-          
-          {/* Points de connexion - Symbolise les noeuds d'un réseau */}
-          {!highContrastMode && !simplifiedUI && (
-            <div className="absolute inset-0 opacity-30">
-              <div className="absolute w-full h-full" style={{
-                backgroundImage: 'radial-gradient(circle, rgba(14,165,233,0.3) 1px, transparent 1px)',
-                backgroundSize: '60px 60px'
-              }}></div>
-            </div>
-          )}
-          
-          {/* Éléments lumineux pour un effet "cyber" plus visible */}
-          <div className="absolute top-[10%] right-[15%] w-[30%] h-[40%] rounded-full" style={{
-            background: 'radial-gradient(circle, rgba(14,165,233,0.3) 0%, transparent 70%)'
-          }}></div>
-          
-          <div className="absolute bottom-[20%] left-[15%] w-[35%] h-[30%] rounded-full" style={{
-            background: 'radial-gradient(circle, rgba(6,182,212,0.25) 0%, transparent 70%)'
-          }}></div>
-          
-          {/* Animation digitale symbolisant les flux de données */}
-          <div className="absolute inset-0 opacity-30" style={{
-            backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(56, 189, 248, 0.1) 25%, rgba(56, 189, 248, 0.1) 26%, transparent 27%, transparent 74%, rgba(56, 189, 248, 0.1) 75%, rgba(56, 189, 248, 0.1) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(56, 189, 248, 0.1) 25%, rgba(56, 189, 248, 0.1) 26%, transparent 27%, transparent 74%, rgba(56, 189, 248, 0.1) 75%, rgba(56, 189, 248, 0.1) 76%, transparent 77%, transparent)',
-            backgroundSize: '80px 80px',
-            animation: 'moveVertical 8s linear infinite'
-          }}></div>
-          
-          {/* Ligne horizontale lumineuse représentant l'analyse en temps réel */}
-          <div className="absolute top-[50%] left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-60"></div>
-        </div>
-        
-        {/* Navigation et contrôles */}
-        <div className="px-8 py-8 relative max-w-[1600px] w-full mx-auto">
-          <div className="flex justify-between items-center mb-10">
-            <div className="flex items-center">
-              <div
-                onClick={() => {
-                  setLocation('/');
-                  // Force le scroll vers la section modules après que la page soit chargée
-                  setTimeout(() => {
-                    document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' });
-                  }, 100);
-                }}
+
+      {/* Scanline effect */}
+      {!simplifiedUI && <div className="scanline" />}
+
+      <div
+        className="min-h-screen relative cyber-grid-bg"
+        style={{
+          backgroundColor: highContrastMode ? '#000' : '#020817',
+          fontSize: `${textSize}rem`,
+          fontFamily: "'DM Sans', sans-serif",
+        }}
+      >
+        {/* Ambient glows */}
+        {!simplifiedUI && !highContrastMode && (
+          <>
+            <div className="pointer-events-none fixed top-0 left-1/4 w-96 h-96 rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #3b82f6 0%, transparent 70%)', filter: 'blur(60px)' }} />
+            <div className="pointer-events-none fixed bottom-1/4 right-1/4 w-80 h-80 rounded-full opacity-15" style={{ background: 'radial-gradient(circle, #8b5cf6 0%, transparent 70%)', filter: 'blur(60px)' }} />
+          </>
+        )}
+
+        <div className="relative z-10 max-w-[1400px] mx-auto px-6 py-8">
+
+          {/* ── Top nav ── */}
+          <div className="flex justify-between items-center mb-12">
+            <div onClick={() => { setLocation('/'); setTimeout(() => document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' }), 100); }}>
+              <DataButton
+                variant="outline"
+                size="lg"
+                className="text-cyan-300 border-cyan-300/30 hover:bg-cyan-900/20 cursor-pointer"
+                startIcon={<IoHome className="h-5 w-5" />}
               >
-                <DataButton 
-                  variant="outline"
-                  size="lg"
-                  className="text-cyan-300 border-cyan-300/30 hover:bg-cyan-900/20 cursor-pointer"
-                  startIcon={<IoHome className="h-6 w-6" />}
-                >
-                  Accueil
-                </DataButton>
+                Accueil
+              </DataButton>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {/* KPI badge */}
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border" style={{ borderColor: levelInfo.color + '50', background: levelInfo.color + '10' }}>
+                <Star className="h-3.5 w-3.5" style={{ color: levelInfo.color }} />
+                <span className="text-xs font-semibold" style={{ color: levelInfo.color, fontFamily: "'Orbitron',monospace" }}>{levelInfo.label}</span>
+                <span className="text-xs text-slate-400">{score} pts</span>
               </div>
 
-            </div>
-            
-            {/* Panneau d'accessibilité */}
-            <div className="flex items-center gap-2">
+              {/* Accessibility */}
               <Popover open={accessibilityPanelOpen} onOpenChange={setAccessibilityPanelOpen}>
                 <PopoverTrigger asChild>
-                  <Button 
-                    variant="secondary"
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white border-blue-400"
-                    size="sm"
-                    aria-label="Options d'accessibilité"
-                  >
-                    <Users className="h-4 w-4" />
+                  <Button variant="secondary" size="sm" className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600" aria-label="Options d'accessibilité">
+                    <Users className="h-4 w-4 mr-1" />
                     <span>Accessibilité</span>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 bg-slate-900 border border-blue-500 text-white p-4" align="end">
+                <PopoverContent className="w-80 bg-slate-900 border border-slate-700 text-white p-4" align="end">
                   <div className="space-y-4">
-                    <h3 className="font-bold text-lg text-center text-blue-300">Options d'accessibilité</h3>
-                    
-                    {/* Taille du texte */}
+                    <h3 className="font-bold text-center text-cyan-300" style={{ fontFamily: "'Orbitron',monospace", fontSize:'0.85rem' }}>OPTIONS D'ACCESSIBILITÉ</h3>
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <Label htmlFor="text-size" className="text-blue-100">Taille du texte</Label>
-                        <span className="text-blue-300 text-sm">{Math.round(textSize * 100)}%</span>
+                        <Label htmlFor="text-size" className="text-slate-300">Taille du texte</Label>
+                        <span className="text-cyan-400 text-sm">{Math.round(textSize * 100)}%</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="icon" 
-                          className="h-7 w-7 rounded-full bg-slate-800 border-blue-500/50"
-                          onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}
-                          aria-label="Réduire la taille du texte"
-                        >
-                          <AiOutlineZoomOut className="h-3.5 w-3.5 text-blue-300" />
+                        <Button variant="outline" size="icon" className="h-7 w-7 rounded-full bg-slate-800 border-slate-600" onClick={() => setTextSize(Math.max(0.8, textSize - 0.1))}>
+                          <AiOutlineZoomOut className="h-3.5 w-3.5 text-cyan-300" />
                         </Button>
-                        <Slider 
-                          id="text-size"
-                          min={0.8} 
-                          max={1.5} 
-                          step={0.05} 
-                          value={[textSize]} 
-                          onValueChange={(value) => setTextSize(value[0])}
-                          className="flex-1"
-                          aria-label="Ajuster la taille du texte"
-                        />
-                        <Button 
-                          variant="outline" 
-                          size="icon" 
-                          className="h-7 w-7 rounded-full bg-slate-800 border-blue-500/50"
-                          onClick={() => setTextSize(Math.min(1.5, textSize + 0.1))}
-                          aria-label="Augmenter la taille du texte"
-                        >
-                          <AiOutlineZoomIn className="h-3.5 w-3.5 text-blue-300" />
+                        <Slider id="text-size" min={0.8} max={1.5} step={0.05} value={[textSize]} onValueChange={(v) => setTextSize(v[0])} className="flex-1" />
+                        <Button variant="outline" size="icon" className="h-7 w-7 rounded-full bg-slate-800 border-slate-600" onClick={() => setTextSize(Math.min(1.5, textSize + 0.1))}>
+                          <AiOutlineZoomIn className="h-3.5 w-3.5 text-cyan-300" />
                         </Button>
                       </div>
                     </div>
-                    
                     <div className="space-y-3">
-                      {/* Mode haut contraste */}
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="high-contrast" className="text-blue-100">Mode haut contraste</Label>
-                        <Switch 
-                          id="high-contrast" 
-                          checked={highContrastMode} 
-                          onCheckedChange={setHighContrastMode}
-                          aria-label="Activer le mode haut contraste"
-                        />
+                        <Label htmlFor="high-contrast" className="text-slate-300">Mode haut contraste</Label>
+                        <Switch id="high-contrast" checked={highContrastMode} onCheckedChange={setHighContrastMode} />
                       </div>
-                      
-                      {/* Interface simplifiée */}
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="simplified-ui" className="text-blue-100">Interface simplifiée</Label>
-                        <Switch 
-                          id="simplified-ui" 
-                          checked={simplifiedUI} 
-                          onCheckedChange={setSimplifiedUI}
-                          aria-label="Activer l'interface simplifiée"
-                        />
+                        <Label htmlFor="simplified-ui" className="text-slate-300">Interface simplifiée</Label>
+                        <Switch id="simplified-ui" checked={simplifiedUI} onCheckedChange={setSimplifiedUI} />
                       </div>
                     </div>
                   </div>
@@ -256,211 +294,200 @@ export default function CyberV3() {
               </Popover>
             </div>
           </div>
-          
-          {/* Titre et sous-titre */}
-          <motion.div 
-            initial={simplifiedUI ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+
+          {/* ── Hero ── */}
+          <motion.div
+            initial={simplifiedUI ? { opacity: 1 } : { opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={simplifiedUI ? { duration: 0 } : { duration: 0.5 }}
-            className="text-center mb-16 relative z-10"
-            style={{ fontSize: `${textSize}rem` }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-6 relative"
           >
-            <h1 className="font-bold mb-4 font-data-title relative">
-              <div className={`${
-                highContrastMode ? 'text-yellow-300' : 'text-white'
-              }`} style={{ fontSize: `calc(2.5rem * ${textSize})` }}>Centre de Formation</div>
-              <div className={`mt-4 block tracking-wider ${
-                highContrastMode 
-                  ? 'text-white'
-                  : simplifiedUI
-                    ? 'text-blue-300'
-                    : 'bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent'
-              }`} style={{ fontSize: `calc(3.5rem * ${textSize})` }}>
-                I AM CYBER
+            {/* LIVE badge */}
+            {!simplifiedUI && (
+              <div className="inline-flex items-center gap-2 mb-6 px-3 py-1 rounded-full border border-red-500/40 bg-red-500/10">
+                <span className="w-2 h-2 rounded-full bg-red-400" style={{ animation: 'pulse-live 1.4s ease-in-out infinite' }} />
+                <span className="text-red-400 text-xs tracking-widest font-semibold" style={{ fontFamily: "'Orbitron',monospace" }}>LIVE</span>
               </div>
+            )}
+
+            <h1
+              className="glitch-base text-white mb-4 leading-none"
+              data-text="I AM CYBER"
+              style={{
+                fontFamily: "'Orbitron', monospace",
+                fontSize: `clamp(2.8rem, 7vw, 5.5rem)`,
+                fontWeight: 900,
+                letterSpacing: '0.04em',
+                color: highContrastMode ? '#fff' : '#f0fdff',
+              }}
+            >
+              I AM CYBER
             </h1>
-            <div className={`h-2 mx-auto my-6 rounded-full ${
-              highContrastMode 
-                ? 'w-48 bg-white' 
-                : simplifiedUI
-                  ? 'w-48 bg-blue-500'
-                  : 'w-48 bg-gradient-to-r from-cyan-400 to-blue-500'
-            }`}></div>
-            <p className={`max-w-3xl mx-auto ${
-              highContrastMode 
-                ? 'text-white' 
-                : simplifiedUI
-                  ? 'text-blue-50'
-                  : 'text-blue-100' 
-            }`} style={{ fontSize: `calc(1.8rem * ${textSize})` }}>
-              Trouvez votre parcours d'apprentissage personnalisé en <span className={`font-semibold ${
-                highContrastMode 
-                  ? 'text-yellow-300' 
-                  : simplifiedUI 
-                    ? 'text-blue-200'
-                    : 'text-cyan-300'
-              }`}>cybersécurité</span>
+
+            <p className="text-slate-400 text-lg max-w-xl mx-auto mb-8" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              L'univers de formation cybersécurité le plus <span className="text-cyan-400 font-semibold">immersif</span>
             </p>
+
+            {/* KPI progress bar */}
+            {!simplifiedUI && (
+              <motion.div
+                initial={{ opacity: 0, scaleX: 0 }}
+                animate={{ opacity: 1, scaleX: 1 }}
+                transition={{ delay: 0.4, duration: 0.8, ease: 'easeOut' }}
+                className="max-w-sm mx-auto mb-10"
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500 tracking-wider" style={{ fontFamily: "'Orbitron',monospace" }}>
+                    {levelInfo.label.toUpperCase()}
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    {nextLevel ? `→ ${nextLevel.label} (${nextLevel.min} pts)` : 'Niveau max'}
+                  </span>
+                </div>
+                <div className="h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ background: `linear-gradient(90deg, ${levelInfo.color}, ${nextLevel?.color ?? levelInfo.color})` }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progressPct}%` }}
+                    transition={{ delay: 0.6, duration: 1, ease: 'easeOut' }}
+                  />
+                </div>
+              </motion.div>
+            )}
           </motion.div>
 
-          {/* Modules Cyber */}
-          <div className="mt-8 px-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-center max-w-4xl mx-auto">
-              {/* CYBER ACADÉMIE */}
-              <motion.div 
-                whileHover={simplifiedUI ? {} : { scale: 1.03 }}
-                className={`cyber-edge-distort relative overflow-hidden p-6 ${
-                  highContrastMode 
-                    ? 'bg-black border-2 border-white' 
-                    : simplifiedUI 
-                      ? 'bg-blue-800 border border-blue-400'
-                      : 'bg-gradient-to-br from-blue-600 to-blue-900 border-2 border-blue-400/50 shadow-lg shadow-blue-500/50'
-                } hover:shadow-xl transition-all duration-300`}
-                style={{ fontSize: `${textSize}rem` }}
-              >
-                <div className="flex items-center justify-center mb-4">
-                  <div className={`p-3 rounded-lg ${
-                    highContrastMode 
-                      ? 'bg-blue-900 border border-white' 
-                      : simplifiedUI
-                        ? 'bg-blue-700'
-                        : 'bg-gradient-to-r from-blue-500 to-blue-700 shadow-md'
-                  }`}>
-                    <IoSchoolOutline className={`${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
-                      style={{ 
-                        height: `calc(2rem * ${textSize})`, 
-                        width: `calc(2rem * ${textSize})` 
-                      }} />
-                  </div>
-                </div>
-                <h3 className={`text-center font-data-title mb-2 ${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
-                  style={{ 
-                    fontSize: `calc(1.75rem * ${textSize})`,
-                    lineHeight: "1.2",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    minHeight: "2.5rem"
-                  }}>
-                  CYBER ACADÉMIE
-                </h3>
-                <p className={`text-center mt-2 px-2 ${
-                  highContrastMode ? 'text-white' : simplifiedUI ? 'text-blue-100' : 'text-blue-300'
-                }`} style={{
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  display: "-webkit-box",
-                  WebkitLineClamp: "2",
-                  WebkitBoxOrient: "vertical",
-                  minHeight: "3rem",
-                  lineHeight: "1.4"
-                }}>
-                  Centre de formation complet au métier de la cyber
-                </p>
-                <div className="mt-6">
-                  <div className="text-center">
-                    <Button 
-                      className={`px-6 py-5 w-full ${
-                        highContrastMode 
-                          ? 'bg-blue-900 hover:bg-blue-800 text-white border-2 border-white' 
-                          : simplifiedUI
-                            ? 'bg-blue-700 hover:bg-blue-600 text-white'
-                            : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white'
-                      }`}
-                      onClick={(e) => {
-                        setLocation('/cyber/sas-academie');
+          {/* ── 4 Doors grid ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-5xl mx-auto mb-16">
+            {DOORS.map((door, i) => {
+              const Icon = door.icon;
+              const isHovered = hoveredDoor === door.id;
+              return (
+                <motion.div
+                  key={door.id}
+                  initial={simplifiedUI ? { opacity: 1 } : { opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08, duration: 0.5 }}
+                  className="door-card rounded-2xl overflow-hidden cursor-pointer"
+                  style={{
+                    background: highContrastMode ? '#000' : door.bg,
+                    border: `1px solid ${isHovered ? door.accent : door.border}`,
+                    boxShadow: isHovered ? `0 0 32px ${door.glow}, 0 8px 32px rgba(0,0,0,0.6)` : '0 4px 24px rgba(0,0,0,0.4)',
+                    minHeight: 280,
+                  }}
+                  onMouseEnter={() => setHoveredDoor(door.id)}
+                  onMouseLeave={() => setHoveredDoor(null)}
+                  onClick={() => setLocation(door.route)}
+                >
+                  <div className="p-7 flex flex-col h-full gap-4">
+                    {/* Top row: icon + badge */}
+                    <div className="flex items-start justify-between">
+                      <div
+                        className="p-3.5 rounded-xl"
+                        style={{ background: door.accent + '20', border: `1px solid ${door.accent}40` }}
+                      >
+                        <Icon
+                          className="w-8 h-8"
+                          style={{ color: door.accent }}
+                        />
+                      </div>
+                      <span
+                        className="text-xs font-bold px-2.5 py-1 rounded-full"
+                        style={{
+                          background: door.accent + '20',
+                          color: door.accent,
+                          border: `1px solid ${door.accent}40`,
+                          fontFamily: "'Orbitron',monospace",
+                          letterSpacing: '0.05em',
+                        }}
+                      >
+                        {door.badge}
+                      </span>
+                    </div>
+
+                    {/* Title + description */}
+                    <div className="flex-1">
+                      <h2
+                        className="font-black mb-1.5 tracking-wider"
+                        style={{
+                          fontFamily: "'Orbitron', monospace",
+                          fontSize: `calc(1.15rem * ${textSize})`,
+                          color: highContrastMode ? '#fff' : door.accent,
+                        }}
+                      >
+                        {door.label}
+                      </h2>
+                      <p className="text-slate-400 text-sm leading-relaxed mb-3">
+                        {door.sub}
+                      </p>
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {door.tags.map(tag => (
+                          <span
+                            key={tag}
+                            className="text-xs px-2 py-0.5 rounded"
+                            style={{
+                              background: 'rgba(255,255,255,0.05)',
+                              color: '#94a3b8',
+                              border: '1px solid rgba(255,255,255,0.08)',
+                            }}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* CTA */}
+                    <button
+                      className="w-full py-3 px-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200"
+                      style={{
+                        background: isHovered ? door.accent : door.accent + '20',
+                        color: isHovered ? '#000' : door.accent,
+                        border: `1px solid ${door.accent}60`,
+                        fontFamily: "'DM Sans', sans-serif",
                       }}
                     >
-                      <span style={{ 
-                        fontSize: `calc(1.1rem * ${textSize})`,
-                        lineHeight: "1.2", 
-                        display: "block" 
-                      }}>Je découvre l'académie</span>
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
+                      {door.cta}
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
                   </div>
-                </div>
-              </motion.div>
-            
-              {/* CYBER ROLE PLAY */}
-              <motion.div 
-                whileHover={simplifiedUI ? {} : { scale: 1.03 }}
-                className={`cyber-edge-distort relative overflow-hidden p-6 ${
-                  highContrastMode 
-                    ? 'bg-black border-2 border-white' 
-                    : simplifiedUI 
-                      ? 'bg-cyan-800 border border-cyan-400'
-                      : 'bg-gradient-to-br from-cyan-600 to-blue-900 border-2 border-cyan-400/50 shadow-lg shadow-cyan-500/50'
-                } hover:shadow-xl transition-all duration-300`}
-                style={{ fontSize: `${textSize}rem` }}
-              >
-                <div className="flex items-center justify-center mb-4">
-                  <div className={`p-3 rounded-lg ${
-                    highContrastMode 
-                      ? 'bg-cyan-900 border border-white' 
-                      : simplifiedUI
-                        ? 'bg-cyan-700'
-                        : 'bg-gradient-to-r from-cyan-500 to-blue-500 shadow-md'
-                  }`}>
-                    <BsShieldLock className={`${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
-                      style={{ 
-                        height: `calc(2rem * ${textSize})`, 
-                        width: `calc(2rem * ${textSize})` 
-                      }} />
-                  </div>
-                </div>
-                <h3 className={`text-center font-data-title mb-2 ${highContrastMode ? 'text-yellow-300' : 'text-white'}`} 
-                  style={{ 
-                    fontSize: `calc(1.75rem * ${textSize})`,
-                    lineHeight: "1.2",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    minHeight: "2.5rem"
-                  }}>
-                  CYBER ROLE PLAY
-                </h3>
-                <p className={`text-center mt-2 px-2 ${
-                  highContrastMode ? 'text-white' : simplifiedUI ? 'text-cyan-100' : 'text-cyan-300'
-                }`} style={{
-                  overflow: "hidden",
-                  textOverflow: "ellipsis", 
-                  display: "-webkit-box",
-                  WebkitLineClamp: "2",
-                  WebkitBoxOrient: "vertical",
-                  minHeight: "3rem",
-                  lineHeight: "1.4"
-                }}>
-                  Jeux de rôle immersifs pour l'apprentissage en cyber
-                </p>
-                <div className="mt-6">
-                  <div className="text-center">
-                    <Button 
-                      className={`px-6 py-5 w-full ${
-                        highContrastMode 
-                          ? 'bg-cyan-900 hover:bg-cyan-800 text-white border-2 border-white' 
-                          : simplifiedUI
-                            ? 'bg-cyan-700 hover:bg-cyan-600 text-white'
-                            : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white'
-                      }`}
-                      onClick={(e) => {
-                        setLocation('/cyber/roleplay');
-                      }}
-                    >
-                      <span style={{ 
-                        fontSize: `calc(1.1rem * ${textSize})`,
-                        lineHeight: "1.2", 
-                        display: "block" 
-                      }}>J'incarne un rôle</span>
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
-
-
-            </div>
+                </motion.div>
+              );
+            })}
           </div>
+
+          {/* ── Stats bar ── */}
+          {!simplifiedUI && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+              className="flex justify-center gap-12 pb-12"
+            >
+              {[
+                { value: 21, suffix: '', label: 'modules', icon: GraduationCap, color: '#3b82f6' },
+                { value: 5,  suffix: '',  label: 'jeux',    icon: Gamepad2,     color: '#f59e0b' },
+                { value: 50, suffix: '+', label: 'scénarios', icon: Target,    color: '#8b5cf6' },
+              ].map((stat, i) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.6 + i * 0.1, duration: 0.4 }}
+                  className="text-center"
+                >
+                  <div
+                    className="text-3xl font-black mb-0.5"
+                    style={{ fontFamily: "'Orbitron',monospace", color: stat.color }}
+                  >
+                    <AnimatedNumber target={stat.value} suffix={stat.suffix} />
+                  </div>
+                  <div className="text-xs text-slate-500 tracking-widest uppercase">{stat.label}</div>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
         </div>
       </div>
     </HomeLayout>
