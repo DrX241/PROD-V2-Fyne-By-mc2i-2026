@@ -118,6 +118,9 @@ function AppContent() {
                 <Route path="/cyber/comex-training" component={ComexTrainingPage} />
                 <Route path="/cyber/pentest-lab" component={PentestLab} />
                 <Route path="/cyber/simulations" component={CyberSimulations} />
+                <Route path="/cyber/learning-center/modules/debutant-cyber">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/learning-center/modules/debutant-cyber/index")))}</Suspense>)}
+                </Route>
                 <Route path="/cyber/arcade" component={CyberArcade} />
                 <Route path="/cyber/arcade/cyber-escape">
                   {() => (<Suspense fallback={<div className="p-12 text-center text-white">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/arcade/cyber-escape/index")))}</Suspense>)}
