@@ -1,14 +1,11 @@
 import React from 'react';
 import { useLocation } from 'wouter';
-import { 
-  ArrowRight, 
-  ChevronLeft, 
-  Users, 
-  Briefcase, 
-  Terminal, 
-  Shield, 
-  AlertTriangle,
-  BrainCircuit,
+import {
+  ArrowRight,
+  ChevronLeft,
+  Users,
+  Briefcase,
+  Shield,
   Clock
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -32,7 +29,7 @@ const RoleplayHub: React.FC = () => {
     hover: { scale: 1.03, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)' }
   };
 
-  // Liste des scénarios de jeu de rôle
+  // Scénarios conversationnels uniquement (RSSI, COMEX, Pentest → dans /cyber/simulations)
   const scenarios = [
     {
       id: 'debutant-cyber',
@@ -88,63 +85,6 @@ const RoleplayHub: React.FC = () => {
         "Simulation d'entretien technique réaliste",
         "Questions adaptées en fonction du niveau",
         "Analyse de vos réponses avec feedback"
-      ],
-      comingSoon: false
-    },
-    {
-      id: 'pentest-lab',
-      title: 'Je suis Expert en pentest',
-      description: "Je voudrais exploiter plusieurs types de vulnérabilités dans un espace lab sécurisé",
-      link: '/cyber/pentest-lab',
-      icon: <Terminal className="h-10 w-10 text-purple-300" />,
-      color: 'purple',
-      gradient: 'from-purple-900/70 to-purple-700/30',
-      border: 'border-purple-500/30',
-      buttonGradient: 'from-purple-700 to-purple-600',
-      buttonHover: 'hover:from-purple-600 hover:to-purple-500',
-      textColor: 'text-purple-300',
-      details: [
-        "Environnement web pour pratiquer l'exploitation",
-        "Scénarios adaptés à votre niveau technique",
-        "Méthodologie structurée de tests d'intrusion"
-      ],
-      comingSoon: false
-    },
-    {
-      id: 'comex-member',
-      title: "Je suis Membre du COMEX",
-      description: "Je veux comprendre les enjeux stratégiques de cybersécurité",
-      link: '/cyber/comex-training',
-      icon: <BrainCircuit className="h-10 w-10 text-emerald-300" />,
-      color: 'emerald',
-      gradient: 'from-emerald-900/70 to-emerald-700/30',
-      border: 'border-emerald-500/30',
-      buttonGradient: 'from-emerald-700 to-emerald-600',
-      buttonHover: 'hover:from-emerald-600 hover:to-emerald-500',
-      textColor: 'text-emerald-300',
-      details: [
-        "Formation adaptée aux dirigeants d'entreprise",
-        "Mesure et priorisation des risques numériques",
-        "Préparation à la gestion de crise cybernétique"
-      ],
-      comingSoon: false
-    },
-    {
-      id: 'crisis-management',
-      title: 'Je suis RSSI',
-      description: "Je gère une crise majeure de cybersécurité en temps réel",
-      link: '/cyber/crisis-management',
-      icon: <AlertTriangle className="h-10 w-10 text-rose-300" />,
-      color: 'rose',
-      gradient: 'from-rose-900/70 to-rose-700/30',
-      border: 'border-rose-500/30',
-      buttonGradient: 'from-rose-700 to-rose-600',
-      buttonHover: 'hover:from-rose-600 hover:to-rose-500',
-      textColor: 'text-rose-300',
-      details: [
-        "Simulation de crise réaliste",
-        "Décisions stratégiques en temps sous pression",
-        "Gestion de la communication interne et externe"
       ],
       comingSoon: false
     }
