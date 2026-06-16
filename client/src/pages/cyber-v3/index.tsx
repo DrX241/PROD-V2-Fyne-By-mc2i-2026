@@ -8,6 +8,7 @@ import {
   FlaskConical,
   ArrowRight,
 } from 'lucide-react';
+
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/hooks/useAuth';
 import HomeLayout from '@/components/layout/HomeLayout';
@@ -288,17 +289,8 @@ export default function CyberV3() {
                     transition: 'opacity 0.15s ease',
                   }} />
 
-                  {/* Index + icon */}
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                    <span style={{
-                      fontFamily: "'DM Mono', monospace",
-                      fontSize: '0.6rem',
-                      color: isHovered ? '#0057ff' : '#1e2d45',
-                      letterSpacing: '0.05em',
-                      transition: 'color 0.15s ease',
-                    }}>
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
+                  {/* Icon */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Icon
                       size={18}
                       style={{
@@ -310,65 +302,38 @@ export default function CyberV3() {
                   </div>
 
                   {/* Content */}
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 5 }}>
-                      <span style={{
-                        fontFamily: "'DM Mono', monospace",
-                        fontSize: '0.78rem',
-                        fontWeight: 600,
-                        letterSpacing: '0.1em',
-                        color: isHovered ? '#f1f5f9' : '#94a3b8',
-                        transition: 'color 0.15s ease',
-                      }}>
-                        {door.label}
-                      </span>
-                      <span style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: '0.82rem',
-                        color: '#334155',
-                        fontStyle: 'italic',
-                      }}>
-                        {door.sub}
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                      {door.tags.map(tag => (
-                        <span
-                          key={tag}
-                          style={{
-                            fontFamily: "'DM Mono', monospace",
-                            fontSize: '0.6rem',
-                            color: '#334155',
-                            letterSpacing: '0.06em',
-                            padding: '1px 6px',
-                            border: '1px solid #1a2236',
-                          }}
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* CTA */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    opacity: isHovered ? 1 : 0,
-                    transition: 'opacity 0.15s ease',
-                    whiteSpace: 'nowrap',
-                  }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
                     <span style={{
                       fontFamily: "'DM Mono', monospace",
-                      fontSize: '0.7rem',
-                      color: '#0057ff',
-                      letterSpacing: '0.06em',
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      letterSpacing: '0.1em',
+                      color: isHovered ? '#f1f5f9' : '#94a3b8',
+                      transition: 'color 0.15s ease',
+                      whiteSpace: 'nowrap',
                     }}>
-                      {door.cta}
+                      {door.label}
                     </span>
-                    <ArrowRight size={14} style={{ color: '#0057ff' }} />
+                    <span style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: '0.82rem',
+                      color: '#334155',
+                      fontStyle: 'italic',
+                    }}>
+                      {door.sub}
+                    </span>
                   </div>
+
+                  {/* Arrow hover indicator */}
+                  <ArrowRight
+                    size={14}
+                    style={{
+                      color: '#0057ff',
+                      opacity: isHovered ? 1 : 0,
+                      transition: 'opacity 0.15s ease',
+                      flexShrink: 0,
+                    }}
+                  />
                 </motion.div>
               );
             })}
