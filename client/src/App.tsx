@@ -1,10 +1,10 @@
-import { Switch, Route, useLocation, Link } from "wouter";
+import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { QuotaToast } from "@/components/QuotaToast";
 import { Button } from "@/components/ui/button";
-import React, { Suspense, lazy, startTransition, useEffect } from "react";
+import React, { Suspense, lazy } from "react";
 import { ChatProvider } from "./contexts/ChatContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { TutorialProvider } from "./contexts/TutorialContext";
@@ -24,10 +24,6 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import CyberHomePage from "@/pages/CyberHomePage";
 import ModulesPage from "@/pages/modules";
-import CyberAgentPage from "@/pages/cyber-agent";
-// Utiliser les chemins relatifs pour les nouveaux composants
-import CyberAgentRedirectPage from "./pages/cyber/cyber-agent-redirect";
-import CyberAgentNewPage from "./pages/cyber/cyber-agent-new";
 // Import des pages de modules
 import TrainingPlayer from "./pages/playground/player";
 import ModuleGeneratorNew from "./pages/playground/module-generator-new";
@@ -41,7 +37,6 @@ import CyberV3 from "./pages/cyber-v3";
 // Import des pages cyber
 import CyberRoleplay from "./pages/cyber/roleplay/index";
 import CyberLab from "./pages/cyber/cyber-lab/index";
-import CyberLearningCenter from "./pages/cyber/learning-center/index";
 import SasCyberAcademie from "./pages/cyber/sas-academie";
 import ExpertLearningPage from "./pages/cyber/expert-learning";
 import InterviewTestPage from "./pages/cyber/interview-test";
@@ -61,30 +56,6 @@ import SuperAdminPage from "./pages/superadmin";
 import MonSuivi from "./pages/mon-suivi";
 import Classement from "./pages/classement";
 
-// Import des modules de la Cyber Académie - importés dynamiquement avec lazy pour améliorer les performances
-const IntroductionCybersecurite = lazy(() => import("./pages/cyber/learning-center/modules/intro-cybersecurite/index"));
-const ZeroTrust = lazy(() => import("./pages/cyber/learning-center/modules/zero-trust/index"));
-const FichesCyberExpress = lazy(() => import("./pages/cyber/learning-center/modules/fiches-cyber-express/index"));
-const QuizAdaptatifIA = lazy(() => import("./pages/cyber/learning-center/modules/quiz-adaptatif-ia/index"));
-const GlossaireVisuel = lazy(() => import("./pages/cyber/learning-center/modules/glossaire-visuel/index"));
-const MemoIAPersonnalise = lazy(() => import("./pages/cyber/learning-center/modules/memo-ia-personnalise/index"));
-const BYODSecurite = lazy(() => import("./pages/cyber/learning-center/modules/byod-securite/index"));
-const DebutantCyber = lazy(() => import("./pages/cyber/learning-center/modules/debutant-cyber/index"));
-const SecuriteReseaux = lazy(() => import("./pages/cyber/learning-center/modules/securite-reseaux/index"));
-const SecuriteCloud = lazy(() => import("./pages/cyber/learning-center/modules/securite-cloud/index"));
-const SecuriteDonnees = lazy(() => import("./pages/cyber/learning-center/modules/securite-donnees/index"));
-const SecuriteOT = lazy(() => import("./pages/cyber/learning-center/modules/securite-ot/index"));
-const IASecurite = lazy(() => import("./pages/cyber/learning-center/modules/ia-securite/index"));
-const MicroLearning = lazy(() => import("./pages/cyber/learning-center/modules/micro-learning/index"));
-const Ransomware = lazy(() => import("./pages/cyber/learning-center/modules/ransomware/index"));
-const PhishingDetection = lazy(() => import("./pages/cyber/learning-center/modules/phishing-detection/index"));
-const AnalyseRisques = lazy(() => import("./pages/cyber/learning-center/modules/analyse-risques/index"));
-const NormesStandards = lazy(() => import("./pages/cyber/learning-center/modules/normes-standards/index"));
-const MotDePasse = lazy(() => import("./pages/cyber/learning-center/modules/mot-de-passe/index"));
-const DevSecOps = lazy(() => import("./pages/cyber/learning-center/modules/devsecops/index"));
-const GouvernanceCyber = lazy(() => import("./pages/cyber/learning-center/modules/gouvernance-cyber/index"));
-const GestionIdentites = lazy(() => import("./pages/cyber/learning-center/modules/gestion-identites/index"));
-const IntelligenceArtificielleSecurite = lazy(() => import("./pages/cyber/learning-center/modules/intelligence-artificielle-securite/index"));
 // Import des pages AMOA
 const AdminPage = lazy(() => import("./pages/admin"));
 import SasAcademie from "./pages/amoa/sas-academie";
@@ -136,7 +107,6 @@ function AppContent() {
                 <Route path="/cyber/roleplay" component={CyberRoleplay} />
                 <Route path="/cyber/cyber-lab" component={CyberLab} />
                 <Route path="/cyber/sas-academie" component={SasCyberAcademie} />
-                <Route path="/cyber/learning-center" component={CyberLearningCenter} />
                 <Route path="/cyber/profil-pro" component={ProfilPro} />
                 <Route path="/cyber/expert-learning" component={ExpertLearningPage} />
                 <Route path="/cyber/interview-test" component={InterviewTestPage} />
@@ -153,171 +123,6 @@ function AppContent() {
                   )}
                 </Route>
                 
-                {/* Routes pour les modules de la Cyber Académie - avec Suspense pour chargement différé */}
-                <Route path="/cyber/learning-center/modules/intro-cybersecurite">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <IntroductionCybersecurite />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/zero-trust">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <ZeroTrust />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/fiches-cyber-express">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <FichesCyberExpress />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/quiz-adaptatif-ia">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <QuizAdaptatifIA />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/glossaire-visuel">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <GlossaireVisuel />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/memo-ia-personnalise">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <MemoIAPersonnalise />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/debutant-cyber">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <DebutantCyber />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/gouvernance-cyber">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <GouvernanceCyber />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/securite-reseaux">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <SecuriteReseaux />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/securite-cloud">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <SecuriteCloud />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/securite-donnees">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <SecuriteDonnees />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/securite-ot">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <SecuriteOT />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/ia-securite">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <IASecurite />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/micro-learning">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <MicroLearning />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/ransomware">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <Ransomware />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/phishing-detection">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <PhishingDetection />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/mot-de-passe">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <MotDePasse />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/analyse-risques">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <AnalyseRisques />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/normes-standards">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <NormesStandards />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/byod-securite">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <BYODSecurite />
-                    </Suspense>
-                  )}
-                </Route>
-                <Route path="/cyber/learning-center/modules/devsecops">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <DevSecOps />
-                    </Suspense>
-                  )}
-                </Route>
-
-                <Route path="/cyber/learning-center/modules/gestion-identites">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <GestionIdentites />
-                    </Suspense>
-                  )}
-                </Route>
-
-                <Route path="/cyber/learning-center/modules/intelligence-artificielle-securite">
-                  {(params) => (
-                    <Suspense fallback={<div className="p-12 text-center">Chargement du module...</div>}>
-                      <IntelligenceArtificielleSecurite />
-                    </Suspense>
-                  )}
-                </Route>
-
                 <Route path="/amoa/sas-academie" component={SasAcademie} />
                 <Route path="/amoa/roleplay" component={AmoaRoleplay} />
                 <Route path="/amoa/academie" component={AmoaAcademie} />

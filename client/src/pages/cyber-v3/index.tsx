@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'wouter';
+import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import {
-  HelpCircle,
   ArrowRight,
-  Shield,
-  Terminal,
   Users,
-  ZoomIn,
-  ZoomOut,
-  BookOpen,
 } from 'lucide-react';
 import { IoHome, IoSchoolOutline } from 'react-icons/io5';
 import { BsShieldLock } from 'react-icons/bs';
@@ -464,80 +458,6 @@ export default function CyberV3() {
                 </div>
               </motion.div>
 
-
-              {/* LEARNING CENTER */}
-              <motion.div
-                whileHover={simplifiedUI ? {} : { scale: 1.03 }}
-                className={`cyber-edge-distort relative overflow-hidden p-6 ${
-                  highContrastMode
-                    ? 'bg-black border-2 border-white'
-                    : simplifiedUI
-                      ? 'bg-indigo-800 border border-indigo-400'
-                      : 'bg-gradient-to-br from-indigo-600 to-purple-900 border-2 border-indigo-400/50 shadow-lg shadow-indigo-500/50'
-                } hover:shadow-xl transition-all duration-300`}
-                style={{ fontSize: `${textSize}rem` }}
-              >
-                <div className="flex items-center justify-center mb-4">
-                  <div className={`p-3 rounded-lg ${
-                    highContrastMode
-                      ? 'bg-indigo-900 border border-white'
-                      : simplifiedUI
-                        ? 'bg-indigo-700'
-                        : 'bg-gradient-to-r from-indigo-500 to-purple-500 shadow-md'
-                  }`}>
-                    <BookOpen className={`${highContrastMode ? 'text-yellow-300' : 'text-white'}`}
-                      style={{
-                        height: `calc(2rem * ${textSize})`,
-                        width: `calc(2rem * ${textSize})`
-                      }} />
-                  </div>
-                </div>
-                <h3 className={`text-center font-data-title mb-2 ${highContrastMode ? 'text-yellow-300' : 'text-white'}`}
-                  style={{
-                    fontSize: `calc(1.75rem * ${textSize})`,
-                    lineHeight: "1.2",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    minHeight: "2.5rem"
-                  }}>
-                  LEARNING CENTER
-                </h3>
-                <p className={`text-center mt-2 px-2 ${
-                  highContrastMode ? 'text-white' : simplifiedUI ? 'text-indigo-100' : 'text-indigo-300'
-                }`} style={{
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  display: "-webkit-box",
-                  WebkitLineClamp: "2",
-                  WebkitBoxOrient: "vertical",
-                  minHeight: "3rem",
-                  lineHeight: "1.4"
-                }}>
-                  21 modules pédagogiques pour maîtriser la cybersécurité
-                </p>
-                <div className="mt-6">
-                  <div className="text-center">
-                    <Button
-                      className={`px-6 py-5 w-full ${
-                        highContrastMode
-                          ? 'bg-indigo-900 hover:bg-indigo-800 text-white border-2 border-white'
-                          : simplifiedUI
-                            ? 'bg-indigo-700 hover:bg-indigo-600 text-white'
-                            : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white'
-                      }`}
-                      onClick={() => setLocation('/cyber/learning-center')}
-                    >
-                      <span style={{
-                        fontSize: `calc(1.1rem * ${textSize})`,
-                        lineHeight: "1.2",
-                        display: "block"
-                      }}>J'accède aux modules</span>
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
 
             </div>
           </div>
