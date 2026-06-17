@@ -1,144 +1,139 @@
 import React from 'react';
-import { Link, useLocation } from 'wouter';
-import {
-  ArrowLeft,
-  ArrowRight,
-  MessageSquare,
-  BookOpen,
-  GraduationCap,
-  Shield
-} from 'lucide-react';
+import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import PageTitle from '@/components/utils/PageTitle';
+import { ChevronLeft, BookOpen, MessageSquare, ArrowRight } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import HomeLayout from '@/components/layout/HomeLayout';
+
+const ACC = '#0057ff';
+const BG = '#0f1117';
+const SURFACE = '#111827';
+const BORDER = '#1e2d45';
+const TEXT = '#f1f5f9';
+const SUB = '#64748b';
+const MONO = "'DM Mono', monospace";
+const SANS = "'DM Sans', sans-serif";
+
+const MODES = [
+  {
+    id: 'formations',
+    icon: BookOpen,
+    label: 'FORMATIONS STRUCTURÉES',
+    sub: 'Modules théorie + pratique + QCM',
+    description: 'Suivez des micro-learnings interactifs créés par vos formateurs cyber. Chaque module alterne théorie, mise en situation et validation par QCM.',
+    cta: 'Accéder aux formations',
+    route: '/cyber/academie',
+  },
+  {
+    id: 'expert',
+    icon: MessageSquare,
+    label: 'APPRENTISSAGE CONVERSATIONNEL',
+    sub: 'Discussion libre avec un expert IA',
+    description: 'Posez vos questions à un expert virtuel en cybersécurité. Format libre, adaptatif, sans contrainte de parcours.',
+    cta: 'Discuter avec un expert',
+    route: '/cyber/expert-learning',
+  },
+];
 
 export default function SasCyberAcademie() {
   const [, navigate] = useLocation();
+  const [hovered, setHovered] = React.useState<string | null>(null);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white pb-20">
-      {/* En-tête */}
-      <div className="p-6 container mx-auto">
-        <div className="flex items-center mb-2">
-          <Link href="/cyber">
-            <Button variant="ghost" className="text-white mr-4">
-              <ArrowLeft className="mr-2 h-5 w-5" />
-              Retour
-            </Button>
-          </Link>
-          <PageTitle title="CYBER ACADÉMIE" />
-        </div>
-        
-        <div className="flex flex-col justify-center items-center mb-10 text-center">
-          <div className="mb-8 max-w-3xl">
-            <h1 className="text-4xl font-bold mb-4">Bienvenue dans la Cyber Académie</h1>
-            <p className="text-blue-200 text-lg mb-4">
-              Vous êtes dans l'espace dédié pour découvrir ou revoir les bases de la cybersécurité.
-              Notre académie vous propose un apprentissage adapté à vos besoins et votre rythme.
+    <HomeLayout>
+      <div style={{ minHeight: '100vh', backgroundColor: BG, fontFamily: SANS, color: TEXT }}>
+        <div style={{ maxWidth: 960, margin: '0 auto', padding: '56px 32px 80px' }}>
+
+          {/* Back */}
+          <button
+            onClick={() => navigate('/cyber')}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: SUB, fontSize: '0.8rem', marginBottom: 48, padding: 0, fontFamily: MONO }}
+          >
+            <ChevronLeft size={14} /> Retour vers I AM CYBER
+          </button>
+
+          {/* Header */}
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 56 }}>
+            <p style={{ fontFamily: MONO, fontSize: '0.65rem', letterSpacing: '0.15em', color: ACC, marginBottom: 12 }}>
+              CYBER ACADÉMIE
             </p>
-            <div className="h-1 w-40 bg-gradient-to-r from-cyan-400 to-blue-500 mx-auto my-4"></div>
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold">Choisissez votre mode d'apprentissage</h2>
-          </div>
-        </div>
-
-        {/* Options d'apprentissage */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-8">
-          {/* Option 1: Apprendre en discutant */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <Card className="h-full bg-gradient-to-br from-blue-900/40 to-blue-950 border-blue-700 hover:border-blue-500 hover:shadow-lg transition-all duration-300">
-              <CardHeader>
-                <div className="flex justify-center mb-4">
-                  <div className="p-4 rounded-full bg-blue-800/70">
-                    <MessageSquare className="h-10 w-10 text-blue-200" />
-                  </div>
-                </div>
-                <CardTitle className="text-2xl text-center mb-2">Apprentissage conversationnel</CardTitle>
-                <CardDescription className="text-blue-300 text-center text-lg">
-                  Discutez avec un expert virtuel pour explorer les sujets à votre rythme
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
-                  <li className="flex items-center text-blue-200">
-                    <div className="h-2 w-2 rounded-full bg-blue-400 mr-2"></div>
-                    Format libre et personnalisé
-                  </li>
-                  <li className="flex items-center text-blue-200">
-                    <div className="h-2 w-2 rounded-full bg-blue-400 mr-2"></div>
-                    Questions illimitées
-                  </li>
-                  <li className="flex items-center text-blue-200">
-                    <div className="h-2 w-2 rounded-full bg-blue-400 mr-2"></div>
-                    Apprentissage adaptatif
-                  </li>
-                </ul>
-              </CardContent>
-              <CardFooter className="flex justify-center">
-                <Button 
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-5"
-                  onClick={() => navigate('/cyber/expert-learning')}
-                >
-                  Discuter avec un expert
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
+            <h1 style={{ fontFamily: MONO, fontSize: 'clamp(1.8rem, 5vw, 2.8rem)', fontWeight: 600, margin: '0 0 10px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+              Choisissez votre<br />mode d'apprentissage
+            </h1>
+            <p style={{ color: SUB, fontSize: '0.95rem', maxWidth: 480, margin: 0 }}>
+              Deux approches complémentaires pour maîtriser la cybersécurité à votre rythme.
+            </p>
           </motion.div>
 
-          {/* Option 2: Parcours structuré */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Card className="h-full bg-gradient-to-br from-cyan-900/40 to-cyan-950 border-cyan-700 hover:border-cyan-500 hover:shadow-lg transition-all duration-300">
-              <CardHeader>
-                <div className="flex justify-center mb-4">
-                  <div className="p-4 rounded-full bg-cyan-800/70">
-                    <Shield className="h-10 w-10 text-cyan-200" />
-                  </div>
-                </div>
-                <CardTitle className="text-2xl text-center mb-2">Parcours structuré</CardTitle>
-                <CardDescription className="text-cyan-300 text-center text-lg">
-                  Suivez un curriculum organisé avec des modules progressifs
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <ul className="text-left space-y-2 mb-6 mx-auto max-w-xs">
-                  <li className="flex items-center text-cyan-200">
-                    <div className="h-2 w-2 rounded-full bg-cyan-400 mr-2"></div>
-                    Contenu structuré et progressif
-                  </li>
-                  <li className="flex items-center text-cyan-200">
-                    <div className="h-2 w-2 rounded-full bg-cyan-400 mr-2"></div>
-                    Suivi de progression
-                  </li>
-                  <li className="flex items-center text-cyan-200">
-                    <div className="h-2 w-2 rounded-full bg-cyan-400 mr-2"></div>
-                    Ressources téléchargeables
-                  </li>
-                </ul>
-              </CardContent>
-              <CardFooter className="flex justify-center">
-                <Button 
-                  className="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-5"
-                  onClick={() => navigate('/cyber/learning-center')}
+          {/* Mode rows */}
+          <div style={{ borderTop: `1px solid ${BORDER}` }}>
+            {MODES.map((mode, i) => {
+              const Icon = mode.icon;
+              const isHovered = hovered === mode.id;
+              return (
+                <motion.div
+                  key={mode.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08 }}
+                  onClick={() => navigate(mode.route)}
+                  onMouseEnter={() => setHovered(mode.id)}
+                  onMouseLeave={() => setHovered(null)}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '48px 1fr auto',
+                    alignItems: 'center',
+                    gap: 24,
+                    padding: '28px 0',
+                    borderBottom: `1px solid ${BORDER}`,
+                    cursor: 'pointer',
+                    background: isHovered ? `rgba(0,87,255,0.03)` : 'transparent',
+                    transition: 'background 0.15s ease',
+                    position: 'relative',
+                  }}
                 >
-                  Accéder aux modules
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
-          </motion.div>
+                  {/* Active indicator */}
+                  <div style={{
+                    position: 'absolute', left: -32, top: 0, bottom: 0, width: 2,
+                    background: ACC, opacity: isHovered ? 1 : 0, transition: 'opacity 0.15s ease',
+                  }} />
+
+                  {/* Icon */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon size={20} style={{ color: isHovered ? ACC : '#334155', transition: 'color 0.15s ease' }} />
+                  </div>
+
+                  {/* Content */}
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 6, flexWrap: 'wrap' }}>
+                      <span style={{ fontFamily: MONO, fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.1em', color: isHovered ? TEXT : '#94a3b8', transition: 'color 0.15s ease' }}>
+                        {mode.label}
+                      </span>
+                      <span style={{ fontFamily: SANS, fontSize: '0.8rem', color: SUB, fontStyle: 'italic' }}>
+                        {mode.sub}
+                      </span>
+                    </div>
+                    <p style={{ fontFamily: SANS, fontSize: '0.82rem', color: '#475569', margin: 0, lineHeight: 1.6, maxWidth: 560 }}>
+                      {mode.description}
+                    </p>
+                  </div>
+
+                  {/* CTA */}
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    opacity: isHovered ? 1 : 0, transition: 'opacity 0.15s ease', whiteSpace: 'nowrap',
+                  }}>
+                    <span style={{ fontFamily: MONO, fontSize: '0.7rem', color: ACC, letterSpacing: '0.06em' }}>
+                      {mode.cta}
+                    </span>
+                    <ArrowRight size={14} style={{ color: ACC }} />
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
       </div>
-    </div>
+    </HomeLayout>
   );
 }

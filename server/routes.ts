@@ -5974,20 +5974,21 @@ Niveau ${levelDesc}. Contexte français réaliste. Pour visual.type utilise: ema
     }
   });
 
-  // GET /api/studio/trainings — Liste des formations FYNE internes
+  // GET /api/studio/trainings — Liste des formations (scope: internal par défaut, ou ?scope=cyber)
   app.get("/api/studio/trainings", async (req: Request, res: Response) => {
     try {
-      const trainings = await storage.listGeneratedTrainings(50, 'internal');
+      const scope = typeof req.query.scope === 'string' ? req.query.scope : 'internal';
+      const trainings = await storage.listGeneratedTrainings(100, scope);
       res.json(trainings);
     } catch (error) {
       res.status(500).json({ error: 'Erreur serveur' });
     }
   });
 
-  // DELETE /api/studio/training/:id — Supprime une formation FYNE interne
+  // DELETE /api/studio/training/:id — Supprime une formation (tous scopes)
   app.delete("/api/studio/training/:id", async (req: Request, res: Response) => {
     try {
-      await storage.deleteGeneratedTraining(req.params.id, 'internal');
+      await storage.deleteGeneratedTraining(req.params.id);
       res.json({ success: true });
     } catch (error) {
       console.error('[Studio] Erreur suppression formation:', error);
@@ -6314,6 +6315,8 @@ RÉPONSE DU PARTICIPANT : ${reponse}
 
   // Résout le scope d'une formation selon la company de l'utilisateur connecté
   function resolveScope(req: Request): string {
+    const explicit = req.body?.scope;
+    if (explicit && typeof explicit === 'string') return explicit;
     const user = (req.session as any).user;
     if (user?.companyId) return String(user.companyId);
     return 'internal';

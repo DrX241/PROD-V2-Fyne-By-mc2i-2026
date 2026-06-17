@@ -109,6 +109,18 @@ function AppContent() {
                 <Route path="/cyber/roleplay" component={CyberRoleplay} />
                 <Route path="/cyber/cyber-lab" component={CyberLab} />
                 <Route path="/cyber/sas-academie" component={SasCyberAcademie} />
+                <Route path="/cyber/academie/studio-ia">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/academie/studio-ia")))}</Suspense>)}
+                </Route>
+                <Route path="/cyber/academie/studio-documents">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/academie/studio-documents")))}</Suspense>)}
+                </Route>
+                <Route path="/cyber/academie/player/:id">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/academie/player")))}</Suspense>)}
+                </Route>
+                <Route path="/cyber/academie">
+                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/academie/index")))}</Suspense>)}
+                </Route>
                 <Route path="/cyber/profil-pro" component={ProfilPro} />
                 <Route path="/cyber/expert-learning" component={ExpertLearningPage} />
                 <Route path="/cyber/interview-test" component={InterviewTestPage} />

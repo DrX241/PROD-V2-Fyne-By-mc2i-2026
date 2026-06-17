@@ -69,9 +69,10 @@ const slideVariants = {
 
 type Phase = 'slides' | 'qcm' | 'score';
 
-export default function LessonPlayer() {
+export default function LessonPlayer({ backRoute }: { backRoute?: string } = {}) {
   const { id } = useParams<{ id: string }>();
   const [, navigate] = useLocation();
+  const goBack = () => navigate(backRoute ?? '/playground/module-generator');
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -239,7 +240,7 @@ export default function LessonPlayer() {
   if (error) return (
     <div style={{ minHeight: '100vh', background: DARK, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
       <p style={{ color: 'white', fontSize: 18 }}>{error}</p>
-      <button onClick={() => navigate('/playground/module-generator')} style={{ color: BLUE, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Retour</button>
+      <button onClick={() => goBack()} style={{ color: BLUE, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Retour</button>
     </div>
   );
 
@@ -391,7 +392,7 @@ export default function LessonPlayer() {
 
         {/* Header */}
         <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '0 24px', height: 56, display: 'flex', alignItems: 'center', gap: 16, position: 'sticky', top: 0, zIndex: 50 }}>
-          <button onClick={() => navigate('/playground/module-generator')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+          <button onClick={() => goBack()} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
             <ArrowLeft size={16} /> Retour
           </button>
           <div style={{ width: 1, height: 20, background: '#e5e7eb' }} />
@@ -620,7 +621,7 @@ export default function LessonPlayer() {
                 style={{ width: '100%', padding: '13px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <RefreshCw size={15} /> Recommencer
               </button>
-              <button onClick={() => navigate('/playground/module-generator')}
+              <button onClick={() => goBack()}
                 style={{ width: '100%', padding: '13px', background: PINK, border: 'none', color: 'white', cursor: 'pointer', fontWeight: 800, fontSize: 14 }}>
                 Retour au studio
               </button>
@@ -1080,7 +1081,7 @@ export default function LessonPlayer() {
 
       {/* Header */}
       <div style={{ background: 'white', borderBottom: '1px solid #e5e7eb', padding: '0 24px', height: 56, display: 'flex', alignItems: 'center', gap: 16, position: 'sticky', top: 0, zIndex: 50 }}>
-        <button onClick={() => navigate('/playground/module-generator')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+        <button onClick={() => goBack()} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
           <ArrowLeft size={16} /> Retour
         </button>
         <div style={{ width: 1, height: 20, background: '#e5e7eb' }} />
