@@ -3,7 +3,7 @@ import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles, Upload, Play, Trash2, Calendar, BookOpen,
-  CheckSquare, Square, Plus, ChevronLeft, Library
+  CheckSquare, Square, ChevronLeft, Library, Eye, EyeOff
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import HomeLayout from '@/components/layout/HomeLayout';
@@ -15,6 +15,7 @@ interface SavedTraining {
   source: string;
   audience: string;
   gamificationLevel: string;
+  published: boolean;
   createdAt: string;
 }
 
@@ -50,6 +51,7 @@ export default function CyberAcademie() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [publishing, setPublishing] = useState<string | null>(null);
 
   const loadTrainings = useCallback(() => {
     setLoading(true);
@@ -91,6 +93,22 @@ export default function CyberAcademie() {
 
   const toggleSelectAll = () => {
     setSelectedIds(selectedIds.size === trainings.length ? new Set() : new Set(trainings.map(t => t.id)));
+  };
+
+  const togglePublish = async (id: string, current: boolean, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPublishing(id);
+    try {
+      const res = await fetch(`/api/studio/training/${id}/publish`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ published: !current }),
+      });
+      if (res.ok) {
+        setTrainings(prev => prev.map(t => t.id === id ? { ...t, published: !current } : t));
+      }
+    } catch {}
+    setPublishing(null);
   };
 
   const confirmBulkDelete = async () => {
@@ -266,6 +284,16 @@ export default function CyberAcademie() {
                         <span style={{ fontFamily: MONO, fontSize: '0.62rem', padding: '1px 6px', background: `${ACC}15`, color: ACC, border: `1px solid ${ACC}30` }}>
                           {sourceLabel(t.source)}
                         </span>
+                        {isAdmin && (
+                          <span style={{
+                            fontFamily: MONO, fontSize: '0.62rem', padding: '1px 6px',
+                            background: t.published ? '#10b98115' : '#f59e0b15',
+                            color: t.published ? '#10b981' : '#f59e0b',
+                            border: `1px solid ${t.published ? '#10b98130' : '#f59e0b30'}`,
+                          }}>
+                            {t.published ? 'Publié' : 'Brouillon'}
+                          </span>
+                        )}
                         {t.createdAt && (
                           <span style={{ fontFamily: MONO, fontSize: '0.62rem', color: BORDER, display: 'flex', alignItems: 'center', gap: 3 }}>
                             <Calendar size={9} /> {formatDate(t.createdAt)}
@@ -276,6 +304,24 @@ export default function CyberAcademie() {
 
                     {/* Actions */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {isAdmin && (
+                        <button
+                          onClick={(e) => togglePublish(t.id, t.published, e)}
+                          disabled={publishing === t.id}
+                          title={t.published ? 'Dépublier' : 'Publier'}
+                          style={{
+                            width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            border: `1px solid ${t.published ? '#10b98140' : '#f59e0b40'}`,
+                            background: t.published ? '#10b98110' : '#f59e0b10',
+                            cursor: 'pointer',
+                            color: t.published ? '#10b981' : '#f59e0b',
+                            opacity: publishing === t.id ? 0.4 : 1,
+                            transition: 'all 0.15s ease',
+                          }}
+                        >
+                          {t.published ? <Eye size={12} /> : <EyeOff size={12} />}
+                        </button>
+                      )}
                       <button
                         onClick={(e) => { e.stopPropagation(); setLocation(`/cyber/academie/player/${t.id}`); }}
                         style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: ACC, color: '#fff', border: 'none', cursor: 'pointer', fontFamily: MONO, fontSize: '0.68rem', fontWeight: 600 }}

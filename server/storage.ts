@@ -25,9 +25,10 @@ export interface IStorage {
   // Studio — formations générées
   saveGeneratedTraining(training: InsertGeneratedTraining): Promise<GeneratedTraining>;
   getGeneratedTraining(id: string, scope?: string): Promise<GeneratedTraining | undefined>;
-  listGeneratedTrainings(limit?: number, scope?: string): Promise<GeneratedTraining[]>;
+  listGeneratedTrainings(limit?: number, scope?: string, publishedOnly?: boolean): Promise<GeneratedTraining[]>;
   deleteGeneratedTraining(id: string, scope?: string): Promise<void>;
   updateGeneratedTraining(id: string, patch: { title?: string; tagline?: string; content?: any }): Promise<GeneratedTraining | undefined>;
+  publishGeneratedTraining(id: string, published: boolean): Promise<GeneratedTraining | undefined>;
 }
 
 // Implémentation de la mémoire pour les tests et le développement
@@ -137,9 +138,10 @@ export class MemStorage implements IStorage {
     return t;
   }
 
-  async listGeneratedTrainings(limit = 20, scope?: string): Promise<GeneratedTraining[]> {
+  async listGeneratedTrainings(limit = 20, scope?: string, publishedOnly = false): Promise<GeneratedTraining[]> {
     const all = Array.from(this.trainings.values());
-    const filtered = scope ? all.filter(t => t.scope === scope) : all;
+    let filtered = scope ? all.filter(t => t.scope === scope) : all;
+    if (publishedOnly) filtered = filtered.filter(t => t.published);
     return filtered.slice(-limit).reverse();
   }
 
@@ -149,6 +151,14 @@ export class MemStorage implements IStorage {
       if (t && t.scope !== scope) return;
     }
     this.trainings.delete(id);
+  }
+
+  async publishGeneratedTraining(id: string, published: boolean): Promise<GeneratedTraining | undefined> {
+    const t = this.trainings.get(id);
+    if (!t) return undefined;
+    const updated = { ...t, published };
+    this.trainings.set(id, updated);
+    return updated;
   }
 }
 
@@ -267,15 +277,17 @@ export class DatabaseStorage implements IStorage {
     return record;
   }
 
-  async listGeneratedTrainings(limit = 20, scope?: string): Promise<GeneratedTraining[]> {
+  async listGeneratedTrainings(limit = 20, scope?: string, publishedOnly = false): Promise<GeneratedTraining[]> {
+    const conditions = [];
+    if (scope) conditions.push(eq(generatedTrainings.scope, scope));
+    if (publishedOnly) conditions.push(eq(generatedTrainings.published, true));
     const query = db
       .select()
       .from(generatedTrainings)
       .orderBy(desc(generatedTrainings.createdAt))
       .limit(limit);
-    if (scope) {
-      return query.where(eq(generatedTrainings.scope, scope));
-    }
+    if (conditions.length === 1) return query.where(conditions[0]);
+    if (conditions.length === 2) return query.where(sql`${conditions[0]} AND ${conditions[1]}`);
     return query;
   }
 
@@ -291,6 +303,15 @@ export class DatabaseStorage implements IStorage {
     const [record] = await db
       .update(generatedTrainings)
       .set({ ...patch })
+      .where(eq(generatedTrainings.id, id))
+      .returning();
+    return record;
+  }
+
+  async publishGeneratedTraining(id: string, published: boolean): Promise<GeneratedTraining | undefined> {
+    const [record] = await db
+      .update(generatedTrainings)
+      .set({ published })
       .where(eq(generatedTrainings.id, id))
       .returning();
     return record;

@@ -5978,9 +5978,29 @@ Niveau ${levelDesc}. Contexte français réaliste. Pour visual.type utilise: ema
   app.get("/api/studio/trainings", async (req: Request, res: Response) => {
     try {
       const scope = typeof req.query.scope === 'string' ? req.query.scope : 'internal';
-      const trainings = await storage.listGeneratedTrainings(100, scope);
+      const user = (req.session as any).user;
+      const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
+      const trainings = await storage.listGeneratedTrainings(100, scope, !isAdmin);
       res.json(trainings);
     } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  // PATCH /api/studio/training/:id/publish — Toggle publication
+  app.patch("/api/studio/training/:id/publish", async (req: Request, res: Response) => {
+    try {
+      const user = (req.session as any).user;
+      if (!user || (user.role !== 'admin' && user.role !== 'superadmin')) {
+        return res.status(403).json({ error: 'Accès refusé' });
+      }
+      const { published } = req.body;
+      if (typeof published !== 'boolean') return res.status(400).json({ error: 'published doit être boolean' });
+      const updated = await storage.publishGeneratedTraining(req.params.id, published);
+      if (!updated) return res.status(404).json({ error: 'Formation introuvable' });
+      res.json(updated);
+    } catch (error) {
+      console.error('[Studio] Erreur publication formation:', error);
       res.status(500).json({ error: 'Erreur serveur' });
     }
   });
