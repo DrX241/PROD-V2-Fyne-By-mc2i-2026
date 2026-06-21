@@ -3,8 +3,14 @@ import { Link } from 'wouter';
 import { motion } from 'framer-motion';
 import HomeLayout from '@/components/layout/HomeLayout';
 import PageTitle from '@/components/utils/PageTitle';
-import { Button } from '@/components/ui/button';
 import { Search, FileSearch, ArrowLeft, Fingerprint, HardDrive, Shield, Network, Brain } from 'lucide-react';
+
+const SANS = "'Plus Jakarta Sans', sans-serif";
+const MONO = "'JetBrains Mono', monospace";
+
+const fonts = `
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+`;
 
 interface Game {
   id: string;
@@ -25,7 +31,7 @@ export default function CyberArcade() {
       id: 'cyber-escape-v2',
       title: 'CYBER ESCAPE',
       description: 'Escape game immersif de haute volée : 15 minutes pour franchir 10 étapes avec des défis de cybersécurité réalistes. Chronomètre et médailles en jeu !',
-      icon: <Shield className="w-6 h-6" />,
+      icon: <Shield size={15} color="#64748b" />,
       gradient: 'from-green-600 to-blue-700',
       available: false,
       comingSoon: true,
@@ -35,7 +41,7 @@ export default function CyberArcade() {
       id: 'bug-hunter',
       title: 'BUG HUNTER',
       description: 'Incarnez un chercheur en sécurité et trouvez des vulnérabilités dans des applications web. Soumettez des rapports détaillés comme dans un vrai programme de bug bounty.',
-      icon: <FileSearch className="w-6 h-6" />,
+      icon: <FileSearch size={15} color="#64748b" />,
       gradient: 'from-red-600 to-amber-700',
       available: false,
       comingSoon: true,
@@ -45,7 +51,7 @@ export default function CyberArcade() {
       id: 'brain-hacker',
       title: 'BRAIN HACKER',
       description: 'Ingénierie sociale inversée : incarnez le hacker et trouvez le moyen le plus subtil de piéger la victime',
-      icon: <Brain className="w-6 h-6" />,
+      icon: <Brain size={15} color="#64748b" />,
       gradient: 'from-fuchsia-500 to-purple-800',
       available: false,
       comingSoon: true,
@@ -55,7 +61,7 @@ export default function CyberArcade() {
       id: 'firewall-tactique',
       title: 'FIREWALL TACTIQUE',
       description: 'Construisez une défense réseau en plaçant des composants de sécurité pour stopper des attaques',
-      icon: <Network className="w-6 h-6" />,
+      icon: <Network size={15} color="#64748b" />,
       gradient: 'from-indigo-500 to-purple-700',
       available: false,
       comingSoon: true,
@@ -65,7 +71,7 @@ export default function CyberArcade() {
       id: 'code-shield',
       title: 'CODE SHIELD',
       description: 'Créez votre propre antivirus et protégez le système contre les malwares',
-      icon: <Shield className="w-6 h-6" />,
+      icon: <Shield size={15} color="#64748b" />,
       gradient: 'from-blue-600 to-blue-900',
       available: false,
       comingSoon: true,
@@ -75,7 +81,7 @@ export default function CyberArcade() {
       id: 'cyber-investigator',
       title: 'CYBER INVESTIGATEUR',
       description: 'Résolvez des enquêtes sur des incidents de cybersécurité et identifiez les responsables',
-      icon: <Search className="w-6 h-6" />,
+      icon: <Search size={15} color="#64748b" />,
       gradient: 'from-indigo-600 to-indigo-900',
       available: false,
       comingSoon: true,
@@ -84,8 +90,8 @@ export default function CyberArcade() {
     {
       id: 'digital-forensics',
       title: 'ANALYSE FORENSIQUE',
-      description: 'Analysez des preuves numériques pour reconstruire la chronologie d\'attaques sophistiquées',
-      icon: <Fingerprint className="w-6 h-6" />,
+      description: "Analysez des preuves numériques pour reconstruire la chronologie d'attaques sophistiquées",
+      icon: <Fingerprint size={15} color="#64748b" />,
       gradient: 'from-emerald-600 to-emerald-900',
       available: false,
       comingSoon: true,
@@ -94,8 +100,8 @@ export default function CyberArcade() {
     {
       id: 'threat-intelligence',
       title: 'MENACES AVANCÉES',
-      description: 'Traquez des acteurs malveillants grâce à l\'analyse de renseignements sur les menaces',
-      icon: <Shield className="w-6 h-6" />,
+      description: "Traquez des acteurs malveillants grâce à l'analyse de renseignements sur les menaces",
+      icon: <Shield size={15} color="#64748b" />,
       gradient: 'from-purple-600 to-purple-900',
       available: false,
       comingSoon: true,
@@ -106,98 +112,179 @@ export default function CyberArcade() {
   return (
     <HomeLayout>
       <PageTitle title="CYBER ARCADE" />
-      <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-gray-900 to-blue-900">
-        <div className="relative z-10 max-w-7xl w-full mx-auto px-4 py-12 sm:px-6 sm:py-16">
-          <div className="flex items-center mb-8">
-            <Link href="/cyber/roleplay">
-              <Button variant="ghost" className="text-white hover:bg-blue-800/20 mr-4">
-                <ArrowLeft className="mr-2 h-4 w-4" /> Retour aux jeux de rôle
-              </Button>
-            </Link>
-            <h1 className="text-3xl sm:text-4xl font-bold text-white">Cyber Arcade</h1>
+
+      <style>{fonts}</style>
+
+      <div style={{ background: '#ffffff', minHeight: 'calc(100vh - 64px)', fontFamily: SANS, color: '#0f172a' }}>
+        <div style={{ maxWidth: 960, margin: '0 auto', padding: '48px 40px 80px' }}>
+
+          {/* Back */}
+          <Link href="/cyber">
+            <button style={{
+              fontFamily: MONO,
+              fontSize: 11,
+              color: '#94a3b8',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              marginBottom: 44,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: 0,
+            }}>
+              <ArrowLeft size={12} /> Retour vers I AM CYBER
+            </button>
+          </Link>
+
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            style={{ marginBottom: 48 }}
+          >
+            <span style={{
+              fontFamily: MONO,
+              fontSize: 10,
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              color: '#006a9e',
+              display: 'block',
+              marginBottom: 8,
+            }}>
+              ARCADE
+            </span>
+            <h1 style={{
+              fontFamily: SANS,
+              fontWeight: 800,
+              fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
+              letterSpacing: '-0.035em',
+              color: '#0f172a',
+              margin: '0 0 8px',
+            }}>
+              Cyber Arcade
+            </h1>
+            <p style={{
+              fontSize: 14,
+              color: '#64748b',
+              margin: 0,
+              maxWidth: 480,
+              lineHeight: 1.6,
+            }}>
+              Améliorez vos compétences en cybersécurité avec des jeux interactifs conçus pour tous les niveaux.
+            </p>
+          </motion.div>
+
+          {/* Section label */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 0 }}>
+            <span style={{ fontFamily: MONO, fontSize: 10, textTransform: 'uppercase', color: '#94a3b8' }}>
+              {games.length} JEUX
+            </span>
+            <div style={{ flex: 1, height: 1, background: '#e8eaed' }} />
           </div>
 
-          <p className="text-lg text-blue-200 max-w-3xl mb-10">
-            Bienvenue dans le Cyber Arcade ! Améliorez vos compétences en cybersécurité avec ces jeux interactifs 
-            et ludiques conçus pour tous les niveaux. Choisissez un jeu pour commencer.
-          </p>
+          {/* Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 1,
+            background: '#e8eaed',
+            marginTop: 1,
+          }}>
+            {games.map((game) => {
+              const isHovered = hoveredGame === game.id;
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {games.map((game) => (
-              <motion.div
-                key={game.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="relative overflow-hidden shadow-xl rounded-xl"
-                onMouseEnter={() => setHoveredGame(game.id)}
-                onMouseLeave={() => setHoveredGame(null)}
-              >
-                {!game.comingSoon ? (
-                  <Link href={game.route}>
-                    <div className={`bg-gradient-to-br ${game.gradient} p-6 h-full min-h-[220px] flex flex-col relative overflow-hidden rounded-xl cursor-pointer transition-all duration-300 hover:shadow-2xl`}>
-                      {/* Glow effect on hover */}
-                      {hoveredGame === game.id && (
-                        <div className="absolute inset-0 bg-white opacity-10 animate-pulse"></div>
-                      )}
-
-                      <div className="flex items-center mb-4">
-                        <div className="bg-white/10 p-2 rounded-lg mr-3">
-                          {game.icon}
-                        </div>
-                        <h2 className="text-xl font-bold text-white">
-                          {game.title}
-                        </h2>
-                      </div>
-
-                      <p className="text-blue-100 text-sm mb-4 flex-grow">
-                        {game.description}
-                      </p>
-
-                      <div className="flex justify-end mt-2">
-                        <Button
-                          variant="ghost"
-                          className="bg-white/10 hover:bg-white/20 py-1.5 px-4 rounded-lg text-white text-sm font-medium"
-                        >
-                          Jouer maintenant
-                        </Button>
-                      </div>
-                    </div>
-                  </Link>
-                ) : (
-                  <div className={`bg-gradient-to-br ${game.gradient} p-6 h-full min-h-[220px] flex flex-col relative overflow-hidden rounded-xl cursor-not-allowed opacity-80 transition-all duration-300`}>
-                    {/* Glow effect on hover */}
-                    {hoveredGame === game.id && (
-                      <div className="absolute inset-0 bg-white opacity-10 animate-pulse"></div>
-                    )}
-
-                    <div className="flex items-center mb-4">
-                      <div className="bg-white/10 p-2 rounded-lg mr-3">
-                        {game.icon}
-                      </div>
-                      <h2 className="text-xl font-bold text-white">
-                        {game.title}
-                      </h2>
-                    </div>
-
-                    <p className="text-blue-100 text-sm mb-4 flex-grow">
-                      {game.description}
-                    </p>
-
-                    <div className="flex justify-end mt-2">
-                      <Button
-                        variant="ghost"
-                        className="bg-white/10 hover:bg-white/20 py-1.5 px-4 rounded-lg text-white text-sm font-medium"
-                        disabled
-                      >
-                        Bientôt disponible
-                      </Button>
-                    </div>
+              const cardContent = (
+                <motion.div
+                  key={game.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                  style={{
+                    background: isHovered ? '#f7f8fa' : '#ffffff',
+                    padding: '22px',
+                    position: 'relative',
+                    transition: 'background 0.12s ease',
+                    cursor: game.comingSoon ? 'default' : 'pointer',
+                    opacity: game.comingSoon ? 0.6 : 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minHeight: 200,
+                  }}
+                  onMouseEnter={() => setHoveredGame(game.id)}
+                  onMouseLeave={() => setHoveredGame(null)}
+                >
+                  {/* Icon */}
+                  <div style={{
+                    width: 32,
+                    height: 32,
+                    background: '#f7f8fa',
+                    border: '1px solid #e8eaed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: 14,
+                    flexShrink: 0,
+                  }}>
+                    {game.icon}
                   </div>
-                )}
-              </motion.div>
-            ))}
+
+                  {/* Title */}
+                  <h3 style={{
+                    fontFamily: MONO,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    color: '#0f172a',
+                    margin: '0 0 8px',
+                  }}>
+                    {game.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p style={{
+                    fontSize: 13,
+                    color: '#64748b',
+                    lineHeight: 1.6,
+                    margin: '0 0 16px',
+                    flex: 1,
+                  }}>
+                    {game.description}
+                  </p>
+
+                  {/* CTA */}
+                  <div style={{ paddingTop: 14, borderTop: '1px solid #e8eaed' }}>
+                    {game.comingSoon ? (
+                      <span style={{ fontFamily: MONO, fontSize: 10, color: '#94a3b8' }}>
+                        Bientôt disponible
+                      </span>
+                    ) : (
+                      <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, color: '#006a9e' }}>
+                        Jouer maintenant →
+                      </span>
+                    )}
+                  </div>
+                </motion.div>
+              );
+
+              if (!game.comingSoon) {
+                return (
+                  <Link key={game.id} href={game.route}>
+                    {cardContent}
+                  </Link>
+                );
+              }
+
+              return (
+                <div key={game.id}>
+                  {cardContent}
+                </div>
+              );
+            })}
           </div>
+
         </div>
       </div>
     </HomeLayout>

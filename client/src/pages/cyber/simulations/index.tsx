@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, AlertTriangle, BrainCircuit, Terminal, Cpu } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+
+const SANS = "'Plus Jakarta Sans', sans-serif";
+const MONO = "'JetBrains Mono', monospace";
 
 const SIMULATIONS = [
   {
     id: 'crisis',
     title: 'Je suis RSSI',
     sub: 'Gestion de crise cyber en temps réel',
-    description: 'Prenez les décisions stratégiques lors d\'une cyberattaque majeure. Communication interne, remédiation, médias — tout va vite.',
+    description: "Prenez les décisions stratégiques lors d'une cyberattaque majeure. Communication interne, remédiation, médias — tout va vite.",
     route: '/cyber/crisis-management',
     icon: AlertTriangle,
     accent: '#ef4444',
@@ -41,8 +43,8 @@ const SIMULATIONS = [
   {
     id: 'cyber-lab',
     title: 'Cyber Lab',
-    sub: 'Atelier d\'expérimentation pratique',
-    description: 'Environnement sandbox pour tester vos scripts, analyser du trafic réseau et expérimenter avec l\'assistant IA cyber.',
+    sub: "Atelier d'expérimentation pratique",
+    description: "Environnement sandbox pour tester vos scripts, analyser du trafic réseau et expérimenter avec l'assistant IA cyber.",
     route: '/cyber/cyber-lab',
     icon: Cpu,
     accent: '#10b981',
@@ -53,24 +55,39 @@ const SIMULATIONS = [
 
 export default function CyberSimulations() {
   const [, setLocation] = useLocation();
+  const [hoveredSim, setHoveredSim] = useState<string | null>(null);
 
   return (
     <div
-      className="min-h-screen"
       style={{
-        backgroundColor: '#020817',
-        backgroundImage: 'linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px)',
-        backgroundSize: '40px 40px',
-        fontFamily: "'DM Sans', sans-serif",
+        background: '#ffffff',
+        minHeight: '100vh',
+        fontFamily: SANS,
+        color: '#0f172a',
       }}
     >
-      <div className="max-w-5xl mx-auto px-6 py-10">
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');`}</style>
+
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '48px 40px 80px' }}>
+
         {/* Back */}
         <button
           onClick={() => setLocation('/cyber')}
-          className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors mb-10 text-sm"
+          style={{
+            fontFamily: MONO,
+            fontSize: 11,
+            color: '#94a3b8',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            marginBottom: 44,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: 0,
+          }}
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft size={13} />
           Retour vers I AM CYBER
         </button>
 
@@ -78,86 +95,201 @@ export default function CyberSimulations() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
+          style={{ marginBottom: 48 }}
         >
-          <div className="flex items-center gap-3 mb-3">
-            <span
-              className="text-xs tracking-widest text-red-400 font-semibold"
-              style={{ fontFamily: "'Orbitron',monospace" }}
-            >
-              SIMULER
-            </span>
-            <div className="h-px flex-1 bg-red-500/20" />
-          </div>
-          <h1
-            className="text-4xl font-black text-white mb-3"
-            style={{ fontFamily: "'Orbitron',monospace" }}
+          <span
+            style={{
+              fontFamily: MONO,
+              fontSize: 10,
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              color: '#006a9e',
+              display: 'block',
+              marginBottom: 8,
+            }}
           >
-            SIMULATIONS
+            SIMULER
+          </span>
+          <h1
+            style={{
+              fontFamily: SANS,
+              fontWeight: 800,
+              fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
+              letterSpacing: '-0.035em',
+              color: '#0f172a',
+              margin: '0 0 8px',
+            }}
+          >
+            Simulations
           </h1>
-          <p className="text-slate-400 text-lg max-w-2xl">
+          <p
+            style={{
+              fontSize: 14,
+              color: '#64748b',
+              margin: 0,
+              maxWidth: 480,
+              lineHeight: 1.6,
+            }}
+          >
             Immergez-vous dans des scénarios réalistes. Gestion de crise, pentest en conditions réelles, formation COMEX — choisissez votre mission.
           </p>
         </motion.div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Section separator */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+          <span style={{ fontFamily: MONO, fontSize: 10, textTransform: 'uppercase', color: '#94a3b8' }}>
+            {SIMULATIONS.length} SIMULATIONS
+          </span>
+          <div style={{ flex: 1, height: 1, background: '#e8eaed' }} />
+        </div>
+
+        {/* Grid 2 colonnes */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: 1,
+            background: '#e8eaed',
+          }}
+        >
           {SIMULATIONS.map((sim, i) => {
             const Icon = sim.icon;
+            const isHovered = hoveredSim === sim.id;
+
             return (
               <motion.div
                 key={sim.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08 }}
-                className="rounded-2xl p-6 flex flex-col gap-4 cursor-pointer group transition-all duration-200"
-                style={{
-                  background: `radial-gradient(ellipse at 30% 30%, ${sim.accent}15 0%, transparent 60%), #0a0f1e`,
-                  border: `1px solid ${sim.accent}30`,
-                }}
                 onClick={() => setLocation(sim.route)}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = sim.accent + '70';
-                  (e.currentTarget as HTMLElement).style.boxShadow = `0 0 24px ${sim.accent}25`;
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = sim.accent + '30';
-                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                onMouseEnter={() => setHoveredSim(sim.id)}
+                onMouseLeave={() => setHoveredSim(null)}
+                style={{
+                  background: isHovered ? '#f7f8fa' : '#ffffff',
+                  padding: '24px',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  borderLeft: `4px solid ${sim.accent}`,
+                  transition: 'background 0.12s ease',
                 }}
               >
-                <div className="flex items-start justify-between">
-                  <div className="p-3 rounded-xl" style={{ background: sim.accent + '20', border: `1px solid ${sim.accent}40` }}>
-                    <Icon className="w-6 h-6" style={{ color: sim.accent }} />
+                {/* Badge + Icon row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      background: `${sim.accent}12`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Icon size={16} color={sim.accent} />
                   </div>
                   <span
-                    className="text-xs font-bold px-2.5 py-1 rounded-full"
-                    style={{ background: sim.accent + '20', color: sim.accent, border: `1px solid ${sim.accent}40`, fontFamily: "'Orbitron',monospace" }}
+                    style={{
+                      fontFamily: MONO,
+                      fontSize: 10,
+                      fontWeight: 600,
+                      padding: '2px 7px',
+                      background: `${sim.accent}10`,
+                      color: sim.accent,
+                      border: `1px solid ${sim.accent}25`,
+                      borderRadius: 0,
+                    }}
                   >
                     {sim.badge}
                   </span>
                 </div>
 
-                <div>
-                  <h3 className="text-white font-bold text-lg mb-0.5">{sim.title}</h3>
-                  <p className="text-sm mb-2" style={{ color: sim.accent }}>{sim.sub}</p>
-                  <p className="text-slate-400 text-sm leading-relaxed">{sim.description}</p>
-                </div>
+                <h3
+                  style={{
+                    fontFamily: SANS,
+                    fontWeight: 700,
+                    fontSize: 15,
+                    color: '#0f172a',
+                    margin: '0 0 4px',
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  {sim.title}
+                </h3>
+                <p
+                  style={{
+                    fontFamily: MONO,
+                    fontSize: 11,
+                    color: sim.accent,
+                    margin: '0 0 8px',
+                  }}
+                >
+                  {sim.sub}
+                </p>
+                <p
+                  style={{
+                    fontSize: 13,
+                    color: '#64748b',
+                    lineHeight: 1.6,
+                    margin: '0 0 16px',
+                  }}
+                >
+                  {sim.description}
+                </p>
 
-                <div className="flex flex-wrap gap-1.5">
+                {/* Tags */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 20 }}>
                   {sim.tags.map(tag => (
-                    <span key={tag} className="text-xs px-2 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.05)', color: '#64748b', border: '1px solid rgba(255,255,255,0.07)' }}>
+                    <span
+                      key={tag}
+                      style={{
+                        fontFamily: MONO,
+                        fontSize: 10,
+                        padding: '2px 6px',
+                        background: '#f7f8fa',
+                        color: '#94a3b8',
+                        border: '1px solid #e8eaed',
+                      }}
+                    >
                       {tag}
                     </span>
                   ))}
                 </div>
 
-                <button
-                  className="w-full py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 mt-auto group-hover:opacity-100"
-                  style={{ background: sim.accent + '20', color: sim.accent, border: `1px solid ${sim.accent}50` }}
+                {/* CTA row */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingTop: 16,
+                    borderTop: '1px solid #e8eaed',
+                  }}
                 >
-                  Accéder à la simulation
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+                  <span
+                    style={{
+                      fontFamily: SANS,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: isHovered ? sim.accent : '#64748b',
+                    }}
+                  >
+                    Accéder à la simulation
+                  </span>
+                  <div
+                    style={{
+                      width: 28,
+                      height: 28,
+                      background: isHovered ? sim.accent : '#f7f8fa',
+                      border: '1px solid #e8eaed',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <ChevronRight size={13} color={isHovered ? '#fff' : '#94a3b8'} />
+                  </div>
+                </div>
               </motion.div>
             );
           })}

@@ -1,220 +1,272 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'wouter';
+import { motion } from 'framer-motion';
 import {
   ArrowRight,
   ChevronLeft,
   Users,
   Briefcase,
   Shield,
-  Clock
 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+
+const SANS = "'Plus Jakarta Sans', sans-serif";
+const MONO = "'JetBrains Mono', monospace";
 
 const RoleplayHub: React.FC = () => {
   const [, setLocation] = useLocation();
+  const [hoveredScenario, setHoveredScenario] = useState<string | null>(null);
 
-  // Animation des cartes
-  const cardVariants = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    hover: { scale: 1.03, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)' }
-  };
-
-  // Scénarios conversationnels uniquement (RSSI, COMEX, Pentest → dans /cyber/simulations)
   const scenarios = [
     {
       id: 'debutant-cyber',
       title: "Je suis Monsieur Tout le Monde",
       description: "Je veux apprendre à me protéger des risques numériques au quotidien",
       link: '/cyber/learning-center/modules/debutant-cyber',
-      icon: <Shield className="h-10 w-10 text-amber-300" />,
-      color: 'amber',
-      gradient: 'from-amber-900/70 to-amber-700/30',
-      border: 'border-amber-500/30',
-      buttonGradient: 'from-amber-700 to-amber-600',
-      buttonHover: 'hover:from-amber-600 hover:to-amber-500',
-      textColor: 'text-amber-300',
       details: [
         "4 modules immersifs avec scénarios réels",
         "Choix interactifs et feedback immédiat",
         "Score de risque personnel + badge final"
       ],
-      comingSoon: false
+      comingSoon: false,
     },
     {
       id: 'recruiter',
       title: "Je suis Membre du Service de Formation",
       description: "Je souhaite évaluer les compétences cybersécurité de mes collaborateurs",
       link: '/cyber/test-technique',
-      icon: <Users className="h-10 w-10 text-indigo-300" />,
-      color: 'indigo',
-      gradient: 'from-indigo-900/70 to-indigo-700/30',
-      border: 'border-indigo-500/30',
-      buttonGradient: 'from-indigo-700 to-indigo-600',
-      buttonHover: 'hover:from-indigo-600 hover:to-indigo-500',
-      textColor: 'text-indigo-300',
       details: [
         "Évaluation des compétences techniques",
         "Tests standardisés pour profils cybersécurité",
         "Rapports détaillés sur les compétences"
       ],
-      comingSoon: false
+      comingSoon: false,
     },
     {
       id: 'interview-test',
       title: "Je suis un Professionnel Confirmé",
       description: "Je souhaite me perfectionner en cybersécurité",
       link: '/cyber/interview-test',
-      icon: <Briefcase className="h-10 w-10 text-blue-300" />,
-      color: 'blue',
-      gradient: 'from-blue-900/70 to-blue-700/30',
-      border: 'border-blue-500/30',
-      buttonGradient: 'from-blue-700 to-blue-600',
-      buttonHover: 'hover:from-blue-600 hover:to-blue-500',
-      textColor: 'text-blue-300',
       details: [
         "Simulation d'entretien technique réaliste",
         "Questions adaptées en fonction du niveau",
         "Analyse de vos réponses avec feedback"
       ],
-      comingSoon: false
+      comingSoon: false,
     }
   ];
 
-  // Animation de code en arrière-plan
-  const codeLines = [
-    "function detectThreat(network_traffic) {",
-    "  const suspicious_patterns = analyzePackets(network_traffic);",
-    "  if (suspicious_patterns.length > 0) {",
-    "    return { status: 'THREAT_DETECTED', details: suspicious_patterns };",
-    "  }",
-    "  return { status: 'SECURE', confidence: 0.95 };",
-    "}",
-    "class MockScenario extends Simulation {",
-    "  constructor(difficulty, user_profile) {",
-    "    super();",
-    "    this.difficulty = difficulty;",
-    "    this.userProfile = user_profile;",
-    "    this.scenario = this.generateScenario();",
-    "  }",
-    "  generateScenario() {",
-    "    const templates = SCENARIO_DATABASE.filter(",
-    "      template => template.difficulty === this.difficulty",
-    "    );",
-    "    return templates[Math.floor(Math.random() * templates.length)];",
-    "  }",
-    "}"
-  ];
+  const getIcon = (id: string) => {
+    if (id === 'debutant-cyber') return Shield;
+    if (id === 'recruiter') return Users;
+    return Briefcase;
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-cyan-950 to-slate-900 text-white p-6">
-      {/* Bouton de retour */}
-      <div className="absolute top-4 left-4 z-20">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="bg-black/50 border-cyan-800 text-cyan-400 hover:bg-black/70 hover:text-cyan-300 hover:border-cyan-500 transition-colors"
+    <div
+      style={{
+        background: '#ffffff',
+        minHeight: '100vh',
+        fontFamily: SANS,
+        color: '#0f172a',
+      }}
+    >
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');`}</style>
+
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '48px 40px 80px' }}>
+
+        {/* Back */}
+        <button
           onClick={() => setLocation('/cyber')}
+          style={{
+            fontFamily: MONO,
+            fontSize: 11,
+            color: '#94a3b8',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            marginBottom: 44,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: 0,
+          }}
         >
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          Retour
-        </Button>
-      </div>
+          <ChevronLeft size={13} />
+          Retour vers I AM CYBER
+        </button>
 
-      {/* En-tête */}
-      <div className="mb-12 text-center mt-10 relative z-10">
-        <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-blue-400 cyber-glitch-text mb-4">
-          CYBER ROLE PLAY
-        </h1>
-        <p className="text-gray-300 max-w-3xl mx-auto text-lg">
-          Immergez-vous dans des simulations de rôles réalistes pour développer 
-          vos compétences en cybersécurité à travers des interactions dynamiques avec l'IA.
-        </p>
-      </div>
-
-      {/* Animation de code en arrière-plan */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden z-0 opacity-20 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black z-10 opacity-60"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-10 opacity-60"></div>
-        <pre className="text-cyan-400 text-xl font-mono font-bold animate-scrolling-code relative z-5">
-          {Array(30).fill(codeLines).flat().join('\n')}
-        </pre>
-      </div>
-
-      {/* Grid des scénarios */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 max-w-7xl mx-auto relative z-10">
-        {scenarios.map((scenario) => (
-          <motion.div
-            key={scenario.id}
-            initial="initial"
-            animate="animate"
-            whileHover="hover"
-            variants={cardVariants}
-            transition={{ duration: 0.3 }}
-            className="flex"
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{ marginBottom: 48 }}
+        >
+          <span
+            style={{
+              fontFamily: MONO,
+              fontSize: 10,
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              color: '#006a9e',
+              display: 'block',
+              marginBottom: 8,
+            }}
           >
-            <Card className={`w-full bg-gray-900/70 backdrop-blur-sm border-2 ${scenario.border} shadow-lg`}>
-              <CardHeader className={`pb-4 bg-gradient-to-br ${scenario.gradient} rounded-t-lg`}>
-                <div className="flex justify-center mb-4">
-                  <div className={`p-4 rounded-full bg-black/30 backdrop-blur-sm`}>
-                    {scenario.icon}
+            ROLEPLAY
+          </span>
+          <h1
+            style={{
+              fontFamily: SANS,
+              fontWeight: 800,
+              fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
+              letterSpacing: '-0.035em',
+              color: '#0f172a',
+              margin: '0 0 8px',
+            }}
+          >
+            Cyber Role Play
+          </h1>
+          <p
+            style={{
+              fontSize: 14,
+              color: '#64748b',
+              margin: 0,
+              maxWidth: 480,
+              lineHeight: 1.6,
+            }}
+          >
+            Immergez-vous dans des simulations de rôles réalistes pour développer vos compétences en cybersécurité à travers des interactions dynamiques avec l'IA.
+          </p>
+        </motion.div>
+
+        {/* Section label */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+          <span style={{ fontFamily: MONO, fontSize: 10, textTransform: 'uppercase', color: '#94a3b8' }}>
+            {scenarios.length} SCÉNARIOS
+          </span>
+          <div style={{ flex: 1, height: 1, background: '#e8eaed' }} />
+        </div>
+
+        {/* Liste verticale */}
+        <div style={{ borderTop: '1px solid #e8eaed' }}>
+          {scenarios.map((scenario, i) => {
+            const Icon = getIcon(scenario.id);
+            const isHovered = hoveredScenario === scenario.id;
+
+            return (
+              <motion.div
+                key={scenario.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.07 }}
+                onClick={() => !scenario.comingSoon && setLocation(scenario.link)}
+                onMouseEnter={() => setHoveredScenario(scenario.id)}
+                onMouseLeave={() => setHoveredScenario(null)}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr auto',
+                  gap: 24,
+                  padding: '24px 12px',
+                  borderBottom: '1px solid #e8eaed',
+                  cursor: scenario.comingSoon ? 'default' : 'pointer',
+                  background: isHovered && !scenario.comingSoon ? '#f7f8fa' : '#ffffff',
+                  transition: 'background 0.12s ease',
+                  opacity: scenario.comingSoon ? 0.5 : 1,
+                }}
+              >
+                {/* Left content */}
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                    <div
+                      style={{
+                        width: 28,
+                        height: 28,
+                        background: '#f7f8fa',
+                        border: '1px solid #e8eaed',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Icon size={13} color="#64748b" />
+                    </div>
+                    <span
+                      style={{
+                        fontFamily: SANS,
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: '#0f172a',
+                        letterSpacing: '-0.01em',
+                      }}
+                    >
+                      {scenario.title}
+                    </span>
+                  </div>
+
+                  <p
+                    style={{
+                      fontSize: 13,
+                      color: '#64748b',
+                      lineHeight: 1.6,
+                      margin: 0,
+                      maxWidth: 560,
+                    }}
+                  >
+                    {scenario.description}
+                  </p>
+
+                  {/* Details */}
+                  <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {scenario.details.map((detail, idx) => (
+                      <span
+                        key={idx}
+                        style={{
+                          fontFamily: MONO,
+                          fontSize: 10,
+                          padding: '2px 6px',
+                          background: '#f7f8fa',
+                          color: '#94a3b8',
+                          border: '1px solid #e8eaed',
+                        }}
+                      >
+                        {detail}
+                      </span>
+                    ))}
                   </div>
                 </div>
-                <CardTitle className={`text-2xl font-bold text-center ${scenario.textColor}`}>
-                  {scenario.title}
-                </CardTitle>
-                <CardDescription className="text-lg text-gray-300 text-center font-medium">
-                  {scenario.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <ul className={`space-y-2 ${scenario.textColor} text-sm`}>
-                  {scenario.details.map((detail, index) => (
-                    <li key={index} className="flex items-start">
-                      <div className={`p-1 rounded-full bg-${scenario.color}-900/50 mr-2 mt-0.5`}>
-                        <ArrowRight className="h-3 w-3" />
-                      </div>
-                      <span>{detail}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  className={`w-full py-6 bg-gradient-to-r ${scenario.buttonGradient} ${scenario.buttonHover} text-white group`}
-                  onClick={() => setLocation(scenario.link)}
-                  disabled={scenario.comingSoon}
-                >
-                  {scenario.comingSoon ? (
-                    <span className="flex items-center">
-                      <Clock className="mr-2 h-4 w-4" />
-                      Bientôt disponible
-                    </span>
-                  ) : (
-                    <span className="flex items-center">
-                      Accéder au scénario
-                      <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                    </span>
-                  )}
-                </Button>
-              </CardFooter>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
 
-      {/* Note en bas de page */}
-      <div className="text-center text-gray-500 mt-12 text-sm">
-        <p>Les scénarios sont conçus pour offrir une expérience d'apprentissage dynamique et personnalisée.</p>
+                {/* CTA button */}
+                <div style={{ display: 'flex', alignItems: 'center', alignSelf: 'center' }}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!scenario.comingSoon) setLocation(scenario.link);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '9px 16px',
+                      background: scenario.comingSoon ? '#f7f8fa' : '#006a9e',
+                      color: scenario.comingSoon ? '#94a3b8' : '#ffffff',
+                      border: scenario.comingSoon ? '1px solid #e8eaed' : 'none',
+                      cursor: scenario.comingSoon ? 'not-allowed' : 'pointer',
+                      fontFamily: MONO,
+                      fontSize: 11,
+                      fontWeight: 600,
+                      borderRadius: 0,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {scenario.comingSoon ? 'Bientôt' : 'Accéder'}
+                    {!scenario.comingSoon && <ArrowRight size={11} />}
+                  </button>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

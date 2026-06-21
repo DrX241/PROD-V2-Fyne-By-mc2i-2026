@@ -5,14 +5,21 @@ import { ChevronLeft, BookOpen, MessageSquare, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import HomeLayout from '@/components/layout/HomeLayout';
 
-const ACC = '#0057ff';
-const BG = '#0f1117';
-const SURFACE = '#111827';
-const BORDER = '#1e2d45';
-const TEXT = '#f1f5f9';
-const SUB = '#64748b';
-const MONO = "'DM Mono', monospace";
-const SANS = "'DM Sans', sans-serif";
+const W = {
+  bg:      '#ffffff',
+  surface: '#f7f8fa',
+  line:    '#e8eaed',
+  blue:    '#006a9e',
+  pink:    '#dd0061',
+  text:    '#0f172a',
+  sub:     '#64748b',
+  muted:   '#94a3b8',
+  red:     '#ef4444',
+  green:   '#10b981',
+  amber:   '#f59e0b',
+  MONO:    "'JetBrains Mono', monospace",
+  SANS:    "'Plus Jakarta Sans', sans-serif",
+};
 
 const MODES = [
   {
@@ -41,32 +48,74 @@ export default function SasCyberAcademie() {
 
   return (
     <HomeLayout>
-      <div style={{ minHeight: '100vh', backgroundColor: BG, fontFamily: SANS, color: TEXT }}>
-        <div style={{ maxWidth: 960, margin: '0 auto', padding: '56px 32px 80px' }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');`}</style>
+      <div style={{ minHeight: '100vh', backgroundColor: W.bg, fontFamily: W.SANS, color: W.text }}>
+        <div style={{ maxWidth: 860, margin: '0 auto', padding: '48px 40px 80px' }}>
 
-          {/* Back */}
+          {/* Breadcrumb */}
           <button
             onClick={() => navigate('/cyber')}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: SUB, fontSize: '0.8rem', marginBottom: 48, padding: 0, fontFamily: MONO }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: W.muted,
+              fontSize: '10px',
+              fontFamily: W.MONO,
+              letterSpacing: '0.06em',
+              marginBottom: 40,
+              padding: 0,
+            }}
           >
-            <ChevronLeft size={14} /> Retour vers I AM CYBER
+            <ChevronLeft size={12} /> Retour vers I AM CYBER
           </button>
 
           {/* Header */}
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 56 }}>
-            <p style={{ fontFamily: MONO, fontSize: '0.65rem', letterSpacing: '0.15em', color: ACC, marginBottom: 12 }}>
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: 48 }}>
+            <span style={{
+              fontFamily: W.MONO,
+              fontSize: '10px',
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: W.blue,
+              marginBottom: 8,
+              display: 'block',
+            }}>
               CYBER ACADÉMIE
-            </p>
-            <h1 style={{ fontFamily: MONO, fontSize: 'clamp(1.8rem, 5vw, 2.8rem)', fontWeight: 600, margin: '0 0 10px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-              Choisissez votre<br />mode d'apprentissage
+            </span>
+            <h1 style={{
+              fontFamily: W.SANS,
+              fontSize: 'clamp(1.6rem, 3vw, 2rem)',
+              fontWeight: 700,
+              margin: '0 0 8px',
+              letterSpacing: '-0.03em',
+              color: W.text,
+              lineHeight: 1.2,
+            }}>
+              Choisissez votre mode d'apprentissage
             </h1>
-            <p style={{ color: SUB, fontSize: '0.95rem', maxWidth: 480, margin: 0 }}>
+            <p style={{
+              fontSize: '14px',
+              color: W.sub,
+              margin: 0,
+              maxWidth: 480,
+              lineHeight: 1.6,
+            }}>
               Deux approches complémentaires pour maîtriser la cybersécurité à votre rythme.
             </p>
           </motion.div>
 
-          {/* Mode rows */}
-          <div style={{ borderTop: `1px solid ${BORDER}` }}>
+          {/* Section label */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 0 }}>
+            <span style={{ fontFamily: W.MONO, fontSize: '10px', textTransform: 'uppercase', color: W.muted }}>MODES</span>
+            <div style={{ flex: 1, height: 1, background: W.line }} />
+          </div>
+
+          {/* Modes list */}
+          <div style={{ borderTop: `1px solid ${W.line}` }}>
             {MODES.map((mode, i) => {
               const Icon = mode.icon;
               const isHovered = hovered === mode.id;
@@ -81,57 +130,71 @@ export default function SasCyberAcademie() {
                   onMouseLeave={() => setHovered(null)}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '48px 1fr auto',
+                    gridTemplateColumns: '40px 1fr auto',
                     alignItems: 'center',
                     gap: 24,
-                    padding: '28px 0',
-                    borderBottom: `1px solid ${BORDER}`,
+                    padding: '24px 12px',
+                    borderBottom: `1px solid ${W.line}`,
                     cursor: 'pointer',
-                    background: isHovered ? `rgba(0,87,255,0.03)` : 'transparent',
-                    transition: 'background 0.15s ease',
-                    position: 'relative',
+                    background: isHovered ? W.surface : 'transparent',
+                    transition: 'background 0.12s ease',
                   }}
                 >
-                  {/* Active indicator */}
-                  <div style={{
-                    position: 'absolute', left: -32, top: 0, bottom: 0, width: 2,
-                    background: ACC, opacity: isHovered ? 1 : 0, transition: 'opacity 0.15s ease',
-                  }} />
-
                   {/* Icon */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon size={20} style={{ color: isHovered ? ACC : '#334155', transition: 'color 0.15s ease' }} />
+                  <div style={{
+                    width: 36,
+                    height: 36,
+                    background: isHovered ? W.blue : W.surface,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'background 0.12s ease',
+                    flexShrink: 0,
+                  }}>
+                    <Icon size={16} style={{ color: isHovered ? '#fff' : W.sub, transition: 'color 0.12s ease' }} />
                   </div>
 
                   {/* Content */}
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 6, flexWrap: 'wrap' }}>
-                      <span style={{ fontFamily: MONO, fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.1em', color: isHovered ? TEXT : '#94a3b8', transition: 'color 0.15s ease' }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 5, flexWrap: 'wrap' }}>
+                      <span style={{
+                        fontFamily: W.MONO,
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        letterSpacing: '0.06em',
+                        color: isHovered ? W.text : W.sub,
+                        transition: 'color 0.12s ease',
+                      }}>
                         {mode.label}
                       </span>
-                      <span style={{ fontFamily: SANS, fontSize: '0.8rem', color: SUB, fontStyle: 'italic' }}>
+                      <span style={{ fontFamily: W.SANS, fontSize: '13px', fontStyle: 'italic', color: W.muted }}>
                         {mode.sub}
                       </span>
                     </div>
-                    <p style={{ fontFamily: SANS, fontSize: '0.82rem', color: '#475569', margin: 0, lineHeight: 1.6, maxWidth: 560 }}>
+                    <p style={{ fontSize: '13px', color: W.sub, lineHeight: 1.6, margin: 0, maxWidth: 520 }}>
                       {mode.description}
                     </p>
                   </div>
 
                   {/* CTA */}
                   <div style={{
-                    display: 'flex', alignItems: 'center', gap: 8,
-                    opacity: isHovered ? 1 : 0, transition: 'opacity 0.15s ease', whiteSpace: 'nowrap',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    opacity: isHovered ? 1 : 0,
+                    transition: 'opacity 0.12s ease',
+                    whiteSpace: 'nowrap',
                   }}>
-                    <span style={{ fontFamily: MONO, fontSize: '0.7rem', color: ACC, letterSpacing: '0.06em' }}>
+                    <span style={{ fontFamily: W.MONO, fontSize: '11px', color: W.blue }}>
                       {mode.cta}
                     </span>
-                    <ArrowRight size={14} style={{ color: ACC }} />
+                    <ArrowRight size={12} style={{ color: W.blue }} />
                   </div>
                 </motion.div>
               );
             })}
           </div>
+
         </div>
       </div>
     </HomeLayout>
