@@ -23,16 +23,20 @@ import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/hooks/useAuth';
 import HomeLayout from '@/components/layout/HomeLayout';
 
-// ── Palette mc2i ──────────────────────────────────────────────────────────────
-const BLUE   = '#006a9e';
-const PINK   = '#dd0061';
-const GRAY50 = '#f8fafc';
-const GRAY100= '#f1f5f9';
-const GRAY200= '#e2e8f0';
-const GRAY400= '#94a3b8';
-const GRAY500= '#64748b';
-const GRAY700= '#334155';
-const GRAY900= '#0f172a';
+// ── Design tokens ─────────────────────────────────────────────────────────────
+const T = {
+  bg:       '#ffffff',
+  surface:  '#f5f6f8',
+  border:   '#ebedf0',
+  borderMid:'#d8dce3',
+  blue:     '#006a9e',
+  pink:     '#dd0061',
+  text:     '#0f172a',
+  sub:      '#64748b',
+  muted:    '#94a3b8',
+  hoverBg:  '#f0f3f7',
+  activeBg: '#eaf3f9',
+};
 
 // ── Level thresholds ──────────────────────────────────────────────────────────
 const LEVELS = [
@@ -57,8 +61,8 @@ const MODULES = [
     cta: "Accéder à l'académie",
     route: '/cyber/sas-academie',
     Icon: GraduationCap,
-    accent: BLUE,
-    lightBg: '#eff8ff',
+    accent: T.blue,
+    lightBg: '#deeef8',
     tags: ['Académie', 'Expert IA', 'Conversationnel'],
     stat: { label: 'modules', value: '12' },
   },
@@ -71,7 +75,7 @@ const MODULES = [
     route: '/cyber/roleplay',
     Icon: Target,
     accent: '#7c3aed',
-    lightBg: '#f5f3ff',
+    lightBg: '#ede9fb',
     tags: ['Professionnel', 'Roleplay', 'Scénarios'],
     stat: { label: 'rôles', value: '8' },
   },
@@ -84,7 +88,7 @@ const MODULES = [
     route: '/cyber/arcade',
     Icon: Gamepad2,
     accent: '#059669',
-    lightBg: '#ecfdf5',
+    lightBg: '#d5f0e6',
     tags: ['Bug Hunter', 'Firewall', 'Brain Hacker', 'Escape'],
     stat: { label: 'jeux', value: '6' },
   },
@@ -96,8 +100,8 @@ const MODULES = [
     cta: 'Accéder aux simulations',
     route: '/cyber/simulations',
     Icon: FlaskConical,
-    accent: PINK,
-    lightBg: '#fff1f6',
+    accent: T.pink,
+    lightBg: '#fad9e8',
     tags: ['RSSI', 'COMEX', 'Pentest Lab', 'Crise'],
     stat: { label: 'simulations', value: '5' },
   },
@@ -118,6 +122,7 @@ export default function CyberV3() {
   const { user } = useAuth();
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [activeNav, setActiveNav]   = useState<string | null>(null);
+  const [hoveredNav, setHoveredNav] = useState<string | null>(null);
 
   const score = (user as any)?.kpi?.score ?? 0;
   const levelInfo = getLevelInfo(score);
@@ -134,23 +139,25 @@ export default function CyberV3() {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
           rel="stylesheet"
         />
         <style>{`
-          .cyber-card-hover { transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease; }
-          .cyber-card-hover:hover { transform: translateY(-2px); }
-          .nav-item-hover { transition: background 0.15s ease, color 0.15s ease; }
-          .tag-chip { display:inline-flex; align-items:center; padding:2px 8px; border-radius:4px; font-size:0.7rem; font-weight:500; letter-spacing:0.02em; }
+          * { box-sizing: border-box; }
+          .cyber-nav-btn { transition: background 0.12s ease, color 0.12s ease; }
+          .cyber-module-card { transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease; }
+          .cyber-module-card:hover { transform: translateY(-1px); }
+          .cyber-cta-arrow { transition: background 0.15s ease, transform 0.15s ease; }
+          .cyber-module-card:hover .cyber-cta-arrow { transform: translateX(2px); }
         `}</style>
       </Helmet>
 
       {/* ── Root shell ── */}
       <div style={{
         minHeight: '100vh',
-        backgroundColor: '#ffffff',
-        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-        color: GRAY900,
+        backgroundColor: T.bg,
+        fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif",
+        color: T.text,
         display: 'flex',
       }}>
 
@@ -158,13 +165,12 @@ export default function CyberV3() {
             LEFT SIDEBAR
         ══════════════════════════════════════════════ */}
         <aside style={{
-          width: 220,
+          width: 248,
           minHeight: '100vh',
-          backgroundColor: GRAY50,
-          borderRight: `1px solid ${GRAY200}`,
+          backgroundColor: T.surface,
+          borderRight: `1px solid ${T.border}`,
           display: 'flex',
           flexDirection: 'column',
-          padding: '28px 0',
           flexShrink: 0,
           position: 'sticky',
           top: 0,
@@ -172,89 +178,164 @@ export default function CyberV3() {
           height: '100vh',
           overflowY: 'auto',
         }}>
-          {/* Brand */}
-          <div style={{ padding: '0 20px 24px', borderBottom: `1px solid ${GRAY200}` }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              marginBottom: 6,
-            }}>
+
+          {/* Brand wordmark */}
+          <div style={{
+            padding: '22px 20px 20px',
+            borderBottom: `1px solid ${T.border}`,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 2 }}>
               <div style={{
-                width: 32,
-                height: 32,
-                borderRadius: 8,
-                background: `linear-gradient(135deg, ${BLUE}, ${PINK})`,
+                width: 30,
+                height: 30,
+                borderRadius: 7,
+                background: `linear-gradient(145deg, ${T.blue} 0%, ${T.pink} 100%)`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                flexShrink: 0,
+                boxShadow: `0 2px 8px ${T.blue}40`,
               }}>
-                <Shield size={16} color="#fff" />
+                <Shield size={15} color="#fff" strokeWidth={2.2} />
               </div>
-              <span style={{ fontWeight: 700, fontSize: '0.9rem', color: GRAY900 }}>I AM CYBER</span>
+              <div>
+                <div style={{
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  color: T.text,
+                  letterSpacing: '-0.01em',
+                  lineHeight: 1.2,
+                }}>
+                  I AM CYBER
+                </div>
+                <div style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: '10px',
+                  color: T.muted,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  marginTop: 1,
+                }}>
+                  Univers · FYNE
+                </div>
+              </div>
             </div>
-            <span style={{ fontSize: '0.7rem', color: GRAY400, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-              Univers Cybersécurité
-            </span>
           </div>
 
           {/* Navigation */}
-          <nav style={{ padding: '16px 8px', flex: 1 }}>
-            <div style={{ fontSize: '0.65rem', fontWeight: 600, color: GRAY400, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0 12px', marginBottom: 8 }}>
+          <nav style={{ padding: '14px 10px', flex: 1 }}>
+            <div style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '10px',
+              fontWeight: 500,
+              color: T.muted,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              padding: '0 10px',
+              marginBottom: 6,
+            }}>
               Navigation
             </div>
+
             {NAV_ITEMS.map(item => {
               const isActive = activeNav === item.id;
+              const isHov = hoveredNav === item.id;
               return (
                 <button
                   key={item.id}
-                  className="nav-item-hover"
+                  className="cyber-nav-btn"
                   onClick={() => { setActiveNav(item.id); setLocation(item.route); }}
+                  onMouseEnter={() => setHoveredNav(item.id)}
+                  onMouseLeave={() => setHoveredNav(null)}
                   style={{
                     width: '100%',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 10,
-                    padding: '9px 12px',
+                    gap: 9,
+                    padding: '8px 10px',
                     borderRadius: 6,
                     border: 'none',
-                    background: isActive ? `${BLUE}15` : 'transparent',
-                    color: isActive ? BLUE : GRAY500,
+                    background: isActive ? T.activeBg : isHov ? T.hoverBg : 'transparent',
+                    color: isActive ? T.blue : T.sub,
                     cursor: 'pointer',
-                    fontSize: '0.83rem',
+                    fontSize: '13px',
                     fontWeight: isActive ? 600 : 400,
                     textAlign: 'left',
-                    marginBottom: 2,
+                    marginBottom: 1,
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    position: 'relative',
                   }}
                 >
-                  <item.Icon size={15} />
+                  {isActive && (
+                    <span style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      width: 3,
+                      height: 16,
+                      borderRadius: '0 2px 2px 0',
+                      background: T.blue,
+                    }} />
+                  )}
+                  <item.Icon size={14} strokeWidth={isActive ? 2.2 : 1.8} />
                   {item.label}
-                  {isActive && <ChevronRight size={12} style={{ marginLeft: 'auto' }} />}
+                  {isActive && (
+                    <ChevronRight size={11} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+                  )}
                 </button>
               );
             })}
           </nav>
 
-          {/* Score widget */}
+          {/* Divider */}
+          <div style={{ height: 1, background: T.border, margin: '0 10px 14px' }} />
+
+          {/* Level widget */}
           <div style={{
-            margin: '0 12px',
-            padding: '14px 14px',
-            background: '#fff',
-            border: `1px solid ${GRAY200}`,
+            margin: '0 10px 20px',
+            padding: '14px 16px',
+            background: T.bg,
+            border: `1px solid ${T.border}`,
             borderRadius: 10,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ fontSize: '0.7rem', fontWeight: 600, color: GRAY700 }}>Mon niveau</span>
-              <Trophy size={13} color={levelInfo.color} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+              <span style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '10px',
+                fontWeight: 500,
+                color: T.muted,
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+              }}>
+                Mon niveau
+              </span>
+              <Trophy size={12} color={levelInfo.color} strokeWidth={2} />
             </div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 700, color: levelInfo.color, marginBottom: 2 }}>
+            <div style={{
+              fontSize: '15px',
+              fontWeight: 700,
+              color: levelInfo.color,
+              marginBottom: 3,
+              letterSpacing: '-0.01em',
+            }}>
               {levelInfo.label}
             </div>
-            <div style={{ fontSize: '0.7rem', color: GRAY400, marginBottom: 8 }}>
+            <div style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '11px',
+              color: T.muted,
+              marginBottom: 10,
+            }}>
               {score} pts
-              {nextLevel && ` · ${nextLevel.min - score} pts → ${nextLevel.label}`}
+              {nextLevel && (
+                <span style={{ color: T.border, marginLeft: 6 }}>
+                  · {nextLevel.min - score} → {nextLevel.label}
+                </span>
+              )}
             </div>
-            <div style={{ height: 4, background: GRAY100, borderRadius: 999, overflow: 'hidden' }}>
+            <div style={{ height: 5, background: T.border, borderRadius: 999, overflow: 'hidden' }}>
               <motion.div
                 style={{ height: '100%', background: levelInfo.color, borderRadius: 999 }}
                 initial={{ width: 0 }}
@@ -268,66 +349,124 @@ export default function CyberV3() {
         {/* ══════════════════════════════════════════════
             MAIN CONTENT
         ══════════════════════════════════════════════ */}
-        <main style={{ flex: 1, padding: '40px 48px 64px', overflowY: 'auto' }}>
+        <main style={{
+          flex: 1,
+          padding: '36px 52px 72px',
+          overflowY: 'auto',
+          maxWidth: 1100,
+        }}>
 
           {/* ── Breadcrumb ── */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 32 }}
+            transition={{ duration: 0.25 }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              marginBottom: 28,
+            }}
           >
-            <span style={{ fontSize: '0.75rem', color: GRAY400 }}>FYNE</span>
-            <ChevronRight size={12} color={GRAY400} />
-            <span style={{ fontSize: '0.75rem', color: GRAY400 }}>Univers</span>
-            <ChevronRight size={12} color={GRAY400} />
-            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: BLUE }}>I AM CYBER</span>
+            {['FYNE', 'Univers', 'I AM CYBER'].map((crumb, i, arr) => (
+              <React.Fragment key={crumb}>
+                <span style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: '11px',
+                  color: i === arr.length - 1 ? T.blue : T.muted,
+                  fontWeight: i === arr.length - 1 ? 600 : 400,
+                  letterSpacing: '0.03em',
+                }}>
+                  {crumb}
+                </span>
+                {i < arr.length - 1 && (
+                  <ChevronRight size={11} color={T.border} strokeWidth={2} />
+                )}
+              </React.Fragment>
+            ))}
           </motion.div>
 
-          {/* ── Hero header ── */}
+          {/* ── Page header ── */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            style={{ marginBottom: 40 }}
+            transition={{ duration: 0.35 }}
+            style={{ marginBottom: 36 }}
           >
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 20,
+            }}>
               <div>
                 <h1 style={{
-                  fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
-                  fontWeight: 700,
-                  letterSpacing: '-0.03em',
-                  color: GRAY900,
-                  margin: '0 0 8px',
-                  lineHeight: 1.15,
+                  fontSize: 'clamp(1.5rem, 2.8vw, 2rem)',
+                  fontWeight: 800,
+                  letterSpacing: '-0.035em',
+                  color: T.text,
+                  margin: '0 0 6px',
+                  lineHeight: 1.1,
                 }}>
-                  Univers <span style={{ color: BLUE }}>Cybersécurité</span>
+                  Univers{' '}
+                  <span style={{
+                    color: T.blue,
+                    position: 'relative',
+                  }}>
+                    Cybersécurité
+                  </span>
                 </h1>
-                <p style={{ fontSize: '0.92rem', color: GRAY500, margin: 0, maxWidth: 520 }}>
+                <p style={{
+                  fontSize: '14px',
+                  color: T.sub,
+                  margin: 0,
+                  maxWidth: 480,
+                  lineHeight: 1.6,
+                  fontWeight: 400,
+                }}>
                   Choisissez votre mode de formation et progressez à votre rythme avec des outils IA de pointe.
                 </p>
               </div>
 
               {/* Stats strip */}
-              <div style={{ display: 'flex', gap: 16 }}>
+              <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
                 {[
-                  { icon: <BookOpen size={14} color={BLUE} />, label: 'Modules', value: '31' },
-                  { icon: <Users size={14} color='#059669' />, label: 'Rôles', value: '8' },
-                  { icon: <Trophy size={14} color={PINK} />, label: 'Votre rang', value: levelInfo.label },
+                  { icon: <BookOpen size={13} color={T.blue} strokeWidth={2} />, label: 'Modules', value: '31' },
+                  { icon: <Users size={13} color="#059669" strokeWidth={2} />, label: 'Rôles', value: '8' },
+                  { icon: <Trophy size={13} color={T.pink} strokeWidth={2} />, label: 'Votre rang', value: levelInfo.label },
                 ].map((stat, i) => (
                   <div key={i} style={{
-                    background: GRAY50,
-                    border: `1px solid ${GRAY200}`,
+                    background: T.bg,
+                    border: `1px solid ${T.border}`,
                     borderRadius: 8,
-                    padding: '10px 16px',
+                    padding: '10px 14px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    minWidth: 80,
+                    gap: 4,
+                    minWidth: 82,
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
                   }}>
-                    <div style={{ marginBottom: 4 }}>{stat.icon}</div>
-                    <div style={{ fontSize: '1rem', fontWeight: 700, color: GRAY900, lineHeight: 1 }}>{stat.value}</div>
-                    <div style={{ fontSize: '0.65rem', color: GRAY400, marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{stat.label}</div>
+                    {stat.icon}
+                    <div style={{
+                      fontSize: '15px',
+                      fontWeight: 700,
+                      color: T.text,
+                      lineHeight: 1,
+                      letterSpacing: '-0.02em',
+                    }}>
+                      {stat.value}
+                    </div>
+                    <div style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: '10px',
+                      color: T.muted,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                    }}>
+                      {stat.label}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -338,70 +477,98 @@ export default function CyberV3() {
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.4 }}
+            transition={{ delay: 0.12, duration: 0.35 }}
             style={{
-              background: '#fff',
-              border: `1px solid ${GRAY200}`,
+              background: T.bg,
+              border: `1px solid ${T.border}`,
               borderRadius: 12,
-              padding: '20px 24px',
-              marginBottom: 40,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              padding: '18px 24px',
+              marginBottom: 36,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <TrendingUp size={15} color={BLUE} />
-                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: GRAY700 }}>Progression globale</span>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 14,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <TrendingUp size={14} color={T.blue} strokeWidth={2} />
+                <span style={{ fontSize: '13px', fontWeight: 600, color: T.text }}>
+                  Votre progression
+                </span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{
-                  fontSize: '0.72rem',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: '11px',
                   fontWeight: 600,
-                  padding: '3px 10px',
+                  padding: '3px 9px',
                   borderRadius: 999,
-                  background: `${levelInfo.color}18`,
+                  background: `${levelInfo.color}14`,
                   color: levelInfo.color,
-                  border: `1px solid ${levelInfo.color}30`,
+                  border: `1px solid ${levelInfo.color}28`,
+                  letterSpacing: '0.02em',
                 }}>
                   {levelInfo.label}
                 </span>
-                <span style={{ fontSize: '0.72rem', color: GRAY400 }}>{score} pts</span>
+                <span style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: '11px',
+                  color: T.muted,
+                }}>
+                  {score} pts
+                </span>
               </div>
             </div>
 
-            {/* Segmented bar */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, marginBottom: 10 }}>
+            {/* Segmented level bar */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(5, 1fr)',
+              gap: 5,
+              marginBottom: 10,
+            }}>
               {LEVELS.map((lvl, i) => {
-                const isPast = i < levelIndex;
+                const isPast   = i < levelIndex;
                 const isActive = i === levelIndex;
                 return (
-                  <div key={lvl.label} style={{ position: 'relative' }}>
+                  <div key={lvl.label}>
                     <div style={{
                       height: 6,
-                      background: isPast ? `${lvl.color}40` : GRAY100,
+                      background: isPast ? `${lvl.color}30` : T.surface,
                       borderRadius: 3,
                       overflow: 'hidden',
-                      border: isActive ? `1px solid ${lvl.color}50` : `1px solid ${GRAY200}`,
+                      border: `1px solid ${isActive ? `${lvl.color}40` : T.border}`,
+                      position: 'relative',
                     }}>
+                      {isPast && (
+                        <div style={{
+                          position: 'absolute',
+                          inset: 0,
+                          background: lvl.color,
+                          opacity: 0.55,
+                          borderRadius: 3,
+                        }} />
+                      )}
                       {isActive && (
                         <motion.div
                           style={{ height: '100%', background: lvl.color, borderRadius: 3 }}
                           initial={{ width: 0 }}
                           animate={{ width: `${segmentPct}%` }}
-                          transition={{ delay: 0.5, duration: 0.9, ease: 'easeOut' }}
+                          transition={{ delay: 0.4, duration: 0.8, ease: 'easeOut' }}
                         />
-                      )}
-                      {isPast && (
-                        <div style={{ position: 'absolute', inset: 0, background: lvl.color, opacity: 0.6 }} />
                       )}
                     </div>
                     <div style={{
-                      fontSize: '0.6rem',
-                      marginTop: 4,
-                      color: isActive ? GRAY700 : GRAY400,
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: '10px',
+                      marginTop: 5,
+                      color: isActive ? lvl.color : T.muted,
                       fontWeight: isActive ? 600 : 400,
+                      letterSpacing: '0.02em',
                     }}>
-                      {isActive && <span style={{ color: lvl.color }}>● </span>}
                       {lvl.label}
                     </div>
                   </div>
@@ -410,92 +577,112 @@ export default function CyberV3() {
             </div>
 
             {nextLevel && (
-              <div style={{ fontSize: '0.72rem', color: GRAY400, marginTop: 4 }}>
-                Il vous reste <strong style={{ color: GRAY700 }}>{nextLevel.min - score} pts</strong> pour atteindre le niveau <strong style={{ color: nextLevel.color }}>{nextLevel.label}</strong>.
+              <div style={{
+                fontSize: '12px',
+                color: T.muted,
+                marginTop: 2,
+                fontWeight: 400,
+              }}>
+                <strong style={{ color: T.sub, fontWeight: 600 }}>{nextLevel.min - score} pts</strong>
+                {' '}pour atteindre{' '}
+                <strong style={{ color: nextLevel.color, fontWeight: 600 }}>{nextLevel.label}</strong>
               </div>
             )}
           </motion.div>
 
-          {/* ── Section title ── */}
+          {/* ── Section label ── */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.3 }}
-            style={{ marginBottom: 20 }}
+            transition={{ delay: 0.18, duration: 0.3 }}
+            style={{ marginBottom: 16 }}
           >
-            <h2 style={{ fontSize: '0.78rem', fontWeight: 600, color: GRAY400, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 }}>
-              Modes d'apprentissage
-            </h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '11px',
+                fontWeight: 500,
+                color: T.muted,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+              }}>
+                Modes d'apprentissage
+              </span>
+              <div style={{ flex: 1, height: 1, background: T.border }} />
+              <span style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '11px',
+                color: T.muted,
+              }}>
+                {MODULES.length} modules
+              </span>
+            </div>
           </motion.div>
 
           {/* ── Module cards grid ── */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: 20,
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: 16,
           }}>
             {MODULES.map((mod, i) => {
-              const isHovered = hoveredCard === mod.id;
+              const isHov = hoveredCard === mod.id;
               return (
                 <motion.div
                   key={mod.id}
-                  className="cyber-card-hover"
-                  initial={{ opacity: 0, y: 16 }}
+                  className="cyber-module-card"
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.25 + i * 0.07, duration: 0.4 }}
+                  transition={{ delay: 0.22 + i * 0.07, duration: 0.35 }}
                   onClick={() => setLocation(mod.route)}
                   onMouseEnter={() => setHoveredCard(mod.id)}
                   onMouseLeave={() => setHoveredCard(null)}
                   style={{
-                    background: '#fff',
-                    border: `1.5px solid ${isHovered ? mod.accent : GRAY200}`,
-                    borderRadius: 14,
-                    padding: 24,
+                    background: T.bg,
+                    border: `1px solid ${isHov ? mod.accent + '50' : T.border}`,
+                    borderLeft: `4px solid ${mod.accent}`,
+                    borderRadius: '0 10px 10px 0',
+                    padding: '22px 22px 20px',
                     cursor: 'pointer',
-                    boxShadow: isHovered
-                      ? `0 8px 24px ${mod.accent}18, 0 2px 8px rgba(0,0,0,0.06)`
-                      : '0 1px 3px rgba(0,0,0,0.05)',
+                    boxShadow: isHov
+                      ? `0 6px 20px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)`
+                      : '0 1px 2px rgba(0,0,0,0.04)',
                     display: 'flex',
                     flexDirection: 'column',
                     position: 'relative',
                     overflow: 'hidden',
                   }}
                 >
-                  {/* Top accent line */}
+                  {/* Icon + badge row */}
                   <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: 3,
-                    background: isHovered ? mod.accent : 'transparent',
-                    borderRadius: '14px 14px 0 0',
-                    transition: 'background 0.2s ease',
-                  }} />
-
-                  {/* Icon + label row */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: 14,
+                  }}>
                     <div style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 10,
+                      width: 36,
+                      height: 36,
+                      borderRadius: 8,
                       background: mod.lightBg,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       flexShrink: 0,
                     }}>
-                      <mod.Icon size={20} color={mod.accent} />
+                      <mod.Icon size={18} color={mod.accent} strokeWidth={2} />
                     </div>
                     <div style={{
-                      fontSize: '0.65rem',
-                      fontWeight: 700,
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: '10px',
+                      fontWeight: 600,
                       letterSpacing: '0.1em',
                       textTransform: 'uppercase',
                       color: mod.accent,
-                      background: `${mod.accent}12`,
+                      background: `${mod.accent}10`,
                       padding: '3px 8px',
                       borderRadius: 4,
+                      border: `1px solid ${mod.accent}20`,
                     }}>
                       {mod.label}
                     </div>
@@ -503,67 +690,93 @@ export default function CyberV3() {
 
                   {/* Headline */}
                   <h3 style={{
-                    fontSize: '1rem',
+                    fontSize: '15px',
                     fontWeight: 700,
-                    color: GRAY900,
-                    margin: '0 0 8px',
-                    letterSpacing: '-0.01em',
+                    color: T.text,
+                    margin: '0 0 7px',
+                    letterSpacing: '-0.02em',
+                    lineHeight: 1.3,
                   }}>
                     {mod.headline}
                   </h3>
 
                   {/* Description */}
                   <p style={{
-                    fontSize: '0.82rem',
-                    color: GRAY500,
-                    lineHeight: 1.55,
-                    margin: '0 0 16px',
+                    fontSize: '13px',
+                    color: T.sub,
+                    lineHeight: 1.6,
+                    margin: '0 0 14px',
                     flex: 1,
+                    fontWeight: 400,
                   }}>
                     {mod.description}
                   </p>
 
                   {/* Tags */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 18 }}>
+                  <div style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 4,
+                    marginBottom: 16,
+                  }}>
                     {mod.tags.map(tag => (
-                      <span key={tag} className="tag-chip" style={{
-                        background: `${mod.accent}0f`,
-                        color: mod.accent,
-                        border: `1px solid ${mod.accent}20`,
-                      }}>
+                      <span
+                        key={tag}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          padding: '2px 7px',
+                          borderRadius: 4,
+                          fontFamily: "'JetBrains Mono', monospace",
+                          fontSize: '10px',
+                          fontWeight: 500,
+                          letterSpacing: '0.02em',
+                          background: `${mod.accent}08`,
+                          color: mod.accent,
+                          border: `1px solid ${mod.accent}18`,
+                        }}
+                      >
                         {tag}
                       </span>
                     ))}
                   </div>
 
-                  {/* CTA */}
+                  {/* CTA row */}
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     paddingTop: 14,
-                    borderTop: `1px solid ${GRAY100}`,
+                    borderTop: `1px solid ${T.border}`,
                   }}>
                     <span style={{
-                      fontSize: '0.8rem',
+                      fontSize: '13px',
                       fontWeight: 600,
-                      color: isHovered ? mod.accent : GRAY700,
+                      color: isHov ? mod.accent : T.sub,
                       transition: 'color 0.15s ease',
+                      letterSpacing: '-0.01em',
                     }}>
                       {mod.cta}
                     </span>
-                    <div style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 8,
-                      background: isHovered ? mod.accent : GRAY100,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      transition: 'background 0.15s ease',
-                      flexShrink: 0,
-                    }}>
-                      <ArrowRight size={14} color={isHovered ? '#fff' : GRAY400} />
+                    <div
+                      className="cyber-cta-arrow"
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 7,
+                        background: isHov ? mod.accent : T.surface,
+                        border: `1px solid ${isHov ? mod.accent : T.border}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <ArrowRight
+                        size={13}
+                        color={isHov ? '#fff' : T.muted}
+                        strokeWidth={2.2}
+                      />
                     </div>
                   </div>
                 </motion.div>
@@ -571,27 +784,29 @@ export default function CyberV3() {
             })}
           </div>
 
-          {/* ── Footer hint ── */}
+          {/* ── Footer status bar ── */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.7, duration: 0.4 }}
+            transition={{ delay: 0.6, duration: 0.4 }}
             style={{
-              marginTop: 48,
-              padding: '18px 24px',
-              background: `${BLUE}07`,
-              border: `1px solid ${BLUE}20`,
-              borderRadius: 10,
+              marginTop: 44,
+              padding: '14px 20px',
+              background: T.surface,
+              border: `1px solid ${T.border}`,
+              borderRadius: 8,
               display: 'flex',
               alignItems: 'center',
-              gap: 12,
+              gap: 10,
             }}
           >
-            <Lock size={15} color={BLUE} style={{ flexShrink: 0 }} />
-            <p style={{ fontSize: '0.8rem', color: GRAY500, margin: 0 }}>
-              Tous vos progrès sont sauvegardés en temps réel.&nbsp;
-              <span style={{ color: BLUE, fontWeight: 500, cursor: 'pointer' }}
-                onClick={() => setLocation('/mon-suivi')}>
+            <Lock size={13} color={T.muted} strokeWidth={2} style={{ flexShrink: 0 }} />
+            <p style={{ fontSize: '13px', color: T.muted, margin: 0, fontWeight: 400 }}>
+              Tous vos progrès sont sauvegardés en temps réel.{' '}
+              <span
+                style={{ color: T.blue, fontWeight: 600, cursor: 'pointer' }}
+                onClick={() => setLocation('/mon-suivi')}
+              >
                 Consulter mon suivi →
               </span>
             </p>
