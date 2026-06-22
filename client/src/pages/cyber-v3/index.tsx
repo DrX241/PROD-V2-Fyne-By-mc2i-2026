@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -393,18 +393,34 @@ export default function CyberV3() {
   const [showDiagnostic, setShowDiagnostic] = useState(false);
   const [diagXP, setDiagXP] = useState(0);
 
-  // Check localStorage on mount — prevent scroll jump
+  const mainRef = useRef<HTMLElement>(null);
+
+  // Check localStorage on mount
   useEffect(() => {
     const done = localStorage.getItem(DIAGNOSTIC_KEY);
-    if (!done) {
-      // Freeze scroll position before showing overlay
-      const scrollY = window.scrollY;
-      setShowDiagnostic(true);
-      requestAnimationFrame(() => window.scrollTo(0, scrollY));
-    } else {
+    if (!done) setShowDiagnostic(true);
+    else {
       try { setDiagXP(JSON.parse(done).xp ?? 0); } catch {}
     }
   }, []);
+
+  // Lock scroll on main container while diagnostic is open
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    if (showDiagnostic) {
+      el.scrollTop = 0;
+      el.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    } else {
+      el.style.overflow = '';
+      document.body.style.overflow = '';
+    }
+    return () => {
+      el.style.overflow = '';
+      document.body.style.overflow = '';
+    };
+  }, [showDiagnostic]);
 
   const handleDiagComplete = (xp: number) => {
     setDiagXP(xp);
@@ -652,7 +668,7 @@ export default function CyberV3() {
         {/* ══════════════════════════════════════════════
             MAIN CONTENT
         ══════════════════════════════════════════════ */}
-        <main style={{
+        <main ref={mainRef} style={{
           flex: 1,
           padding: '36px 52px 72px',
           overflowY: 'auto',
