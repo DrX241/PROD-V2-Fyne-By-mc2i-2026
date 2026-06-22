@@ -1,13 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Shield, BookOpen, CheckCircle, XCircle, AlertTriangle, Info, RotateCcw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Shield, BookOpen, CheckCircle, XCircle, Info, RotateCcw, Lock, Zap, Eye, EyeOff } from 'lucide-react';
 
 const T = {
   bg: '#ffffff', surface: '#f7f8fa', line: '#e8eaed',
   blue: '#006a9e', red: '#ef4444', green: '#10b981', amber: '#f59e0b',
-  text: '#0f172a', sub: '#64748b', muted: '#94a3b8',
-  dark: '#0d1117',
+  text: '#0f172a', sub: '#64748b', muted: '#94a3b8', dark: '#0d1117',
   MONO: "'JetBrains Mono', monospace",
   SANS: "'Plus Jakarta Sans', sans-serif",
 };
@@ -22,15 +21,15 @@ interface Stage {
   id: string;
   chapter: string;
   title: string;
-  story: string[];       // narration paragraphs
+  story: string[];
   knowledge?: KnowledgeCard[];
   screen: React.FC<{ onAction: (id: string) => void; state: StageState; actionResult?: string }>;
-  instruction?: string;  // shown above the screen as call-to-action
+  instruction?: string;
   correctAction?: string;
   wrongActions?: string[];
   correctFeedback: string;
   wrongFeedback?: string;
-  autoPlay?: boolean;    // no interaction needed, just watch
+  autoPlay?: boolean;
 }
 
 // ─── Knowledge Panel ───────────────────────────────────────────────────────────
@@ -78,9 +77,8 @@ function KnowledgePanel({ cards }: { cards: KnowledgeCard[] }) {
   );
 }
 
-// ─── Screens ───────────────────────────────────────────────────────────────────
+// ─── PHISHING Screens ──────────────────────────────────────────────────────────
 
-// SCREEN 1 — Boîte mail : l'utilisateur clique sur l'email ou le signale
 const InboxScreen: React.FC<{ onAction: (id: string) => void; state: StageState; actionResult?: string }> = ({ onAction, state }) => {
   const [hoveredEmail, setHoveredEmail] = useState<number | null>(null);
   const emails = [
@@ -91,17 +89,14 @@ const InboxScreen: React.FC<{ onAction: (id: string) => void; state: StageState;
   const done = state === 'correct' || state === 'wrong';
   return (
     <div style={{ background: '#1e2433', height: '100%', display: 'flex', flexDirection: 'column', fontFamily: T.MONO, fontSize: 11 }}>
-      {/* App bar */}
       <div style={{ background: '#006a9e', padding: '7px 14px', color: '#fff', fontSize: 12, fontFamily: T.SANS, fontWeight: 600 }}>
         📧 Outlook — m.dupont@entreprise.fr
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '190px 1fr', flex: 1, overflow: 'hidden' }}>
-        {/* Sidebar */}
         <div style={{ background: '#161b22', borderRight: '1px solid #30363d', padding: '8px 0' }}>
           {['📥 Boîte de réception (1)', '📤 Envoyés', '📝 Brouillons', '🗑 Corbeille'].map((f, i) => (
             <div key={i} style={{ padding: '7px 14px', color: i === 0 ? '#e6edf3' : '#6e7681', fontSize: 11, background: i === 0 ? 'rgba(0,106,158,0.25)' : 'transparent' }}>{f}</div>
           ))}
-          {/* Report button */}
           {!done && (
             <div style={{ marginTop: 20, padding: '0 10px' }}>
               <motion.button
@@ -114,7 +109,6 @@ const InboxScreen: React.FC<{ onAction: (id: string) => void; state: StageState;
             </div>
           )}
         </div>
-        {/* Email list */}
         <div style={{ overflowY: 'auto' }}>
           {emails.map((email, i) => (
             <motion.div
@@ -151,7 +145,6 @@ const InboxScreen: React.FC<{ onAction: (id: string) => void; state: StageState;
   );
 };
 
-// SCREEN 2 — Pièce jointe : cliquer sur télécharger ou annuler
 const AttachmentScreen: React.FC<{ onAction: (id: string) => void; state: StageState }> = ({ onAction, state }) => {
   const done = state === 'correct' || state === 'wrong';
   return (
@@ -193,7 +186,6 @@ const AttachmentScreen: React.FC<{ onAction: (id: string) => void; state: StageS
   );
 };
 
-// SCREEN 3 — Terminal automatique (l'utilisateur regarde)
 const TerminalAutoScreen: React.FC<{ onAction: (id: string) => void; state: StageState }> = ({ onAction }) => {
   const lines = [
     { text: 'C:\\Users\\dupont> [Processus silencieux démarré]', color: '#8b949e', delay: 200 },
@@ -250,7 +242,6 @@ const TerminalAutoScreen: React.FC<{ onAction: (id: string) => void; state: Stag
   );
 };
 
-// SCREEN 4 — Chiffrement live
 const EncryptingScreen: React.FC<{ onAction: (id: string) => void; state: StageState }> = ({ onAction }) => {
   const [count, setCount] = useState(0);
   const [done, setDone] = useState(false);
@@ -297,7 +288,6 @@ const EncryptingScreen: React.FC<{ onAction: (id: string) => void; state: StageS
   );
 };
 
-// SCREEN 5 — Rançon : payer ou contacter l'ANSSI
 const RansomScreen: React.FC<{ onAction: (id: string) => void; state: StageState }> = ({ onAction, state }) => {
   const [h, setH] = useState(71); const [m, setM] = useState(59); const [s, setS] = useState(47);
   const done = state === 'correct' || state === 'wrong';
@@ -346,7 +336,6 @@ const RansomScreen: React.FC<{ onAction: (id: string) => void; state: StageState
   );
 };
 
-// SCREEN 6 — Bilan final
 const BilanScreen: React.FC<{ onAction: (id: string) => void; state: StageState; good: boolean }> = ({ good }) => (
   <div style={{ background: good ? '#001a0f' : '#100000', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 28, fontFamily: T.MONO, textAlign: 'center' }}>
     <div style={{ fontSize: 48, marginBottom: 12 }}>{good ? '🛡' : '💀'}</div>
@@ -374,7 +363,7 @@ const BilanScreen: React.FC<{ onAction: (id: string) => void; state: StageState;
   </div>
 );
 
-// ─── Story Data ────────────────────────────────────────────────────────────────
+// ─── PHISHING Story Data ───────────────────────────────────────────────────────
 
 function buildStages(choices: Record<string, string>): Stage[] {
   const goodChoices = choices['inbox'] === 'report' && choices['attachment'] === 'cancel' && choices['ransom'] === 'anssi';
@@ -504,10 +493,709 @@ function buildStages(choices: Record<string, string>): Stage[] {
   ];
 }
 
-// ─── Main ──────────────────────────────────────────────────────────────────────
+// ─── PASSWORD SCENARIO ─────────────────────────────────────────────────────────
 
-export default function AttackSimulator() {
-  const [, navigate] = useLocation();
+function calcEntropy(pwd: string): number {
+  let pool = 0;
+  if (/[a-z]/.test(pwd)) pool += 26;
+  if (/[A-Z]/.test(pwd)) pool += 26;
+  if (/[0-9]/.test(pwd)) pool += 10;
+  if (/[^a-zA-Z0-9]/.test(pwd)) pool += 32;
+  return pool === 0 ? 0 : Math.log2(pool) * pwd.length;
+}
+
+function crackTime(entropy: number): string {
+  const attempts = Math.pow(2, entropy);
+  const perSec = 1e10;
+  const secs = attempts / perSec;
+  if (secs < 1) return 'Instantané';
+  if (secs < 60) return `${secs.toFixed(1)} secondes`;
+  if (secs < 3600) return `${(secs / 60).toFixed(1)} minutes`;
+  if (secs < 86400) return `${(secs / 3600).toFixed(1)} heures`;
+  if (secs < 31536000) return `${(secs / 86400).toFixed(0)} jours`;
+  if (secs < 31536000 * 1000) return `${(secs / 31536000).toFixed(0)} ans`;
+  return `${(secs / 31536000 / 1e6).toFixed(0)} millions d'années`;
+}
+
+async function sha256(str: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+const DICT_PASSWORDS = [
+  '123456', 'password', 'azerty', 'qwerty', 'iloveyou', 'admin', 'letmein',
+  'welcome', 'monkey', 'sunshine', 'princess', 'football', 'charlie', 'donald',
+  'master', 'hello', 'shadow', 'abc123', 'pass123', '1234', '12345678',
+  'superman', 'batman', 'dragon', '123123', '111111', 'Password1', 'P@ssword',
+  'Summer2024', 'Juillet2024', 'motdepasse', 'soleil', 'bonjour', 'france',
+  'paris2024', 'azerty123', 'marseille', 'liverpool', 'chelsea', 'juventus',
+  'arsenal', '000000', 'pass1234', 'secret', 'test123', 'login', 'root',
+  'toor', 'admin123', 'user', 'changeme',
+];
+
+type PwdPhase = 0 | 1 | 2 | 3 | 4 | 5;
+
+interface PwdState {
+  password: string;
+  phase: PwdPhase;
+  showPassword: boolean;
+  dictLines: Array<{ word: string; found: boolean }>;
+  dictDone: boolean;
+  dictFound: boolean;
+  dictFoundAt: number;
+  mutLines: Array<{ word: string; found: boolean }>;
+  mutDone: boolean;
+  mutFound: boolean;
+  hashMD5: string;
+  hashSHA: string;
+  rainbowFound: boolean;
+  bruteCount: number;
+  bruteDone: boolean;
+  bruteFound: boolean;
+  crackedAtPhase: number | null;
+}
+
+const initPwdState = (): PwdState => ({
+  password: '',
+  phase: 0,
+  showPassword: false,
+  dictLines: [],
+  dictDone: false,
+  dictFound: false,
+  dictFoundAt: 0,
+  mutLines: [],
+  mutDone: false,
+  mutFound: false,
+  hashMD5: '',
+  hashSHA: '',
+  rainbowFound: false,
+  bruteCount: 0,
+  bruteDone: false,
+  bruteFound: false,
+  crackedAtPhase: null,
+});
+
+// Minimal MD5 implementation
+function md5(inputStr: string): string {
+  function safeAdd(x: number, y: number) { const lsw = (x & 0xFFFF) + (y & 0xFFFF); const msw = (x >> 16) + (y >> 16) + (lsw >> 16); return (msw << 16) | (lsw & 0xFFFF); }
+  function bitRotateLeft(num: number, cnt: number) { return (num << cnt) | (num >>> (32 - cnt)); }
+  function md5cmn(q: number, a: number, b: number, x: number, s: number, t: number) { return safeAdd(bitRotateLeft(safeAdd(safeAdd(a, q), safeAdd(x, t)), s), b); }
+  function md5ff(a: number, b: number, c: number, d: number, x: number, s: number, t: number) { return md5cmn((b & c) | (~b & d), a, b, x, s, t); }
+  function md5gg(a: number, b: number, c: number, d: number, x: number, s: number, t: number) { return md5cmn((b & d) | (c & ~d), a, b, x, s, t); }
+  function md5hh(a: number, b: number, c: number, d: number, x: number, s: number, t: number) { return md5cmn(b ^ c ^ d, a, b, x, s, t); }
+  function md5ii(a: number, b: number, c: number, d: number, x: number, s: number, t: number) { return md5cmn(c ^ (b | ~d), a, b, x, s, t); }
+  function cipherBlock(M: number[]) {
+    const [a0, b0, c0, d0] = [1732584193, -271733879, -1732584194, 271733878];
+    let [a, b, c, d] = [a0, b0, c0, d0];
+    a = md5ff(a, b, c, d, M[0], 7, -680876936); d = md5ff(d, a, b, c, M[1], 12, -389564586); c = md5ff(c, d, a, b, M[2], 17, 606105819); b = md5ff(b, c, d, a, M[3], 22, -1044525330);
+    a = md5ff(a, b, c, d, M[4], 7, -176418897); d = md5ff(d, a, b, c, M[5], 12, 1200080426); c = md5ff(c, d, a, b, M[6], 17, -1473231341); b = md5ff(b, c, d, a, M[7], 22, -45705983);
+    a = md5ff(a, b, c, d, M[8], 7, 1770035416); d = md5ff(d, a, b, c, M[9], 12, -1958414417); c = md5ff(c, d, a, b, M[10], 17, -42063); b = md5ff(b, c, d, a, M[11], 22, -1990404162);
+    a = md5ff(a, b, c, d, M[12], 7, 1804603682); d = md5ff(d, a, b, c, M[13], 12, -40341101); c = md5ff(c, d, a, b, M[14], 17, -1502002290); b = md5ff(b, c, d, a, M[15], 22, 1236535329);
+    a = md5gg(a, b, c, d, M[1], 5, -165796510); d = md5gg(d, a, b, c, M[6], 9, -1069501632); c = md5gg(c, d, a, b, M[11], 14, 643717713); b = md5gg(b, c, d, a, M[0], 20, -373897302);
+    a = md5gg(a, b, c, d, M[5], 5, -701558691); d = md5gg(d, a, b, c, M[10], 9, 38016083); c = md5gg(c, d, a, b, M[15], 14, -660478335); b = md5gg(b, c, d, a, M[4], 20, -405537848);
+    a = md5gg(a, b, c, d, M[9], 5, 568446438); d = md5gg(d, a, b, c, M[14], 9, -1019803690); c = md5gg(c, d, a, b, M[3], 14, -187363961); b = md5gg(b, c, d, a, M[8], 20, 1163531501);
+    a = md5gg(a, b, c, d, M[13], 5, -1444681467); d = md5gg(d, a, b, c, M[2], 9, -51403784); c = md5gg(c, d, a, b, M[7], 14, 1735328473); b = md5gg(b, c, d, a, M[12], 20, -1926607734);
+    a = md5hh(a, b, c, d, M[5], 4, -378558); d = md5hh(d, a, b, c, M[8], 11, -2022574463); c = md5hh(c, d, a, b, M[11], 16, 1839030562); b = md5hh(b, c, d, a, M[14], 23, -35309556);
+    a = md5hh(a, b, c, d, M[1], 4, -1530992060); d = md5hh(d, a, b, c, M[4], 11, 1272893353); c = md5hh(c, d, a, b, M[7], 16, -155497632); b = md5hh(b, c, d, a, M[10], 23, -1094730640);
+    a = md5hh(a, b, c, d, M[13], 4, 681279174); d = md5hh(d, a, b, c, M[0], 11, -358537222); c = md5hh(c, d, a, b, M[3], 16, -722521979); b = md5hh(b, c, d, a, M[6], 23, 76029189);
+    a = md5hh(a, b, c, d, M[9], 4, -640364487); d = md5hh(d, a, b, c, M[12], 11, -421815835); c = md5hh(c, d, a, b, M[15], 16, 530742520); b = md5hh(b, c, d, a, M[2], 23, -995338651);
+    a = md5ii(a, b, c, d, M[0], 6, -198630844); d = md5ii(d, a, b, c, M[7], 10, 1126891415); c = md5ii(c, d, a, b, M[14], 15, -1416354905); b = md5ii(b, c, d, a, M[5], 21, -57434055);
+    a = md5ii(a, b, c, d, M[12], 6, 1700485571); d = md5ii(d, a, b, c, M[3], 10, -1894986606); c = md5ii(c, d, a, b, M[10], 15, -1051523); b = md5ii(b, c, d, a, M[1], 21, -2054922799);
+    a = md5ii(a, b, c, d, M[8], 6, 1873313359); d = md5ii(d, a, b, c, M[15], 10, -30611744); c = md5ii(c, d, a, b, M[6], 15, -1560198380); b = md5ii(b, c, d, a, M[13], 21, 1309151649);
+    a = md5ii(a, b, c, d, M[4], 6, -145523070); d = md5ii(d, a, b, c, M[11], 10, -1120210379); c = md5ii(c, d, a, b, M[2], 15, 718787259); b = md5ii(b, c, d, a, M[9], 21, -343485551);
+    return [safeAdd(a, a0), safeAdd(b, b0), safeAdd(c, c0), safeAdd(d, d0)];
+  }
+  const str8 = unescape(encodeURIComponent(inputStr));
+  const bytes = Array.from(str8).map(c => c.charCodeAt(0));
+  bytes.push(0x80);
+  while (bytes.length % 64 !== 56) bytes.push(0);
+  const bitLen = (inputStr.length * 8);
+  bytes.push(bitLen & 0xff, (bitLen >> 8) & 0xff, (bitLen >> 16) & 0xff, (bitLen >> 24) & 0xff, 0, 0, 0, 0);
+  const M: number[] = [];
+  for (let i = 0; i < bytes.length; i += 4) M.push(bytes[i] | (bytes[i + 1] << 8) | (bytes[i + 2] << 16) | (bytes[i + 3] << 24));
+  let [a, b, c, d] = [1732584193, -271733879, -1732584194, 271733878];
+  for (let i = 0; i < M.length; i += 16) {
+    const block = cipherBlock(M.slice(i, i + 16));
+    [a, b, c, d] = [a + block[0] | 0, b + block[1] | 0, c + block[2] | 0, d + block[3] | 0];
+  }
+  return [a, b, c, d].map(n => {
+    const hex = (n >>> 0).toString(16).padStart(8, '0');
+    return hex.match(/../g)!.map(h => h.split('').reverse().join('')).join('');
+  }).join('');
+}
+
+function getMutations(pwd: string): string[] {
+  const base = pwd.toLowerCase();
+  const mutations: string[] = [];
+  const leet = base.replace(/a/g, '@').replace(/e/g, '3').replace(/i/g, '1').replace(/o/g, '0').replace(/s/g, '$');
+  const cap = base.charAt(0).toUpperCase() + base.slice(1);
+  mutations.push(leet, cap, base + '123', base + '2024', base + '!', base + '@', cap + '1', cap + '123', cap + '2024', cap + '!', leet + '1', leet + '!');
+  const baseWords = ['password', 'motdepasse', 'soleil', 'bonjour', 'france', 'admin', 'welcome', 'secret'];
+  baseWords.forEach(w => {
+    mutations.push(w + '123', w + '2024', w.charAt(0).toUpperCase() + w.slice(1) + '1', w.replace(/a/g, '@').replace(/e/g, '3'));
+  });
+  return [...new Set(mutations)];
+}
+
+function getStrengthLabel(entropy: number): { label: string; color: string } {
+  if (entropy < 25) return { label: 'TRÈS FAIBLE', color: T.red };
+  if (entropy < 40) return { label: 'FAIBLE', color: '#f97316' };
+  if (entropy < 55) return { label: 'MOYEN', color: T.amber };
+  if (entropy < 70) return { label: 'FORT', color: '#84cc16' };
+  return { label: 'TRÈS FORT', color: T.green };
+}
+
+// ─── Password Scenario Component ───────────────────────────────────────────────
+
+function PasswordScenario() {
+  const [st, setSt] = useState<PwdState>(initPwdState());
+  const dictTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const mutTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const bruteTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const dictIdxRef = useRef(0);
+  const mutIdxRef = useRef(0);
+
+  const entropy = calcEntropy(st.password);
+  const strength = getStrengthLabel(entropy);
+  const timeEst = st.password.length > 0 ? crackTime(entropy) : '—';
+
+  const clearAllTimers = () => {
+    if (dictTimerRef.current) clearInterval(dictTimerRef.current);
+    if (mutTimerRef.current) clearInterval(mutTimerRef.current);
+    if (bruteTimerRef.current) clearInterval(bruteTimerRef.current);
+  };
+
+  const resetAll = () => {
+    clearAllTimers();
+    dictIdxRef.current = 0;
+    mutIdxRef.current = 0;
+    setSt(initPwdState());
+  };
+
+  // Phase 1: dictionary attack
+  const startPhase1 = useCallback((pwd: string) => {
+    setSt(prev => ({ ...prev, phase: 1, dictLines: [], dictDone: false, dictFound: false }));
+    dictIdxRef.current = 0;
+    dictTimerRef.current = setInterval(() => {
+      const idx = dictIdxRef.current;
+      if (idx >= DICT_PASSWORDS.length) {
+        clearInterval(dictTimerRef.current!);
+        setSt(prev => ({ ...prev, dictDone: true }));
+        setTimeout(() => startPhase2(pwd), 800);
+        return;
+      }
+      const word = DICT_PASSWORDS[idx];
+      const found = word.toLowerCase() === pwd.toLowerCase();
+      dictIdxRef.current = idx + 1;
+      setSt(prev => ({
+        ...prev,
+        dictLines: [...prev.dictLines.slice(-18), { word, found }],
+        ...(found ? { dictFound: true, dictDone: true, dictFoundAt: idx + 1, crackedAtPhase: 1 } : {}),
+      }));
+      if (found) {
+        clearInterval(dictTimerRef.current!);
+        setSt(prev => ({ ...prev, phase: 5 }));
+      }
+    }, 80);
+  }, []);
+
+  // Phase 2: rule mutations
+  const startPhase2 = useCallback((pwd: string) => {
+    const mutations = getMutations(pwd);
+    setSt(prev => ({ ...prev, phase: 2, mutLines: [], mutDone: false, mutFound: false }));
+    mutIdxRef.current = 0;
+    mutTimerRef.current = setInterval(() => {
+      const idx = mutIdxRef.current;
+      if (idx >= mutations.length) {
+        clearInterval(mutTimerRef.current!);
+        setSt(prev => ({ ...prev, mutDone: true }));
+        setTimeout(() => startPhase3(pwd), 800);
+        return;
+      }
+      const word = mutations[idx];
+      const found = word === pwd;
+      mutIdxRef.current = idx + 1;
+      setSt(prev => ({
+        ...prev,
+        mutLines: [...prev.mutLines.slice(-18), { word, found }],
+        ...(found ? { mutFound: true, mutDone: true, crackedAtPhase: 2 } : {}),
+      }));
+      if (found) {
+        clearInterval(mutTimerRef.current!);
+        setSt(prev => ({ ...prev, phase: 5 }));
+      }
+    }, 120);
+  }, []);
+
+  // Phase 3: rainbow table
+  const startPhase3 = useCallback(async (pwd: string) => {
+    setSt(prev => ({ ...prev, phase: 3 }));
+    const m = md5(pwd);
+    const s = await sha256(pwd);
+    const rainbowFound = pwd.length <= 8 && entropy < 45;
+    setSt(prev => ({ ...prev, hashMD5: m, hashSHA: s, rainbowFound, ...(rainbowFound ? { crackedAtPhase: 3 } : {}) }));
+    setTimeout(() => {
+      if (rainbowFound) {
+        setSt(prev => ({ ...prev, phase: 5 }));
+      } else {
+        startPhase4(pwd);
+      }
+    }, 3000);
+  }, [entropy]);
+
+  // Phase 4: brute force
+  const startPhase4 = useCallback((pwd: string) => {
+    setSt(prev => ({ ...prev, phase: 4, bruteCount: 0, bruteDone: false, bruteFound: false }));
+    const weakPwd = calcEntropy(pwd) < 30;
+    let count = 0;
+    bruteTimerRef.current = setInterval(() => {
+      count += Math.floor(Math.random() * 800000) + 400000;
+      const pct = Math.min(count / 1e10, 0.05);
+      setSt(prev => ({ ...prev, bruteCount: count }));
+      if (pct >= 0.05) {
+        clearInterval(bruteTimerRef.current!);
+        setSt(prev => ({
+          ...prev,
+          bruteDone: true,
+          bruteFound: weakPwd,
+          ...(weakPwd ? { crackedAtPhase: 4 } : {}),
+          phase: 5,
+        }));
+      }
+    }, 150);
+  }, []);
+
+  const launchAnalysis = () => {
+    if (!st.password) return;
+    clearAllTimers();
+    startPhase1(st.password);
+  };
+
+  useEffect(() => { return clearAllTimers; }, []);
+
+  // Derived
+  const hasMaj = /[A-Z]/.test(st.password);
+  const hasMin = /[a-z]/.test(st.password);
+  const hasNum = /[0-9]/.test(st.password);
+  const hasSym = /[^a-zA-Z0-9]/.test(st.password);
+  const barPct = Math.min((entropy / 80) * 100, 100);
+
+  // Phase labels for narration
+  const phaseNarration: Record<number, { title: string; chapter: string; story: string[]; knowledge: KnowledgeCard[] }> = {
+    0: {
+      chapter: 'PHASE 0 / 4',
+      title: 'Analysez votre mot de passe',
+      story: [
+        'Entrez un mot de passe pour voir comment un attaquant l\'analyserait. L\'entropie mesure le nombre de bits d\'information : plus elle est haute, plus le mot de passe est difficile à deviner.',
+        'Un GPU moderne peut tester **10 milliards de combinaisons par seconde**. La complexité perçue par l\'humain et la résistance réelle aux attaques sont souvent très différentes.',
+        'Cliquez sur "LANCER L\'ANALYSE" pour simuler une attaque réelle en 4 phases.',
+      ],
+      knowledge: [
+        { term: "Qu'est-ce que l'entropie ?", definition: "L'entropie d'un mot de passe mesure son imprévisibilité en bits. Elle dépend de la taille de l'alphabet utilisé et de la longueur. Formule : log2(taille_alphabet) × longueur.", example: '"password" : 6,5 bits. "P@ssw0rd!" : 52 bits. "MonChienMaxAdore2024!" : 98 bits.' },
+        { term: 'Les 200 mots de passe les plus courants', definition: 'Des milliards de comptes sont compromis chaque année car les utilisateurs choisissent des mots de passe prévisibles. La liste RockYou.txt contient 14 millions de mots de passe réels volés.', law: 'Have I Been Pwned (haveibeenpwned.com) permet de vérifier si votre email a été exposé dans une fuite de données.' },
+      ],
+    },
+    1: {
+      chapter: 'PHASE 1 / 4',
+      title: 'Attaque par dictionnaire',
+      story: [
+        'La première technique : tester des **millions de mots de passe courants** avant même d\'essayer le brute force. La liste RockYou.txt contient 14 344 391 mots de passe réels volés lors de la fuite de 2009.',
+        'Si votre mot de passe est dans ce dictionnaire, il sera cassé en **moins de 1 seconde**, peu importe sa longueur apparente.',
+        'Les attaquants utilisent aussi des listes spécialisées : mots de passe français, dates, prénoms, noms de villes...',
+      ],
+      knowledge: [
+        { term: 'RockYou.txt', definition: 'Fichier issu de la fuite de données RockYou.com en 2009. 32 millions de comptes exposés, 14 millions de mots de passe uniques. Devenu le standard des attaques dictionnaire.', example: 'Les 5 plus courants : 123456, 12345, 123456789, password, iloveyou — représentent des millions de comptes.' },
+        { term: 'Have I Been Pwned', definition: 'Service gratuit de Troy Hunt listant 12+ milliards de comptes compromis. Permet de vérifier si votre email ou mot de passe a été exposé dans une fuite connue.', law: 'haveibeenpwned.com — à consulter régulièrement. API disponible pour les développeurs.' },
+      ],
+    },
+    2: {
+      chapter: 'PHASE 2 / 4',
+      title: 'Attaque par règles (mutations)',
+      story: [
+        'Les utilisateurs pensent souvent créer un mot de passe fort en substituant des lettres : "a→@", "e→3", "o→0". Mais ces règles sont **connues des attaquants** et codées dans leurs outils.',
+        '**Hashcat** est l\'outil standard : il applique automatiquement des centaines de règles de transformation sur chaque mot du dictionnaire. "motdepasse" → "M0td3p@ss3!" est testé en millisecondes.',
+        'L\'ajout de chiffres à la fin (123, 2024) est aussi systématiquement testé.',
+      ],
+      knowledge: [
+        { term: 'Hashcat et les règles de mutation', definition: 'Hashcat est l\'outil open-source de référence pour le crack de hash. Il supporte 300+ GPU en parallèle et applique des règles complexes : leetspeak, majuscules, suffixes, préfixes, combinaisons.', example: 'Record mondial (2024) : 300 milliards de hash MD5 par seconde avec 8 RTX 4090 en cluster.' },
+        { term: 'Leetspeak et ses limites', definition: 'Substitution de lettres par des chiffres/symboles visuellement similaires. Augmente marginalement la complexité mais toutes les substitutions communes sont dans les dictionnaires d\'attaquants.', law: 'Solution efficace : utiliser une passphrase longue plutôt que des substitutions. "MonChienS\'appelleMax" résiste infiniment mieux que "P@ssw0rd".' },
+      ],
+    },
+    3: {
+      chapter: 'PHASE 3 / 4',
+      title: 'Rainbow Table & hashing',
+      story: [
+        'Les mots de passe sont stockés sous forme de **hash** — une empreinte cryptographique à sens unique. MD5 et SHA-1 sont obsolètes : leurs hash sont précalculés dans des rainbow tables.',
+        'Une rainbow table contient des milliards de paires (mot de passe → hash). Si votre hash est dans la table, le mot de passe est trouvé **instantanément**, sans calcul.',
+        'Les algorithmes modernes (bcrypt, Argon2, scrypt) intègrent un **sel** aléatoire qui rend les rainbow tables inutiles et ralentit artificiellement le calcul.',
+      ],
+      knowledge: [
+        { term: 'Hash cryptographique', definition: 'Fonction à sens unique : facile à calculer dans un sens, impossible à inverser. SHA-256 produit toujours un hash de 256 bits. Moindre modification → hash totalement différent.', example: '"password" → SHA-256 : 5e884898da... | "Password" → SHA-256 : 8be04a17... (totalement différent).' },
+        { term: 'Rainbow Table', definition: 'Table précalculée de milliards de paires (mot de passe → hash). Permet de retrouver un mot de passe depuis son hash en quelques secondes. Inefficace si salage utilisé.', law: 'MD5 et SHA-1 sont interdits pour stocker des mots de passe (ANSSI, NIST). Utiliser bcrypt, Argon2 ou scrypt.' },
+        { term: 'Salage (salting)', definition: 'Ajout d\'une valeur aléatoire unique par utilisateur avant le hachage. Rend chaque hash unique même pour des mots de passe identiques, neutralise les rainbow tables.', law: 'bcrypt intègre automatiquement un sel de 128 bits. Argon2 (vainqueur du Password Hashing Competition 2015) est la recommandation actuelle.' },
+      ],
+    },
+    4: {
+      chapter: 'PHASE 4 / 4',
+      title: 'Attaque brute force',
+      story: [
+        'En dernier recours : tester **toutes les combinaisons possibles**. Un GPU RTX 4090 peut tester 10 milliards de hash MD5 par seconde.',
+        'La résistance dépend entièrement de l\'entropie du mot de passe. À partir de **60 bits d\'entropie**, même un cluster GPU ne peut pas craquer en temps raisonnable.',
+        'C\'est pourquoi la **longueur** prime sur la complexité : une phrase de 4 mots aléatoires (diceware) est plus sûre et plus mémorisable qu\'un mot de passe court "complexe".',
+      ],
+      knowledge: [
+        { term: 'Brute Force et GPU', definition: 'Les GPU sont 100× plus rapides que les CPU pour les calculs de hash. Un cluster de 8 RTX 4090 atteint 300 Ghash/s sur MD5. Les mots de passe < 8 caractères tombent en minutes.', example: 'Mot de passe 6 chars alphanumérique : cracké en 2 minutes. 10 chars : 10 ans. 15 chars : des millions d\'années.' },
+        { term: 'bcrypt / Argon2', definition: 'Algorithmes de hachage conçus pour les mots de passe. Intentionnellement lents (paramètre de coût). bcrypt : 100ms par vérification. Argon2 : paramétrable en temps et mémoire.', law: 'NIST SP 800-132 recommande Argon2id. Django, Laravel, Spring utilisent bcrypt par défaut. Ne jamais utiliser MD5/SHA-1/SHA-256 sans sel et itérations pour les mots de passe.' },
+      ],
+    },
+    5: {
+      chapter: 'RÉSULTAT',
+      title: 'Analyse terminée',
+      story: [],
+      knowledge: [],
+    },
+  };
+
+  const currentNarration = phaseNarration[Math.min(st.phase, 5)];
+
+  return (
+    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 400px', overflow: 'hidden' }}>
+      {/* LEFT */}
+      <div style={{ borderRight: `1px solid ${T.line}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: T.dark }}>
+        <AnimatePresence mode="wait">
+
+          {/* PHASE 0 — Input */}
+          {st.phase === 0 && (
+            <motion.div key="phase0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: 28, overflowY: 'auto' }}>
+              <div style={{ fontFamily: T.MONO, fontSize: 10, color: T.muted, marginBottom: 20, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Simulateur — Entrez votre mot de passe
+              </div>
+
+              {/* Input field */}
+              <div style={{ position: 'relative', marginBottom: 24 }}>
+                <input
+                  type={st.showPassword ? 'text' : 'password'}
+                  value={st.password}
+                  onChange={e => setSt(prev => ({ ...prev, password: e.target.value }))}
+                  placeholder="Tapez un mot de passe..."
+                  style={{
+                    width: '100%', padding: '14px 44px 14px 16px',
+                    background: '#161b22', border: `1px solid ${T.blue}`,
+                    color: '#e6edf3', fontFamily: T.MONO, fontSize: 16,
+                    outline: 'none', boxSizing: 'border-box',
+                  }}
+                />
+                <button
+                  onClick={() => setSt(prev => ({ ...prev, showPassword: !prev.showPassword }))}
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: T.muted, padding: 0, display: 'flex', alignItems: 'center' }}
+                >
+                  {st.showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+
+              {/* Real-time analysis */}
+              {st.password.length > 0 && (
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {/* Checks */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    {[
+                      { label: `Longueur : ${st.password.length} car.`, ok: st.password.length >= 12 },
+                      { label: 'Majuscules', ok: hasMaj },
+                      { label: 'Minuscules', ok: hasMin },
+                      { label: 'Chiffres', ok: hasNum },
+                      { label: 'Symboles', ok: hasSym },
+                      { label: 'Longueur ≥ 16', ok: st.password.length >= 16 },
+                    ].map((item, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, fontFamily: T.MONO, fontSize: 10, color: item.ok ? T.green : T.muted }}>
+                        {item.ok ? <CheckCircle size={11} color={T.green} /> : <XCircle size={11} color={T.red} />}
+                        {item.label}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Entropy + strength */}
+                  <div style={{ background: '#161b22', border: `1px solid #30363d`, padding: 14 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <span style={{ fontFamily: T.MONO, fontSize: 10, color: T.muted }}>Entropie</span>
+                      <span style={{ fontFamily: T.MONO, fontSize: 10, color: '#e6edf3', fontWeight: 700 }}>{entropy.toFixed(1)} bits</span>
+                    </div>
+                    <div style={{ height: 4, background: '#30363d', marginBottom: 8 }}>
+                      <motion.div animate={{ width: `${barPct}%` }} style={{ height: '100%', background: strength.color, transition: 'width 0.3s' }} />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ fontFamily: T.MONO, fontSize: 11, fontWeight: 700, color: strength.color }}>{strength.label}</span>
+                      <span style={{ fontFamily: T.MONO, fontSize: 9, color: T.muted }}>GPU brute force : {timeEst}</span>
+                    </div>
+                  </div>
+
+                  {/* Launch button */}
+                  <motion.button
+                    whileHover={{ scale: 1.01 }}
+                    onClick={launchAnalysis}
+                    style={{ padding: '13px 0', background: T.blue, color: '#fff', border: 'none', cursor: 'pointer', fontFamily: T.MONO, fontSize: 12, fontWeight: 700, letterSpacing: '0.05em', marginTop: 4 }}
+                  >
+                    ▶ LANCER L'ANALYSE
+                  </motion.button>
+                </motion.div>
+              )}
+
+              {st.password.length === 0 && (
+                <div style={{ color: T.muted, fontFamily: T.MONO, fontSize: 11, textAlign: 'center', marginTop: 40 }}>
+                  ↑ Commencez à taper pour voir l'analyse en temps réel
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* PHASE 1 — Dictionary */}
+          {st.phase === 1 && (
+            <motion.div key="phase1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: 20, overflow: 'hidden' }}>
+              <div style={{ fontFamily: T.MONO, fontSize: 10, color: T.amber, marginBottom: 12, textTransform: 'uppercase' }}>
+                [PHASE 1] Attaque dictionnaire — RockYou.txt (14 344 391 mots)
+              </div>
+              <div style={{ flex: 1, overflowY: 'auto', fontFamily: T.MONO, fontSize: 11 }}>
+                {st.dictLines.map((line, i) => (
+                  <div key={i} style={{ color: line.found ? T.red : '#6e7681', marginBottom: 3, display: 'flex', gap: 10 }}>
+                    <span style={{ color: '#30363d', minWidth: 30, textAlign: 'right' }}>{DICT_PASSWORDS.indexOf(line.word) + 1}</span>
+                    <span style={{ color: line.found ? T.red : '#8b949e' }}>{line.word}</span>
+                    {line.found && <span style={{ color: T.red, fontWeight: 700 }}>← TROUVÉ !</span>}
+                  </div>
+                ))}
+                {st.dictDone && !st.dictFound && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginTop: 12, color: T.green, fontFamily: T.MONO, fontSize: 10 }}>
+                    ✓ Non trouvé dans le dictionnaire (14 344 391 mots testés) — passage phase 2...
+                  </motion.div>
+                )}
+                {st.dictFound && (
+                  <motion.div animate={{ opacity: [1, 0.3, 1] }} transition={{ repeat: Infinity, duration: 0.5 }}
+                    style={{ marginTop: 12, color: T.red, fontFamily: T.MONO, fontSize: 12, fontWeight: 700 }}>
+                    ⚠ MOT DE PASSE TROUVÉ en {st.dictFoundAt} tentative(s) !
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {/* PHASE 2 — Mutations */}
+          {st.phase === 2 && (
+            <motion.div key="phase2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: 20, overflow: 'hidden' }}>
+              <div style={{ fontFamily: T.MONO, fontSize: 10, color: T.amber, marginBottom: 12, textTransform: 'uppercase' }}>
+                [PHASE 2] Attaque par règles — Hashcat mutations
+              </div>
+              <div style={{ flex: 1, overflowY: 'auto', fontFamily: T.MONO, fontSize: 11 }}>
+                {st.mutLines.map((line, i) => (
+                  <div key={i} style={{ color: line.found ? T.red : '#6e7681', marginBottom: 3, display: 'flex', gap: 10 }}>
+                    <span style={{ color: '#30363d', minWidth: 22 }}>{i + 1}</span>
+                    <span style={{ color: line.found ? T.red : '#8b949e' }}>{line.word}</span>
+                    {line.found && <span style={{ color: T.red, fontWeight: 700 }}>← MUTATION TROUVÉE !</span>}
+                  </div>
+                ))}
+                {st.mutDone && !st.mutFound && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginTop: 12, color: T.green, fontFamily: T.MONO, fontSize: 10 }}>
+                    ✓ Aucune mutation connue ne correspond — passage phase 3...
+                  </motion.div>
+                )}
+                {st.mutFound && (
+                  <motion.div animate={{ opacity: [1, 0.3, 1] }} transition={{ repeat: Infinity, duration: 0.5 }}
+                    style={{ marginTop: 12, color: T.red, fontFamily: T.MONO, fontSize: 12, fontWeight: 700 }}>
+                    ⚠ MUTATION TROUVÉE !
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {/* PHASE 3 — Rainbow */}
+          {st.phase === 3 && (
+            <motion.div key="phase3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: 20, overflow: 'hidden' }}>
+              <div style={{ fontFamily: T.MONO, fontSize: 10, color: T.amber, marginBottom: 16, textTransform: 'uppercase' }}>
+                [PHASE 3] Hashing & Rainbow Table
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div style={{ background: '#161b22', border: '1px solid #30363d', padding: 14 }}>
+                  <div style={{ fontFamily: T.MONO, fontSize: 9, color: T.muted, marginBottom: 6, textTransform: 'uppercase' }}>Hash MD5</div>
+                  <div style={{ fontFamily: T.MONO, fontSize: 10, color: T.amber, wordBreak: 'break-all', lineHeight: 1.5 }}>{st.hashMD5 || '...'}</div>
+                </div>
+                <div style={{ background: '#161b22', border: '1px solid #30363d', padding: 14 }}>
+                  <div style={{ fontFamily: T.MONO, fontSize: 9, color: T.muted, marginBottom: 6, textTransform: 'uppercase' }}>Hash SHA-256</div>
+                  <div style={{ fontFamily: T.MONO, fontSize: 10, color: T.amber, wordBreak: 'break-all', lineHeight: 1.5 }}>{st.hashSHA || '...'}</div>
+                </div>
+                {st.hashSHA && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ background: st.rainbowFound ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', border: `1px solid ${st.rainbowFound ? T.red : T.green}44`, padding: 14 }}>
+                    <div style={{ fontFamily: T.MONO, fontSize: 9, color: T.muted, marginBottom: 6, textTransform: 'uppercase' }}>Recherche Rainbow Table</div>
+                    {st.rainbowFound
+                      ? <div style={{ color: T.red, fontFamily: T.MONO, fontSize: 11, fontWeight: 700 }}>⚠ HASH TROUVÉ dans la rainbow table — mot de passe récupéré !</div>
+                      : <div style={{ color: T.green, fontFamily: T.MONO, fontSize: 11 }}>✓ Hash inconnu — rainbow table inefficace. Passage phase 4...</div>
+                    }
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {/* PHASE 4 — Brute Force */}
+          {st.phase === 4 && (
+            <motion.div key="phase4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 28, textAlign: 'center' }}>
+              <div style={{ fontFamily: T.MONO, fontSize: 10, color: T.amber, marginBottom: 20, textTransform: 'uppercase' }}>
+                [PHASE 4] Brute Force — GPU cluster (10¹⁰ req/sec)
+              </div>
+              <div style={{ fontFamily: T.MONO, fontSize: 28, fontWeight: 800, color: T.red, marginBottom: 8 }}>
+                {st.bruteCount.toLocaleString('fr-FR')}
+              </div>
+              <div style={{ fontFamily: T.MONO, fontSize: 10, color: T.muted, marginBottom: 20 }}>tentatives</div>
+              <div style={{ width: '100%', height: 4, background: '#30363d', marginBottom: 20 }}>
+                <motion.div
+                  animate={{ width: `${Math.min((st.bruteCount / 1e10) * 100 / 0.05, 100)}%` }}
+                  style={{ height: '100%', background: T.red }}
+                />
+              </div>
+              {!st.bruteDone && (
+                <div style={{ fontFamily: T.MONO, fontSize: 10, color: T.muted }}>
+                  Estimation : {timeEst}
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* PHASE 5 — Result */}
+          {st.phase === 5 && (
+            <motion.div key="phase5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 28, textAlign: 'center', overflowY: 'auto' }}>
+              {st.crackedAtPhase !== null ? (
+                <>
+                  <motion.div animate={{ opacity: [1, 0.4, 1] }} transition={{ repeat: Infinity, duration: 0.7 }}
+                    style={{ fontSize: 52, marginBottom: 12 }}>💀</motion.div>
+                  <div style={{ color: T.red, fontFamily: T.MONO, fontSize: 15, fontWeight: 800, marginBottom: 8 }}>
+                    MOT DE PASSE COMPROMIS
+                  </div>
+                  <div style={{ fontFamily: T.MONO, fontSize: 10, color: T.muted, marginBottom: 20 }}>
+                    Cracké en phase {st.crackedAtPhase} —{' '}
+                    {st.crackedAtPhase === 1 ? 'attaque dictionnaire' : st.crackedAtPhase === 2 ? 'mutation hashcat' : st.crackedAtPhase === 3 ? 'rainbow table' : 'brute force (entropie trop faible)'}
+                  </div>
+                  <div style={{ background: 'rgba(239,68,68,0.08)', border: `1px solid ${T.red}33`, padding: 16, width: '100%', maxWidth: 340, marginBottom: 20, textAlign: 'left' }}>
+                    <div style={{ fontFamily: T.MONO, fontSize: 9, color: T.red, textTransform: 'uppercase', marginBottom: 10 }}>Entropie : {entropy.toFixed(1)} bits</div>
+                    {[
+                      '1. Utilisez une passphrase : "MonChienS\'appelleMaxEtIlAdore2024!" (≥ 40 bits)',
+                      '2. Gestionnaire de mots de passe : Bitwarden, 1Password, KeePass',
+                      '3. Activez le MFA — même si le mot de passe est fort',
+                    ].map((tip, i) => (
+                      <div key={i} style={{ fontFamily: T.SANS, fontSize: 11, color: T.sub, marginBottom: 8, lineHeight: 1.5 }}>• {tip}</div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize: 52, marginBottom: 12 }}>🛡</div>
+                  <div style={{ color: T.green, fontFamily: T.MONO, fontSize: 15, fontWeight: 800, marginBottom: 8 }}>
+                    MOT DE PASSE RÉSISTANT
+                  </div>
+                  <div style={{ fontFamily: T.MONO, fontSize: 10, color: T.muted, marginBottom: 20 }}>
+                    Temps de crack estimé : {timeEst}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 20 }}>
+                    {[
+                      { label: '✓ Longueur', ok: st.password.length >= 12 },
+                      { label: '✓ Complexité', ok: hasMaj && hasMin && hasNum },
+                      { label: `✓ Entropie ${entropy.toFixed(0)} bits`, ok: entropy >= 55 },
+                    ].map((badge, i) => badge.ok && (
+                      <div key={i} style={{ fontFamily: T.MONO, fontSize: 9, color: T.green, background: 'rgba(16,185,129,0.1)', border: `1px solid ${T.green}44`, padding: '5px 10px' }}>
+                        {badge.label}
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ background: 'rgba(16,185,129,0.08)', border: `1px solid ${T.green}33`, padding: 16, width: '100%', maxWidth: 340, marginBottom: 20, textAlign: 'left' }}>
+                    {[
+                      '1. Continuez à utiliser un gestionnaire de mots de passe',
+                      '2. Activez le MFA en complément — même les forts mots de passe peuvent fuiter',
+                      '3. Vérifiez vos comptes sur haveibeenpwned.com',
+                    ].map((tip, i) => (
+                      <div key={i} style={{ fontFamily: T.SANS, fontSize: 11, color: T.sub, marginBottom: 8, lineHeight: 1.5 }}>• {tip}</div>
+                    ))}
+                  </div>
+                </>
+              )}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                onClick={resetAll}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 24px', background: T.blue, color: '#fff', border: 'none', cursor: 'pointer', fontFamily: T.MONO, fontSize: 11, fontWeight: 600 }}
+              >
+                <RotateCcw size={12} /> Tester un nouveau mot de passe
+              </motion.button>
+            </motion.div>
+          )}
+
+        </AnimatePresence>
+      </div>
+
+      {/* RIGHT — Narration */}
+      <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', background: T.bg }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '24px 24px 0' }}>
+          <div style={{ marginBottom: 18 }}>
+            <span style={{ fontFamily: T.MONO, fontSize: 9, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{currentNarration.chapter}</span>
+            <h2 style={{ fontFamily: T.SANS, fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.03em', color: T.text, margin: '5px 0 0', lineHeight: 1.25 }}>{currentNarration.title}</h2>
+          </div>
+
+          {st.phase < 5 && (
+            <div style={{ marginBottom: 22 }}>
+              {currentNarration.story.map((para, i) => {
+                const parts = para.split(/\*\*(.*?)\*\*/g);
+                return (
+                  <p key={i} style={{ fontSize: 13, color: T.sub, lineHeight: 1.75, margin: '0 0 10px' }}>
+                    {parts.map((part, j) => j % 2 === 1
+                      ? <strong key={j} style={{ color: T.text, fontWeight: 600 }}>{part}</strong>
+                      : <span key={j}>{part}</span>
+                    )}
+                  </p>
+                );
+              })}
+            </div>
+          )}
+
+          {currentNarration.knowledge.length > 0 && st.phase < 5 && (
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
+                <Info size={10} color={T.blue} />
+                <span style={{ fontFamily: T.MONO, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: T.blue }}>À RETENIR</span>
+              </div>
+              <KnowledgePanel cards={currentNarration.knowledge} />
+            </div>
+          )}
+
+          {st.phase === 5 && (
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
+                <Info size={10} color={T.blue} />
+                <span style={{ fontFamily: T.MONO, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: T.blue }}>RÉCAPITULATIF</span>
+              </div>
+              <div style={{ fontFamily: T.SANS, fontSize: 12, color: T.sub, lineHeight: 1.7 }}>
+                <p style={{ margin: '0 0 10px' }}>Les 4 phases d'attaque simulées correspondent aux vraies techniques utilisées par les attaquants, dans l'ordre de rapidité croissante.</p>
+                <p style={{ margin: '0 0 10px' }}>Un bon mot de passe doit résister à toutes ces phases. La clé : <strong style={{ color: T.text }}>longueur + aléatoire + unicité</strong>.</p>
+              </div>
+              <KnowledgePanel cards={[
+                { term: 'Passphrase (diceware)', definition: 'Méthode EFF : choisir 4 à 6 mots aléatoires au dé. "correct-horse-battery-staple" : 44 bits d\'entropie, mémorisable, résistant.', example: 'Outils : diceware.com, passgenerator.fr. Beaucoup plus sûr et mémorisable que "P@ssw0rd2024!".', law: 'NIST SP 800-63B (2024) recommande les passphrases longues plutôt que les contraintes de complexité.' },
+                { term: 'Gestionnaire de mots de passe', definition: 'Génère et stocke des mots de passe uniques et aléatoires pour chaque site. Vous ne retenez qu\'un seul mot de passe maître.', example: 'Bitwarden (open source, gratuit), 1Password, KeePass (local). Tous chiffrent les coffres avec AES-256.', law: 'L\'ANSSI et la CNIL recommandent officiellement les gestionnaires de mots de passe depuis 2021.' },
+              ]} />
+            </div>
+          )}
+        </div>
+
+        {/* Bottom — reset button for password scenario */}
+        <div style={{ borderTop: `1px solid ${T.line}`, padding: '14px 24px', background: T.bg, flexShrink: 0 }}>
+          <motion.button
+            whileHover={{ scale: 1.01 }}
+            onClick={resetAll}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 0', background: T.surface, border: `1px solid ${T.line}`, cursor: 'pointer', fontFamily: T.MONO, fontSize: 10, color: T.sub }}
+          >
+            <RotateCcw size={11} /> Réinitialiser le simulateur
+          </motion.button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Phishing Scenario Component ───────────────────────────────────────────────
+
+function PhishingScenario() {
   const [actIndex, setActIndex] = useState(0);
   const [choices, setChoices] = useState<Record<string, string>>({});
   const [stageStates, setStageStates] = useState<Record<string, StageState>>({});
@@ -551,6 +1239,128 @@ export default function AttackSimulator() {
   const feedback = feedbacks[stage.id];
 
   return (
+    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 400px', overflow: 'hidden' }}>
+      {/* LEFT */}
+      <div style={{ borderRight: `1px solid ${T.line}`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {stage.instruction && (
+          <div style={{ borderBottom: `1px solid ${T.line}`, padding: '8px 20px', background: T.surface, flexShrink: 0 }}>
+            <span style={{ fontFamily: T.MONO, fontSize: 10, color: T.blue }}>{stage.instruction}</span>
+          </div>
+        )}
+        <div style={{ flex: 1, overflow: 'hidden' }}>
+          <AnimatePresence mode="wait">
+            <motion.div key={stage.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }} style={{ height: '100%' }}>
+              <ScreenComp onAction={handleAction} state={currentState} />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+        <AnimatePresence>
+          {feedback && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+              style={{ borderTop: `2px solid ${feedback.correct ? T.green : T.red}`, background: feedback.correct ? 'rgba(16,185,129,0.05)' : 'rgba(239,68,68,0.05)', padding: '12px 20px', flexShrink: 0 }}
+            >
+              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                {feedback.correct ? <CheckCircle size={14} color={T.green} style={{ flexShrink: 0, marginTop: 1 }} /> : <XCircle size={14} color={T.red} style={{ flexShrink: 0, marginTop: 1 }} />}
+                <div>
+                  <span style={{ fontFamily: T.MONO, fontSize: 9, fontWeight: 700, color: feedback.correct ? T.green : T.red, textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 4 }}>
+                    {feedback.correct ? '✓ Bonne décision' : '✗ Mauvaise décision'}
+                  </span>
+                  <span style={{ fontFamily: T.SANS, fontSize: 12, color: T.sub, lineHeight: 1.6 }}>{feedback.text}</span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* RIGHT */}
+      <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '24px 24px 0' }}>
+          <div style={{ marginBottom: 18 }}>
+            <span style={{ fontFamily: T.MONO, fontSize: 9, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{stage.chapter}</span>
+            <h2 style={{ fontFamily: T.SANS, fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.03em', color: T.text, margin: '5px 0 0', lineHeight: 1.25 }}>{stage.title}</h2>
+          </div>
+          <div style={{ marginBottom: 22 }}>
+            {stage.story.map((para, i) => {
+              const parts = para.split(/\*\*(.*?)\*\*/g);
+              return (
+                <p key={i} style={{ fontSize: 13, color: T.sub, lineHeight: 1.75, margin: '0 0 10px' }}>
+                  {parts.map((part, j) => j % 2 === 1
+                    ? <strong key={j} style={{ color: T.text, fontWeight: 600 }}>{part}</strong>
+                    : <span key={j}>{part}</span>
+                  )}
+                </p>
+              );
+            })}
+          </div>
+          {stage.knowledge && (
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
+                <Info size={10} color={T.blue} />
+                <span style={{ fontFamily: T.MONO, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: T.blue }}>À RETENIR</span>
+              </div>
+              <KnowledgePanel cards={stage.knowledge} />
+            </div>
+          )}
+        </div>
+        <div style={{ borderTop: `1px solid ${T.line}`, padding: '14px 24px', display: 'flex', gap: 10, alignItems: 'center', background: T.bg, flexShrink: 0 }}>
+          <button
+            onClick={() => actIndex > 0 && setActIndex(i => i - 1)}
+            disabled={actIndex === 0}
+            style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 12px', background: T.surface, border: `1px solid ${T.line}`, cursor: actIndex === 0 ? 'not-allowed' : 'pointer', opacity: actIndex === 0 ? 0.35 : 1, fontFamily: T.MONO, fontSize: 10, color: T.sub }}
+          >
+            <ChevronLeft size={11} /> Précédent
+          </button>
+          <motion.button
+            onClick={advance}
+            disabled={!canAdvance}
+            whileHover={canAdvance ? { scale: 1.02 } : {}}
+            style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              padding: '10px 16px',
+              background: canAdvance ? T.blue : T.surface,
+              color: canAdvance ? '#fff' : T.muted,
+              border: canAdvance ? 'none' : `1px solid ${T.line}`,
+              cursor: canAdvance ? 'pointer' : 'not-allowed',
+              fontFamily: T.MONO, fontSize: 11, fontWeight: 600,
+            }}
+          >
+            {!canAdvance ? (
+              <><motion.span animate={{ opacity: [1, 0.3] }} transition={{ repeat: Infinity, duration: 0.9 }}>●</motion.span> Interagissez avec l'écran</>
+            ) : isLast ? (
+              <><RotateCcw size={12} /> Recommencer</>
+            ) : (
+              <>Acte suivant <ChevronRight size={12} /></>
+            )}
+          </motion.button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main ──────────────────────────────────────────────────────────────────────
+
+type Scenario = 'phishing' | 'password';
+
+export default function AttackSimulator() {
+  const [, navigate] = useLocation();
+  const [scenario, setScenario] = useState<Scenario>('phishing');
+  const [scenarioKey, setScenarioKey] = useState(0);
+
+  const switchScenario = (s: Scenario) => {
+    if (s === scenario) return;
+    setScenario(s);
+    setScenarioKey(k => k + 1);
+  };
+
+  const scenarios: { id: Scenario; label: string }[] = [
+    { id: 'phishing', label: 'PHISHING → RANSOMWARE' },
+    { id: 'password', label: 'CRACKING DE MOT DE PASSE' },
+  ];
+
+  return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: T.bg, fontFamily: T.SANS, color: T.text, overflow: 'hidden' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
@@ -565,134 +1375,49 @@ export default function AttackSimulator() {
           <ChevronLeft size={11} /> Retour
         </button>
         <div style={{ width: 1, height: 14, background: T.line }} />
-        <span style={{ fontFamily: T.MONO, fontSize: 10, color: T.blue, textTransform: 'uppercase', letterSpacing: '0.1em' }}>PHISHING → RANSOMWARE</span>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 5, alignItems: 'center' }}>
-          {stages.map((s, i) => {
-            const st = stageStates[s.id];
-            const color = st === 'correct' ? T.green : st === 'wrong' ? T.red : i === actIndex ? T.blue : T.line;
-            return <div key={i} style={{ width: i === actIndex ? 22 : 7, height: 7, background: color, transition: 'all 0.3s' }} />;
-          })}
+        <Shield size={13} color={T.blue} />
+        <span style={{ fontFamily: T.MONO, fontSize: 10, color: T.blue, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Simulateur d'attaque</span>
+
+        {/* Scenario selector */}
+        <div style={{ display: 'flex', gap: 1, background: T.line, padding: 1, marginLeft: 8 }}>
+          {scenarios.map(s => (
+            <button
+              key={s.id}
+              onClick={() => switchScenario(s.id)}
+              style={{
+                padding: '6px 14px',
+                background: scenario === s.id ? T.bg : T.surface,
+                border: 'none',
+                borderBottom: scenario === s.id ? `2px solid ${T.blue}` : '2px solid transparent',
+                cursor: 'pointer',
+                fontFamily: T.MONO,
+                fontSize: 9,
+                fontWeight: scenario === s.id ? 700 : 400,
+                color: scenario === s.id ? T.blue : T.muted,
+                letterSpacing: '0.06em',
+                transition: 'all 0.15s',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {s.label}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Body */}
-      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 400px', overflow: 'hidden' }}>
-
-        {/* LEFT — Interactive screen */}
-        <div style={{ borderRight: `1px solid ${T.line}`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/* Instruction banner */}
-          {stage.instruction && (
-            <div style={{ borderBottom: `1px solid ${T.line}`, padding: '8px 20px', background: T.surface, flexShrink: 0 }}>
-              <span style={{ fontFamily: T.MONO, fontSize: 10, color: T.blue }}>{stage.instruction}</span>
-            </div>
-          )}
-
-          {/* Screen itself */}
-          <div style={{ flex: 1, overflow: 'hidden' }}>
-            <AnimatePresence mode="wait">
-              <motion.div key={stage.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }} style={{ height: '100%' }}>
-                <ScreenComp onAction={handleAction} state={currentState} />
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Feedback bar */}
-          <AnimatePresence>
-            {feedback && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                style={{
-                  borderTop: `2px solid ${feedback.correct ? T.green : T.red}`,
-                  background: feedback.correct ? 'rgba(16,185,129,0.05)' : 'rgba(239,68,68,0.05)',
-                  padding: '12px 20px', flexShrink: 0,
-                }}
-              >
-                <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                  {feedback.correct ? <CheckCircle size={14} color={T.green} style={{ flexShrink: 0, marginTop: 1 }} /> : <XCircle size={14} color={T.red} style={{ flexShrink: 0, marginTop: 1 }} />}
-                  <div>
-                    <span style={{ fontFamily: T.MONO, fontSize: 9, fontWeight: 700, color: feedback.correct ? T.green : T.red, textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 4 }}>
-                      {feedback.correct ? '✓ Bonne décision' : '✗ Mauvaise décision'}
-                    </span>
-                    <span style={{ fontFamily: T.SANS, fontSize: 12, color: T.sub, lineHeight: 1.6 }}>{feedback.text}</span>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* RIGHT — Narration + knowledge */}
-        <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          <div style={{ flex: 1, overflowY: 'auto', padding: '24px 24px 0' }}>
-
-            {/* Chapter + title */}
-            <div style={{ marginBottom: 18 }}>
-              <span style={{ fontFamily: T.MONO, fontSize: 9, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{stage.chapter}</span>
-              <h2 style={{ fontFamily: T.SANS, fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.03em', color: T.text, margin: '5px 0 0', lineHeight: 1.25 }}>{stage.title}</h2>
-            </div>
-
-            {/* Story */}
-            <div style={{ marginBottom: 22 }}>
-              {stage.story.map((para, i) => {
-                const parts = para.split(/\*\*(.*?)\*\*/g);
-                return (
-                  <p key={i} style={{ fontSize: 13, color: T.sub, lineHeight: 1.75, margin: '0 0 10px' }}>
-                    {parts.map((part, j) => j % 2 === 1
-                      ? <strong key={j} style={{ color: T.text, fontWeight: 600 }}>{part}</strong>
-                      : <span key={j}>{part}</span>
-                    )}
-                  </p>
-                );
-              })}
-            </div>
-
-            {/* Knowledge cards */}
-            {stage.knowledge && (
-              <div style={{ marginBottom: 24 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
-                  <Info size={10} color={T.blue} />
-                  <span style={{ fontFamily: T.MONO, fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: T.blue }}>À RETENIR</span>
-                </div>
-                <KnowledgePanel cards={stage.knowledge} />
-              </div>
-            )}
-          </div>
-
-          {/* Bottom nav */}
-          <div style={{ borderTop: `1px solid ${T.line}`, padding: '14px 24px', display: 'flex', gap: 10, alignItems: 'center', background: T.bg, flexShrink: 0 }}>
-            <button
-              onClick={() => actIndex > 0 && setActIndex(i => i - 1)}
-              disabled={actIndex === 0}
-              style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 12px', background: T.surface, border: `1px solid ${T.line}`, cursor: actIndex === 0 ? 'not-allowed' : 'pointer', opacity: actIndex === 0 ? 0.35 : 1, fontFamily: T.MONO, fontSize: 10, color: T.sub }}
-            >
-              <ChevronLeft size={11} /> Précédent
-            </button>
-
-            <motion.button
-              onClick={advance}
-              disabled={!canAdvance}
-              whileHover={canAdvance ? { scale: 1.02 } : {}}
-              style={{
-                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                padding: '10px 16px',
-                background: canAdvance ? T.blue : T.surface,
-                color: canAdvance ? '#fff' : T.muted,
-                border: canAdvance ? 'none' : `1px solid ${T.line}`,
-                cursor: canAdvance ? 'pointer' : 'not-allowed',
-                fontFamily: T.MONO, fontSize: 11, fontWeight: 600,
-              }}
-            >
-              {!canAdvance ? (
-                <><motion.span animate={{ opacity: [1, 0.3] }} transition={{ repeat: Infinity, duration: 0.9 }}>●</motion.span> Interagissez avec l'écran</>
-              ) : isLast ? (
-                <><RotateCcw size={12} /> Recommencer</>
-              ) : (
-                <>Acte suivant <ChevronRight size={12} /></>
-              )}
-            </motion.button>
-          </div>
-        </div>
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={scenarioKey}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+        >
+          {scenario === 'phishing' ? <PhishingScenario /> : <PasswordScenario />}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
