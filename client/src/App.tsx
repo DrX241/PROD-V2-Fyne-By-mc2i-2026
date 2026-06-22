@@ -43,7 +43,6 @@ import CrisisManagementPage from "./pages/cyber/crisis-management";
 import CrisisBriefing from "./pages/cyber/crisis-management/briefing";
 import ComexTrainingPage from "./pages/cyber/comex-training";
 import PentestLab from "./pages/cyber/pentest-lab";
-import ProfilPro from "./pages/cyber/profil-pro";
 import DataChoicePage from "./pages/cyber/formation-data";
 import FormationPython from "./pages/cyber/formation-python";
 import FormationSQL from "./pages/cyber/formation";
@@ -116,7 +115,6 @@ function AppContent() {
                 <Route path="/cyber/academie">
                   {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/academie/index")))}</Suspense>)}
                 </Route>
-                <Route path="/cyber/profil-pro" component={ProfilPro} />
                 <Route path="/cyber/expert-learning" component={ExpertLearningPage} />
                 <Route path="/cyber/crisis-management/briefing" component={CrisisBriefing} />
                 <Route path="/cyber/crisis-management" component={CrisisManagementPage} />

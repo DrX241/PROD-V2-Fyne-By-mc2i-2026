@@ -97,7 +97,6 @@ const NAV_ITEMS = [
   { id: 'decouvrir',  label: "L'académie",    Icon: BookOpen,    route: '/cyber/sas-academie' },
   { id: 'entrainer',  label: 'Roleplay',       Icon: Users,       route: '/cyber/roleplay' },
   { id: 'challenger', label: 'Arcade',         Icon: Zap,         route: '/cyber/arcade' },
-  { id: 'profil',     label: 'Mon profil',     Icon: Star,        route: '/cyber/profil-pro' },
 ];
 
 // ── Main component ────────────────────────────────────────────────────────────
