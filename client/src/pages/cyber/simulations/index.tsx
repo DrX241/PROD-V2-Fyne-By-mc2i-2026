@@ -170,7 +170,6 @@ export default function CyberSimulations() {
                   padding: '24px',
                   cursor: 'pointer',
                   position: 'relative',
-                  borderLeft: `4px solid ${sim.accent}`,
                   transition: 'background 0.12s ease',
                 }}
               >

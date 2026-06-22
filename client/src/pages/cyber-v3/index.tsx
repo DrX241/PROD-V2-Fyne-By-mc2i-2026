@@ -142,14 +142,7 @@ export default function CyberV3() {
           href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
           rel="stylesheet"
         />
-        <style>{`
-          * { box-sizing: border-box; }
-          .cyber-nav-btn { transition: background 0.12s ease, color 0.12s ease; }
-          .cyber-module-card { transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease; }
-          .cyber-module-card:hover { transform: translateY(-1px); }
-          .cyber-cta-arrow { transition: background 0.15s ease, transform 0.15s ease; }
-          .cyber-module-card:hover .cyber-cta-arrow { transform: translateX(2px); }
-        `}</style>
+        <style>{`* { box-sizing: border-box; }`}</style>
       </Helmet>
 
       {/* ── Root shell ── */}
@@ -188,13 +181,11 @@ export default function CyberV3() {
               <div style={{
                 width: 30,
                 height: 30,
-                borderRadius: 7,
-                background: `linear-gradient(145deg, ${T.blue} 0%, ${T.pink} 100%)`,
+                background: T.blue,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
-                boxShadow: `0 2px 8px ${T.blue}40`,
               }}>
                 <Shield size={15} color="#fff" strokeWidth={2.2} />
               </div>
@@ -253,9 +244,8 @@ export default function CyberV3() {
                     alignItems: 'center',
                     gap: 9,
                     padding: '8px 10px',
-                    borderRadius: 6,
                     border: 'none',
-                    background: isActive ? T.activeBg : isHov ? T.hoverBg : 'transparent',
+                    background: isActive ? '#e8f0f6' : isHov ? T.hoverBg : 'transparent',
                     color: isActive ? T.blue : T.sub,
                     cursor: 'pointer',
                     fontSize: '13px',
@@ -270,11 +260,9 @@ export default function CyberV3() {
                     <span style={{
                       position: 'absolute',
                       left: 0,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      width: 3,
-                      height: 16,
-                      borderRadius: '0 2px 2px 0',
+                      top: 0,
+                      bottom: 0,
+                      width: 2,
                       background: T.blue,
                     }} />
                   )}
@@ -296,9 +284,7 @@ export default function CyberV3() {
             margin: '0 10px 20px',
             padding: '14px 16px',
             background: T.bg,
-            border: `1px solid ${T.border}`,
-            borderRadius: 10,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            borderTop: `1px solid ${T.border}`,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
               <span style={{
@@ -335,9 +321,9 @@ export default function CyberV3() {
                 </span>
               )}
             </div>
-            <div style={{ height: 5, background: T.border, borderRadius: 999, overflow: 'hidden' }}>
+            <div style={{ height: 3, background: T.border, overflow: 'hidden' }}>
               <motion.div
-                style={{ height: '100%', background: levelInfo.color, borderRadius: 999 }}
+                style={{ height: '100%', background: levelInfo.color }}
                 initial={{ width: 0 }}
                 animate={{ width: `${segmentPct}%` }}
                 transition={{ delay: 0.5, duration: 0.9, ease: 'easeOut' }}
@@ -437,16 +423,14 @@ export default function CyberV3() {
                   { icon: <Trophy size={13} color={T.pink} strokeWidth={2} />, label: 'Votre rang', value: levelInfo.label },
                 ].map((stat, i) => (
                   <div key={i} style={{
-                    background: T.bg,
+                    background: T.surface,
                     border: `1px solid ${T.border}`,
-                    borderRadius: 8,
                     padding: '10px 14px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     gap: 4,
                     minWidth: 82,
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
                   }}>
                     {stat.icon}
                     <div style={{
@@ -479,12 +463,11 @@ export default function CyberV3() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.12, duration: 0.35 }}
             style={{
-              background: T.bg,
-              border: `1px solid ${T.border}`,
-              borderRadius: 12,
+              background: T.surface,
+              borderTop: `1px solid ${T.border}`,
+              borderBottom: `1px solid ${T.border}`,
               padding: '18px 24px',
               marginBottom: 36,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
             }}
           >
             <div style={{
@@ -504,8 +487,7 @@ export default function CyberV3() {
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: '11px',
                   fontWeight: 600,
-                  padding: '3px 9px',
-                  borderRadius: 999,
+                  padding: '2px 8px',
                   background: `${levelInfo.color}14`,
                   color: levelInfo.color,
                   border: `1px solid ${levelInfo.color}28`,
@@ -538,7 +520,7 @@ export default function CyberV3() {
                     <div style={{
                       height: 6,
                       background: isPast ? `${lvl.color}30` : T.surface,
-                      borderRadius: 3,
+                      borderRadius: 0,
                       overflow: 'hidden',
                       border: `1px solid ${isActive ? `${lvl.color}40` : T.border}`,
                       position: 'relative',
@@ -549,7 +531,7 @@ export default function CyberV3() {
                           inset: 0,
                           background: lvl.color,
                           opacity: 0.55,
-                          borderRadius: 3,
+                          borderRadius: 0,
                         }} />
                       )}
                       {isActive && (
@@ -623,7 +605,8 @@ export default function CyberV3() {
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: 16,
+            gap: 1,
+            background: T.border,
           }}>
             {MODULES.map((mod, i) => {
               const isHov = hoveredCard === mod.id;
@@ -638,19 +621,13 @@ export default function CyberV3() {
                   onMouseEnter={() => setHoveredCard(mod.id)}
                   onMouseLeave={() => setHoveredCard(null)}
                   style={{
-                    background: T.bg,
-                    border: `1px solid ${isHov ? mod.accent + '50' : T.border}`,
-                    borderLeft: `4px solid ${mod.accent}`,
-                    borderRadius: '0 10px 10px 0',
+                    background: isHov ? T.surface : T.bg,
                     padding: '22px 22px 20px',
                     cursor: 'pointer',
-                    boxShadow: isHov
-                      ? `0 6px 20px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)`
-                      : '0 1px 2px rgba(0,0,0,0.04)',
                     display: 'flex',
                     flexDirection: 'column',
                     position: 'relative',
-                    overflow: 'hidden',
+                    transition: 'background 0.12s ease',
                   }}
                 >
                   {/* Icon + badge row */}
@@ -661,10 +638,10 @@ export default function CyberV3() {
                     marginBottom: 14,
                   }}>
                     <div style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 8,
-                      background: mod.lightBg,
+                      width: 32,
+                      height: 32,
+                      background: T.surface,
+                      border: `1px solid ${T.border}`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -680,8 +657,7 @@ export default function CyberV3() {
                       textTransform: 'uppercase',
                       color: mod.accent,
                       background: `${mod.accent}10`,
-                      padding: '3px 8px',
-                      borderRadius: 4,
+                      padding: '2px 7px',
                       border: `1px solid ${mod.accent}20`,
                     }}>
                       {mod.label}
@@ -726,7 +702,6 @@ export default function CyberV3() {
                           display: 'inline-flex',
                           alignItems: 'center',
                           padding: '2px 7px',
-                          borderRadius: 4,
                           fontFamily: "'JetBrains Mono', monospace",
                           fontSize: '10px',
                           fontWeight: 500,
@@ -758,20 +733,17 @@ export default function CyberV3() {
                     }}>
                       {mod.cta}
                     </span>
-                    <div
-                      className="cyber-cta-arrow"
-                      style={{
-                        width: 28,
-                        height: 28,
-                        borderRadius: 7,
-                        background: isHov ? mod.accent : T.surface,
-                        border: `1px solid ${isHov ? mod.accent : T.border}`,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                      }}
-                    >
+                    <div style={{
+                      width: 26,
+                      height: 26,
+                      background: isHov ? T.blue : T.surface,
+                      border: `1px solid ${T.border}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      transition: 'background 0.12s ease',
+                    }}>
                       <ArrowRight
                         size={13}
                         color={isHov ? '#fff' : T.muted}
@@ -790,11 +762,10 @@ export default function CyberV3() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6, duration: 0.4 }}
             style={{
-              marginTop: 44,
+              marginTop: 1,
               padding: '14px 20px',
               background: T.surface,
-              border: `1px solid ${T.border}`,
-              borderRadius: 8,
+              borderTop: `1px solid ${T.border}`,
               display: 'flex',
               alignItems: 'center',
               gap: 10,

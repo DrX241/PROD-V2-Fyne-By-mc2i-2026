@@ -226,7 +226,6 @@ export default function ProfilPro() {
                   background: '#ffffff',
                   padding: '24px',
                   position: 'relative',
-                  borderLeft: `4px solid ${profileColor}`,
                   display: 'flex',
                   flexDirection: 'column',
                 }}
