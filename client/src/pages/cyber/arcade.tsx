@@ -53,8 +53,8 @@ export default function CyberArcade() {
       description: 'Ingénierie sociale inversée : incarnez le hacker et trouvez le moyen le plus subtil de piéger la victime',
       icon: <Brain size={15} color="#64748b" />,
       gradient: 'from-fuchsia-500 to-purple-800',
-      available: false,
-      comingSoon: true,
+      available: true,
+      comingSoon: false,
       route: '/cyber/arcade/brain-hacker'
     },
     {
