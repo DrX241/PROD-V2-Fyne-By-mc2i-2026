@@ -6,7 +6,7 @@ import {
   Users, Plus, Trash2, RefreshCw, ToggleLeft, ToggleRight,
   Eye, EyeOff, ChevronLeft, Check, X, Crown,
   Activity, TrendingUp, Database, Clock, FileDown, Zap, Lock, Save, FlaskConical,
-  LayoutDashboard, Settings, ChevronRight, AlertCircle, ArrowUpRight, Building2, UserCog, ArrowRightLeft,
+  LayoutDashboard, Settings, ChevronRight, AlertCircle, ArrowUpRight,
 } from 'lucide-react';
 import mcLogoPath from '@assets/mc2i.png';
 
@@ -30,26 +30,7 @@ interface LlmUserUsage {
 interface LlmFeatureUsage { feature: string; requests: string; total_tokens: string; prompt_tokens: string; completion_tokens: string; models_used: string; }
 interface LlmModelUsage { model: string; requests: string; total_tokens: string; prompt_tokens: string; completion_tokens: string; unique_users: string; }
 type Modal = { type: 'create' } | { type: 'reset'; user: UserRow } | { type: 'delete'; user: UserRow } | { type: 'modules'; user: UserRow } | null;
-type Tab = 'dashboard' | 'users' | 'llm' | 'sso' | 'clients';
-interface ClientCompany {
-  id: number; name: string; slug: string; is_active: boolean;
-  active_users: string; total_users: string; created_at: string;
-}
-interface ClientUserRow {
-  id: number; company_id: number; email: string;
-  first_name: string | null; last_name: string | null;
-  role: string; is_active: boolean;
-  score: number; exercices_realises: number; taux_reussite: number; niveau: string; badges: number;
-  last_login: string | null; created_at: string;
-}
-type ClientModal =
-  | { type: 'create-company' }
-  | { type: 'delete-company'; company: ClientCompany }
-  | { type: 'create-user'; companyId: number; companyName: string }
-  | { type: 'reset-user-pwd'; user: ClientUserRow }
-  | { type: 'move-user'; user: ClientUserRow }
-  | { type: 'delete-user'; user: ClientUserRow }
-  | null;
+type Tab = 'dashboard' | 'users' | 'llm' | 'sso';
 
 interface SsoConfigData {
   provider: string; clientId: string; clientSecret: string; tenantId: string;
@@ -225,19 +206,6 @@ const AdminPage: React.FC = () => {
   const [newPwd, setNewPwd] = useState('');
   const [showNewPwd, setShowNewPwd] = useState(false);
 
-  // ── Clients tab state ──
-  const [companies, setCompanies] = useState<ClientCompany[]>([]);
-  const [companiesLoading, setCompaniesLoading] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState<ClientCompany | null>(null);
-  const [clientUsers, setClientUsers] = useState<ClientUserRow[]>([]);
-  const [clientUsersLoading, setClientUsersLoading] = useState(false);
-  const [clientModal, setClientModal] = useState<ClientModal>(null);
-  const [clientForm, setClientForm] = useState({ companyName: '', email: '', password: '', firstName: '', lastName: '', role: 'user' });
-  const [clientNewPwd, setClientNewPwd] = useState('');
-  const [showClientPwd, setShowClientPwd] = useState(false);
-  const [showClientNewPwd, setShowClientNewPwd] = useState(false);
-  const [moveTargetCompanyId, setMoveTargetCompanyId] = useState<number | ''>('');
-
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     window.location.href = '/';
@@ -246,66 +214,6 @@ const AdminPage: React.FC = () => {
   const notify = (msg: string, ok = true) => {
     setToast({ msg, ok });
     setTimeout(() => setToast(null), 3500);
-  };
-
-  const fetchCompanies = async () => {
-    setCompaniesLoading(true);
-    try { const r = await fetch('/api/admin/client-companies', { credentials: 'include' }); const d = await r.json(); if (d.success) setCompanies(d.companies); }
-    finally { setCompaniesLoading(false); }
-  };
-  const fetchClientUsers = async (companyId: number) => {
-    setClientUsersLoading(true);
-    try { const r = await fetch(`/api/admin/client-users?companyId=${companyId}`, { credentials: 'include' }); const d = await r.json(); if (d.success) setClientUsers(d.users); }
-    finally { setClientUsersLoading(false); }
-  };
-  const handleCreateCompany = async () => {
-    const r = await fetch('/api/admin/client-companies', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ name: clientForm.companyName }) });
-    const d = await r.json();
-    if (d.success) { notify('Entreprise créée'); setClientModal(null); setClientForm(f => ({ ...f, companyName: '' })); fetchCompanies(); }
-    else notify(d.message || 'Erreur', false);
-  };
-  const handleToggleCompany = async (c: ClientCompany) => {
-    const r = await fetch(`/api/admin/client-companies/${c.id}/toggle`, { method: 'PATCH', credentials: 'include' }); const d = await r.json();
-    if (d.success) { notify(d.isActive ? 'Entreprise activée' : 'Entreprise désactivée'); fetchCompanies(); if (selectedCompany?.id === c.id) setSelectedCompany(p => p ? { ...p, is_active: d.isActive } : p); }
-    else notify(d.message || 'Erreur', false);
-  };
-  const handleDeleteCompany = async () => {
-    if (clientModal?.type !== 'delete-company') return;
-    const r = await fetch(`/api/admin/client-companies/${clientModal.company.id}`, { method: 'DELETE', credentials: 'include' }); const d = await r.json();
-    if (d.success) { notify('Entreprise supprimée'); setClientModal(null); if (selectedCompany?.id === clientModal.company.id) { setSelectedCompany(null); setClientUsers([]); } fetchCompanies(); }
-    else notify(d.message || 'Erreur', false);
-  };
-  const handleCreateClientUser = async () => {
-    if (clientModal?.type !== 'create-user') return;
-    const r = await fetch('/api/admin/client-users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ companyId: clientModal.companyId, email: clientForm.email, password: clientForm.password, firstName: clientForm.firstName, lastName: clientForm.lastName, role: clientForm.role }) });
-    const d = await r.json();
-    if (d.success) { notify('Utilisateur créé'); setClientModal(null); setClientForm(f => ({ ...f, email: '', password: '', firstName: '', lastName: '', role: 'user' })); fetchClientUsers(clientModal.companyId); }
-    else notify(d.message || 'Erreur', false);
-  };
-  const handleToggleClientUser = async (u: ClientUserRow) => {
-    const r = await fetch(`/api/admin/client-users/${u.id}/toggle`, { method: 'PATCH', credentials: 'include' }); const d = await r.json();
-    if (d.success) { notify(d.isActive ? 'Utilisateur activé' : 'Utilisateur désactivé'); if (selectedCompany) fetchClientUsers(selectedCompany.id); }
-    else notify(d.message || 'Erreur', false);
-  };
-  const handleResetClientUserPwd = async () => {
-    if (clientModal?.type !== 'reset-user-pwd') return;
-    const r = await fetch(`/api/admin/client-users/${clientModal.user.id}/reset-password`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ newPassword: clientNewPwd }) });
-    const d = await r.json();
-    if (d.success) { notify('Mot de passe réinitialisé'); setClientModal(null); setClientNewPwd(''); }
-    else notify(d.message || 'Erreur', false);
-  };
-  const handleDeleteClientUser = async () => {
-    if (clientModal?.type !== 'delete-user') return;
-    const r = await fetch(`/api/admin/client-users/${clientModal.user.id}`, { method: 'DELETE', credentials: 'include' }); const d = await r.json();
-    if (d.success) { notify('Utilisateur supprimé'); setClientModal(null); if (selectedCompany) fetchClientUsers(selectedCompany.id); }
-    else notify(d.message || 'Erreur', false);
-  };
-  const handleMoveUser = async () => {
-    if (clientModal?.type !== 'move-user' || !moveTargetCompanyId) return;
-    const r = await fetch(`/api/admin/client-users/${clientModal.user.id}/move`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ newCompanyId: moveTargetCompanyId }) });
-    const d = await r.json();
-    if (d.success) { notify('Utilisateur déplacé'); setClientModal(null); setMoveTargetCompanyId(''); if (selectedCompany) fetchClientUsers(selectedCompany.id); }
-    else notify(d.message || 'Erreur', false);
   };
 
   const fetchUsers = async () => {
@@ -382,7 +290,6 @@ const AdminPage: React.FC = () => {
   useEffect(() => {
     if (tab === 'llm' && !llmData) fetchLlmUsage();
     if (tab === 'sso') fetchSsoConfig();
-    if (tab === 'clients') fetchCompanies();
   }, [tab]);
 
   const fmt = (d: string | null) => d ? new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
@@ -921,157 +828,6 @@ const AdminPage: React.FC = () => {
             </div>
           )}
 
-          {/* ────────── PORTAIL CLIENTS ────────── */}
-          {tab === 'clients' && (
-            <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
-
-              {/* Company list */}
-              <div style={{ width: 300, flexShrink: 0 }}>
-                <SectionHeader
-                  title="Entreprises"
-                  subtitle={`${companies.length} client${companies.length > 1 ? 's' : ''}`}
-                  icon={<Building2 size={18} />}
-                  action={
-                    <PrimaryBtn onClick={() => { setClientModal({ type: 'create-company' }); setClientForm(f => ({ ...f, companyName: '' })); }}>
-                      <Plus size={14} /> Nouvelle
-                    </PrimaryBtn>
-                  }
-                />
-                <Card>
-                  {companiesLoading ? <Spinner /> : companies.length === 0 ? <EmptyMsg msg="Aucune entreprise" /> : (
-                    <div>
-                      {companies.map((c, i) => {
-                        const active = selectedCompany?.id === c.id;
-                        return (
-                          <div key={c.id}
-                            onClick={() => { setSelectedCompany(c); fetchClientUsers(c.id); }}
-                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', cursor: 'pointer', borderBottom: i < companies.length - 1 ? `1px solid ${T.border}` : 'none', background: active ? T.brandLight : 'transparent', borderLeft: `3px solid ${active ? T.brand : 'transparent'}`, transition: 'background 0.08s' }}
-                            onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.background = T.bg; }}
-                            onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
-                          >
-                            <div style={{ minWidth: 0 }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <div style={{ width: 28, height: 28, borderRadius: 4, background: active ? T.brand : T.brandLight, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                  <Building2 size={14} color={active ? '#fff' : T.brand} />
-                                </div>
-                                <div>
-                                  <div style={{ fontSize: 13, fontWeight: 600, color: T.textPrimary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 160 }}>{c.name}</div>
-                                  <div style={{ fontSize: 11, color: T.textDisable }}>{c.total_users} utilisateur{Number(c.total_users) > 1 ? 's' : ''}</div>
-                                </div>
-                              </div>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                              {c.is_active
-                                ? <Badge label="Actif" color={T.green} bg={T.greenBg} />
-                                : <Badge label="Inactif" color={T.textSecond} bg={T.bg} />}
-                              <IconBtn onClick={e => { e.stopPropagation(); handleToggleCompany(c); }} title={c.is_active ? 'Désactiver' : 'Activer'}>
-                                {c.is_active ? <ToggleRight size={14} color={T.green} /> : <ToggleLeft size={14} />}
-                              </IconBtn>
-                              <IconBtn onClick={e => { e.stopPropagation(); setClientModal({ type: 'delete-company', company: c }); }} title="Supprimer" danger>
-                                <Trash2 size={13} />
-                              </IconBtn>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </Card>
-              </div>
-
-              {/* Users panel */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                {!selectedCompany ? (
-                  <div style={{ padding: '60px 0', textAlign: 'center', color: T.textDisable, fontSize: 13, fontFamily: font }}>
-                    <Building2 size={32} color={T.borderMid} style={{ margin: '0 auto 10px' }} />
-                    <div>Sélectionnez une entreprise pour voir ses utilisateurs</div>
-                  </div>
-                ) : (
-                  <>
-                    <SectionHeader
-                      title={selectedCompany.name}
-                      subtitle={`${selectedCompany.total_users} utilisateur${Number(selectedCompany.total_users) > 1 ? 's' : ''} · ${selectedCompany.active_users} actif${Number(selectedCompany.active_users) > 1 ? 's' : ''}`}
-                      icon={<UserCog size={18} />}
-                      action={
-                        <PrimaryBtn onClick={() => { setClientModal({ type: 'create-user', companyId: selectedCompany.id, companyName: selectedCompany.name }); setClientForm(f => ({ ...f, email: '', password: '', firstName: '', lastName: '', role: 'user' })); }}>
-                          <Plus size={14} /> Nouvel utilisateur
-                        </PrimaryBtn>
-                      }
-                    />
-                    <Card>
-                      {clientUsersLoading ? <Spinner /> : clientUsers.length === 0 ? <EmptyMsg msg="Aucun utilisateur" /> : (
-                        <div style={{ overflowX: 'auto' }}>
-                          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                            <thead>
-                              <tr>
-                                <th style={thCls}>Utilisateur</th>
-                                <th style={thCls}>Rôle</th>
-                                <th style={thCls}>Statut</th>
-                                <th style={thCls}>Score</th>
-                                <th style={thCls}>Dernière connexion</th>
-                                <th style={{ ...thCls, textAlign: 'right' }}></th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {clientUsers.map(u => (
-                                <tr key={u.id} className="tr-row" style={{ opacity: u.is_active ? 1 : 0.55 }}>
-                                  <td style={tdCls}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                      <div style={{ width: 28, height: 28, borderRadius: '50%', background: T.brandLight, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: T.brand, textTransform: 'uppercase', flexShrink: 0 }}>
-                                        {u.email[0].toUpperCase()}
-                                      </div>
-                                      <div>
-                                        <div style={{ fontWeight: 500, fontSize: 13 }}>{u.email}</div>
-                                        {(u.first_name || u.last_name) && <div style={{ fontSize: 11, color: T.textDisable }}>{[u.first_name, u.last_name].filter(Boolean).join(' ')}</div>}
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td style={tdCls}>
-                                    {u.role === 'admin'
-                                      ? <Badge label="Admin client" color={T.violet} bg={T.violetBg} icon={<Crown size={10} />} />
-                                      : <Badge label="Utilisateur" color={T.textSecond} bg={T.bg} />}
-                                  </td>
-                                  <td style={tdCls}>
-                                    {u.is_active
-                                      ? <Badge label="Actif" color={T.green} bg={T.greenBg} icon={<span style={{ width: 6, height: 6, borderRadius: '50%', background: T.green, display: 'inline-block' }} />} />
-                                      : <Badge label="Inactif" color={T.textSecond} bg={T.bg} icon={<span style={{ width: 6, height: 6, borderRadius: '50%', background: T.textDisable, display: 'inline-block' }} />} />}
-                                  </td>
-                                  <td style={{ ...tdCls, color: T.textSecond, fontSize: 12 }}>
-                                    <div>{u.score} pts</div>
-                                    <div style={{ fontSize: 11, color: T.textDisable }}>{u.niveau}</div>
-                                  </td>
-                                  <td style={{ ...tdCls, color: T.textSecond, fontSize: 12 }}>{u.last_login ? new Date(u.last_login).toLocaleDateString('fr-FR') : '—'}</td>
-                                  <td style={{ ...tdCls, textAlign: 'right' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'flex-end' }}>
-                                      <IconBtn onClick={() => handleToggleClientUser(u)} title={u.is_active ? 'Désactiver' : 'Activer'}>
-                                        {u.is_active ? <ToggleRight size={14} color={T.green} /> : <ToggleLeft size={14} />}
-                                      </IconBtn>
-                                      <IconBtn onClick={() => { setClientModal({ type: 'reset-user-pwd', user: u }); setClientNewPwd(''); }} title="Réinitialiser le mot de passe">
-                                        <RefreshCw size={13} />
-                                      </IconBtn>
-                                      {user?.role === 'superadmin' && (
-                                        <IconBtn onClick={() => { setClientModal({ type: 'move-user', user: u }); setMoveTargetCompanyId(''); }} title="Déplacer vers une autre organisation">
-                                          <ArrowRightLeft size={13} />
-                                        </IconBtn>
-                                      )}
-                                      <IconBtn onClick={() => setClientModal({ type: 'delete-user', user: u })} title="Supprimer" danger>
-                                        <Trash2 size={13} />
-                                      </IconBtn>
-                                    </div>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                    </Card>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-
         </main>
       </div>
 
@@ -1206,164 +962,6 @@ const AdminPage: React.FC = () => {
           </motion.div>
         )}
 
-        {/* ── CLIENT MODALS ── */}
-        {clientModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
-            onClick={e => { if (e.target === e.currentTarget) setClientModal(null); }}
-          >
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-              style={{ background: T.canvas, border: `1px solid ${T.border}`, borderRadius: 4, boxShadow: '0 8px 32px rgba(0,0,0,0.18)', width: '100%', maxWidth: 460, padding: 24, fontFamily: font }}
-            >
-              {clientModal.type === 'create-company' && (
-                <>
-                  <h2 style={{ margin: '0 0 18px', fontSize: 16, fontWeight: 600, color: T.textPrimary, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Building2 size={16} color={T.brand} /> Nouvelle entreprise cliente
-                  </h2>
-                  <Field label="Nom de l'entreprise" required>
-                    <input style={inputCls} placeholder="BNP Paribas" autoFocus value={clientForm.companyName} onChange={e => setClientForm(f => ({ ...f, companyName: e.target.value }))} onKeyDown={e => { if (e.key === 'Enter' && clientForm.companyName.trim()) handleCreateCompany(); }} />
-                  </Field>
-                  {clientForm.companyName.trim() && (
-                    <div style={{ marginTop: 6, fontSize: 11, color: T.textDisable }}>
-                      Slug : {clientForm.companyName.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}
-                    </div>
-                  )}
-                  <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
-                    <SecondaryBtn onClick={() => setClientModal(null)}>Annuler</SecondaryBtn>
-                    <PrimaryBtn onClick={handleCreateCompany} disabled={!clientForm.companyName.trim()}>Créer</PrimaryBtn>
-                  </div>
-                </>
-              )}
-
-              {clientModal.type === 'delete-company' && (
-                <>
-                  <h2 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 600, color: T.textPrimary, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Trash2 size={16} color={T.red} /> Supprimer l'entreprise
-                  </h2>
-                  <div style={{ display: 'flex', gap: 10, padding: '12px 14px', background: T.redBg, border: `1px solid #f4b8bb`, borderRadius: 2, marginBottom: 20, fontSize: 13, color: T.textPrimary }}>
-                    <AlertCircle size={16} color={T.red} style={{ flexShrink: 0, marginTop: 1 }} />
-                    <span>Supprimer <strong>{clientModal.company.name}</strong> supprimera aussi tous ses utilisateurs ({clientModal.company.total_users}). Action irréversible.</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                    <SecondaryBtn onClick={() => setClientModal(null)}>Annuler</SecondaryBtn>
-                    <button onClick={handleDeleteCompany}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 16px', background: T.red, color: '#fff', border: 'none', borderRadius: 2, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: font }}
-                      onMouseEnter={e => (e.currentTarget.style.background = '#8a1a1f')}
-                      onMouseLeave={e => (e.currentTarget.style.background = T.red)}
-                    >
-                      <Trash2 size={13} /> Supprimer
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {clientModal.type === 'create-user' && (
-                <>
-                  <h2 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 600, color: T.textPrimary, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Plus size={16} color={T.brand} /> Nouvel utilisateur client
-                  </h2>
-                  <div style={{ fontSize: 12, color: T.textDisable, marginBottom: 16 }}>{clientModal.companyName}</div>
-                  <div style={{ display: 'grid', gap: 12 }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                      <Field label="Prénom"><input style={inputCls} placeholder="Jean" value={clientForm.firstName} onChange={e => setClientForm(f => ({ ...f, firstName: e.target.value }))} /></Field>
-                      <Field label="Nom"><input style={inputCls} placeholder="Martin" value={clientForm.lastName} onChange={e => setClientForm(f => ({ ...f, lastName: e.target.value }))} /></Field>
-                    </div>
-                    <Field label="Email" required><input type="email" style={inputCls} placeholder="jean.martin@entreprise.fr" value={clientForm.email} onChange={e => setClientForm(f => ({ ...f, email: e.target.value }))} /></Field>
-                    <Field label="Mot de passe initial" required>
-                      <div style={{ position: 'relative' }}>
-                        <input type={showClientPwd ? 'text' : 'password'} style={{ ...inputCls, paddingRight: 34 }} placeholder="Min. 6 caractères" value={clientForm.password} onChange={e => setClientForm(f => ({ ...f, password: e.target.value }))} />
-                        <button type="button" onClick={() => setShowClientPwd(v => !v)} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: T.textDisable, cursor: 'pointer' }}>
-                          {showClientPwd ? <EyeOff size={14} /> : <Eye size={14} />}
-                        </button>
-                      </div>
-                    </Field>
-                    <Field label="Rôle">
-                      <select style={selectCls} value={clientForm.role} onChange={e => setClientForm(f => ({ ...f, role: e.target.value }))}>
-                        <option value="user">Utilisateur</option>
-                        <option value="admin">Admin client</option>
-                      </select>
-                    </Field>
-                  </div>
-                  <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
-                    <SecondaryBtn onClick={() => setClientModal(null)}>Annuler</SecondaryBtn>
-                    <PrimaryBtn onClick={handleCreateClientUser} disabled={!clientForm.email || clientForm.password.length < 6}>Créer</PrimaryBtn>
-                  </div>
-                </>
-              )}
-
-              {clientModal.type === 'reset-user-pwd' && (
-                <>
-                  <h2 style={{ margin: '0 0 6px', fontSize: 16, fontWeight: 600, color: T.textPrimary, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <RefreshCw size={16} color={T.brand} /> Réinitialiser le mot de passe
-                  </h2>
-                  <p style={{ margin: '0 0 16px', fontSize: 13, color: T.textSecond }}>Compte : <strong>{clientModal.user.email}</strong></p>
-                  <Field label="Nouveau mot de passe">
-                    <div style={{ position: 'relative' }}>
-                      <input type={showClientNewPwd ? 'text' : 'password'} style={{ ...inputCls, paddingRight: 34 }} placeholder="Min. 6 caractères" value={clientNewPwd} onChange={e => setClientNewPwd(e.target.value)} />
-                      <button type="button" onClick={() => setShowClientNewPwd(v => !v)} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: T.textDisable, cursor: 'pointer' }}>
-                        {showClientNewPwd ? <EyeOff size={14} /> : <Eye size={14} />}
-                      </button>
-                    </div>
-                  </Field>
-                  <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
-                    <SecondaryBtn onClick={() => setClientModal(null)}>Annuler</SecondaryBtn>
-                    <PrimaryBtn onClick={handleResetClientUserPwd} disabled={clientNewPwd.length < 6}>Enregistrer</PrimaryBtn>
-                  </div>
-                </>
-              )}
-
-              {clientModal.type === 'move-user' && (
-                <>
-                  <h2 style={{ margin: '0 0 6px', fontSize: 16, fontWeight: 600, color: T.textPrimary, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <ArrowRightLeft size={16} color={T.brand} /> Déplacer l'utilisateur
-                  </h2>
-                  <p style={{ margin: '0 0 16px', fontSize: 13, color: T.textSecond }}>
-                    <strong>{clientModal.user.email}</strong> — actuellement dans <strong>{selectedCompany?.name}</strong>
-                  </p>
-                  <div style={{ marginBottom: 16 }}>
-                    <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: T.textSecond, marginBottom: 4 }}>Nouvelle organisation</label>
-                    <select
-                      value={moveTargetCompanyId}
-                      onChange={e => setMoveTargetCompanyId(e.target.value ? Number(e.target.value) : '')}
-                      style={{ width: '100%', padding: '6px 8px', fontSize: 13, fontFamily: font, border: `1px solid ${T.borderMid}`, borderRadius: 2, background: T.canvas, color: T.textPrimary }}
-                    >
-                      <option value="">— Sélectionner une organisation —</option>
-                      {companies.filter(c => c.id !== selectedCompany?.id).map(c => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                    <SecondaryBtn onClick={() => setClientModal(null)}>Annuler</SecondaryBtn>
-                    <PrimaryBtn onClick={handleMoveUser} disabled={!moveTargetCompanyId}>Déplacer</PrimaryBtn>
-                  </div>
-                </>
-              )}
-
-              {clientModal.type === 'delete-user' && (
-                <>
-                  <h2 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 600, color: T.textPrimary, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Trash2 size={16} color={T.red} /> Supprimer l'utilisateur
-                  </h2>
-                  <div style={{ display: 'flex', gap: 10, padding: '12px 14px', background: T.redBg, border: `1px solid #f4b8bb`, borderRadius: 2, marginBottom: 20, fontSize: 13, color: T.textPrimary }}>
-                    <AlertCircle size={16} color={T.red} style={{ flexShrink: 0, marginTop: 1 }} />
-                    <span>Supprimer <strong>{clientModal.user.email}</strong> est irréversible.</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                    <SecondaryBtn onClick={() => setClientModal(null)}>Annuler</SecondaryBtn>
-                    <button onClick={handleDeleteClientUser}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 16px', background: T.red, color: '#fff', border: 'none', borderRadius: 2, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: font }}
-                      onMouseEnter={e => (e.currentTarget.style.background = '#8a1a1f')}
-                      onMouseLeave={e => (e.currentTarget.style.background = T.red)}
-                    >
-                      <Trash2 size={13} /> Supprimer
-                    </button>
-                  </div>
-                </>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
       </AnimatePresence>
 
       {/* ── TOAST ── */}

@@ -96,6 +96,7 @@ type ClientModal =
   | { type: 'delete-company'; company: ClientCompany }
   | { type: 'create-user'; companyId: number; companyName: string }
   | { type: 'reset-user-pwd'; user: ClientUserRow }
+  | { type: 'move-user'; user: ClientUserRow }
   | { type: 'delete-user'; user: ClientUserRow }
   | null;
 
@@ -226,6 +227,7 @@ export default function SuperAdminPage() {
   const [clientForm, setClientForm] = useState({ companyName: '', email: '', password: '', firstName: '', lastName: '', role: 'user' });
   const [clientNewPwd, setClientNewPwd] = useState('');
   const [showClientPwd, setShowClientPwd] = useState(false);
+  const [moveTargetCompanyId, setMoveTargetCompanyId] = useState<number | ''>('');
   const [editingCompanyConfig, setEditingCompanyConfig] = useState<{ modules: string[]; quota: number } | null>(null);
   const [savingConfig, setSavingConfig] = useState(false);
 
@@ -364,6 +366,13 @@ export default function SuperAdminPage() {
     if (clientModal?.type !== 'delete-user') return;
     const r = await fetch(`/api/admin/client-users/${clientModal.user.id}`, { method: 'DELETE', credentials: 'include' }); const d = await r.json();
     if (d.success) { notify('Utilisateur supprimé'); setClientModal(null); if (selectedCompany) fetchClientUsers(selectedCompany.id); }
+    else notify(d.message || 'Erreur', true);
+  };
+  const handleMoveUser = async () => {
+    if (clientModal?.type !== 'move-user' || !moveTargetCompanyId) return;
+    const r = await fetch(`/api/admin/client-users/${clientModal.user.id}/move`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ newCompanyId: moveTargetCompanyId }) });
+    const d = await r.json();
+    if (d.success) { notify('Utilisateur déplacé'); setClientModal(null); setMoveTargetCompanyId(''); if (selectedCompany) fetchClientUsers(selectedCompany.id); }
     else notify(d.message || 'Erreur', true);
   };
 
@@ -1014,6 +1023,10 @@ export default function SuperAdminPage() {
                                         className="p-1.5 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
                                         <RefreshCw className="w-3.5 h-3.5" />
                                       </button>
+                                      <button onClick={() => { setClientModal({ type: 'move-user', user: u }); setMoveTargetCompanyId(''); }} title="Déplacer vers une autre organisation"
+                                        className="p-1.5 rounded-lg border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 transition-colors">
+                                        <UserCog className="w-3.5 h-3.5" />
+                                      </button>
                                       <button onClick={() => setClientModal({ type: 'delete-user', user: u })} title="Supprimer"
                                         className="p-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors">
                                         <Trash2 className="w-3.5 h-3.5" />
@@ -1370,6 +1383,28 @@ export default function SuperAdminPage() {
                     <div className="flex gap-2 justify-end">
                       <button onClick={() => setClientModal(null)} className="px-4 py-2 bg-white/5 rounded-lg text-sm text-gray-400 hover:text-white transition-colors">Annuler</button>
                       <button onClick={handleResetClientUserPwd} disabled={!clientNewPwd} className="px-4 py-2 bg-[#0057ff] rounded-lg text-sm font-semibold hover:bg-[#0048d4] disabled:opacity-40 transition-colors">Réinitialiser</button>
+                    </div>
+                  </>
+                )}
+
+                {clientModal.type === 'move-user' && (
+                  <>
+                    <h3 className="text-base font-bold mb-1 flex items-center gap-2"><UserCog className="w-4 h-4 text-amber-400" /> Déplacer l'utilisateur</h3>
+                    <p className="text-sm text-gray-400 mb-4"><span className="text-white font-medium">{clientModal.user.email}</span> — actuellement dans <span className="text-white font-medium">{selectedCompany?.name}</span></p>
+                    <label className="block text-xs text-gray-400 mb-1 font-medium">Nouvelle organisation</label>
+                    <select
+                      value={moveTargetCompanyId}
+                      onChange={e => setMoveTargetCompanyId(e.target.value ? Number(e.target.value) : '')}
+                      className="w-full bg-white/10 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#0057ff] mb-4"
+                    >
+                      <option value="">— Sélectionner une organisation —</option>
+                      {companies.filter(c => c.id !== selectedCompany?.id).map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
+                    <div className="flex gap-2 justify-end">
+                      <button onClick={() => setClientModal(null)} className="px-4 py-2 bg-white/5 rounded-lg text-sm text-gray-400 hover:text-white transition-colors">Annuler</button>
+                      <button onClick={handleMoveUser} disabled={!moveTargetCompanyId} className="px-4 py-2 bg-amber-500 rounded-lg text-sm font-semibold hover:bg-amber-600 disabled:opacity-40 transition-colors">Déplacer</button>
                     </div>
                   </>
                 )}

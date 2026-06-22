@@ -599,6 +599,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (err) { console.error('[AdminClient] toggle company:', err); res.status(500).json({ success: false }); }
   });
 
+  app.patch('/api/admin/client-companies/:id/config', AuthController.requireAuth, AuthController.requireAdmin, async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id);
+    const { modules_enabled, token_quota } = req.body;
+    try {
+      const r = await pool.query(
+        `UPDATE companies SET modules_enabled = COALESCE($1, modules_enabled) WHERE id = $2 RETURNING *`,
+        [modules_enabled ? JSON.stringify(modules_enabled) : null, id]
+      );
+      res.json({ success: true, company: r.rows[0] });
+    } catch (err) { console.error('[AdminClient] config company:', err); res.status(500).json({ success: false }); }
+  });
+
   app.delete('/api/admin/client-companies/:id', AuthController.requireAuth, AuthController.requireAdmin, async (req: Request, res: Response) => {
     const user = (req.session as any).user;
     if (user.role !== 'superadmin') return res.status(403).json({ success: false, message: 'Réservé au superadmin' });
