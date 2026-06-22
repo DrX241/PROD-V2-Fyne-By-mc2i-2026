@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   GraduationCap,
   Target,
@@ -15,11 +15,295 @@ import {
   Star,
   Users,
   Lock,
+  CheckCircle,
+  XCircle,
+  RefreshCw,
 } from 'lucide-react';
 
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/hooks/useAuth';
 import HomeLayout from '@/components/layout/HomeLayout';
+
+// ── Diagnostic quiz ──────────────────────────────────────────────────────────
+
+const QUIZ = [
+  {
+    q: "Qu'est-ce que le phishing ?",
+    options: [
+      "Une technique pour sécuriser les emails",
+      "Une attaque qui usurpe l'identité d'un expéditeur pour vous piéger",
+      "Un logiciel antivirus",
+      "Un protocole de chiffrement",
+    ],
+    correct: 1,
+    xp: 10,
+    explanation: "Le phishing est une attaque d'ingénierie sociale par email visant à tromper la victime pour lui faire exécuter une action nuisible.",
+  },
+  {
+    q: "Que signifie l'acronyme MFA ?",
+    options: [
+      "Multi Factor Authentication",
+      "Main Frame Access",
+      "Managed Firewall Application",
+      "Malware Free Access",
+    ],
+    correct: 0,
+    xp: 10,
+    explanation: "MFA = Multi-Factor Authentication (authentification multi-facteurs). Bloque 99,9% des attaques automatisées sur les comptes.",
+  },
+  {
+    q: "Un ransomware chiffre vos fichiers. Quelle est la meilleure protection préventive ?",
+    options: [
+      "Payer la rançon rapidement",
+      "Avoir un antivirus à jour",
+      "Des sauvegardes hors-ligne testées régulièrement (règle 3-2-1)",
+      "Changer son mot de passe après l'attaque",
+    ],
+    correct: 2,
+    xp: 15,
+    explanation: "La règle 3-2-1 : 3 copies, 2 supports différents, 1 hors-ligne. C'est la seule protection garantie contre un ransomware.",
+  },
+  {
+    q: "Quel est le délai légal pour notifier la CNIL en cas de violation de données (RGPD) ?",
+    options: ["24 heures", "72 heures", "7 jours", "1 mois"],
+    correct: 1,
+    xp: 15,
+    explanation: "Article 33 du RGPD : notification obligatoire à la CNIL dans les 72h suivant la découverte d'une violation de données personnelles.",
+  },
+  {
+    q: "Vous recevez un email urgent de votre banque avec un lien. Que faites-vous ?",
+    options: [
+      "Cliquez sur le lien pour vérifier votre compte",
+      "Ignorez l'email",
+      "Allez directement sur le site officiel de votre banque via votre navigateur",
+      "Répondez à l'email pour confirmer votre identité",
+    ],
+    correct: 2,
+    xp: 10,
+    explanation: "Ne jamais cliquer sur un lien dans un email suspect. Toujours accéder aux services via l'URL officielle tapée manuellement dans le navigateur.",
+  },
+  {
+    q: "Qu'est-ce qu'un mot de passe fort ?",
+    options: [
+      "Votre prénom + année de naissance (ex: Marie1990)",
+      "Un mot du dictionnaire avec un chiffre (ex: soleil1)",
+      "Une passphrase longue et aléatoire (ex: ChevalBleuNuage!2024)",
+      "Le même mot de passe complexe réutilisé partout",
+    ],
+    correct: 2,
+    xp: 10,
+    explanation: "Une passphrase longue est plus forte qu'un mot court complexe. L'entropie dépend de la longueur ET de l'aléatoire. Jamais de réutilisation.",
+  },
+  {
+    q: "L'ANSSI est :",
+    options: [
+      "Un antivirus français",
+      "L'Agence Nationale de la Sécurité des Systèmes d'Information",
+      "Un protocole de chiffrement",
+      "Une directive européenne",
+    ],
+    correct: 1,
+    xp: 10,
+    explanation: "L'ANSSI est l'autorité nationale française en cybersécurité. En cas d'incident : cybermalveillance.gouv.fr ou cert-fr.eu.",
+  },
+];
+
+const DIAGNOSTIC_KEY = 'fyne_cyber_diagnostic';
+
+function getProfile(score: number, total: number) {
+  const pct = score / total;
+  if (pct < 0.4) return { label: 'Débutant', color: '#94a3b8', route: '/cyber/learning-center/modules/debutant-cyber', cta: 'Commencer par le parcours Débutant', desc: 'Découvrez les bases de la cybersécurité avec le module "Monsieur Tout le Monde".' };
+  if (pct < 0.7) return { label: 'Intermédiaire', color: '#006a9e', route: '/cyber/sas-academie', cta: 'Accéder à l\'Académie Cyber', desc: 'Vous avez de bonnes bases. Approfondissez avec les formations structurées.' };
+  return { label: 'Avancé', color: '#7c3aed', route: '/cyber/attack-simulator', cta: 'Tester le simulateur d\'attaque', desc: 'Excellentes connaissances. Passez aux mises en situation techniques avancées.' };
+}
+
+function CyberDiagnostic({ onComplete }: { onComplete: (xp: number) => void }) {
+  const [step, setStep] = useState<'intro' | 'quiz' | 'result'>('intro');
+  const [current, setCurrent] = useState(0);
+  const [answers, setAnswers] = useState<(number | null)[]>(Array(QUIZ.length).fill(null));
+  const [selected, setSelected] = useState<number | null>(null);
+  const [revealed, setRevealed] = useState(false);
+  const [, setLocation] = useLocation();
+
+  const totalXP = QUIZ.reduce((s, q) => s + q.xp, 0);
+  const earnedXP = answers.reduce((s, a, i) => s + (a === QUIZ[i].correct ? QUIZ[i].xp : 0), 0);
+  const correctCount = answers.filter((a, i) => a === QUIZ[i].correct).length;
+  const profile = getProfile(earnedXP, totalXP);
+
+  const handleSelect = (idx: number) => {
+    if (revealed) return;
+    setSelected(idx);
+    setRevealed(true);
+    const updated = [...answers];
+    updated[current] = idx;
+    setAnswers(updated);
+  };
+
+  const handleNext = () => {
+    if (current < QUIZ.length - 1) {
+      setCurrent(c => c + 1);
+      setSelected(null);
+      setRevealed(false);
+    } else {
+      setStep('result');
+      onComplete(earnedXP);
+    }
+  };
+
+  if (step === 'intro') return (
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+      style={{ maxWidth: 560, margin: '0 auto', padding: '48px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+        <div style={{ width: 36, height: 36, background: T.blue, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Shield size={18} color="#fff" />
+        </div>
+        <div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>DIAGNOSTIC INITIAL</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: T.text, letterSpacing: '-0.03em' }}>Évaluation de votre niveau cyber</div>
+        </div>
+      </div>
+      <p style={{ fontSize: 14, color: T.sub, lineHeight: 1.7, marginBottom: 8 }}>
+        <strong style={{ color: T.text }}>7 questions</strong> pour évaluer vos connaissances en cybersécurité et vous orienter vers le parcours adapté. Chaque bonne réponse rapporte des points XP.
+      </p>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 28, flexWrap: 'wrap' }}>
+        {[`${QUIZ.length} questions`, `${totalXP} XP à gagner`, '~3 minutes'].map(tag => (
+          <span key={tag} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, padding: '3px 8px', background: T.surface, border: `1px solid ${T.border}`, color: T.muted }}>{tag}</span>
+        ))}
+      </div>
+      <motion.button whileHover={{ scale: 1.02 }} onClick={() => setStep('quiz')}
+        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 28px', background: T.blue, color: '#fff', border: 'none', cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600 }}>
+        Démarrer le diagnostic <ChevronRight size={14} />
+      </motion.button>
+    </motion.div>
+  );
+
+  if (step === 'quiz') {
+    const q = QUIZ[current];
+    return (
+      <motion.div key={current} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2 }}
+        style={{ maxWidth: 600, margin: '0 auto', padding: '32px 0' }}>
+        {/* Progress */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
+          <div style={{ flex: 1, height: 4, background: T.border }}>
+            <motion.div animate={{ width: `${((current) / QUIZ.length) * 100}%` }} style={{ height: '100%', background: T.blue }} transition={{ duration: 0.3 }} />
+          </div>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: T.muted, whiteSpace: 'nowrap' }}>
+            {current + 1} / {QUIZ.length}
+          </span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: T.blue, whiteSpace: 'nowrap' }}>
+            +{q.xp} XP
+          </span>
+        </div>
+
+        {/* Question */}
+        <h2 style={{ fontSize: 16, fontWeight: 700, color: T.text, margin: '0 0 20px', lineHeight: 1.4, letterSpacing: '-0.02em' }}>{q.q}</h2>
+
+        {/* Options */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+          {q.options.map((opt, i) => {
+            const isSelected = selected === i;
+            const isCorrect = i === q.correct;
+            let bg = T.bg, border = T.border, color = T.text;
+            if (revealed) {
+              if (isCorrect) { bg = 'rgba(16,185,129,0.06)'; border = T.green; color = T.green; }
+              else if (isSelected && !isCorrect) { bg = 'rgba(239,68,68,0.06)'; border = T.red; color = T.red; }
+              else { color = T.muted; }
+            } else if (isSelected) {
+              bg = T.surface; border = T.blue;
+            }
+            return (
+              <motion.button key={i} whileHover={!revealed ? { x: 3 } : {}} onClick={() => handleSelect(i)}
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: bg, border: `1px solid ${border}`, cursor: revealed ? 'default' : 'pointer', textAlign: 'left', transition: 'all 0.15s', color }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: revealed && isCorrect ? T.green : revealed && isSelected ? T.red : T.muted, flexShrink: 0, width: 16 }}>
+                  {revealed ? (isCorrect ? '✓' : isSelected ? '✗' : String.fromCharCode(65 + i)) : String.fromCharCode(65 + i)}
+                </span>
+                <span style={{ fontSize: 13, fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: isSelected || (revealed && isCorrect) ? 600 : 400 }}>{opt}</span>
+              </motion.button>
+            );
+          })}
+        </div>
+
+        {/* Explanation */}
+        <AnimatePresence>
+          {revealed && (
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+              style={{ padding: '12px 16px', background: selected === q.correct ? 'rgba(16,185,129,0.06)' : 'rgba(239,68,68,0.06)', borderLeft: `3px solid ${selected === q.correct ? T.green : T.red}`, marginBottom: 20 }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                {selected === q.correct ? <CheckCircle size={13} color={T.green} style={{ flexShrink: 0, marginTop: 1 }} /> : <XCircle size={13} color={T.red} style={{ flexShrink: 0, marginTop: 1 }} />}
+                <p style={{ fontSize: 12, color: T.sub, margin: 0, lineHeight: 1.6 }}>{q.explanation}</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {revealed && (
+          <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} onClick={handleNext}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 24px', background: T.blue, color: '#fff', border: 'none', cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600 }}>
+            {current < QUIZ.length - 1 ? <>Question suivante <ChevronRight size={12} /></> : <>Voir mes résultats <ChevronRight size={12} /></>}
+          </motion.button>
+        )}
+      </motion.div>
+    );
+  }
+
+  // Result screen
+  const pct = Math.round((earnedXP / totalXP) * 100);
+  return (
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+      style={{ maxWidth: 580, margin: '0 auto', padding: '36px 0' }}>
+      {/* Score header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 28, padding: '20px 24px', background: T.surface, border: `1px solid ${T.border}` }}>
+        <div style={{ textAlign: 'center', flexShrink: 0 }}>
+          <div style={{ fontSize: 36, fontWeight: 800, color: profile.color, letterSpacing: '-0.04em', lineHeight: 1 }}>{earnedXP}</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: T.muted, marginTop: 3 }}>XP GAGNÉS</div>
+        </div>
+        <div style={{ width: 1, height: 48, background: T.border }} />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: T.muted, textTransform: 'uppercase', marginBottom: 4 }}>Profil détecté</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: profile.color, letterSpacing: '-0.03em' }}>{profile.label}</div>
+          <div style={{ fontSize: 12, color: T.sub, marginTop: 3 }}>{correctCount}/{QUIZ.length} bonnes réponses · {pct}%</div>
+        </div>
+        <div style={{ width: 52, height: 52, flexShrink: 0, position: 'relative' }}>
+          <svg viewBox="0 0 52 52" style={{ transform: 'rotate(-90deg)' }}>
+            <circle cx="26" cy="26" r="22" fill="none" stroke={T.border} strokeWidth="4" />
+            <circle cx="26" cy="26" r="22" fill="none" stroke={profile.color} strokeWidth="4"
+              strokeDasharray={`${2 * Math.PI * 22}`}
+              strokeDashoffset={`${2 * Math.PI * 22 * (1 - pct / 100)}`}
+              strokeLinecap="butt" style={{ transition: 'stroke-dashoffset 1s ease' }} />
+          </svg>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: profile.color }}>
+            {pct}%
+          </div>
+        </div>
+      </div>
+
+      {/* Answers recap */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 24 }}>
+        {answers.map((a, i) => (
+          <div key={i} style={{ textAlign: 'center' }}>
+            <div style={{ height: 6, background: a === QUIZ[i].correct ? T.green : T.red, marginBottom: 4 }} />
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: a === QUIZ[i].correct ? T.green : T.red }}>Q{i + 1}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Recommended path */}
+      <div style={{ padding: '16px 20px', background: `${profile.color}08`, border: `1px solid ${profile.color}22`, marginBottom: 20 }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: profile.color, textTransform: 'uppercase', marginBottom: 6 }}>Parcours recommandé</div>
+        <p style={{ fontSize: 13, color: T.sub, margin: '0 0 12px', lineHeight: 1.6 }}>{profile.desc}</p>
+        <motion.button whileHover={{ scale: 1.02 }} onClick={() => setLocation(profile.route)}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', background: profile.color, color: '#fff', border: 'none', cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600 }}>
+          {profile.cta} <ArrowRight size={12} />
+        </motion.button>
+      </div>
+
+      <button onClick={() => setLocation('/cyber')}
+        style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: T.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 5 }}>
+        <ChevronRight size={10} style={{ transform: 'rotate(180deg)' }} /> Voir tous les modules
+      </button>
+    </motion.div>
+  );
+}
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const T = {
@@ -106,6 +390,28 @@ export default function CyberV3() {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [activeNav, setActiveNav]   = useState<string | null>(null);
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
+  const [showDiagnostic, setShowDiagnostic] = useState(false);
+  const [diagXP, setDiagXP] = useState(0);
+
+  // Check localStorage on mount
+  useEffect(() => {
+    const done = localStorage.getItem(DIAGNOSTIC_KEY);
+    if (!done) setShowDiagnostic(true);
+    else {
+      try { setDiagXP(JSON.parse(done).xp ?? 0); } catch {}
+    }
+  }, []);
+
+  const handleDiagComplete = (xp: number) => {
+    setDiagXP(xp);
+    localStorage.setItem(DIAGNOSTIC_KEY, JSON.stringify({ xp, date: new Date().toISOString() }));
+  };
+
+  const resetDiag = () => {
+    localStorage.removeItem(DIAGNOSTIC_KEY);
+    setShowDiagnostic(true);
+    setDiagXP(0);
+  };
 
   const score = (user as any)?.kpi?.score ?? 0;
   const levelInfo = getLevelInfo(score);
@@ -258,6 +564,30 @@ export default function CyberV3() {
               );
             })}
           </nav>
+
+          {/* Diagnostic entry */}
+          <div style={{ margin: '0 10px 14px', padding: '12px 14px', background: T.bg, border: `1px solid ${T.border}` }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                Diagnostic
+              </span>
+              <button onClick={resetDiag} title="Refaire le diagnostic"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: T.muted, display: 'flex', alignItems: 'center' }}>
+                <RefreshCw size={11} />
+              </button>
+            </div>
+            {diagXP > 0 ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <CheckCircle size={12} color={T.green} />
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: T.green, fontWeight: 600 }}>+{diagXP} XP obtenus</span>
+              </div>
+            ) : (
+              <button onClick={() => setShowDiagnostic(true)}
+                style={{ width: '100%', padding: '7px 10px', background: T.blue, color: '#fff', border: 'none', cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 600, textAlign: 'left', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Shield size={10} /> Évaluer mon niveau
+              </button>
+            )}
+          </div>
 
           {/* Divider */}
           <div style={{ height: 1, background: T.border, margin: '0 10px 14px' }} />
@@ -439,6 +769,45 @@ export default function CyberV3() {
               </div>
             </div>
           </motion.div>
+
+          {/* ── Diagnostic overlay ── */}
+          <AnimatePresence>
+            {showDiagnostic && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                style={{
+                  position: 'fixed', inset: 0, zIndex: 100,
+                  background: 'rgba(15,23,42,0.55)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: 24,
+                }}
+              >
+                <motion.div
+                  initial={{ opacity: 0, y: 24, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 24 }}
+                  transition={{ duration: 0.25 }}
+                  style={{
+                    background: T.bg,
+                    border: `1px solid ${T.border}`,
+                    maxWidth: 680,
+                    width: '100%',
+                    maxHeight: '90vh',
+                    overflowY: 'auto',
+                    padding: '32px 40px',
+                    position: 'relative',
+                  }}
+                >
+                  <CyberDiagnostic onComplete={(xp) => {
+                    handleDiagComplete(xp);
+                    setTimeout(() => setShowDiagnostic(false), 3000);
+                  }} />
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* ── Progression tracker ── */}
           <motion.div
