@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
-import { ChevronLeft, BookOpen, ArrowRight, Monitor } from 'lucide-react';
+import { ChevronLeft, BookOpen, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import HomeLayout from '@/components/layout/HomeLayout';
 
@@ -30,15 +30,6 @@ const MODES = [
     description: 'Suivez des micro-learnings interactifs créés par vos formateurs cyber. Chaque module alterne théorie, mise en situation et validation par QCM.',
     cta: 'Accéder aux formations',
     route: '/cyber/academie',
-  },
-  {
-    id: 'simulator',
-    icon: Monitor,
-    label: 'MISE EN SITUATION TECHNIQUE',
-    sub: 'Simulation d\'attaque cyber en temps réel',
-    description: 'Visualisez le déroulé d\'une attaque cyber (phishing, brute force, social engineering) avec curseur animé, terminal et log d\'événements.',
-    cta: 'Lancer une simulation',
-    route: '/cyber/attack-simulator',
   },
 ];
 
@@ -104,7 +95,7 @@ export default function SasCyberAcademie() {
               maxWidth: 480,
               lineHeight: 1.6,
             }}>
-              Trois approches complémentaires pour maîtriser la cybersécurité à votre rythme.
+              Formations structurées pour maîtriser la cybersécurité à votre rythme.
             </p>
           </motion.div>
 
