@@ -3,7 +3,7 @@ import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Sparkles, Upload, ArrowRight,
-  BookOpen, Trash2, Play, Calendar, Library, CheckSquare, Square
+  BookOpen, Trash2, Play, Calendar, Library, CheckSquare, Square, Building2, X
 } from 'lucide-react';
 import mcLogoPath from '@assets/mc2i.png';
 
@@ -19,6 +19,8 @@ interface SavedTraining {
   audience: string;
   gamificationLevel: string;
   createdAt: string;
+  isPublished?: boolean;
+  assignedCompanies?: { id: number; name: string }[];
 }
 
 function formatDate(d: string) {
@@ -47,6 +49,11 @@ export default function ModuleGenerator() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [publishModal, setPublishModal] = useState<{ id: string; title: string; assignedCompanies?: { id: number; name: string }[] } | null>(null);
+  const [companies, setCompanies] = useState<{ id: number; name: string; slug: string }[]>([]);
+  const [selectedCompanyIds, setSelectedCompanyIds] = useState<Set<number>>(new Set());
+  const [publishing, setPublishing] = useState(false);
+  const [userRole, setUserRole] = useState<string>('');
   const loadTrainings = useCallback(() => {
     fetch('/api/studio/trainings')
       .then(r => r.json())
@@ -56,6 +63,24 @@ export default function ModuleGenerator() {
 
   useEffect(() => { loadTrainings(); }, [loadTrainings]);
   useEffect(() => { window.scrollTo(0, 0); }, []);
+
+  useEffect(() => {
+    fetch('/api/auth/check', { credentials: 'include' })
+      .then(r => r.json())
+      .then(d => {
+        if (d.authenticated) {
+          const role = d.user?.role ?? '';
+          setUserRole(role);
+          if (['superadmin', 'admin', 'maker'].includes(role)) {
+            fetch('/api/companies', { credentials: 'include' })
+              .then(r => r.json())
+              .then(d2 => { if (d2.success) setCompanies(d2.companies); })
+              .catch(() => {});
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -100,6 +125,51 @@ export default function ModuleGenerator() {
     setTrainings(prev => prev.filter(t => !ids.includes(t.id)));
     setSelectedIds(new Set());
     setBulkDeleting(false);
+  };
+
+  const openPublishModal = (training: SavedTraining, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const preselected = new Set<number>((training.assignedCompanies ?? []).map(c => c.id));
+    setSelectedCompanyIds(preselected);
+    setPublishModal({ id: training.id, title: training.title, assignedCompanies: training.assignedCompanies ?? [] });
+  };
+
+  const handlePublish = async () => {
+    if (!publishModal) return;
+    setPublishing(true);
+    try {
+      const res = await fetch(`/api/modules/${publishModal.id}/publish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ companyIds: Array.from(selectedCompanyIds) }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        const assignedCos = companies.filter(c => selectedCompanyIds.has(c.id)).map(c => ({ id: c.id, name: c.name }));
+        setTrainings(prev => prev.map(t =>
+          t.id === publishModal.id
+            ? { ...t, isPublished: true, assignedCompanies: assignedCos }
+            : t
+        ));
+        setPublishModal(null);
+      }
+    } catch {}
+    setPublishing(false);
+  };
+
+  const handleUnassign = async (moduleId: string, companyId: number) => {
+    try {
+      await fetch(`/api/modules/${moduleId}/companies/${companyId}`, { method: 'DELETE' });
+      setTrainings(prev => prev.map(t => {
+        if (t.id !== moduleId) return t;
+        const newAssigned = (t.assignedCompanies ?? []).filter(c => c.id !== companyId);
+        return { ...t, isPublished: newAssigned.length > 0, assignedCompanies: newAssigned };
+      }));
+      if (publishModal && publishModal.id === moduleId) {
+        setPublishModal(prev => prev ? { ...prev, assignedCompanies: (prev.assignedCompanies ?? []).filter(c => c.id !== companyId) } : null);
+        setSelectedCompanyIds(prev => { const next = new Set(prev); next.delete(companyId); return next; });
+      }
+    } catch {}
   };
 
   const cards = [
@@ -327,6 +397,27 @@ export default function ModuleGenerator() {
 
                         {/* Actions */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                          {/* Publish badge / button — visible for admin/maker */}
+                          {['superadmin', 'admin', 'maker'].includes(userRole) && (
+                            t.isPublished ? (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', background: '#ecfdf5', color: '#059669', border: '1px solid #6ee7b7' }}>
+                                  Publié
+                                </span>
+                                <button
+                                  onClick={(e) => openPublishModal(t, e)}
+                                  style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 10px', background: 'white', color: BLUE, fontWeight: 700, fontSize: 11, border: `1px solid ${BLUE}`, cursor: 'pointer' }}>
+                                  <Building2 size={11} /> Gérer
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={(e) => openPublishModal(t, e)}
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 10px', background: 'white', color: BLUE, fontWeight: 700, fontSize: 11, border: `1px solid ${BLUE}`, cursor: 'pointer' }}>
+                                <Building2 size={11} /> Publier
+                              </button>
+                            )
+                          )}
                           <button
                             onClick={() => setLocation(playerRoute(t))}
                             style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: t.source === 'lesson' ? PINK : BLUE, color: 'white', fontWeight: 700, fontSize: 11, border: 'none', cursor: 'pointer' }}>
@@ -386,6 +477,111 @@ export default function ModuleGenerator() {
                   onClick={confirmBulkDelete}
                   style={{ padding: '10px 24px', border: 'none', background: '#dc2626', color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Trash2 size={14} /> Supprimer tout
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Modale de publication ── */}
+      <AnimatePresence>
+        {publishModal && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setPublishModal(null)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+            <motion.div
+              initial={{ scale: 0.94, opacity: 0, y: 8 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.94, opacity: 0, y: 8 }}
+              transition={{ duration: 0.18 }}
+              onClick={e => e.stopPropagation()}
+              style={{ background: 'white', width: '100%', maxWidth: 480, padding: '28px 28px 24px', position: 'relative' }}>
+              {/* Blue top bar */}
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: BLUE }} />
+              {/* Header */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <Building2 size={16} style={{ color: BLUE }} />
+                    <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: BLUE }}>Publier</span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: DARK, maxWidth: 380, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {publishModal.title}
+                  </p>
+                </div>
+                <button onClick={() => setPublishModal(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', padding: 4 }}>
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Already assigned companies */}
+              {(publishModal.assignedCompanies ?? []).length > 0 && (
+                <div style={{ marginBottom: 16 }}>
+                  <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6b7280' }}>Déjà assigné à</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {(publishModal.assignedCompanies ?? []).map(c => (
+                      <span key={c.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 600, padding: '3px 8px', background: '#ecfdf5', color: '#059669', border: '1px solid #6ee7b7' }}>
+                        {c.name}
+                        <button
+                          onClick={() => handleUnassign(publishModal.id, c.id)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#059669', display: 'flex', lineHeight: 1 }}>
+                          <X size={11} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Company list */}
+              {companies.length === 0 ? (
+                <p style={{ fontSize: 13, color: '#9ca3af', margin: '0 0 20px' }}>Aucune company disponible.</p>
+              ) : (
+                <div style={{ marginBottom: 20 }}>
+                  <p style={{ margin: '0 0 10px', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6b7280' }}>
+                    Sélectionner les companies
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 220, overflowY: 'auto' }}>
+                    {companies.map(c => {
+                      const checked = selectedCompanyIds.has(c.id);
+                      return (
+                        <label
+                          key={c.id}
+                          style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', border: `1px solid ${checked ? BLUE : '#e5e7eb'}`, background: checked ? `${BLUE}06` : 'white', cursor: 'pointer', transition: 'all 0.12s' }}>
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => setSelectedCompanyIds(prev => {
+                              const next = new Set(prev);
+                              if (next.has(c.id)) next.delete(c.id); else next.add(c.id);
+                              return next;
+                            })}
+                            style={{ accentColor: BLUE, width: 14, height: 14, flexShrink: 0 }}
+                          />
+                          <div style={{ flex: 1 }}>
+                            <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: DARK }}>{c.name}</p>
+                            <p style={{ margin: 0, fontSize: 10, color: '#9ca3af', fontFamily: 'monospace' }}>{c.slug}</p>
+                          </div>
+                          {checked && <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', background: `${BLUE}15`, color: BLUE }}>✓</span>}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => setPublishModal(null)}
+                  style={{ padding: '10px 20px', border: '1px solid #e5e7eb', background: 'white', color: DARK, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>
+                  Annuler
+                </button>
+                <button
+                  onClick={handlePublish}
+                  disabled={publishing || selectedCompanyIds.size === 0}
+                  style={{ padding: '10px 24px', border: 'none', background: selectedCompanyIds.size === 0 ? '#9ca3af' : BLUE, color: 'white', cursor: selectedCompanyIds.size === 0 ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, opacity: publishing ? 0.7 : 1 }}>
+                  <Building2 size={13} /> {publishing ? 'Publication...' : `Publier (${selectedCompanyIds.size})`}
                 </button>
               </div>
             </motion.div>

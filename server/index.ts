@@ -78,6 +78,15 @@ app.use((req, res, next) => {
         created_at timestamp DEFAULT now(),
         updated_at timestamp DEFAULT now()
       );
+      ALTER TABLE custom_modules ADD COLUMN IF NOT EXISTS is_published BOOLEAN DEFAULT FALSE;
+      CREATE TABLE IF NOT EXISTS module_company_assignments (
+        id SERIAL PRIMARY KEY,
+        module_id INTEGER NOT NULL REFERENCES custom_modules(id) ON DELETE CASCADE,
+        company_id INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+        assigned_by INTEGER REFERENCES users(id),
+        assigned_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(module_id, company_id)
+      );
     `);
     console.log('[boot] custom_modules table ready');
   } catch (e: any) {

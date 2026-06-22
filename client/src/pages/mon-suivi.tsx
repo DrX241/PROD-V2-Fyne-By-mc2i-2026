@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { motion, useInView, useMotionValue, useTransform, animate } from 'framer-motion';
-import { ArrowLeft, TrendingUp, Award, Target, Zap, BarChart2, Lock, Star, Shield, Sword, Crown } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Award, Target, Zap, BarChart2, Lock, Star, Shield, Sword, Crown, BookOpen, Play } from 'lucide-react';
 
 const C = {
   bg: '#ffffff',
@@ -79,18 +79,29 @@ interface TeamMember {
   exercices_realises: number;
 }
 
+interface AssignedModule {
+  id: number;
+  name: string;
+  domain: string;
+  description: string;
+  icon_path: string | null;
+  difficulty: string;
+}
+
 export default function MonSuivi() {
   const [, setLocation] = useLocation();
   const [kpi, setKpi] = useState<KpiData | null>(null);
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [assignedModules, setAssignedModules] = useState<AssignedModule[]>([]);
 
   useEffect(() => {
     Promise.all([
       fetch('/api/auth/check', { credentials: 'include' }).then(r => r.json()),
       fetch('/api/companies/team', { credentials: 'include' }).then(r => r.json()),
-    ]).then(([d, teamData]) => {
+      fetch('/api/modules/assigned', { credentials: 'include' }).then(r => r.json()).catch(() => ({ success: false, modules: [] })),
+    ]).then(([d, teamData, modulesData]) => {
       if (!d.authenticated) { setLocation('/'); return; }
       setCurrentUserId(d.user.id);
       setKpi({
@@ -105,6 +116,7 @@ export default function MonSuivi() {
         companyId: d.user.companyId ?? null,
       });
       if (teamData.success) setTeam(teamData.team);
+      if (modulesData.success && Array.isArray(modulesData.modules)) setAssignedModules(modulesData.modules);
       setLoading(false);
     }).catch(() => setLocation('/'));
   }, []);
@@ -265,6 +277,69 @@ export default function MonSuivi() {
             ))}
           </div>
         </motion.div>
+
+        {/* Section Formations assignées */}
+        {assignedModules.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.18, duration: 0.5 }}
+            style={{ marginBottom: 48 }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+              <p style={{ margin: 0, fontSize: 11, fontFamily: FONT_MONO, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>Formations assignées</p>
+              <div style={{ flex: 1, height: 1, background: C.border }} />
+              <p style={{ margin: 0, fontSize: 11, fontFamily: FONT_MONO, color: C.muted, whiteSpace: 'nowrap' }}>{assignedModules.length} module{assignedModules.length > 1 ? 's' : ''}</p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
+              {assignedModules.map((mod, i) => (
+                <motion.div
+                  key={mod.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 * i }}
+                  style={{
+                    background: C.bg,
+                    border: `1px solid ${C.border}`,
+                    borderRadius: 12,
+                    padding: '20px 20px 16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 10,
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 16px rgba(0,87,255,0.08)'; (e.currentTarget as HTMLDivElement).style.borderColor = C.accentMid; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; (e.currentTarget as HTMLDivElement).style.borderColor = C.border; }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                    <div style={{ width: 38, height: 38, flexShrink: 0, borderRadius: 8, background: C.accentLight, border: `1px solid ${C.accentMid}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.accent }}>
+                      <BookOpen size={16} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ margin: '0 0 2px', fontSize: 13, fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{mod.name}</p>
+                      {mod.domain && (
+                        <span style={{ fontSize: 10, fontWeight: 600, padding: '1px 6px', background: C.accentLight, color: C.accent, borderRadius: 4, fontFamily: FONT_MONO }}>
+                          {mod.domain}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {mod.description && (
+                    <p style={{ margin: 0, fontSize: 12, color: C.sub, lineHeight: 1.5, overflow: 'hidden', maxHeight: '2.8em' }}>
+                      {mod.description}
+                    </p>
+                  )}
+                  <button
+                    onClick={() => setLocation(`/playground/player/${mod.id}`)}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: C.accent, color: 'white', fontWeight: 700, fontSize: 12, border: 'none', borderRadius: 8, cursor: 'pointer', alignSelf: 'flex-start', marginTop: 4 }}>
+                    <Play size={12} /> Accéder
+                  </button>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Divider label */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
