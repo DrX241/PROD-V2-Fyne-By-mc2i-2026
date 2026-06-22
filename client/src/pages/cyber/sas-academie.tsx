@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
-import { ChevronLeft, BookOpen, MessageSquare, ArrowRight } from 'lucide-react';
+import { ChevronLeft, BookOpen, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import HomeLayout from '@/components/layout/HomeLayout';
 
@@ -30,15 +30,6 @@ const MODES = [
     description: 'Suivez des micro-learnings interactifs créés par vos formateurs cyber. Chaque module alterne théorie, mise en situation et validation par QCM.',
     cta: 'Accéder aux formations',
     route: '/cyber/academie',
-  },
-  {
-    id: 'expert',
-    icon: MessageSquare,
-    label: 'APPRENTISSAGE CONVERSATIONNEL',
-    sub: 'Discussion libre avec un expert IA',
-    description: 'Posez vos questions à un expert virtuel en cybersécurité. Format libre, adaptatif, sans contrainte de parcours.',
-    cta: 'Discuter avec un expert',
-    route: '/cyber/expert-learning',
   },
 ];
 

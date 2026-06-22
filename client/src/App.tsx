@@ -38,7 +38,6 @@ import CyberV3 from "./pages/cyber-v3";
 import CyberRoleplay from "./pages/cyber/roleplay/index";
 import CyberArcade from "./pages/cyber/arcade";
 import SasCyberAcademie from "./pages/cyber/sas-academie";
-import ExpertLearningPage from "./pages/cyber/expert-learning";
 import CrisisManagementPage from "./pages/cyber/crisis-management";
 import CrisisBriefing from "./pages/cyber/crisis-management/briefing";
 import ComexTrainingPage from "./pages/cyber/comex-training";
@@ -115,7 +114,6 @@ function AppContent() {
                 <Route path="/cyber/academie">
                   {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/academie/index")))}</Suspense>)}
                 </Route>
-                <Route path="/cyber/expert-learning" component={ExpertLearningPage} />
                 <Route path="/cyber/crisis-management/briefing" component={CrisisBriefing} />
                 <Route path="/cyber/crisis-management" component={CrisisManagementPage} />
                 <Route path="/cyber/comex-training" component={ComexTrainingPage} />
