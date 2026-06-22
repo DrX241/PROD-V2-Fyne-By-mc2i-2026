@@ -562,6 +562,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/sso', AuthController.requireAuth, AuthController.requireAdmin, SsoAdminController.saveConfig);
   app.post('/api/admin/sso/test', AuthController.requireAuth, AuthController.requireAdmin, SsoAdminController.testConfig);
 
+  // ── Admin client-companies / client-users routes ─────────────────────────────
+  app.get('/api/admin/client-companies', AuthController.requireAuth, AuthController.requireAdmin, async (req: Request, res: Response) => {
+    const user = (req.session as any).user;
+    try {
+      let result;
+      if (user.role === 'superadmin') {
+        result = await pool.query(`SELECT c.*, COUNT(u.id)::text AS total_users, COUNT(u.id) FILTER (WHERE u.is_active) ::text AS active_users FROM companies c LEFT JOIN users u ON u.company_id = c.id GROUP BY c.id ORDER BY c.created_at DESC`);
+      } else {
+        result = await pool.query(`SELECT c.*, COUNT(u.id)::text AS total_users, COUNT(u.id) FILTER (WHERE u.is_active)::text AS active_users FROM companies c LEFT JOIN users u ON u.company_id = c.id WHERE c.id = $1 GROUP BY c.id`, [user.companyId]);
+      }
+      res.json({ success: true, companies: result.rows });
+    } catch (err) { console.error('[AdminClient] list companies:', err); res.status(500).json({ success: false }); }
+  });
+
+  app.post('/api/admin/client-companies', AuthController.requireAuth, AuthController.requireAdmin, async (req: Request, res: Response) => {
+    const user = (req.session as any).user;
+    if (user.role !== 'superadmin') return res.status(403).json({ success: false, message: 'Réservé au superadmin' });
+    const { name } = req.body;
+    if (!name?.trim()) return res.status(400).json({ success: false, message: 'Nom requis' });
+    const slug = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    try {
+      const r = await pool.query(`INSERT INTO companies (name, slug) VALUES ($1, $2) RETURNING *`, [name.trim(), slug]);
+      res.json({ success: true, company: r.rows[0] });
+    } catch (err: any) {
+      if (err.code === '23505') return res.status(409).json({ success: false, message: 'Ce slug existe déjà' });
+      console.error('[AdminClient] create company:', err); res.status(500).json({ success: false });
+    }
+  });
+
+  app.patch('/api/admin/client-companies/:id/toggle', AuthController.requireAuth, AuthController.requireAdmin, async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id);
+    try {
+      const r = await pool.query(`UPDATE companies SET is_active = NOT is_active WHERE id = $1 RETURNING *`, [id]);
+      res.json({ success: true, company: r.rows[0] });
+    } catch (err) { console.error('[AdminClient] toggle company:', err); res.status(500).json({ success: false }); }
+  });
+
+  app.delete('/api/admin/client-companies/:id', AuthController.requireAuth, AuthController.requireAdmin, async (req: Request, res: Response) => {
+    const user = (req.session as any).user;
+    if (user.role !== 'superadmin') return res.status(403).json({ success: false, message: 'Réservé au superadmin' });
+    const id = parseInt(req.params.id);
+    try {
+      await pool.query(`UPDATE users SET company_id = NULL WHERE company_id = $1`, [id]);
+      await pool.query(`DELETE FROM companies WHERE id = $1`, [id]);
+      res.json({ success: true });
+    } catch (err) { console.error('[AdminClient] delete company:', err); res.status(500).json({ success: false }); }
+  });
+
+  app.get('/api/admin/client-users', AuthController.requireAuth, AuthController.requireAdmin, async (req: Request, res: Response) => {
+    const user = (req.session as any).user;
+    const companyId = parseInt(req.query.companyId as string);
+    if (user.role !== 'superadmin' && user.companyId !== companyId) return res.status(403).json({ success: false });
+    try {
+      const r = await pool.query(`SELECT id, company_id, username, email, first_name, last_name, role, is_active, score, exercices_realises, taux_reussite, niveau, badges, last_login, created_at FROM users WHERE company_id = $1 ORDER BY created_at DESC`, [companyId]);
+      res.json({ success: true, users: r.rows });
+    } catch (err) { console.error('[AdminClient] list users:', err); res.status(500).json({ success: false }); }
+  });
+
+  app.post('/api/admin/client-users', AuthController.requireAuth, AuthController.requireAdmin, async (req: Request, res: Response) => {
+    const user = (req.session as any).user;
+    const { companyId, email, password, firstName, lastName, role } = req.body;
+    if (user.role !== 'superadmin' && user.companyId !== companyId) return res.status(403).json({ success: false });
+    if (!email || !password) return res.status(400).json({ success: false, message: 'email et password requis' });
+    try {
+      const bcrypt = await import('bcryptjs');
+      const hashed = await bcrypt.hash(password, 10);
+      const username = email.split('@')[0] + '_' + Date.now();
+      const r = await pool.query(`INSERT INTO users (username, email, password, first_name, last_name, role, company_id, is_active) VALUES ($1,$2,$3,$4,$5,$6,$7,true) RETURNING id, username, email, first_name, last_name, role, is_active, created_at`, [username, email, hashed, firstName || null, lastName || null, role || 'user', companyId]);
+      res.json({ success: true, user: r.rows[0] });
+    } catch (err: any) {
+      if (err.code === '23505') return res.status(409).json({ success: false, message: 'Email déjà utilisé' });
+      console.error('[AdminClient] create user:', err); res.status(500).json({ success: false });
+    }
+  });
+
+  app.patch('/api/admin/client-users/:id/toggle', AuthController.requireAuth, AuthController.requireAdmin, async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id);
+    try {
+      const r = await pool.query(`UPDATE users SET is_active = NOT is_active, updated_at = now() WHERE id = $1 RETURNING id, is_active`, [id]);
+      res.json({ success: true, user: r.rows[0] });
+    } catch (err) { console.error('[AdminClient] toggle user:', err); res.status(500).json({ success: false }); }
+  });
+
+  app.post('/api/admin/client-users/:id/reset-password', AuthController.requireAuth, AuthController.requireAdmin, async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id);
+    const { newPassword } = req.body;
+    if (!newPassword || newPassword.length < 6) return res.status(400).json({ success: false, message: 'Mot de passe trop court' });
+    try {
+      const bcrypt = await import('bcryptjs');
+      const hashed = await bcrypt.hash(newPassword, 10);
+      await pool.query(`UPDATE users SET password = $1, updated_at = now() WHERE id = $2`, [hashed, id]);
+      res.json({ success: true });
+    } catch (err) { console.error('[AdminClient] reset pwd:', err); res.status(500).json({ success: false }); }
+  });
+
+  app.patch('/api/admin/client-users/:id/move', AuthController.requireAuth, AuthController.requireAdmin, async (req: Request, res: Response) => {
+    const user = (req.session as any).user;
+    if (user.role !== 'superadmin') return res.status(403).json({ success: false, message: 'Réservé au superadmin' });
+    const id = parseInt(req.params.id);
+    const { newCompanyId } = req.body;
+    if (!newCompanyId) return res.status(400).json({ success: false, message: 'newCompanyId requis' });
+    try {
+      const r = await pool.query(`UPDATE users SET company_id = $1, updated_at = now() WHERE id = $2 RETURNING id, username, email, company_id`, [newCompanyId, id]);
+      res.json({ success: true, user: r.rows[0] });
+    } catch (err) { console.error('[AdminClient] move user:', err); res.status(500).json({ success: false }); }
+  });
+
+  app.delete('/api/admin/client-users/:id', AuthController.requireAuth, AuthController.requireAdmin, async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id);
+    try {
+      await pool.query(`DELETE FROM users WHERE id = $1`, [id]);
+      res.json({ success: true });
+    } catch (err) { console.error('[AdminClient] delete user:', err); res.status(500).json({ success: false }); }
+  });
+
   // ── Super Admin routes ────────────────────────────────────────────────────────
   app.get('/api/superadmin/users', AuthController.requireAuth, SuperAdminController.listUsers);
   app.post('/api/superadmin/users', AuthController.requireAuth, SuperAdminController.createUser);

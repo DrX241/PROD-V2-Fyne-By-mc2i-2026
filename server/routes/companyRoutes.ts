@@ -164,7 +164,11 @@ router.patch('/:id/users/:userId', requireAdminOrAbove, async (req: Request, res
   if (user.role !== 'superadmin' && user.companyId !== companyId) {
     return res.status(403).json({ success: false, message: 'Non autorisé' });
   }
-  const { role, isActive, firstName, lastName } = req.body;
+  const { role, isActive, firstName, lastName, newCompanyId } = req.body;
+  // Déplacement vers une autre compagnie — superadmin uniquement
+  if (newCompanyId !== undefined && user.role !== 'superadmin') {
+    return res.status(403).json({ success: false, message: 'Réservé au superadmin' });
+  }
   try {
     const result = await pool.query(
       `UPDATE users SET
@@ -172,9 +176,10 @@ router.patch('/:id/users/:userId', requireAdminOrAbove, async (req: Request, res
         is_active = COALESCE($2, is_active),
         first_name = COALESCE($3, first_name),
         last_name = COALESCE($4, last_name),
+        company_id = COALESCE($7, company_id),
         updated_at = now()
-       WHERE id = $5 AND company_id = $6 RETURNING id, username, email, role, is_active`,
-      [role, isActive, firstName, lastName, userId, companyId]
+       WHERE id = $5 AND company_id = $6 RETURNING id, username, email, role, is_active, company_id`,
+      [role, isActive, firstName, lastName, userId, companyId, newCompanyId ?? null]
     );
     if (result.rows.length === 0) return res.status(404).json({ success: false });
     res.json({ success: true, user: result.rows[0] });

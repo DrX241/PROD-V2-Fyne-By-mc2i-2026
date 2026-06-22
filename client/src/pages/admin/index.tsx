@@ -6,7 +6,7 @@ import {
   Users, Plus, Trash2, RefreshCw, ToggleLeft, ToggleRight,
   Eye, EyeOff, ChevronLeft, Check, X, Crown,
   Activity, TrendingUp, Database, Clock, FileDown, Zap, Lock, Save, FlaskConical,
-  LayoutDashboard, Settings, ChevronRight, AlertCircle, ArrowUpRight, Building2, UserCog,
+  LayoutDashboard, Settings, ChevronRight, AlertCircle, ArrowUpRight, Building2, UserCog, ArrowRightLeft,
 } from 'lucide-react';
 import mcLogoPath from '@assets/mc2i.png';
 
@@ -47,6 +47,7 @@ type ClientModal =
   | { type: 'delete-company'; company: ClientCompany }
   | { type: 'create-user'; companyId: number; companyName: string }
   | { type: 'reset-user-pwd'; user: ClientUserRow }
+  | { type: 'move-user'; user: ClientUserRow }
   | { type: 'delete-user'; user: ClientUserRow }
   | null;
 
@@ -235,6 +236,7 @@ const AdminPage: React.FC = () => {
   const [clientNewPwd, setClientNewPwd] = useState('');
   const [showClientPwd, setShowClientPwd] = useState(false);
   const [showClientNewPwd, setShowClientNewPwd] = useState(false);
+  const [moveTargetCompanyId, setMoveTargetCompanyId] = useState<number | ''>('');
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
@@ -296,6 +298,13 @@ const AdminPage: React.FC = () => {
     if (clientModal?.type !== 'delete-user') return;
     const r = await fetch(`/api/admin/client-users/${clientModal.user.id}`, { method: 'DELETE', credentials: 'include' }); const d = await r.json();
     if (d.success) { notify('Utilisateur supprimé'); setClientModal(null); if (selectedCompany) fetchClientUsers(selectedCompany.id); }
+    else notify(d.message || 'Erreur', false);
+  };
+  const handleMoveUser = async () => {
+    if (clientModal?.type !== 'move-user' || !moveTargetCompanyId) return;
+    const r = await fetch(`/api/admin/client-users/${clientModal.user.id}/move`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ newCompanyId: moveTargetCompanyId }) });
+    const d = await r.json();
+    if (d.success) { notify('Utilisateur déplacé'); setClientModal(null); setMoveTargetCompanyId(''); if (selectedCompany) fetchClientUsers(selectedCompany.id); }
     else notify(d.message || 'Erreur', false);
   };
 
@@ -1040,6 +1049,11 @@ const AdminPage: React.FC = () => {
                                       <IconBtn onClick={() => { setClientModal({ type: 'reset-user-pwd', user: u }); setClientNewPwd(''); }} title="Réinitialiser le mot de passe">
                                         <RefreshCw size={13} />
                                       </IconBtn>
+                                      {user?.role === 'superadmin' && (
+                                        <IconBtn onClick={() => { setClientModal({ type: 'move-user', user: u }); setMoveTargetCompanyId(''); }} title="Déplacer vers une autre organisation">
+                                          <ArrowRightLeft size={13} />
+                                        </IconBtn>
+                                      )}
                                       <IconBtn onClick={() => setClientModal({ type: 'delete-user', user: u })} title="Supprimer" danger>
                                         <Trash2 size={13} />
                                       </IconBtn>
@@ -1294,6 +1308,34 @@ const AdminPage: React.FC = () => {
                   <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
                     <SecondaryBtn onClick={() => setClientModal(null)}>Annuler</SecondaryBtn>
                     <PrimaryBtn onClick={handleResetClientUserPwd} disabled={clientNewPwd.length < 6}>Enregistrer</PrimaryBtn>
+                  </div>
+                </>
+              )}
+
+              {clientModal.type === 'move-user' && (
+                <>
+                  <h2 style={{ margin: '0 0 6px', fontSize: 16, fontWeight: 600, color: T.textPrimary, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <ArrowRightLeft size={16} color={T.brand} /> Déplacer l'utilisateur
+                  </h2>
+                  <p style={{ margin: '0 0 16px', fontSize: 13, color: T.textSecond }}>
+                    <strong>{clientModal.user.email}</strong> — actuellement dans <strong>{selectedCompany?.name}</strong>
+                  </p>
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: T.textSecond, marginBottom: 4 }}>Nouvelle organisation</label>
+                    <select
+                      value={moveTargetCompanyId}
+                      onChange={e => setMoveTargetCompanyId(e.target.value ? Number(e.target.value) : '')}
+                      style={{ width: '100%', padding: '6px 8px', fontSize: 13, fontFamily: font, border: `1px solid ${T.borderMid}`, borderRadius: 2, background: T.canvas, color: T.textPrimary }}
+                    >
+                      <option value="">— Sélectionner une organisation —</option>
+                      {companies.filter(c => c.id !== selectedCompany?.id).map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                    <SecondaryBtn onClick={() => setClientModal(null)}>Annuler</SecondaryBtn>
+                    <PrimaryBtn onClick={handleMoveUser} disabled={!moveTargetCompanyId}>Déplacer</PrimaryBtn>
                   </div>
                 </>
               )}
