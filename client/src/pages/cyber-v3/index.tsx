@@ -5,7 +5,6 @@ import {
   GraduationCap,
   Target,
   Gamepad2,
-  FlaskConical,
   ArrowRight,
   Shield,
   Trophy,
@@ -16,7 +15,6 @@ import {
   Star,
   Users,
   Lock,
-  Activity,
 } from 'lucide-react';
 
 import { Helmet } from 'react-helmet-async';
@@ -92,19 +90,6 @@ const MODULES = [
     tags: ['Bug Hunter', 'Firewall', 'Brain Hacker', 'Escape'],
     stat: { label: 'jeux', value: '6' },
   },
-  {
-    id: 'simuler',
-    label: 'Simuler',
-    headline: 'Simulations Avancées',
-    description: 'Gestion de crise COMEX, pentest lab et simulations d\'incidents pour les profils experts.',
-    cta: 'Accéder aux simulations',
-    route: '/cyber/simulations',
-    Icon: FlaskConical,
-    accent: T.pink,
-    lightBg: '#fad9e8',
-    tags: ['RSSI', 'COMEX', 'Pentest Lab', 'Crise'],
-    stat: { label: 'simulations', value: '5' },
-  },
 ];
 
 // ── Nav items ─────────────────────────────────────────────────────────────────
@@ -112,7 +97,6 @@ const NAV_ITEMS = [
   { id: 'decouvrir',  label: "L'académie",    Icon: BookOpen,    route: '/cyber/sas-academie' },
   { id: 'entrainer',  label: 'Roleplay',       Icon: Users,       route: '/cyber/roleplay' },
   { id: 'challenger', label: 'Arcade',         Icon: Zap,         route: '/cyber/arcade' },
-  { id: 'simuler',    label: 'Simulations',    Icon: Activity,    route: '/cyber/simulations' },
   { id: 'profil',     label: 'Mon profil',     Icon: Star,        route: '/cyber/profil-pro' },
 ];
 

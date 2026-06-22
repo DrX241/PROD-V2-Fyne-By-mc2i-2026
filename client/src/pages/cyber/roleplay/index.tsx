@@ -4,8 +4,6 @@ import { motion } from 'framer-motion';
 import {
   ArrowRight,
   ChevronLeft,
-  Users,
-  Briefcase,
   Shield,
 } from 'lucide-react';
 
@@ -29,37 +27,9 @@ const RoleplayHub: React.FC = () => {
       ],
       comingSoon: false,
     },
-    {
-      id: 'recruiter',
-      title: "Je suis Membre du Service de Formation",
-      description: "Je souhaite évaluer les compétences cybersécurité de mes collaborateurs",
-      link: '/cyber/test-technique',
-      details: [
-        "Évaluation des compétences techniques",
-        "Tests standardisés pour profils cybersécurité",
-        "Rapports détaillés sur les compétences"
-      ],
-      comingSoon: false,
-    },
-    {
-      id: 'interview-test',
-      title: "Je suis un Professionnel Confirmé",
-      description: "Je souhaite me perfectionner en cybersécurité",
-      link: '/cyber/interview-test',
-      details: [
-        "Simulation d'entretien technique réaliste",
-        "Questions adaptées en fonction du niveau",
-        "Analyse de vos réponses avec feedback"
-      ],
-      comingSoon: false,
-    }
   ];
 
-  const getIcon = (id: string) => {
-    if (id === 'debutant-cyber') return Shield;
-    if (id === 'recruiter') return Users;
-    return Briefcase;
-  };
+  const getIcon = (_id: string) => Shield;
 
   return (
     <div

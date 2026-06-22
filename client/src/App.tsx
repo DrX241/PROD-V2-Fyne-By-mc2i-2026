@@ -36,13 +36,9 @@ import LessonPlayer from "./pages/playground/lesson-player";
 import CyberV3 from "./pages/cyber-v3";
 // Import des pages cyber
 import CyberRoleplay from "./pages/cyber/roleplay/index";
-import CyberLab from "./pages/cyber/cyber-lab/index";
 import CyberArcade from "./pages/cyber/arcade";
-import CyberSimulations from "./pages/cyber/simulations/index";
 import SasCyberAcademie from "./pages/cyber/sas-academie";
 import ExpertLearningPage from "./pages/cyber/expert-learning";
-import InterviewTestPage from "./pages/cyber/interview-test";
-import TestTechniquePage from "./pages/cyber/test-technique";
 import CrisisManagementPage from "./pages/cyber/crisis-management";
 import CrisisBriefing from "./pages/cyber/crisis-management/briefing";
 import ComexTrainingPage from "./pages/cyber/comex-training";
@@ -107,7 +103,6 @@ function AppContent() {
                 {/* Routes des modules */}
                 <Route path="/cyber" component={CyberV3} />
                 <Route path="/cyber/roleplay" component={CyberRoleplay} />
-                <Route path="/cyber/cyber-lab" component={CyberLab} />
                 <Route path="/cyber/sas-academie" component={SasCyberAcademie} />
                 <Route path="/cyber/academie/studio-ia">
                   {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/academie/studio-ia")))}</Suspense>)}
@@ -123,13 +118,10 @@ function AppContent() {
                 </Route>
                 <Route path="/cyber/profil-pro" component={ProfilPro} />
                 <Route path="/cyber/expert-learning" component={ExpertLearningPage} />
-                <Route path="/cyber/interview-test" component={InterviewTestPage} />
-                <Route path="/cyber/test-technique" component={TestTechniquePage} />
                 <Route path="/cyber/crisis-management/briefing" component={CrisisBriefing} />
                 <Route path="/cyber/crisis-management" component={CrisisManagementPage} />
                 <Route path="/cyber/comex-training" component={ComexTrainingPage} />
                 <Route path="/cyber/pentest-lab" component={PentestLab} />
-                <Route path="/cyber/simulations" component={CyberSimulations} />
                 <Route path="/cyber/learning-center/modules/debutant-cyber">
                   {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/learning-center/modules/debutant-cyber/index")))}</Suspense>)}
                 </Route>
