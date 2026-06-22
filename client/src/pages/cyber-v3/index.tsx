@@ -393,11 +393,15 @@ export default function CyberV3() {
   const [showDiagnostic, setShowDiagnostic] = useState(false);
   const [diagXP, setDiagXP] = useState(0);
 
-  // Check localStorage on mount
+  // Check localStorage on mount — prevent scroll jump
   useEffect(() => {
     const done = localStorage.getItem(DIAGNOSTIC_KEY);
-    if (!done) setShowDiagnostic(true);
-    else {
+    if (!done) {
+      // Freeze scroll position before showing overlay
+      const scrollY = window.scrollY;
+      setShowDiagnostic(true);
+      requestAnimationFrame(() => window.scrollTo(0, scrollY));
+    } else {
       try { setDiagXP(JSON.parse(done).xp ?? 0); } catch {}
     }
   }, []);
@@ -782,6 +786,7 @@ export default function CyberV3() {
                   background: 'rgba(15,23,42,0.55)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   padding: 24,
+                  overscrollBehavior: 'contain',
                 }}
               >
                 <motion.div
@@ -789,6 +794,7 @@ export default function CyberV3() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 24 }}
                   transition={{ duration: 0.25 }}
+                  tabIndex={-1}
                   style={{
                     background: T.bg,
                     border: `1px solid ${T.border}`,
@@ -798,6 +804,7 @@ export default function CyberV3() {
                     overflowY: 'auto',
                     padding: '32px 40px',
                     position: 'relative',
+                    outline: 'none',
                   }}
                 >
                   <CyberDiagnostic onComplete={(xp) => {
