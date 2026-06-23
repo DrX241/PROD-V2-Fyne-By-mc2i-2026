@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
-import { Database, Code2, Table2 } from 'lucide-react';
+import { Database, Code2, Table2, Users, FlaskConical } from 'lucide-react';
 
 const TRACKS = [
   {
@@ -46,6 +46,34 @@ const TRACKS = [
     route: '/cyber/formation/excel',
     available: true,
   },
+  {
+    id: 'monsieur-tout-le-monde',
+    label: 'Monsieur Tout le Monde',
+    tagline: 'J\'apprends à lire et utiliser la data',
+    description: '12 situations interactives · 4 domaines · score de maturité data · badges Novice, Praticien, Expert.',
+    icon: Users,
+    color: 'text-[#60c0f0]',
+    accentBg: 'bg-[#60c0f0]/8',
+    badge: 'bg-[#006a9e] text-white',
+    halo: 'shadow-[0_22px_50px_rgba(96,192,240,0.10)]',
+    strip: '#60c0f0',
+    route: '/data-ia/roleplay/monsieur-tout-le-monde',
+    available: true,
+  },
+  {
+    id: 'ia-lab-trainer',
+    label: 'IA Lab Trainer',
+    tagline: 'Je crée et teste des algorithmes d\'analyse',
+    description: 'Laboratoire de code interactif Python & SQL · sandbox réelle · assistance IA · défis algorithmiques progressifs.',
+    icon: FlaskConical,
+    color: 'text-[#6366f1]',
+    accentBg: 'bg-[#6366f1]/8',
+    badge: 'bg-[#6366f1] text-white',
+    halo: 'shadow-[0_22px_50px_rgba(99,102,241,0.10)]',
+    strip: '#6366f1',
+    route: '/data-ia/roleplay/ia-lab-trainer',
+    available: true,
+  },
 ];
 
 export default function DataChoicePage() {
@@ -64,12 +92,13 @@ export default function DataChoicePage() {
           className="mt-10 mb-12 text-center"
         >
           <span className="text-xs font-semibold text-[#dd0061] uppercase tracking-widest">Mode Formation — Data</span>
-          <h1 className="mt-3 text-3xl md:text-5xl font-black text-[#061019] leading-[0.98]">Quel langage choisis-tu ?</h1>
-          <p className="mt-4 text-sm md:text-base text-[#617286]">QCM d'évaluation · mise en situation réelle · coach IA</p>
+          <h1 className="mt-3 text-3xl md:text-5xl font-black text-[#061019] leading-[0.98]">Par où veux-tu commencer ?</h1>
+          <p className="mt-4 text-sm md:text-base text-[#617286]">Langages · mises en situation réelles · simulations IA</p>
         </motion.div>
 
+        {/* Langages */}
         <div className="grid md:grid-cols-3 gap-6">
-          {TRACKS.map((track, i) => {
+          {TRACKS.slice(0, 3).map((track, i) => {
             const Icon = track.icon;
             return (
               <motion.button
@@ -95,6 +124,47 @@ export default function DataChoicePage() {
                 </div>
                 <div className={`mt-auto text-[13px] font-black ${track.color} flex items-center gap-1.5`}>
                   Commencer le parcours →
+                </div>
+              </motion.button>
+            );
+          })}
+        </div>
+
+        {/* Séparateur simulations */}
+        <div className="mt-10 mb-6 flex items-center gap-4">
+          <div className="flex-1 h-px bg-[#e2eaf2]" />
+          <span className="text-xs font-semibold text-[#617286] uppercase tracking-widest">Simulations & Roleplay</span>
+          <div className="flex-1 h-px bg-[#e2eaf2]" />
+        </div>
+
+        {/* Simulations */}
+        <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto w-full">
+          {TRACKS.slice(3).map((track, i) => {
+            const Icon = track.icon;
+            return (
+              <motion.button
+                key={track.id}
+                type="button"
+                onClick={() => setLocation(track.route)}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + i * 0.1 }}
+                className={`group relative overflow-hidden text-left bg-white/54 backdrop-blur-[8px] ${track.halo} hover:-translate-y-1 hover:bg-white/72 transition-all duration-200 p-7 flex flex-col gap-5`}
+              >
+                <div className="absolute inset-x-0 top-0 h-1" style={{ background: track.strip }} />
+                <div className={`inline-flex items-center justify-center w-14 h-14 ${track.accentBg} shadow-[0_10px_24px_rgba(6,16,25,0.04)]`}>
+                  <Icon className={`w-7 h-7 ${track.color}`} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <h2 className={`text-xl font-black ${track.color}`}>{track.label}</h2>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 ${track.badge}`}>Disponible</span>
+                  </div>
+                  <p className="text-sm font-semibold text-[#32485f] mb-3 leading-6">{track.tagline}</p>
+                  <p className="text-[13px] text-[#617286] leading-7">{track.description}</p>
+                </div>
+                <div className={`mt-auto text-[13px] font-black ${track.color} flex items-center gap-1.5`}>
+                  Commencer la simulation →
                 </div>
               </motion.button>
             );
