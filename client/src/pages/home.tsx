@@ -504,7 +504,7 @@ export default function Home() {
       color: "bg-purple-600",
       bgColor: "bg-gradient-to-br from-purple-50 to-purple-100",
       accentColor: "bg-purple-500",
-      linkTo: "/data-ia"
+      linkTo: "/cyber/formation-data"
     },
     {
       title: "Soyez qui vous voulez",

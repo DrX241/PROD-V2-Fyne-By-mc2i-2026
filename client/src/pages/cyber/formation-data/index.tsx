@@ -82,7 +82,7 @@ export default function DataChoicePage() {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(0,106,158,0.10),_transparent_28%),radial-gradient(circle_at_82%_14%,_rgba(221,0,97,0.08),_transparent_24%),linear-gradient(180deg,_#fbfcfe_0%,_#f3f6fb_52%,_#f7f9fc_100%)] text-[#061019]">
       <header className="flex items-center justify-center px-4 py-3 bg-white/42 backdrop-blur shadow-[0_10px_30px_rgba(6,16,25,0.04)]">
-        <div className="text-sm font-semibold tracking-wide text-[#006a9e]">FYNE DATA</div>
+        <div className="text-sm font-semibold tracking-wide text-[#006a9e]">ESPACE DATA & IA</div>
       </header>
 
       <main className="px-5 py-8 md:px-8 md:py-12 max-w-6xl mx-auto">
@@ -91,7 +91,7 @@ export default function DataChoicePage() {
           animate={{ opacity: 1, y: 0 }}
           className="mt-10 mb-12 text-center"
         >
-          <span className="text-xs font-semibold text-[#dd0061] uppercase tracking-widest">Mode Formation — Data</span>
+          <span className="text-xs font-semibold text-[#dd0061] uppercase tracking-widest">ESPACE DATA & IA</span>
           <h1 className="mt-3 text-3xl md:text-5xl font-black text-[#061019] leading-[0.98]">Par où veux-tu commencer ?</h1>
           <p className="mt-4 text-sm md:text-base text-[#617286]">Langages · mises en situation réelles · simulations IA</p>
         </motion.div>

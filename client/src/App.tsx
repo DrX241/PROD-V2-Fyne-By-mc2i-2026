@@ -46,7 +46,6 @@ import DataChoicePage from "./pages/cyber/formation-data";
 import FormationPython from "./pages/cyber/formation-python";
 import FormationSQL from "./pages/cyber/formation";
 import FormationExcel from "./pages/cyber/formation-excel";
-import DataIaModeSelection from "./pages/data-ia-mode-selection";
 import EvaluationPage from "./pages/evaluation";
 import SuperAdminPage from "./pages/superadmin";
 import MonSuivi from "./pages/mon-suivi";
@@ -191,46 +190,13 @@ function AppContent() {
                 <Route path="/cyber/formation/python" component={FormationPython} />
                 <Route path="/cyber/formation/excel" component={FormationExcel} />
                 <Route path="/cyber/formation" component={FormationSQL} />
-                {/* Routes data-ia */}
-                <Route path="/data-ia" component={DataIaModeSelection} />
-                <Route path="/data-ia/sas-academie">
-                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/sas-academie")))}</Suspense>)}
-                </Route>
-                <Route path="/data-ia/expert-learning">
-                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/expert-learning")))}</Suspense>)}
-                </Route>
-                <Route path="/data-ia/data-studio">
-                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/data-studio")))}</Suspense>)}
-                </Route>
-                <Route path="/data-ia/roleplay">
-                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/roleplay")))}</Suspense>)}
-                </Route>
-                <Route path="/data-ia/roleplay/read-me-if-you-can">
-                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/read-me-if-you-can")))}</Suspense>)}
-                </Route>
+                {/* Routes data-ia — conservées pour les pages actives dans ESPACE DATA & IA */}
+                <Route path="/data-ia" component={DataChoicePage} />
                 <Route path="/data-ia/roleplay/ia-lab-trainer">
                   {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/ia-lab-trainer")))}</Suspense>)}
                 </Route>
-                <Route path="/data-ia/roleplay/data-analyst">
-                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/roleplay/data-analyst")))}</Suspense>)}
-                </Route>
-                <Route path="/data-ia/roleplay/ai-engineer">
-                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/roleplay/ai-engineer")))}</Suspense>)}
-                </Route>
                 <Route path="/data-ia/roleplay/monsieur-tout-le-monde">
                   {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/roleplay/monsieur-tout-le-monde")))}</Suspense>)}
-                </Route>
-                <Route path="/data-ia/data-ia-academy">
-                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/data-ia-academy")))}</Suspense>)}
-                </Route>
-                <Route path="/data-ia/read-me-if-you-can">
-                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/read-me-if-you-can")))}</Suspense>)}
-                </Route>
-                <Route path="/data-ia/ia-lab-trainer">
-                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/ia-lab-trainer")))}</Suspense>)}
-                </Route>
-                <Route path="/data-ia/data-challenge">
-                  {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/data-ia/data-challenge")))}</Suspense>)}
                 </Route>
                 {/* Route évaluation */}
                 <Route path="/evaluation" component={EvaluationPage} />

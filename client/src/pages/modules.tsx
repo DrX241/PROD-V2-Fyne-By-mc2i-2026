@@ -97,7 +97,7 @@ export default function ModulesPage() {
       icon: <Database className="w-12 h-12 text-white" />,
       iconBg: "bg-purple-600",
       color: "border-purple-200 hover:shadow-xl hover:scale-105 hover:border-purple-300",
-      link: "/data-ia",
+      link: "/cyber/formation-data",
       bgGradient: "bg-gradient-to-br from-purple-50 to-purple-100"
     },
     {
