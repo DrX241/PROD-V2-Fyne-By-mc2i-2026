@@ -13,7 +13,7 @@ export function NavHeader() {
         <div className="flex items-center gap-4">
           <Link href="/">
             <a className="flex items-center gap-2">
-              <span className="text-xl font-bold">I AM CYBER</span>
+              <span className="text-xl font-bold">ESPACE CYBER</span>
             </a>
           </Link>
           <nav className="hidden md:flex gap-4 ml-4">

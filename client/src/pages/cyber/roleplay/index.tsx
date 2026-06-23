@@ -62,7 +62,7 @@ const RoleplayHub: React.FC = () => {
           }}
         >
           <ChevronLeft size={13} />
-          Retour vers I AM CYBER
+          Retour vers ESPACE CYBER
         </button>
 
         {/* Header */}

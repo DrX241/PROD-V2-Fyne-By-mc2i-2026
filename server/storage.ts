@@ -3,7 +3,7 @@ import {
   generatedTrainings, type GeneratedTraining, type InsertGeneratedTraining
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, sql } from "drizzle-orm";
+import { eq, desc, sql, or } from "drizzle-orm";
 import session from "express-session";
 import MemoryStore from "memorystore";
 
@@ -184,7 +184,7 @@ export class DatabaseStorage implements IStorage {
   async getUserByUsername(username: string): Promise<User | undefined> {
     const [user] = await db.select()
       .from(users)
-      .where(eq(users.username, username));
+      .where(or(eq(users.username, username), eq(users.email, username)));
     return user;
   }
 

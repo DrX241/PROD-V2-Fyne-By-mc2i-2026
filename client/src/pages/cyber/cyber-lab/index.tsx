@@ -75,7 +75,7 @@ const CyberLab: React.FC = () => {
           onClick={() => setLocation('/cyber')}
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
-          Retour vers I AM CYBER
+          Retour vers ESPACE CYBER
         </Button>
       </div>
 

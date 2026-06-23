@@ -444,7 +444,7 @@ export default function CyberV3() {
   return (
     <HomeLayout>
       <Helmet>
-        <title>I AM CYBER | Univers Cybersécurité</title>
+        <title>ESPACE CYBER | Univers Cybersécurité</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -506,7 +506,7 @@ export default function CyberV3() {
                   letterSpacing: '-0.01em',
                   lineHeight: 1.2,
                 }}>
-                  I AM CYBER
+                  ESPACE CYBER
                 </div>
                 <div style={{
                   fontFamily: "'JetBrains Mono', monospace",
@@ -687,7 +687,7 @@ export default function CyberV3() {
               marginBottom: 28,
             }}
           >
-            {['FYNE', 'Univers', 'I AM CYBER'].map((crumb, i, arr) => (
+            {['FYNE', 'Univers', 'ESPACE CYBER'].map((crumb, i, arr) => (
               <React.Fragment key={crumb}>
                 <span style={{
                   fontFamily: "'JetBrains Mono', monospace",

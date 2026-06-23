@@ -67,7 +67,7 @@ const CyberHomePage: React.FC = () => {
     {
       id: 'cyber',
       moduleKey: 'cyber',
-      title: 'I AM CYBER',
+      title: 'ESPACE CYBER',
       description: 'Plongez au cœur des enjeux de la cyber avec des simulations réalistes',
       icon: <div className="w-5 h-5 bg-indigo-500"></div>,
       color: 'text-indigo-600',
@@ -78,7 +78,7 @@ const CyberHomePage: React.FC = () => {
     {
       id: 'data',
       moduleKey: 'data',
-      title: 'I AM DATA & IA',
+      title: 'ESPACE DATA & IA',
       description: 'Maîtrisez les concepts de data science et d\'intelligence artificielle à travers des simulations pratiques.',
       icon: <div className="w-5 h-5 bg-purple-500"></div>,
       color: 'text-purple-600',

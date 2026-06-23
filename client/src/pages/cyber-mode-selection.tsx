@@ -189,7 +189,7 @@ export default function CyberModeSelection() {
 
   return (
     <HomeLayout>
-      <PageTitle title="I AM CYBER" />
+      <PageTitle title="ESPACE CYBER" />
       <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-gradient-to-b from-gray-800 via-gray-900 to-blue-900">
         {/* Bouton retour à l'accueil et Guide */}
         <div className="absolute top-4 left-4 z-20 flex gap-2">
@@ -249,7 +249,7 @@ export default function CyberModeSelection() {
             className="text-center mb-4 sm:mb-6 mt-2"
           >
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3">
-              I AM CYBER
+              ESPACE CYBER
             </h1>
             <p className="text-lg sm:text-xl text-blue-200 max-w-3xl mx-auto">
               Choisissez votre parcours d'apprentissage en cybersécurité

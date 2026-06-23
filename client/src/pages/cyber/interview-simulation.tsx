@@ -477,7 +477,7 @@ const CyberInterviewSimulation: React.FC = () => {
                   className="gap-2"
                 >
                   <ArrowLeft className="h-4 w-4" />
-                  Retour à I AM CYBER
+                  Retour à ESPACE CYBER
                 </Button>
                 <Button 
                   onClick={() => handleStartSimulation(form.getValues())}

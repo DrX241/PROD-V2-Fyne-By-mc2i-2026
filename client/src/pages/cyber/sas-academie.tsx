@@ -61,7 +61,7 @@ export default function SasCyberAcademie() {
               padding: 0,
             }}
           >
-            <ChevronLeft size={12} /> Retour vers I AM CYBER
+            <ChevronLeft size={12} /> Retour vers ESPACE CYBER
           </button>
 
           {/* Header */}

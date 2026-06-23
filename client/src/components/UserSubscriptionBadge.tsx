@@ -3,9 +3,9 @@ import { Zap, ChevronDown, Lock, CheckCircle2, Package } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 const MODULE_META: Record<string, { label: string; color: string }> = {
-  cyber:          { label: 'I AM CYBER',         color: 'bg-indigo-500' },
-  data:           { label: 'I AM DATA & IA',       color: 'bg-purple-500' },
-  amoa:           { label: 'I AM mc2i',            color: 'bg-emerald-500' },
+  cyber:          { label: 'ESPACE CYBER',         color: 'bg-indigo-500' },
+  data:           { label: 'ESPACE DATA & IA',       color: 'bg-purple-500' },
+  amoa:           { label: 'ESPACE AMOA',            color: 'bg-emerald-500' },
   'formation-data':{ label: 'FORMATION DATA',      color: 'bg-[#006a9e]' },
   evaluation:     { label: 'SI CHAMPION',          color: 'bg-amber-500' },
   playground:     { label: 'GÉNÉRATEUR',           color: 'bg-rose-500' },

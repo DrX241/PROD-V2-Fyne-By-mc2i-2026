@@ -18,7 +18,7 @@ export default function Sidebar() {
             <Shield className="h-5 w-5" />
           </div>
           <div>
-            <div className="font-semibold">I AM CYBER</div>
+            <div className="font-semibold">ESPACE CYBER</div>
             <div className="text-xs text-neutral-500 mt-1">Formation cybersécurité interactive</div>
           </div>
         </div>

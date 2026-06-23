@@ -130,7 +130,7 @@ La réponse doit être formatée en JSON selon le schéma spécifié, sans aucun
 ## STRUCTURE DE LA RÉPONSE (JSON) :
 
 {
-  "iamName": "I AM ${config.domain.toUpperCase()}",
+  "iamName": "ESPACE ${config.domain.toUpperCase()}",
   "description": "Description générale du module et de son objectif",
   
   "seFormer": {
@@ -262,7 +262,7 @@ function constructUserPrompt(config: ModuleConfig): string {
   if (config.includeTestModule) modulesToInclude.push(`${config.domain}TEST (S'évaluer)`);
   if (config.includeAscensionModule) modulesToInclude.push(`${config.domain}ASCENSION (Se perfectionner)`);
 
-  return `Créez un module d'apprentissage complet de type "I AM XXX" nommé "${config.iamName}" avec toutes ces caractéristiques :
+  return `Créez un module d'apprentissage complet de type "ESPACE XXX" nommé "${config.iamName}" avec toutes ces caractéristiques :
 
 ## INFORMATIONS DE BASE
 - Nom: "${config.name}"
@@ -277,7 +277,7 @@ function constructUserPrompt(config: ModuleConfig): string {
 ${config.additionalContext ? `## CONTEXTE SUPPLÉMENTAIRE\n${config.additionalContext}` : ''}
 
 ## INSTRUCTIONS SPÉCIFIQUES
-1. Créez un module complet formaté exactement comme les modules "I AM CYBER" ou "I AM AMOA" existants
+1. Créez un module complet formaté exactement comme les modules "ESPACE CYBER" ou "ESPACE AMOA" existants
 2. Chaque section doit contenir au minimum 3 composants complets avec contenu détaillé et interactif
 3. Le contenu doit être en français, engageant et conversationnel (PAS de style académique ou avec formatage markdown excessif)
 4. Incluez des scénarios réalistes, études de cas et exercices pratiques adaptés au monde professionnel
@@ -333,7 +333,7 @@ export async function saveCustomModule(req: Request, res: Response) {
       name: moduleConfig.name || 'Module sans nom',
       domain: moduleConfig.domain || 'general',
       description: moduleConfig.description || 'Aucune description fournie',
-      iamName: `I AM ${moduleConfig.domain ? moduleConfig.domain.toUpperCase() : 'MODULE'}`,
+      iamName: `ESPACE ${moduleConfig.domain ? moduleConfig.domain.toUpperCase() : 'MODULE'}`,
       difficulty: (moduleConfig.difficulty || 'intermediate') as 'beginner' | 'intermediate' | 'advanced',
       topics: Array.isArray(moduleConfig.topics) ? moduleConfig.topics : ['général'],
       gamificationLevel: gamificationLevelMap[moduleConfig.gamificationLevel || 'medium'] || 'modere',

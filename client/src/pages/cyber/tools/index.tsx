@@ -74,7 +74,7 @@ export default function ToolsPage() {
                 onClick={() => setLocation('/cyber')}
               >
                 <ChevronLeft className="mr-2 h-4 w-4" />
-                Retour à I AM CYBER
+                Retour à ESPACE CYBER
               </Button>
             </div>
             

@@ -64,7 +64,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Nom d'utilisateur</Label>
+              <Label htmlFor="username">Email ou identifiant</Label>
               <Input
                 id="username"
                 type="text"
@@ -72,7 +72,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 disabled={isLoading}
-                placeholder="Entrez votre nom d'utilisateur"
+                placeholder="email@entreprise.fr ou identifiant"
               />
             </div>
             

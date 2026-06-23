@@ -10,9 +10,9 @@ import {
 } from 'lucide-react';
 
 const ALL_MODULES = [
-  { id: 'cyber',          label: 'I AM CYBER',            color: 'bg-indigo-500' },
-  { id: 'data',           label: 'I AM DATA & IA',         color: 'bg-purple-500' },
-  { id: 'amoa',           label: 'I AM mc2i (AMOA)',       color: 'bg-emerald-500' },
+  { id: 'cyber',          label: 'ESPACE CYBER',            color: 'bg-indigo-500' },
+  { id: 'data',           label: 'ESPACE DATA & IA',         color: 'bg-purple-500' },
+  { id: 'amoa',           label: 'ESPACE AMOA',       color: 'bg-emerald-500' },
   { id: 'formation-data', label: 'FORMATION DATA',         color: 'bg-[#006a9e]' },
   { id: 'evaluation',     label: 'MODE ÉVALUATION',        color: 'bg-amber-500' },
   { id: 'playground',     label: 'PLAYGROUND / GÉNÉRATEUR',color: 'bg-rose-500' },

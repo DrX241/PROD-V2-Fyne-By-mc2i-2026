@@ -18,7 +18,7 @@ const GameNavBar = memo(({ difficulty, setDifficulty }: {
     </Link>
     <Link href="/cyber" className="inline-flex items-center text-amber-200 hover:text-white transition-colors">
       <Shield className="mr-2 h-4 w-4" />
-      Retour à I AM CYBER
+      Retour à ESPACE CYBER
     </Link>
     
     {/* Sélecteur de difficulté compact */}

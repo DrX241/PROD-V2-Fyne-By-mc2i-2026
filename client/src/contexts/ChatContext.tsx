@@ -387,7 +387,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const initialMessage: ChatMessage = {
         id: uuidv4(),
         type: "bot",
-        content: "Bonjour !\nJe suis I AM CYBER, votre assistant virtuel dans le cadre de cette mise en situation. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\nPour commencer, Quel est votre prénom ?",
+        content: "Bonjour !\nJe suis ESPACE CYBER, votre assistant virtuel dans le cadre de cette mise en situation. Je suis là pour vous accompagner dans une expérience d'apprentissage immersive et interactive.\nPour commencer, Quel est votre prénom ?",
         timestamp: Date.now()
       };
 

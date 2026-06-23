@@ -31,7 +31,7 @@ const tourSteps: Record<string, Step[]> = {
   'cyber-mode-selection': [
     {
       target: 'body',
-      content: 'Bienvenue dans I AM CYBER ! Découvrez notre plateforme dédiée à la formation en cybersécurité.',
+      content: 'Bienvenue dans ESPACE CYBER ! Découvrez notre plateforme dédiée à la formation en cybersécurité.',
       disableBeacon: true,
       placement: 'center',
     },
@@ -64,7 +64,7 @@ const tourSteps: Record<string, Step[]> = {
   'cyber-mode-selection-redesign': [
     {
       target: '.container',
-      content: 'Bienvenue dans I AM CYBER. Cette interface a été entièrement repensée pour vous offrir une expérience d\'apprentissage sur mesure en cybersécurité.',
+      content: 'Bienvenue dans ESPACE CYBER. Cette interface a été entièrement repensée pour vous offrir une expérience d\'apprentissage sur mesure en cybersécurité.',
       disableBeacon: true,
       placement: 'center',
       spotlightClicks: true,
@@ -95,7 +95,7 @@ const tourSteps: Record<string, Step[]> = {
     },
     {
       target: '[data-id="main-title"]',
-      content: 'Bienvenue dans I AM CYBER, votre plateforme d\'apprentissage personnalisée en cybersécurité, adaptée à votre niveau et vos objectifs professionnels.',
+      content: 'Bienvenue dans ESPACE CYBER, votre plateforme d\'apprentissage personnalisée en cybersécurité, adaptée à votre niveau et vos objectifs professionnels.',
       disableBeacon: true,
       spotlightClicks: true,
       placement: 'bottom',
@@ -148,7 +148,7 @@ const tourSteps: Record<string, Step[]> = {
     },
     {
       target: '.container',
-      content: 'Vous pouvez maintenant explorer I AM CYBER selon vos préférences. Le bouton d\'aide est toujours disponible si vous avez besoin d\'assistance.',
+      content: 'Vous pouvez maintenant explorer ESPACE CYBER selon vos préférences. Le bouton d\'aide est toujours disponible si vous avez besoin d\'assistance.',
       disableBeacon: true,
       placement: 'center',
       spotlightClicks: true,

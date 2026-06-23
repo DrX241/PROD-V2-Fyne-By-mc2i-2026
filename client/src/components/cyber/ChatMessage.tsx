@@ -430,7 +430,7 @@ export default function ChatMessage({
             
             <div className="text-left max-w-[80%] rounded-lg bg-orange-50 border-orange-300 p-4 border shadow-sm">
               <div className="mb-2 pb-2 border-b border-orange-200">
-                <div className="font-bold text-orange-700 text-base">I AM CYBER</div>
+                <div className="font-bold text-orange-700 text-base">ESPACE CYBER</div>
                 <div className="text-xs text-orange-600">Système d'apprentissage</div>
               </div>
               

@@ -183,7 +183,7 @@ export default function DataIAModeSelection() {
                     Accueil
                   </DataButton>
                 </div>
-                <PageTitle title="I AM DATA & IA" />
+                <PageTitle title="ESPACE DATA & IA" />
               </div>
               
               {/* Panneau d'accessibilité */}
@@ -291,7 +291,7 @@ export default function DataIAModeSelection() {
                     ? 'text-yellow-300' 
                     : 'bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent'
                 }`} style={{ fontSize: `calc(3.5rem * ${textSize})` }}>
-                  I AM DATA & IA
+                  ESPACE DATA & IA
                 </span>
               </h1>
               <div className={`w-40 h-1 bg-gradient-to-r from-blue-400 to-indigo-500 mx-auto my-6 rounded-full`} 

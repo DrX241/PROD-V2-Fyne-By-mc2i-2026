@@ -210,7 +210,7 @@ export default function CyberAgentPage() {
       <div className="mb-2 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-10 bg-gray-950/80 backdrop-blur-sm py-2 shadow-md">
         <Link href="/cyber" className="inline-flex items-center text-[#46cada] hover:text-blue-600 transition-colors">
           <ArrowLeft className="mr-2 h-5 w-5" />
-          Retour à I AM CYBER
+          Retour à ESPACE CYBER
         </Link>
         
         <div className="flex items-center text-white bg-blue-600/80 px-3 py-1 rounded-full">

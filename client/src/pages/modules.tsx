@@ -82,7 +82,7 @@ export default function ModulesPage() {
   const modules = [
     {
       id: "cyber",
-      title: "I AM CYBER",
+      title: "ESPACE CYBER",
       description: "Développez vos compétences en cybersécurité à travers des scénarios interactifs et immersifs guidés par l'IA.",
       icon: <ShieldCheck className="w-12 h-12 text-white" />,
       iconBg: "bg-blue-600",
@@ -92,7 +92,7 @@ export default function ModulesPage() {
     },
     {
       id: "data-ia",
-      title: "I AM DATA & IA",
+      title: "ESPACE DATA & IA",
       description: "Maîtrisez les concepts de data science et d'intelligence artificielle grâce à des cas pratiques et des simulations avancées.",
       icon: <Database className="w-12 h-12 text-white" />,
       iconBg: "bg-purple-600",
@@ -102,7 +102,7 @@ export default function ModulesPage() {
     },
     {
       id: "amoa",
-      title: "IAM mc2i",
+      title: "ESPACE AMOA",
       description: "Perfectionnez vos compétences en assistance à maîtrise d'ouvrage et gestion de projet avec des mentors virtuels experts.",
       icon: <ListChecks className="w-12 h-12 text-white" />,
       iconBg: "bg-[#006a9e]",
@@ -424,8 +424,8 @@ export default function ModulesPage() {
             <div>
               <h3 className="text-lg font-semibold mb-4">Modules</h3>
               <ul className="space-y-2">
-                <li><a href="/cyber" className="text-gray-400 hover:text-white transition-colors">I AM CYBER</a></li>
-                <li><a href="/amoa" className="text-gray-400 hover:text-white transition-colors">IAM mc2i</a></li>
+                <li><a href="/cyber" className="text-gray-400 hover:text-white transition-colors">ESPACE CYBER</a></li>
+                <li><a href="/amoa" className="text-gray-400 hover:text-white transition-colors">ESPACE AMOA</a></li>
                 <li><a href="/custom" className="text-gray-400 hover:text-white transition-colors">Parcours personnalisé</a></li>
               </ul>
             </div>

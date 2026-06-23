@@ -47,8 +47,8 @@ const ModuleCard = ({
   const { themeMode } = useTheme();
   const isClassic = classicMode || themeMode === 'classic';
   
-  // Déterminer si c'est le module I AM CYBER
-  const isCyberModule = title === "I AM CYBER";
+  // Déterminer si c'est le module ESPACE CYBER
+  const isCyberModule = title === "ESPACE CYBER";
   
   // Handler pour la navigation
   const handleClick = (e: React.MouseEvent) => {
@@ -489,7 +489,7 @@ export default function Home() {
       // Le module Outils IA a été supprimé à la demande du client
       // Le module CyberForge Academy a été supprimé pour reconstruction
     {
-      title: "I AM CYBER",
+      title: "ESPACE CYBER",
       description: "Immergez-vous dans des simulations de cybersécurité interactives et choisissez entre le mode agent IA conversationnel ou les scénarios tactiques de défense.",
       icon: null,
       color: "bg-blue-600",
@@ -498,7 +498,7 @@ export default function Home() {
       linkTo: "/cyber" // Lien direct vers la page cyber
     },
     {
-      title: "I AM DATA & IA",
+      title: "ESPACE DATA & IA",
       description: "Maîtrisez les concepts avancés de data science et d'intelligence artificielle à travers des simulations pratiques et des défis concrets.",
       icon: null,
       color: "bg-purple-600",
@@ -1764,7 +1764,7 @@ export default function Home() {
             <div>
               <h3 className={`text-lg font-semibold mb-4 ${isFuturistic ? 'text-cyan-300' : 'text-blue-700'} font-cyber-accent`}>Modules</h3>
               <ul className="space-y-2">
-                {['I AM CYBER', 'CENTRE DE CRISE ÉVOLUTIF', 'I AM DATA & IA', 'IAM mc2i', 'Personnalisé'].map(link => (
+                {['ESPACE CYBER', 'CENTRE DE CRISE ÉVOLUTIF', 'ESPACE DATA & IA', 'ESPACE AMOA', 'Personnalisé'].map(link => (
                   <li key={link}>
                     <a href="#" className={`${isFuturistic ? 'text-blue-200/60 hover:text-cyan-300' : 'text-gray-600 hover:text-blue-800'} transition-colors`}>
                       {link}

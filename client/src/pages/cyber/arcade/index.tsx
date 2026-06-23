@@ -133,7 +133,7 @@ export default function CyberArcade() {
               gap: 6,
               padding: 0,
             }}>
-              <ArrowLeft size={12} /> Retour vers I AM CYBER
+              <ArrowLeft size={12} /> Retour vers ESPACE CYBER
             </button>
           </Link>
 
