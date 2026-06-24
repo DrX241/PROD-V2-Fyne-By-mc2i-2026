@@ -14,7 +14,7 @@ const ALL_MODULES = [
   { id: 'data',           label: 'ESPACE DATA & IA',         color: 'bg-purple-500' },
   { id: 'amoa',           label: 'ESPACE AMOA',       color: 'bg-emerald-500' },
   { id: 'formation-data', label: 'FORMATION DATA',         color: 'bg-[#006a9e]' },
-  { id: 'evaluation',     label: 'MODE ÉVALUATION',        color: 'bg-amber-500' },
+  { id: 'evaluation',     label: 'ESPACE CHALLENGE',       color: 'bg-amber-500' },
   { id: 'playground',     label: 'PLAYGROUND / GÉNÉRATEUR',color: 'bg-rose-500' },
 ];
 

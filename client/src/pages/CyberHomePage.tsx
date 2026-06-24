@@ -89,7 +89,7 @@ const CyberHomePage: React.FC = () => {
     {
       id: 'si-champion',
       moduleKey: 'evaluation',
-      title: 'I AM SI CHAMPION',
+      title: 'ESPACE CHALLENGE',
       description: 'Pilotez vos campagnes d\'évaluation et faites passer vos tests dans un espace dédié',
       icon: <div className="w-5 h-5 bg-amber-500"></div>,
       color: 'text-amber-600',

@@ -7,7 +7,7 @@ const MODULE_META: Record<string, { label: string; color: string }> = {
   data:           { label: 'ESPACE DATA & IA',       color: 'bg-purple-500' },
   amoa:           { label: 'ESPACE AMOA',            color: 'bg-emerald-500' },
   'formation-data':{ label: 'FORMATION DATA',      color: 'bg-[#006a9e]' },
-  evaluation:     { label: 'SI CHAMPION',          color: 'bg-amber-500' },
+  evaluation:     { label: 'ESPACE CHALLENGE',      color: 'bg-amber-500' },
   playground:     { label: 'GÉNÉRATEUR',           color: 'bg-rose-500' },
 };
 
