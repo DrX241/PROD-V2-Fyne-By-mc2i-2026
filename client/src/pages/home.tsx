@@ -482,7 +482,40 @@ export default function Home() {
     
     fetchCustomModules();
   }, []);
-  
+
+  // Init cockpit V3 : curseur glissant + switch panneaux
+  useEffect(() => {
+    const items = document.querySelectorAll<HTMLElement>('.home-space-item');
+    const cursor = document.getElementById('home-cursor');
+    const container = document.getElementById('home-items');
+    if (!cursor || !container || !items.length) return;
+
+    const colors: Record<string, string> = { cyber: '#0057ff', data: '#059669', challenge: '#7c3aed', gen: '#dc2626' };
+
+    const activate = (item: HTMLElement) => {
+      items.forEach(i => { i.style.background = 'transparent'; });
+      document.querySelectorAll<HTMLElement>('[id^="home-panel-"]').forEach(p => { p.style.display = 'none'; });
+      item.style.background = '#fff';
+      const target = item.dataset.homeTarget!;
+      const panel = document.getElementById('home-panel-' + target);
+      if (panel) panel.style.display = 'flex';
+      const cr = container.getBoundingClientRect();
+      const ir = item.getBoundingClientRect();
+      cursor.style.top = (ir.top - cr.top) + 'px';
+      cursor.style.height = ir.height + 'px';
+      cursor.style.background = colors[target] || '#0057ff';
+    };
+
+    // Position initiale
+    const first = items[0];
+    if (first) {
+      setTimeout(() => activate(first), 80);
+    }
+
+    items.forEach(item => {
+      item.addEventListener('mouseenter', () => activate(item));
+    });
+  }, []);
 
   // Modules avec animations interactives
   const modules = [
@@ -1113,304 +1146,136 @@ export default function Home() {
         </div>
       )}
       
-      {/* Section Modules d'Excellence - version originale */}
-      <div className="relative bg-gradient-to-b from-gray-100 to-slate-200 py-16 lg:py-24 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-16">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7 }}
-              viewport={{ once: true }}
-            >
-              <div className="inline-block mb-4">
-                {isFuturistic ? (
-                  <span className="px-4 py-1 rounded-full text-sm font-semibold bg-blue-900/60 text-cyan-300 font-cyber-accent tracking-wide border border-blue-500/30 backdrop-blur-sm">
-                    Découvrez nos solutions
-                  </span>
-                ) : (
-                  <span className="px-4 py-1 rounded-full text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                    Découvrez nos solutions
-                  </span>
-                )}
-              </div>
-              
-              {isFuturistic ? (
-                // Titre en mode futuriste
-                <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4 tracking-tight font-cyber-title">
-                  Nos modules <span className="text-cyan-400 relative">
-                    d'excellence
-                    <svg className="absolute bottom-0 left-0 w-full" height="5" viewBox="0 0 200 5" preserveAspectRatio="none">
-                      <path d="M0 5 Q 40 0, 80 2 T 160 3 T 200 0 V 5 H 0 Z" fill="rgba(34, 211, 238, 0.4)" />
-                    </svg>
-                  </span>
-                </h2>
-              ) : (
-                // Titre en mode classique
-                <h2 className="text-4xl sm:text-5xl font-bold text-gray-800 mb-4">
-                  Nos modules <span className="text-blue-600 relative">
-                    d'excellence
-                    <div className="absolute -bottom-1 left-0 w-full h-[3px] bg-blue-500/50 rounded-full"></div>
-                  </span>
-                </h2>
-              )}
-              
-              <p className={`text-xl max-w-3xl mx-auto leading-relaxed ${
-                isFuturistic 
-                  ? 'text-blue-100 font-cyber-body' 
-                  : 'text-gray-600'
-              }`}>
-                Une expérience d'apprentissage nouvelle génération, adaptée à vos besoins
+      {/* Section Modules — Cockpit V3 */}
+      <div className="w-full bg-white border-t border-gray-100">
+        <div className="w-full px-12 py-16">
+          {/* En-tête section */}
+          <div className="flex items-end justify-between mb-10 max-w-none">
+            <div>
+              <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#a0a0b8', marginBottom: '8px' }}>
+                Espaces d'entraînement
               </p>
-            </motion.div>
+              <h2 style={{ fontSize: '28px', fontWeight: 700, letterSpacing: '-0.025em', lineHeight: 1.1, color: '#0d0d12' }}>
+                Choisissez votre prochain défi.
+              </h2>
+            </div>
+            <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#a0a0b8', textAlign: 'right', lineHeight: 2 }}>
+              4 espaces · 24+ modules<br />Sandbox réel · Coach IA
+            </p>
           </div>
-          
-          {/* Grille de modules avec style adapté selon le thème */}
-          <div className="relative z-10 my-12">
-            {/* Fond décoratif avec motif - adapté selon le thème */}
-            {isFuturistic ? (
-              // Fond futuriste
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-950/40 to-indigo-950/40 rounded-3xl overflow-hidden -z-10 backdrop-blur-sm">
-                <div className="absolute inset-0 opacity-20" 
-                     style={{ 
-                       backgroundImage: 'radial-gradient(circle at 15% 50%, rgba(6, 182, 212, 0.15) 0%, transparent 25%), radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 25%)',
-                       backgroundSize: '120px 120px',
-                       backgroundRepeat: 'repeat'
-                     }}>
-                </div>
-                {/* Bordure lumineuse */}
-                <div className="absolute inset-0 border border-cyan-500/30 rounded-3xl"></div>
-                
-                {/* Effet de particules spatiales */}
-                <div className="absolute inset-0">
-                  {Array.from({ length: 30 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute rounded-full"
-                      style={{
-                        top: `${Math.random() * 100}%`,
-                        left: `${Math.random() * 100}%`,
-                        width: `${Math.max(1, Math.random() * 2)}px`,
-                        height: `${Math.max(1, Math.random() * 2)}px`,
-                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                        boxShadow: '0 0 2px rgba(255, 255, 255, 0.5)',
-                        opacity: Math.random() * 0.7 + 0.3
-                      }}
-                    />
-                  ))}
-                </div>
+
+          {/* Cockpit split */}
+          <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', border: '1px solid #ebebf0', minHeight: '460px' }}>
+
+            {/* Sélecteur gauche */}
+            <div style={{ borderRight: '1px solid #ebebf0', display: 'flex', flexDirection: 'column', background: '#f9f9fb', position: 'relative' }} id="home-selector">
+              <div style={{ padding: '16px 20px', borderBottom: '1px solid #ebebf0' }}>
+                <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#a0a0b8', marginBottom: '2px' }}>Sélection</p>
+                <p style={{ fontSize: '13px', fontWeight: 600, color: '#0d0d12' }}>Espace actif</p>
               </div>
-            ) : (
-              // Fond classique
-              <div className="absolute inset-0 bg-white rounded-3xl overflow-hidden -z-10 shadow-sm">
-                <div className="absolute inset-0 border border-blue-100 rounded-3xl"></div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }} id="home-items">
+                <div id="home-cursor" style={{ position: 'absolute', left: 0, width: '2px', background: '#0057ff', transition: 'top 0.28s cubic-bezier(0.16,1,0.3,1), height 0.28s cubic-bezier(0.16,1,0.3,1)', zIndex: 10 }} />
+                {[
+                  { id: 'cyber',     num: '01', label: 'Cybersécurité',     name: 'ESPACE CYBER',          sub: 'Simulations · Agent IA · Défense',    color: '#0057ff' },
+                  { id: 'data',      num: '02', label: 'Data & IA',         name: 'ESPACE DATA & IA',       sub: 'SQL · Python · Excel · Sandbox',       color: '#059669' },
+                  { id: 'challenge', num: '03', label: 'Évaluation',        name: 'ESPACE CHALLENGE',       sub: 'QCM · Reporting · Campagnes',          color: '#7c3aed' },
+                  { id: 'gen',       num: '04', label: 'Générateur IA',     name: 'SOYEZ QUI VOUS VOULEZ', sub: 'Parcours sur mesure · Claude API',     color: '#dc2626' },
+                ].map((s, i) => (
+                  <div
+                    key={s.id}
+                    data-home-target={s.id}
+                    className="home-space-item"
+                    onClick={() => { if (s.id !== 'gen') { window.location.href = s.id === 'cyber' ? '/cyber' : s.id === 'data' ? '/cyber/formation-data' : '/cyber/evaluation'; } else { openPasswordModal({ preventDefault: () => {} } as any, '/playground/module-generator'); } }}
+                    style={{ padding: '16px 20px', borderBottom: i < 3 ? '1px solid #ebebf0' : 'none', cursor: 'pointer', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '3px', transition: 'background 0.12s', background: i === 0 ? '#fff' : 'transparent' }}
+                  >
+                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '8px', letterSpacing: '0.18em', textTransform: 'uppercase', color: s.color }}>{s.num} · {s.label}</span>
+                    <span style={{ fontSize: '14px', fontWeight: 700, letterSpacing: '-0.02em', color: '#0d0d12', lineHeight: 1.2 }}>{s.name}</span>
+                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '8px', letterSpacing: '0.06em', color: '#a0a0b8' }}>{s.sub}</span>
+                  </div>
+                ))}
               </div>
-            )}
-            
-            {/* Grille principale */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-8">
-              {/* Modules prédéfinis */}
-              {modules.map((module, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="transform hover:scale-105 hover:z-20 transition-all duration-300 group"
+            </div>
+
+            {/* Panneau détail droite */}
+            <div style={{ position: 'relative', background: '#fff', overflow: 'hidden' }}>
+              {[
+                { id: 'cyber',     color: '#0057ff', index: '01 / 04', title: ['ESPACE', 'CYBER'],      desc: 'Simulations de cybersécurité interactives. Mode agent IA conversationnel ou scénarios tactiques de défense réseau — à vous de choisir l\'angle d\'attaque.', metrics: [['12+','Scénarios'],['IA','Coach'],['QCM','Évaluation']], tags: ['Défense réseau','Agent IA','Phishing','SIEM','Certif'], href: '/cyber' },
+                { id: 'data',      color: '#059669', index: '02 / 04', title: ['ESPACE', 'DATA & IA'],  desc: 'SQL, Python, Excel dans des sandboxes réels. Simulations de maturité data, défis algorithmiques progressifs, coaching IA — du débutant à l\'expert.', metrics: [['5','Langages'],['Live','Sandbox'],['3','Badges']], tags: ['SQL','Python','Excel','Pandas','IA Lab','Roleplay'], href: '/cyber/formation-data' },
+                { id: 'challenge', color: '#7c3aed', index: '03 / 04', title: ['ESPACE', 'CHALLENGE'],  desc: 'Campagnes d\'évaluation structurées. Pilotez vos tests dans un espace dédié — suivi de progression individuel et collectif, reporting exportable.', metrics: [['∞','Campagnes'],['Live','Résultats'],['XLS','Export']], tags: ['Évaluation','QCM','Reporting','Campagnes','Suivi'], href: '/cyber/evaluation' },
+                { id: 'gen',       color: '#dc2626', index: '04 / 04', title: ['SOYEZ QUI', 'VOUS VOULEZ'], desc: 'Décrivez un sujet, un niveau, un objectif — l\'IA génère votre parcours complet bloc par bloc. Théorie, pratique, QCM, fill-blank. Vos règles.', metrics: [['∞','Parcours'],['IA','Génération'],['~2mn','Par module']], tags: ['IA générative','LMS custom','Claude API','Sur mesure'], href: '/playground/module-generator' },
+              ].map((panel, pi) => (
+                <div
+                  key={panel.id}
+                  id={`home-panel-${panel.id}`}
+                  style={{ display: pi === 0 ? 'flex' : 'none', flexDirection: 'column', height: '100%', padding: '28px 36px', animation: 'homeFadeUp 0.2s ease' }}
                 >
-                  {isFuturistic ? (
-                    // Wrapper avec effets futuristes galactiques
-                    <div className="relative bg-gradient-to-b from-blue-950/90 to-indigo-950/90 backdrop-blur-md rounded-xl shadow-xl overflow-hidden group-hover:shadow-cyan-500/60 border border-purple-500/40 h-72">
-                      {/* Effet de nébuleuse et étoiles en arrière-plan */}
-                      <div className="absolute inset-0 overflow-hidden">
-                        {/* Nébuleuse en arrière-plan */}
-                        <div className="absolute top-0 right-0 w-full h-full opacity-30 mix-blend-screen">
-                          <div className="absolute top-0 right-0 w-3/4 h-3/4 bg-cyan-500/10 rounded-full filter blur-2xl"></div>
-                          <div className="absolute bottom-0 left-0 w-2/3 h-2/3 bg-purple-500/15 rounded-full filter blur-2xl"></div>
-                          <div className="absolute top-1/3 left-1/4 w-1/2 h-1/2 bg-blue-500/10 rounded-full filter blur-xl"></div>
-                        </div>
-                        
-                        {/* Petites étoiles scintillantes */}
-                        {Array.from({ length: 20 }).map((_, i) => (
-                          <div 
-                            key={i}
-                            className="absolute rounded-full bg-white"
-                            style={{
-                              top: `${Math.random() * 100}%`,
-                              left: `${Math.random() * 100}%`,
-                              width: `${Math.max(1, Math.random() * 2)}px`,
-                              height: `${Math.max(1, Math.random() * 2)}px`,
-                              opacity: Math.random() * 0.7 + 0.3,
-                              animation: `twinkle ${1 + Math.random() * 3}s infinite ease-in-out ${Math.random() * 2}s`
-                            }}
-                          />
-                        ))}
+                  {/* Eyebrow */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '8px', letterSpacing: '0.18em', color: '#a0a0b8' }}>{panel.index}</span>
+                    <div style={{ flex: 1, height: '1px', background: '#ebebf0' }} />
+                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '8px', letterSpacing: '0.12em', padding: '2px 8px', border: '1px solid #ebebf0', color: '#a0a0b8' }}>Actif</span>
+                  </div>
+                  {/* Titre */}
+                  <div style={{ fontSize: 'clamp(36px, 4vw, 60px)', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 0.92, color: panel.color, marginBottom: '16px' }}>
+                    {panel.title.map((line, li) => <div key={li}>{line}</div>)}
+                  </div>
+                  {/* Desc */}
+                  <p style={{ fontSize: '13px', lineHeight: 1.7, color: '#5a5a70', maxWidth: '440px', marginBottom: '16px', flex: 1 }}>{panel.desc}</p>
+                  {/* Metrics */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: '#ebebf0', border: '1px solid #ebebf0', marginBottom: '16px' }}>
+                    {panel.metrics.map(([val, lbl], mi) => (
+                      <div key={mi} style={{ background: '#fff', padding: '10px 14px' }}>
+                        <div style={{ fontSize: '20px', fontWeight: 700, letterSpacing: '-0.03em', color: panel.color, lineHeight: 1 }}>{val}</div>
+                        <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '8px', letterSpacing: '0.12em', color: '#a0a0b8', textTransform: 'uppercase', marginTop: '2px' }}>{lbl}</div>
                       </div>
-                      
-                      {/* Effet de lueur sur hover */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-tr from-cyan-500/20 to-purple-500/20 transition-opacity duration-500"></div>
-                      
-                      {/* Le module */}
-                      <ModuleCard 
-                        {...module} 
-                        onCustomClick={(e) => openPasswordModal(e, module.linkTo)}
-                      />
-                      
-                      {/* Accent line galactique */}
-                      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out origin-left"></div>
-                    </div>
-                  ) : (
-                    // Wrapper avec style classique - design avec taille égale
-                    <div className="relative bg-white rounded-xl shadow-md overflow-hidden group-hover:shadow-xl transition-all duration-300 border border-gray-200 flex flex-col h-72">
-                      {/* Header avec la couleur du module */}
-                      <div className={`h-3 w-full ${module.color.replace('bg-', 'bg-')}`}></div>
-                      
-                      {/* Contenu du module - layout vertical pour avoir une taille uniforme */}
-                      <div className="p-6 flex flex-col h-full">
-                        {/* Icône en haut */}
-                        <div className="flex items-center mb-4">
-                          <div className={`w-14 h-14 ${module.bgColor} rounded-xl flex items-center justify-center shadow mr-4 flex-shrink-0`}>
-                            <div className={`${module.color} p-2 rounded-md`}>
-                              {module.icon}
-                            </div>
-                          </div>
-                          
-                          {/* Titre à côté de l'icône */}
-                          <h3 className="text-lg font-semibold text-gray-800">
-                            {module.title}
-                          </h3>
-                        </div>
-                        
-                        {/* Contenu textuel */}
-                        <div className="flex-grow">
-                          <p className="text-gray-600 text-sm mb-6 h-auto max-h-32 overflow-y-auto pr-2 custom-scrollbar module-description">
-                            {module.description}
-                          </p>
-                        </div>
-                        
-                        {/* Bouton en bas */}
-                        <div className="mt-auto">
-                          <button 
-                            onClick={(e) => openPasswordModal(e, module.linkTo)}
-                            className={`${module.color} text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center transition-all hover:shadow-md`}
-                          >
-                            Explorer
-                            <ArrowRight className="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300"/>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              ))}
-              
-              {/* Modules personnalisés */}
-              {customModules.map((customModule, index) => (
-                <motion.div
-                  key={`custom-${index}`}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: (modules.length + index) * 0.1 }}
-                  viewport={{ once: true }}
-                  className="transform hover:scale-105 hover:z-20 transition-all duration-300 group"
-                >
-                  {isFuturistic ? (
-                    // Wrapper avec effets futuristes galactiques
-                    <div className="relative bg-gradient-to-b from-blue-950/90 to-indigo-950/90 backdrop-blur-md rounded-xl shadow-xl overflow-hidden group-hover:shadow-cyan-500/60 border border-purple-500/40 h-72">
-                      {/* Effet de nébuleuse et étoiles en arrière-plan */}
-                      <div className="absolute inset-0 overflow-hidden">
-                        {/* Nébuleuse en arrière-plan */}
-                        <div className="absolute top-0 right-0 w-full h-full opacity-30 mix-blend-screen">
-                          <div className="absolute top-0 right-0 w-3/4 h-3/4 bg-cyan-500/10 rounded-full filter blur-2xl"></div>
-                          <div className="absolute bottom-0 left-0 w-2/3 h-2/3 bg-purple-500/15 rounded-full filter blur-2xl"></div>
-                          <div className="absolute top-1/3 left-1/4 w-1/2 h-1/2 bg-blue-500/10 rounded-full filter blur-xl"></div>
-                        </div>
-                        
-                        {/* Petites étoiles scintillantes */}
-                        {Array.from({ length: 20 }).map((_, i) => (
-                          <div 
-                            key={i}
-                            className="absolute rounded-full bg-white"
-                            style={{
-                              top: `${Math.random() * 100}%`,
-                              left: `${Math.random() * 100}%`,
-                              width: `${Math.max(1, Math.random() * 2)}px`,
-                              height: `${Math.max(1, Math.random() * 2)}px`,
-                              opacity: Math.random() * 0.7 + 0.3,
-                              animation: `twinkle ${1 + Math.random() * 3}s infinite ease-in-out ${Math.random() * 2}s`
-                            }}
-                          />
-                        ))}
-                      </div>
-                      
-                      {/* Effet de lueur sur hover */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-tr from-cyan-500/20 to-purple-500/20 transition-opacity duration-500"></div>
-                      
-                      {/* Le module personnalisé */}
-                      <ModuleCard 
-                        title={customModule.moduleData.title || customModule.iamName || customModule.name}
-                        description={customModule.description}
-                        icon={<GraduationCap size={36} />}
-                        color="bg-purple-600"
-                        bgColor="bg-gradient-to-br from-purple-50 to-purple-100"
-                        accentColor="bg-purple-500"
-                        linkTo={customModule.moduleData.destination || `/playground/module/${customModule.id}`}
-                      />
-                      
-                      {/* Accent line galactique */}
-                      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out origin-left"></div>
-                    </div>
-                  ) : (
-                    // Wrapper avec style classique - design avec taille égale
-                    <div className="relative bg-white rounded-xl shadow-md overflow-hidden group-hover:shadow-xl transition-all duration-300 border border-gray-200 flex flex-col h-72">
-                      {/* Header avec la couleur du module */}
-                      <div className="h-3 w-full bg-purple-600"></div>
-                      
-                      {/* Contenu du module - layout vertical pour avoir une taille uniforme */}
-                      <div className="p-6 flex flex-col h-full">
-                        {/* Icône en haut */}
-                        <div className="flex items-center mb-4">
-                          <div className="w-14 h-14 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl flex items-center justify-center shadow mr-4 flex-shrink-0">
-                            <div className="bg-purple-600 p-2 rounded-md">
-                              <GraduationCap size={24} className="text-white" />
-                            </div>
-                          </div>
-                          
-                          {/* Titre à côté de l'icône */}
-                          <h3 className="text-lg font-semibold text-gray-800">
-                            {customModule.iamName || customModule.name}
-                          </h3>
-                        </div>
-                        
-                        {/* Contenu textuel */}
-                        <div className="flex-grow">
-                          <p className="text-gray-600 text-sm mb-6 line-clamp-3">
-                            {customModule.description}
-                          </p>
-                        </div>
-                        
-                        {/* Bouton en bas */}
-                        <div className="mt-auto">
-                          <button 
-                            onClick={(e) => openPasswordModal(e, `/custom-module/${customModule.id}`)}
-                            className="bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center transition-all hover:shadow-md"
-                          >
-                            Explorer
-                            <ArrowRight className="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300"/>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
+                    ))}
+                  </div>
+                  {/* Tags */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '20px' }}>
+                    {panel.tags.map(tag => (
+                      <span key={tag} style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '3px 8px', border: '1px solid #ebebf0', color: '#a0a0b8' }}>{tag}</span>
+                    ))}
+                  </div>
+                  {/* CTA */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <a
+                      href={panel.href}
+                      onClick={panel.id === 'gen' ? (e) => { e.preventDefault(); openPasswordModal(e, panel.href); } : undefined}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', fontFamily: "'DM Mono', monospace", fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none', color: '#fff', background: panel.color }}
+                    >
+                      Accéder →
+                    </a>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
-          
-          {/* Bouton "Explorer tous nos modules" supprimé */}
+
+          {/* Modules personnalisés (si existants) */}
+          {customModules.length > 0 && (
+            <div className="mt-8">
+              <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#a0a0b8', marginBottom: '12px' }}>Modules personnalisés</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {customModules.map((customModule, index) => (
+                  <div
+                    key={`custom-${index}`}
+                    style={{ border: '1px solid #ebebf0', padding: '20px', cursor: 'pointer', transition: 'background 0.12s' }}
+                    onClick={(e) => openPasswordModal(e, customModule.moduleData?.destination || `/playground/module/${customModule.id}`)}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#f9f9fb')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '#fff')}
+                  >
+                    <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '8px', letterSpacing: '0.16em', textTransform: 'uppercase', color: '#7c3aed', marginBottom: '6px' }}>Personnalisé</p>
+                    <p style={{ fontSize: '14px', fontWeight: 700, color: '#0d0d12', marginBottom: '8px' }}>{customModule.iamName || customModule.name}</p>
+                    <p style={{ fontSize: '12px', color: '#5a5a70', lineHeight: 1.6 }}>{customModule.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
+
 
       {/* Section Technologies d'IA utilisées */}
       <div className={`relative ${isFuturistic ? 'bg-gradient-to-b from-blue-950 to-gray-900' : 'bg-white'} py-16 lg:py-24 relative overflow-hidden`}>
