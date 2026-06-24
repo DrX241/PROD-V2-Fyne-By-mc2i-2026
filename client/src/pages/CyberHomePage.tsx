@@ -129,6 +129,79 @@ const CyberHomePage: React.FC = () => {
   const [isEcoMode, setIsEcoMode] = useState(false);
   const toggleEcoMode = () => { setIsEcoMode(!isEcoMode); };
 
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `@keyframes chFadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }`;
+    document.head.appendChild(style);
+
+    let activeId: string | null = null;
+
+    const activate = (item: Element) => {
+      const target = item.getAttribute('data-ch-target');
+      const color = item.getAttribute('data-ch-color') || '#006a9e';
+      if (!target || target === activeId) return;
+      activeId = target;
+
+      document.querySelectorAll('.ch-space-item').forEach(el => {
+        (el as HTMLElement).style.background = 'transparent';
+      });
+      (item as HTMLElement).style.background = '#fff';
+
+      const cursor = document.getElementById('ch-cursor');
+      if (cursor) {
+        const itemsEl = document.getElementById('ch-items');
+        const itemRect = (item as HTMLElement).getBoundingClientRect();
+        const itemsRect = itemsEl?.getBoundingClientRect();
+        cursor.style.top = `${itemRect.top - (itemsRect?.top ?? 0)}px`;
+        cursor.style.height = `${itemRect.height}px`;
+        cursor.style.background = color;
+      }
+
+      document.querySelectorAll('[id^="ch-panel-"]').forEach(panel => {
+        (panel as HTMLElement).style.display = 'none';
+      });
+      const panel = document.getElementById(`ch-panel-${target}`);
+      if (panel) {
+        panel.style.display = 'flex';
+        panel.style.animation = 'none';
+        void panel.offsetHeight;
+        panel.style.animation = 'chFadeUp 0.2s ease';
+      }
+    };
+
+    const initCursor = () => {
+      const firstItem = document.querySelector('.ch-space-item') as HTMLElement | null;
+      if (firstItem) {
+        const cursor = document.getElementById('ch-cursor');
+        const itemsEl = document.getElementById('ch-items');
+        if (cursor && itemsEl) {
+          const itemRect = firstItem.getBoundingClientRect();
+          const itemsRect = itemsEl.getBoundingClientRect();
+          cursor.style.top = `${itemRect.top - itemsRect.top}px`;
+          cursor.style.height = `${itemRect.height}px`;
+          const color = firstItem.getAttribute('data-ch-color') || '#006a9e';
+          cursor.style.background = color;
+        }
+      }
+    };
+
+    const timer = setTimeout(initCursor, 100);
+
+    const handler = (e: Event) => {
+      const target = (e.target as Element).closest('.ch-space-item');
+      if (target) activate(target);
+    };
+    document.addEventListener('mouseenter', handler, true);
+    document.addEventListener('click', handler, true);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mouseenter', handler, true);
+      document.removeEventListener('click', handler, true);
+      document.head.removeChild(style);
+    };
+  }, []);
+
   return (
     <div ref={pageRef} className="min-h-screen bg-white text-[#061019]">
       {/* Header */}
@@ -221,75 +294,160 @@ const CyberHomePage: React.FC = () => {
           </div>
         </section>
 
-        {/* Section Modules */}
-        <section id="modules" className="relative z-20 py-24 bg-gray-50">
-          <div className="container mx-auto px-8">
-            <div className="text-center mb-16">
-              <h2 className="mt-4 text-4xl md:text-5xl font-bold tracking-wider text-[#061019]">
-                Des <span className="text-[#dd0061]">formations</span> pour tous les besoins
-              </h2>
-              <p className="mt-4 text-xl text-gray-600 max-w-2xl mx-auto">
-                Explorez nos modules spécialisés conçus pour développer vos compétences dans des domaines stratégiques.
+        {/* Section Modules — Cockpit V3 */}
+        <section id="modules" className="relative z-20 bg-white w-full">
+          <div className="w-full px-8 py-16">
+
+            {/* En-tête */}
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '32px' }}>
+              <div>
+                <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#a0a0b8', marginBottom: '8px' }}>
+                  Espaces d'entraînement
+                </p>
+                <h2 style={{ fontSize: '28px', fontWeight: 700, letterSpacing: '-0.025em', lineHeight: 1.1, color: '#0d0d12' }}>
+                  Choisissez votre prochain défi.
+                </h2>
+              </div>
+              <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#a0a0b8', textAlign: 'right', lineHeight: 2 }}>
+                {modules.filter(m => hasAccess(m.moduleKey)).length} espaces accessibles
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mx-auto max-w-5xl">
-              {modules.map((module, i) => {
-                const accessible = hasAccess(module.moduleKey);
-                const accentHex =
-                  module.id === 'cyber'       ? '#6366f1' :
-                  module.id === 'data'        ? '#a855f7' :
-                  module.id === 'mc2i'        ? '#10b981' :
-                  module.id === 'si-champion' ? '#f59e0b' :
-                  module.id === 'generator'   ? '#f43f5e' :
-                  '#006a9e';
+            {/* Cockpit split */}
+            <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', border: '1px solid #ebebf0', minHeight: '440px' }}>
 
-                return (
-                  <motion.div
-                    key={module.id}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: i * 0.05 }}
-                    onClick={() => {
-                      if (!accessible) return;
-                      if (module.external) window.open(module.route, '_blank', 'noopener,noreferrer');
-                      else setLocation(module.route);
-                    }}
-                    className={`group relative flex items-center gap-5 px-6 py-5 rounded-xl transition-all duration-200
-                      ${accessible
-                        ? 'bg-white hover:bg-white cursor-pointer hover:shadow-md'
-                        : 'bg-gray-50/60 cursor-not-allowed opacity-60'
-                      }`}
-                    style={{ borderLeft: `3px solid ${accessible ? accentHex : '#d1d5db'}` }}
-                  >
-                    {/* Color dot */}
-                    <div
-                      className="w-10 h-10 rounded-lg flex-shrink-0 flex items-center justify-center"
-                      style={{ backgroundColor: `${accentHex}18` }}
-                    >
-                      <div className="w-4 h-4 rounded-sm" style={{ backgroundColor: accentHex }} />
-                    </div>
-
-                    {/* Text */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-bold text-gray-900 truncate">{module.title}</h3>
-                        {!accessible && <Lock className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />}
+              {/* Sélecteur gauche */}
+              <div style={{ borderRight: '1px solid #ebebf0', display: 'flex', flexDirection: 'column', background: '#f9f9fb', position: 'relative' }}>
+                <div style={{ padding: '14px 20px', borderBottom: '1px solid #ebebf0' }}>
+                  <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#a0a0b8', marginBottom: '2px' }}>Sélection</p>
+                  <p style={{ fontSize: '12px', fontWeight: 600, color: '#0d0d12' }}>Espace actif</p>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }} id="ch-items">
+                  <div id="ch-cursor" style={{ position: 'absolute', left: 0, width: '2px', background: '#6366f1', transition: 'top 0.28s cubic-bezier(0.16,1,0.3,1), height 0.28s cubic-bezier(0.16,1,0.3,1)', zIndex: 10 }} />
+                  {modules.map((module, i) => {
+                    const accessible = hasAccess(module.moduleKey);
+                    const accentHex =
+                      module.id === 'cyber'       ? '#0057ff' :
+                      module.id === 'data'        ? '#059669' :
+                      module.id === 'mc2i'        ? '#10b981' :
+                      module.id === 'si-champion' ? '#7c3aed' :
+                      module.id === 'generator'   ? '#dc2626' :
+                      '#006a9e';
+                    return (
+                      <div
+                        key={module.id}
+                        data-ch-target={module.id}
+                        data-ch-color={accentHex}
+                        data-ch-accessible={accessible ? 'true' : 'false'}
+                        className="ch-space-item"
+                        onClick={() => {
+                          if (!accessible) return;
+                          if (module.external) window.open(module.route, '_blank', 'noopener,noreferrer');
+                          else setLocation(module.route);
+                        }}
+                        style={{
+                          padding: '14px 20px',
+                          borderBottom: i < modules.length - 1 ? '1px solid #ebebf0' : 'none',
+                          cursor: accessible ? 'pointer' : 'not-allowed',
+                          flex: 1,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          gap: '3px',
+                          transition: 'background 0.12s',
+                          opacity: accessible ? 1 : 0.45,
+                          background: i === 0 ? '#fff' : 'transparent',
+                        }}
+                      >
+                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '8px', letterSpacing: '0.16em', textTransform: 'uppercase', color: accessible ? accentHex : '#a0a0b8' }}>
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                        <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '-0.01em', color: '#0d0d12', lineHeight: 1.2, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          {module.title}
+                          {!accessible && <Lock style={{ width: '11px', height: '11px', color: '#a0a0b8', flexShrink: 0 }} />}
+                        </span>
+                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '8px', letterSpacing: '0.04em', color: '#a0a0b8' }}>
+                          {module.description.slice(0, 48)}…
+                        </span>
                       </div>
-                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-2 leading-relaxed">{module.description}</p>
-                    </div>
+                    );
+                  })}
+                </div>
+              </div>
 
-                    {/* Arrow */}
-                    {accessible && (
-                      <ChevronRight
-                        className="w-4 h-4 flex-shrink-0 text-gray-300 group-hover:text-gray-500 group-hover:translate-x-0.5 transition-all duration-200"
-                      />
-                    )}
-                  </motion.div>
-                );
-              })}
+              {/* Panneau détail droite */}
+              <div style={{ position: 'relative', background: '#fff', overflow: 'hidden' }}>
+                {modules.map((module, pi) => {
+                  const accessible = hasAccess(module.moduleKey);
+                  const accentHex =
+                    module.id === 'cyber'       ? '#0057ff' :
+                    module.id === 'data'        ? '#059669' :
+                    module.id === 'mc2i'        ? '#10b981' :
+                    module.id === 'si-champion' ? '#7c3aed' :
+                    module.id === 'generator'   ? '#dc2626' :
+                    '#006a9e';
+                  const tags: Record<string, string[]> = {
+                    cyber:       ['Défense réseau', 'Agent IA', 'QCM', 'Formation'],
+                    data:        ['SQL', 'Python', 'Excel', 'IA Lab', 'Sandbox'],
+                    mc2i:        ['AMOA', 'Gestion projet', 'Roleplay', 'Scénarios'],
+                    'si-champion': ['Évaluation', 'QCM', 'Reporting', 'Campagnes'],
+                    generator:   ['IA générative', 'LMS custom', 'Sur mesure'],
+                  };
+                  return (
+                    <div
+                      key={module.id}
+                      id={`ch-panel-${module.id}`}
+                      style={{ display: pi === 0 ? 'flex' : 'none', flexDirection: 'column', height: '100%', padding: '28px 36px', animation: 'chFadeUp 0.2s ease' }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '8px', letterSpacing: '0.18em', color: '#a0a0b8' }}>
+                          {String(pi + 1).padStart(2, '0')} / {String(modules.length).padStart(2, '0')}
+                        </span>
+                        <div style={{ flex: 1, height: '1px', background: '#ebebf0' }} />
+                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '8px', letterSpacing: '0.12em', padding: '2px 8px', border: `1px solid ${accessible ? accentHex + '44' : '#ebebf0'}`, color: accessible ? accentHex : '#a0a0b8' }}>
+                          {accessible ? 'Actif' : 'Accès restreint'}
+                        </span>
+                      </div>
+
+                      <div style={{ fontSize: 'clamp(32px, 4vw, 56px)', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 0.92, color: accessible ? accentHex : '#d1d5db', marginBottom: '16px' }}>
+                        {module.title.split(' ').slice(0, 2).join(' ')}<br />
+                        {module.title.split(' ').slice(2).join(' ')}
+                      </div>
+
+                      <p style={{ fontSize: '13px', lineHeight: 1.7, color: '#5a5a70', maxWidth: '440px', marginBottom: '16px', flex: 1 }}>
+                        {module.description}
+                      </p>
+
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '20px' }}>
+                        {(tags[module.id] || []).map(tag => (
+                          <span key={tag} style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '3px 8px', border: '1px solid #ebebf0', color: '#a0a0b8' }}>{tag}</span>
+                        ))}
+                      </div>
+
+                      <div>
+                        {accessible ? (
+                          <button
+                            onClick={() => {
+                              if (module.external) window.open(module.route, '_blank', 'noopener,noreferrer');
+                              else setLocation(module.route);
+                            }}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', fontFamily: "'DM Mono', monospace", fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', border: 'none', cursor: 'pointer', color: '#fff', background: accentHex }}
+                          >
+                            Accéder →
+                          </button>
+                        ) : (
+                          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', letterSpacing: '0.12em', color: '#a0a0b8', textTransform: 'uppercase' }}>
+                            🔒 Accès non autorisé
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
+
         </section>
 
         {/* Footer */}
