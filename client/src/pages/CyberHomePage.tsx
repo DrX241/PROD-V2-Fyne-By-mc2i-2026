@@ -98,20 +98,9 @@ const CyberHomePage: React.FC = () => {
       route: '/evaluation'
     },
     {
-      id: 'formation-data',
-      moduleKey: 'formation-data',
-      title: 'FORMATION DATA',
-      description: 'SQL, Python, Excel — parcours progressifs avec sandbox réelle et coach IA.',
-      icon: <div className="w-5 h-5 bg-[#006a9e]"></div>,
-      color: 'text-[#006a9e]',
-      bgColor: 'bg-[#006a9e]/10',
-      accentColor: 'border-[#006a9e]',
-      route: '/cyber/formation-data'
-    },
-    {
       id: 'module-generator',
       moduleKey: 'playground',
-      title: 'Soyez qui vous voulez',
+      title: 'ESPACE STUDIO',
       description: 'Créez votre propre parcours d\'apprentissage personnalisé avec notre IA générative.',
       icon: <div className="w-5 h-5 bg-rose-500"></div>,
       color: 'text-rose-600',
@@ -122,7 +111,7 @@ const CyberHomePage: React.FC = () => {
   ];
 
   // Determine which modules the current user can access
-  const userModules: string[] = user?.modulesEnabled ?? ['cyber','data','amoa','formation-data','evaluation','playground'];
+  const userModules: string[] = user?.modulesEnabled ?? ['cyber','data','amoa','evaluation','playground'];
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const hasAccess = (moduleKey: string) => isAdmin || userModules.includes(moduleKey);
 
