@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
+import { Trash2, Pencil, Plus, Users, BookOpen, Clock, ArrowLeft, Eye } from 'lucide-react';
 
 interface LmsCourse {
   id: string;
@@ -10,113 +11,69 @@ interface LmsCourse {
   estimatedDurationMin?: number;
   audience?: string;
   difficulty?: string;
-  content: { chapters: any[] };
+  content: { chapters: { lessons?: unknown[] }[] };
   createdAt: string;
   updatedAt: string;
 }
 
-const palette = {
-  bg: '#ffffff',
-  text: '#0d0d0d',
-  muted: '#6b7280',
-  border: '#e5e7eb',
-  accent: '#0057ff',
-  surface: '#f9fafb',
-  danger: '#ff3b4e',
-  success: '#00c781',
+const P = {
+  bg: '#ffffff', text: '#0d0d0d', muted: '#6b7280', border: '#e5e7eb',
+  accent: '#0057ff', surface: '#f9fafb', danger: '#dc2626', success: '#059669',
 };
+const F = { sans: "'DM Sans', sans-serif", mono: "'DM Mono', monospace" };
 
-const font = { sans: "'DM Sans', sans-serif", mono: "'DM Mono', monospace" };
+const DIFFICULTY: Record<string, string> = { debutant: 'Débutant', intermediaire: 'Intermédiaire', avance: 'Avancé' };
+const AUDIENCE: Record<string, string> = { grand_public: 'Grand public', managers: 'Managers', rh: 'RH', commercial: 'Commercial' };
+const COVER = ['#dbeafe', '#fce7f3', '#d1fae5', '#fef3c7', '#ede9fe', '#ffedd5'];
+const COVER_FG = [P.accent, '#E8006C', '#059669', '#d97706', '#7c3aed', '#ea580c'];
+
+function hashColor(id: string, arr: string[]) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % arr.length;
+  return arr[h];
+}
 
 export default function LmsListPage() {
-  const [, navigate] = useLocation();
+  const [, nav] = useLocation();
   const [courses, setCourses] = useState<LmsCourse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/lms/courses')
-      .then(r => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then((data: LmsCourse[]) => {
-        setCourses(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError('Impossible de charger les cours. Veuillez réessayer.');
-        setLoading(false);
-      });
+    fetch('/api/lms/courses', { credentials: 'include' })
+      .then(r => r.json())
+      .then(d => { setCourses(Array.isArray(d) ? d : []); setLoading(false); })
+      .catch(() => setLoading(false));
   }, []);
 
-  const difficultyLabel: Record<string, string> = {
-    debutant: 'Débutant',
-    intermediaire: 'Intermédiaire',
-    avance: 'Avancé',
-  };
-
-  const audienceLabel: Record<string, string> = {
-    grand_public: 'Grand public',
-    managers: 'Managers',
-    rh: 'RH',
-    commercial: 'Commercial',
+  const handleDelete = async (id: string) => {
+    setDeleting(id);
+    try {
+      await fetch(`/api/lms/courses/${id}`, { method: 'DELETE', credentials: 'include' });
+      setCourses(prev => prev.filter(c => c.id !== id));
+    } catch {}
+    setDeleting(null);
+    setDeleteConfirm(null);
   };
 
   return (
-    <div style={{ fontFamily: font.sans, background: palette.bg, minHeight: '100vh', color: palette.text }}>
+    <div style={{ fontFamily: F.sans, background: P.bg, minHeight: '100vh', color: P.text }}>
       {/* Header */}
-      <div style={{
-        borderBottom: `1px solid ${palette.border}`,
-        padding: '24px 40px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        position: 'sticky',
-        top: 0,
-        background: palette.bg,
-        zIndex: 10,
-      }}>
+      <div style={{ borderBottom: `1px solid ${P.border}`, padding: '20px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: P.bg, zIndex: 10 }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-            <button
-              onClick={() => navigate('/playground')}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: palette.muted, fontSize: 14, fontFamily: font.sans, padding: 0,
-              }}
-            >
-              ← Playground
-            </button>
-          </div>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, letterSpacing: '-0.02em' }}>
-            Mes cours LMS
-          </h1>
-          <p style={{ margin: '4px 0 0', color: palette.muted, fontSize: 14 }}>
-            {courses.length} cours · Créez et gérez vos formations interactives
-          </p>
+          <button onClick={() => nav('/playground')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: P.muted, fontSize: 13, fontFamily: F.sans, padding: 0, display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+            <ArrowLeft size={14} /> Playground
+          </button>
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>Mes cours LMS</h1>
+          <p style={{ margin: '2px 0 0', color: P.muted, fontSize: 13 }}>{courses.length} cours · Créez et gérez vos formations</p>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button
-            onClick={() => navigate('/playground/lms/dashboard')}
-            style={{
-              background: 'none', color: palette.accent, border: `1px solid ${palette.accent}`,
-              padding: '10px 18px', borderRadius: 6, cursor: 'pointer',
-              fontFamily: font.sans, fontWeight: 600, fontSize: 14,
-            }}
-          >
-            Vue Apprenant →
+          <button onClick={() => nav('/playground/lms/dashboard')} style={{ background: 'none', color: P.accent, border: `1px solid ${P.accent}`, padding: '9px 16px', borderRadius: 6, cursor: 'pointer', fontFamily: F.sans, fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Eye size={14} /> Vue Apprenant
           </button>
-          <button
-            onClick={() => navigate('/playground/lms/new')}
-            style={{
-              background: palette.accent, color: '#fff', border: 'none',
-              padding: '10px 20px', borderRadius: 6, cursor: 'pointer',
-              fontFamily: font.sans, fontWeight: 600, fontSize: 14,
-              display: 'flex', alignItems: 'center', gap: 8,
-            }}
-          >
-            <span style={{ fontSize: 18, lineHeight: 1 }}>+</span> Nouveau cours
+          <button onClick={() => nav('/playground/lms/new')} style={{ background: P.accent, color: '#fff', border: 'none', padding: '9px 18px', borderRadius: 6, cursor: 'pointer', fontFamily: F.sans, fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Plus size={14} /> Nouveau cours
           </button>
         </div>
       </div>
@@ -124,141 +81,88 @@ export default function LmsListPage() {
       {/* Body */}
       <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto' }}>
         {loading && (
-          <div style={{ textAlign: 'center', padding: '80px 0', color: palette.muted }}>
-            <div style={{ fontSize: 16 }}>Chargement des cours...</div>
-          </div>
+          <div style={{ textAlign: 'center', padding: '80px 0', color: P.muted, fontSize: 14 }}>Chargement...</div>
         )}
 
-        {error && (
-          <div style={{
-            background: '#fff5f5', border: `1px solid #fecaca`,
-            borderRadius: 8, padding: '16px 20px', color: palette.danger, fontSize: 14,
-          }}>
-            {error}
-          </div>
-        )}
-
-        {!loading && !error && courses.length === 0 && (
-          <div style={{
-            textAlign: 'center', padding: '80px 20px',
-            border: `2px dashed ${palette.border}`, borderRadius: 12,
-          }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>📚</div>
-            <h2 style={{ margin: '0 0 8px', fontSize: 20, fontWeight: 600 }}>Aucun cours pour l'instant</h2>
-            <p style={{ color: palette.muted, margin: '0 0 24px', fontSize: 15 }}>
-              Créez votre premier cours LMS à partir d'un template ou de zéro.
-            </p>
-            <button
-              onClick={() => navigate('/playground/lms/new')}
-              style={{
-                background: palette.accent, color: '#fff', border: 'none',
-                padding: '10px 20px', borderRadius: 6, cursor: 'pointer',
-                fontFamily: font.sans, fontWeight: 600, fontSize: 14,
-              }}
-            >
+        {!loading && courses.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '80px 20px', border: `2px dashed ${P.border}`, borderRadius: 12 }}>
+            <BookOpen size={40} color={P.border} style={{ marginBottom: 16 }} />
+            <h2 style={{ margin: '0 0 8px', fontSize: 18, fontWeight: 600 }}>Aucun cours pour l'instant</h2>
+            <p style={{ color: P.muted, margin: '0 0 20px', fontSize: 14 }}>Créez votre premier cours à partir d'un template ou de zéro.</p>
+            <button onClick={() => nav('/playground/lms/new')} style={{ background: P.accent, color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 6, cursor: 'pointer', fontFamily: F.sans, fontWeight: 600, fontSize: 14 }}>
               Créer mon premier cours
             </button>
           </div>
         )}
 
-        {!loading && !error && courses.length > 0 && (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
-            gap: 20,
-          }}>
+        {!loading && courses.length > 0 && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 18 }}>
             {courses.map(course => {
-              const chaptersCount = course.content?.chapters?.length ?? 0;
-              const lessonsCount = course.content?.chapters?.reduce(
-                (acc: number, ch: any) => acc + (ch.lessons?.length ?? 0), 0
-              ) ?? 0;
+              const chapCount = course.content?.chapters?.length ?? 0;
+              const lessonCount = course.content?.chapters?.reduce((acc, ch) => acc + (ch.lessons?.length ?? 0), 0) ?? 0;
+              const bg = hashColor(course.id, COVER);
+              const fg = hashColor(course.id, COVER_FG);
+              const isDeleting = deleting === course.id;
 
               return (
-                <div
-                  key={course.id}
-                  onClick={() => navigate(`/playground/lms/editor/${course.id}`)}
-                  style={{
-                    background: palette.bg, border: `1px solid ${palette.border}`,
-                    borderRadius: 10, padding: 20, cursor: 'pointer',
-                    transition: 'box-shadow 0.15s, border-color 0.15s',
-                  }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 16px rgba(0,87,255,0.08)';
-                    (e.currentTarget as HTMLDivElement).style.borderColor = palette.accent;
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
-                    (e.currentTarget as HTMLDivElement).style.borderColor = palette.border;
-                  }}
-                >
-                  {/* Status badge */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 5,
-                      fontSize: 11, fontWeight: 600, letterSpacing: '0.05em',
-                      textTransform: 'uppercase', padding: '3px 8px', borderRadius: 4,
-                      background: course.published ? '#ecfdf5' : '#f3f4f6',
-                      color: course.published ? '#059669' : palette.muted,
-                    }}>
-                      <span style={{
-                        width: 6, height: 6, borderRadius: '50%',
-                        background: course.published ? '#059669' : palette.muted,
-                        display: 'inline-block',
-                      }} />
-                      {course.published ? 'Publié' : 'Brouillon'}
-                    </span>
-                    {course.difficulty && (
-                      <span style={{ fontSize: 11, color: palette.muted, fontFamily: font.mono }}>
-                        {difficultyLabel[course.difficulty] ?? course.difficulty}
+                <div key={course.id} style={{ background: P.bg, border: `1px solid ${P.border}`, borderRadius: 12, overflow: 'hidden', opacity: isDeleting ? 0.5 : 1, transition: 'opacity 0.2s' }}>
+                  {/* Cover */}
+                  <div style={{ height: 80, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                    <BookOpen size={28} color={fg} style={{ opacity: 0.4 }} />
+                    <div style={{ position: 'absolute', top: 10, left: 12 }}>
+                      <span style={{ background: course.published ? '#dcfce7' : '#f3f4f6', color: course.published ? P.success : P.muted, fontSize: 10, fontWeight: 600, fontFamily: F.mono, padding: '3px 8px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ width: 5, height: 5, borderRadius: '50%', background: course.published ? P.success : P.muted, display: 'inline-block' }} />
+                        {course.published ? 'Publié' : 'Brouillon'}
                       </span>
-                    )}
+                    </div>
+                    {/* Action buttons */}
+                    <div style={{ position: 'absolute', top: 8, right: 10, display: 'flex', gap: 6 }}>
+                      <button
+                        onClick={e => { e.stopPropagation(); nav(`/playground/lms/editor/${course.id}`); }}
+                        title="Éditer"
+                        style={{ background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: 6, width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                      >
+                        <Pencil size={13} color={P.muted} />
+                      </button>
+                      <button
+                        onClick={e => { e.stopPropagation(); setDeleteConfirm(course.id); }}
+                        title="Supprimer"
+                        style={{ background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: 6, width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                      >
+                        <Trash2 size={13} color={P.danger} />
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Title */}
-                  <h3 style={{ margin: '0 0 6px', fontSize: 16, fontWeight: 700, lineHeight: 1.3 }}>
-                    {course.title}
-                  </h3>
-
-                  {/* Description */}
-                  {course.description && (
-                    <p style={{
-                      margin: '0 0 16px', color: palette.muted, fontSize: 13,
-                      lineHeight: 1.5, display: '-webkit-box',
-                      WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-                    }}>
-                      {course.description}
-                    </p>
-                  )}
-
-                  {/* Stats */}
-                  <div style={{
-                    display: 'flex', gap: 16, marginTop: course.description ? 0 : 16,
-                    paddingTop: 14, borderTop: `1px solid ${palette.border}`,
-                  }}>
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: 18, fontWeight: 700, fontFamily: font.mono }}>{chaptersCount}</div>
-                      <div style={{ fontSize: 11, color: palette.muted }}>chapitres</div>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: 18, fontWeight: 700, fontFamily: font.mono }}>{lessonsCount}</div>
-                      <div style={{ fontSize: 11, color: palette.muted }}>leçons</div>
-                    </div>
-                    {course.estimatedDurationMin && (
-                      <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: 18, fontWeight: 700, fontFamily: font.mono }}>{course.estimatedDurationMin}</div>
-                        <div style={{ fontSize: 11, color: palette.muted }}>min</div>
-                      </div>
+                  {/* Body */}
+                  <div style={{ padding: '16px 18px' }}>
+                    <h3 style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 700, lineHeight: 1.3 }}>{course.title}</h3>
+                    {course.description && (
+                      <p style={{ margin: '0 0 12px', color: P.muted, fontSize: 12, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {course.description}
+                      </p>
                     )}
-                    {course.audience && (
-                      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-                        <span style={{
-                          fontSize: 11, background: palette.surface,
-                          padding: '2px 8px', borderRadius: 4, color: palette.muted,
-                        }}>
-                          {audienceLabel[course.audience] ?? course.audience}
-                        </span>
+
+                    <div style={{ display: 'flex', gap: 14, paddingTop: 12, borderTop: `1px solid ${P.border}`, marginTop: course.description ? 0 : 12 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: P.muted }}>
+                        <BookOpen size={12} /> {chapCount} chapitre{chapCount !== 1 ? 's' : ''}
                       </div>
-                    )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: P.muted }}>
+                        <Users size={12} /> {lessonCount} leçon{lessonCount !== 1 ? 's' : ''}
+                      </div>
+                      {course.estimatedDurationMin ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: P.muted }}>
+                          <Clock size={12} /> {course.estimatedDurationMin} min
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <button
+                      onClick={() => nav(`/playground/lms/editor/${course.id}`)}
+                      style={{ marginTop: 14, width: '100%', background: P.accent, color: '#fff', border: 'none', padding: '9px 0', borderRadius: 7, fontFamily: F.sans, fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
+                    >
+                      Ouvrir l'éditeur →
+                    </button>
                   </div>
                 </div>
               );
@@ -266,6 +170,26 @@ export default function LmsListPage() {
           </div>
         )}
       </div>
+
+      {/* Modale confirmation suppression */}
+      {deleteConfirm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: '28px 32px', maxWidth: 400, width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
+            <h3 style={{ margin: '0 0 8px', fontSize: 17, fontWeight: 700, color: P.text }}>Supprimer ce cours ?</h3>
+            <p style={{ margin: '0 0 24px', color: P.muted, fontSize: 14, lineHeight: 1.5 }}>
+              Cette action est irréversible. Le cours et tout son contenu seront définitivement supprimés.
+            </p>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button onClick={() => setDeleteConfirm(null)} style={{ background: P.surface, color: P.text, border: `1px solid ${P.border}`, padding: '9px 18px', borderRadius: 7, cursor: 'pointer', fontFamily: F.sans, fontWeight: 500, fontSize: 13 }}>
+                Annuler
+              </button>
+              <button onClick={() => handleDelete(deleteConfirm)} style={{ background: P.danger, color: '#fff', border: 'none', padding: '9px 18px', borderRadius: 7, cursor: 'pointer', fontFamily: F.sans, fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Trash2 size={13} /> Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
