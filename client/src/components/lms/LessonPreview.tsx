@@ -64,6 +64,7 @@ function PreviewVideo({ block }: { block: any }) {
         <iframe
           src={`https://www.youtube.com/embed/${vid}`}
           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowFullScreen
           title={block.title || 'video'}
         />
@@ -79,6 +80,7 @@ function PreviewVideo({ block }: { block: any }) {
         <iframe
           src={`https://player.vimeo.com/video/${vid}`}
           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowFullScreen
           title={block.title || 'video'}
         />

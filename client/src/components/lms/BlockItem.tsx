@@ -204,6 +204,7 @@ function VideoEditor({ block, onUpdate, courseId }: { block: VideoBlock; onUpdat
               <iframe
                 src={embedUrl}
                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
                 title="video"
               />
