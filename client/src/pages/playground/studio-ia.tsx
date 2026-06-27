@@ -61,6 +61,114 @@ const DURATIONS = [
   { value: '120', label: '2 heures', sub: 'approfondi' },
 ];
 
+interface Template {
+  id: string;
+  domain: string;
+  title: string;
+  description: string;
+  tags: string[];
+  duration: string;
+  audience: string;
+  difficulty: string;
+}
+
+const TEMPLATES: Template[] = [
+  {
+    id: 'phishing-101',
+    domain: 'cybersecurite',
+    title: 'Anti-phishing : reconnaître les mails suspects',
+    description: 'Former tous les collaborateurs à détecter les tentatives de phishing. Exemples réels, quiz interactifs, réflexes clés.',
+    tags: ['Phishing', 'Email', 'Mots de passe'],
+    duration: '30',
+    audience: 'grand_public',
+    difficulty: 'debutant',
+  },
+  {
+    id: 'rgpd-bases',
+    domain: 'rgpd',
+    title: 'RGPD essentiel pour les équipes',
+    description: 'Comprendre les fondamentaux du RGPD : droits des personnes, obligations, réflexes en cas d\'incident de données.',
+    tags: ['RGPD', 'Données', 'Conformité'],
+    duration: '30',
+    audience: 'grand_public',
+    difficulty: 'debutant',
+  },
+  {
+    id: 'feedback-manager',
+    domain: 'management',
+    title: 'Donner un feedback constructif',
+    description: 'Maîtriser la méthode DESC et les techniques de feedback pour des entretiens individuels efficaces et bienveillants.',
+    tags: ['Feedback', 'Entretien', 'DESC'],
+    duration: '30',
+    audience: 'managers',
+    difficulty: 'intermediaire',
+  },
+  {
+    id: 'excel-tcd',
+    domain: 'excel_data',
+    title: 'Tableaux croisés dynamiques Excel',
+    description: 'Créer et exploiter des TCD pour analyser des données métier, filtrer, regrouper et créer des graphiques croisés.',
+    tags: ['Excel', 'TCD', 'Analyse'],
+    duration: '60',
+    audience: 'grand_public',
+    difficulty: 'intermediaire',
+  },
+  {
+    id: 'recrutement-entretien',
+    domain: 'rh',
+    title: 'Conduire un entretien de recrutement',
+    description: 'Structurer un entretien, poser les bonnes questions, éviter les biais cognitifs, évaluer objectivement les candidats.',
+    tags: ['Recrutement', 'Entretien', 'Biais'],
+    duration: '45',
+    audience: 'managers',
+    difficulty: 'intermediaire',
+  },
+  {
+    id: 'finance-nonfi',
+    domain: 'finance',
+    title: 'Lire un bilan pour non-financiers',
+    description: 'Décrypter un bilan et un compte de résultat, comprendre rentabilité, marge et cash-flow, dialoguer avec les équipes finance.',
+    tags: ['Bilan', 'P&L', 'Cash-flow'],
+    duration: '60',
+    audience: 'dirigeants',
+    difficulty: 'intermediaire',
+  },
+  {
+    id: 'pitch-commercial',
+    domain: 'commerce',
+    title: 'Réussir son pitch commercial en 5 min',
+    description: 'Structurer un argumentaire percutant, gérer les objections prix et délai, conclure avec les bonnes questions de closing.',
+    tags: ['Pitch', 'Objections', 'Closing'],
+    duration: '30',
+    audience: 'commercial',
+    difficulty: 'intermediaire',
+  },
+  {
+    id: 'prise-parole',
+    domain: 'communication',
+    title: 'Prise de parole en public : les bases',
+    description: 'Structurer un message, capter l\'attention dès les premières secondes, gérer le stress et les silences face à un auditoire.',
+    tags: ['Prise de parole', 'Stress', 'Structure'],
+    duration: '30',
+    audience: 'grand_public',
+    difficulty: 'debutant',
+  },
+];
+
+const DOMAIN_ACCENT: Record<string, string> = {
+  cybersecurite: '#0057ff',
+  rgpd: '#7c3aed',
+  management: '#059669',
+  excel_data: '#059669',
+  rh: '#d97706',
+  finance: '#0057ff',
+  commerce: '#dc2626',
+  communication: '#dd0061',
+  it: '#0057ff',
+  qualite: '#7c3aed',
+  sante: '#059669',
+};
+
 const SLIDE_TYPE_LABELS: Record<string, { label: string; color: string }> = {
   intro:       { label: 'Intro',         color: BLUE },
   theorie:     { label: 'Théorie',       color: '#7c3aed' },
@@ -86,6 +194,7 @@ export default function StudioIA() {
   const [duration, setDuration] = useState('30');
   const [planLoading, setPlanLoading] = useState(false);
   const [planPreview, setPlanPreview] = useState<PlanPreview | null>(null);
+  const [showTemplates, setShowTemplates] = useState(true);
 
   const domainValue = domainKey === 'autre' ? customDomain : (DOMAINS.find(d => d.value === domainKey)?.label || '');
   const progress = step === 'pitch' ? 25 : step === 'config' ? 50 : step === 'plan' ? 75 : 100;
@@ -132,6 +241,7 @@ export default function StudioIA() {
     setPitch(''); setDomainKey(''); setCustomDomain('');
     setAudience('grand_public'); setDifficulty('intermediaire'); setDuration('30');
     setPlanPreview(null);
+    setShowTemplates(true);
     setStep('pitch');
   };
 
@@ -184,6 +294,78 @@ export default function StudioIA() {
                 <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
 
                 <div className="space-y-8">
+                  {/* Template gallery */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
+                        Partir d'un template
+                      </label>
+                      <button
+                        onClick={() => setShowTemplates(v => !v)}
+                        className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        {showTemplates ? 'Masquer' : 'Afficher les templates'}
+                      </button>
+                    </div>
+
+                    {showTemplates && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                      >
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+                          {TEMPLATES.map(tpl => {
+                            const accent = DOMAIN_ACCENT[tpl.domain] || BLUE;
+                            const isSelected = pitch === DOMAIN_PROMPTS[tpl.domain] && domainKey === tpl.domain;
+                            return (
+                              <button
+                                key={tpl.id}
+                                onClick={() => {
+                                  setDomainKey(tpl.domain);
+                                  setPitch(DOMAIN_PROMPTS[tpl.domain] || '');
+                                  setAudience(tpl.audience);
+                                  setDifficulty(tpl.difficulty);
+                                  setDuration(tpl.duration);
+                                  setShowTemplates(false);
+                                }}
+                                className="text-left p-3 transition-all"
+                                style={{
+                                  border: `1px solid ${isSelected ? accent : '#e5e7eb'}`,
+                                  background: isSelected ? `${accent}08` : 'white',
+                                }}
+                              >
+                                <div className="flex items-start gap-2 mb-2">
+                                  <div className="w-1 flex-shrink-0 mt-0.5 self-stretch" style={{ background: accent }} />
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-xs font-bold leading-tight" style={{ color: DARK }}>{tpl.title}</div>
+                                    <div className="text-xs text-gray-400 mt-1 leading-snug line-clamp-2">{tpl.description}</div>
+                                  </div>
+                                </div>
+                                <div className="flex flex-wrap gap-1 mt-2 pl-3">
+                                  {tpl.tags.map(tag => (
+                                    <span key={tag} className="text-xs px-1.5 py-0.5 font-medium"
+                                      style={{ background: `${accent}12`, color: accent }}>
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <div className="border-t border-gray-100 pt-4">
+                          <button
+                            onClick={() => { setShowTemplates(false); setPitch(''); setDomainKey(''); }}
+                            className="text-xs font-medium text-gray-500 hover:text-gray-800 transition-colors"
+                          >
+                            + Créer from scratch
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </div>
+
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                       Votre besoin de formation *
