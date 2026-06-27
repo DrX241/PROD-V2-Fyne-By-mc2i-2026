@@ -6165,6 +6165,262 @@ Niveau ${levelDesc}. Contexte français réaliste. Pour visual.type utilise: ema
     }
   });
 
+  // GET /api/studio/training/:id/export/json
+  app.get("/api/studio/training/:id/export/json", async (req: Request, res: Response) => {
+    try {
+      const training = await storage.getGeneratedTraining(req.params.id);
+      if (!training) return res.status(404).json({ error: 'Formation introuvable' });
+      const filename = `${(training.title || 'formation').replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Type', 'application/json');
+      res.json({ id: training.id, title: training.title, tagline: training.tagline, exportedAt: new Date().toISOString(), content: training.content });
+    } catch (err) {
+      res.status(500).json({ error: 'Erreur export JSON' });
+    }
+  });
+
+  // GET /api/studio/training/:id/export/pdf
+  app.get("/api/studio/training/:id/export/pdf", async (req: Request, res: Response) => {
+    try {
+      const training = await storage.getGeneratedTraining(req.params.id);
+      if (!training) return res.status(404).json({ error: 'Formation introuvable' });
+      const PDFDocument = (await import('pdfkit')).default;
+      const doc = new PDFDocument({ margin: 50, size: 'A4' });
+      const filename = `${(training.title || 'formation').replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Type', 'application/pdf');
+      doc.pipe(res);
+      const content: any = training.content || {};
+      const BLUE = '#006a9e';
+      const DARK = '#061019';
+      // Titre
+      doc.fontSize(24).fillColor(BLUE).font('Helvetica-Bold').text(training.title || 'Formation', { align: 'center' });
+      doc.moveDown(0.4);
+      if (training.tagline) doc.fontSize(13).fillColor('#555').font('Helvetica').text(training.tagline, { align: 'center' });
+      doc.moveDown(0.5);
+      doc.moveTo(50, doc.y).lineTo(545, doc.y).strokeColor('#e5e7eb').stroke();
+      doc.moveDown(0.8);
+      // Objectifs
+      if (content.objectives?.length) {
+        doc.fontSize(13).fillColor(BLUE).font('Helvetica-Bold').text('Objectifs pédagogiques');
+        doc.moveDown(0.3);
+        content.objectives.forEach((obj: string) => {
+          doc.fontSize(11).fillColor(DARK).font('Helvetica').text(`• ${obj}`, { indent: 12 });
+        });
+        doc.moveDown(0.8);
+      }
+      // Modules
+      if (content.modules?.length) {
+        doc.fontSize(13).fillColor(BLUE).font('Helvetica-Bold').text('Modules');
+        doc.moveDown(0.3);
+        content.modules.forEach((m: any, i: number) => {
+          doc.fontSize(11).fillColor(DARK).font('Helvetica-Bold').text(`${String(i+1).padStart(2,'0')}. ${m.title}`, { continued: true });
+          doc.font('Helvetica').fillColor('#888').text(`  ${m.duration || ''}`, { align: 'right' });
+        });
+        doc.moveDown(0.8);
+      }
+      // Situations
+      if (content.situations?.length) {
+        doc.addPage();
+        doc.fontSize(16).fillColor(BLUE).font('Helvetica-Bold').text('Mises en situation');
+        doc.moveDown(0.6);
+        content.situations.forEach((s: any, i: number) => {
+          if (doc.y > 700) doc.addPage();
+          doc.fontSize(12).fillColor(BLUE).font('Helvetica-Bold').text(`Situation ${i+1} — ${s.title || ''}`);
+          doc.moveDown(0.2);
+          if (s.category) doc.fontSize(9).fillColor('#888').font('Helvetica').text(s.category.toUpperCase());
+          doc.moveDown(0.2);
+          if (s.contexte) { doc.fontSize(10).fillColor('#444').font('Helvetica-Oblique').text(s.contexte); doc.moveDown(0.2); }
+          if (s.situation) { doc.fontSize(11).fillColor(DARK).font('Helvetica').text(s.situation); doc.moveDown(0.2); }
+          if (s.attendu) {
+            doc.fontSize(10).fillColor('#059669').font('Helvetica-Bold').text('Réponse attendue :');
+            doc.fontSize(10).fillColor('#444').font('Helvetica').text(s.attendu);
+          }
+          doc.moveDown(0.8);
+          doc.moveTo(50, doc.y).lineTo(545, doc.y).strokeColor('#e5e7eb').stroke();
+          doc.moveDown(0.6);
+        });
+      }
+      // QCM
+      if (content.qcm?.length) {
+        doc.addPage();
+        doc.fontSize(16).fillColor(BLUE).font('Helvetica-Bold').text('QCM — Questions');
+        doc.moveDown(0.6);
+        content.qcm.forEach((q: any, i: number) => {
+          if (doc.y > 680) doc.addPage();
+          doc.fontSize(12).fillColor(DARK).font('Helvetica-Bold').text(`Q${i+1}. ${q.question || ''}`);
+          doc.moveDown(0.2);
+          (q.options || q.choix || []).forEach((opt: any, oi: number) => {
+            const text = typeof opt === 'string' ? opt : opt.text || opt;
+            const isCorrect = typeof opt === 'object' ? opt.correct : oi === q.bonneReponse;
+            doc.fontSize(10).fillColor(isCorrect ? '#059669' : '#555').font(isCorrect ? 'Helvetica-Bold' : 'Helvetica')
+              .text(`${'ABCD'[oi]}. ${text}`, { indent: 16 });
+          });
+          if (q.explanation || q.explication) {
+            doc.moveDown(0.2);
+            doc.fontSize(9).fillColor('#888').font('Helvetica-Oblique').text(`→ ${q.explanation || q.explication}`, { indent: 16 });
+          }
+          doc.moveDown(0.6);
+        });
+      }
+      doc.end();
+    } catch (err) {
+      console.error('[Export PDF]', err);
+      if (!res.headersSent) res.status(500).json({ error: 'Erreur export PDF' });
+    }
+  });
+
+  // GET /api/studio/training/:id/export/scorm
+  app.get("/api/studio/training/:id/export/scorm", async (req: Request, res: Response) => {
+    try {
+      const training = await storage.getGeneratedTraining(req.params.id);
+      if (!training) return res.status(404).json({ error: 'Formation introuvable' });
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      const content: any = training.content || {};
+      const title = training.title || 'Formation';
+      const safeName = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+      // imsmanifest.xml
+      const situations: any[] = content.situations || [];
+      const qcm: any[] = content.qcm || [];
+      const manifest = `<?xml version="1.0" encoding="UTF-8"?>
+<manifest identifier="fyne_${safeName}" version="1.0"
+  xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"
+  xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <metadata><schema>ADL SCORM</schema><schemaversion>1.2</schemaversion></metadata>
+  <organizations default="org1">
+    <organization identifier="org1">
+      <title>${title}</title>
+      <item identifier="item1" identifierref="res1" isvisible="true">
+        <title>${title}</title>
+        <adlcp:masteryscore>70</adlcp:masteryscore>
+      </item>
+    </organization>
+  </organizations>
+  <resources>
+    <resource identifier="res1" type="webcontent" adlcp:scormtype="sco" href="index.html">
+      <file href="index.html"/>
+      <file href="scorm_api.js"/>
+    </resource>
+  </resources>
+</manifest>`;
+
+      // scorm_api.js — wrapper SCORM 1.2 minimal
+      const scormJs = `(function(){
+  var API=null;
+  function findAPI(w){try{if(w.API)return w.API;if(w.parent&&w.parent!==w)return findAPI(w.parent);}catch(e){}return null;}
+  API=findAPI(window);
+  window.SCORM={
+    init:function(){try{if(API)API.LMSInitialize('');}catch(e){}},
+    finish:function(score){try{if(API){API.LMSSetValue('cmi.core.score.raw',score||0);API.LMSSetValue('cmi.core.lesson_status',score>=70?'passed':'failed');API.LMSFinish('');}}catch(e){}},
+    setProgress:function(p){try{if(API)API.LMSSetValue('cmi.core.session_time',p);}catch(e){}}
+  };
+  window.addEventListener('load',function(){SCORM.init();});
+})();`;
+
+      // index.html — contenu complet de la formation
+      const objectivesHtml = (content.objectives || []).map((o: string) => `<li>${o}</li>`).join('');
+      const modulesHtml = (content.modules || []).map((m: any, i: number) => `<div class="module"><span class="num">${String(i+1).padStart(2,'0')}</span><span class="title">${m.title}</span><span class="dur">${m.duration||''}</span></div>`).join('');
+      const situationsHtml = situations.map((s: any, i: number) => `
+        <div class="situation">
+          <div class="sit-header"><span class="sit-cat">${s.category||'Situation'}</span><h3>${s.title||''}</h3></div>
+          ${s.contexte?`<p class="contexte">${s.contexte}</p>`:''}
+          <p class="scenario">${s.situation||''}</p>
+          <details><summary>Voir la réponse attendue</summary><p class="attendu">${s.attendu||''}</p></details>
+        </div>`).join('');
+      let qcmIdx = 0;
+      const qcmHtml = qcm.map((q: any, i: number) => {
+        const opts = (q.options || q.choix || []).map((opt: any, oi: number) => {
+          const text = typeof opt === 'string' ? opt : opt.text || opt;
+          const isCorrect = typeof opt === 'object' ? opt.correct : oi === q.bonneReponse;
+          return `<button class="opt" data-correct="${isCorrect}" onclick="answer(this,${i})">${'ABCD'[oi]}. ${text}</button>`;
+        }).join('');
+        return `<div class="qcm-q" id="q${i}"><p class="question">${i+1}. ${q.question||''}</p><div class="opts">${opts}</div><p class="expl" id="expl${i}" style="display:none">${q.explanation||q.explication||''}</p></div>`;
+      }).join('');
+
+      const indexHtml = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title}</title>
+<script src="scorm_api.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f8fafc;color:#0d1117;min-height:100vh}
+.header{background:#006a9e;color:white;padding:32px 48px}
+.header h1{font-size:28px;font-weight:800;margin-bottom:6px}
+.header p{font-size:14px;opacity:.8}
+.section{padding:32px 48px;border-bottom:1px solid #e5e7eb}
+h2{font-size:16px;font-weight:700;color:#006a9e;letter-spacing:.05em;text-transform:uppercase;margin-bottom:16px}
+ul{padding-left:20px}.li{margin-bottom:6px;font-size:14px;line-height:1.6}
+.module{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9}
+.num{font-family:monospace;font-size:11px;color:#006a9e;font-weight:700;width:24px}
+.title{flex:1;font-size:14px;font-weight:500}.dur{font-size:12px;color:#9ca3af;font-family:monospace}
+.situation{padding:20px;background:white;border-left:3px solid #006a9e;margin-bottom:16px}
+.sit-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.sit-cat{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#006a9e;background:rgba(0,106,158,.1);padding:2px 8px}
+h3{font-size:15px;font-weight:700}
+.contexte{font-size:12px;color:#6b7280;font-style:italic;margin-bottom:10px}
+.scenario{font-size:14px;line-height:1.7;margin-bottom:10px}
+.attendu{font-size:13px;color:#059669;line-height:1.6;padding:10px 14px;background:rgba(5,150,105,.06);margin-top:8px}
+details summary{cursor:pointer;font-size:12px;font-weight:700;color:#006a9e;padding:6px 0}
+.qcm-q{padding:20px;background:white;margin-bottom:12px;border-left:3px solid #dd0061}
+.question{font-size:15px;font-weight:700;margin-bottom:12px}
+.opts{display:flex;flex-direction:column;gap:7px}
+.opt{padding:11px 16px;border:1.5px solid #e5e7eb;background:white;text-align:left;cursor:pointer;font-size:13px;transition:all .15s}
+.opt:hover{border-color:#006a9e;background:rgba(0,106,158,.04)}
+.opt.correct{border-color:#059669;background:rgba(5,150,105,.08);color:#059669;font-weight:600}
+.opt.wrong{border-color:#dc2626;background:rgba(220,38,38,.06);color:#dc2626}
+.expl{font-size:12px;color:#6b7280;font-style:italic;padding:8px 12px;background:#f9fafb;margin-top:8px;border-left:2px solid #e5e7eb}
+.score-bar{padding:32px 48px;text-align:center;display:none}
+.score-circle{display:inline-flex;align-items:center;justify-content:center;width:100px;height:100px;border-radius:50%;border:4px solid #006a9e;font-size:28px;font-weight:900;color:#006a9e;margin-bottom:16px}
+.btn{padding:12px 28px;background:#006a9e;color:white;border:none;cursor:pointer;font-size:14px;font-weight:700;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="header"><h1>${title}</h1>${training.tagline?`<p>${training.tagline}</p>`:''}</div>
+${objectivesHtml?`<div class="section"><h2>Objectifs</h2><ul>${objectivesHtml}</ul></div>`:''}
+${modulesHtml?`<div class="section"><h2>Modules</h2>${modulesHtml}</div>`:''}
+${situationsHtml?`<div class="section"><h2>Mises en situation</h2>${situationsHtml}</div>`:''}
+${qcmHtml?`<div class="section" id="qcm-section"><h2>QCM</h2>${qcmHtml}<button class="btn" onclick="submitQcm()" style="margin-top:16px">Valider mes réponses</button></div>`:''}
+<div class="score-bar" id="score-bar"><div class="score-circle" id="score-val">—</div><p id="score-msg"></p><button class="btn" onclick="window.close()">Terminer</button></div>
+<script>
+var answers={},total=${qcm.length};
+function answer(btn,qi){
+  if(answers[qi]!==undefined)return;
+  answers[qi]=btn.getAttribute('data-correct')==='true';
+  var btns=btn.parentNode.querySelectorAll('.opt');
+  btns.forEach(function(b){b.disabled=true;b.classList.add(b.getAttribute('data-correct')==='true'?'correct':'wrong');});
+  var expl=document.getElementById('expl'+qi);if(expl)expl.style.display='block';
+}
+function submitQcm(){
+  var correct=Object.values(answers).filter(Boolean).length;
+  var pct=total?Math.round(correct/total*100):100;
+  document.getElementById('qcm-section').style.display='none';
+  var sb=document.getElementById('score-bar');sb.style.display='block';
+  document.getElementById('score-val').textContent=pct+'%';
+  document.getElementById('score-msg').textContent=correct+' bonne'+(correct>1?'s':'')+' réponse'+(correct>1?'s':'')+' sur '+total;
+  SCORM.finish(pct);
+}
+</script>
+</body>
+</html>`;
+
+      zip.file('imsmanifest.xml', manifest);
+      zip.file('scorm_api.js', scormJs);
+      zip.file('index.html', indexHtml);
+      const zipBuffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+      res.setHeader('Content-Disposition', `attachment; filename="${safeName}_scorm.zip"`);
+      res.setHeader('Content-Type', 'application/zip');
+      res.send(zipBuffer);
+    } catch (err) {
+      console.error('[Export SCORM]', err);
+      if (!res.headersSent) res.status(500).json({ error: 'Erreur export SCORM' });
+    }
+  });
+
   // POST /api/studio/improve-slide — Enrichit un slide ciblé avec l'IA (~300 tokens)
   app.post("/api/studio/improve-slide", async (req: Request, res: Response) => {
     try {

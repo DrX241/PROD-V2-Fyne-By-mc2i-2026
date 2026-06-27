@@ -3,7 +3,8 @@ import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Sparkles, Upload, ArrowRight,
-  BookOpen, Trash2, Play, Calendar, Library, CheckSquare, Square, Building2, X
+  BookOpen, Trash2, Play, Calendar, Library, CheckSquare, Square, Building2, X,
+  Download, FileJson, FileText, Package,
 } from 'lucide-react';
 import mcLogoPath from '@assets/mc2i.png';
 
@@ -50,6 +51,7 @@ export default function ModuleGenerator() {
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [publishModal, setPublishModal] = useState<{ id: string; title: string; assignedCompanies?: { id: number; name: string }[] } | null>(null);
+  const [exportMenu, setExportMenu] = useState<string | null>(null);
   const [companies, setCompanies] = useState<{ id: number; name: string; slug: string }[]>([]);
   const [selectedCompanyIds, setSelectedCompanyIds] = useState<Set<number>>(new Set());
   const [publishing, setPublishing] = useState(false);
@@ -418,6 +420,33 @@ export default function ModuleGenerator() {
                               </button>
                             )
                           )}
+                          {/* Export menu */}
+                          <div style={{ position: 'relative' }}>
+                            <button
+                              onClick={e => { e.stopPropagation(); setExportMenu(exportMenu === t.id ? null : t.id); }}
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '7px 12px', background: 'white', color: '#374151', fontWeight: 600, fontSize: 11, border: '1px solid #e5e7eb', cursor: 'pointer' }}
+                              title="Exporter">
+                              <Download size={12} /> Export
+                            </button>
+                            {exportMenu === t.id && (
+                              <div style={{ position: 'absolute', bottom: '100%', left: 0, marginBottom: 4, background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', zIndex: 100, minWidth: 150 }}
+                                onClick={e => e.stopPropagation()}>
+                                {[
+                                  { fmt: 'json', label: 'JSON', icon: <FileJson size={12}/>, color: '#374151' },
+                                  { fmt: 'pdf',  label: 'PDF',  icon: <FileText size={12}/>, color: '#374151' },
+                                  { fmt: 'scorm',label: 'SCORM 1.2', icon: <Package size={12}/>, color: '#374151' },
+                                ].map(({ fmt, label, icon, color }) => (
+                                  <a key={fmt} href={`/api/studio/training/${t.id}/export/${fmt}`} download
+                                    onClick={() => setExportMenu(null)}
+                                    style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 14px', color, fontSize: 12, fontWeight: 600, textDecoration: 'none', borderBottom: fmt !== 'scorm' ? '1px solid #f3f4f6' : 'none' }}
+                                    onMouseEnter={e => (e.currentTarget.style.background = '#f9fafb')}
+                                    onMouseLeave={e => (e.currentTarget.style.background = 'white')}>
+                                    {icon} {label}
+                                  </a>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                           <button
                             onClick={() => setLocation(playerRoute(t))}
                             style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: t.source === 'lesson' ? PINK : BLUE, color: 'white', fontWeight: 700, fontSize: 11, border: 'none', cursor: 'pointer' }}>
