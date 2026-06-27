@@ -1,6 +1,6 @@
 export type BlockType =
   | 'text' | 'image' | 'video' | 'audio' | 'accordion'
-  | 'quote' | 'separator' | 'qcm' | 'qcm_scored' | 'download' | 'callout';
+  | 'quote' | 'separator' | 'qcm' | 'qcm_scored' | 'download' | 'callout' | 'code';
 
 export interface BaseBlock {
   id: string;
@@ -20,8 +20,13 @@ export interface QcmBlock extends BaseBlock { type: 'qcm'; question: string; opt
 export interface QcmScoredBlock extends BaseBlock { type: 'qcm_scored'; question: string; options: QcmOption[]; explanation?: string; points: number; }
 export interface DownloadBlock extends BaseBlock { type: 'download'; url: string; fileName: string; fileSize?: number; fileType?: string; }
 export interface CalloutBlock extends BaseBlock { type: 'callout'; variant: 'info' | 'warning' | 'tip' | 'danger'; title?: string; content: string; }
+export interface CodeBlock extends BaseBlock {
+  type: 'code';
+  language: string; // 'javascript' | 'python' | 'sql' | 'bash' | 'html' | 'css' | 'json' | 'typescript' | 'plaintext'
+  code: string;
+}
 
-export type Block = TextBlock | ImageBlock | VideoBlock | AudioBlock | AccordionBlock | QuoteBlock | SeparatorBlock | QcmBlock | QcmScoredBlock | DownloadBlock | CalloutBlock;
+export type Block = TextBlock | ImageBlock | VideoBlock | AudioBlock | AccordionBlock | QuoteBlock | SeparatorBlock | QcmBlock | QcmScoredBlock | DownloadBlock | CalloutBlock | CodeBlock;
 
 export interface Lesson {
   id: string;

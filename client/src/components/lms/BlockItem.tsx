@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import type {
   Block, TextBlock, ImageBlock, VideoBlock, AudioBlock,
-  AccordionBlock, QuoteBlock, SeparatorBlock, CalloutBlock, QcmBlock, DownloadBlock,
+  AccordionBlock, QuoteBlock, SeparatorBlock, CalloutBlock, QcmBlock, DownloadBlock, CodeBlock,
 } from '../../../../shared/types/lms';
+import { MediaUploader } from './MediaUploader';
 
 interface BlockItemProps {
   block: Block;
+  courseId?: string;
   onUpdate: (patch: Partial<Block>) => void;
   onDelete: () => void;
   onMoveUp: () => void;
@@ -40,30 +42,60 @@ function TextEditor({ block, onUpdate }: { block: TextBlock; onUpdate: (p: Parti
   );
 }
 
-function ImageEditor({ block, onUpdate }: { block: ImageBlock; onUpdate: (p: Partial<ImageBlock>) => void }) {
+function ImageEditor({ block, onUpdate, courseId }: { block: ImageBlock; onUpdate: (p: Partial<ImageBlock>) => void; courseId?: string }) {
+  const [uploadMode, setUploadMode] = useState<'url' | 'upload'>('url');
+
   if (!block.url) {
     return (
       <div
         style={{
           border: `2px dashed ${palette.border}`,
           borderRadius: 8,
-          padding: '32px 16px',
-          textAlign: 'center',
+          padding: '24px 16px',
         }}
       >
-        <div style={{ fontSize: 32, marginBottom: 8 }}>🖼</div>
-        <div style={{ color: palette.muted, fontSize: 13, marginBottom: 12 }}>
-          {block.aiPlaceholder || 'Ajoutez une image'}
+        <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+          {(['url', 'upload'] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => setUploadMode(m)}
+              style={{
+                padding: '4px 12px', borderRadius: 5, cursor: 'pointer', fontSize: 12,
+                fontFamily: font.mono, border: `1px solid ${uploadMode === m ? palette.accent : palette.border}`,
+                background: uploadMode === m ? '#e8f0ff' : 'none',
+                color: uploadMode === m ? palette.accent : palette.muted,
+              }}
+            >
+              {m === 'url' ? 'URL' : 'Upload'}
+            </button>
+          ))}
         </div>
-        <input
-          type="text"
-          placeholder="URL de l'image..."
-          onBlur={(e) => e.target.value && onUpdate({ url: e.target.value })}
-          style={{
-            width: '100%', padding: '8px 12px', border: `1px solid ${palette.border}`,
-            borderRadius: 6, fontFamily: font.sans, fontSize: 13, boxSizing: 'border-box',
-          }}
-        />
+        {uploadMode === 'upload' && courseId ? (
+          <MediaUploader
+            courseId={courseId}
+            accept="image/*"
+            label="Glissez une image ou cliquez pour parcourir"
+            onUploaded={(url, fileName) => onUpdate({ url, alt: fileName })}
+          />
+        ) : (
+          <>
+            <div style={{ textAlign: 'center', marginBottom: 12 }}>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>🖼</div>
+              <div style={{ color: palette.muted, fontSize: 13, marginBottom: 12 }}>
+                {block.aiPlaceholder || 'Ajoutez une image'}
+              </div>
+            </div>
+            <input
+              type="text"
+              placeholder="URL de l'image..."
+              onBlur={(e) => e.target.value && onUpdate({ url: e.target.value })}
+              style={{
+                width: '100%', padding: '8px 12px', border: `1px solid ${palette.border}`,
+                borderRadius: 6, fontFamily: font.sans, fontSize: 13, boxSizing: 'border-box',
+              }}
+            />
+          </>
+        )}
       </div>
     );
   }
@@ -103,7 +135,7 @@ function ImageEditor({ block, onUpdate }: { block: ImageBlock; onUpdate: (p: Par
   );
 }
 
-function VideoEditor({ block, onUpdate }: { block: VideoBlock; onUpdate: (p: Partial<VideoBlock>) => void }) {
+function VideoEditor({ block, onUpdate, courseId }: { block: VideoBlock; onUpdate: (p: Partial<VideoBlock>) => void; courseId?: string }) {
   function getEmbedUrl(url: string): string | null {
     if (!url) return null;
     const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]+)/);
@@ -113,39 +145,80 @@ function VideoEditor({ block, onUpdate }: { block: VideoBlock; onUpdate: (p: Par
     return null;
   }
 
-  const embedUrl = getEmbedUrl(block.url);
+  const embedUrl = block.source !== 'upload' ? getEmbedUrl(block.url) : null;
 
   return (
     <div>
-      <input
-        type="text"
-        placeholder="URL YouTube ou Vimeo..."
-        value={block.url}
-        onChange={(e) => onUpdate({ url: e.target.value })}
-        style={{
-          width: '100%', padding: '8px 12px', border: `1px solid ${palette.border}`,
-          borderRadius: 6, fontFamily: font.sans, fontSize: 13, marginBottom: 10,
-          boxSizing: 'border-box',
-        }}
-      />
-      {embedUrl && (
-        <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: 8 }}>
-          <iframe
-            src={embedUrl}
-            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-            allowFullScreen
-            title="video"
+      {/* Source toggle */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+        {(['youtube', 'vimeo', 'upload'] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => onUpdate({ source: s, url: '' })}
+            style={{
+              padding: '3px 10px', borderRadius: 5, cursor: 'pointer', fontSize: 11,
+              fontFamily: font.mono, border: `1px solid ${block.source === s ? palette.accent : palette.border}`,
+              background: block.source === s ? '#e8f0ff' : 'none',
+              color: block.source === s ? palette.accent : palette.muted,
+            }}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+
+      {block.source === 'upload' && courseId ? (
+        block.url ? (
+          <div>
+            <video controls src={block.url} style={{ width: '100%', borderRadius: 8 }} />
+            <button
+              onClick={() => onUpdate({ url: '' })}
+              style={{ marginTop: 6, fontSize: 11, color: palette.red, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            >
+              Changer la vidéo
+            </button>
+          </div>
+        ) : (
+          <MediaUploader
+            courseId={courseId}
+            accept="video/*"
+            label="Glissez une vidéo ou cliquez pour parcourir"
+            onUploaded={(url, fileName) => onUpdate({ url, title: fileName })}
           />
-        </div>
-      )}
-      {!embedUrl && block.url && (
-        <div style={{ color: palette.red, fontSize: 12 }}>URL YouTube ou Vimeo invalide</div>
+        )
+      ) : (
+        <>
+          <input
+            type="text"
+            placeholder={`URL ${block.source === 'vimeo' ? 'Vimeo' : 'YouTube'}...`}
+            value={block.url}
+            onChange={(e) => onUpdate({ url: e.target.value })}
+            style={{
+              width: '100%', padding: '8px 12px', border: `1px solid ${palette.border}`,
+              borderRadius: 6, fontFamily: font.sans, fontSize: 13, marginBottom: 10,
+              boxSizing: 'border-box',
+            }}
+          />
+          {embedUrl && (
+            <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: 8 }}>
+              <iframe
+                src={embedUrl}
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                allowFullScreen
+                title="video"
+              />
+            </div>
+          )}
+          {!embedUrl && block.url && (
+            <div style={{ color: palette.red, fontSize: 12 }}>URL YouTube ou Vimeo invalide</div>
+          )}
+        </>
       )}
     </div>
   );
 }
 
-function AudioEditor({ block, onUpdate }: { block: AudioBlock; onUpdate: (p: Partial<AudioBlock>) => void }) {
+function AudioEditor({ block, onUpdate, courseId }: { block: AudioBlock; onUpdate: (p: Partial<AudioBlock>) => void; courseId?: string }) {
   return (
     <div>
       <input
@@ -172,6 +245,14 @@ function AudioEditor({ block, onUpdate }: { block: AudioBlock; onUpdate: (p: Par
       />
       {block.url && (
         <audio controls src={block.url} style={{ width: '100%' }} />
+      )}
+      {courseId && !block.url && (
+        <MediaUploader
+          courseId={courseId}
+          accept="audio/*"
+          label="Ou uploadez un fichier audio"
+          onUploaded={(url, fileName) => onUpdate({ url, title: block.title || fileName })}
+        />
       )}
     </div>
   );
@@ -492,6 +573,36 @@ function QcmEditor({ block, onUpdate }: { block: QcmBlock; onUpdate: (p: Partial
   );
 }
 
+function CodeEditor({ block, onUpdate }: { block: CodeBlock; onUpdate: (p: Partial<CodeBlock>) => void }) {
+  const langs = ['javascript', 'typescript', 'python', 'sql', 'bash', 'html', 'css', 'json', 'plaintext'];
+  return (
+    <div>
+      <select
+        value={block.language}
+        onChange={(e) => onUpdate({ language: e.target.value })}
+        style={{
+          fontFamily: font.mono, fontSize: 11, marginBottom: 8,
+          padding: '4px 8px', border: `1px solid ${palette.border}`,
+          background: '#f8f9fa', color: palette.text,
+        }}
+      >
+        {langs.map((l) => <option key={l} value={l}>{l}</option>)}
+      </select>
+      <textarea
+        value={block.code}
+        onChange={(e) => onUpdate({ code: e.target.value })}
+        placeholder={block.aiPlaceholder || 'Votre code ici...'}
+        style={{
+          width: '100%', minHeight: 140, fontFamily: font.mono, fontSize: 13,
+          lineHeight: 1.6, padding: 16, background: '#0d1117', color: '#e6edf3',
+          border: 'none', resize: 'vertical', boxSizing: 'border-box', outline: 'none',
+        }}
+        spellCheck={false}
+      />
+    </div>
+  );
+}
+
 function DownloadEditor({ block, onUpdate }: { block: DownloadBlock; onUpdate: (p: Partial<DownloadBlock>) => void }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -557,16 +668,16 @@ function DownloadEditor({ block, onUpdate }: { block: DownloadBlock; onUpdate: (
   );
 }
 
-function BlockContent({ block, onUpdate }: { block: Block; onUpdate: (patch: Partial<Block>) => void }) {
+function BlockContent({ block, onUpdate, courseId }: { block: Block; onUpdate: (patch: Partial<Block>) => void; courseId?: string }) {
   switch (block.type) {
     case 'text':
       return <TextEditor block={block} onUpdate={onUpdate as (p: Partial<TextBlock>) => void} />;
     case 'image':
-      return <ImageEditor block={block} onUpdate={onUpdate as (p: Partial<ImageBlock>) => void} />;
+      return <ImageEditor block={block} onUpdate={onUpdate as (p: Partial<ImageBlock>) => void} courseId={courseId} />;
     case 'video':
-      return <VideoEditor block={block} onUpdate={onUpdate as (p: Partial<VideoBlock>) => void} />;
+      return <VideoEditor block={block} onUpdate={onUpdate as (p: Partial<VideoBlock>) => void} courseId={courseId} />;
     case 'audio':
-      return <AudioEditor block={block} onUpdate={onUpdate as (p: Partial<AudioBlock>) => void} />;
+      return <AudioEditor block={block} onUpdate={onUpdate as (p: Partial<AudioBlock>) => void} courseId={courseId} />;
     case 'accordion':
       return <AccordionEditor block={block} onUpdate={onUpdate as (p: Partial<AccordionBlock>) => void} />;
     case 'quote':
@@ -585,6 +696,8 @@ function BlockContent({ block, onUpdate }: { block: Block; onUpdate: (patch: Par
       );
     case 'download':
       return <DownloadEditor block={block} onUpdate={onUpdate as (p: Partial<DownloadBlock>) => void} />;
+    case 'code':
+      return <CodeEditor block={block} onUpdate={onUpdate as (p: Partial<CodeBlock>) => void} />;
     default:
       return <div style={{ color: palette.muted, fontSize: 13 }}>Type de bloc non supporté</div>;
   }
@@ -594,9 +707,10 @@ const BLOCK_TYPE_LABELS: Record<string, string> = {
   text: 'Texte', image: 'Image', video: 'Vidéo', audio: 'Audio',
   accordion: 'Accordéon', quote: 'Citation', separator: 'Séparateur',
   callout: 'Callout', qcm: 'QCM', qcm_scored: 'QCM scoré', download: 'Téléchargement',
+  code: 'Code',
 };
 
-export function BlockItem({ block, onUpdate, onDelete, onMoveUp, onMoveDown, onOpenAi }: BlockItemProps) {
+export function BlockItem({ block, courseId, onUpdate, onDelete, onMoveUp, onMoveDown, onOpenAi }: BlockItemProps) {
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -668,7 +782,7 @@ export function BlockItem({ block, onUpdate, onDelete, onMoveUp, onMoveDown, onO
         >
           {BLOCK_TYPE_LABELS[block.type] || block.type}
         </div>
-        <BlockContent block={block} onUpdate={onUpdate} />
+        <BlockContent block={block} onUpdate={onUpdate} courseId={courseId} />
       </div>
 
       {/* Right toolbar */}

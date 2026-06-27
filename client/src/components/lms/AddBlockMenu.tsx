@@ -14,6 +14,7 @@ const BLOCK_GROUPS = [
       { type: 'image' as BlockType, icon: '🖼', label: 'Image' },
       { type: 'video' as BlockType, icon: '▶', label: 'Vidéo' },
       { type: 'audio' as BlockType, icon: '♪', label: 'Audio' },
+      { type: 'code' as BlockType, icon: '{ }', label: 'Code' },
     ],
   },
   {

@@ -6,6 +6,7 @@ import { AddBlockMenu } from './AddBlockMenu';
 interface LessonCanvasProps {
   chapter: Chapter;
   lesson: Lesson;
+  courseId?: string;
   onAddBlock: (type: BlockType) => void;
   onUpdateBlock: (blockId: string, patch: Partial<Block>) => void;
   onDeleteBlock: (blockId: string) => void;
@@ -70,6 +71,7 @@ function AddBlockZone({ onAdd }: { onAdd: (type: BlockType) => void }) {
 export function LessonCanvas({
   chapter,
   lesson,
+  courseId,
   onAddBlock,
   onUpdateBlock,
   onDeleteBlock,
@@ -160,6 +162,7 @@ export function LessonCanvas({
               <React.Fragment key={block.id}>
                 <BlockItem
                   block={block}
+                  courseId={courseId}
                   onUpdate={(patch) => onUpdateBlock(block.id, patch)}
                   onDelete={() => onDeleteBlock(block.id)}
                   onMoveUp={() => onMoveBlock(idx, idx - 1)}

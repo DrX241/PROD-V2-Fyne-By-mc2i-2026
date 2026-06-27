@@ -5,6 +5,7 @@ import type { LmsCourseContent, Chapter, Lesson, Block, BlockType } from '../../
 import { EditorSidebar } from '../../components/lms/EditorSidebar';
 import { LessonCanvas } from '../../components/lms/LessonCanvas';
 import { AiAssistPanel } from '../../components/lms/AiAssistPanel';
+import { LessonPreview } from '../../components/lms/LessonPreview';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -55,6 +56,8 @@ function createBlock(type: BlockType): Block {
       };
     case 'download':
       return { id, type, url: '', fileName: '', aiPlaceholder: 'Ajoutez un fichier à télécharger...' };
+    case 'code':
+      return { id, type, language: 'javascript', code: '', aiPlaceholder: 'Ajoutez un exemple de code...' };
     default:
       return { id, type: 'text', html: '' } as any;
   }
@@ -85,6 +88,8 @@ export default function LmsEditorPage() {
   const [aiTargetBlockId, setAiTargetBlockId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState('');
+  const [previewMode, setPreviewMode] = useState(false);
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -376,6 +381,25 @@ export default function LmsEditorPage() {
     updateCourse((prev) => ({ ...prev, title: titleDraft.trim() }));
   };
 
+  const exportScorm = async () => {
+    if (!course) return;
+    setExportMenuOpen(false);
+    try {
+      const res = await fetch(`/api/lms/courses/${course.id}/export/scorm`, { method: 'POST' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${course.title || 'cours'}_scorm.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('[Export SCORM]', err);
+      alert('Erreur lors de l\'export SCORM.');
+    }
+  };
+
   const handlePublish = async () => {
     if (!course) return;
     try {
@@ -531,7 +555,7 @@ export default function LmsEditorPage() {
           </span>
         </div>
 
-        {/* Right: save state + AI toggle + publish */}
+        {/* Right: save state + AI toggle + preview + export + publish */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span
             style={{
@@ -555,6 +579,60 @@ export default function LmsEditorPage() {
           >
             <span>✦</span> IA
           </button>
+
+          <button
+            onClick={() => setPreviewMode((v) => !v)}
+            style={{
+              padding: '5px 12px', borderRadius: 6, cursor: 'pointer',
+              fontFamily: font.sans, fontSize: 12, fontWeight: 600,
+              border: `1px solid ${previewMode ? palette.accent : palette.border}`,
+              background: previewMode ? '#e8f0ff' : 'none',
+              color: previewMode ? palette.accent : palette.muted,
+            }}
+          >
+            {previewMode ? 'Éditer' : 'Aperçu'}
+          </button>
+
+          {/* Export dropdown */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setExportMenuOpen((v) => !v)}
+              style={{
+                padding: '5px 12px', borderRadius: 6, cursor: 'pointer',
+                fontFamily: font.sans, fontSize: 12, fontWeight: 600,
+                border: `1px solid ${palette.border}`,
+                background: 'none',
+                color: palette.muted,
+                display: 'flex', alignItems: 'center', gap: 4,
+              }}
+            >
+              Exporter ▾
+            </button>
+            {exportMenuOpen && (
+              <div
+                style={{
+                  position: 'absolute', top: '100%', right: 0, marginTop: 4,
+                  background: '#fff', border: `1px solid ${palette.border}`,
+                  borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                  zIndex: 200, minWidth: 160, overflow: 'hidden',
+                }}
+              >
+                <button
+                  onClick={exportScorm}
+                  style={{
+                    display: 'block', width: '100%', padding: '9px 16px',
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontFamily: font.sans, fontSize: 13, color: palette.text,
+                    textAlign: 'left',
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#f1f5f9'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
+                >
+                  📦 SCORM 1.2
+                </button>
+              </div>
+            )}
+          </div>
 
           <button
             onClick={handlePublish}
@@ -590,16 +668,25 @@ export default function LmsEditorPage() {
         {/* Canvas */}
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {activeChapter && activeLesson ? (
-            <LessonCanvas
-              chapter={activeChapter}
-              lesson={activeLesson}
-              onAddBlock={(type) => addBlock(activeChapterId!, activeLessonId!, type)}
-              onUpdateBlock={(blockId, patch) => updateBlock(activeChapterId!, activeLessonId!, blockId, patch)}
-              onDeleteBlock={(blockId) => deleteBlock(activeChapterId!, activeLessonId!, blockId)}
-              onMoveBlock={(fromIdx, toIdx) => moveBlock(activeChapterId!, activeLessonId!, fromIdx, toIdx)}
-              onOpenAi={(blockId) => { setAiTargetBlockId(blockId); setAiPanelOpen(true); }}
-              onUpdateLessonDescription={(desc) => updateLessonDescription(activeChapterId!, activeLessonId!, desc)}
-            />
+            previewMode ? (
+              <LessonPreview
+                chapter={activeChapter}
+                lesson={activeLesson}
+                courseTitle={course.title}
+              />
+            ) : (
+              <LessonCanvas
+                chapter={activeChapter}
+                lesson={activeLesson}
+                courseId={courseId}
+                onAddBlock={(type) => addBlock(activeChapterId!, activeLessonId!, type)}
+                onUpdateBlock={(blockId, patch) => updateBlock(activeChapterId!, activeLessonId!, blockId, patch)}
+                onDeleteBlock={(blockId) => deleteBlock(activeChapterId!, activeLessonId!, blockId)}
+                onMoveBlock={(fromIdx, toIdx) => moveBlock(activeChapterId!, activeLessonId!, fromIdx, toIdx)}
+                onOpenAi={(blockId) => { setAiTargetBlockId(blockId); setAiPanelOpen(true); }}
+                onUpdateLessonDescription={(desc) => updateLessonDescription(activeChapterId!, activeLessonId!, desc)}
+              />
+            )
           ) : (
             <NoLessonPlaceholder
               hasChapters={(content?.chapters.length ?? 0) > 0}

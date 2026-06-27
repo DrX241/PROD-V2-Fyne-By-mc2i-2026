@@ -8519,6 +8519,282 @@ Sinon → retourne la formation complète modifiée avec le même schéma JSON.`
     }
   });
 
+  // POST /api/lms/media/presigned-url — génère une presigned PUT URL S3
+  app.post('/api/lms/media/presigned-url', requireMakerOrAdmin, async (req: Request, res: Response) => {
+    try {
+      const { fileName, fileType, courseId } = req.body;
+      if (!fileName || !fileType || !courseId) return res.status(400).json({ error: 'fileName, fileType, courseId requis' });
+
+      const { S3Client, PutObjectCommand } = await import('@aws-sdk/client-s3');
+      const { getSignedUrl } = await import('@aws-sdk/s3-request-presigner');
+
+      const s3 = new S3Client({ region: process.env.AWS_REGION || 'eu-west-3' });
+      const bucket = process.env.S3_BUCKET || 'fyne-deploy-845145401592';
+      const key = `lms/${courseId}/${crypto.randomUUID()}-${fileName.replace(/[^a-z0-9.\-_]/gi, '_')}`;
+
+      const command = new PutObjectCommand({
+        Bucket: bucket,
+        Key: key,
+        ContentType: fileType,
+      });
+
+      const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 300 });
+      const publicUrl = `https://${bucket}.s3.eu-west-3.amazonaws.com/${key}`;
+
+      res.json({ presignedUrl, publicUrl, key });
+    } catch (err) {
+      console.error('[LMS Media] presigned-url', err);
+      res.status(500).json({ error: 'Erreur génération URL upload' });
+    }
+  });
+
+  // POST /api/lms/courses/:id/export/scorm — Export SCORM 1.2 compatible Percipio/Workday
+  app.post('/api/lms/courses/:id/export/scorm', requireMakerOrAdmin, async (req: Request, res: Response) => {
+    try {
+      const course = await storage.getLmsCourse(req.params.id);
+      if (!course) return res.status(404).json({ error: 'Cours introuvable' });
+
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      const content: any = course.content || { chapters: [] };
+      const chapters: any[] = content.chapters || [];
+      const title = course.title || 'Formation';
+      const safeName = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+      // Collect all lessons with their page filenames
+      const allLessons: { chIdx: number; lIdx: number; chapter: any; lesson: any; file: string }[] = [];
+      chapters.forEach((ch: any, ci: number) => {
+        (ch.lessons || []).forEach((l: any, li: number) => {
+          allLessons.push({ chIdx: ci, lIdx: li, chapter: ch, lesson: l, file: `ch${ci+1}_l${li+1}.html` });
+        });
+      });
+
+      // shared/styles.css
+      const css = `/* FYNE LMS — Percipio/Workday compatible */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#fff;color:#0d0d0d;line-height:1.7}
+.lms-wrap{max-width:760px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:28px;font-weight:800;margin-bottom:8px}
+h2{font-size:22px;font-weight:700;margin:32px 0 12px}
+p{margin-bottom:16px;font-size:15px}
+img{max-width:100%;height:auto;display:block;margin:16px auto}
+.caption{text-align:center;font-size:12px;color:#6b7280;margin-top:4px;margin-bottom:16px}
+video,audio{width:100%;margin:16px 0}
+iframe.video-embed{width:100%;aspect-ratio:16/9;border:none;margin:16px 0}
+pre{background:#0d1117;color:#e6edf3;padding:20px;overflow:auto;font-size:13px;line-height:1.6;margin:16px 0;font-family:'Courier New',monospace}
+blockquote{border-left:4px solid #0057ff;padding:12px 16px;margin:16px 0;font-style:italic;color:#374151;background:#f8faff}
+blockquote cite{display:block;margin-top:8px;font-size:13px;font-style:normal;color:#6b7280;font-weight:600}
+details{border:1px solid #e5e7eb;margin-bottom:8px}
+details summary{padding:12px 16px;cursor:pointer;font-weight:600;font-size:14px;background:#f8f9fa;user-select:none}
+details[open] summary{border-bottom:1px solid #e5e7eb}
+.details-content{padding:12px 16px;font-size:14px}
+.callout{padding:14px 18px;margin:16px 0;border-left:4px solid}
+.callout-info{background:#eff6ff;border-color:#0057ff;color:#1e3a8a}
+.callout-warning{background:#fffbeb;border-color:#d97706;color:#92400e}
+.callout-tip{background:#f0fdf4;border-color:#059669;color:#065f46}
+.callout-danger{background:#fef2f2;border-color:#dc2626;color:#991b1b}
+.callout-title{font-weight:700;margin-bottom:4px;font-size:14px}
+.callout-content{font-size:14px}
+.qcm-box{background:#f8f9fa;padding:20px;margin:16px 0}
+.qcm-q{font-weight:700;margin-bottom:14px;font-size:15px}
+.qcm-opt{display:block;width:100%;text-align:left;padding:10px 14px;margin-bottom:8px;border:1.5px solid #e5e7eb;background:#fff;cursor:pointer;font-size:14px;transition:border-color .15s}
+.qcm-opt:hover{border-color:#0057ff}
+.qcm-opt.correct{border-color:#059669;background:#f0fdf4;color:#065f46;font-weight:600}
+.qcm-opt.wrong{border-color:#dc2626;background:#fef2f2;color:#991b1b}
+.qcm-expl{font-size:13px;color:#6b7280;padding:10px;background:#f9fafb;margin-top:8px;border-left:2px solid #e5e7eb;display:none}
+.download-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:#0057ff;color:#fff;font-weight:700;font-size:14px;text-decoration:none;margin:16px 0}
+.sep-line{border:none;border-top:1px solid #e5e7eb;margin:24px 0}
+.sep-dots{text-align:center;color:#9ca3af;font-size:20px;margin:24px 0;letter-spacing:8px}
+.nav-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e5e7eb;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;z-index:100}
+.nav-btn{padding:10px 24px;font-weight:700;font-size:14px;cursor:pointer;border:none}
+.nav-btn-prev{background:#f3f4f6;color:#374151}
+.nav-btn-next{background:#0057ff;color:#fff}
+.lesson-header{border-bottom:2px solid #e5e7eb;padding-bottom:16px;margin-bottom:32px}
+.lesson-title{font-size:24px;font-weight:800}
+.lesson-desc{color:#6b7280;font-size:14px;margin-top:6px}
+.progress-bar{height:3px;background:#e5e7eb;margin-bottom:32px}
+.progress-fill{height:3px;background:#0057ff;transition:width .3s}`;
+
+      // scorm_api.js
+      const scormJs = `(function(){
+  var API=null,startTime=new Date();
+  function findAPI(w){var a=0;while(w){try{if(w.API)return w.API;}catch(e){}try{if(w.opener&&w.opener!==w&&a<5){var r=findAPI(w.opener);if(r)return r;}}catch(e){}try{if(w.parent&&w.parent!==w){w=w.parent;a++;}else break;}catch(e){break;}}return null;}
+  function formatTime(ms){var s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=s%60;return(h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(sc<10?'0':'')+sc+'.00';}
+  API=findAPI(window);
+  window.SCORM={
+    init:function(){try{if(API){API.LMSInitialize('');API.LMSSetValue('cmi.core.lesson_status','incomplete');API.LMSCommit('');}}catch(e){}},
+    finish:function(score){try{if(API){var e=formatTime(new Date()-startTime);API.LMSSetValue('cmi.core.score.raw',String(Math.round(score||0)));API.LMSSetValue('cmi.core.score.min','0');API.LMSSetValue('cmi.core.score.max','100');API.LMSSetValue('cmi.core.lesson_status',score>=70?'passed':'failed');API.LMSSetValue('cmi.core.session_time',e);API.LMSCommit('');API.LMSFinish('');}}catch(e){}},
+    complete:function(){try{if(API){var e=formatTime(new Date()-startTime);API.LMSSetValue('cmi.core.lesson_status','completed');API.LMSSetValue('cmi.core.session_time',e);API.LMSCommit('');API.LMSFinish('');}}catch(e){}},
+    suspend:function(){try{if(API){API.LMSSetValue('cmi.core.lesson_status','incomplete');API.LMSSetValue('cmi.core.session_time',formatTime(new Date()-startTime));API.LMSCommit('');API.LMSFinish('');}}catch(e){}},
+  };
+  window.addEventListener('load',function(){SCORM.init();});
+  window.addEventListener('beforeunload',function(){if(!window._scormDone)SCORM.suspend();});
+})();`;
+
+      // Helper to render a block to HTML
+      function blockToHtml(block: any): string {
+        switch (block.type) {
+          case 'text': return `<div class="text-block">${block.html || ''}</div>`;
+          case 'image': return block.url ? `<figure><img src="${block.url}" alt="${block.alt||''}" />${block.caption?`<figcaption class="caption">${block.caption}</figcaption>`:''}</figure>` : '';
+          case 'video': {
+            if (!block.url) return '';
+            if (block.source === 'youtube') {
+              const vid = block.url.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1];
+              return vid ? `<iframe class="video-embed" src="https://www.youtube.com/embed/${vid}" allowfullscreen></iframe>` : '';
+            }
+            if (block.source === 'vimeo') {
+              const vid = block.url.match(/vimeo\.com\/(\d+)/)?.[1];
+              return vid ? `<iframe class="video-embed" src="https://player.vimeo.com/video/${vid}" allowfullscreen></iframe>` : '';
+            }
+            return `<video controls><source src="${block.url}" type="video/mp4"></video>`;
+          }
+          case 'audio': return block.url ? `<audio controls><source src="${block.url}"></audio>${block.title?`<div style="font-size:13px;color:#6b7280;margin-top:4px">${block.title}</div>`:''}` : '';
+          case 'code': return `<pre><code>${(block.code||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</code></pre>`;
+          case 'accordion': return `<div class="accordion">${(block.items||[]).map((it:any)=>`<details><summary>${it.title||''}</summary><div class="details-content">${it.content||''}</div></details>`).join('')}</div>`;
+          case 'quote': return `<blockquote>${block.text||''}${block.author?`<cite>${block.author}${block.role?` · ${block.role}`:''}</cite>`:''}</blockquote>`;
+          case 'separator': return block.style==='dots'?`<div class="sep-dots">···</div>`:`<hr class="sep-line">`;
+          case 'callout': return `<div class="callout callout-${block.variant||'info'}">${block.title?`<div class="callout-title">${block.title}</div>`:''}<div class="callout-content">${block.content||''}</div></div>`;
+          case 'qcm': {
+            const qId = `qcm_${block.id}`;
+            const opts = (block.options||[]).map((o:any,oi:number)=>`<button class="qcm-opt" data-correct="${o.correct}" onclick="answerQcm('${qId}',this)">${'ABCD'[oi]}. ${o.text}</button>`).join('');
+            return `<div class="qcm-box" id="${qId}"><div class="qcm-q">${block.question||''}</div>${opts}${block.explanation?`<div class="qcm-expl" id="${qId}_expl">${block.explanation}</div>`:''}</div>`;
+          }
+          case 'download': return block.url ? `<a href="${block.url}" class="download-btn" download="${block.fileName||'fichier'}">↓ ${block.fileName||'Télécharger'}</a>` : '';
+          default: return '';
+        }
+      }
+
+      const qcmScript = `<script>function answerQcm(qId,btn){var box=document.getElementById(qId);if(box.dataset.answered)return;box.dataset.answered='1';var btns=box.querySelectorAll('.qcm-opt');btns.forEach(function(b){b.disabled=true;b.classList.add(b.dataset.correct==='true'?'correct':'wrong');});var expl=document.getElementById(qId+'_expl');if(expl)expl.style.display='block';}</script>`;
+
+      // Generate a lesson HTML page
+      function lessonToHtml(item: typeof allLessons[0], idx: number): string {
+        const { lesson, chapter } = item;
+        const blocks: any[] = lesson.blocks || [];
+        const progress = Math.round(((idx + 1) / allLessons.length) * 100);
+        const prevFile = idx > 0 ? allLessons[idx-1].file : null;
+        const nextFile = idx < allLessons.length - 1 ? allLessons[idx+1].file : null;
+        const isLast = idx === allLessons.length - 1;
+
+        const blocksHtml = blocks.map(blockToHtml).filter(Boolean).join('\n');
+
+        return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${lesson.title||'Leçon'} — ${title}</title>
+<link rel="stylesheet" href="shared/styles.css">
+<script src="shared/scorm_api.js"></script>
+</head>
+<body>
+<div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+<div class="lms-wrap">
+  <div class="lesson-header">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#6b7280;margin-bottom:4px">${chapter.title||''}</div>
+    <div class="lesson-title">${lesson.title||''}</div>
+    ${lesson.description ? `<div class="lesson-desc">${lesson.description}</div>` : ''}
+  </div>
+  ${blocksHtml}
+  <div style="height:64px"></div>
+</div>
+<nav class="nav-bar">
+  <span style="font-size:12px;color:#6b7280;font-family:'Courier New',monospace">${idx+1} / ${allLessons.length}</span>
+  <div style="display:flex;gap:8px">
+    ${prevFile ? `<button class="nav-btn nav-btn-prev" onclick="location.href='${prevFile}'">← Précédent</button>` : '<span></span>'}
+    ${isLast
+      ? `<button class="nav-btn nav-btn-next" onclick="window._scormDone=true;SCORM.complete();alert('Formation terminée !')">Terminer ✓</button>`
+      : `<button class="nav-btn nav-btn-next" onclick="location.href='${nextFile}'">Suivant →</button>`
+    }
+  </div>
+</nav>
+${qcmScript}
+</body>
+</html>`;
+      }
+
+      // index.html — course overview
+      const indexHtml = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title}</title>
+<link rel="stylesheet" href="shared/styles.css">
+<script src="shared/scorm_api.js"></script>
+</head>
+<body>
+<div class="lms-wrap">
+  <h1>${title}</h1>
+  ${course.description ? `<p style="color:#6b7280;margin-bottom:32px">${course.description}</p>` : ''}
+  ${chapters.map((ch: any, ci: number) => `
+    <h2>${ch.title||`Chapitre ${ci+1}`}</h2>
+    <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:24px">
+    ${(ch.lessons||[]).map((l: any, li: number) => {
+      const fileIdx = allLessons.findIndex((x: any) => x.chIdx===ci && x.lIdx===li);
+      const file = allLessons[fileIdx]?.file || '';
+      return `<a href="${file}" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border:1px solid #e5e7eb;text-decoration:none;color:#0d0d0d;font-size:14px;font-weight:500">
+        <span style="width:28px;height:28px;background:#0057ff;color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${fileIdx+1}</span>
+        ${l.title||`Leçon ${li+1}`}
+      </a>`;
+    }).join('')}
+    </div>
+  `).join('')}
+  ${allLessons.length > 0 ? `<a href="${allLessons[0].file}" class="download-btn" style="margin-top:16px">Commencer →</a>` : ''}
+  <div style="height:32px"></div>
+</div>
+</body>
+</html>`;
+
+      // imsmanifest.xml
+      const manifest = `<?xml version="1.0" encoding="UTF-8"?>
+<manifest identifier="fyne_lms_${safeName}" version="1.0"
+  xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"
+  xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.imsproject.org/xsd/imscp_rootv1p1p2 imscp_rootv1p1p2.xsd http://www.adlnet.org/xsd/adlcp_rootv1p2 adlcp_rootv1p2.xsd">
+  <metadata><schema>ADL SCORM</schema><schemaversion>1.2</schemaversion></metadata>
+  <organizations default="org1">
+    <organization identifier="org1">
+      <title>${title}</title>
+      <item identifier="item_overview" identifierref="res_overview" isvisible="true">
+        <title>${title}</title>
+      </item>
+      ${allLessons.map((item: any, i: number) => `<item identifier="item_${i+1}" identifierref="res_${i+1}" isvisible="true">
+        <title>${item.lesson.title||`Leçon ${i+1}`}</title>
+        <adlcp:masteryscore>70</adlcp:masteryscore>
+      </item>`).join('\n      ')}
+    </organization>
+  </organizations>
+  <resources>
+    <resource identifier="res_overview" type="webcontent" adlcp:scormtype="sco" href="index.html">
+      <file href="index.html"/>
+      <file href="shared/styles.css"/>
+      <file href="shared/scorm_api.js"/>
+    </resource>
+    ${allLessons.map((item: any, i: number) => `<resource identifier="res_${i+1}" type="webcontent" adlcp:scormtype="sco" href="${item.file}">
+      <file href="${item.file}"/>
+    </resource>`).join('\n    ')}
+  </resources>
+</manifest>`;
+
+      // Build ZIP
+      zip.file('imsmanifest.xml', manifest);
+      zip.file('shared/styles.css', css);
+      zip.file('shared/scorm_api.js', scormJs);
+      zip.file('index.html', indexHtml);
+      allLessons.forEach((item: any) => {
+        const idx = allLessons.indexOf(item);
+        zip.file(item.file, lessonToHtml(item, idx));
+      });
+
+      const zipBuffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+      res.setHeader('Content-Disposition', `attachment; filename="${safeName}_scorm.zip"`);
+      res.setHeader('Content-Type', 'application/zip');
+      res.send(zipBuffer);
+    } catch (err) {
+      console.error('[LMS Export SCORM]', err);
+      if (!res.headersSent) res.status(500).json({ error: 'Erreur export SCORM' });
+    }
+  });
+
   // POST /api/lms/ai/inspire-block — Génère du contenu IA pour un bloc LMS
   app.post('/api/lms/ai/inspire-block', requireMakerOrAdmin, async (req: Request, res: Response) => {
     try {
