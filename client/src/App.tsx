@@ -34,6 +34,9 @@ import LmsEditorPage from "./pages/playground/lms-editor";
 import StudioIA from "./pages/playground/studio-ia";
 import StudioDocuments from "./pages/playground/studio-documents";
 import LessonPlayer from "./pages/playground/lesson-player";
+import LmsDashboardPage from "./pages/playground/lms-dashboard";
+import LmsCataloguePage from "./pages/playground/lms-catalogue";
+import LmsParcoursPage from "./pages/playground/lms-parcours";
 
 // Import des pages de la nouvelle interface cyber V3
 import CyberV3 from "./pages/cyber-v3";
@@ -211,7 +214,11 @@ function AppContent() {
                 )}
 <Route path="/playground/lms/editor/:id" component={LmsEditorPage} />
                 <Route path="/playground/lms/new" component={LmsTemplatePickerPage} />
+                <Route path="/playground/lms/dashboard" component={LmsDashboardPage} />
+                <Route path="/playground/lms/catalogue" component={LmsCataloguePage} />
+                <Route path="/playground/lms/parcours" component={LmsParcoursPage} />
                 <Route path="/playground/lms" component={LmsListPage} />
+                <Route path="/playground" component={ModuleGeneratorNew} />
                 <Route path="/playground/module-generator" component={ModuleGeneratorNew} />
                 <Route path="/playground/module/:id" component={ModuleDetail} />
                 <Route path="/playground/player/:id" component={TrainingPlayer} />
