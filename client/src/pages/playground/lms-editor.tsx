@@ -6,6 +6,7 @@ import { EditorSidebar } from '../../components/lms/EditorSidebar';
 import { LessonCanvas } from '../../components/lms/LessonCanvas';
 import { AiAssistPanel } from '../../components/lms/AiAssistPanel';
 import { LessonPreview } from '../../components/lms/LessonPreview';
+import { BlockLibraryPanel } from '../../components/lms/BlockLibraryPanel';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -85,11 +86,13 @@ export default function LmsEditorPage() {
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [aiMenuOpen, setAiMenuOpen] = useState(false);
   const [aiTargetBlockId, setAiTargetBlockId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState('');
   const [previewMode, setPreviewMode] = useState(false);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const [blockLibraryOpen, setBlockLibraryOpen] = useState(true);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -603,30 +606,93 @@ export default function LmsEditorPage() {
           </span>
         </div>
 
-        {/* Right: save state + AI toggle + preview + export + publish */}
+        {/* Right: save state + Library toggle + AI dropdown + preview + export + publish */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span
-            style={{
-              fontSize: 11, fontFamily: font.mono, color: saveColor,
-              letterSpacing: '0.04em',
-            }}
-          >
+          <span style={{ fontSize: 11, fontFamily: font.mono, color: saveColor, letterSpacing: '0.04em' }}>
             {saveLabel}
           </span>
 
           <button
-            onClick={() => setAiPanelOpen((v) => !v)}
+            onClick={() => setBlockLibraryOpen((v) => !v)}
+            title="Bibliothèque de blocs"
             style={{
               padding: '5px 12px', borderRadius: 6, cursor: 'pointer',
               fontFamily: font.sans, fontSize: 12, fontWeight: 600,
-              border: `1px solid ${aiPanelOpen ? palette.accent : palette.border}`,
-              background: aiPanelOpen ? '#e8f0ff' : 'none',
-              color: aiPanelOpen ? palette.accent : palette.muted,
+              border: `1px solid ${blockLibraryOpen ? palette.accent : palette.border}`,
+              background: blockLibraryOpen ? '#e8f0ff' : 'none',
+              color: blockLibraryOpen ? palette.accent : palette.muted,
               display: 'flex', alignItems: 'center', gap: 5,
             }}
           >
-            <span>✦</span> IA
+            ⊞ Blocs
           </button>
+
+          {/* AI dropdown */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setAiMenuOpen((v) => !v)}
+              style={{
+                padding: '5px 12px', borderRadius: 6, cursor: 'pointer',
+                fontFamily: font.sans, fontSize: 12, fontWeight: 600,
+                border: `1px solid ${(aiPanelOpen || aiMenuOpen) ? palette.accent : palette.border}`,
+                background: (aiPanelOpen || aiMenuOpen) ? '#e8f0ff' : 'none',
+                color: (aiPanelOpen || aiMenuOpen) ? palette.accent : palette.muted,
+                display: 'flex', alignItems: 'center', gap: 5,
+              }}
+            >
+              <span>✦</span> IA ▾
+            </button>
+            {aiMenuOpen && (
+              <div
+                style={{
+                  position: 'absolute', top: '100%', right: 0, marginTop: 4,
+                  background: '#fff', border: `1px solid ${palette.border}`,
+                  borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                  zIndex: 300, minWidth: 200, overflow: 'hidden',
+                }}
+                onMouseLeave={() => setAiMenuOpen(false)}
+              >
+                {[
+                  { icon: '✦', label: 'Générer un bloc', action: () => { setAiMenuOpen(false); setAiPanelOpen(true); } },
+                  { icon: '?', label: 'Générer un QCM', action: () => {
+                    setAiMenuOpen(false);
+                    if (activeChapterId && activeLessonId) addBlock(activeChapterId, activeLessonId, 'qcm');
+                    setAiPanelOpen(true);
+                  }},
+                  { icon: '≡', label: 'Résumé de la leçon', action: () => { setAiMenuOpen(false); setAiPanelOpen(true); } },
+                ].map((item) => (
+                  <button
+                    key={item.label}
+                    onClick={item.action}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+                      padding: '9px 14px', background: 'none', border: 'none', cursor: 'pointer',
+                      fontFamily: font.sans, fontSize: 13, color: palette.text, textAlign: 'left',
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#f1f5f9'; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
+                  >
+                    <span style={{ color: palette.accent, fontWeight: 700 }}>{item.icon}</span>
+                    {item.label}
+                  </button>
+                ))}
+                <div style={{ borderTop: `1px solid ${palette.border}`, margin: '4px 0' }} />
+                <button
+                  onClick={() => { setAiMenuOpen(false); setAiPanelOpen((v) => !v); }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+                    padding: '9px 14px', background: 'none', border: 'none', cursor: 'pointer',
+                    fontFamily: font.sans, fontSize: 13, color: palette.muted, textAlign: 'left',
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#f1f5f9'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
+                >
+                  <span>⊙</span>
+                  {aiPanelOpen ? 'Fermer l\'assistant' : 'Ouvrir l\'assistant'}
+                </button>
+              </div>
+            )}
+          </div>
 
           <button
             onClick={() => setPreviewMode((v) => !v)}
@@ -699,7 +765,7 @@ export default function LmsEditorPage() {
 
       {/* ── BODY ── */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        {/* Sidebar */}
+        {/* Course structure sidebar */}
         <EditorSidebar
           course={course as any}
           activeChapterId={activeChapterId}
@@ -712,6 +778,15 @@ export default function LmsEditorPage() {
           onUpdateChapterTitle={updateChapterTitle}
           onUpdateLessonTitle={updateLessonTitle}
         />
+
+        {/* Block library panel */}
+        {blockLibraryOpen && !previewMode && (
+          <BlockLibraryPanel
+            onAdd={(type) => {
+              if (activeChapterId && activeLessonId) addBlock(activeChapterId, activeLessonId, type);
+            }}
+          />
+        )}
 
         {/* Canvas */}
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
