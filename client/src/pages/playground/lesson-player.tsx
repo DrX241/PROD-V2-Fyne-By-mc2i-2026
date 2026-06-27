@@ -718,275 +718,317 @@ export default function LessonPlayer({ backRoute }: { backRoute?: string } = {})
     const slideTypeColor: Record<string, string> = { theorie: BLUE, pratique: PINK, 'fill-blank': PURPLE, 'vrai-faux': AMBER, intro: '#6b7280', conclusion: '#6b7280' };
     const slideTypeLabel: Record<string, string> = { theorie: 'THÉORIE', pratique: 'PRATIQUE', 'fill-blank': 'TEXTE À TROUS', 'vrai-faux': 'VRAI/FAUX', intro: 'INTRO', conclusion: 'CONCLUSION' };
 
+    const duplicateSlide = (idx: number) => {
+      if (!editLesson) return;
+      const copy = { ...JSON.parse(JSON.stringify(editLesson.slides[idx])), id: Math.max(0, ...editLesson.slides.map(s => s.id)) + 1 };
+      const slides = [...editLesson.slides.slice(0, idx + 1), copy, ...editLesson.slides.slice(idx + 1)];
+      setEditLesson({ ...editLesson, slides });
+      setEditSlideIdx(idx + 1);
+    };
+
     return (
-      <div style={{ minHeight: '100vh', background: '#f1f5f9', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ height: '100vh', background: '#0d1117', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <style>{`
           @keyframes spin { to { transform: rotate(360deg); } }
-          .edit-input { width: 100%; padding: 10px 14px; border: 1.5px solid #e2e8f0; background: white; color: #1e293b; font-size: 14px; font-family: inherit; outline: none; resize: vertical; line-height: 1.6; transition: border-color .15s; }
-          .edit-input:focus { border-color: #006a9e; }
-          .edit-label { display: block; font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
-          .edit-field { margin-bottom: 18px; }
+          @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+          .edit-input { width: 100%; padding: 9px 12px; border: 1.5px solid #2d3748; background: #161b22; color: #e2e8f0; font-size: 13px; font-family: inherit; outline: none; resize: vertical; line-height: 1.6; transition: border-color .15s; box-sizing: border-box; }
+          .edit-input:focus { border-color: #3b82f6; }
+          .edit-label { display: block; font-size: 10px; font-weight: 700; color: #64748b; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 5px; }
+          .edit-field { margin-bottom: 16px; }
+          .slide-thumb:hover { border-color: rgba(255,255,255,0.2) !important; background: rgba(255,255,255,0.05) !important; }
         `}</style>
 
-        {/* Header éditeur */}
-        <div style={{ background: DARK, padding: '0 24px', height: 56, display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 50, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-          <button onClick={cancelEditing} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
-            <X size={16} /> Annuler
+        {/* ── Barre supérieure ── */}
+        <div style={{ background: '#161b22', borderBottom: '1px solid #2d3748', padding: '0 20px', height: 52, display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, zIndex: 50 }}>
+          <button onClick={cancelEditing} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, padding: '6px 10px' }}>
+            <X size={14} /> Fermer
           </button>
-          <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.1)' }} />
-          <div style={{ flex: 1 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase' }}>Mode édition</span>
-            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginLeft: 12 }}>{editLesson.title}</span>
+          <div style={{ width: 1, height: 18, background: '#2d3748' }} />
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', letterSpacing: 2, textTransform: 'uppercase' }}>Studio</span>
+            <span style={{ color: '#2d3748' }}>›</span>
+            <span style={{ fontSize: 13, color: '#94a3b8', maxWidth: 320, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{editLesson.title}</span>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            {['slides', 'qcm', 'meta'].map(tab => (
-              <button key={tab} onClick={() => setEditTab(tab as any)}
-                style={{ padding: '6px 14px', border: 'none', background: editTab === tab ? 'rgba(255,255,255,0.12)' : 'transparent', color: editTab === tab ? 'white' : 'rgba(255,255,255,0.45)', cursor: 'pointer', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>
-                {tab === 'slides' ? 'Slides' : tab === 'qcm' ? 'QCM' : 'Infos'}
+          {/* Tabs */}
+          <div style={{ display: 'flex', gap: 2, background: '#0d1117', padding: '3px', border: '1px solid #2d3748' }}>
+            {(['slides', 'qcm', 'meta'] as const).map(tab => (
+              <button key={tab} onClick={() => setEditTab(tab)}
+                style={{ padding: '5px 14px', border: 'none', background: editTab === tab ? '#2d3748' : 'transparent', color: editTab === tab ? '#f1f5f9' : '#64748b', cursor: 'pointer', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, transition: 'all .15s' }}>
+                {tab === 'slides' ? `Slides (${editLesson.slides.length})` : tab === 'qcm' ? `QCM (${editLesson.qcm?.length || 0})` : 'Infos'}
               </button>
             ))}
           </div>
-          <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.1)' }} />
+          <div style={{ width: 1, height: 18, background: '#2d3748' }} />
+          {/* Live indicator */}
+          {editTab === 'slides' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', background: '#064e3b', border: '1px solid #065f46' }}>
+              <div style={{ width: 6, height: 6, background: '#10b981', borderRadius: '50%', animation: 'livePulse 2s ease-in-out infinite' }} />
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', letterSpacing: 1 }}>PREVIEW LIVE</span>
+            </div>
+          )}
           <button onClick={saveEditing} disabled={saveStatus === 'saving'}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 20px', border: 'none', background: saveStatus === 'saved' ? GREEN : saveStatus === 'error' ? RED : BLUE, color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>
-            {saveStatus === 'saving' ? <div style={{ width: 14, height: 14, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> : <Save size={14} />}
-            {saveStatus === 'saving' ? 'Sauvegarde...' : saveStatus === 'saved' ? '✓ Sauvegardé' : saveStatus === 'error' ? 'Erreur' : 'Sauvegarder'}
+            style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 18px', border: 'none', background: saveStatus === 'saved' ? '#059669' : saveStatus === 'error' ? '#dc2626' : '#3b82f6', color: 'white', cursor: saveStatus === 'saving' ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 12, letterSpacing: 0.5 }}>
+            {saveStatus === 'saving' ? <div style={{ width: 12, height: 12, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> : <Save size={13} />}
+            {saveStatus === 'saving' ? 'Enregistrement...' : saveStatus === 'saved' ? '✓ Enregistré' : saveStatus === 'error' ? 'Erreur' : 'Enregistrer'}
           </button>
         </div>
 
-        {/* Corps éditeur — onglet Slides */}
+        {/* ── Corps éditeur — onglet Slides ── */}
         {editTab === 'slides' && (
-          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '260px 1fr', height: 'calc(100vh - 56px)' }}>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '220px 400px 1fr', overflow: 'hidden' }}>
 
-            {/* Sidebar — liste des slides */}
-            <div style={{ background: 'white', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
-              <div style={{ padding: '16px', borderBottom: '1px solid #f1f5f9' }}>
-                <p style={{ margin: '0 0 10px', fontSize: 11, fontWeight: 700, color: '#94a3b8', letterSpacing: 1.5, textTransform: 'uppercase' }}>Slides ({editLesson.slides.length})</p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {(['theorie', 'pratique', 'fill-blank', 'vrai-faux', 'conclusion'] as const).map(t => (
-                    <button key={t} onClick={() => addSlide(t)}
-                      style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', border: `1px solid ${slideTypeColor[t]}40`, background: `${slideTypeColor[t]}08`, color: slideTypeColor[t], cursor: 'pointer', fontSize: 10, fontWeight: 700, letterSpacing: 0.5 }}>
-                      <Plus size={10} /> {slideTypeLabel[t].split(' ')[0]}
-                    </button>
-                  ))}
-                </div>
+            {/* ── COL 1 : filmstrip slides ── */}
+            <div style={{ background: '#0d1117', borderRight: '1px solid #2d3748', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              {/* Boutons ajout */}
+              <div style={{ padding: '12px', borderBottom: '1px solid #2d3748', display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                {(['theorie', 'pratique', 'fill-blank', 'vrai-faux', 'conclusion'] as const).map(t => (
+                  <button key={t} onClick={() => addSlide(t)}
+                    style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '4px 8px', border: `1px solid ${slideTypeColor[t]}35`, background: `${slideTypeColor[t]}10`, color: slideTypeColor[t], cursor: 'pointer', fontSize: 9, fontWeight: 800, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                    <Plus size={9} /> {t === 'fill-blank' ? 'Blancs' : t === 'vrai-faux' ? 'V/F' : slideTypeLabel[t].split(' ')[0]}
+                  </button>
+                ))}
               </div>
-              <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
+              {/* Liste */}
+              <div style={{ flex: 1, overflowY: 'auto', padding: '8px 8px' }}>
                 {editLesson.slides.map((s, i) => {
                   const color = slideTypeColor[s.type] || '#6b7280';
                   const label = slideTypeLabel[s.type] || s.type;
+                  const isActive = i === editSlideIdx;
                   return (
-                    <div key={i} onClick={() => setEditSlideIdx(i)}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 10px', marginBottom: 4, background: i === editSlideIdx ? `${color}12` : 'transparent', border: `1.5px solid ${i === editSlideIdx ? color : 'transparent'}`, cursor: 'pointer', transition: 'all .15s' }}>
-                      <GripVertical size={14} style={{ color: '#cbd5e1', flexShrink: 0 }} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ margin: 0, fontSize: 10, fontWeight: 800, color, letterSpacing: 1, textTransform: 'uppercase' }}>{label}</p>
-                        <p style={{ margin: 0, fontSize: 12, color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 1 }}>{(s as any).titre || '—'}</p>
+                    <div key={i} className="slide-thumb" onClick={() => setEditSlideIdx(i)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', marginBottom: 3, background: isActive ? '#161b22' : 'transparent', border: `1.5px solid ${isActive ? color : '#2d3748'}`, cursor: 'pointer', transition: 'all .12s', position: 'relative' }}>
+                      {/* Accent line */}
+                      {isActive && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: color }} />}
+                      <div style={{ flex: 1, minWidth: 0, paddingLeft: isActive ? 4 : 0 }}>
+                        <p style={{ margin: 0, fontSize: 9, fontWeight: 800, color: isActive ? color : '#475569', letterSpacing: 1, textTransform: 'uppercase' }}>{label}</p>
+                        <p style={{ margin: '2px 0 0', fontSize: 11, color: isActive ? '#cbd5e1' : '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{(s as any).titre || '—'}</p>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flexShrink: 0 }}>
+                      {/* Actions */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 1, flexShrink: 0 }}>
                         <button onClick={e => { e.stopPropagation(); moveSlide(i, -1); }} disabled={i === 0}
-                          style={{ padding: '1px 4px', border: 'none', background: 'transparent', cursor: i === 0 ? 'not-allowed' : 'pointer', opacity: i === 0 ? 0.3 : 0.6, color: '#475569' }}>
-                          <ChevronUp size={12} />
+                          style={{ padding: '1px 3px', border: 'none', background: 'transparent', cursor: i === 0 ? 'not-allowed' : 'pointer', opacity: i === 0 ? 0.2 : 0.5, color: '#94a3b8' }}>
+                          <ChevronUp size={11} />
                         </button>
                         <button onClick={e => { e.stopPropagation(); moveSlide(i, 1); }} disabled={i === editLesson.slides.length - 1}
-                          style={{ padding: '1px 4px', border: 'none', background: 'transparent', cursor: i === editLesson.slides.length - 1 ? 'not-allowed' : 'pointer', opacity: i === editLesson.slides.length - 1 ? 0.3 : 0.6, color: '#475569' }}>
-                          <ChevronDown size={12} />
+                          style={{ padding: '1px 3px', border: 'none', background: 'transparent', cursor: i === editLesson.slides.length - 1 ? 'not-allowed' : 'pointer', opacity: i === editLesson.slides.length - 1 ? 0.2 : 0.5, color: '#94a3b8' }}>
+                          <ChevronDown size={11} />
                         </button>
                       </div>
-                      {editLesson.slides.length > 2 && (
-                        <button onClick={e => { e.stopPropagation(); removeSlide(i); }}
-                          style={{ padding: '3px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#94a3b8', flexShrink: 0 }}>
-                          <Trash2 size={12} />
-                        </button>
-                      )}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 1, flexShrink: 0 }}>
+                        <button onClick={e => { e.stopPropagation(); duplicateSlide(i); }} title="Dupliquer"
+                          style={{ padding: '2px 4px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#475569', fontSize: 9 }}>⧉</button>
+                        {editLesson.slides.length > 2 && (
+                          <button onClick={e => { e.stopPropagation(); removeSlide(i); }} title="Supprimer"
+                            style={{ padding: '2px 4px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#475569' }}>
+                            <Trash2 size={10} />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
               </div>
             </div>
 
-            {/* Formulaire d'édition du slide sélectionné */}
-            <div style={{ overflowY: 'auto', padding: '28px 36px' }}>
+            {/* ── COL 2 : formulaire d'édition ── */}
+            <div style={{ background: '#161b22', borderRight: '1px solid #2d3748', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
               {eSlide && (
-                <div>
-                  {/* En-tête du formulaire */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span style={{ padding: '4px 12px', background: `${slideTypeColor[eSlide.type]}15`, color: slideTypeColor[eSlide.type], fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase' }}>
+                <>
+                  {/* En-tête formulaire */}
+                  <div style={{ padding: '14px 16px', borderBottom: '1px solid #2d3748', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ padding: '3px 8px', background: `${slideTypeColor[eSlide.type]}20`, color: slideTypeColor[eSlide.type], fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase' }}>
                         {slideTypeLabel[eSlide.type] || eSlide.type}
                       </span>
-                      <span style={{ fontSize: 12, color: '#94a3b8' }}>Slide {editSlideIdx + 1} / {editLesson.slides.length}</span>
+                      <span style={{ fontSize: 11, color: '#475569' }}>{editSlideIdx + 1} / {editLesson.slides.length}</span>
                     </div>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <button onClick={() => setShowImproveBox(s => !s)}
-                        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', border: `1.5px solid ${BLUE}40`, background: showImproveBox ? `${BLUE}10` : 'white', color: BLUE, cursor: 'pointer', fontWeight: 700, fontSize: 12 }}>
-                        <Sparkles size={13} /> Améliorer avec l'IA
-                      </button>
-                    </div>
+                    <button onClick={() => setShowImproveBox(s => !s)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', border: `1px solid ${showImproveBox ? '#3b82f6' : '#2d3748'}`, background: showImproveBox ? '#1e3a5f' : 'transparent', color: showImproveBox ? '#3b82f6' : '#64748b', cursor: 'pointer', fontWeight: 700, fontSize: 10, letterSpacing: 0.5 }}>
+                      <Sparkles size={11} /> IA
+                    </button>
                   </div>
 
                   {/* Boîte IA */}
                   <AnimatePresence>
                     {showImproveBox && (
-                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ marginBottom: 20, overflow: 'hidden' }}>
-                        <div style={{ padding: '16px', background: `${BLUE}06`, border: `1.5px solid ${BLUE}25`, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden', flexShrink: 0 }}>
+                        <div style={{ padding: '12px 16px', background: '#0d1117', borderBottom: '1px solid #2d3748', display: 'flex', gap: 8 }}>
                           <textarea value={improveInstruction} onChange={e => setImproveInstruction(e.target.value)}
-                            placeholder="Instruction optionnelle : ex. 'Ajoute un exemple avec le RGPD', 'Rends le défi plus difficile'..."
-                            className="edit-input" rows={2}
-                            style={{ flex: 1, resize: 'none', border: `1.5px solid ${BLUE}30`, padding: '8px 12px', fontSize: 13 }} />
+                            placeholder="Ex: 'Ajoute un exemple RGPD', 'Rends le défi plus difficile'..."
+                            className="edit-input" rows={2} style={{ flex: 1, resize: 'none', fontSize: 12 }} />
                           <button onClick={improveSlide} disabled={improvingSlide}
-                            style={{ padding: '9px 18px', border: 'none', background: BLUE, color: 'white', cursor: improvingSlide ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}>
-                            {improvingSlide ? <div style={{ width: 13, height: 13, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> : <Sparkles size={13} />}
-                            {improvingSlide ? 'En cours...' : 'Lancer'}
+                            style={{ padding: '8px 14px', border: 'none', background: '#3b82f6', color: 'white', cursor: improvingSlide ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 11, display: 'flex', alignItems: 'center', gap: 5, alignSelf: 'flex-end', flexShrink: 0 }}>
+                            {improvingSlide ? <div style={{ width: 12, height: 12, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> : <Sparkles size={12} />}
+                            {improvingSlide ? '...' : 'Lancer'}
                           </button>
                         </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
 
-                  {/* Champ titre commun */}
-                  {(eSlide as any).titre !== undefined && (
-                    <div className="edit-field">
-                      <label className="edit-label">Titre</label>
-                      <input className="edit-input" value={(eSlide as any).titre || ''} onChange={e => updateEditSlide({ titre: e.target.value } as any)} style={{ height: 42 }} />
-                    </div>
-                  )}
+                  {/* Champs */}
+                  <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+                    {(eSlide as any).titre !== undefined && (
+                      <div className="edit-field">
+                        <label className="edit-label">Titre</label>
+                        <input className="edit-input" value={(eSlide as any).titre || ''} onChange={e => updateEditSlide({ titre: e.target.value } as any)} style={{ height: 38 }} />
+                      </div>
+                    )}
 
-                  {/* INTRO */}
-                  {eSlide.type === 'intro' && (
-                    <>
-                      <div className="edit-field">
-                        <label className="edit-label">Contenu / accroche</label>
-                        <textarea className="edit-input" rows={4} value={(eSlide as SlideIntro).contenu} onChange={e => updateEditSlide({ contenu: e.target.value } as any)} />
-                      </div>
-                      <div className="edit-field">
-                        <label className="edit-label">Objectifs (un par ligne)</label>
-                        <textarea className="edit-input" rows={5} value={(eSlide as SlideIntro).objectifs?.join('\n') || ''}
-                          onChange={e => updateEditSlide({ objectifs: e.target.value.split('\n') } as any)} />
-                      </div>
-                    </>
-                  )}
-
-                  {/* THÉORIE */}
-                  {eSlide.type === 'theorie' && (
-                    <>
-                      <div className="edit-field">
-                        <label className="edit-label">Contenu principal</label>
-                        <textarea className="edit-input" rows={5} value={(eSlide as SlideTheorie).contenu} onChange={e => updateEditSlide({ contenu: e.target.value } as any)} />
-                      </div>
-                      <div className="edit-field">
-                        <label className="edit-label">Points clés (un par ligne)</label>
-                        <textarea className="edit-input" rows={4} value={(eSlide as SlideTheorie).pointsCles?.join('\n') || ''}
-                          onChange={e => updateEditSlide({ pointsCles: e.target.value.split('\n') } as any)} />
-                      </div>
-                      <div className="edit-field">
-                        <label className="edit-label">Exemple concret</label>
-                        <textarea className="edit-input" rows={3} value={(eSlide as SlideTheorie).exemple} onChange={e => updateEditSlide({ exemple: e.target.value } as any)} />
-                      </div>
-                    </>
-                  )}
-
-                  {/* PRATIQUE */}
-                  {eSlide.type === 'pratique' && (
-                    <>
-                      <div className="edit-field">
-                        <label className="edit-label">Contexte / mise en situation</label>
-                        <textarea className="edit-input" rows={4} value={(eSlide as SlidePratique).contexte} onChange={e => updateEditSlide({ contexte: e.target.value } as any)} />
-                      </div>
-                      <div className="edit-field">
-                        <label className="edit-label">Question / défi</label>
-                        <textarea className="edit-input" rows={2} value={(eSlide as SlidePratique).question} onChange={e => updateEditSlide({ question: e.target.value } as any)} />
-                      </div>
-                      <div className="edit-field">
-                        <label className="edit-label">Indice</label>
-                        <textarea className="edit-input" rows={2} value={(eSlide as SlidePratique).indice} onChange={e => updateEditSlide({ indice: e.target.value } as any)} />
-                      </div>
-                      <div className="edit-field">
-                        <label className="edit-label">Réponse idéale</label>
-                        <textarea className="edit-input" rows={4} value={(eSlide as SlidePratique).reponse} onChange={e => updateEditSlide({ reponse: e.target.value } as any)} />
-                      </div>
-                    </>
-                  )}
-
-                  {/* FILL-BLANK */}
-                  {eSlide.type === 'fill-blank' && (
-                    <>
-                      <div className="edit-field">
-                        <label className="edit-label">Instruction</label>
-                        <input className="edit-input" value={(eSlide as SlideFillBlank).instruction || ''} onChange={e => updateEditSlide({ instruction: e.target.value } as any)} style={{ height: 42 }} />
-                      </div>
-                      <div className="edit-field">
-                        <label className="edit-label">Phrase (use [MOT] pour les blancs)</label>
-                        <textarea className="edit-input" rows={3} value={(eSlide as SlideFillBlank).phrase} onChange={e => updateEditSlide({ phrase: e.target.value } as any)} />
-                        <p style={{ margin: '6px 0 0', fontSize: 11, color: '#94a3b8' }}>Ex: «Le [chiffrement] protège les [données] personnelles.»</p>
-                      </div>
-                      <div className="edit-field">
-                        <label className="edit-label">Mots attendus dans l'ordre (un par ligne)</label>
-                        <textarea className="edit-input" rows={3} value={(eSlide as SlideFillBlank).mots?.join('\n') || ''}
-                          onChange={e => updateEditSlide({ mots: e.target.value.split('\n').filter(Boolean) } as any)} />
-                      </div>
-                      <div className="edit-field">
-                        <label className="edit-label">Explication pédagogique</label>
-                        <textarea className="edit-input" rows={3} value={(eSlide as SlideFillBlank).explication} onChange={e => updateEditSlide({ explication: e.target.value } as any)} />
-                      </div>
-                    </>
-                  )}
-
-                  {/* VRAI-FAUX */}
-                  {eSlide.type === 'vrai-faux' && (
-                    <div className="edit-field">
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                        <label className="edit-label" style={{ margin: 0 }}>Affirmations</label>
-                        <button onClick={() => updateEditSlide({ affirmations: [...(eSlide as SlideVraiFaux).affirmations, { texte: '', reponse: true, explication: '' }] } as any)}
-                          style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', border: `1px solid ${AMBER}40`, background: 'transparent', color: AMBER, cursor: 'pointer', fontSize: 11, fontWeight: 700 }}>
-                          <Plus size={11} /> Ajouter
-                        </button>
-                      </div>
-                      {(eSlide as SlideVraiFaux).affirmations.map((aff, ai) => (
-                        <div key={ai} style={{ padding: '14px 16px', background: 'white', border: '1.5px solid #e2e8f0', marginBottom: 10 }}>
-                          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 8 }}>
-                            <textarea className="edit-input" rows={2} value={aff.texte}
-                              onChange={e => { const a = [...(eSlide as SlideVraiFaux).affirmations]; a[ai] = { ...a[ai], texte: e.target.value }; updateEditSlide({ affirmations: a } as any); }}
-                              style={{ flex: 1 }} placeholder="Affirmation..." />
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
-                              {[true, false].map(val => (
-                                <button key={String(val)} onClick={() => { const a = [...(eSlide as SlideVraiFaux).affirmations]; a[ai] = { ...a[ai], reponse: val }; updateEditSlide({ affirmations: a } as any); }}
-                                  style={{ padding: '5px 12px', border: `1.5px solid ${aff.reponse === val ? (val ? GREEN : RED) : '#e2e8f0'}`, background: aff.reponse === val ? (val ? `${GREEN}15` : `${RED}10`) : 'transparent', color: aff.reponse === val ? (val ? GREEN : RED) : '#94a3b8', cursor: 'pointer', fontWeight: 700, fontSize: 12 }}>
-                                  {val ? 'VRAI' : 'FAUX'}
-                                </button>
-                              ))}
-                              {(eSlide as SlideVraiFaux).affirmations.length > 2 && (
-                                <button onClick={() => { const a = (eSlide as SlideVraiFaux).affirmations.filter((_, j) => j !== ai); updateEditSlide({ affirmations: a } as any); }}
-                                  style={{ padding: '5px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#94a3b8' }}>
-                                  <Trash2 size={13} />
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                          <input className="edit-input" value={aff.explication} placeholder="Explication..."
-                            onChange={e => { const a = [...(eSlide as SlideVraiFaux).affirmations]; a[ai] = { ...a[ai], explication: e.target.value }; updateEditSlide({ affirmations: a } as any); }}
-                            style={{ height: 38, fontSize: 13 }} />
+                    {eSlide.type === 'intro' && (
+                      <>
+                        <div className="edit-field">
+                          <label className="edit-label">Accroche</label>
+                          <textarea className="edit-input" rows={3} value={(eSlide as SlideIntro).contenu} onChange={e => updateEditSlide({ contenu: e.target.value } as any)} />
                         </div>
-                      ))}
-                    </div>
-                  )}
+                        <div className="edit-field">
+                          <label className="edit-label">Objectifs (un par ligne)</label>
+                          <textarea className="edit-input" rows={5} value={(eSlide as SlideIntro).objectifs?.join('\n') || ''}
+                            onChange={e => updateEditSlide({ objectifs: e.target.value.split('\n') } as any)} />
+                        </div>
+                      </>
+                    )}
 
-                  {/* CONCLUSION */}
-                  {eSlide.type === 'conclusion' && (
-                    <>
+                    {eSlide.type === 'theorie' && (
+                      <>
+                        <div className="edit-field">
+                          <label className="edit-label">Contenu principal</label>
+                          <textarea className="edit-input" rows={5} value={(eSlide as SlideTheorie).contenu} onChange={e => updateEditSlide({ contenu: e.target.value } as any)} />
+                        </div>
+                        <div className="edit-field">
+                          <label className="edit-label">Points clés (un par ligne)</label>
+                          <textarea className="edit-input" rows={4} value={(eSlide as SlideTheorie).pointsCles?.join('\n') || ''}
+                            onChange={e => updateEditSlide({ pointsCles: e.target.value.split('\n') } as any)} />
+                        </div>
+                        <div className="edit-field">
+                          <label className="edit-label">Exemple concret</label>
+                          <textarea className="edit-input" rows={3} value={(eSlide as SlideTheorie).exemple} onChange={e => updateEditSlide({ exemple: e.target.value } as any)} />
+                        </div>
+                      </>
+                    )}
+
+                    {eSlide.type === 'pratique' && (
+                      <>
+                        <div className="edit-field">
+                          <label className="edit-label">Contexte / mise en situation</label>
+                          <textarea className="edit-input" rows={3} value={(eSlide as SlidePratique).contexte} onChange={e => updateEditSlide({ contexte: e.target.value } as any)} />
+                        </div>
+                        <div className="edit-field">
+                          <label className="edit-label">Question / défi</label>
+                          <textarea className="edit-input" rows={2} value={(eSlide as SlidePratique).question} onChange={e => updateEditSlide({ question: e.target.value } as any)} />
+                        </div>
+                        <div className="edit-field">
+                          <label className="edit-label">Indice</label>
+                          <textarea className="edit-input" rows={2} value={(eSlide as SlidePratique).indice} onChange={e => updateEditSlide({ indice: e.target.value } as any)} />
+                        </div>
+                        <div className="edit-field">
+                          <label className="edit-label">Réponse idéale</label>
+                          <textarea className="edit-input" rows={4} value={(eSlide as SlidePratique).reponse} onChange={e => updateEditSlide({ reponse: e.target.value } as any)} />
+                        </div>
+                      </>
+                    )}
+
+                    {eSlide.type === 'fill-blank' && (
+                      <>
+                        <div className="edit-field">
+                          <label className="edit-label">Instruction</label>
+                          <input className="edit-input" value={(eSlide as SlideFillBlank).instruction || ''} onChange={e => updateEditSlide({ instruction: e.target.value } as any)} style={{ height: 38 }} />
+                        </div>
+                        <div className="edit-field">
+                          <label className="edit-label">Phrase — utilise [MOT] pour les blancs</label>
+                          <textarea className="edit-input" rows={3} value={(eSlide as SlideFillBlank).phrase} onChange={e => updateEditSlide({ phrase: e.target.value } as any)} />
+                          <p style={{ margin: '5px 0 0', fontSize: 10, color: '#475569' }}>Ex: «Le [chiffrement] protège les [données].»</p>
+                        </div>
+                        <div className="edit-field">
+                          <label className="edit-label">Mots attendus dans l'ordre (un par ligne)</label>
+                          <textarea className="edit-input" rows={3} value={(eSlide as SlideFillBlank).mots?.join('\n') || ''}
+                            onChange={e => updateEditSlide({ mots: e.target.value.split('\n').filter(Boolean) } as any)} />
+                        </div>
+                        <div className="edit-field">
+                          <label className="edit-label">Explication</label>
+                          <textarea className="edit-input" rows={2} value={(eSlide as SlideFillBlank).explication} onChange={e => updateEditSlide({ explication: e.target.value } as any)} />
+                        </div>
+                      </>
+                    )}
+
+                    {eSlide.type === 'vrai-faux' && (
                       <div className="edit-field">
-                        <label className="edit-label">Points à retenir (un par ligne)</label>
-                        <textarea className="edit-input" rows={5} value={(eSlide as SlideConclusion).points?.join('\n') || ''}
-                          onChange={e => updateEditSlide({ points: e.target.value.split('\n') } as any)} />
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                          <label className="edit-label" style={{ margin: 0 }}>Affirmations</label>
+                          <button onClick={() => updateEditSlide({ affirmations: [...(eSlide as SlideVraiFaux).affirmations, { texte: '', reponse: true, explication: '' }] } as any)}
+                            style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', border: `1px solid ${AMBER}35`, background: 'transparent', color: AMBER, cursor: 'pointer', fontSize: 10, fontWeight: 700 }}>
+                            <Plus size={10} /> Ajouter
+                          </button>
+                        </div>
+                        {(eSlide as SlideVraiFaux).affirmations.map((aff, ai) => (
+                          <div key={ai} style={{ padding: '12px', background: '#0d1117', border: '1px solid #2d3748', marginBottom: 8 }}>
+                            <div style={{ display: 'flex', gap: 7, alignItems: 'flex-start', marginBottom: 7 }}>
+                              <textarea className="edit-input" rows={2} value={aff.texte}
+                                onChange={e => { const a = [...(eSlide as SlideVraiFaux).affirmations]; a[ai] = { ...a[ai], texte: e.target.value }; updateEditSlide({ affirmations: a } as any); }}
+                                style={{ flex: 1 }} placeholder="Affirmation..." />
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 3, flexShrink: 0 }}>
+                                {[true, false].map(val => (
+                                  <button key={String(val)} onClick={() => { const a = [...(eSlide as SlideVraiFaux).affirmations]; a[ai] = { ...a[ai], reponse: val }; updateEditSlide({ affirmations: a } as any); }}
+                                    style={{ padding: '4px 10px', border: `1.5px solid ${aff.reponse === val ? (val ? GREEN : RED) : '#2d3748'}`, background: aff.reponse === val ? (val ? `${GREEN}20` : `${RED}15`) : 'transparent', color: aff.reponse === val ? (val ? GREEN : RED) : '#475569', cursor: 'pointer', fontWeight: 700, fontSize: 10 }}>
+                                    {val ? 'VRAI' : 'FAUX'}
+                                  </button>
+                                ))}
+                                {(eSlide as SlideVraiFaux).affirmations.length > 2 && (
+                                  <button onClick={() => { const a = (eSlide as SlideVraiFaux).affirmations.filter((_, j) => j !== ai); updateEditSlide({ affirmations: a } as any); }}
+                                    style={{ padding: '4px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#475569' }}>
+                                    <Trash2 size={11} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                            <input className="edit-input" value={aff.explication} placeholder="Explication..."
+                              onChange={e => { const a = [...(eSlide as SlideVraiFaux).affirmations]; a[ai] = { ...a[ai], explication: e.target.value }; updateEditSlide({ affirmations: a } as any); }}
+                              style={{ height: 34, fontSize: 12 }} />
+                          </div>
+                        ))}
                       </div>
-                      <div className="edit-field">
-                        <label className="edit-label">Message de clôture</label>
-                        <textarea className="edit-input" rows={3} value={(eSlide as SlideConclusion).message} onChange={e => updateEditSlide({ message: e.target.value } as any)} />
-                      </div>
-                    </>
-                  )}
-                </div>
+                    )}
+
+                    {eSlide.type === 'conclusion' && (
+                      <>
+                        <div className="edit-field">
+                          <label className="edit-label">Points à retenir (un par ligne)</label>
+                          <textarea className="edit-input" rows={5} value={(eSlide as SlideConclusion).points?.join('\n') || ''}
+                            onChange={e => updateEditSlide({ points: e.target.value.split('\n') } as any)} />
+                        </div>
+                        <div className="edit-field">
+                          <label className="edit-label">Message de clôture</label>
+                          <textarea className="edit-input" rows={3} value={(eSlide as SlideConclusion).message} onChange={e => updateEditSlide({ message: e.target.value } as any)} />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </>
               )}
+            </div>
+
+            {/* ── COL 3 : preview live ── */}
+            <div style={{ background: '#f8fafc', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              {/* Bandeau preview */}
+              <div style={{ background: '#0d1117', borderBottom: '1px solid #2d3748', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                <div style={{ width: 6, height: 6, background: '#10b981', borderRadius: '50%', animation: 'livePulse 2s ease-in-out infinite' }} />
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#475569', letterSpacing: 1.5, textTransform: 'uppercase' }}>Rendu temps réel — slide {editSlideIdx + 1}/{editLesson.slides.length}</span>
+                <div style={{ flex: 1 }} />
+                <span style={{ fontSize: 10, color: '#2d3748', fontFamily: 'monospace' }}>{eSlide?.type}</span>
+              </div>
+              {/* Slide rendue */}
+              <div style={{ flex: 1, overflow: 'auto', transform: 'scale(0.82)', transformOrigin: 'top left', width: '122%', height: '122%' }}>
+                {eSlide && (
+                  <>
+                    {eSlide.type === 'intro' && <IntroSlide slide={eSlide as SlideIntro} />}
+                    {eSlide.type === 'theorie' && <TheorieSlide slide={eSlide as SlideTheorie} />}
+                    {eSlide.type === 'pratique' && <PratiqueSlide slide={eSlide as SlidePratique} idx={editSlideIdx} revealed={false} onToggle={() => {}} />}
+                    {eSlide.type === 'conclusion' && <ConclusionSlide slide={eSlide as SlideConclusion} />}
+                    {eSlide.type === 'fill-blank' && <FillBlankSlide slide={eSlide as SlideFillBlank} inputs={[]} onInputChange={() => {}} submitted={false} onSubmit={() => {}} />}
+                    {eSlide.type === 'vrai-faux' && <VraiFauxSlide slide={eSlide as SlideVraiFaux} answers={[]} onAnswerChange={() => {}} submitted={false} onSubmit={() => {}} />}
+                  </>
+                )}
+              </div>
             </div>
           </div>
         )}
