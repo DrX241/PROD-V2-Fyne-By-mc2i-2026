@@ -8801,37 +8801,66 @@ ${qcmScript}
       const user = (req.session as any)?.user;
       const { blockType, currentContent, lessonContext, courseTitle, userInstruction, courseId } = req.body;
 
-      const typeInstructions: Record<string, string> = {
-        text: 'Rédige un paragraphe de formation clair, concis (150-250 mots), avec des exemples concrets.',
-        image: 'Décris en détail quelle image serait la plus pertinente pour illustrer ce concept.',
-        callout: 'Formule un encadré "À retenir" percutant avec 2-3 points clés en phrases courtes.',
-        qcm: 'Génère une question QCM pertinente avec 4 options dont une seule correcte, et une explication pédagogique.',
-        accordion: 'Propose 3 sections d\'accordéon avec titre et contenu pour organiser ce sujet.',
-        quote: 'Propose une citation d\'expert ou un verbatim illustrant ce point de formation.',
+      const typeSchemas: Record<string, { instruction: string; schema: string }> = {
+        text: {
+          instruction: 'Rédige un paragraphe HTML de formation clair (150-250 mots), avec <p>, <strong>, <ul>/<li> si pertinent.',
+          schema: '{"html": "<p>...</p>"}',
+        },
+        callout: {
+          instruction: 'Génère un encadré pédagogique percutant.',
+          schema: '{"variant": "info|warning|tip|danger", "title": "...", "content": "..."}',
+        },
+        qcm: {
+          instruction: 'Génère un QCM pédagogique complet avec 4 options dont UNE SEULE correcte (correct: true). Les mauvaises réponses doivent être plausibles. Ajoute une explication pédagogique.',
+          schema: '{"question": "...", "options": [{"id": "1", "text": "...", "correct": false}, {"id": "2", "text": "...", "correct": true}, {"id": "3", "text": "...", "correct": false}, {"id": "4", "text": "...", "correct": false}], "explanation": "..."}',
+        },
+        qcm_scored: {
+          instruction: 'Génère un QCM noté avec 4 options dont UNE SEULE correcte. Ajoute une explication.',
+          schema: '{"question": "...", "options": [{"id": "1", "text": "...", "correct": false}, {"id": "2", "text": "...", "correct": true}, {"id": "3", "text": "...", "correct": false}, {"id": "4", "text": "...", "correct": false}], "explanation": "...", "points": 1}',
+        },
+        accordion: {
+          instruction: 'Propose 3 à 4 sections d\'accordéon structurées pour explorer ce sujet.',
+          schema: '{"items": [{"title": "...", "content": "..."}, {"title": "...", "content": "..."}, {"title": "...", "content": "..."}]}',
+        },
+        quote: {
+          instruction: 'Propose une citation percutante d\'expert ou un verbatim illustrant ce sujet.',
+          schema: '{"text": "...", "author": "...", "role": "..."}',
+        },
+        code: {
+          instruction: 'Génère un exemple de code concret et commenté illustrant ce concept.',
+          schema: '{"language": "javascript|python|sql|html|bash", "code": "..."}',
+        },
       };
 
-      const instruction = typeInstructions[blockType] || 'Propose du contenu pertinent pour ce bloc de formation.';
-      const prompt = `Tu es un expert en ingénierie pédagogique. Tu aides à créer des formations professionnelles de qualité.
+      const typeInfo = typeSchemas[blockType];
+      const prompt = `Tu es un expert en ingénierie pédagogique. Tu génères du contenu de formation structuré en JSON.
 
 Cours : "${courseTitle}"
 Leçon : "${lessonContext}"
-Type de bloc : ${blockType}
 ${currentContent ? `Contenu actuel : "${currentContent}"` : ''}
-${userInstruction ? `Instruction spécifique : "${userInstruction}"` : ''}
+${userInstruction ? `Demande : "${userInstruction}"` : ''}
 
-${instruction}
+${typeInfo?.instruction || 'Génère du contenu pertinent pour ce bloc de formation.'}
 
-Réponds directement avec le contenu, sans explication ni préambule.`;
+IMPORTANT : Réponds UNIQUEMENT avec un objet JSON valide correspondant à ce schéma, sans markdown, sans explication, sans balise :
+${typeInfo?.schema || '{"content": "..."}'}`;
 
       const { bedrockService } = await import('./services/bedrock');
-      const result = await bedrockService.getChatCompletion(
+      const rawResult = await bedrockService.getChatCompletion(
         [{ role: 'user', content: prompt }],
         0.7,
-        500
+        600
       );
 
+      // Extraire le JSON de la réponse (parfois l'IA ajoute des backticks)
+      let structured: any = null;
+      try {
+        const jsonMatch = rawResult.match(/\{[\s\S]*\}/);
+        if (jsonMatch) structured = JSON.parse(jsonMatch[0]);
+      } catch {}
+
       // Tracker les tokens
-      const estimatedTokens = Math.ceil(prompt.length / 4) + 300;
+      const estimatedTokens = Math.ceil(prompt.length / 4) + 400;
       if (user?.id) {
         await storage.incrementTokenUsage(user.id, estimatedTokens);
         if (courseId) {
@@ -8840,7 +8869,7 @@ Réponds directement avec le contenu, sans explication ni préambule.`;
         }
       }
 
-      res.json({ suggestion: result });
+      res.json({ suggestion: rawResult, structured });
     } catch (err) {
       console.error('[LMS AI] inspire-block', err);
       res.status(500).json({ error: 'Erreur génération IA' });

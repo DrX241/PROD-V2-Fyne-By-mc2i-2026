@@ -8,7 +8,7 @@ interface AiAssistPanelProps {
   lessonTitle: string;
   courseTitle: string;
   courseId?: string;
-  onApply: (content: string) => void;
+  onApply: (content: string, structured?: any) => void;
 }
 
 const font = { sans: "'DM Sans', sans-serif", mono: "'DM Mono', monospace" };
@@ -43,6 +43,83 @@ function getBlockCurrentContent(block: Block): string {
   }
 }
 
+function SuggestionPreview({ block, structured, raw }: { block: Block; structured: any; raw: string }) {
+  if (!structured) {
+    return (
+      <div style={{ background: '#f0f7ff', border: '1px solid #bfdbfe', borderRadius: 8, padding: '10px 12px', fontSize: 13, color: '#0d0d0d', lineHeight: 1.6, marginBottom: 4, whiteSpace: 'pre-wrap', maxHeight: 200, overflowY: 'auto' }}>
+        {raw}
+      </div>
+    );
+  }
+
+  if (block.type === 'qcm' || block.type === 'qcm_scored') {
+    return (
+      <div style={{ background: '#f8f9fa', border: '1px solid #e5e7eb', borderRadius: 8, padding: '12px 14px', fontSize: 12, marginBottom: 4 }}>
+        <div style={{ fontWeight: 700, marginBottom: 10, color: '#111827' }}>{structured.question}</div>
+        {(structured.options || []).map((opt: any, i: number) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 8px', marginBottom: 4, borderRadius: 5, background: opt.correct ? '#dcfce7' : '#fff', border: `1px solid ${opt.correct ? '#86efac' : '#e5e7eb'}` }}>
+            <span style={{ width: 18, height: 18, borderRadius: '50%', background: opt.correct ? '#059669' : '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: opt.correct ? '#fff' : '#6b7280', flexShrink: 0, fontWeight: 700 }}>
+              {'ABCD'[i]}
+            </span>
+            <span style={{ color: opt.correct ? '#065f46' : '#374151', fontWeight: opt.correct ? 600 : 400 }}>{opt.text}</span>
+          </div>
+        ))}
+        {structured.explanation && (
+          <div style={{ marginTop: 8, padding: '6px 10px', background: '#eff6ff', borderRadius: 5, fontSize: 11, color: '#1e40af' }}>
+            💡 {structured.explanation}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (block.type === 'accordion') {
+    return (
+      <div style={{ background: '#f8f9fa', border: '1px solid #e5e7eb', borderRadius: 8, padding: '10px 12px', fontSize: 12, marginBottom: 4 }}>
+        {(structured.items || []).map((item: any, i: number) => (
+          <div key={i} style={{ marginBottom: 8, borderBottom: i < structured.items.length - 1 ? '1px solid #e5e7eb' : 'none', paddingBottom: 8 }}>
+            <div style={{ fontWeight: 700, color: '#111827', marginBottom: 3 }}>▸ {item.title}</div>
+            <div style={{ color: '#6b7280' }}>{item.content}</div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (block.type === 'callout') {
+    const icons: Record<string, string> = { info: 'ℹ️', warning: '⚠️', tip: '💡', danger: '❌' };
+    return (
+      <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 8, padding: '10px 12px', fontSize: 12, marginBottom: 4 }}>
+        <div style={{ fontWeight: 700, marginBottom: 4 }}>{icons[structured.variant] || 'ℹ️'} {structured.title}</div>
+        <div style={{ color: '#374151' }}>{structured.content}</div>
+      </div>
+    );
+  }
+
+  if (block.type === 'quote') {
+    return (
+      <div style={{ background: '#f8f9fa', borderLeft: '3px solid #0057ff', padding: '10px 14px', borderRadius: '0 8px 8px 0', fontSize: 12, marginBottom: 4 }}>
+        <div style={{ fontStyle: 'italic', color: '#374151', marginBottom: 6 }}>"{structured.text}"</div>
+        <div style={{ fontWeight: 600, color: '#111827' }}>— {structured.author}{structured.role ? `, ${structured.role}` : ''}</div>
+      </div>
+    );
+  }
+
+  if (block.type === 'text' && structured.html) {
+    return (
+      <div style={{ background: '#f0f7ff', border: '1px solid #bfdbfe', borderRadius: 8, padding: '10px 12px', fontSize: 13, lineHeight: 1.6, marginBottom: 4, maxHeight: 160, overflowY: 'auto' }}
+        dangerouslySetInnerHTML={{ __html: structured.html }}
+      />
+    );
+  }
+
+  return (
+    <div style={{ background: '#f0f7ff', border: '1px solid #bfdbfe', borderRadius: 8, padding: '10px 12px', fontSize: 13, lineHeight: 1.6, marginBottom: 4, whiteSpace: 'pre-wrap', maxHeight: 160, overflowY: 'auto' }}>
+      {raw}
+    </div>
+  );
+}
+
 export function AiAssistPanel({
   open,
   onClose,
@@ -55,7 +132,8 @@ export function AiAssistPanel({
   const [instruction, setInstruction] = useState('');
   const [loading, setLoading] = useState(false);
   const [suggestion, setSuggestion] = useState<string | null>(null);
-  const [history, setHistory] = useState<string[]>([]);
+  const [structured, setStructured] = useState<any>(null);
+  const [history, setHistory] = useState<{ text: string; structured: any }[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const handleGenerate = async () => {
@@ -63,6 +141,7 @@ export function AiAssistPanel({
     setLoading(true);
     setError(null);
     setSuggestion(null);
+    setStructured(null);
     try {
       const resp = await fetch('/api/lms/ai/inspire-block', {
         method: 'POST',
@@ -79,8 +158,9 @@ export function AiAssistPanel({
       if (!resp.ok) throw new Error('Erreur serveur');
       const data = await resp.json();
       setSuggestion(data.suggestion);
+      setStructured(data.structured || null);
       if (data.suggestion) {
-        setHistory((prev) => [data.suggestion, ...prev].slice(0, 3));
+        setHistory((prev) => [{ text: data.suggestion, structured: data.structured || null }, ...prev].slice(0, 3));
       }
     } catch (e) {
       setError('Impossible de générer du contenu. Réessayez.');
@@ -222,35 +302,20 @@ export function AiAssistPanel({
             {/* Suggestion */}
             {suggestion && (
               <div>
-                <div
-                  style={{
-                    fontSize: 10, fontFamily: font.mono, color: palette.muted,
-                    marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em',
-                  }}
-                >
-                  Suggestion
+                <div style={{ fontSize: 10, fontFamily: font.mono, color: palette.muted, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Résultat IA
                 </div>
-                <div
-                  style={{
-                    background: '#f0f7ff', border: `1px solid #bfdbfe`,
-                    borderRadius: 8, padding: '10px 12px',
-                    fontSize: 13, color: palette.text, lineHeight: 1.6,
-                    marginBottom: 8,
-                    whiteSpace: 'pre-wrap',
-                  }}
-                >
-                  {suggestion}
-                </div>
+                <SuggestionPreview block={block} structured={structured} raw={suggestion} />
                 <button
-                  onClick={() => { onApply(suggestion); setSuggestion(null); }}
+                  onClick={() => { onApply(suggestion, structured); setSuggestion(null); setStructured(null); }}
                   style={{
-                    width: '100%', padding: '7px 0', background: '#f0f7ff',
-                    border: `1px solid ${palette.accent}`, borderRadius: 6,
-                    fontFamily: font.sans, fontSize: 12, fontWeight: 600,
-                    color: palette.accent, cursor: 'pointer',
+                    width: '100%', padding: '9px 0', background: palette.accent,
+                    border: 'none', borderRadius: 6,
+                    fontFamily: font.sans, fontSize: 13, fontWeight: 600,
+                    color: '#fff', cursor: 'pointer', marginTop: 8,
                   }}
                 >
-                  Appliquer au bloc
+                  ✓ Appliquer au bloc
                 </button>
               </div>
             )}
@@ -258,28 +323,18 @@ export function AiAssistPanel({
             {/* History */}
             {history.length > 0 && (
               <div>
-                <div
-                  style={{
-                    fontSize: 10, fontFamily: font.mono, color: palette.muted,
-                    marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em',
-                  }}
-                >
-                  Historique récent
+                <div style={{ fontSize: 10, fontFamily: font.mono, color: palette.muted, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Générations précédentes
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {history.slice(0, 3).map((h, i) => (
                     <div
                       key={i}
-                      style={{
-                        background: '#f8f9fa', borderRadius: 6, padding: '7px 10px',
-                        fontSize: 11, color: palette.muted, lineHeight: 1.5,
-                        cursor: 'pointer', whiteSpace: 'pre-wrap',
-                        overflow: 'hidden', maxHeight: 60,
-                      }}
-                      onClick={() => onApply(h)}
+                      style={{ background: '#f8f9fa', borderRadius: 6, padding: '7px 10px', fontSize: 11, color: palette.muted, lineHeight: 1.5, cursor: 'pointer', overflow: 'hidden', maxHeight: 56 }}
+                      onClick={() => onApply(h.text, h.structured)}
                       title="Cliquer pour appliquer"
                     >
-                      {h.slice(0, 120)}{h.length > 120 ? '...' : ''}
+                      {(h.structured?.question || h.structured?.html || h.text).slice(0, 100)}...
                     </div>
                   ))}
                 </div>

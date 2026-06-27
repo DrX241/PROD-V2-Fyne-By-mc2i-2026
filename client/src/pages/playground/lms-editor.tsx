@@ -416,28 +416,79 @@ export default function LmsEditorPage() {
 
   // ── AI helpers ────────────────────────────────────────────────────────────
 
-  const handleApplyAi = (content: string) => {
+  const handleApplyAi = (content: string, structured?: any) => {
     if (!aiTargetBlockId || !activeChapterId || !activeLessonId) return;
-    const ch = activeLesson;
-    if (!ch) return;
     const block = activeLesson?.blocks.find((b) => b.id === aiTargetBlockId);
     if (!block) return;
-    // Apply based on type
-    switch (block.type) {
-      case 'text':
-        updateBlock(activeChapterId, activeLessonId, aiTargetBlockId, { html: content } as any);
-        break;
-      case 'callout':
-        updateBlock(activeChapterId, activeLessonId, aiTargetBlockId, { content } as any);
-        break;
-      case 'quote':
-        updateBlock(activeChapterId, activeLessonId, aiTargetBlockId, { text: content } as any);
-        break;
-      case 'qcm':
-        updateBlock(activeChapterId, activeLessonId, aiTargetBlockId, { question: content } as any);
-        break;
-      default:
-        break;
+
+    if (structured) {
+      // Application structurée complète par type
+      switch (block.type) {
+        case 'text':
+          if (structured.html) updateBlock(activeChapterId, activeLessonId, aiTargetBlockId, { html: structured.html } as any);
+          break;
+        case 'callout':
+          updateBlock(activeChapterId, activeLessonId, aiTargetBlockId, {
+            variant: structured.variant || 'info',
+            title: structured.title || '',
+            content: structured.content || '',
+          } as any);
+          break;
+        case 'qcm':
+        case 'qcm_scored': {
+          const options = (structured.options || []).map((o: any) => ({
+            id: crypto.randomUUID(),
+            text: o.text || '',
+            correct: !!o.correct,
+          }));
+          updateBlock(activeChapterId, activeLessonId, aiTargetBlockId, {
+            question: structured.question || '',
+            options,
+            explanation: structured.explanation || '',
+            ...(block.type === 'qcm_scored' ? { points: structured.points || 1 } : {}),
+          } as any);
+          break;
+        }
+        case 'accordion':
+          updateBlock(activeChapterId, activeLessonId, aiTargetBlockId, {
+            items: (structured.items || []).map((it: any) => ({ title: it.title || '', content: it.content || '' })),
+          } as any);
+          break;
+        case 'quote':
+          updateBlock(activeChapterId, activeLessonId, aiTargetBlockId, {
+            text: structured.text || '',
+            author: structured.author || '',
+            role: structured.role || '',
+          } as any);
+          break;
+        case 'code':
+          updateBlock(activeChapterId, activeLessonId, aiTargetBlockId, {
+            language: structured.language || 'javascript',
+            code: structured.code || '',
+          } as any);
+          break;
+        default:
+          break;
+      }
+    } else {
+      // Fallback texte brut
+      switch (block.type) {
+        case 'text':
+          updateBlock(activeChapterId, activeLessonId, aiTargetBlockId, { html: `<p>${content}</p>` } as any);
+          break;
+        case 'callout':
+          updateBlock(activeChapterId, activeLessonId, aiTargetBlockId, { content } as any);
+          break;
+        case 'quote':
+          updateBlock(activeChapterId, activeLessonId, aiTargetBlockId, { text: content } as any);
+          break;
+        case 'qcm':
+        case 'qcm_scored':
+          updateBlock(activeChapterId, activeLessonId, aiTargetBlockId, { question: content } as any);
+          break;
+        default:
+          break;
+      }
     }
   };
 
@@ -527,21 +578,18 @@ export default function LmsEditorPage() {
               onBlur={commitCourseTitle}
               onKeyDown={(e) => { if (e.key === 'Enter') commitCourseTitle(); if (e.key === 'Escape') { setEditingTitle(false); setTitleDraft(course.title); } }}
               style={{
-                border: `1px solid ${palette.accent}`, borderRadius: 5, padding: '4px 8px',
-                fontFamily: font.sans, fontSize: 15, fontWeight: 700, outline: 'none', minWidth: 200,
+                border: `1px solid ${palette.accent}`, borderRadius: 5, padding: '4px 10px',
+                fontFamily: font.sans, fontSize: 15, fontWeight: 700, outline: 'none', minWidth: 240,
               }}
             />
           ) : (
-            <span
-              onDoubleClick={() => { setEditingTitle(true); setTitleDraft(course.title); }}
-              title="Double-clic pour renommer"
-              style={{
-                fontSize: 15, fontWeight: 700, cursor: 'text',
-                padding: '4px 6px', borderRadius: 4,
-              }}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}
+              onClick={() => { setEditingTitle(true); setTitleDraft(course.title); }}
+              title="Cliquer pour renommer"
             >
-              {course.title}
-            </span>
+              <span style={{ fontSize: 15, fontWeight: 700, padding: '4px 0' }}>{course.title}</span>
+              <span style={{ fontSize: 12, color: palette.muted, opacity: 0.6 }}>✎</span>
+            </div>
           )}
 
           <span
@@ -708,7 +756,7 @@ export default function LmsEditorPage() {
           lessonTitle={activeLesson?.title ?? ''}
           courseTitle={course.title}
           courseId={course.id}
-          onApply={handleApplyAi}
+          onApply={(content, structured) => handleApplyAi(content, structured)}
         />
       </div>
     </div>

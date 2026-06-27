@@ -93,7 +93,6 @@ function ChapterRow({
           />
         ) : (
           <span
-            onDoubleClick={() => setEditing(true)}
             style={{
               flex: 1, fontSize: 12, fontWeight: 600, color: palette.text,
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
@@ -106,27 +105,26 @@ function ChapterRow({
         {chapterHover && !editing && (
           <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
             <button
+              onClick={(e) => { e.stopPropagation(); setEditing(true); }}
+              title="Renommer"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: palette.muted, fontSize: 12, padding: '1px 3px', lineHeight: 1 }}
+            >
+              ✎
+            </button>
+            <button
               onClick={(e) => { e.stopPropagation(); onAddLesson(chapter.id); }}
               title="Ajouter une leçon"
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: palette.accent, fontSize: 14, padding: '1px 3px', lineHeight: 1,
-              }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: palette.accent, fontSize: 14, padding: '1px 3px', lineHeight: 1 }}
             >
               +
             </button>
-            {chapter.lessons.length === 0 && (
-              <button
-                onClick={(e) => { e.stopPropagation(); onDeleteChapter(chapter.id); }}
-                title="Supprimer le chapitre"
-                style={{
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  color: '#dc2626', fontSize: 13, padding: '1px 3px', lineHeight: 1,
-                }}
-              >
-                🗑
-              </button>
-            )}
+            <button
+              onClick={(e) => { e.stopPropagation(); onDeleteChapter(chapter.id); }}
+              title="Supprimer le chapitre"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', fontSize: 13, padding: '1px 3px', lineHeight: 1 }}
+            >
+              ×
+            </button>
           </div>
         )}
       </div>
@@ -222,7 +220,6 @@ function LessonRow({
         />
       ) : (
         <span
-          onDoubleClick={(e) => { e.stopPropagation(); setEditing(true); }}
           style={{
             flex: 1, fontSize: 12, color: isActive ? palette.accent : palette.text,
             fontWeight: isActive ? 600 : 400,
@@ -234,16 +231,22 @@ function LessonRow({
       )}
 
       {hovered && !editing && (
-        <button
-          onClick={(e) => { e.stopPropagation(); onDelete(); }}
-          title="Supprimer"
-          style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: '#dc2626', fontSize: 12, padding: '1px 3px', lineHeight: 1, flexShrink: 0,
-          }}
-        >
-          ×
-        </button>
+        <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
+          <button
+            onClick={(e) => { e.stopPropagation(); setEditing(true); }}
+            title="Renommer"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: palette.muted, fontSize: 12, padding: '1px 3px', lineHeight: 1 }}
+          >
+            ✎
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(); }}
+            title="Supprimer"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', fontSize: 12, padding: '1px 3px', lineHeight: 1 }}
+          >
+            ×
+          </button>
+        </div>
       )}
     </div>
   );
