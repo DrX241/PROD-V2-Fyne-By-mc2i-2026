@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Sparkles, Upload, ArrowRight,
   BookOpen, Trash2, Play, Calendar, Library, CheckSquare, Square, Building2, X,
-  Download, FileJson, FileText, Package,
+  Download, FileJson, FileText, Package, LayoutTemplate,
 } from 'lucide-react';
 import mcLogoPath from '@assets/mc2i.png';
 
@@ -176,6 +176,20 @@ export default function ModuleGenerator() {
 
   const cards = [
     {
+      id: 'lms',
+      badge: 'Éditeur LMS guidé',
+      title: 'Créer un cours complet',
+      description: 'Construisez un vrai cours LMS structuré — chapitres, leçons, blocs riches (vidéo, image, QCM, accordéon). Partez d\'un template ou de zéro. L\'IA vous inspire bloc par bloc.',
+      bullets: [
+        'Templates pré-construits par domaine',
+        'Blocs : texte, image, vidéo, QCM, audio…',
+        'Export SCORM 1.2 / PDF',
+        'Compatible Moodle, Cornerstone, 360L',
+      ],
+      color: BLUE,
+      route: '/playground/lms',
+    },
+    {
       id: 'ia',
       badge: 'IA from scratch',
       title: 'Générer à partir de votre prompt',
@@ -285,7 +299,7 @@ export default function ModuleGenerator() {
                   <button
                     style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 0', background: card.color, color: 'white', fontWeight: 700, fontSize: 12, border: 'none', cursor: 'pointer', width: '100%', justifyContent: 'center' }}
                   >
-                    {card.id === 'ia' ? <Sparkles size={14} /> : <Upload size={14} />}
+                    {card.id === 'lms' ? <LayoutTemplate size={14} /> : card.id === 'ia' ? <Sparkles size={14} /> : <Upload size={14} />}
                     {card.title}
                     <ArrowRight size={14} />
                   </button>
