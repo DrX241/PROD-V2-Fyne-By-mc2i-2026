@@ -8519,5 +8519,57 @@ Sinon → retourne la formation complète modifiée avec le même schéma JSON.`
     }
   });
 
+  // POST /api/lms/ai/inspire-block — Génère du contenu IA pour un bloc LMS
+  app.post('/api/lms/ai/inspire-block', requireMakerOrAdmin, async (req: Request, res: Response) => {
+    try {
+      const user = (req.session as any)?.user;
+      const { blockType, currentContent, lessonContext, courseTitle, userInstruction, courseId } = req.body;
+
+      const typeInstructions: Record<string, string> = {
+        text: 'Rédige un paragraphe de formation clair, concis (150-250 mots), avec des exemples concrets.',
+        image: 'Décris en détail quelle image serait la plus pertinente pour illustrer ce concept.',
+        callout: 'Formule un encadré "À retenir" percutant avec 2-3 points clés en phrases courtes.',
+        qcm: 'Génère une question QCM pertinente avec 4 options dont une seule correcte, et une explication pédagogique.',
+        accordion: 'Propose 3 sections d\'accordéon avec titre et contenu pour organiser ce sujet.',
+        quote: 'Propose une citation d\'expert ou un verbatim illustrant ce point de formation.',
+      };
+
+      const instruction = typeInstructions[blockType] || 'Propose du contenu pertinent pour ce bloc de formation.';
+      const prompt = `Tu es un expert en ingénierie pédagogique. Tu aides à créer des formations professionnelles de qualité.
+
+Cours : "${courseTitle}"
+Leçon : "${lessonContext}"
+Type de bloc : ${blockType}
+${currentContent ? `Contenu actuel : "${currentContent}"` : ''}
+${userInstruction ? `Instruction spécifique : "${userInstruction}"` : ''}
+
+${instruction}
+
+Réponds directement avec le contenu, sans explication ni préambule.`;
+
+      const { bedrockService } = await import('./services/bedrock');
+      const result = await bedrockService.getChatCompletion(
+        [{ role: 'user', content: prompt }],
+        0.7,
+        500
+      );
+
+      // Tracker les tokens
+      const estimatedTokens = Math.ceil(prompt.length / 4) + 300;
+      if (user?.id) {
+        await storage.incrementTokenUsage(user.id, estimatedTokens);
+        if (courseId) {
+          const costCents = Math.ceil(estimatedTokens * 0.002);
+          await storage.addLmsCourseTokens(courseId, estimatedTokens, costCents);
+        }
+      }
+
+      res.json({ suggestion: result });
+    } catch (err) {
+      console.error('[LMS AI] inspire-block', err);
+      res.status(500).json({ error: 'Erreur génération IA' });
+    }
+  });
+
   return createServer(app);
 }
