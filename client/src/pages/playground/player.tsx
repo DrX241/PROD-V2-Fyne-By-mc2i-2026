@@ -8,7 +8,7 @@ import {
   Clock, Check, X, Star, TrendingUp, MessageSquare,
   Eye, RefreshCw, ChevronDown, ChevronUp, Presentation,
   Play, BookOpen, Layers, Code2, CheckSquare, Square,
-  Lightbulb, Puzzle, Sparkles, HelpCircle,
+  Lightbulb, Puzzle, Sparkles, HelpCircle, Save, Plus, Trash2,
 } from 'lucide-react';
 
 const MonacoEditor = lazy(() => import('@monaco-editor/react').then(m => ({ default: m.default })));
@@ -1322,6 +1322,86 @@ export default function TrainingPlayer() {
   const timer = useTimer();
   const isTrainer = training?.deliveryMode === 'trainer';
 
+  // ── Éditeur ──────────────────────────────────────────────────────────────────
+  const [editTraining, setEditTraining] = useState<Training | null>(null);
+  const [editTab, setEditTab] = useState<'meta' | 'situations' | 'qcm'>('meta');
+  const [editSitIdx, setEditSitIdx] = useState(0);
+  const [editQcmIdx, setEditQcmIdx] = useState(0);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
+  const startEditing = () => {
+    if (!training) return;
+    setEditTraining(JSON.parse(JSON.stringify(training)));
+    setEditTab('meta');
+    setEditSitIdx(0);
+    setEditQcmIdx(0);
+    setPhase('editing' as Phase);
+  };
+
+  const cancelEditing = () => {
+    setEditTraining(null);
+    setSaveStatus('idle');
+    setPhase('intro');
+  };
+
+  const saveEditing = async () => {
+    if (!editTraining) return;
+    setSaveStatus('saving');
+    try {
+      const res = await fetch(`/api/studio/training/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: editTraining.title, tagline: editTraining.tagline, content: editTraining }),
+      });
+      if (!res.ok) throw new Error();
+      setTraining(editTraining);
+      setSaveStatus('saved');
+      setTimeout(() => { setSaveStatus('idle'); setPhase('intro'); setEditTraining(null); }, 1200);
+    } catch {
+      setSaveStatus('error');
+    }
+  };
+
+  const updateSituation = (idx: number, patch: Partial<Situation>) => {
+    if (!editTraining) return;
+    const situations = editTraining.situations.map((s, i) => i === idx ? { ...s, ...patch } : s);
+    setEditTraining({ ...editTraining, situations });
+  };
+
+  const updateQcm = (idx: number, patch: Partial<QcmQuestion>) => {
+    if (!editTraining) return;
+    const qcm = editTraining.qcm.map((q, i) => i === idx ? { ...q, ...patch } : q);
+    setEditTraining({ ...editTraining, qcm });
+  };
+
+  const addSituation = () => {
+    if (!editTraining) return;
+    const newSit: Situation = { id: editTraining.situations.length + 1, category: 'Mise en situation', title: 'Nouvelle situation', contexte: '', situation: '', attendu: '' };
+    setEditTraining({ ...editTraining, situations: [...editTraining.situations, newSit] });
+    setEditSitIdx(editTraining.situations.length);
+  };
+
+  const removeSituation = (idx: number) => {
+    if (!editTraining || editTraining.situations.length <= 1) return;
+    const situations = editTraining.situations.filter((_, i) => i !== idx);
+    setEditTraining({ ...editTraining, situations });
+    setEditSitIdx(Math.min(idx, situations.length - 1));
+  };
+
+  const addQcmQuestion = () => {
+    if (!editTraining) return;
+    const newQ: QcmQuestion = { question: '', options: [{ text: 'Option A', correct: true }, { text: 'Option B', correct: false }, { text: 'Option C', correct: false }, { text: 'Option D', correct: false }], explanation: '' };
+    setEditTraining({ ...editTraining, qcm: [...editTraining.qcm, newQ] });
+    setEditQcmIdx(editTraining.qcm.length);
+  };
+
+  const removeQcmQuestion = (idx: number) => {
+    if (!editTraining || editTraining.qcm.length <= 1) return;
+    const qcm = editTraining.qcm.filter((_, i) => i !== idx);
+    setEditTraining({ ...editTraining, qcm });
+    setEditQcmIdx(Math.min(idx, qcm.length - 1));
+  };
+
   useEffect(() => {
     fetch(`/api/studio/training/${id}`)
       .then(r => r.json())
@@ -1420,11 +1500,276 @@ export default function TrainingPlayer() {
       )}
 
       <AnimatePresence mode="wait">
+        {(phase as string) === 'editing' && editTraining && (
+          <motion.div key="editing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#0d1117' }}>
+            <style>{`
+              @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+              .p-edit-input { width:100%; padding:9px 12px; border:1.5px solid #2d3748; background:#0d1117; color:#e2e8f0; font-size:13px; font-family:inherit; outline:none; resize:vertical; line-height:1.6; transition:border-color .15s; box-sizing:border-box; }
+              .p-edit-input:focus { border-color:#3b82f6; }
+              .p-edit-label { display:block; font-size:10px; font-weight:700; color:#64748b; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:5px; }
+              .p-edit-field { margin-bottom:16px; }
+              .p-sit-item:hover { background:rgba(255,255,255,0.04) !important; }
+            `}</style>
+
+            {/* Barre supérieure éditeur */}
+            <div style={{ background:'#161b22', borderBottom:'1px solid #2d3748', padding:'0 20px', height:52, display:'flex', alignItems:'center', gap:12, flexShrink:0 }}>
+              <button onClick={cancelEditing} style={{ background:'none', border:'none', cursor:'pointer', color:'#64748b', display:'flex', alignItems:'center', gap:5, fontSize:12, padding:'6px 10px' }}>
+                <X size={14} /> Fermer
+              </button>
+              <div style={{ width:1, height:18, background:'#2d3748' }} />
+              <div style={{ flex:1, display:'flex', alignItems:'center', gap:10 }}>
+                <span style={{ fontSize:10, fontWeight:700, color:'#475569', letterSpacing:2, textTransform:'uppercase' }}>Studio</span>
+                <span style={{ color:'#2d3748' }}>›</span>
+                <span style={{ fontSize:13, color:'#94a3b8', maxWidth:400, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{editTraining.title}</span>
+              </div>
+              <div style={{ display:'flex', gap:2, background:'#0d1117', padding:'3px', border:'1px solid #2d3748' }}>
+                {(['meta','situations','qcm'] as const).map(tab => (
+                  <button key={tab} onClick={() => setEditTab(tab)}
+                    style={{ padding:'5px 14px', border:'none', background:editTab===tab?'#2d3748':'transparent', color:editTab===tab?'#f1f5f9':'#64748b', cursor:'pointer', fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:1 }}>
+                    {tab==='meta'?'Infos':tab==='situations'?`Situations (${editTraining.situations.length})`:`QCM (${editTraining.qcm.length})`}
+                  </button>
+                ))}
+              </div>
+              <div style={{ width:1, height:18, background:'#2d3748' }} />
+              <button onClick={saveEditing} disabled={saveStatus==='saving'}
+                style={{ display:'flex', alignItems:'center', gap:7, padding:'8px 18px', border:'none', background:saveStatus==='saved'?'#059669':saveStatus==='error'?'#dc2626':'#3b82f6', color:'white', cursor:saveStatus==='saving'?'not-allowed':'pointer', fontWeight:700, fontSize:12 }}>
+                {saveStatus==='saving'?<div style={{width:12,height:12,border:'2px solid white',borderTopColor:'transparent',borderRadius:'50%',animation:'spin 0.7s linear infinite'}}/>:<Save size={13}/>}
+                {saveStatus==='saving'?'Enregistrement...':saveStatus==='saved'?'✓ Enregistré':saveStatus==='error'?'Erreur':'Enregistrer'}
+              </button>
+            </div>
+
+            {/* ── Onglet Infos ── */}
+            {editTab === 'meta' && (
+              <div style={{ flex:1, display:'grid', gridTemplateColumns:'1fr 1fr', overflow:'hidden' }}>
+                {/* Formulaire */}
+                <div style={{ background:'#161b22', borderRight:'1px solid #2d3748', overflowY:'auto', padding:'24px' }}>
+                  <div className="p-edit-field">
+                    <label className="p-edit-label">Titre de la formation</label>
+                    <input className="p-edit-input" value={editTraining.title} onChange={e => setEditTraining({...editTraining, title:e.target.value})} style={{height:42, fontSize:16}} />
+                  </div>
+                  <div className="p-edit-field">
+                    <label className="p-edit-label">Tagline / accroche</label>
+                    <input className="p-edit-input" value={editTraining.tagline} onChange={e => setEditTraining({...editTraining, tagline:e.target.value})} style={{height:38}} />
+                  </div>
+                  <div className="p-edit-field">
+                    <label className="p-edit-label">Objectifs pédagogiques (un par ligne)</label>
+                    <textarea className="p-edit-input" rows={8} value={editTraining.objectives?.join('\n')||''} onChange={e => setEditTraining({...editTraining, objectives:e.target.value.split('\n')})} />
+                  </div>
+                  <div className="p-edit-field">
+                    <label className="p-edit-label">Modules / chapitres (titre | durée — un par ligne)</label>
+                    <textarea className="p-edit-input" rows={6} value={editTraining.modules?.map(m=>`${m.title} | ${m.duration}`).join('\n')||''}
+                      onChange={e => setEditTraining({...editTraining, modules:e.target.value.split('\n').filter(Boolean).map(l=>{const[title,...rest]=l.split('|');return{title:title.trim(),duration:(rest[0]||'').trim(),type:'module'};})})} />
+                    <p style={{margin:'5px 0 0',fontSize:10,color:'#475569'}}>Format : «Titre du module | 15 min»</p>
+                  </div>
+                </div>
+                {/* Preview titre */}
+                <div style={{ background:'#0d1117', overflowY:'auto', padding:'32px 40px' }}>
+                  <p style={{margin:'0 0 8px',fontSize:10,fontWeight:700,color:'#475569',letterSpacing:2,textTransform:'uppercase'}}>Aperçu</p>
+                  <h1 style={{margin:'0 0 12px',fontSize:28,fontWeight:800,color:'#f1f5f9',lineHeight:1.2}}>{editTraining.title||'—'}</h1>
+                  <p style={{margin:'0 0 28px',fontSize:14,color:'#64748b',fontStyle:'italic'}}>{editTraining.tagline||'—'}</p>
+                  {editTraining.objectives?.filter(Boolean).length > 0 && (
+                    <div style={{marginBottom:24}}>
+                      <p style={{margin:'0 0 10px',fontSize:10,fontWeight:700,color:'#3b82f6',letterSpacing:2,textTransform:'uppercase'}}>Objectifs</p>
+                      {editTraining.objectives.filter(Boolean).map((o,i)=>(
+                        <div key={i} style={{display:'flex',gap:8,alignItems:'flex-start',padding:'8px 12px',background:'rgba(59,130,246,0.06)',borderLeft:'2px solid #3b82f6',marginBottom:6}}>
+                          <Check size={12} style={{color:'#3b82f6',marginTop:2,flexShrink:0}}/>
+                          <span style={{fontSize:13,color:'#94a3b8',lineHeight:1.5}}>{o}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {editTraining.modules?.filter(m=>m.title).length > 0 && (
+                    <div>
+                      <p style={{margin:'0 0 10px',fontSize:10,fontWeight:700,color:'#475569',letterSpacing:2,textTransform:'uppercase'}}>Modules</p>
+                      {editTraining.modules.filter(m=>m.title).map((m,i)=>(
+                        <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'8px 12px',borderBottom:'1px solid #2d3748'}}>
+                          <span style={{fontSize:13,color:'#94a3b8'}}>{m.title}</span>
+                          <span style={{fontSize:11,color:'#475569',fontFamily:'monospace'}}>{m.duration}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ── Onglet Situations ── */}
+            {editTab === 'situations' && (
+              <div style={{ flex:1, display:'grid', gridTemplateColumns:'220px 420px 1fr', overflow:'hidden' }}>
+                {/* Filmstrip situations */}
+                <div style={{ background:'#0d1117', borderRight:'1px solid #2d3748', display:'flex', flexDirection:'column', overflow:'hidden' }}>
+                  <div style={{ padding:'12px', borderBottom:'1px solid #2d3748' }}>
+                    <button onClick={addSituation} style={{ width:'100%', display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'8px', border:'1px dashed #2d3748', background:'transparent', color:'#475569', cursor:'pointer', fontSize:11, fontWeight:700 }}>
+                      <Plus size={12}/> Ajouter une situation
+                    </button>
+                  </div>
+                  <div style={{ flex:1, overflowY:'auto', padding:'8px' }}>
+                    {editTraining.situations.map((s,i)=>(
+                      <div key={i} className="p-sit-item" onClick={()=>setEditSitIdx(i)}
+                        style={{ display:'flex', alignItems:'center', gap:8, padding:'10px', marginBottom:3, background:i===editSitIdx?'#161b22':'transparent', border:`1.5px solid ${i===editSitIdx?'#3b82f6':'#2d3748'}`, cursor:'pointer', transition:'all .12s', position:'relative' }}>
+                        {i===editSitIdx && <div style={{position:'absolute',left:0,top:0,bottom:0,width:3,background:'#3b82f6'}}/>}
+                        <div style={{ flex:1, minWidth:0, paddingLeft:i===editSitIdx?4:0 }}>
+                          <p style={{margin:0,fontSize:9,fontWeight:800,color:i===editSitIdx?'#3b82f6':'#475569',letterSpacing:1,textTransform:'uppercase'}}>{s.category||'Situation'}</p>
+                          <p style={{margin:'2px 0 0',fontSize:11,color:i===editSitIdx?'#cbd5e1':'#475569',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s.title||'—'}</p>
+                        </div>
+                        {editTraining.situations.length > 1 && (
+                          <button onClick={e=>{e.stopPropagation();removeSituation(i);}} style={{padding:'3px',border:'none',background:'transparent',cursor:'pointer',color:'#475569',flexShrink:0}}>
+                            <Trash2 size={11}/>
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Formulaire situation */}
+                <div style={{ background:'#161b22', borderRight:'1px solid #2d3748', overflowY:'auto', padding:'16px' }}>
+                  {editTraining.situations[editSitIdx] && (() => { const s = editTraining.situations[editSitIdx]; return (
+                    <>
+                      <div style={{ padding:'10px 12px', background:'#0d1117', borderBottom:'1px solid #2d3748', marginBottom:16, display:'flex', alignItems:'center', gap:8 }}>
+                        <span style={{fontSize:9,fontWeight:800,color:'#3b82f6',letterSpacing:1.5,textTransform:'uppercase',padding:'2px 8px',background:'rgba(59,130,246,0.12)'}}>SITUATION {editSitIdx+1}/{editTraining.situations.length}</span>
+                      </div>
+                      <div className="p-edit-field">
+                        <label className="p-edit-label">Catégorie</label>
+                        <input className="p-edit-input" value={s.category} onChange={e=>updateSituation(editSitIdx,{category:e.target.value})} style={{height:36}}/>
+                      </div>
+                      <div className="p-edit-field">
+                        <label className="p-edit-label">Titre</label>
+                        <input className="p-edit-input" value={s.title} onChange={e=>updateSituation(editSitIdx,{title:e.target.value})} style={{height:38}}/>
+                      </div>
+                      <div className="p-edit-field">
+                        <label className="p-edit-label">Contexte factuel</label>
+                        <textarea className="p-edit-input" rows={3} value={s.contexte} onChange={e=>updateSituation(editSitIdx,{contexte:e.target.value})}/>
+                      </div>
+                      <div className="p-edit-field">
+                        <label className="p-edit-label">Scénario immersif</label>
+                        <textarea className="p-edit-input" rows={5} value={s.situation} onChange={e=>updateSituation(editSitIdx,{situation:e.target.value})}/>
+                      </div>
+                      <div className="p-edit-field">
+                        <label className="p-edit-label">Réponse attendue</label>
+                        <textarea className="p-edit-input" rows={4} value={s.attendu} onChange={e=>updateSituation(editSitIdx,{attendu:e.target.value})}/>
+                      </div>
+                    </>
+                  );})()}
+                </div>
+                {/* Preview situation */}
+                <div style={{ background:'#0d1117', overflowY:'auto', padding:'28px 36px' }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:12 }}>
+                    <div style={{width:6,height:6,background:'#10b981',borderRadius:'50%',animation:'livePulse 2s ease-in-out infinite'}}/>
+                    <span style={{fontSize:10,fontWeight:700,color:'#475569',letterSpacing:1.5,textTransform:'uppercase'}}>Preview live</span>
+                  </div>
+                  {editTraining.situations[editSitIdx] && (() => { const s = editTraining.situations[editSitIdx]; return (
+                    <div>
+                      <span style={{fontSize:9,fontWeight:800,color:'#3b82f6',letterSpacing:2,textTransform:'uppercase',padding:'2px 8px',background:'rgba(59,130,246,0.12)',marginBottom:14,display:'inline-block'}}>{s.category}</span>
+                      <h2 style={{margin:'12px 0 16px',fontSize:20,fontWeight:800,color:'#f1f5f9',lineHeight:1.3}}>{s.title||'—'}</h2>
+                      {s.contexte && <div style={{padding:'12px 16px',background:'rgba(255,255,255,0.04)',borderLeft:'2px solid #3b82f6',marginBottom:14}}><p style={{margin:0,fontSize:13,color:'#94a3b8',lineHeight:1.6}}>{s.contexte}</p></div>}
+                      {s.situation && <div style={{padding:'16px',background:'rgba(59,130,246,0.06)',border:'1px solid rgba(59,130,246,0.15)',marginBottom:14}}><p style={{margin:0,fontSize:14,color:'#e2e8f0',lineHeight:1.7}}>{s.situation}</p></div>}
+                      {s.attendu && <div style={{marginTop:16}}><p style={{margin:'0 0 8px',fontSize:10,fontWeight:700,color:'#10b981',letterSpacing:2,textTransform:'uppercase'}}>Réponse attendue</p><p style={{margin:0,fontSize:13,color:'#6ee7b7',lineHeight:1.6}}>{s.attendu}</p></div>}
+                    </div>
+                  );})()}
+                </div>
+              </div>
+            )}
+
+            {/* ── Onglet QCM ── */}
+            {editTab === 'qcm' && (
+              <div style={{ flex:1, display:'grid', gridTemplateColumns:'220px 1fr', overflow:'hidden' }}>
+                {/* Filmstrip QCM */}
+                <div style={{ background:'#0d1117', borderRight:'1px solid #2d3748', display:'flex', flexDirection:'column', overflow:'hidden' }}>
+                  <div style={{ padding:'12px', borderBottom:'1px solid #2d3748' }}>
+                    <button onClick={addQcmQuestion} style={{ width:'100%', display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'8px', border:'1px dashed #2d3748', background:'transparent', color:'#475569', cursor:'pointer', fontSize:11, fontWeight:700 }}>
+                      <Plus size={12}/> Ajouter une question
+                    </button>
+                  </div>
+                  <div style={{ flex:1, overflowY:'auto', padding:'8px' }}>
+                    {editTraining.qcm.map((q,i)=>(
+                      <div key={i} className="p-sit-item" onClick={()=>setEditQcmIdx(i)}
+                        style={{ display:'flex', alignItems:'center', gap:8, padding:'10px', marginBottom:3, background:i===editQcmIdx?'#161b22':'transparent', border:`1.5px solid ${i===editQcmIdx?'#dd0061':'#2d3748'}`, cursor:'pointer', transition:'all .12s', position:'relative' }}>
+                        {i===editQcmIdx && <div style={{position:'absolute',left:0,top:0,bottom:0,width:3,background:'#dd0061'}}/>}
+                        <div style={{ flex:1, minWidth:0, paddingLeft:i===editQcmIdx?4:0 }}>
+                          <p style={{margin:0,fontSize:9,fontWeight:800,color:i===editQcmIdx?'#dd0061':'#475569',letterSpacing:1}}>Q{i+1}</p>
+                          <p style={{margin:'2px 0 0',fontSize:11,color:i===editQcmIdx?'#cbd5e1':'#475569',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{q.question||'—'}</p>
+                        </div>
+                        {editTraining.qcm.length > 1 && (
+                          <button onClick={e=>{e.stopPropagation();removeQcmQuestion(i);}} style={{padding:'3px',border:'none',background:'transparent',cursor:'pointer',color:'#475569',flexShrink:0}}>
+                            <Trash2 size={11}/>
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Formulaire + preview QCM */}
+                <div style={{ display:'grid', gridTemplateColumns:'420px 1fr', overflow:'hidden' }}>
+                  <div style={{ background:'#161b22', borderRight:'1px solid #2d3748', overflowY:'auto', padding:'16px' }}>
+                    {editTraining.qcm[editQcmIdx] && (() => { const q = editTraining.qcm[editQcmIdx]; return (
+                      <>
+                        <div style={{padding:'10px 12px',background:'#0d1117',borderBottom:'1px solid #2d3748',marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
+                          <span style={{fontSize:9,fontWeight:800,color:'#dd0061',letterSpacing:1.5,textTransform:'uppercase',padding:'2px 8px',background:'rgba(221,0,97,0.12)'}}>QUESTION {editQcmIdx+1}/{editTraining.qcm.length}</span>
+                        </div>
+                        <div className="p-edit-field">
+                          <label className="p-edit-label">Question</label>
+                          <textarea className="p-edit-input" rows={3} value={q.question} onChange={e=>updateQcm(editQcmIdx,{question:e.target.value})}/>
+                        </div>
+                        <div className="p-edit-field">
+                          <label className="p-edit-label">Options (cliquer ✓ pour marquer la bonne réponse)</label>
+                          {q.options.map((opt,oi)=>(
+                            <div key={oi} style={{display:'flex',gap:8,marginBottom:8,alignItems:'center'}}>
+                              <button onClick={()=>updateQcm(editQcmIdx,{options:q.options.map((o,j)=>({...o,correct:j===oi}))})}
+                                style={{width:28,height:28,border:`2px solid ${opt.correct?'#10b981':'#2d3748'}`,background:opt.correct?'rgba(16,185,129,0.15)':'transparent',color:opt.correct?'#10b981':'#475569',cursor:'pointer',fontWeight:800,fontSize:11,flexShrink:0}}>
+                                {'ABCD'[oi]}
+                              </button>
+                              <input className="p-edit-input" value={opt.text} onChange={e=>{const opts=[...q.options];opts[oi]={...opts[oi],text:e.target.value};updateQcm(editQcmIdx,{options:opts});}} style={{height:34}}/>
+                            </div>
+                          ))}
+                          <p style={{margin:'4px 0 0',fontSize:10,color:'#475569'}}>Clique sur la lettre pour définir la bonne réponse</p>
+                        </div>
+                        <div className="p-edit-field">
+                          <label className="p-edit-label">Explication pédagogique</label>
+                          <textarea className="p-edit-input" rows={3} value={q.explanation} onChange={e=>updateQcm(editQcmIdx,{explanation:e.target.value})}/>
+                        </div>
+                      </>
+                    );})()}
+                  </div>
+                  {/* Preview QCM */}
+                  <div style={{ background:'#0d1117', overflowY:'auto', padding:'28px 36px' }}>
+                    <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:16}}>
+                      <div style={{width:6,height:6,background:'#10b981',borderRadius:'50%',animation:'livePulse 2s ease-in-out infinite'}}/>
+                      <span style={{fontSize:10,fontWeight:700,color:'#475569',letterSpacing:1.5,textTransform:'uppercase'}}>Preview live</span>
+                    </div>
+                    {editTraining.qcm[editQcmIdx] && (() => { const q = editTraining.qcm[editQcmIdx]; return (
+                      <div>
+                        <div style={{padding:'4px 10px',background:'rgba(221,0,97,0.1)',display:'inline-block',marginBottom:14}}>
+                          <span style={{fontSize:9,fontWeight:800,color:'#dd0061',letterSpacing:2,textTransform:'uppercase'}}>Question {editQcmIdx+1}</span>
+                        </div>
+                        <p style={{margin:'0 0 20px',fontSize:17,fontWeight:700,color:'#f1f5f9',lineHeight:1.5}}>{q.question||'—'}</p>
+                        <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                          {q.options.map((opt,oi)=>(
+                            <div key={oi} style={{display:'flex',alignItems:'center',gap:12,padding:'12px 16px',background:opt.correct?'rgba(16,185,129,0.08)':'rgba(255,255,255,0.03)',border:`1.5px solid ${opt.correct?'#10b981':'#2d3748'}`}}>
+                              <span style={{width:24,height:24,display:'flex',alignItems:'center',justifyContent:'center',background:opt.correct?'rgba(16,185,129,0.2)':'rgba(255,255,255,0.05)',color:opt.correct?'#10b981':'#475569',fontWeight:800,fontSize:12,flexShrink:0}}>{'ABCD'[oi]}</span>
+                              <span style={{fontSize:13,color:opt.correct?'#6ee7b7':'#94a3b8'}}>{opt.text||'—'}</span>
+                              {opt.correct && <Check size={14} style={{color:'#10b981',marginLeft:'auto',flexShrink:0}}/>}
+                            </div>
+                          ))}
+                        </div>
+                        {q.explanation && <div style={{marginTop:16,padding:'12px 16px',background:'rgba(16,185,129,0.06)',borderLeft:'2px solid #10b981'}}><p style={{margin:0,fontSize:12,color:'#6ee7b7',lineHeight:1.6}}>{q.explanation}</p></div>}
+                      </div>
+                    );})()}
+                  </div>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+
         {phase === 'intro' && (
           <motion.div key="intro" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 10, borderBottom: `1px solid ${C.border}`, background: C.surface }}>
               <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontFamily: FONT }}>
                 <ArrowLeft size={14} /> Retour
+              </button>
+              <div style={{ flex: 1 }} />
+              <button onClick={startEditing} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', border: `1px solid ${C.border}`, background: 'transparent', color: C.sub, cursor: 'pointer', fontWeight: 600, fontSize: 12, fontFamily: FONT }}>
+                <Presentation size={13} /> Éditer la formation
               </button>
             </div>
             <IntroScreen training={training} domain={domain} onStart={async () => {
