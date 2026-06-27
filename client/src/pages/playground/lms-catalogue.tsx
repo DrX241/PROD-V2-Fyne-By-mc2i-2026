@@ -1,42 +1,76 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
+import { LayoutDashboard, BookOpen, BookMarked, TrendingUp, Award, ArrowLeft, Search, Clock, Layers } from 'lucide-react';
 
-const palette = {
-  bg: '#f8f8fc',
-  white: '#ffffff',
-  dark: '#1c1c2e',
-  pink: '#E8006C',
-  blue: '#1B7A9C',
-  green: '#22a359',
-  amber: '#f0b429',
-  muted: '#888888',
-  border: '#e5e7eb',
+const P = {
+  bg: '#f4f5f7', white: '#ffffff', dark: '#111827', pink: '#E8006C',
+  blue: '#0057ff', green: '#059669', amber: '#d97706', muted: '#6b7280',
+  border: '#e5e7eb', sidebarBg: '#111827', sidebarActive: 'rgba(232,0,108,0.15)',
 };
-const font = { sans: "'DM Sans', sans-serif", mono: "'DM Mono', monospace" };
+const F = { sans: "'DM Sans', sans-serif", mono: "'DM Mono', monospace" };
 
-const navItems = [
-  { icon: '⊞', label: 'Accueil', path: '/playground/lms/dashboard' },
-  { icon: '◧', label: 'Formations', path: '/playground/lms' },
-  { icon: '⊡', label: 'Catalogue', path: '/playground/lms/catalogue' },
-  { icon: '⇢', label: 'Parcours', path: '/playground/lms/parcours' },
-  { icon: '◎', label: 'Certif.', path: null },
+const NAV = [
+  { icon: LayoutDashboard, label: 'Accueil', path: '/playground/lms/dashboard' },
+  { icon: BookOpen, label: 'Mes cours', path: '/playground/lms' },
+  { icon: BookMarked, label: 'Catalogue', path: '/playground/lms/catalogue' },
+  { icon: TrendingUp, label: 'Parcours', path: '/playground/lms/parcours' },
+  { icon: Award, label: 'Certifs', path: null },
 ];
 
-const coverColors = ['#c8dff0', '#f5d0e0', '#d0f0e0', '#f0e8c8', '#e0d0f5', '#c8e8d0'];
+const COVER_COLORS = ['#dbeafe', '#fce7f3', '#d1fae5', '#fef3c7', '#ede9fe', '#ffedd5'];
+const COVER_ACCENT = [P.blue, P.pink, P.green, P.amber, '#7c3aed', '#ea580c'];
 
-interface Course {
-  id: number;
-  title: string;
-  chapters?: unknown[];
-  estimatedDurationMin?: number;
+function Sidebar({ active }: { active: string }) {
+  const [, nav] = useLocation();
+  return (
+    <div style={{ width: 220, background: P.sidebarBg, display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+      <div style={{ padding: '24px 20px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ fontFamily: F.mono, fontWeight: 700, fontSize: 18, color: P.pink, letterSpacing: '-0.5px' }}>FYNE</div>
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2, fontFamily: F.mono }}>Espace Apprenant</div>
+      </div>
+      <nav style={{ flex: 1, padding: '12px 10px' }}>
+        {NAV.map(({ icon: Icon, label, path }) => {
+          const isActive = path === active;
+          return (
+            <div key={label} onClick={() => path && nav(path)} style={{
+              display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px',
+              borderRadius: 8, marginBottom: 2, cursor: path ? 'pointer' : 'default',
+              background: isActive ? P.sidebarActive : 'transparent',
+              color: isActive ? P.pink : 'rgba(255,255,255,0.55)',
+            }}>
+              <Icon size={16} />
+              <span style={{ fontFamily: F.sans, fontSize: 14, fontWeight: isActive ? 600 : 400 }}>{label}</span>
+            </div>
+          );
+        })}
+      </nav>
+      <div style={{ padding: '12px 10px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+        <div onClick={() => nav('/playground')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 8, cursor: 'pointer', color: 'rgba(255,255,255,0.4)' }}>
+          <ArrowLeft size={16} />
+          <span style={{ fontFamily: F.sans, fontSize: 13 }}>Retour au Studio</span>
+        </div>
+      </div>
+    </div>
+  );
 }
 
+interface Course {
+  id: string | number;
+  title: string;
+  description?: string;
+  estimatedDurationMin?: number;
+  content?: { chapters?: unknown[] };
+  status?: string;
+}
+
+const CHIPS = ['Tous', 'RH', 'Sécurité', 'RGPD', 'IT', 'Management'];
+
 export default function LmsCataloguePage() {
-  const [, navigate] = useLocation();
+  const [, nav] = useLocation();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [activeChip, setActiveChip] = useState('Tous');
+  const [chip, setChip] = useState('Tous');
 
   useEffect(() => {
     fetch('/api/lms/courses', { credentials: 'include' })
@@ -45,150 +79,108 @@ export default function LmsCataloguePage() {
       .catch(() => { setCourses([]); setLoading(false); });
   }, []);
 
-  const chips = ['Tous', 'RH', 'Sécurité', 'RGPD', 'IT', 'Management'];
-
   const filtered = courses.filter(c =>
     c.title.toLowerCase().includes(search.toLowerCase())
   );
 
-  return (
-    <div style={{ height: '100vh', display: 'flex', overflow: 'hidden', fontFamily: font.sans, background: palette.bg }}>
-      {/* Sidebar */}
-      <div style={{ width: 60, background: palette.dark, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '12px 0', flexShrink: 0 }}>
-        <div style={{ fontFamily: font.mono, fontWeight: 700, fontSize: 13, color: palette.pink, marginBottom: 18 }}>FY</div>
-        {navItems.map((item) => {
-          const isActive = item.path === '/playground/lms/catalogue';
-          return (
-            <div
-              key={item.label}
-              onClick={() => item.path && navigate(item.path)}
-              style={{
-                width: 44,
-                padding: '8px 0',
-                borderRadius: 6,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 3,
-                cursor: item.path ? 'pointer' : 'default',
-                background: isActive ? 'rgba(232,0,108,.18)' : 'transparent',
-                color: isActive ? palette.pink : 'rgba(255,255,255,0.55)',
-                marginBottom: 4,
-              }}
-            >
-              <span style={{ fontSize: 16 }}>{item.icon}</span>
-              <span style={{ fontFamily: font.mono, fontSize: 7, letterSpacing: 0.3 }}>{item.label}</span>
-            </div>
-          );
-        })}
-        <div style={{ flex: 1 }} />
-        <div style={{ width: 30, height: 30, borderRadius: '50%', background: '#2B6CB0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 10, fontWeight: 700 }}>AP</div>
-      </div>
+  const hash = (s: string | number) => {
+    const str = String(s);
+    let h = 0;
+    for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % COVER_COLORS.length;
+    return h;
+  };
 
-      {/* Main */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        {/* Header */}
-        <div style={{ padding: '14px 24px', background: palette.white, borderBottom: `1px solid ${palette.border}`, display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: palette.dark }}>Catalogue</div>
-          <div style={{ fontSize: 11, color: palette.muted }}>{filtered.length} formations</div>
+  return (
+    <div style={{ height: '100vh', display: 'flex', fontFamily: F.sans, overflow: 'hidden' }}>
+      <Sidebar active="/playground/lms/catalogue" />
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: P.bg }}>
+        {/* Topbar */}
+        <div style={{ background: P.white, borderBottom: `1px solid ${P.border}`, padding: '16px 32px', flexShrink: 0 }}>
+          <h1 style={{ margin: '0 0 2px', fontSize: 22, fontWeight: 700, color: P.dark }}>Catalogue</h1>
+          <p style={{ margin: 0, fontSize: 13, color: P.muted }}>{filtered.length} formation{filtered.length !== 1 ? 's' : ''} disponible{filtered.length !== 1 ? 's' : ''}</p>
         </div>
 
-        {/* Content scrollable */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
-          {/* Search bar */}
-          <div style={{ background: palette.white, border: `1px solid ${palette.border}`, borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <span style={{ fontSize: 18, color: palette.muted }}>⌕</span>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px' }}>
+          {/* Search */}
+          <div style={{ background: P.white, border: `1px solid ${P.border}`, borderRadius: 10, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+            <Search size={16} color={P.muted} />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Rechercher une formation..."
-              style={{ flex: 1, border: 'none', outline: 'none', fontFamily: font.sans, fontSize: 13, color: palette.dark, background: 'transparent' }}
+              style={{ flex: 1, border: 'none', outline: 'none', fontFamily: F.sans, fontSize: 14, color: P.dark, background: 'transparent' }}
             />
           </div>
 
-          {/* Filter chips */}
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
-            {chips.map(chip => (
-              <div
-                key={chip}
-                onClick={() => setActiveChip(chip)}
-                style={{
-                  padding: '5px 12px',
-                  borderRadius: 20,
-                  fontSize: 11,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  background: activeChip === chip ? palette.pink : palette.white,
-                  color: activeChip === chip ? '#fff' : palette.dark,
-                  border: activeChip === chip ? `1px solid ${palette.pink}` : `1px solid ${palette.border}`,
-                }}
-              >
-                {chip}
-              </div>
+          {/* Chips */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 24 }}>
+            {CHIPS.map(c => (
+              <button key={c} onClick={() => setChip(c)} style={{
+                padding: '6px 16px', borderRadius: 20, fontSize: 13, fontWeight: 500,
+                cursor: 'pointer', border: 'none',
+                background: chip === c ? P.pink : P.white,
+                color: chip === c ? '#fff' : P.dark,
+                boxShadow: chip === c ? 'none' : `0 0 0 1px ${P.border}`,
+              }}>
+                {c}
+              </button>
             ))}
           </div>
 
           {loading && (
-            <div style={{ textAlign: 'center', color: palette.muted, padding: 40 }}>Chargement...</div>
+            <div style={{ textAlign: 'center', color: P.muted, padding: '60px 0', fontSize: 14 }}>Chargement des formations...</div>
           )}
 
           {!loading && filtered.length === 0 && (
-            <div style={{ textAlign: 'center', padding: 40 }}>
-              <div style={{ color: palette.muted, fontSize: 13, marginBottom: 8 }}>Aucune formation disponible pour le moment.</div>
-              <span
-                onClick={() => navigate('/playground/lms/new')}
-                style={{ color: palette.pink, fontSize: 13, cursor: 'pointer', fontWeight: 600 }}
-              >
+            <div style={{ textAlign: 'center', padding: '60px 0' }}>
+              <BookOpen size={40} color={P.border} style={{ marginBottom: 16 }} />
+              <div style={{ fontSize: 15, color: P.muted, marginBottom: 12 }}>Aucune formation disponible pour le moment.</div>
+              <button onClick={() => nav('/playground/lms/new')} style={{ background: P.pink, color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, cursor: 'pointer', fontFamily: F.sans, fontWeight: 600, fontSize: 14 }}>
                 Créer un cours →
-              </span>
+              </button>
             </div>
           )}
 
           {!loading && filtered.length > 0 && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              {filtered.map((course, i) => (
-                <div
-                  key={course.id}
-                  style={{ background: palette.white, borderRadius: 10, overflow: 'hidden', border: `1px solid ${palette.border}` }}
-                >
-                  <div style={{ position: 'relative', height: 60, background: coverColors[course.id % coverColors.length] || '#e8e8e8' }}>
-                    <div style={{
-                      position: 'absolute',
-                      bottom: 6,
-                      left: 6,
-                      background: palette.pink,
-                      color: '#fff',
-                      fontSize: 8,
-                      fontFamily: font.mono,
-                      padding: '2px 6px',
-                      borderRadius: 10,
-                    }}>
-                      Micro Learning
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+              {filtered.map(course => {
+                const idx = hash(course.id);
+                const chapCount = course.content?.chapters ? (course.content.chapters as unknown[]).length : 0;
+                return (
+                  <div key={course.id} style={{ background: P.white, borderRadius: 12, overflow: 'hidden', border: `1px solid ${P.border}`, cursor: 'pointer', transition: 'box-shadow 0.15s' }}
+                    onClick={() => nav(`/playground/lms/editor/${course.id}`)}
+                  >
+                    <div style={{ height: 100, background: COVER_COLORS[idx], display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                      <BookOpen size={36} color={COVER_ACCENT[idx]} style={{ opacity: 0.5 }} />
+                      <div style={{ position: 'absolute', bottom: 10, left: 12, background: COVER_ACCENT[idx], color: '#fff', fontSize: 11, fontFamily: F.mono, padding: '3px 10px', borderRadius: 20, fontWeight: 600 }}>
+                        Micro Learning
+                      </div>
+                    </div>
+                    <div style={{ padding: '16px 18px' }}>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: P.dark, marginBottom: 6, lineHeight: 1.3 }}>{course.title}</div>
+                      {course.description && (
+                        <div style={{ fontSize: 12, color: P.muted, marginBottom: 10, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {course.description}
+                        </div>
+                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: P.muted }}>
+                          <Layers size={12} /> {chapCount} chapitre{chapCount !== 1 ? 's' : ''}
+                        </div>
+                        {course.estimatedDurationMin && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: P.muted }}>
+                            <Clock size={12} /> {course.estimatedDurationMin} min
+                          </div>
+                        )}
+                      </div>
+                      <button style={{ width: '100%', background: P.pink, color: '#fff', border: 'none', padding: '10px 0', borderRadius: 8, fontFamily: F.sans, fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>
+                        Commencer →
+                      </button>
                     </div>
                   </div>
-                  <div style={{ padding: 10 }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: palette.dark, marginBottom: 4 }}>{course.title}</div>
-                    <div style={{ fontSize: 9, color: palette.muted, marginBottom: 8 }}>
-                      {Array.isArray(course.chapters) ? course.chapters.length : 0} chapitres · {course.estimatedDurationMin ?? '—'} min
-                    </div>
-                    <div
-                      onClick={() => navigate(`/playground/lms/editor/${course.id}`)}
-                      style={{
-                        background: palette.pink,
-                        color: '#fff',
-                        borderRadius: 5,
-                        padding: '5px 0',
-                        textAlign: 'center',
-                        fontSize: 10,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      S'inscrire
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

@@ -96,17 +96,29 @@ export default function LmsListPage() {
             {courses.length} cours · Créez et gérez vos formations interactives
           </p>
         </div>
-        <button
-          onClick={() => navigate('/playground/lms/new')}
-          style={{
-            background: palette.accent, color: '#fff', border: 'none',
-            padding: '10px 20px', borderRadius: 6, cursor: 'pointer',
-            fontFamily: font.sans, fontWeight: 600, fontSize: 14,
-            display: 'flex', alignItems: 'center', gap: 8,
-          }}
-        >
-          <span style={{ fontSize: 18, lineHeight: 1 }}>+</span> Nouveau cours
-        </button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button
+            onClick={() => navigate('/playground/lms/dashboard')}
+            style={{
+              background: 'none', color: palette.accent, border: `1px solid ${palette.accent}`,
+              padding: '10px 18px', borderRadius: 6, cursor: 'pointer',
+              fontFamily: font.sans, fontWeight: 600, fontSize: 14,
+            }}
+          >
+            Vue Apprenant →
+          </button>
+          <button
+            onClick={() => navigate('/playground/lms/new')}
+            style={{
+              background: palette.accent, color: '#fff', border: 'none',
+              padding: '10px 20px', borderRadius: 6, cursor: 'pointer',
+              fontFamily: font.sans, fontWeight: 600, fontSize: 14,
+              display: 'flex', alignItems: 'center', gap: 8,
+            }}
+          >
+            <span style={{ fontSize: 18, lineHeight: 1 }}>+</span> Nouveau cours
+          </button>
+        </div>
       </div>
 
       {/* Body */}
