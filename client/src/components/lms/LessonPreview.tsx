@@ -348,79 +348,75 @@ function PreviewBlock({ block }: { block: Block }) {
 
 export function LessonPreview({ chapter, lesson, courseTitle }: LessonPreviewProps) {
   return (
-    <div
-      style={{
-        flex: 1, overflowY: 'auto', background: '#f5f5f5',
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
-        padding: '40px 24px 80px',
-      }}
-    >
-      {/* Preview badge */}
-      <div
-        style={{
-          width: '100%', maxWidth: 760, marginBottom: 12,
-          display: 'flex', alignItems: 'center', gap: 8,
-        }}
-      >
-        <span
-          style={{
-            fontSize: 10, fontFamily: font.mono, letterSpacing: '0.08em',
-            textTransform: 'uppercase', color: palette.accent,
-            background: '#e8f0ff', padding: '3px 8px', borderRadius: 4,
-            fontWeight: 700,
-          }}
-        >
-          Aperçu apprenant
-        </span>
-        <span style={{ fontSize: 11, color: palette.muted, fontFamily: font.mono }}>
-          {courseTitle} / {chapter.title}
+    <div style={{ flex: 1, overflowY: 'auto', background: '#fff', display: 'flex', flexDirection: 'column' }}>
+
+      {/* Barre top LMS */}
+      <div style={{
+        borderBottom: `1px solid ${palette.border}`, padding: '10px 32px',
+        display: 'flex', alignItems: 'center', gap: 12, background: '#fff', flexShrink: 0,
+      }}>
+        <span style={{
+          fontSize: 10, fontFamily: font.mono, letterSpacing: '0.08em',
+          textTransform: 'uppercase', color: palette.accent,
+          background: '#e8f0ff', padding: '3px 8px', fontWeight: 700,
+        }}>Aperçu apprenant</span>
+        <span style={{ fontSize: 12, color: palette.muted, fontFamily: font.mono }}>
+          {courseTitle} · {chapter.title} · {lesson.title}
         </span>
       </div>
 
-      {/* Lesson card */}
-      <div
-        style={{
-          width: '100%', maxWidth: 760, background: '#fff',
-          borderRadius: 8, boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
-          padding: '40px 48px 56px',
-          fontFamily: font.sans,
-        }}
-      >
-        {/* Lesson header */}
-        <div style={{ borderBottom: `2px solid ${palette.border}`, paddingBottom: 16, marginBottom: 32 }}>
-          <div
-            style={{
-              fontSize: 11, fontWeight: 700, textTransform: 'uppercase',
-              letterSpacing: '0.1em', color: palette.muted, marginBottom: 6,
-            }}
-          >
+      {/* Layout LMS : sidebar + contenu */}
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+
+        {/* Sidebar navigation leçon (simulée) */}
+        <div style={{
+          width: 220, flexShrink: 0, borderRight: `1px solid ${palette.border}`,
+          background: '#fafafa', padding: '24px 0', overflowY: 'auto',
+        }}>
+          <div style={{ padding: '0 16px 12px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: palette.muted }}>
             {chapter.title}
           </div>
-          <h1
-            style={{
-              fontSize: 28, fontWeight: 800, color: palette.text,
-              margin: 0, lineHeight: 1.2, fontFamily: font.sans,
-            }}
-          >
+          <div style={{
+            padding: '10px 16px', background: '#fff',
+            borderLeft: `3px solid ${palette.accent}`,
+            fontSize: 13, fontWeight: 600, color: palette.accent,
+          }}>
             {lesson.title}
-          </h1>
-          {lesson.description && (
-            <p style={{ fontSize: 14, color: palette.muted, margin: '8px 0 0', lineHeight: 1.6 }}>
-              {lesson.description}
-            </p>
-          )}
+          </div>
+          <div style={{ padding: '8px 16px', color: palette.muted, fontSize: 12, lineHeight: 1.5 }}>
+            {lesson.description || ''}
+          </div>
         </div>
 
-        {/* Blocks */}
-        {lesson.blocks.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 0', color: palette.muted, fontSize: 14 }}>
-            Cette leçon ne contient pas encore de contenu.
+        {/* Contenu principal — pleine largeur */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '40px 48px 80px', background: '#fff' }}>
+
+          {/* En-tête leçon */}
+          <div style={{ borderBottom: `2px solid ${palette.border}`, paddingBottom: 20, marginBottom: 36 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: palette.muted, marginBottom: 6 }}>
+              {chapter.title}
+            </div>
+            <h1 style={{ fontSize: 32, fontWeight: 800, color: palette.text, margin: 0, lineHeight: 1.2, fontFamily: font.sans }}>
+              {lesson.title}
+            </h1>
+            {lesson.description && (
+              <p style={{ fontSize: 15, color: palette.muted, margin: '10px 0 0', lineHeight: 1.6 }}>
+                {lesson.description}
+              </p>
+            )}
           </div>
-        ) : (
-          lesson.blocks.map((block) => (
-            <PreviewBlock key={block.id} block={block} />
-          ))
-        )}
+
+          {/* Blocs */}
+          {lesson.blocks.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px 0', color: palette.muted, fontSize: 14 }}>
+              Cette leçon ne contient pas encore de contenu.
+            </div>
+          ) : (
+            lesson.blocks.map((block) => (
+              <PreviewBlock key={block.id} block={block} />
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
