@@ -6307,21 +6307,69 @@ Niveau ${levelDesc}. Contexte français réaliste. Pour visual.type utilise: ema
   </resources>
 </manifest>`;
 
-      // scorm_api.js — wrapper SCORM 1.2 minimal
+      // scorm_api.js — wrapper SCORM 1.2 conforme
       const scormJs = `(function(){
   var API=null;
-  function findAPI(w){try{if(w.API)return w.API;if(w.parent&&w.parent!==w)return findAPI(w.parent);}catch(e){}return null;}
+  var startTime=new Date();
+  function findAPI(w){
+    var attempts=0;
+    while(w){
+      try{if(w.API)return w.API;}catch(e){}
+      try{if(w.opener&&w.opener!==w&&attempts<5){var a=findAPI(w.opener);if(a)return a;}}catch(e){}
+      try{if(w.parent&&w.parent!==w){w=w.parent;attempts++;}else break;}catch(e){break;}
+    }
+    return null;
+  }
+  function formatTime(ms){
+    var s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
+    return (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(sec<10?'0':'')+sec+'.00';
+  }
   API=findAPI(window);
   window.SCORM={
-    init:function(){try{if(API)API.LMSInitialize('');}catch(e){}},
-    finish:function(score){try{if(API){API.LMSSetValue('cmi.core.score.raw',score||0);API.LMSSetValue('cmi.core.lesson_status',score>=70?'passed':'failed');API.LMSFinish('');}}catch(e){}},
-    setProgress:function(p){try{if(API)API.LMSSetValue('cmi.core.session_time',p);}catch(e){}}
+    init:function(){
+      try{
+        if(API){
+          API.LMSInitialize('');
+          API.LMSSetValue('cmi.core.lesson_status','incomplete');
+          API.LMSCommit('');
+        }
+      }catch(e){}
+    },
+    finish:function(score){
+      try{
+        if(API){
+          var elapsed=formatTime(new Date()-startTime);
+          API.LMSSetValue('cmi.core.score.raw',String(Math.round(score||0)));
+          API.LMSSetValue('cmi.core.score.min','0');
+          API.LMSSetValue('cmi.core.score.max','100');
+          API.LMSSetValue('cmi.core.lesson_status',score>=70?'passed':'failed');
+          API.LMSSetValue('cmi.core.session_time',elapsed);
+          API.LMSCommit('');
+          API.LMSFinish('');
+        }
+      }catch(e){}
+    },
+    suspend:function(){
+      try{
+        if(API){
+          var elapsed=formatTime(new Date()-startTime);
+          API.LMSSetValue('cmi.core.session_time',elapsed);
+          API.LMSSetValue('cmi.core.lesson_status','incomplete');
+          API.LMSCommit('');
+          API.LMSFinish('');
+        }
+      }catch(e){}
+    }
   };
   window.addEventListener('load',function(){SCORM.init();});
+  window.addEventListener('beforeunload',function(){
+    if(window._scormFinished)return;
+    SCORM.suspend();
+  });
 })();`;
 
       // index.html — contenu complet de la formation
-      const objectivesHtml = (content.objectives || []).map((o: string) => `<li>${o}</li>`).join('');
+      const objectivesHtml = (content.objectives || []).map((o: string) => `<li class="li">${o}</li>`).join('');
       const modulesHtml = (content.modules || []).map((m: any, i: number) => `<div class="module"><span class="num">${String(i+1).padStart(2,'0')}</span><span class="title">${m.title}</span><span class="dur">${m.duration||''}</span></div>`).join('');
       const situationsHtml = situations.map((s: any, i: number) => `
         <div class="situation">
@@ -6402,6 +6450,7 @@ function submitQcm(){
   var sb=document.getElementById('score-bar');sb.style.display='block';
   document.getElementById('score-val').textContent=pct+'%';
   document.getElementById('score-msg').textContent=correct+' bonne'+(correct>1?'s':'')+' réponse'+(correct>1?'s':'')+' sur '+total;
+  window._scormFinished=true;
   SCORM.finish(pct);
 }
 </script>
