@@ -8433,6 +8433,173 @@ Sinon → retourne la formation complète modifiée avec le même schéma JSON.`
     }
   });
 
+  // ─── LMS SEED EXAMPLE ───────────────────────────────────────────────────────
+  app.post('/api/lms/seed-example', async (req: Request, res: Response) => {
+    const token = req.headers['x-seed-token'] || req.body?.seedToken;
+    if (token !== 'FYNE_SEED_2026') return res.status(403).json({ error: 'Token invalide' });
+    try {
+      const existing = await (pool as any).query(
+        "SELECT id FROM lms_courses WHERE title LIKE '%Cours Exemple Complet%' LIMIT 1"
+      );
+      if (existing.rows.length > 0) {
+        return res.json({ message: 'Cours exemple déjà créé', id: existing.rows[0].id });
+      }
+      const userRow = await (pool as any).query(
+        "SELECT id FROM users WHERE role IN ('maker','admin','superadmin') ORDER BY id LIMIT 1"
+      );
+      if (!userRow.rows.length) return res.status(500).json({ error: 'Aucun maker trouvé' });
+      const uid = () => crypto.randomUUID();
+      const content = {
+        scoringEnabled: true, passingScore: 70, completionMode: 'linear',
+        chapters: [
+          {
+            id: uid(), title: 'Chapitre 1 — Comprendre les menaces', order: 0,
+            lessons: [
+              {
+                id: uid(), title: 'Les fondamentaux de la cybersécurité',
+                description: 'Introduction aux concepts clés.',
+                blocks: [
+                  { id: uid(), type: 'text', html: '<h2>La cybersécurité</h2><p>La cybersécurité désigne l\'ensemble des pratiques visant à <strong>protéger les systèmes informatiques</strong>. En 2024, le coût moyen d\'une violation s\'élève à <strong>4,88 millions de dollars</strong>.</p>' },
+                  { id: uid(), type: 'callout', variant: 'info', title: 'Chiffre clé', content: '43 % des cyberattaques ciblent les PME.' },
+                  { id: uid(), type: 'text', html: '<h3>Triade CIA</h3><ul><li><strong>Confidentialité</strong></li><li><strong>Intégrité</strong></li><li><strong>Disponibilité</strong></li></ul>' },
+                  { id: uid(), type: 'callout', variant: 'warning', title: 'Attention', content: 'Un mot de passe faible est la porte d\'entrée numéro 1 des attaquants.' },
+                  { id: uid(), type: 'callout', variant: 'tip', title: 'Bonne pratique', content: 'Utilisez un gestionnaire de mots de passe (Bitwarden, 1Password).' },
+                  { id: uid(), type: 'callout', variant: 'danger', title: 'Danger critique', content: 'Ne cliquez jamais sur un lien qui vous demande vos identifiants.' },
+                  { id: uid(), type: 'separator', style: 'line' },
+                  { id: uid(), type: 'quote', text: 'Il y a deux types d\'entreprises : celles qui ont été piratées, et celles qui ne le savent pas encore.', author: 'John Chambers', role: 'ex-PDG de Cisco' },
+                ],
+              },
+              {
+                id: uid(), title: 'Les vecteurs d\'attaque courants',
+                description: 'Phishing, ransomware, ingénierie sociale.',
+                blocks: [
+                  { id: uid(), type: 'text', html: '<h2>Comment les attaquants entrent-ils ?</h2><p>La majorité des incidents commence par une erreur humaine.</p>' },
+                  { id: uid(), type: 'video', source: 'youtube', url: 'https://www.youtube.com/watch?v=ULGILG-ZhO0', title: 'Comprendre le phishing en 3 minutes' },
+                  { id: uid(), type: 'image', url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=900&q=80', caption: 'La surface d\'attaque s\'étend avec chaque appareil connecté.', alt: 'Cybersécurité illustration', width: 'full' },
+                  { id: uid(), type: 'audio', url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3', title: 'Podcast : Témoignage ransomware (simulation)' },
+                  { id: uid(), type: 'separator', style: 'dots' },
+                  { id: uid(), type: 'quote', text: 'Le maillon le plus faible de la chaîne de sécurité est l\'être humain.', author: 'Kevin Mitnick', role: 'Hacker éthique' },
+                ],
+              },
+            ],
+          },
+          {
+            id: uid(), title: 'Chapitre 2 — Bonnes pratiques', order: 1,
+            lessons: [
+              {
+                id: uid(), title: 'Sécuriser son poste de travail',
+                description: 'Les réflexes à adopter au quotidien.',
+                blocks: [
+                  { id: uid(), type: 'text', html: '<h2>Votre poste, première ligne de défense</h2>' },
+                  { id: uid(), type: 'accordion', items: [
+                    { title: 'Gestion des mots de passe', content: '12 caractères minimum. Activez le 2FA sur tous vos comptes sensibles.' },
+                    { title: 'Mises à jour', content: '60 % des violations exploitent des vulnérabilités patchées. Activez les MAJ automatiques.' },
+                    { title: 'Comportement e-mail', content: 'Vérifiez l\'adresse complète. Ne téléchargez pas de pièces jointes inattendues.' },
+                    { title: 'Verrouillage du poste', content: 'Windows + L verrouille instantanément. Verrouillage auto après 5 min d\'inactivité.' },
+                    { title: 'Stockage cloud', content: 'Utilisez uniquement les solutions approuvées. Pas de liens publics pour les docs sensibles.' },
+                  ]},
+                  { id: uid(), type: 'callout', variant: 'tip', title: 'Astuce', content: 'Windows + L verrouille instantanément votre session.' },
+                ],
+              },
+              {
+                id: uid(), title: 'Outils et commandes de sécurité',
+                description: 'Pour les profils techniques.',
+                blocks: [
+                  { id: uid(), type: 'text', html: '<h2>Commandes de sécurité essentielles</h2>' },
+                  { id: uid(), type: 'code', language: 'bash', code: '# Connexions réseau actives\nnetstat -tulnp\n\n# Ports ouverts\nss -tlnp\n\n# Intégrité fichier SHA256\nsha256sum fichier.zip\n\n# Connexions SSH échouées\njournalctl -u ssh --since "24 hours ago" | grep "Failed"' },
+                  { id: uid(), type: 'code', language: 'python', code: 'import hashlib\n\ndef check_integrity(filepath, expected):\n    h = hashlib.sha256()\n    with open(filepath, "rb") as f:\n        for chunk in iter(lambda: f.read(8192), b""):\n            h.update(chunk)\n    return h.hexdigest() == expected\n\nis_safe = check_integrity("/downloads/rapport.pdf", "a3b4c5d6...")\nprint("OK" if is_safe else "ALERTE : fichier modifié !")' },
+                  { id: uid(), type: 'code', language: 'sql', code: '-- Connexions suspectes\nSELECT user, host, time, info\nFROM information_schema.processlist\nWHERE command != \'Sleep\' AND time > 30\nORDER BY time DESC;\n\n-- Permissions utilisateur\nSHOW GRANTS FOR \'username\'@\'localhost\';' },
+                  { id: uid(), type: 'callout', variant: 'warning', title: 'Environnement de test uniquement', content: 'Ces commandes sont à titre éducatif uniquement.' },
+                  { id: uid(), type: 'download', url: 'https://www.cnil.fr/sites/cnil/files/atoms/files/cnil-guide_securite_personnelle_des_donnees.pdf', fileName: 'Guide CNIL — Sécurité des données personnelles.pdf', fileSize: 1240000, fileType: 'application/pdf' },
+                ],
+              },
+            ],
+          },
+          {
+            id: uid(), title: 'Chapitre 3 — Évaluation', order: 2,
+            lessons: [
+              {
+                id: uid(), title: 'Quiz de compréhension',
+                description: 'Testez vos connaissances.',
+                blocks: [
+                  { id: uid(), type: 'text', html: '<h2>Quiz</h2><p>Une seule bonne réponse par question.</p>' },
+                  { id: uid(), type: 'qcm', question: 'Qu\'est-ce que le phishing ?', showFeedback: true, explanation: 'Le phishing usurpe une identité légitime pour soutirer des identifiants.', options: [
+                    { id: uid(), text: 'Une technique de chiffrement', correct: false },
+                    { id: uid(), text: 'Une fraude par e-mail usurpant une identité légitime', correct: true },
+                    { id: uid(), text: 'Un virus qui chiffre les fichiers', correct: false },
+                    { id: uid(), text: 'Une méthode de sauvegarde', correct: false },
+                  ]},
+                  { id: uid(), type: 'qcm', question: 'Que signifie MFA ?', showFeedback: true, explanation: 'Multi-Factor Authentication : mot de passe + second facteur.', options: [
+                    { id: uid(), text: 'Managed Firewall Access', correct: false },
+                    { id: uid(), text: 'Multiple File Archive', correct: false },
+                    { id: uid(), text: 'Multi-Factor Authentication', correct: true },
+                    { id: uid(), text: 'Maximum Firewall Allowed', correct: false },
+                  ]},
+                  { id: uid(), type: 'qcm', question: 'Votre DSI demande votre mot de passe par e-mail. Que faites-vous ?', showFeedback: true, explanation: 'Un service IT ne demande JAMAIS un mot de passe par e-mail.', options: [
+                    { id: uid(), text: 'Je réponds car c\'est urgent', correct: false },
+                    { id: uid(), text: 'Je supprime l\'e-mail', correct: false },
+                    { id: uid(), text: 'Je contacte la DSI par un autre canal et signale', correct: true },
+                    { id: uid(), text: 'Je transfère à un collègue', correct: false },
+                  ]},
+                  { id: uid(), type: 'separator', style: 'line' },
+                  { id: uid(), type: 'callout', variant: 'info', title: 'Examen suivant', content: 'La leçon suivante contient des QCM scorés contribuant à votre note finale.' },
+                ],
+              },
+              {
+                id: uid(), title: 'Examen final — QCM scorés',
+                description: 'Score minimum : 70/100.',
+                blocks: [
+                  { id: uid(), type: 'callout', variant: 'warning', title: 'Examen officiel', content: 'Score minimum 70/100 pour valider le module.' },
+                  { id: uid(), type: 'qcm_scored', question: 'Longueur minimale ANSSI pour un mot de passe ?', points: 20, explanation: '12 caractères minimum selon l\'ANSSI.', options: [
+                    { id: uid(), text: '6 caractères', correct: false },
+                    { id: uid(), text: '8 caractères', correct: false },
+                    { id: uid(), text: '12 caractères', correct: true },
+                    { id: uid(), text: '20 caractères', correct: false },
+                  ]},
+                  { id: uid(), type: 'qcm_scored', question: 'Quelle attaque chiffre les données pour exiger une rançon ?', points: 20, explanation: 'Un ransomware chiffre les fichiers et réclame un paiement.', options: [
+                    { id: uid(), text: 'SQL Injection', correct: false },
+                    { id: uid(), text: 'Ransomware', correct: true },
+                    { id: uid(), text: 'DDoS', correct: false },
+                    { id: uid(), text: 'Man-in-the-Middle', correct: false },
+                  ]},
+                  { id: uid(), type: 'qcm_scored', question: 'La triade CIA désigne :', points: 20, explanation: 'Confidentialité, Intégrité, Disponibilité.', options: [
+                    { id: uid(), text: 'Cybersecurity, Intelligence, Audit', correct: false },
+                    { id: uid(), text: 'Control, Identity, Access', correct: false },
+                    { id: uid(), text: 'Confidentialité, Intégrité, Disponibilité', correct: true },
+                    { id: uid(), text: 'Certification, Investigation, Alerte', correct: false },
+                  ]},
+                  { id: uid(), type: 'qcm_scored', question: 'Suspicion de compromission : que faire en priorité ?', points: 20, explanation: 'Isoler le poste empêche la propagation. Alertez la SSI.', options: [
+                    { id: uid(), text: 'Changer le mot de passe depuis le poste suspect', correct: false },
+                    { id: uid(), text: 'Redémarrer pour supprimer le virus', correct: false },
+                    { id: uid(), text: 'Déconnecter du réseau et alerter la SSI', correct: true },
+                    { id: uid(), text: 'Signaler en fin de journée', correct: false },
+                  ]},
+                  { id: uid(), type: 'qcm_scored', question: 'Vous trouvez une clé USB dans le parking. Que faites-vous ?', points: 20, explanation: 'Ne branchez JAMAIS une clé USB inconnue. Remettez-la à la sécurité.', options: [
+                    { id: uid(), text: 'Je la branche sur mon PC pro', correct: false },
+                    { id: uid(), text: 'Je la branche sur mon PC perso', correct: false },
+                    { id: uid(), text: 'Je la remets au service sécurité sans la brancher', correct: true },
+                    { id: uid(), text: 'Je la jette', correct: false },
+                  ]},
+                  { id: uid(), type: 'text', html: '<h3>Résultat</h3><p>80 points ou plus : félicitations, vous êtes prêt pour la certification !</p>' },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      const id = crypto.randomUUID();
+      await (pool as any).query(
+        `INSERT INTO lms_courses (id,user_id,title,description,audience,estimated_duration_min,status,published,content)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+        [id, userRow.rows[0].id, 'Cybersécurité en entreprise — Cours Exemple Complet', 'Cours de démonstration avec tous les types de blocs FYNE LMS : texte, callout (4 variants), quote, image, vidéo, audio, accordéon, code (bash/python/sql), téléchargement, QCM et QCM scoré.', 'Sécurité, IT', 45, 'draft', false, JSON.stringify(content)]
+      );
+      res.json({ success: true, id, url: `/playground/lms/editor/${id}` });
+    } catch (err: any) {
+      console.error('[LMS] seed-example', err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // ─── LMS COURSES ────────────────────────────────────────────────────────────
   function requireMakerOrAdmin(req: Request, res: Response, next: any) {
     const user = (req.session as any)?.user;
