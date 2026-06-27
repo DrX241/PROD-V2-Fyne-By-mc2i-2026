@@ -28,6 +28,9 @@ import ModulesPage from "@/pages/modules";
 import TrainingPlayer from "./pages/playground/player";
 import ModuleGeneratorNew from "./pages/playground/module-generator-new";
 import ModuleDetail from "./pages/playground/module/index";
+import LmsListPage from "./pages/playground/lms-list";
+import LmsTemplatePickerPage from "./pages/playground/lms-template-picker";
+import LmsEditorPage from "./pages/playground/lms-editor";
 import StudioIA from "./pages/playground/studio-ia";
 import StudioDocuments from "./pages/playground/studio-documents";
 import LessonPlayer from "./pages/playground/lesson-player";
@@ -206,7 +209,10 @@ function AppContent() {
                 {user?.role === 'superadmin' && (
                   <Route path="/superadmin" component={SuperAdminPage} />
                 )}
-<Route path="/playground/module-generator" component={ModuleGeneratorNew} />
+<Route path="/playground/lms/editor/:id" component={LmsEditorPage} />
+                <Route path="/playground/lms/new" component={LmsTemplatePickerPage} />
+                <Route path="/playground/lms" component={LmsListPage} />
+                <Route path="/playground/module-generator" component={ModuleGeneratorNew} />
                 <Route path="/playground/module/:id" component={ModuleDetail} />
                 <Route path="/playground/player/:id" component={TrainingPlayer} />
                 <Route path="/playground/studio-ia" component={StudioIA} />

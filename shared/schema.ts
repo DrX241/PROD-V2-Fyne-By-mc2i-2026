@@ -424,3 +424,27 @@ export const ssoConfig = pgTable('sso_config', {
 
 export type SsoConfig = typeof ssoConfig.$inferSelect;
 
+// ─── LMS COURSES ─────────────────────────────────────────────────────────────
+export const lmsCourses = pgTable('lms_courses', {
+  id: varchar('id', { length: 36 }).primaryKey(),
+  userId: integer('user_id').references(() => users.id).notNull(),
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description'),
+  coverImageUrl: text('cover_image_url'),
+  templateId: varchar('template_id', { length: 100 }),
+  audience: varchar('audience', { length: 64 }).default('grand_public'),
+  difficulty: varchar('difficulty', { length: 32 }).default('intermediate'),
+  estimatedDurationMin: integer('estimated_duration_min').default(60),
+  status: varchar('status', { length: 32 }).notNull().default('draft'),
+  published: boolean('published').notNull().default(false),
+  content: jsonb('content').notNull(),
+  totalTokensUsed: integer('total_tokens_used').default(0),
+  totalCostEurCents: integer('total_cost_eur_cents').default(0),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const insertLmsCourseSchema = createInsertSchema(lmsCourses).omit({ createdAt: true, updatedAt: true });
+export type InsertLmsCourse = z.infer<typeof insertLmsCourseSchema>;
+export type LmsCourse = typeof lmsCourses.$inferSelect;
+

@@ -1,6 +1,7 @@
 import {
   users, type User, type InsertUser,
-  generatedTrainings, type GeneratedTraining, type InsertGeneratedTraining
+  generatedTrainings, type GeneratedTraining, type InsertGeneratedTraining,
+  lmsCourses, type LmsCourse, type InsertLmsCourse
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql, or } from "drizzle-orm";
@@ -29,6 +30,14 @@ export interface IStorage {
   deleteGeneratedTraining(id: string, scope?: string): Promise<void>;
   updateGeneratedTraining(id: string, patch: { title?: string; tagline?: string; content?: any }): Promise<GeneratedTraining | undefined>;
   publishGeneratedTraining(id: string, published: boolean): Promise<GeneratedTraining | undefined>;
+  // LMS Courses
+  saveLmsCourse(course: InsertLmsCourse): Promise<LmsCourse>;
+  getLmsCourse(id: string): Promise<LmsCourse | undefined>;
+  listLmsCourses(publishedOnly?: boolean, limit?: number): Promise<LmsCourse[]>;
+  updateLmsCourse(id: string, patch: Partial<Omit<InsertLmsCourse, 'id'>>): Promise<LmsCourse | undefined>;
+  deleteLmsCourse(id: string): Promise<void>;
+  publishLmsCourse(id: string, published: boolean): Promise<LmsCourse | undefined>;
+  addLmsCourseTokens(id: string, tokens: number, costEurCents: number): Promise<void>;
 }
 
 // Implémentation de la mémoire pour les tests et le développement
@@ -153,12 +162,44 @@ export class MemStorage implements IStorage {
     this.trainings.delete(id);
   }
 
+  async updateGeneratedTraining(id: string, patch: { title?: string; tagline?: string; content?: any }): Promise<GeneratedTraining | undefined> {
+    const t = this.trainings.get(id);
+    if (!t) return undefined;
+    const updated = { ...t, ...patch };
+    this.trainings.set(id, updated);
+    return updated;
+  }
+
   async publishGeneratedTraining(id: string, published: boolean): Promise<GeneratedTraining | undefined> {
     const t = this.trainings.get(id);
     if (!t) return undefined;
     const updated = { ...t, published };
     this.trainings.set(id, updated);
     return updated;
+  }
+
+  private lmsCourseMap: Map<string, LmsCourse> = new Map();
+  async saveLmsCourse(c: InsertLmsCourse): Promise<LmsCourse> {
+    const record = { ...c, createdAt: new Date(), updatedAt: new Date() } as LmsCourse;
+    this.lmsCourseMap.set(c.id, record); return record;
+  }
+  async getLmsCourse(id: string): Promise<LmsCourse | undefined> { return this.lmsCourseMap.get(id); }
+  async listLmsCourses(publishedOnly = false, limit = 50): Promise<LmsCourse[]> {
+    const all = Array.from(this.lmsCourseMap.values());
+    return (publishedOnly ? all.filter(c => c.published) : all).slice(0, limit);
+  }
+  async updateLmsCourse(id: string, patch: any): Promise<LmsCourse | undefined> {
+    const c = this.lmsCourseMap.get(id); if (!c) return undefined;
+    const updated = { ...c, ...patch, updatedAt: new Date() };
+    this.lmsCourseMap.set(id, updated); return updated;
+  }
+  async deleteLmsCourse(id: string): Promise<void> { this.lmsCourseMap.delete(id); }
+  async publishLmsCourse(id: string, published: boolean): Promise<LmsCourse | undefined> {
+    return this.updateLmsCourse(id, { published });
+  }
+  async addLmsCourseTokens(id: string, tokens: number, costEurCents: number): Promise<void> {
+    const c = this.lmsCourseMap.get(id); if (!c) return;
+    this.lmsCourseMap.set(id, { ...c, totalTokensUsed: (c.totalTokensUsed || 0) + tokens, totalCostEurCents: (c.totalCostEurCents || 0) + costEurCents });
   }
 }
 
@@ -315,6 +356,37 @@ export class DatabaseStorage implements IStorage {
       .where(eq(generatedTrainings.id, id))
       .returning();
     return record;
+  }
+
+  async saveLmsCourse(c: InsertLmsCourse): Promise<LmsCourse> {
+    const [record] = await db.insert(lmsCourses).values(c).returning();
+    return record;
+  }
+  async getLmsCourse(id: string): Promise<LmsCourse | undefined> {
+    const [record] = await db.select().from(lmsCourses).where(eq(lmsCourses.id, id));
+    return record;
+  }
+  async listLmsCourses(publishedOnly = false, limit = 50): Promise<LmsCourse[]> {
+    const q = db.select().from(lmsCourses).orderBy(desc(lmsCourses.createdAt)).limit(limit);
+    if (publishedOnly) return q.where(eq(lmsCourses.published, true));
+    return q;
+  }
+  async updateLmsCourse(id: string, patch: any): Promise<LmsCourse | undefined> {
+    const [record] = await db.update(lmsCourses).set({ ...patch, updatedAt: new Date() }).where(eq(lmsCourses.id, id)).returning();
+    return record;
+  }
+  async deleteLmsCourse(id: string): Promise<void> {
+    await db.delete(lmsCourses).where(eq(lmsCourses.id, id));
+  }
+  async publishLmsCourse(id: string, published: boolean): Promise<LmsCourse | undefined> {
+    return this.updateLmsCourse(id, { published });
+  }
+  async addLmsCourseTokens(id: string, tokens: number, costEurCents: number): Promise<void> {
+    await db.update(lmsCourses).set({
+      totalTokensUsed: sql`${lmsCourses.totalTokensUsed} + ${tokens}`,
+      totalCostEurCents: sql`${lmsCourses.totalCostEurCents} + ${costEurCents}`,
+      updatedAt: new Date(),
+    }).where(eq(lmsCourses.id, id));
   }
 }
 

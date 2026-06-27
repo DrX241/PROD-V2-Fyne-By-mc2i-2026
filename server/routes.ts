@@ -8433,7 +8433,91 @@ Sinon → retourne la formation complète modifiée avec le même schéma JSON.`
     }
   });
 
-  // Additional route handlers can be added here
+  // ─── LMS COURSES ────────────────────────────────────────────────────────────
+  function requireMakerOrAdmin(req: Request, res: Response, next: any) {
+    const user = (req.session as any)?.user;
+    if (!user) return res.status(401).json({ error: 'Non authentifié' });
+    if (!['maker', 'admin', 'superadmin'].includes(user.role)) {
+      return res.status(403).json({ error: 'Accès réservé aux rôles Maker et Admin' });
+    }
+    next();
+  }
+
+  app.get('/api/lms/courses', async (req: Request, res: Response) => {
+    try {
+      const user = (req.session as any)?.user;
+      const publishedOnly = !user || !['maker', 'admin', 'superadmin'].includes(user.role);
+      const courses = await storage.listLmsCourses(publishedOnly);
+      res.json(courses);
+    } catch (err) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  app.post('/api/lms/courses', requireMakerOrAdmin, async (req: Request, res: Response) => {
+    try {
+      const user = (req.session as any)?.user;
+      const { templateId, title, content } = req.body;
+      const id = crypto.randomUUID();
+      const emptyContent = { chapters: [], scoringEnabled: false, completionMode: 'free' as const };
+      const course = await storage.saveLmsCourse({
+        id,
+        userId: user.id,
+        title: title || 'Nouveau cours',
+        templateId: templateId || null,
+        content: content || emptyContent,
+        status: 'draft',
+        published: false,
+      });
+      res.status(201).json(course);
+    } catch (err) {
+      console.error('[LMS] POST courses', err);
+      res.status(500).json({ error: 'Erreur création cours' });
+    }
+  });
+
+  app.get('/api/lms/courses/:id', async (req: Request, res: Response) => {
+    try {
+      const course = await storage.getLmsCourse(req.params.id);
+      if (!course) return res.status(404).json({ error: 'Cours introuvable' });
+      res.json(course);
+    } catch (err) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  app.put('/api/lms/courses/:id', requireMakerOrAdmin, async (req: Request, res: Response) => {
+    try {
+      const { title, description, content, status, estimatedDurationMin, audience, difficulty, coverImageUrl } = req.body;
+      const course = await storage.updateLmsCourse(req.params.id, {
+        title, description, content, status, estimatedDurationMin, audience, difficulty, coverImageUrl
+      });
+      if (!course) return res.status(404).json({ error: 'Cours introuvable' });
+      res.json(course);
+    } catch (err) {
+      res.status(500).json({ error: 'Erreur mise à jour' });
+    }
+  });
+
+  app.patch('/api/lms/courses/:id/publish', requireMakerOrAdmin, async (req: Request, res: Response) => {
+    try {
+      const { published } = req.body;
+      const course = await storage.publishLmsCourse(req.params.id, !!published);
+      if (!course) return res.status(404).json({ error: 'Cours introuvable' });
+      res.json(course);
+    } catch (err) {
+      res.status(500).json({ error: 'Erreur publication' });
+    }
+  });
+
+  app.delete('/api/lms/courses/:id', requireMakerOrAdmin, async (req: Request, res: Response) => {
+    try {
+      await storage.deleteLmsCourse(req.params.id);
+      res.json({ success: true });
+    } catch (err) {
+      res.status(500).json({ error: 'Erreur suppression' });
+    }
+  });
 
   return createServer(app);
 }
