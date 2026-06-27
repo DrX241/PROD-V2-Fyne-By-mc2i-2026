@@ -194,7 +194,7 @@ export default function StudioIA() {
   const [duration, setDuration] = useState('30');
   const [planLoading, setPlanLoading] = useState(false);
   const [planPreview, setPlanPreview] = useState<PlanPreview | null>(null);
-  const [showTemplates, setShowTemplates] = useState(true);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
   const domainValue = domainKey === 'autre' ? customDomain : (DOMAINS.find(d => d.value === domainKey)?.label || '');
   const progress = step === 'pitch' ? 25 : step === 'config' ? 50 : step === 'plan' ? 75 : 100;
@@ -241,7 +241,7 @@ export default function StudioIA() {
     setPitch(''); setDomainKey(''); setCustomDomain('');
     setAudience('grand_public'); setDifficulty('intermediaire'); setDuration('30');
     setPlanPreview(null);
-    setShowTemplates(true);
+    setSelectedTemplateId(null);
     setStep('pitch');
   };
 
@@ -294,153 +294,168 @@ export default function StudioIA() {
                 <div className="w-16 h-1 mb-8" style={{ background: PINK }} />
 
                 <div className="space-y-8">
-                  {/* Template gallery */}
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
-                        Partir d'un template
-                      </label>
-                      <button
-                        onClick={() => setShowTemplates(v => !v)}
-                        className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
-                      >
-                        {showTemplates ? 'Masquer' : 'Afficher les templates'}
-                      </button>
-                    </div>
 
-                    {showTemplates && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                      >
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
-                          {TEMPLATES.map(tpl => {
-                            const accent = DOMAIN_ACCENT[tpl.domain] || BLUE;
-                            const isSelected = pitch === DOMAIN_PROMPTS[tpl.domain] && domainKey === tpl.domain;
-                            return (
-                              <button
-                                key={tpl.id}
-                                onClick={() => {
-                                  setDomainKey(tpl.domain);
-                                  setPitch(DOMAIN_PROMPTS[tpl.domain] || '');
-                                  setAudience(tpl.audience);
-                                  setDifficulty(tpl.difficulty);
-                                  setDuration(tpl.duration);
-                                  setShowTemplates(false);
-                                }}
-                                className="text-left p-3 transition-all"
-                                style={{
-                                  border: `1px solid ${isSelected ? accent : '#e5e7eb'}`,
-                                  background: isSelected ? `${accent}08` : 'white',
-                                }}
-                              >
-                                <div className="flex items-start gap-2 mb-2">
-                                  <div className="w-1 flex-shrink-0 mt-0.5 self-stretch" style={{ background: accent }} />
-                                  <div className="flex-1 min-w-0">
-                                    <div className="text-xs font-bold leading-tight" style={{ color: DARK }}>{tpl.title}</div>
-                                    <div className="text-xs text-gray-400 mt-1 leading-snug line-clamp-2">{tpl.description}</div>
+                  {/* Mode A : galerie templates (aucun template sélectionné) */}
+                  {!selectedTemplateId && (
+                    <div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+                        {TEMPLATES.map(tpl => {
+                          const accent = DOMAIN_ACCENT[tpl.domain] || BLUE;
+                          return (
+                            <button
+                              key={tpl.id}
+                              onClick={() => {
+                                setSelectedTemplateId(tpl.id);
+                                setDomainKey(tpl.domain);
+                                setPitch(DOMAIN_PROMPTS[tpl.domain] || '');
+                                setAudience(tpl.audience);
+                                setDifficulty(tpl.difficulty);
+                                setDuration(tpl.duration);
+                              }}
+                              className="text-left p-3 transition-all group"
+                              style={{ border: '1px solid #e5e7eb', background: 'white' }}
+                              onMouseEnter={e => {
+                                (e.currentTarget as HTMLButtonElement).style.borderColor = accent;
+                                (e.currentTarget as HTMLButtonElement).style.background = `${accent}06`;
+                              }}
+                              onMouseLeave={e => {
+                                (e.currentTarget as HTMLButtonElement).style.borderColor = '#e5e7eb';
+                                (e.currentTarget as HTMLButtonElement).style.background = 'white';
+                              }}
+                            >
+                              <div className="flex items-start gap-2">
+                                <div className="w-0.5 flex-shrink-0 self-stretch" style={{ background: accent }} />
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-xs font-bold leading-tight mb-1" style={{ color: DARK }}>{tpl.title}</div>
+                                  <div className="flex flex-wrap gap-1">
+                                    {tpl.tags.map(tag => (
+                                      <span key={tag} className="text-xs px-1.5 py-0.5 font-medium"
+                                        style={{ background: `${accent}12`, color: accent }}>
+                                        {tag}
+                                      </span>
+                                    ))}
                                   </div>
                                 </div>
-                                <div className="flex flex-wrap gap-1 mt-2 pl-3">
-                                  {tpl.tags.map(tag => (
-                                    <span key={tag} className="text-xs px-1.5 py-0.5 font-medium"
-                                      style={{ background: `${accent}12`, color: accent }}>
-                                      {tag}
-                                    </span>
-                                  ))}
-                                </div>
-                              </button>
-                            );
-                          })}
-                        </div>
-                        <div className="border-t border-gray-100 pt-4">
-                          <button
-                            onClick={() => { setShowTemplates(false); setPitch(''); setDomainKey(''); }}
-                            className="text-xs font-medium text-gray-500 hover:text-gray-800 transition-colors"
-                          >
-                            + Créer from scratch
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
-                      Votre besoin de formation *
-                    </label>
-                    <textarea
-                      value={pitch}
-                      onChange={e => setPitch(e.target.value)}
-                      placeholder="Ex : Former mes commerciaux aux bonnes pratiques de cybersécurité — phishing, mots de passe, données clients. Ils n'ont aucune base technique."
-                      className="w-full border border-gray-200 px-4 py-3 text-sm resize-none focus:outline-none focus:border-gray-400 bg-white"
-                      style={{ minHeight: 130, color: DARK }}
-                    />
-                    <p className="text-xs text-gray-400 mt-1">{pitch.length} / 500 caractères</p>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
-                      Domaine <span className="text-gray-400 font-normal normal-case">(optionnel)</span>
-                    </label>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                      {DOMAINS.map(d => (
-                        <button key={d.value} onClick={() => {
-                          const next = domainKey === d.value ? '' : d.value;
-                          setDomainKey(next);
-                          if (next && next !== 'autre' && DOMAIN_PROMPTS[next]) {
-                            setPitch(DOMAIN_PROMPTS[next]);
-                          } else if (!next) {
-                            setPitch('');
-                          }
-                        }}
-                          className="flex flex-col items-center gap-1 border px-2 py-3 text-xs font-medium transition-all relative"
-                          style={{
-                            borderColor: domainKey === d.value ? BLUE : '#e5e7eb',
-                            background: domainKey === d.value ? `${BLUE}0a` : 'white',
-                            color: domainKey === d.value ? BLUE : '#6b7280',
-                          }}>
-                          {domainKey === d.value && (
-                            <span className="absolute top-1 right-1">
-                              <Check size={10} style={{ color: BLUE }} />
-                            </span>
-                          )}
-                          <d.icon size={18} />
-                          <span className="text-center leading-tight">{d.label}</span>
+                                <ArrowRight size={12} className="flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: accent }} />
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div className="border-t border-gray-100 pt-3">
+                        <button
+                          onClick={() => { setSelectedTemplateId('scratch'); setPitch(''); setDomainKey(''); }}
+                          className="text-xs font-medium text-gray-400 hover:text-gray-700 transition-colors"
+                        >
+                          Partir de zéro →
                         </button>
-                      ))}
+                      </div>
                     </div>
+                  )}
 
-                    {domainKey === 'autre' && (
-                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-3">
-                        <input
-                          type="text"
-                          value={customDomain}
-                          onChange={e => setCustomDomain(e.target.value)}
-                          placeholder="Précisez le domaine..."
-                          autoFocus
-                          className="w-full border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:border-gray-500 bg-white"
-                          style={{ color: DARK }}
+                  {/* Mode B : template sélectionné ou from scratch — affinement */}
+                  {selectedTemplateId && (() => {
+                    const tpl = TEMPLATES.find(t => t.id === selectedTemplateId);
+                    const accent = tpl ? (DOMAIN_ACCENT[tpl.domain] || BLUE) : DARK;
+                    return (
+                      <div>
+                        {tpl && (
+                          <div className="flex items-center justify-between mb-4 px-3 py-2"
+                            style={{ background: `${accent}08`, borderLeft: `3px solid ${accent}` }}>
+                            <div>
+                              <div className="text-xs font-bold" style={{ color: accent }}>Template sélectionné</div>
+                              <div className="text-sm font-semibold" style={{ color: DARK }}>{tpl.title}</div>
+                            </div>
+                            <button
+                              onClick={() => { setSelectedTemplateId(null); setPitch(''); setDomainKey(''); }}
+                              className="text-xs text-gray-400 hover:text-gray-700 transition-colors"
+                            >
+                              Changer
+                            </button>
+                          </div>
+                        )}
+                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+                          {tpl ? 'Affinez le besoin si nécessaire' : 'Décrivez votre besoin'}
+                        </label>
+                        <textarea
+                          value={pitch}
+                          onChange={e => setPitch(e.target.value)}
+                          placeholder="Ex : Former mes commerciaux aux bonnes pratiques de cybersécurité — phishing, mots de passe, données clients. Ils n'ont aucune base technique."
+                          className="w-full border border-gray-200 px-4 py-3 text-sm resize-none focus:outline-none focus:border-gray-400 bg-white"
+                          style={{ minHeight: 130, color: DARK }}
                         />
-                      </motion.div>
-                    )}
-                  </div>
+                        <p className="text-xs text-gray-400 mt-1">{pitch.length} / 500 caractères</p>
+                      </div>
+                    );
+                  })()}
 
-                  <div className="border-l-2 pl-4 py-1" style={{ borderColor: PINK }}>
-                    <p className="text-sm text-gray-500">
-                      Plus votre pitch est précis, plus le micro learning sera pertinent et directement utilisable.
-                    </p>
-                  </div>
 
-                  <button
-                    onClick={() => setStep('config')}
-                    disabled={pitch.trim().length < 20}
-                    className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
-                    style={{ background: PINK }}
-                  >
-                    Continuer <ArrowRight size={18} />
-                  </button>
+                  {selectedTemplateId && (
+                    <>
+                      {selectedTemplateId === 'scratch' && (
+                        <div>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
+                            Domaine <span className="text-gray-400 font-normal normal-case">(optionnel)</span>
+                          </label>
+                          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                            {DOMAINS.map(d => (
+                              <button key={d.value} onClick={() => {
+                                const next = domainKey === d.value ? '' : d.value;
+                                setDomainKey(next);
+                                if (next && next !== 'autre' && DOMAIN_PROMPTS[next]) {
+                                  setPitch(DOMAIN_PROMPTS[next]);
+                                } else if (!next) {
+                                  setPitch('');
+                                }
+                              }}
+                                className="flex flex-col items-center gap-1 border px-2 py-3 text-xs font-medium transition-all relative"
+                                style={{
+                                  borderColor: domainKey === d.value ? BLUE : '#e5e7eb',
+                                  background: domainKey === d.value ? `${BLUE}0a` : 'white',
+                                  color: domainKey === d.value ? BLUE : '#6b7280',
+                                }}>
+                                {domainKey === d.value && (
+                                  <span className="absolute top-1 right-1">
+                                    <Check size={10} style={{ color: BLUE }} />
+                                  </span>
+                                )}
+                                <d.icon size={18} />
+                                <span className="text-center leading-tight">{d.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                          {domainKey === 'autre' && (
+                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-3">
+                              <input
+                                type="text"
+                                value={customDomain}
+                                onChange={e => setCustomDomain(e.target.value)}
+                                placeholder="Précisez le domaine..."
+                                autoFocus
+                                className="w-full border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:border-gray-500 bg-white"
+                                style={{ color: DARK }}
+                              />
+                            </motion.div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="border-l-2 pl-4 py-1" style={{ borderColor: PINK }}>
+                        <p className="text-sm text-gray-500">
+                          Plus votre pitch est précis, plus le micro learning sera pertinent et directement utilisable.
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => setStep('config')}
+                        disabled={pitch.trim().length < 20}
+                        className="inline-flex items-center gap-2 px-8 py-4 text-white font-bold hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
+                        style={{ background: PINK }}
+                      >
+                        Continuer <ArrowRight size={18} />
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </motion.div>
