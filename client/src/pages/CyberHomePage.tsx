@@ -1,53 +1,34 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'wouter';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
-import CyberButton from '@/components/CyberButton';
-import { useChatContext } from "@/contexts/ChatContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/hooks/useAuth";
 
 import {
-  RocketIcon,
-  Zap,
   Globe,
   Share2,
   Users,
-  ShieldCheck,
-  Brain,
   ChevronRight,
-  Power,
-  Check,
   Lock,
 } from 'lucide-react';
 import mcLogoPath from "@assets/mc2i.png";
 import fyneCharacterPath from "../assets/fyne-character.png";
-import { Switch } from "@/components/ui/switch";
-import { ModelSelector } from "@/components/ModelSelector";
 import { UserSubscriptionBadge } from "@/components/UserSubscriptionBadge";
 import { UserMenu } from "@/components/auth/UserMenu";
 
 interface Module {
   id: string;
-  // Key used in modulesEnabled array (may differ from display id)
   moduleKey: string;
   title: string;
   description: string;
-  icon: React.ReactNode;
-  color: string;
-  bgColor: string;
-  accentColor: string;
   route: string;
-  comingSoon?: boolean;
   external?: boolean;
 }
 
 const CyberHomePage: React.FC = () => {
   const [, setLocation] = useLocation();
-  const { userName } = useChatContext();
   const { themeMode, setThemeMode } = useTheme();
   const { user } = useAuth();
-  const [hoveredModule, setHoveredModule] = useState<string | null>(null);
-  const pageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const previousTheme = themeMode;
@@ -68,45 +49,29 @@ const CyberHomePage: React.FC = () => {
       id: 'cyber',
       moduleKey: 'cyber',
       title: 'ESPACE CYBER',
-      description: 'Plongez au cœur des enjeux de la cyber avec des simulations réalistes',
-      icon: <div className="w-5 h-5 bg-indigo-500"></div>,
-      color: 'text-indigo-600',
-      bgColor: 'bg-indigo-100',
-      accentColor: 'border-indigo-500',
-      route: '/cyber'
+      description: 'Plongez au cœur des enjeux de la cybersécurité avec des simulations réalistes et des agents IA.',
+      route: '/cyber',
     },
     {
       id: 'data',
       moduleKey: 'data',
       title: 'ESPACE DATA & IA',
       description: 'Maîtrisez les concepts de data science et d\'intelligence artificielle à travers des simulations pratiques.',
-      icon: <div className="w-5 h-5 bg-purple-500"></div>,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
-      accentColor: 'border-purple-500',
-      route: '/data-ia'
+      route: '/data-ia',
     },
     {
       id: 'si-champion',
       moduleKey: 'evaluation',
       title: 'ESPACE CHALLENGE',
-      description: 'Pilotez vos campagnes d\'évaluation et faites passer vos tests dans un espace dédié',
-      icon: <div className="w-5 h-5 bg-amber-500"></div>,
-      color: 'text-amber-600',
-      bgColor: 'bg-amber-100',
-      accentColor: 'border-amber-500',
-      route: '/evaluation'
+      description: 'Pilotez vos campagnes d\'évaluation et faites passer vos tests dans un espace dédié.',
+      route: '/evaluation',
     },
     {
       id: 'module-generator',
       moduleKey: 'playground',
       title: 'ESPACE STUDIO',
       description: 'Créez votre propre parcours d\'apprentissage personnalisé avec notre IA générative.',
-      icon: <div className="w-5 h-5 bg-rose-500"></div>,
-      color: 'text-rose-600',
-      bgColor: 'bg-rose-100',
-      accentColor: 'border-rose-500',
-      route: '/playground/module-generator'
+      route: '/playground/module-generator',
     },
   ];
 
@@ -115,8 +80,6 @@ const CyberHomePage: React.FC = () => {
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const hasAccess = (moduleKey: string) => isAdmin || userModules.includes(moduleKey);
 
-  const [isEcoMode, setIsEcoMode] = useState(false);
-  const toggleEcoMode = () => { setIsEcoMode(!isEcoMode); };
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -192,7 +155,7 @@ const CyberHomePage: React.FC = () => {
   }, []);
 
   return (
-    <div ref={pageRef} className="min-h-screen bg-white text-[#061019]">
+    <div className="min-h-screen bg-white text-[#061019]">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
         <div className="container mx-auto px-4 py-3">
@@ -203,16 +166,8 @@ const CyberHomePage: React.FC = () => {
               <span className="text-xl font-bold text-[#006a9e]">FYNE</span>
             </div>
             <div className="flex items-center gap-2">
-              {/* Subscription badge */}
               <UserSubscriptionBadge />
-
-              {/* Divider */}
               <div className="h-5 w-px bg-gray-200 mx-1" />
-
-              {/* Divider */}
-              <div className="h-5 w-px bg-gray-200 mx-1" />
-
-              {/* Avatar + nom + dropdown */}
               <UserMenu />
             </div>
           </div>
@@ -257,7 +212,7 @@ const CyberHomePage: React.FC = () => {
                 <span className="text-[#006a9e]">FYNE</span>
               </h2>
               <p className="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed max-w-3xl mx-auto">
-                Découvrez une nouvelle dimension d'apprentissage interactif avec nos modules IA innovants qui s'adaptent parfaitement à votre progression.
+                Découvrez une nouvelle dimension d'apprentissage avec nos espaces de simulation IA qui s'adaptent à votre niveau et vos objectifs.
               </p>
               <div className="flex flex-col items-center justify-center mt-10 gap-2">
                 <motion.button
@@ -316,11 +271,10 @@ const CyberHomePage: React.FC = () => {
                   {modules.map((module, i) => {
                     const accessible = hasAccess(module.moduleKey);
                     const accentHex =
-                      module.id === 'cyber'       ? '#0057ff' :
-                      module.id === 'data'        ? '#059669' :
-                      module.id === 'mc2i'        ? '#10b981' :
-                      module.id === 'si-champion' ? '#7c3aed' :
-                      module.id === 'generator'   ? '#dc2626' :
+                      module.id === 'cyber'            ? '#0057ff' :
+                      module.id === 'data'             ? '#059669' :
+                      module.id === 'si-champion'      ? '#7c3aed' :
+                      module.id === 'module-generator' ? '#dc2626' :
                       '#006a9e';
                     return (
                       <div
@@ -369,18 +323,16 @@ const CyberHomePage: React.FC = () => {
                 {modules.map((module, pi) => {
                   const accessible = hasAccess(module.moduleKey);
                   const accentHex =
-                    module.id === 'cyber'       ? '#0057ff' :
-                    module.id === 'data'        ? '#059669' :
-                    module.id === 'mc2i'        ? '#10b981' :
-                    module.id === 'si-champion' ? '#7c3aed' :
-                    module.id === 'generator'   ? '#dc2626' :
+                    module.id === 'cyber'            ? '#0057ff' :
+                    module.id === 'data'             ? '#059669' :
+                    module.id === 'si-champion'      ? '#7c3aed' :
+                    module.id === 'module-generator' ? '#dc2626' :
                     '#006a9e';
                   const tags: Record<string, string[]> = {
-                    cyber:       ['Défense réseau', 'Agent IA', 'QCM', 'Formation'],
-                    data:        ['SQL', 'Python', 'Excel', 'IA Lab', 'Sandbox'],
-                    mc2i:        ['AMOA', 'Gestion projet', 'Roleplay', 'Scénarios'],
-                    'si-champion': ['Évaluation', 'QCM', 'Reporting', 'Campagnes'],
-                    generator:   ['IA générative', 'LMS custom', 'Sur mesure'],
+                    cyber:             ['Défense réseau', 'Agent IA', 'QCM', 'Simulation'],
+                    data:              ['SQL', 'Python', 'Excel', 'IA Lab', 'Sandbox'],
+                    'si-champion':     ['Évaluation', 'QCM', 'Reporting', 'Campagnes'],
+                    'module-generator': ['IA générative', 'Parcours sur mesure', 'Studio'],
                   };
                   return (
                     <div
