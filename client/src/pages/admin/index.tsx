@@ -7,6 +7,7 @@ import {
   Eye, EyeOff, ChevronLeft, Check, X, Crown,
   Activity, TrendingUp, Database, Clock, FileDown, Zap, Lock, Save, FlaskConical,
   LayoutDashboard, Settings, ChevronRight, AlertCircle, ArrowUpRight,
+  ShieldAlert, ShieldCheck, Globe, AlertTriangle, LogIn, LogOut, Ban,
 } from 'lucide-react';
 import mcLogoPath from '@assets/mc2i.png';
 
@@ -30,7 +31,7 @@ interface LlmUserUsage {
 interface LlmFeatureUsage { feature: string; requests: string; total_tokens: string; prompt_tokens: string; completion_tokens: string; models_used: string; }
 interface LlmModelUsage { model: string; requests: string; total_tokens: string; prompt_tokens: string; completion_tokens: string; unique_users: string; }
 type Modal = { type: 'create' } | { type: 'reset'; user: UserRow } | { type: 'delete'; user: UserRow } | { type: 'modules'; user: UserRow } | null;
-type Tab = 'dashboard' | 'users' | 'llm' | 'sso';
+type Tab = 'dashboard' | 'users' | 'llm' | 'sso' | 'security';
 
 interface SsoConfigData {
   provider: string; clientId: string; clientSecret: string; tenantId: string;
@@ -189,6 +190,10 @@ const AdminPage: React.FC = () => {
   const [statsLoading, setStatsLoading] = useState(true);
   const [llmData, setLlmData] = useState<{ usageByUser: LlmUserUsage[]; usageByFeature: LlmFeatureUsage[]; usageByModel: LlmModelUsage[]; totalTokens30d: number } | null>(null);
   const [llmLoading, setLlmLoading] = useState(false);
+  const [secStats, setSecStats] = useState<{ failedLogins24h: number; failedLogins7d: number; successLogins24h: number; topIps: { ip: string; cnt: string }[]; recentFails: { username: string; ip: string; created_at: string; details: any }[] } | null>(null);
+  const [secEvents, setSecEvents] = useState<{ id: number; type: string; severity: string; ip: string | null; username: string | null; created_at: string; details: any }[]>([]);
+  const [secLoading, setSecLoading] = useState(false);
+
   const [ssoConfig, setSsoConfig] = useState<SsoConfigData>({
     provider: 'azure', clientId: '', clientSecret: '', tenantId: '', discoveryUrl: '',
     callbackUrl: `${window.location.origin}/auth/sso/callback`,
@@ -287,19 +292,35 @@ const AdminPage: React.FC = () => {
   };
 
   useEffect(() => { fetchUsers(); fetchStats(); }, []);
+  const fetchSecurity = async () => {
+    setSecLoading(true);
+    try {
+      const [statsRes, eventsRes] = await Promise.all([
+        fetch('/api/superadmin/security-stats', { credentials: 'include' }),
+        fetch('/api/superadmin/security-events?limit=200', { credentials: 'include' }),
+      ]);
+      const statsData = await statsRes.json();
+      const eventsData = await eventsRes.json();
+      if (statsData.success) setSecStats(statsData.stats);
+      if (eventsData.success) setSecEvents(eventsData.events);
+    } finally { setSecLoading(false); }
+  };
+
   useEffect(() => {
     if (tab === 'llm' && !llmData) fetchLlmUsage();
     if (tab === 'sso') fetchSsoConfig();
+    if (tab === 'security') fetchSecurity();
   }, [tab]);
 
   const fmt = (d: string | null) => d ? new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
   const maxSig = Math.max(...(stats?.signupsByMonth?.map(s => Number(s.count)) ?? [1]), 1);
 
   const navItems: { id: Tab; label: string; icon: React.ReactNode; superadminOnly?: boolean }[] = [
-    { id: 'dashboard', label: 'Vue d\'ensemble', icon: <LayoutDashboard size={16} /> },
-    { id: 'users',     label: 'Utilisateurs',    icon: <Users size={16} /> },
+    { id: 'dashboard', label: 'Vue d\'ensemble',  icon: <LayoutDashboard size={16} /> },
+    { id: 'users',     label: 'Utilisateurs',     icon: <Users size={16} /> },
     { id: 'llm',       label: 'Consommation LLM', icon: <Zap size={16} /> },
-    { id: 'sso',       label: 'SSO / Identité',  icon: <Lock size={16} /> },
+    { id: 'sso',       label: 'SSO / Identité',   icon: <Lock size={16} /> },
+    { id: 'security',  label: 'Forteresse',        icon: <ShieldAlert size={16} />, superadminOnly: true },
   ];
 
   return (
@@ -823,6 +844,144 @@ const AdminPage: React.FC = () => {
                       ))}
                     </ol>
                   </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* ────────── FORTERESSE ────────── */}
+          {tab === 'security' && (
+            <div>
+              <SectionHeader
+                title="Forteresse"
+                subtitle="Surveillance de sécurité · Accès superadmin uniquement"
+                icon={<ShieldAlert size={18} />}
+                action={
+                  <button onClick={fetchSecurity} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px', background: T.canvas, border: `1px solid ${T.borderMid}`, borderRadius: 2, fontSize: 12, cursor: 'pointer', color: T.textSecond, fontFamily: font }}>
+                    <RefreshCw size={12} /> Actualiser
+                  </button>
+                }
+              />
+              {secLoading ? <Spinner /> : (
+                <>
+                  {/* KPI sécurité */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 20 }}>
+                    <div style={{ background: T.canvas, border: `1px solid ${T.border}`, borderLeft: `3px solid ${T.red}`, borderRadius: 4, padding: '14px 16px' }}>
+                      <div style={{ fontSize: 11, color: T.textSecond, fontFamily: font, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Tentatives échouées · 24h</div>
+                      <div style={{ fontSize: 28, fontWeight: 700, color: secStats && secStats.failedLogins24h > 5 ? T.red : T.textPrimary, fontFamily: font }}>{secStats?.failedLogins24h ?? 0}</div>
+                    </div>
+                    <div style={{ background: T.canvas, border: `1px solid ${T.border}`, borderLeft: `3px solid ${T.amber}`, borderRadius: 4, padding: '14px 16px' }}>
+                      <div style={{ fontSize: 11, color: T.textSecond, fontFamily: font, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Tentatives échouées · 7 jours</div>
+                      <div style={{ fontSize: 28, fontWeight: 700, color: T.textPrimary, fontFamily: font }}>{secStats?.failedLogins7d ?? 0}</div>
+                    </div>
+                    <div style={{ background: T.canvas, border: `1px solid ${T.border}`, borderLeft: `3px solid ${T.green}`, borderRadius: 4, padding: '14px 16px' }}>
+                      <div style={{ fontSize: 11, color: T.textSecond, fontFamily: font, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Connexions réussies · 24h</div>
+                      <div style={{ fontSize: 28, fontWeight: 700, color: T.green, fontFamily: font }}>{secStats?.successLogins24h ?? 0}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.6fr', gap: 16, marginBottom: 20 }}>
+                    {/* Top IPs suspectes */}
+                    <Card>
+                      <CardTitle>IPs avec le plus d'échecs (7j)</CardTitle>
+                      <div style={{ padding: '0 0 4px' }}>
+                        {!secStats?.topIps?.length ? (
+                          <div style={{ padding: '20px 16px', fontSize: 13, color: T.textDisable, fontFamily: font }}>Aucune IP suspecte détectée</div>
+                        ) : secStats.topIps.map((row, i) => (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 16px', borderBottom: `1px solid ${T.border}` }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <Globe size={13} color={T.textSecond} />
+                              <span style={{ fontSize: 13, fontFamily: 'monospace', color: T.textPrimary }}>{row.ip || '—'}</span>
+                            </div>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: Number(row.cnt) > 10 ? T.red : T.amber, background: Number(row.cnt) > 10 ? T.redBg : T.amberBg, padding: '1px 7px', borderRadius: 2 }}>
+                              {row.cnt} tentatives
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+
+                    {/* Dernières tentatives échouées */}
+                    <Card>
+                      <CardTitle>Dernières tentatives de connexion échouées</CardTitle>
+                      <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                          <thead>
+                            <tr>
+                              <th style={thCls}>Utilisateur</th>
+                              <th style={thCls}>IP</th>
+                              <th style={thCls}>Raison</th>
+                              <th style={thCls}>Date</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {!secStats?.recentFails?.length ? (
+                              <tr><td colSpan={4} style={{ ...tdCls, textAlign: 'center', color: T.textDisable }}>Aucune tentative récente</td></tr>
+                            ) : secStats.recentFails.map((f, i) => (
+                              <tr key={i} className="tr-row">
+                                <td style={tdCls}><span style={{ fontFamily: 'monospace', fontSize: 12 }}>{f.username || '—'}</span></td>
+                                <td style={tdCls}><span style={{ fontFamily: 'monospace', fontSize: 12 }}>{f.ip || '—'}</span></td>
+                                <td style={tdCls}>
+                                  <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 2, background: T.amberBg, color: T.amber, fontWeight: 600 }}>
+                                    {f.details?.reason === 'wrong_password' ? 'Mauvais mot de passe' : f.details?.reason === 'user_not_found' ? 'Utilisateur inconnu' : f.details?.reason || '—'}
+                                  </span>
+                                </td>
+                                <td style={{ ...tdCls, fontSize: 11, color: T.textSecond }}>
+                                  {new Date(f.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </Card>
+                  </div>
+
+                  {/* Journal complet */}
+                  <Card>
+                    <CardTitle>Journal des événements de sécurité (7 derniers jours)</CardTitle>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr>
+                            <th style={thCls}>Type</th>
+                            <th style={thCls}>Sévérité</th>
+                            <th style={thCls}>Utilisateur</th>
+                            <th style={thCls}>IP</th>
+                            <th style={thCls}>Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {secEvents.length === 0 ? (
+                            <tr><td colSpan={5} style={{ ...tdCls, textAlign: 'center', color: T.textDisable }}>Aucun événement enregistré</td></tr>
+                          ) : secEvents.slice(0, 100).map((ev) => {
+                            const isWarn = ev.severity === 'warning';
+                            const isInfo = ev.severity === 'info';
+                            return (
+                              <tr key={ev.id} className="tr-row">
+                                <td style={tdCls}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    {ev.type === 'login_failed' ? <AlertTriangle size={12} color={T.amber} /> : ev.type === 'login_success' ? <LogIn size={12} color={T.green} /> : <ShieldCheck size={12} color={T.brand} />}
+                                    <span style={{ fontSize: 12, fontFamily: 'monospace' }}>{ev.type}</span>
+                                  </div>
+                                </td>
+                                <td style={tdCls}>
+                                  <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 2, fontWeight: 600, background: isWarn ? T.amberBg : isInfo ? T.greenBg : T.redBg, color: isWarn ? T.amber : isInfo ? T.green : T.red }}>
+                                    {ev.severity}
+                                  </span>
+                                </td>
+                                <td style={{ ...tdCls, fontFamily: 'monospace', fontSize: 12 }}>{ev.username || '—'}</td>
+                                <td style={{ ...tdCls, fontFamily: 'monospace', fontSize: 12 }}>{ev.ip || '—'}</td>
+                                <td style={{ ...tdCls, fontSize: 11, color: T.textSecond }}>
+                                  {new Date(ev.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </Card>
                 </>
               )}
             </div>

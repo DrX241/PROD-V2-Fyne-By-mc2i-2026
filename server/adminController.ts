@@ -7,10 +7,14 @@ import { desc, count, sql, gte, eq } from 'drizzle-orm';
 import { generateUserReport } from './services/userReportService';
 
 export class AdminController {
-  // Liste tous les utilisateurs (sauf l'admin courant)
+  // Liste tous les utilisateurs — les superadmins sont masqués pour les admins
   static async listUsers(req: Request, res: Response) {
     try {
-      const allUsers = await db
+      const session = req.session as any;
+      const callerRole = session.user?.role;
+
+      const { ne } = await import('drizzle-orm');
+      const query = db
         .select({
           id: users.id,
           username: users.username,
@@ -25,6 +29,10 @@ export class AdminController {
         })
         .from(users)
         .orderBy(desc(users.createdAt));
+
+      const allUsers = callerRole === 'superadmin'
+        ? await query
+        : await query.where(ne(users.role, 'superadmin'));
 
       res.json({ success: true, users: allUsers });
     } catch (error) {
@@ -79,6 +87,7 @@ export class AdminController {
     try {
       const userId = parseInt(req.params.id);
       const session = req.session as any;
+      const callerRole = session.user?.role;
 
       if (userId === session.user.id) {
         return res.status(400).json({ success: false, message: 'Impossible de modifier votre propre compte' });
@@ -87,6 +96,13 @@ export class AdminController {
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ success: false, message: 'Utilisateur non trouvé' });
+      }
+
+      if (user.role === 'superadmin') {
+        return res.status(403).json({ success: false, message: 'Action non autorisée' });
+      }
+      if (callerRole === 'admin' && user.role === 'admin') {
+        return res.status(403).json({ success: false, message: 'Un administrateur ne peut pas modifier un autre administrateur' });
       }
 
       const { eq } = await import('drizzle-orm');
@@ -106,6 +122,8 @@ export class AdminController {
   static async resetPassword(req: Request, res: Response) {
     try {
       const userId = parseInt(req.params.id);
+      const session = req.session as any;
+      const callerRole = session.user?.role;
       const { newPassword } = req.body;
 
       if (!newPassword || newPassword.length < 6) {
@@ -115,6 +133,13 @@ export class AdminController {
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ success: false, message: 'Utilisateur non trouvé' });
+      }
+
+      if (user.role === 'superadmin') {
+        return res.status(403).json({ success: false, message: 'Action non autorisée' });
+      }
+      if (callerRole === 'admin' && user.role === 'admin') {
+        return res.status(403).json({ success: false, message: 'Un administrateur ne peut pas réinitialiser le mot de passe d\'un autre administrateur' });
       }
 
       const { eq } = await import('drizzle-orm');
@@ -136,9 +161,22 @@ export class AdminController {
     try {
       const userId = parseInt(req.params.id);
       const session = req.session as any;
+      const callerRole = session.user?.role;
 
       if (userId === session.user.id) {
         return res.status(400).json({ success: false, message: 'Impossible de supprimer votre propre compte' });
+      }
+
+      const target = await storage.getUser(userId);
+      if (!target) {
+        return res.status(404).json({ success: false, message: 'Utilisateur non trouvé' });
+      }
+
+      if (target.role === 'superadmin') {
+        return res.status(403).json({ success: false, message: 'Action non autorisée' });
+      }
+      if (callerRole === 'admin' && target.role === 'admin') {
+        return res.status(403).json({ success: false, message: 'Un administrateur ne peut pas supprimer un autre administrateur' });
       }
 
       const { eq } = await import('drizzle-orm');

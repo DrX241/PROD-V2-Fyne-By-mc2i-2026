@@ -1,6 +1,26 @@
 import bcrypt from 'bcryptjs';
 import { Request, Response } from 'express';
 import { storage } from './storage';
+import { db } from './db';
+import { securityEvents } from '@shared/schema';
+
+function getClientIp(req: Request): string {
+  return (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+}
+
+async function logSecurityEvent(type: string, severity: string, req: Request, extra: Record<string, unknown> = {}) {
+  try {
+    await db.insert(securityEvents).values({
+      type,
+      severity,
+      ip: getClientIp(req),
+      userAgent: req.headers['user-agent'] || null,
+      username: extra.username as string | undefined,
+      userId: extra.userId as number | undefined,
+      details: extra,
+    });
+  } catch { /* ne jamais bloquer l'auth pour un log */ }
+}
 
 export class AuthController {
   // Connexion utilisateur
@@ -17,27 +37,30 @@ export class AuthController {
 
       // Rechercher l'utilisateur
       const user = await storage.getUserByUsername(username);
-      
+
       if (!user) {
-        return res.status(401).json({ 
-          success: false, 
-          message: 'Identifiants invalides' 
+        await logSecurityEvent('login_failed', 'warning', req, { username, reason: 'user_not_found' });
+        return res.status(401).json({
+          success: false,
+          message: 'Identifiants invalides'
         });
       }
 
       // Vérifier le mot de passe
-      const isValidPassword = user.password ? 
+      const isValidPassword = user.password ?
         await bcrypt.compare(password, user.password) : false;
 
       if (!isValidPassword) {
-        return res.status(401).json({ 
-          success: false, 
-          message: 'Identifiants invalides' 
+        await logSecurityEvent('login_failed', 'warning', req, { username, userId: user.id, reason: 'wrong_password' });
+        return res.status(401).json({
+          success: false,
+          message: 'Identifiants invalides'
         });
       }
 
       // Mettre à jour la date de dernière connexion
       await storage.updateUserLastLogin(user.id);
+      await logSecurityEvent('login_success', 'info', req, { username: user.username, userId: user.id, role: user.role });
 
       // Stocker les informations utilisateur dans la session
       (req.session as any).user = {

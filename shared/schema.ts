@@ -424,6 +424,25 @@ export const ssoConfig = pgTable('sso_config', {
 
 export type SsoConfig = typeof ssoConfig.$inferSelect;
 
+// ─── SECURITY EVENTS ─────────────────────────────────────────────────────────
+export const securityEvents = pgTable('security_events', {
+  id: serial('id').primaryKey(),
+  type: varchar('type', { length: 50 }).notNull(),
+  severity: varchar('severity', { length: 20 }).notNull().default('info'),
+  ip: varchar('ip', { length: 64 }),
+  userAgent: text('user_agent'),
+  username: varchar('username', { length: 255 }),
+  userId: integer('user_id'),
+  details: jsonb('details'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => [
+  index('IDX_sec_events_type').on(table.type),
+  index('IDX_sec_events_date').on(table.createdAt),
+  index('IDX_sec_events_ip').on(table.ip),
+]);
+
+export type SecurityEvent = typeof securityEvents.$inferSelect;
+
 // ─── LMS COURSES ─────────────────────────────────────────────────────────────
 export const lmsCourses = pgTable('lms_courses', {
   id: varchar('id', { length: 36 }).primaryKey(),

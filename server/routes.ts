@@ -881,6 +881,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     req.on('close', () => clearInterval(interval));
   });
 
+  // ── Superadmin: Security Events ──────────────────────────────────────────
+  app.get('/api/superadmin/security-events', async (req: Request, res: Response) => {
+    if (req.session?.user?.role !== 'superadmin') {
+      return res.status(403).json({ success: false, error: 'Forbidden' });
+    }
+    try {
+      const { securityEvents } = await import('@shared/schema');
+      const { desc: descOrd, gte: gteOp } = await import('drizzle-orm');
+      const { db } = await import('./db');
+      const limit = Math.min(parseInt(req.query.limit as string) || 100, 500);
+      const since = req.query.since ? new Date(req.query.since as string) : new Date(Date.now() - 7 * 86400_000);
+      const events = await db
+        .select()
+        .from(securityEvents)
+        .where(gteOp(securityEvents.createdAt, since))
+        .orderBy(descOrd(securityEvents.createdAt))
+        .limit(limit);
+      res.json({ success: true, events });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message });
+    }
+  });
+
+  app.get('/api/superadmin/security-stats', async (req: Request, res: Response) => {
+    if (req.session?.user?.role !== 'superadmin') {
+      return res.status(403).json({ success: false, error: 'Forbidden' });
+    }
+    try {
+      const { securityEvents } = await import('@shared/schema');
+      const { sql: sqlFn } = await import('drizzle-orm');
+      const { db } = await import('./db');
+      const since24h = new Date(Date.now() - 86400_000);
+      const since7d  = new Date(Date.now() - 7 * 86400_000);
+
+      const [failedLogins24h, failedLogins7d, successLogins24h, topIps, recentFails] = await Promise.all([
+        db.execute(sqlFn`SELECT COUNT(*) AS cnt FROM security_events WHERE type = 'login_failed' AND created_at >= ${since24h}`),
+        db.execute(sqlFn`SELECT COUNT(*) AS cnt FROM security_events WHERE type = 'login_failed' AND created_at >= ${since7d}`),
+        db.execute(sqlFn`SELECT COUNT(*) AS cnt FROM security_events WHERE type = 'login_success' AND created_at >= ${since24h}`),
+        db.execute(sqlFn`SELECT ip, COUNT(*) AS cnt FROM security_events WHERE type = 'login_failed' AND created_at >= ${since7d} GROUP BY ip ORDER BY cnt DESC LIMIT 10`),
+        db.execute(sqlFn`SELECT username, ip, created_at, details FROM security_events WHERE type = 'login_failed' ORDER BY created_at DESC LIMIT 20`),
+      ]);
+
+      res.json({
+        success: true,
+        stats: {
+          failedLogins24h: Number((failedLogins24h.rows ?? [])[0]?.cnt ?? 0),
+          failedLogins7d: Number((failedLogins7d.rows ?? [])[0]?.cnt ?? 0),
+          successLogins24h: Number((successLogins24h.rows ?? [])[0]?.cnt ?? 0),
+          topIps: topIps.rows ?? [],
+          recentFails: recentFails.rows ?? [],
+        },
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message });
+    }
+  });
+
   // Permissions utilisateur connecté (modules activés)
   app.get('/api/auth/permissions', AuthController.requireAuth, (req: Request, res: Response) => {
     const session = req.session as any;
