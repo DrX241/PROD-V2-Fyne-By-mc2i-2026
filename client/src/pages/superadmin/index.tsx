@@ -7,6 +7,7 @@ import {
   Check, X, Edit2, Save, BarChart2, Lock, Unlock, Crown, UserCheck,
   Package, AlertTriangle, LogOut, Home, Building2, UserCog, ToggleLeft, ToggleRight,
   Server, HardDrive, Cpu, Database, Activity, Play, Layers, Wifi,
+  ShieldAlert, Globe, LogIn,
 } from 'lucide-react';
 
 const ALL_MODULES = [
@@ -57,7 +58,7 @@ const ALL_PERMISSIONS = [
   { id: 'evaluateur', label: 'Évaluateur', desc: 'Accès direct à l\'espace évaluation', color: 'bg-green-500' },
 ];
 
-type Tab = 'users' | 'subscriptions' | 'roles' | 'tokens' | 'clients' | 'system';
+type Tab = 'users' | 'subscriptions' | 'roles' | 'tokens' | 'clients' | 'system' | 'security';
 
 interface SystemHealth {
   disk: { used: string; total: string; usedPct: number; avail: string };
@@ -217,6 +218,24 @@ export default function SuperAdminPage() {
   const [liveMetrics, setLiveMetrics] = useState<{ cpu: number; mem: number; load1: number; load5: number } | null>(null);
   const sseRef = React.useRef<EventSource | null>(null);
 
+  // ── Security state ──
+  const [secStats, setSecStats] = useState<{ failedLogins24h: number; failedLogins7d: number; successLogins24h: number; topIps: { ip: string; cnt: string }[]; recentFails: { username: string; ip: string; created_at: string; details: any }[] } | null>(null);
+  const [secEvents, setSecEvents] = useState<{ id: number; type: string; severity: string; ip: string | null; username: string | null; created_at: string }[]>([]);
+  const [secLoading, setSecLoading] = useState(false);
+
+  async function fetchSecurity() {
+    setSecLoading(true);
+    try {
+      const [statsData, eventsData] = await Promise.all([
+        api('/api/superadmin/security-stats'),
+        api('/api/superadmin/security-events?limit=200'),
+      ]);
+      if (statsData.success) setSecStats(statsData.stats);
+      if (eventsData.success) setSecEvents(eventsData.events);
+    } catch (e: any) { setError(e.message); }
+    finally { setSecLoading(false); }
+  }
+
   // ── Clients state ──
   const [companies, setCompanies] = useState<ClientCompany[]>([]);
   const [companiesLoading, setCompaniesLoading] = useState(false);
@@ -251,6 +270,7 @@ export default function SuperAdminPage() {
 
   useEffect(() => { if (tab === 'tokens') fetchTokenStats(); }, [tab]);
   useEffect(() => { if (tab === 'clients') fetchCompanies(); }, [tab]);
+  useEffect(() => { if (tab === 'security') fetchSecurity(); }, [tab]);
   useEffect(() => {
     if (tab === 'system') {
       fetchSystemHealth();
@@ -465,7 +485,8 @@ export default function SuperAdminPage() {
     { id: 'roles', label: 'Gestion des rôles', icon: <Shield className="w-4 h-4" /> },
     { id: 'tokens', label: 'Quotas Tokens', icon: <Zap className="w-4 h-4" /> },
     { id: 'clients', label: 'Portail Clients', icon: <Building2 className="w-4 h-4" /> },
-    { id: 'system', label: 'Santé Système', icon: <Server className="w-4 h-4" /> },
+    { id: 'system',   label: 'Santé Système', icon: <Server className="w-4 h-4" /> },
+    { id: 'security', label: 'Forteresse',    icon: <ShieldAlert className="w-4 h-4" /> },
   ];
 
   if (user?.role !== 'superadmin') {
@@ -1305,6 +1326,130 @@ export default function SuperAdminPage() {
               </div>
             )}
           </>
+        )}
+
+        {/* ── TAB FORTERESSE ── */}
+        {tab === 'security' && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-bold flex items-center gap-2"><ShieldAlert className="w-5 h-5 text-red-400" /> Forteresse</h2>
+                <p className="text-sm text-gray-500 mt-1">Surveillance des accès · Tentatives d'intrusion · Journal de sécurité</p>
+              </div>
+              <button onClick={fetchSecurity} className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-white/10 transition-all">
+                <RefreshCw className="w-3 h-3" /> Actualiser
+              </button>
+            </div>
+
+            {secLoading ? (
+              <div className="flex items-center justify-center py-20 text-gray-500">Chargement...</div>
+            ) : (
+              <>
+                {/* KPI */}
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  <div className="bg-white/5 border border-red-500/20 rounded-xl p-4">
+                    <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Tentatives échouées · 24h</div>
+                    <div className={`text-4xl font-black ${secStats && secStats.failedLogins24h > 5 ? 'text-red-400' : 'text-white'}`}>{secStats?.failedLogins24h ?? 0}</div>
+                    {secStats && secStats.failedLogins24h > 5 && <div className="text-xs text-red-400 mt-1 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Activité suspecte</div>}
+                  </div>
+                  <div className="bg-white/5 border border-amber-500/20 rounded-xl p-4">
+                    <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Tentatives échouées · 7 jours</div>
+                    <div className="text-4xl font-black text-amber-400">{secStats?.failedLogins7d ?? 0}</div>
+                  </div>
+                  <div className="bg-white/5 border border-emerald-500/20 rounded-xl p-4">
+                    <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Connexions réussies · 24h</div>
+                    <div className="text-4xl font-black text-emerald-400">{secStats?.successLogins24h ?? 0}</div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  {/* Top IPs */}
+                  <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+                    <div className="px-4 py-3 border-b border-white/10 text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                      <Globe className="w-3 h-3" /> IPs suspectes · 7 jours
+                    </div>
+                    {!secStats?.topIps?.length ? (
+                      <div className="px-4 py-6 text-sm text-gray-600 text-center">Aucune IP suspecte</div>
+                    ) : secStats.topIps.map((row, i) => (
+                      <div key={i} className="flex items-center justify-between px-4 py-2.5 border-b border-white/5 hover:bg-white/5">
+                        <span className="font-mono text-sm text-gray-300">{row.ip || '—'}</span>
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${Number(row.cnt) > 10 ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                          {row.cnt} tentatives
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Derniers échecs */}
+                  <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+                    <div className="px-4 py-3 border-b border-white/10 text-xs font-semibold text-gray-400 uppercase tracking-wider">Dernières tentatives échouées</div>
+                    <table className="w-full text-xs">
+                      <thead><tr className="border-b border-white/5">
+                        <th className="px-4 py-2 text-left text-gray-500 font-medium">Utilisateur</th>
+                        <th className="px-4 py-2 text-left text-gray-500 font-medium">IP</th>
+                        <th className="px-4 py-2 text-left text-gray-500 font-medium">Raison</th>
+                        <th className="px-4 py-2 text-left text-gray-500 font-medium">Date</th>
+                      </tr></thead>
+                      <tbody>
+                        {!secStats?.recentFails?.length ? (
+                          <tr><td colSpan={4} className="px-4 py-6 text-center text-gray-600">Aucune tentative récente</td></tr>
+                        ) : secStats.recentFails.map((f, i) => (
+                          <tr key={i} className="border-b border-white/5 hover:bg-white/5">
+                            <td className="px-4 py-2 font-mono text-gray-300">{f.username || '—'}</td>
+                            <td className="px-4 py-2 font-mono text-gray-400">{f.ip || '—'}</td>
+                            <td className="px-4 py-2">
+                              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-medium">
+                                {f.details?.reason === 'wrong_password' ? 'Mauvais mdp' : f.details?.reason === 'user_not_found' ? 'Inconnu' : f.details?.reason || '—'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-2 text-gray-600">{new Date(f.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Journal complet */}
+                <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+                  <div className="px-4 py-3 border-b border-white/10 text-xs font-semibold text-gray-400 uppercase tracking-wider">Journal des événements · 7 derniers jours</div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead><tr className="border-b border-white/5">
+                        <th className="px-4 py-2 text-left text-gray-500 font-medium">Type</th>
+                        <th className="px-4 py-2 text-left text-gray-500 font-medium">Sévérité</th>
+                        <th className="px-4 py-2 text-left text-gray-500 font-medium">Utilisateur</th>
+                        <th className="px-4 py-2 text-left text-gray-500 font-medium">IP</th>
+                        <th className="px-4 py-2 text-left text-gray-500 font-medium">Date</th>
+                      </tr></thead>
+                      <tbody>
+                        {secEvents.length === 0 ? (
+                          <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-600">Aucun événement enregistré — les prochaines connexions apparaîtront ici</td></tr>
+                        ) : secEvents.slice(0, 100).map(ev => (
+                          <tr key={ev.id} className="border-b border-white/5 hover:bg-white/5">
+                            <td className="px-4 py-2">
+                              <div className="flex items-center gap-2">
+                                {ev.type === 'login_failed' ? <AlertTriangle className="w-3 h-3 text-amber-400" /> : <LogIn className="w-3 h-3 text-emerald-400" />}
+                                <span className="font-mono text-gray-300">{ev.type}</span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-2">
+                              <span className={`px-2 py-0.5 rounded-full font-medium ${ev.severity === 'warning' ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
+                                {ev.severity}
+                              </span>
+                            </td>
+                            <td className="px-4 py-2 font-mono text-gray-300">{ev.username || '—'}</td>
+                            <td className="px-4 py-2 font-mono text-gray-400">{ev.ip || '—'}</td>
+                            <td className="px-4 py-2 text-gray-600">{new Date(ev.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         )}
 
         {/* ── MODALS CLIENTS ── */}
