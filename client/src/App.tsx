@@ -129,6 +129,9 @@ function AppContent() {
                 <Route path="/cyber/arcade/cyber-escape">
                   {() => (<Suspense fallback={<div className="p-12 text-center text-white">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/arcade/cyber-escape/index")))}</Suspense>)}
                 </Route>
+                <Route path="/cyber/arcade/cyber-escape-v2">
+                  {() => (<Suspense fallback={<div className="p-12 text-center" style={{background:'#0a0e1a',color:'#fff'}}>Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/arcade/cyber-escape-iframe/index")))}</Suspense>)}
+                </Route>
                 <Route path="/cyber/arcade/bug-hunter/challenge/:id">
                   {() => (<Suspense fallback={<div className="p-12 text-center text-white">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/arcade/bug-hunter/challenge/[id]")))}</Suspense>)}
                 </Route>

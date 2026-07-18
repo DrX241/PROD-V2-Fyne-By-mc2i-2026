@@ -33,8 +33,8 @@ export default function CyberArcade() {
       description: 'Escape game immersif de haute volée : 15 minutes pour franchir 10 étapes avec des défis de cybersécurité réalistes. Chronomètre et médailles en jeu !',
       icon: <Shield size={15} color="#64748b" />,
       gradient: 'from-green-600 to-blue-700',
-      available: false,
-      comingSoon: true,
+      available: true,
+      comingSoon: false,
       route: '/cyber/arcade/cyber-escape-v2'
     },
     {
