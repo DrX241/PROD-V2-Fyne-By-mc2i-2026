@@ -130,7 +130,7 @@ export default function CyberAcademie() {
 
           {/* Back */}
           <button
-            onClick={() => setLocation('/cyber/sas-academie')}
+            onClick={() => setLocation('/cyber/academie')}
             style={{
               display: 'flex',
               alignItems: 'center',

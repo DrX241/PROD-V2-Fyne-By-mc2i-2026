@@ -741,7 +741,7 @@ export default function LearningCenter() {
       {/* En-tête avec navigation et titre */}
       <div className="border-b border-blue-800/60">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-          <Link href="/cyber/sas-academie">
+          <Link href="/cyber/academie">
             <Button variant="ghost" className="text-blue-300 hover:bg-blue-900/30 hover:text-blue-200">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Retour

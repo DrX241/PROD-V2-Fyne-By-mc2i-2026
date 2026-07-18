@@ -43,7 +43,6 @@ import CyberV3 from "./pages/cyber-v3";
 // Import des pages cyber
 import CyberRoleplay from "./pages/cyber/roleplay/index";
 import CyberArcade from "./pages/cyber/arcade";
-import SasCyberAcademie from "./pages/cyber/sas-academie";
 import CrisisManagementPage from "./pages/cyber/crisis-management";
 import CrisisBriefing from "./pages/cyber/crisis-management/briefing";
 import ComexTrainingPage from "./pages/cyber/comex-training";
@@ -106,7 +105,7 @@ function AppContent() {
                 {/* Routes des modules */}
                 <Route path="/cyber" component={CyberV3} />
                 <Route path="/cyber/roleplay" component={CyberRoleplay} />
-                <Route path="/cyber/sas-academie" component={SasCyberAcademie} />
+                <Route path="/cyber/sas-academie">{() => { window.location.replace('/cyber/academie'); return null; }}</Route>
                 <Route path="/cyber/academie/studio-ia">
                   {() => (<Suspense fallback={<div className="p-12 text-center">Chargement...</div>}>{React.createElement(lazy(() => import("./pages/cyber/academie/studio-ia")))}</Suspense>)}
                 </Route>

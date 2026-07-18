@@ -1371,7 +1371,7 @@ export default function AttackSimulator() {
 
       {/* Top bar */}
       <div style={{ borderBottom: `1px solid ${T.line}`, padding: '10px 28px', display: 'flex', alignItems: 'center', gap: 14, background: T.bg, flexShrink: 0 }}>
-        <button onClick={() => navigate('/cyber/sas-academie')} style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'none', border: 'none', cursor: 'pointer', color: T.muted, fontSize: 10, fontFamily: T.MONO, padding: 0 }}>
+        <button onClick={() => navigate('/cyber/academie')} style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'none', border: 'none', cursor: 'pointer', color: T.muted, fontSize: 10, fontFamily: T.MONO, padding: 0 }}>
           <ChevronLeft size={11} /> Retour
         </button>
         <div style={{ width: 1, height: 14, background: T.line }} />
